@@ -211,6 +211,7 @@ type LeaveProjectPayload {
 }
 
 type LexAuthUser {
+  isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
