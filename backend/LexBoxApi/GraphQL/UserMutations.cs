@@ -77,6 +77,23 @@ public class UserMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<InvalidOperationException>]
+    [AdminRequired]
+    public async Task<User> SendNewVerificationEmailByAdmin(
+        Guid userId,
+        LexBoxDbContext dbContext,
+        IEmailService emailService
+    )
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        NotFoundException.ThrowIfNull(user);
+        if (string.IsNullOrEmpty(user.Email)) throw new InvalidOperationException("User account does not have an email address");
+        await emailService.SendVerifyAddressEmail(user);
+        return user;
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
     [Error<UniqueValueException>]
     [Error<RequiredException>]
     [AdminRequired]
