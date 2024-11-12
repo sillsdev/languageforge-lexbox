@@ -11,8 +11,6 @@ namespace Testing.ApiTests;
 [Trait("Category", "Integration")]
 public class FlexJwtTests : ApiTestBase
 {
-    private static readonly JwtSecurityTokenHandler TokenHandler = new();
-
     private async Task<string> GetFlexJwt()
     {
         var userJwt = await JwtHelper.GetJwtForUser(new SendReceiveAuth("manager",
@@ -23,9 +21,7 @@ public class FlexJwtTests : ApiTestBase
 
     private LexAuthUser ParseUserToken(string jwt)
     {
-        var outputJwt = TokenHandler.ReadJwtToken(jwt);
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
-        return LexAuthUser.FromClaimsPrincipal(principal) ?? throw new NullReferenceException("User was null");
+        return JwtHelper.ToLexAuthUser(jwt);
     }
 
     [Fact]
