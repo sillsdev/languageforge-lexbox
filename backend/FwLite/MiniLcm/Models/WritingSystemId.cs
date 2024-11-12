@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SIL.WritingSystems;
 
 namespace MiniLcm.Models;
 
@@ -26,11 +27,26 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 }
 
 [JsonConverter(typeof(WritingSystemIdJsonConverter))]
-public readonly record struct WritingSystemId(string Code): ISpanFormattable, ISpanParsable<WritingSystemId>
+public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<WritingSystemId>
 {
+    public string Code { get; init; }
+
+    public WritingSystemId(string code)
+    {
+        if (code == "default" || IetfLanguageTag.IsValid(code))
+        {
+            Code = code;
+        }
+        else
+        {
+            throw new ArgumentException($"Invalid writing system ID {code}", nameof(code));
+        }
+    }
+
     public static implicit operator string(WritingSystemId ws) => ws.Code;
     public static implicit operator WritingSystemId(string code) => new(code);
     public static implicit operator WritingSystemId(ReadOnlySpan<char> code) => new(new string(code));
+
     public override string ToString()
     {
         return Code;
