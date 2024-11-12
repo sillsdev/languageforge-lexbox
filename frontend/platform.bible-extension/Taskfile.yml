@@ -12,13 +12,15 @@ tasks:
       - npm install
 
   package:
-    deps: [ build-local-web-app, build-viewer-component, install ]
+    deps: [ build-viewer-component, install ]
     cmds:
+      - task build-local-web-app
       - npm run package
 
   run:
-    deps: [ build-local-web-app, build-viewer-component, install ]
+    deps: [ build-viewer-component, install ]
     cmds:
+      - task build-local-web-app
       - npm run start
 
   build-local-web-app:
