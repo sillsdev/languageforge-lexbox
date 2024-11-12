@@ -107,6 +107,10 @@
     void updateRepoSize();
   }
 
+  function sizeStrInMb(sizeInKb: number): string {
+    return `${$number(sizeInKb / 1024, {maximumFractionDigits: 1})} MB`;
+  }
+
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
     loadingEntryCount = true;
@@ -414,8 +418,7 @@
       {#if loadingRepoSize}
         <Loader loading={loadingRepoSize} size="loading-xs" />
       {:else}
-        <!-- TODO: Might be nice to create a size formatter that will convert to megabytes/gigabytes as appropriate -->
-        <DetailItem title={$t('project_page.repo_size')} text={$number(project.repoSizeInKb) + ' kB'} />
+        <DetailItem title={$t('project_page.repo_size')} text={sizeStrInMb(project.repoSizeInKb ?? 0)} />
       {/if}
       {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
