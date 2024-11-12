@@ -234,6 +234,15 @@ public record LexAuthUser
             LexAuthConstants.EmailClaimType,
             LexAuthConstants.RoleClaimType));
     }
+
+    public bool IsProjectMember(Guid projectId, ProjectRole? role = null)
+    {
+        if (role is not null)
+        {
+            return Projects.Any(p => p.ProjectId == projectId && p.Role == role);
+        }
+        return Projects.Any(p => p.ProjectId == projectId);
+    }
 }
 
 public record AuthUserProject(ProjectRole Role, Guid ProjectId);

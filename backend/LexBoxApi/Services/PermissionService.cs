@@ -47,7 +47,7 @@ public class PermissionService(
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
         if (User.Projects is null) return false;
-        return User.Projects.Any(p => p.ProjectId == projectId);
+        return User.IsProjectMember(projectId);
     }
 
     public async ValueTask<bool> CanSyncProjectAsync(Guid projectId)
@@ -71,7 +71,7 @@ public class PermissionService(
     {
         var user = overrideUser ?? User;
         if (user is not null && user.Role == UserRole.admin) return true;
-        if (user is not null && user.Projects.Any(p => p.ProjectId == projectId)) return true;
+        if (user is not null && user.IsProjectMember(projectId)) return true;
         // Org admins can view all projects, even confidential ones
         if (await ManagesOrgThatOwnsProject(projectId)) return true;
         var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
@@ -100,6 +100,8 @@ public class PermissionService(
         if (User is not null && User.Role == UserRole.admin) return true;
         // Project managers can view members of their own projects, even confidential ones
         if (await CanManageProject(projectId)) return true;
+        // non members can't view project members
+        if (User?.IsProjectMember(projectId) != true) return false;
         var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
         // In this specific case (only), we assume public unless explicitly set to private
         return !(isConfidential ?? false);
@@ -109,7 +111,7 @@ public class PermissionService(
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        if (User.Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager)) return true;
+        if (User.IsProjectMember(projectId, ProjectRole.Manager)) return true;
         return await ManagesOrgThatOwnsProject(projectId);
     }
 
