@@ -23,6 +23,7 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     [Theory]
     [InlineData("en")]
     [InlineData("th")]
+    [InlineData("en-Zxxx-x-audio")]
     public void ValidWritingSystemId_ShouldNotThrow(string code)
     {
         var ws = new WritingSystemId(code);
@@ -33,6 +34,7 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     [InlineData("gx")]
     [InlineData("oo")]
     [InlineData("eng")] // Three-letter codes not allowed when there's a valid two-letter code
+    [InlineData("eng-Zxxx-x-audio")]
     [InlineData("nonsense")]
     public void InvalidWritingSystemId_ShouldThrow(string code)
     {
