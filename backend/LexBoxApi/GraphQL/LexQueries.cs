@@ -22,10 +22,6 @@ public class LexQueries
         LexBoxDbContext dbContext,
         IResolverContext context)
     {
-        //todo remove this workaround once the issue is fixed
-        context =
-            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
-            context;
         var userId = loggedInContext.User.Id;
         var myProjects = await dbContext.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId))
             .AsNoTracking().Project(context).ToListAsync();
@@ -132,10 +128,6 @@ public class LexQueries
         IResolverContext context,
         string code)
     {
-        //todo remove this workaround once the issue is fixed
-        context =
-            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
-            context;
         var project = await dbContext.Projects.Where(p => p.Code == code).AsNoTracking().Project(context).SingleOrDefaultAsync();
 
         if (project is null) return project;
@@ -173,10 +165,6 @@ public class LexQueries
         LoggedInContext loggedInContext,
         IResolverContext context)
     {
-        //todo remove this workaround once the issue is fixed
-        context =
-            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
-            context;
         var userId = loggedInContext.User.Id;
         var myOrgs = await dbContext.Orgs.Where(o => o.Members.Any(m => m.UserId == userId))
             .AsNoTracking().Project(context).ToListAsync();
