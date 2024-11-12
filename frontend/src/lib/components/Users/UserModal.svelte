@@ -6,6 +6,9 @@
   import { NULL_LABEL } from '$lib/i18n';
   import IconButton from '$lib/components/IconButton.svelte';
   import AdminContent from '$lib/layout/AdminContent.svelte';
+  import {_sendNewVerificationEmailByAdmin} from '../../../routes/(authenticated)/admin/+page';
+  import type {UUID} from 'crypto';
+  import {useNotifications} from '$lib/notify';
 
   type User = {
     id: string;
@@ -30,8 +33,13 @@
     await userDetailsModal.openModal(true, true);
   }
 
+  const { notifySuccess } = useNotifications();
+
   // eslint-disable-next-line func-style
-  export let sendVerificationEmail = (_: User): void => {};
+  async function sendVerificationEmail(user: User): Promise<void> {
+    await _sendNewVerificationEmailByAdmin(user.id as UUID);
+    notifySuccess($t('admin_dashboard.notifications.verification_email_sent', { email: user.email ?? '' }));
+  }
 </script>
 
 <Modal bind:this={userDetailsModal} bottom>

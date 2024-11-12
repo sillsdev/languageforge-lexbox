@@ -9,7 +9,7 @@
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
   import { RefineFilterMessage } from '$lib/components/Table';
-  import { _sendNewVerificationEmailByAdmin, type AdminSearchParams, type User } from './+page';
+  import { type AdminSearchParams, type User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
   import { derived } from 'svelte/store';
@@ -23,7 +23,6 @@
   import { browser } from '$app/environment';
   import UserTable from '$lib/components/Users/UserTable.svelte';
   import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
-  import type {UUID} from 'crypto';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -109,11 +108,6 @@
     notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
     $queryParamValues.userSearch = user.emailOrUsername;
   }
-
-  async function sendNewVerificationEmailByAdmin(user: User): Promise<void> {
-    await _sendNewVerificationEmailByAdmin(user.id as UUID);
-    notifySuccess($t('admin_dashboard.notifications.verification_email_sent', { email: user.email ?? '' }));
-  }
 </script>
 
 <svelte:head>
@@ -176,6 +170,6 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
-  <UserModal bind:this={userModal} sendVerificationEmail={sendNewVerificationEmailByAdmin} />
+  <UserModal bind:this={userModal}/>
   <CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
 </main>
