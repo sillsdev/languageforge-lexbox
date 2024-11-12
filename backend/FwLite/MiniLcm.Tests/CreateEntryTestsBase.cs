@@ -26,7 +26,9 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         var createdEntry = await Api.CreateEntry(entry);
         createdEntry.Should().BeEquivalentTo(entry, options => options
             .For(e => e.Components).Exclude(e => e.Id)
-            .For(e => e.ComplexForms).Exclude(e => e.Id));
+            .For(e => e.ComplexForms).Exclude(e => e.Id)
+            //predefined is always true in fwdata bridge, so we need to exclude it for now
+            .For(e => e.Senses).For(s => s.SemanticDomains).Exclude(s => s.Predefined));
     }
 
     [Fact]
