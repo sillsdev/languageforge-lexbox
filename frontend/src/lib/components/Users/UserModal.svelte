@@ -4,6 +4,8 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import UserLockedAlert from './UserLockedAlert.svelte';
   import { NULL_LABEL } from '$lib/i18n';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
 
   type User = {
     id: string;
@@ -27,6 +29,9 @@
     user = _user;
     await userDetailsModal.openModal(true, true);
   }
+
+  // eslint-disable-next-line func-style
+  export let sendVerificationEmail = (_: User): void => {};
 </script>
 
 <Modal bind:this={userDetailsModal} bottom>
@@ -50,6 +55,14 @@
                 data-tip={$t('admin_dashboard.email_not_verified')}>
                 <span class="i-mdi-help-circle-outline" />
               </span>
+              <AdminContent>
+                <IconButton
+                  size="btn-sm"
+                  icon="i-mdi-email"
+                  title={$t('admin_dashboard.resend_verification_email')}
+                  on:click={() => sendVerificationEmail(user)}
+                />
+              </AdminContent>
             {/if}
           {:else}
             –

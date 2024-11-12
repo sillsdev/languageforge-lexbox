@@ -13,6 +13,7 @@
   let loadingSize = size === 'btn-sm' ? 'loading-xs' as const : undefined;
   export let outline = variant !== 'btn-ghost';
   export let fake = false; // for display purposes only
+  export let title: string | undefined = undefined;
 
   const xlIcons: IconString[] = ['i-mdi-refresh'];
   $: textSize = xlIcons.includes(icon) ? 'text-xl' : 'text-lg';
@@ -21,6 +22,7 @@
 <!-- type="button" ensures the button doen't act as a submit button when in a form -->
 <button type="button" on:click
   disabled={disabled && !loading}
+  {title}
   class:pointer-events-none={fake || loading}
   class="btn btn-square {variant ?? ''} {size ?? ''} {$$restProps.class ?? ''}"
   class:btn-outline={outline}
