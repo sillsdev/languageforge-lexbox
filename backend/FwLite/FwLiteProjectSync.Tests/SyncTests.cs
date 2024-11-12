@@ -215,6 +215,85 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task SemanticDomainsSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var semdom3 = new SemanticDomain()
+        {
+            Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
+            Name = new MultiString() { { "en", "Language and thought" } },
+            Code = "3",
+            Predefined = true,
+        };
+        await fwdataApi.CreateSemanticDomain(semdom3);
+
+        var semdom4 = new SemanticDomain()
+        {
+            Id = new Guid("62b4ae33-f3c2-447a-9ef7-7e41805b6a02"),
+            Name = new MultiString() { { "en", "Social behavior" } },
+            Code = "4",
+            Predefined = true,
+        };
+        await crdtApi.CreateSemanticDomain(semdom4);
+
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtSemanticDomains = await crdtApi.GetSemanticDomains().ToArrayAsync();
+        var fwdataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
+        crdtSemanticDomains.Should().ContainEquivalentOf(semdom3);
+        crdtSemanticDomains.Should().ContainEquivalentOf(semdom4);
+        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom3);
+        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom4);
+
+        crdtSemanticDomains.Should().BeEquivalentTo(fwdataSemanticDomains);
+    }
+
+    [Fact]
+    public async Task SemanticDomainsSyncInEntries()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var semdom3 = new SemanticDomain()
+        {
+            Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
+            Name = new MultiString() { { "en", "Language and thought" } },
+            Code = "3",
+            Predefined = true,
+        };
+        await fwdataApi.CreateSemanticDomain(semdom3);
+        // Note we do *not* call crdtApi.CreateSemanticDomain(semdom3);
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, SemanticDomains = [ semdom3 ] }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, SemanticDomains = [ semdom3 ] }
+            ]
+        });
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;

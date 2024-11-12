@@ -24,6 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
+      <!-- json files get imported by default because this is a web project, so exclude those here so they aren't imported again below -->
+      <Content Remove="Mercurial\contrib\asv.conf.json"/>
       <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
       <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
   </ItemGroup>
