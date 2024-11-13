@@ -5,10 +5,9 @@ import {
   type SavedWebViewDefinition,
   type WebViewDefinition,
 } from '@papi/core';
-import type {
-  DoStuffEvent, FindEntryEvent, LaunchServerEvent,
-} from 'fw-lite-extension';
+import type {FindEntryEvent, LaunchServerEvent} from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
+import extensionTemplatestyles from './styles.css?inline';
 import type {GetWebViewOptions} from 'shared/models/web-view.model';
 
 logger.info('FwLite extension is importing!');
@@ -28,6 +27,7 @@ const reactWebViewProvider: IWebViewProvider = {
       ...savedWebView,
       title: 'FW Lite Extension React',
       content: extensionTemplateReact,
+      styles: extensionTemplatestyles,
       iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png'
     };
   },
