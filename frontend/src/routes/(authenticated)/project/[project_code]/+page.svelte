@@ -90,6 +90,10 @@
     if (urlValues.addUserId && urlValues.addUserName && addProjectMember) {
       void addProjectMember.openModal(urlValues.addUserId, urlValues.addUserName);
     }
+
+    if (project && project.repoSizeInKb == null) {
+      void updateRepoSize();
+    }
   });
 
   let addProjectMember: AddProjectMember;
@@ -101,10 +105,6 @@
     loadingRepoSize = true;
     await _updateProjectRepoSizeInKb(project.code);
     loadingRepoSize = false;
-  }
-
-  $: if (project.repoSizeInKb == null) {
-    void updateRepoSize();
   }
 
   function sizeStrInMb(sizeInKb: number): string {
