@@ -66,7 +66,7 @@
                 <div class="tooltip" data-tip={$t('admin_dashboard.resend_verification_email')}>
                   <IconButton
                     size="btn-sm"
-                    icon="i-mdi-email"
+                    icon="i-mdi-email-sync"
                     on:click={() => sendVerificationEmail(user)}
                   />
                 </div>
