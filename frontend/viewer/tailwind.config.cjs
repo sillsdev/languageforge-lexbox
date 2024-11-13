@@ -11,6 +11,9 @@ module.exports = {
   },
   plugins: [
     iconsPlugin({
+      // Root source: https://github.com/Templarian/MaterialDesign
+      // Our source (that pulls from ☝️): https://www.npmjs.com/package/@iconify-json/mdi
+      // Search showing aliases and version (of root source) icons were introduced: https://pictogrammers.com/library/mdi/
       collections: getIconCollections(['mdi']),
     }),
     svelteUx({ colorSpace: 'oklch' }),

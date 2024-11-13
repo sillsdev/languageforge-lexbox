@@ -84,7 +84,7 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
         var myProjects = json["data"]!["myProjects"]!.AsArray();
         var ids = myProjects.Select(p => p!["id"]!.GetValue<Guid>());
 
-        projects.Select(p => p.id).ShouldBeSubsetOf(ids);
+        projects.Select(p => p.Id).ShouldBeSubsetOf(ids);
     }
 
     [Fact]

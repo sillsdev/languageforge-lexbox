@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using MiniLcm.Models;
 
 namespace MiniLcm;
@@ -13,6 +13,7 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
     Task<PartOfSpeech?> GetPartOfSpeech(Guid id);
+    Task<SemanticDomain?> GetSemanticDomain(Guid id);
 }
 
 public record QueryOptions(

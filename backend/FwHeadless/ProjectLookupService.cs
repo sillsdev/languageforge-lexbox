@@ -1,5 +1,6 @@
 using LexData;
 using Microsoft.EntityFrameworkCore;
+using SIL.Harmony.Core;
 
 namespace FwHeadless;
 
@@ -12,5 +13,10 @@ public class ProjectLookupService(LexBoxDbContext dbContext)
             .Select(p => p.Code)
             .FirstOrDefaultAsync();
         return projectCode;
+    }
+
+    public async Task<bool> IsCrdtProject(Guid projectId)
+    {
+        return await dbContext.Set<ServerCommit>().AnyAsync(c => c.ProjectId == projectId);
     }
 }

@@ -1,8 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using System.Text.Json;
 using LexBoxApi.Auth;
+using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
+using Mono.Unix.Native;
 using Polly;
 using Shouldly;
 using Testing.ApiTests;
@@ -79,5 +83,13 @@ public class JwtHelper
         {
             cookie.Expired = true;
         }
+    }
+
+    private static readonly JwtSecurityTokenHandler TokenHandler = new();
+    public static LexAuthUser ToLexAuthUser(string jwt)
+    {
+        var outputJwt = TokenHandler.ReadJwtToken(jwt);
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
+        return LexAuthUser.FromClaimsPrincipal(principal) ?? throw new NullReferenceException("User was null");
     }
 }

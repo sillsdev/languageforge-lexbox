@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
 using Shouldly;
@@ -15,6 +16,7 @@ public class ApiTestBase
     private readonly SocketsHttpHandler _httpClientHandler;
     public readonly HttpClient HttpClient;
     public string? CurrJwt { get; private set; }
+    public LexAuthUser CurrentUser => JwtHelper.ToLexAuthUser(CurrJwt!);
 
     public ApiTestBase()
     {
