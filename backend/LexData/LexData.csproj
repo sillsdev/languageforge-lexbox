@@ -16,7 +16,7 @@
       <PackageReference Include="Npgsql" Version="8.0.5" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
       <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.8.0" />
-</ItemGroup>
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\harmony\src\SIL.Harmony.Core\SIL.Harmony.Core.csproj" />
