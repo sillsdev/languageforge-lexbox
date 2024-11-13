@@ -55,7 +55,6 @@
   import { onMount } from 'svelte';
   import { getSearchParamValues } from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
-  import Loader from '$lib/components/Loader.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -415,11 +414,7 @@
       <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
       <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
       <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
-      {#if loadingRepoSize}
-        <Loader loading={loadingRepoSize} size="loading-xs" />
-      {:else}
-        <DetailItem title={$t('project_page.repo_size')} text={sizeStrInMb(project.repoSizeInKb ?? 0)} />
-      {/if}
+      <DetailItem title={$t('project_page.repo_size')} loading={loadingRepoSize} text={sizeStrInMb(project.repoSizeInKb ?? 0)} />
       {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
           <AdminContent slot="extras">
