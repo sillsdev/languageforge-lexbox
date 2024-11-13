@@ -1,10 +1,10 @@
-import { getClient, graphql } from '$lib/gql';
+import {getClient, graphql} from '$lib/gql';
 
-import type { PageLoadEvent } from './$types';
-import { type LexAuthUser } from '$lib/user';
-import { redirect } from '@sveltejs/kit';
+import type {PageLoadEvent} from './$types';
+import {type LexAuthUser} from '$lib/user';
+import {redirect} from '@sveltejs/kit';
 import {getBoolSearchParam, getSearchParam} from '$lib/util/query-params';
-import { isGuid } from '$lib/util/guid';
+import {isGuid} from '$lib/util/guid';
 import type {
   $OpResult,
   ChangeUserAccountByAdminInput,
@@ -18,11 +18,12 @@ import type {
   UserFilterInput,
 } from '$lib/gql/types';
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
-import type { ProjectFilters } from '$lib/components/Projects';
-import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
-import type { AdminTabId } from './AdminTabs.svelte';
-import { derived, readable } from 'svelte/store';
-import type { UserType } from '$lib/components/Users/UserFilter.svelte';
+import type {ProjectFilters} from '$lib/components/Projects';
+import {DEFAULT_PAGE_SIZE} from '$lib/components/Paging';
+import type {AdminTabId} from './AdminTabs.svelte';
+import {derived, readable} from 'svelte/store';
+import type {UserType} from '$lib/components/Users/UserFilter.svelte';
+import type {UUID} from 'crypto';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
 export type AdminSearchParams = ProjectFilters & {
@@ -41,7 +42,6 @@ export async function load(event: PageLoadEvent) {
   requireAdmin(parentData.user);
 
   const withDeletedProjects = getBoolSearchParam<AdminSearchParams>('showDeletedProjects', event.url.searchParams);
-  const userSearch = getSearchParam<AdminSearchParams>('userSearch', event.url.searchParams) ?? '';
   const memberSearch = getSearchParam<AdminSearchParams>('memberSearch', event.url.searchParams);
 
   const client = getClient();
@@ -52,8 +52,6 @@ export async function load(event: PageLoadEvent) {
   const draftFilter: DraftProjectFilterInput = {
     ...(memberSearch ? { projectManager: { or: [ { email: { eq: memberSearch } }, { username: { eq: memberSearch } } ] } } : {})
   };
-
-
 
   //language=GraphQL
   const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
@@ -75,7 +73,11 @@ export async function load(event: PageLoadEvent) {
               userCount
             }
             draftProjects(
-              where: $draftFilter
+              where: $draftFilter,
+              orderBy: [
+                { createdDate: DESC },
+                { name: ASC }
+              ]
             ) {
               code
               id
@@ -91,13 +93,7 @@ export async function load(event: PageLoadEvent) {
         }
     `), { withDeletedProjects, projectFilter, draftFilter });
 
-  const userFilter: UserFilterInput = isGuid(userSearch) ? {id: {eq: userSearch}} : {
-    or: [
-      {name: {icontains: userSearch}},
-      {email: {icontains: userSearch}},
-      {username: {icontains: userSearch}}
-    ]
-  };
+  const userFilter = buildUserSearchFilter(event.url.searchParams, parentData.user);
   const userResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
         query loadAdminDashboardUsers($filter: UserFilterInput, $take: Int!) {
             users(
@@ -137,6 +133,43 @@ export async function load(event: PageLoadEvent) {
     draftProjects: derived(projectResults.draftProjects ?? readable([]), (draftProjects) => draftProjects ?? []),
     ...userResults,
   }
+}
+
+function buildUserSearchFilter(searchParams: URLSearchParams, user: LexAuthUser): UserFilterInput {
+  const userSearch = getSearchParam<AdminSearchParams>('userSearch', searchParams) ?? '';
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- false positive?
+  const userType = getSearchParam<AdminSearchParams, UserType>('userType', searchParams);
+  const onlyUsersICreated = getBoolSearchParam<AdminSearchParams>('usersICreated', searchParams);
+
+  const userFilter: UserFilterInput = {};
+
+  if (isGuid(userSearch)) {
+    userFilter.id = { eq: userSearch };
+  } else {
+    userFilter.or = [
+      { name: { icontains: userSearch } },
+      { email: { icontains: userSearch } },
+      { username: { icontains: userSearch } }
+    ];
+  }
+
+  switch (userType) {
+    case 'admin':
+      userFilter.isAdmin = { eq: true };
+      break;
+    case 'nonAdmin':
+      userFilter.isAdmin = { eq: false };
+      break;
+    case 'guest':
+      userFilter.createdById = { neq: null };
+      break;
+  }
+
+  if (onlyUsersICreated) {
+    userFilter.createdById = { eq: user.id as UUID };
+  }
+
+  return userFilter;
 }
 
 function requireAdmin(user: LexAuthUser | null): void {

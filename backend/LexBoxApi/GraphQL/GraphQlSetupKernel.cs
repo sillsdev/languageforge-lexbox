@@ -50,10 +50,6 @@ public static class GraphQlSetupKernel
                 options.IncludeExceptionDetails = true;
             })
             .AddType<DbErrorCode>()
-            .AddType(new DateTimeType("DateTime"))
-            .AddType(new UuidType("UUID"))
-            .AddType(new DateTimeType("timestamptz"))
-            .AddType(new UuidType("uuid"))
             .AddInstrumentation(options =>
             {
                 options.IncludeDocument = true;

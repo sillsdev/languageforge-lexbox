@@ -27,13 +27,15 @@ There are some exceptions:
    * linux: `sudo snap install task --classic` or other options on their website
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
- * install [Tilt](https://docs.tilt.dev/) and add it to your path
-   * on Linux, a good practice is to create `$HOME/.local/bin` and put binaries there; most distributions automatically add `$HOME/.local/bin` to your path if it exists
-     * don't forget to run `chmod +x $HOME/.local/bin/tilt`
-   * on Windows, we suggest creating a `bin` folder in your home folder. Put the Tilt binary there, then do the following:
+ * install [Tilt](https://docs.tilt.dev/) and add it to your path (don't forget to read the script before running it)
+   * on Linux, the script will install tilt into `$HOME/.local/bin`, creating it if it doesn't exist
+     * most Linux distributions put `$HOME/.local/bin` in your PATH automatically. If `tilt version` doesn't work, log out and log back in and it should work; otherwise you'll need to add it to your PATH in `$HOME/.bashrc` or equivalent.
+   * on Windows, the Tilt installer will create a `bin` folder in your home folder and put the Tilt binary there
+     * you will then need to do the following to make sure the Tilt binary is in your PATH:
      * go to your System properties, click the **Advanced** tab, and click **Environment Variables...**
      * Click the Path variable (in either User or System, User is recommended) and click the **Edit...** button
-     * Add `C:\Users\YOUR_USER_NAME\bin` to the list and click **OK**
+     * Add `C:\Users\YOUR_USER_NAME\bin` to the list (if it's not already there) and click **OK**
+ * run `tilt version` to check that Tilt is installed correctly
  * clone the repo
  * run `git push` to make sure your GitHub credentials are set up
    * on Windows, allow the Git Credential Manager to log in to GitHub via your browser

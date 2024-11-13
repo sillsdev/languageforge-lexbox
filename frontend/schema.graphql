@@ -211,6 +211,7 @@ type LeaveProjectPayload {
 }
 
 type LexAuthUser {
+  isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -277,19 +278,19 @@ type NotFoundError implements Error {
 }
 
 type OrgById {
+  id: UUID!
   members: [OrgByIdMember!]!
   name: String!
   projects: [Project!]!
   memberCount: Int!
   projectCount: Int!
-  id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
 }
 
 type OrgByIdMember {
-  user: OrgByIdUser!
   userId: UUID!
+  user: OrgByIdUser!
   orgId: UUID!
   role: OrgRole!
   organization: Organization
@@ -409,9 +410,9 @@ type ProjectMembersMustBeVerifiedForRole implements Error {
 }
 
 type ProjectUsers {
+  userId: UUID!
   user: User!
   project: Project!
-  userId: UUID!
   projectId: UUID!
   role: ProjectRole!
   id: UUID!
@@ -1248,13 +1249,10 @@ directive @listSize("The `assumedSize` argument can be used to statically define
 "The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
 directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
 
+"The `DateTime` scalar represents an ISO-8601 compliant date time type."
 scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
 
 "The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
 scalar Long
 
-scalar UUID
-
-scalar timestamptz @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
-
-scalar uuid
+scalar UUID @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc4122")

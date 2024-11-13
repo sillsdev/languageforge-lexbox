@@ -41,11 +41,7 @@ public class EmailService(
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
-        var forgotLink = _linkGenerator.GetUriByAction(httpContext,
-            "LoginRedirect",
-            "Login",
-            new { jwt, returnTo = "/resetPassword" });
-        ArgumentException.ThrowIfNullOrEmpty(forgotLink);
+        var forgotLink = MakeLoginRedirectUrl(jwt, "/resetPassword");
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink, lifetime), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email, retryCount: 5, retryWaitSeconds: 30);
     }
@@ -168,14 +164,10 @@ public class EmailService(
 
         //using GetPathByAction so the path is relative
         var returnTo = _linkGenerator.GetPathByAction(httpContext,
-            nameof(LexBoxApi.Controllers.UserController.HandleInviteLink),
+            nameof(Controllers.UserController.HandleInviteLink),
             "User");
-        var registerLink = _linkGenerator.GetUriByAction(httpContext,
-            "LoginRedirect",
-            "Login",
-            new { jwt, returnTo });
+        var registerLink = MakeLoginRedirectUrl(jwt, returnTo);
 
-        ArgumentException.ThrowIfNullOrEmpty(registerLink);
         if (isProjectInvitation)
         {
             await RenderEmail(email, new ProjectInviteEmail(emailAddress, managerName, resourceName ?? "", registerLink, lifetime), language);
@@ -296,5 +288,20 @@ public class EmailService(
         var message = new MimeMessage();
         message.To.Add(new MailboxAddress(name, email));
         return message;
+    }
+
+    private string MakeLoginRedirectUrl(string jwt, string? returnTo)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(jwt);
+        ArgumentException.ThrowIfNullOrEmpty(returnTo);
+        if (new Uri(returnTo).IsAbsoluteUri) throw new ArgumentException($"returnTo must be relative, was: {returnTo}", nameof(returnTo));
+        var httpContext = httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var loginRedirect = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo });
+        ArgumentException.ThrowIfNullOrEmpty(loginRedirect);
+        return loginRedirect;
     }
 }

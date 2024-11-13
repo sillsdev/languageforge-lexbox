@@ -1,26 +1,10 @@
 <script  context="module" lang="ts">
-  import type { User } from '../../../routes/(authenticated)/admin/+page';
-
   export type UserType = 'admin' | 'nonAdmin' | 'guest' | undefined;
 
   export type UserFilters = {
     userSearch: string;
     usersICreated: boolean;
     userType: UserType;
-  }
-
-  export function filterUsers(
-    users: User[],
-    userFilter: Partial<UserFilters>,
-    adminId: string | undefined,
-  ): User[] {
-    return users.filter(
-      (u) =>
-        (!userFilter.usersICreated || u.createdById === adminId) &&
-        (!userFilter.userType ||
-          (userFilter.userType === (u.isAdmin ? 'admin' : 'nonAdmin')) ||
-          (userFilter.userType === 'guest' && u.createdById))
-    );
   }
 </script>
 

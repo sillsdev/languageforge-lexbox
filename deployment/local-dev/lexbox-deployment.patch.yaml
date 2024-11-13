@@ -35,7 +35,11 @@ spec:
             value: "1x0000000000000000000000000000000AA"
             valueFrom:
           - name: CloudFlare__AllowDomain
-            value: "mailinator.com"
+            value: "maildev.com"
+          - name: HealthChecksConfig__RequireFwHeadlessContainerVersionMatch
+            value: "false"
+          - name: HealthChecksConfig__RequireHealthyFwHeadlessContainer
+            value: "false"
           - name: Email__SmtpUser
             value: 'maildev'
             valueFrom:

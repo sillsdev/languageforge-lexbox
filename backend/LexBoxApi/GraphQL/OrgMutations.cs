@@ -100,13 +100,19 @@ public class OrgMutations
     public async Task<Organization?> AddProjectsToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
+        LexAuthService lexAuthService,
+        LoggedInContext loggedInContext,
         ProjectService projectService,
         IResolverContext resolverContext,
         Guid orgId,
         Guid[] projectIds)
     {
         // Bail out immediately, not even checking permissions, if no projects added at all
-        if (projectIds == null || projectIds.Length == 0) return await LexQueries.QueryOrgById(dbContext, orgId, permissionService, resolverContext);
+        if (projectIds == null || projectIds.Length == 0)
+        {
+            return await LexQueries.QueryOrgById(dbContext, orgId, permissionService,
+                lexAuthService, loggedInContext, resolverContext);
+        }
 
         var org = await dbContext.Orgs.Include(o => o.Members).Include(o => o.Projects).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
@@ -128,7 +134,7 @@ public class OrgMutations
             projectService.InvalidateProjectOrgIdsCache(projectId);
         }
         await dbContext.SaveChangesAsync();
-        return await LexQueries.QueryOrgById(dbContext, orgId, permissionService, resolverContext);
+        return await LexQueries.QueryOrgById(dbContext, orgId, permissionService, lexAuthService, loggedInContext, resolverContext);
     }
 
     [Error<DbError>]

@@ -10,7 +10,6 @@ public class OrgGqlConfiguration : ObjectType<Organization>
     {
         descriptor.Field(o => o.CreatedDate).IsProjected();
         descriptor.Field(o => o.Id).IsProjected(); // Needed for jwt refresh
-        descriptor.Field(o => o.Id).Use<RefreshJwtOrgMembershipMiddleware>();
         //only admins can query members list and projects, custom logic is used for getById
         descriptor.Field(o => o.Members).AdminRequired();
         descriptor.Field(o => o.Projects).AdminRequired();
@@ -26,9 +25,11 @@ public class OrgByIdGqlConfiguration : ObjectType<Organization>
     protected override void Configure(IObjectTypeDescriptor<Organization> descriptor)
     {
         descriptor.Name("OrgById");
+        descriptor.Field(o => o.Id).IsProjected(); // Needed for jwt refresh
         descriptor.Field(o => o.Members).Type(ListType<OrgMember>(memberDescriptor =>
         {
             memberDescriptor.Name("OrgByIdMember");
+            memberDescriptor.Field(member => member.UserId).IsProjected(); // Needed for jwt refresh
             memberDescriptor.Field(member => member.User).Type(ObjectType<User>(userDescriptor =>
             {
                 userDescriptor.Name("OrgByIdUser");

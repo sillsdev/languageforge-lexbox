@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
 using Shouldly;
@@ -15,6 +16,7 @@ public class ApiTestBase
     private readonly SocketsHttpHandler _httpClientHandler;
     public readonly HttpClient HttpClient;
     public string? CurrJwt { get; private set; }
+    public LexAuthUser CurrentUser => JwtHelper.ToLexAuthUser(CurrJwt!);
 
     public ApiTestBase()
     {
@@ -58,9 +60,12 @@ public class ApiTestBase
         JwtHelper.ClearCookies(_httpClientHandler);
     }
 
-    public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false, bool expectSuccessCode = true)
+    public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false, bool expectSuccessCode = true,
+        string? overrideJwt = null)
     {
-        var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql", new { query = gql });
+        var jwtParam = overrideJwt is not null ? $"?jwt={overrideJwt}" : "";
+        var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql{jwtParam}", new { query = gql });
+        if (JwtHelper.TryGetJwtFromLoginResponse(response, out var jwt)) CurrJwt = jwt;
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
         jsonResponse.ShouldNotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
         GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);

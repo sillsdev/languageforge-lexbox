@@ -1,10 +1,10 @@
-﻿namespace MiniLcm.Models;
+namespace MiniLcm.Models;
 
 public class SemanticDomain : IObjectWithId
 {
-    public virtual required Guid Id { get; set; }
-    public virtual required MultiString Name { get; set; }
-    public virtual required string Code { get; set; }
+    public virtual Guid Id { get; set; }
+    public virtual MultiString Name { get; set; } = new();
+    public virtual string Code { get; set; } = string.Empty;
     public DateTimeOffset? DeletedAt { get; set; }
     public bool Predefined { get; set; }
 

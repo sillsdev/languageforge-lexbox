@@ -1,4 +1,4 @@
-﻿using MiniLcm;
+using MiniLcm;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
@@ -39,9 +39,26 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetPartsOfSpeech();
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        return api.GetPartOfSpeech(id);
+    }
+
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreatePartOfSpeech), $"Create part of speech {partOfSpeech.Name}"));
+        return Task.FromResult(partOfSpeech); // Since this is a dry run, api.GetPartOfSpeech would return null
+    }
+
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {id}"));
+        return GetPartOfSpeech(id)!;
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePartOfSpeech), $"Delete part of speech {id}"));
         return Task.CompletedTask;
     }
 
@@ -50,10 +67,27 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetSemanticDomains();
     }
 
-    public Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    public Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        return api.GetSemanticDomain(id);
+    }
+
+    public Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSemanticDomain),
             $"Create semantic domain {semanticDomain.Name}"));
+        return Task.FromResult(semanticDomain);
+    }
+
+    public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update part of speech {id}"));
+        return GetSemanticDomain(id)!;
+    }
+
+    public Task DeleteSemanticDomain(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteSemanticDomain), $"Delete part of speech {id}"));
         return Task.CompletedTask;
     }
 

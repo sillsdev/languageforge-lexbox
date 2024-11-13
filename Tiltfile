@@ -61,7 +61,8 @@ allow_k8s_contexts('docker-desktop')
 lexbox_ports = [
     port_forward(1080, name='maildev'),
     port_forward(18888, name='aspire'),
-    port_forward(4318, name='otel') #otel
+    port_forward(4318, name='otel'),
+    port_forward(4317, name='otel-grpc')
 ]
 if forward_lexbox:
     lexbox_ports = [port_forward(5158, name='lexbox-api', link_path='/api/swagger')] + lexbox_ports

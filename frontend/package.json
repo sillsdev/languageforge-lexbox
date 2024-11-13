@@ -95,6 +95,7 @@
 		"@types/set-cookie-parser": "^2.4.7",
 		"@vitejs/plugin-basic-ssl": "^1.1.0",
 		"css-tree": "^2.3.1",
+		"e2e-mailbox": "1.1.5",
 		"js-cookie": "^3.0.5",
 		"just-order-by": "^1.0.0",
 		"mjml": "^4.15.3",

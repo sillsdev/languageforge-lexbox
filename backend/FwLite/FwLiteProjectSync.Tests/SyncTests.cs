@@ -138,6 +138,161 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task PartsOfSpeechSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var noun = new PartOfSpeech()
+        {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
+            Name = { { "en", "noun" } },
+            Predefined = true,
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+
+        var verb = new PartOfSpeech()
+        {
+            Id = new Guid("86ff66f6-0774-407a-a0dc-3eeaf873daf7"),
+            Name = { { "en", "verb" } },
+            Predefined = true,
+        };
+        await crdtApi.CreatePartOfSpeech(verb);
+
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtPartsOfSpeech = await crdtApi.GetPartsOfSpeech().ToArrayAsync();
+        var fwdataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
+        crdtPartsOfSpeech.Should().ContainEquivalentOf(noun);
+        crdtPartsOfSpeech.Should().ContainEquivalentOf(verb);
+        fwdataPartsOfSpeech.Should().ContainEquivalentOf(noun);
+        fwdataPartsOfSpeech.Should().ContainEquivalentOf(verb);
+
+        crdtPartsOfSpeech.Should().BeEquivalentTo(fwdataPartsOfSpeech);
+    }
+
+    [Fact]
+    public async Task PartsOfSpeechSyncInEntries()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var noun = new PartOfSpeech()
+        {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
+            Name = { { "en", "noun" } },
+            Predefined = true,
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+        // Note we do *not* call crdtApi.CreatePartOfSpeech(noun);
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, PartOfSpeechId = noun.Id }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = noun.Id }
+            ]
+        });
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
+    public async Task SemanticDomainsSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var semdom3 = new SemanticDomain()
+        {
+            Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
+            Name = new MultiString() { { "en", "Language and thought" } },
+            Code = "3",
+            Predefined = true,
+        };
+        await fwdataApi.CreateSemanticDomain(semdom3);
+
+        var semdom4 = new SemanticDomain()
+        {
+            Id = new Guid("62b4ae33-f3c2-447a-9ef7-7e41805b6a02"),
+            Name = new MultiString() { { "en", "Social behavior" } },
+            Code = "4",
+            Predefined = true,
+        };
+        await crdtApi.CreateSemanticDomain(semdom4);
+
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtSemanticDomains = await crdtApi.GetSemanticDomains().ToArrayAsync();
+        var fwdataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
+        crdtSemanticDomains.Should().ContainEquivalentOf(semdom3);
+        crdtSemanticDomains.Should().ContainEquivalentOf(semdom4);
+        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom3);
+        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom4);
+
+        crdtSemanticDomains.Should().BeEquivalentTo(fwdataSemanticDomains);
+    }
+
+    [Fact]
+    public async Task SemanticDomainsSyncInEntries()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var semdom3 = new SemanticDomain()
+        {
+            Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
+            Name = new MultiString() { { "en", "Language and thought" } },
+            Code = "3",
+            Predefined = true,
+        };
+        await fwdataApi.CreateSemanticDomain(semdom3);
+        // Note we do *not* call crdtApi.CreateSemanticDomain(semdom3);
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, SemanticDomains = [ semdom3 ] }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, SemanticDomains = [ semdom3 ] }
+            ]
+        });
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;

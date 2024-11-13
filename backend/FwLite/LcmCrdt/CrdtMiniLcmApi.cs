@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -77,9 +77,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
-    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, false));
+        return dataModel.GetLatest<PartOfSpeech>(id);
+    }
+
+    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        var pos = await GetPartOfSpeech(id);
+        if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..pos.ToChanges(update.Patch)]);
+        return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task DeletePartOfSpeech(Guid id)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<PartOfSpeech>(id));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
@@ -87,9 +107,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return SemanticDomains.AsAsyncEnumerable();
     }
 
-    public async Task CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
+    public Task<MiniLcm.Models.SemanticDomain?> GetSemanticDomain(Guid id)
     {
-        await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code));
+        return SemanticDomains.FirstOrDefaultAsync(semdom => semdom.Id == id);
+    }
+
+    public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
+    {
+        await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
+        return await GetSemanticDomain(semanticDomain.Id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        var semDom = await GetSemanticDomain(id);
+        if (semDom is null) throw new NullReferenceException($"unable to find semantic domain with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..semDom.ToChanges(update.Patch)]);
+        return await GetSemanticDomain(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task DeleteSemanticDomain(Guid id)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<SemanticDomain>(id));
     }
 
     public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
@@ -102,7 +142,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return ComplexFormTypes.AsAsyncEnumerable();
     }
 
-    public async Task<ComplexFormType> CreateComplexFormType(MiniLcm.Models.ComplexFormType complexFormType)
+    public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));

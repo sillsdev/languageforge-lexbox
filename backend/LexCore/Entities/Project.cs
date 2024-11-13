@@ -24,7 +24,7 @@ public class Project : EntityBase
     public ResetStatus ResetStatus { get; set; } = ResetStatus.None;
 
     //historical reference for if this project originated here (migrated), or came from redmine, public or private
-    public required ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
+    public ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
     public DateTimeOffset? MigratedDate { get; set; } = null;
 
     [NotMapped]
