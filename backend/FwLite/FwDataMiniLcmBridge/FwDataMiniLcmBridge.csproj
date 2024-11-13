@@ -10,9 +10,9 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
-        <PackageReference Include="SIL.Core" Version="14.2.0-beta0009" />
+        <PackageReference Include="SIL.Core" Version="14.2.0-beta0022" />
         <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
-        <PackageReference Include="SIL.LCModel" Version="11.0.0-beta0100 " />
+        <PackageReference Include="SIL.LCModel" Version="11.0.0-beta0111" />
         <PackageReference Include="structuremap.patched" Version="4.7.3" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
         <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
@@ -25,6 +25,7 @@
         <InternalsVisibleTo Include="LcmDebugger" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\..\LexCore\LexCore.csproj" />
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>
 

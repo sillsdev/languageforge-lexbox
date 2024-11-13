@@ -71,9 +71,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: testspace-com/setup-testspace@v1.0.6
-        with:
-          domain: ${{ github.repository_owner }}
       - name: Setup self-hosted dependencies
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
@@ -143,9 +140,6 @@ jobs:
         with:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
-      - name: Publish results to testspace
-        if: always()
-        run: testspace "[.Net Integration/${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx"
 
   playwright-test:
     if: ${{ inputs.run-playwright }}
@@ -160,9 +154,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: testspace-com/setup-testspace@v1.0.6
-        with:
-          domain: ${{ github.repository_owner }}
       - name: Setup self-hosted dependencies
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
@@ -212,9 +203,6 @@ jobs:
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
-      - name: Publish results to testspace
-        if: always()
-        run: testspace "[Playwright]./frontend/test-results/results.xml"
       - name: Upload playwright results
         if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4

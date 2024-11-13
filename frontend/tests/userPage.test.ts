@@ -1,12 +1,11 @@
-import { loginAs, logout } from './utils/authHelpers';
+import {loginAs, logout} from './utils/authHelpers';
 
-import { EmailSubjects } from './pages/mailPages';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { expect } from '@playwright/test';
-import { getInbox } from './utils/mailboxHelpers';
-import { randomUUID } from 'crypto';
-import { test } from './fixtures';
+import {EmailSubjects} from './email/email-page';
+import {UserAccountSettingsPage} from './pages/userAccountSettingsPage';
+import {UserDashboardPage} from './pages/userDashboardPage';
+import {expect} from '@playwright/test';
+import {randomUUID} from 'crypto';
+import {test} from './fixtures';
 
 test('can update account info', async ({ page, tempUser }) => {
   await loginAs(page.request, tempUser.email, tempUser.password);
@@ -46,7 +45,6 @@ test('can reset password', async ({ page, tempUser }) => {
   await new UserDashboardPage(loginPage.page).waitFor();
 
   // Verify password changed email was received
-  const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail(EmailSubjects.PasswordChanged);
-  await expect(emailPage.page.getByText('Your password was changed').first()).toBeVisible();
+  const emailPage = await tempUser.mailbox.openEmail(page, EmailSubjects.PasswordChanged);
+  await expect(emailPage.page.getByText('your password was just changed').first()).toBeVisible();
 });

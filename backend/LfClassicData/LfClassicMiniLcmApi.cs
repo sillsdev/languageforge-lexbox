@@ -78,21 +78,28 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
         foreach (var item in optionListItems)
         {
-            yield return new PartOfSpeech
-            {
-                Id = item.Guid ?? Guid.Empty,
-                Name = new MultiString
-                {
-                    { "en", item.Value ?? item.Abbreviation ?? string.Empty },
-                    { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
-                }
-            };
+            yield return ToPartOfSpeech(item);
         }
     }
 
-    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return AsyncEnumerable.Empty<SemanticDomain>();
+        return await GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Id == id);
+    }
+
+    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        var optionListItems = await dbContext.GetOptionListItems(projectCode, "semantic-domain-ddp4");
+
+        foreach (var item in optionListItems)
+        {
+            yield return ToSemanticDomain(item);
+        }
+    }
+
+    public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        return await GetSemanticDomains().FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -269,6 +276,36 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         }
 
         return ms;
+    }
+
+    private static PartOfSpeech ToPartOfSpeech(Entities.OptionListItem item)
+    {
+        return new PartOfSpeech
+        {
+            Id = item.Guid ?? Guid.Empty,
+            Name = new MultiString
+            {
+                { "en", item.Value ?? item.Abbreviation ?? string.Empty },
+                { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
+            },
+            // TODO: Abbreviation
+            Predefined = false,
+        };
+    }
+
+    private static SemanticDomain ToSemanticDomain(Entities.OptionListItem item)
+    {
+        // TODO: Needs testing against actual LF testlangproj data
+        return new SemanticDomain
+        {
+            Id = item.Guid ?? Guid.Empty,
+            Name = new MultiString
+            {
+                { "en", item.Value ?? item.Abbreviation ?? string.Empty },
+                { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
+            },
+            Predefined = false,
+        };
     }
 
     public async Task<Entry?> GetEntry(Guid id)

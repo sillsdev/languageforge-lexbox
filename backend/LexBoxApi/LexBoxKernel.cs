@@ -44,6 +44,10 @@ public static class LexBoxKernel
             .BindConfiguration("Tus")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<HealthChecksConfig>()
+            .BindConfiguration("HealthChecks")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddHttpClient();
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
@@ -57,6 +61,7 @@ public static class LexBoxKernel
         services.AddScoped<IHgService, HgService>();
         services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
+        services.AddTransient<FwHeadlessHealthCheck>();
         services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
         services.AddResiliencePipeline<string, IReadOnlyDictionary<string, bool>>(IsLanguageForgeProjectDataLoader.ResiliencePolicyName, (builder, context) =>
         {
@@ -69,7 +74,11 @@ public static class LexBoxKernel
         if (environment.IsDevelopment())
             services.AddHostedService<SwaggerValidationService>();
         services.AddScheduledTasks(configuration);
-        services.AddHealthChecks().AddCheck<HgWebHealthCheck>("hgweb", HealthStatus.Unhealthy, ["hg"], TimeSpan.FromSeconds(5));
+        services.AddHealthChecks()
+            .AddCheck<HgWebHealthCheck>("hgweb", HealthStatus.Unhealthy, ["hg"], TimeSpan.FromSeconds(5))
+            //todo enable this once we want to make lexbox depend on fw-headless
+            // .AddCheck<FwHeadlessHealthCheck>("fw-headless", HealthStatus.Unhealthy, ["fw-headless"], TimeSpan.FromSeconds(5))
+            ;
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);

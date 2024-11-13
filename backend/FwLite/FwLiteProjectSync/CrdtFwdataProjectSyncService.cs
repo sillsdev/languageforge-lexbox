@@ -28,7 +28,10 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         if (!dryRun)
         {
             await SaveProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath,
-                new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync()));
+                new ProjectSnapshot(
+                    await fwdataApi.GetEntries().ToArrayAsync(),
+                    await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
+                    await fwdataApi.GetSemanticDomains().ToArrayAsync()));
         }
         return result;
     }
@@ -48,13 +51,21 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
             return new SyncResult(entryCount, 0);
         }
 
-        //todo sync complex form types, parts of speech, semantic domains, writing systems
+        //todo sync complex form types, writing systems
+
+        var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
+        var crdtChanges = await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, projectSnapshot.PartsOfSpeech, crdtApi);
+        var fwdataChanges = await PartOfSpeechSync.Sync(await crdtApi.GetPartsOfSpeech().ToArrayAsync(), currentFwDataPartsOfSpeech, fwdataApi);
+
+        var currentFwDataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
+        crdtChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, projectSnapshot.SemanticDomains, crdtApi);
+        fwdataChanges += await SemanticDomainSync.Sync(await crdtApi.GetSemanticDomains().ToArrayAsync(), currentFwDataSemanticDomains, fwdataApi);
 
         var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        var crdtChanges = await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
+        crdtChanges += await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
         LogDryRun(crdtApi, "crdt");
 
-        var fwdataChanges = await EntrySync.Sync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
+        fwdataChanges += await EntrySync.Sync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
         LogDryRun(fwdataApi, "fwdata");
 
         //todo push crdt changes to lexbox
@@ -73,7 +84,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         logger.LogInformation($"Dry run {type} changes: {dryRunApi.DryRunRecords.Count}");
     }
 
-    public record ProjectSnapshot(Entry[] Entries);
+    public record ProjectSnapshot(Entry[] Entries, PartOfSpeech[] PartsOfSpeech, SemanticDomain[] SemanticDomains);
 
     private async Task<ProjectSnapshot?> GetProjectSnapshot(string projectName, string? projectPath)
     {

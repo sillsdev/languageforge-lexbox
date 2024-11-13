@@ -99,6 +99,8 @@ public class PermissionService(
         if (User is not null && User.Role == UserRole.admin) return true;
         // Project managers can view members of their own projects, even confidential ones
         if (await CanManageProject(projectId)) return true;
+        if (User is null || !User.Projects.Any(p => p.ProjectId == projectId)) return false;
+
         var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
         // In this specific case (only), we assume public unless explicitly set to private
         return !(isConfidential ?? false);

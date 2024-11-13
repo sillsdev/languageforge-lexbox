@@ -105,7 +105,9 @@
   $: empty = !value?.length;
 </script>
 
-<MapBind bind:in={value} bind:out={ids} map={toIds} unmap={fromIds} />
+{#key options}
+  <MapBind bind:in={value} bind:out={ids} map={toIds} unmap={fromIds} />
+{/key}
 <div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
