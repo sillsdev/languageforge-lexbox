@@ -67,6 +67,8 @@
                   <IconButton
                     size="btn-sm"
                     icon="i-mdi-email-sync"
+                    outline={false}
+                    variant="btn-primary"
                     on:click={() => sendVerificationEmail(user)}
                   />
                 </div>
