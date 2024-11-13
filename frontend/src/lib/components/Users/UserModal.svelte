@@ -35,7 +35,6 @@
 
   const { notifySuccess } = useNotifications();
 
-  // eslint-disable-next-line func-style
   async function sendVerificationEmail(user: User): Promise<void> {
     await _sendNewVerificationEmailByAdmin(user.id as UUID);
     notifySuccess($t('admin_dashboard.notifications.verification_email_sent', { email: user.email ?? '' }));
@@ -64,12 +63,13 @@
                 <span class="i-mdi-help-circle-outline" />
               </span>
               <AdminContent>
-                <IconButton
-                  size="btn-sm"
-                  icon="i-mdi-email"
-                  title={$t('admin_dashboard.resend_verification_email')}
-                  on:click={() => sendVerificationEmail(user)}
-                />
+                <div class="tooltip" data-tip={$t('admin_dashboard.resend_verification_email')}>
+                  <IconButton
+                    size="btn-sm"
+                    icon="i-mdi-email"
+                    on:click={() => sendVerificationEmail(user)}
+                  />
+                </div>
               </AdminContent>
             {/if}
           {:else}
