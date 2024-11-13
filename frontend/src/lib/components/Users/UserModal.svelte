@@ -35,8 +35,11 @@
 
   const { notifySuccess } = useNotifications();
 
+  var sendingVerificationEmail = false;
   async function sendVerificationEmail(user: User): Promise<void> {
+    sendingVerificationEmail = true;
     await _sendNewVerificationEmailByAdmin(user.id as UUID);
+    sendingVerificationEmail = false;
     notifySuccess($t('admin_dashboard.notifications.verification_email_sent', { email: user.email ?? '' }));
   }
 </script>
@@ -69,6 +72,7 @@
                     icon="i-mdi-email-sync"
                     outline={false}
                     variant="btn-primary"
+                    loading={sendingVerificationEmail}
                     on:click={() => sendVerificationEmail(user)}
                   />
                 </div>
