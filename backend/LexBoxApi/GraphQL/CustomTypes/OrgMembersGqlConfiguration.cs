@@ -9,5 +9,6 @@ public class OrgMembersGqlConfiguration : ObjectType<OrgMember>
     {
         descriptor.Field(f => f.User).Type<NonNullType<UserGqlConfiguration>>();
         descriptor.Field(f => f.Organization).Type<NonNullType<ProjectGqlConfiguration>>();
+        descriptor.Field(f => f.UserId).IsProjected(); // Needed for jwt refresh (not really, but that's a complicated detail)
     }
 }

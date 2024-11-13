@@ -25,12 +25,12 @@ import type {
   UpdateProjectLanguageListMutation,
   UpdateProjectLexEntryCountMutation,
 } from '$lib/gql/types';
-import { getClient, graphql } from '$lib/gql';
+import {getClient, graphql} from '$lib/gql';
 
-import type { PageLoadEvent } from './$types';
-import { derived } from 'svelte/store';
-import { error } from '@sveltejs/kit';
-import { tryMakeNonNullable } from '$lib/util/store';
+import type {PageLoadEvent} from './$types';
+import {derived} from 'svelte/store';
+import {error} from '@sveltejs/kit';
+import {tryMakeNonNullable} from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = NonNullable<Project['users']>[number];
@@ -41,13 +41,10 @@ export async function load(event: PageLoadEvent) {
   const client = getClient();
   const user = (await event.parent()).user;
   const projectCode = event.params.project_code;
-  const projectId = event.url.searchParams.get('id') ?? '';
-  //projectId is not required, so if it's not there we assume the user is a member, if we're wrong there will be an error
-  const userIsMember = projectId === '' ? true : (user.isAdmin || user.projects.some(p => p.projectId === projectId));
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-				query projectPage($projectCode: String!, $userIsAdmin: Boolean!, $userIsMember: Boolean!) {
+				query projectPage($projectCode: String!, $userIsAdmin: Boolean!) {
 					projectByCode(code: $projectCode) {
 						id
 						name
@@ -63,28 +60,26 @@ export async function load(event: PageLoadEvent) {
 						organizations {
 							id
 						}
-            ... on Project @include(if: $userIsMember) {
-              users {
+            users {
+              id
+              role
+              user {
                 id
-                role
-                user {
-                  id
-                  name
-                  ... on User @include(if: $userIsAdmin) {
-                    locked
-                    username
-                    createdDate
-                    updatedDate
-                    email
-                    localizationCode
-                    lastActive
-                    canCreateProjects
-                    isAdmin
-                    emailVerified
-                    createdBy {
-                      id
-                      name
-                    }
+                name
+                ... on User @include(if: $userIsAdmin) {
+                  locked
+                  username
+                  createdDate
+                  updatedDate
+                  email
+                  localizationCode
+                  lastActive
+                  canCreateProjects
+                  isAdmin
+                  emailVerified
+                  createdBy {
+                    id
+                    name
                   }
                 }
               }
@@ -112,7 +107,7 @@ export async function load(event: PageLoadEvent) {
 					}
 				}
 			`),
-      { projectCode, userIsAdmin: user.isAdmin, userIsMember }
+      { projectCode, userIsAdmin: user.isAdmin }
     );
   const changesetResultStore = client
     .queryStore(event.fetch,

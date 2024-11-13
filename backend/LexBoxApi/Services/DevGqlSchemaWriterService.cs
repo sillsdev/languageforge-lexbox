@@ -29,10 +29,11 @@ public class DevGqlSchemaWriterService : IHostedService
             .AddScoped<IEmailService, EmailService>()
             .AddScoped<IHgService, HgService>()
             .AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>()
-            .AddScoped((services) => new LoggedInContext(null!, null!))
-            .AddScoped((services) => new LexBoxDbContext(null!, null!))
+            .AddScoped<LoggedInContext>()
+            .AddScoped<LexBoxDbContext>()
             .AddScoped<IPermissionService, PermissionService>()
             .AddScoped<ProjectService>()
+            .AddScoped<LexAuthService>()
             .AddLexGraphQL(builder.Environment, true);
         var host = builder.Build();
         await host.StartAsync();

@@ -19,5 +19,25 @@ public static class GqlUtils
                 }
             }
         }
+        else
+        {
+            var foundError = json["errors"] is JsonArray errors && errors.Count > 0;
+            if (!foundError)
+            {
+                if (json["data"] is JsonObject data)
+                {
+                    foreach (var (_, resultValue) in data)
+                    {
+                        if (resultValue is JsonObject resultObject)
+                        {
+                            foundError = resultObject["errors"] is JsonArray resultErrors && resultErrors.Count > 0;
+                            if (foundError)
+                                break;
+                        }
+                    }
+                }
+            }
+            foundError.ShouldBeTrue();
+        }
     }
 }
