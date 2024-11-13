@@ -229,7 +229,7 @@ public class LexQueries
             }
         });
         // Members and non-members alike can see all public projects plus their own
-        org.Projects = org.Projects?.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id))?.ToList() ?? [];
+        org.Projects = org.Projects?.Where(p => p.IsConfidential == false || permissionService.IsProjectMember(p.Id, updatedUser))?.ToList() ?? [];
         if (!permissionService.IsOrgMember(orgId, updatedUser))
         {
             // Non-members also cannot see membership, only org admins
