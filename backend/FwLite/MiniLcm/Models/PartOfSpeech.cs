@@ -3,7 +3,8 @@
 public class PartOfSpeech : IObjectWithId
 {
     public Guid Id { get; set; }
-    public MultiString Name { get; set; } = new();
+    public virtual MultiString Name { get; set; } = new();
+    // TODO: Probably need Abbreviation in order to match LCM data model
 
     public DateTimeOffset? DeletedAt { get; set; }
     public bool Predefined { get; set; }

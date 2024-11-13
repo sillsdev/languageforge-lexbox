@@ -1,13 +1,11 @@
-﻿using SIL.Harmony.Core;
-using SIL.Harmony;
-using SIL.Harmony.Db;
-using LcmCrdt;
-using LocalWebApp.Auth;
+﻿using Microsoft.Extensions.Logging;
 using Refit;
+using SIL.Harmony;
+using SIL.Harmony.Core;
 
-namespace LocalWebApp;
+namespace LcmCrdt.RemoteSync;
 
-public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
+public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
 {
     //todo replace with a IMemoryCache check
     private bool? _isHealthy;
@@ -22,6 +20,10 @@ public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<
         {
             var responseMessage = await syncHttp.HealthCheck();
             _isHealthy = responseMessage.IsSuccessStatusCode;
+            if (!_isHealthy.Value)
+            {
+                logger.LogWarning("Health check failed, response status code {StatusCode}", responseMessage.StatusCode);
+            }
             _lastHealthCheck = responseMessage.Headers.Date ?? DateTimeOffset.UtcNow;
         }
         catch (HttpRequestException e)
@@ -42,26 +44,26 @@ public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<
         return _isHealthy.Value;
     }
 
-    public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project)
+    /// <summary>
+    /// Creates a Harmony sync client to represent a remote server
+    /// </summary>
+    /// <param name="project">project data, used to provide the projectId and clientId</param>
+    /// <param name="client">should have the base url set to the remote server</param>
+    /// <returns></returns>
+    public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project, HttpClient client)
     {
-        if (string.IsNullOrEmpty(project.OriginDomain))
-        {
-            logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client", project.Name);
-            return NullSyncable.Instance;
-        }
+        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this);
+    }
 
-        var client = await authHelpersFactory.GetHelper(project).CreateClient();
-        if (client is null)
-        {
-            logger.LogWarning("Unable to create http client to sync project {ProjectName}, user is not authenticated to {OriginDomain}", project.Name, project.OriginDomain);
-            return NullSyncable.Instance;
-        }
-
-        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId  , project.OriginDomain, this);
+    public async ValueTask<bool> TestAuth(HttpClient client)
+    {
+        logger.LogInformation("Testing auth, client base url: {ClientBaseUrl}", client.BaseAddress);
+        var syncable = await CreateProjectSyncable(new ProjectData("test", Guid.Empty, null, Guid.Empty), client);
+        return await syncable.ShouldSync();
     }
 }
 
-public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid clientId, string originDomain, CrdtHttpSyncService httpSyncService) : ISyncable
+internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid clientId, CrdtHttpSyncService httpSyncService) : ISyncable
 {
     public ValueTask<bool> ShouldSync()
     {

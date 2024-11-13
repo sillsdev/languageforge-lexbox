@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -194,26 +194,68 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .AllInstances()
             .OrderBy(p => p.Name.BestAnalysisAlternative.Text)
             .ToAsyncEnumerable()
-            .Select(partOfSpeech => new PartOfSpeech
-            {
-                Id = partOfSpeech.Guid,
-                Name = FromLcmMultiString(partOfSpeech.Name)
-            });
+            .Select(FromLcmPartOfSpeech);
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
+        return Task.FromResult(
+            PartOfSpeechRepository
+            .TryGetObject(id, out var partOfSpeech)
+            ? FromLcmPartOfSpeech(partOfSpeech) : null);
+    }
+
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
             "Remove part of speech",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
+                lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
             });
+        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created")));
+    }
+
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        var lcmPartOfSpeech = PartOfSpeechRepository.GetObject(id);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Part of Speech",
+            "Revert Part of Speech",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdatePartOfSpeechProxy(lcmPartOfSpeech, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech));
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Part of Speech",
+            "Revert delete",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                PartOfSpeechRepository.GetObject(id).Delete();
+            });
         return Task.CompletedTask;
+    }
+
+    internal SemanticDomain FromLcmSemanticDomain(ICmSemanticDomain semanticDomain)
+    {
+        return new SemanticDomain
+        {
+            Id = semanticDomain.Guid,
+            Name = FromLcmMultiString(semanticDomain.Name),
+            Code = semanticDomain.Abbreviation.UiString ?? "",
+            Predefined = true, // TODO: Look up in a GUID list of predefined data
+        };
     }
 
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
@@ -223,15 +265,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .AllInstances()
             .OrderBy(p => p.Abbreviation.UiString)
             .ToAsyncEnumerable()
-            .Select(semanticDomain => new SemanticDomain
-            {
-                Id = semanticDomain.Guid,
-                Name = FromLcmMultiString(semanticDomain.Name),
-                Code = semanticDomain.Abbreviation.UiString ?? ""
-            });
+            .Select(FromLcmSemanticDomain);
     }
 
-    public Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    public Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        var semDom = GetLcmSemanticDomain(id);
+        return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
+    }
+
+    public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
@@ -243,7 +286,34 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
                 lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
+                // TODO: Find out if semantic domains are guaranteed to have an "en" writing system, or if we should use lcmCache.DefautlAnalWs instead
                 UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
+            });
+        return await GetSemanticDomain(semanticDomain.Id) ?? throw new InvalidOperationException("Semantic domain was not created");
+    }
+
+    public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        var lcmSemanticDomain = SemanticDomainRepository.GetObject(id);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Semantic Domain",
+            "Revert Semantic Domain",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdateSemanticDomainProxy(lcmSemanticDomain, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmSemanticDomain(lcmSemanticDomain));
+    }
+
+    public Task DeleteSemanticDomain(Guid id)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Semantic Domain",
+            "Revert delete",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                SemanticDomainRepository.GetObject(id).Delete();
             });
         return Task.CompletedTask;
     }
@@ -268,7 +338,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        if (complexFormType.Id != default) throw new InvalidOperationException("Complex form type id must be empty");
+        if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
             Cache.ActionHandlerAccessor,
@@ -276,10 +346,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 var lexComplexFormType = Cache.ServiceLocator
                     .GetInstance<ILexEntryTypeFactory>()
-                    .Create();
+                    .Create(complexFormType.Id);
                 ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
                 UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
-                complexFormType.Id = lexComplexFormType.Guid;
             });
         return Task.FromResult(ToComplexFormType(ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id)));
     }
@@ -289,6 +358,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return VariantTypes.PossibilitiesOS
             .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
             .ToAsyncEnumerable();
+    }
+
+    private PartOfSpeech FromLcmPartOfSpeech(IPartOfSpeech lcmPos)
+    {
+        return new PartOfSpeech
+        {
+            Id = lcmPos.Guid,
+            Name = FromLcmMultiString(lcmPos.Name),
+            // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
+            Predefined = true, // NOTE: the !string.IsNullOrEmpty(lcmPos.CatalogSourceId) check doesn't work if the PoS originated in CRDT
+        };
     }
 
     private Entry FromLexEntry(ILexEntry entry)
@@ -387,12 +467,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Definition = FromLcmMultiString(sense.Definition),
             PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
             PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
-            SemanticDomains = sense.SemanticDomainsRC.Select(s => new SemanticDomain
-            {
-                Id = s.Guid,
-                Name = FromLcmMultiString(s.Name),
-                Code = s.OcmCodes
-            }).ToList(),
+            SemanticDomains = sense.SemanticDomainsRC.Select(FromLcmSemanticDomain).ToList(),
             ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
         };
         return s;

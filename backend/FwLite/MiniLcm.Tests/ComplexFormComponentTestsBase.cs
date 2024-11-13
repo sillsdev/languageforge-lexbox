@@ -74,4 +74,13 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         component2.ComponentEntryId.Should().Be(_componentEntryId);
         component2.ComponentSenseId.Should().Be(_componentSenseId2);
     }
+
+    [Fact]
+    public async Task CreateComplexFormType_Works()
+    {
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreateComplexFormType(complexFormType);
+        var types = await Api.GetComplexFormTypes().ToArrayAsync();
+        types.Should().ContainSingle(t => t.Id == complexFormType.Id);
+    }
 }

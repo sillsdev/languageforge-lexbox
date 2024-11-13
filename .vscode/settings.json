@@ -23,6 +23,10 @@
     "sort-imports.on-save": true,
     "editor.detectIndentation": false,
     "eslint.validate": [
+      "javascript",
+      "typescript",
+      "html",
+      "json",
       "svelte"
     ],
     "yaml.schemas": {

@@ -2,11 +2,13 @@ using FwDataMiniLcmBridge;
 using FwHeadless.Services;
 using FwLiteProjectSync;
 using LcmCrdt;
+using Microsoft.Extensions.Options;
 
 namespace FwHeadless;
 
 public static class FwHeadlessKernel
 {
+    public const string LexboxHttpClientName = "LexboxHttpClient";
     public static void AddFwHeadless(this IServiceCollection services)
     {
         services
@@ -23,5 +25,12 @@ public static class FwHeadlessKernel
             .AddLcmCrdtClient()
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
+        services.AddScoped<CrdtSyncService>();
+        services.AddTransient<HttpClientAuthHandler>();
+        services.AddHttpClient(LexboxHttpClientName,
+            (provider, client) =>
+            {
+                client.BaseAddress = new Uri(provider.GetRequiredService<IOptions<FwHeadlessConfig>>().Value.LexboxUrl);
+            }).AddHttpMessageHandler<HttpClientAuthHandler>();
     }
-};
+}

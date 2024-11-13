@@ -1,15 +1,14 @@
 import * as testEnv from './envVars';
 
-import { AdminDashboardPage } from './pages/adminDashboardPage';
-import { EmailSubjects } from './pages/mailPages';
-import { LoginPage } from './pages/loginPage';
-import { SandboxPage } from './pages/sandboxPage';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { expect } from '@playwright/test';
-import { getInbox } from './utils/mailboxHelpers';
-import { loginAs } from './utils/authHelpers';
-import { test } from './fixtures';
+import {AdminDashboardPage} from './pages/adminDashboardPage';
+import {EmailSubjects} from './email/email-page';
+import {LoginPage} from './pages/loginPage';
+import {SandboxPage} from './pages/sandboxPage';
+import {UserAccountSettingsPage} from './pages/userAccountSettingsPage';
+import {UserDashboardPage} from './pages/userDashboardPage';
+import {expect} from '@playwright/test';
+import {loginAs} from './utils/authHelpers';
+import {test} from './fixtures';
 
 test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await new SandboxPage(page).goto();
@@ -65,7 +64,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
   const responsePromise = page.waitForResponse('/api/graphql');
   await page.getByText('GQL 500').click();
   await responsePromise.catch(() => { });// Ignore the error
-  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  await expect(page.locator(':text-matches("Unexpected Execution Error", "g")').first()).toBeVisible();
   await page.getByRole('button', { name: 'Dismiss' }).click();
   await page.locator('#home').click();
   await new UserDashboardPage(page).waitFor();
@@ -75,7 +74,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
 test('server-side gql 500 does not kill the server', async ({ page }) => {
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
   await new SandboxPage(page).goto({ urlEnd: '?ssr-gql-500', expectErrorResponse: true });
-  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  await expect(page.locator(':text-matches("Unexpected Execution Error", "g")').first()).toBeVisible();
   // we've verified that a 500 occured, now we verify that the server is still alive
   await new AdminDashboardPage(page).goto();
   test.fail(); // Everything up to here passed, but we expect a soft 500 response assertion to ultimately fail the test
@@ -151,8 +150,7 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // - Get JWT from reset password link
-  const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail(EmailSubjects.ForgotPassword);
+  const emailPage = await tempUser.mailbox.openEmail(page, EmailSubjects.ForgotPassword);
   const url = await emailPage.getFirstLanguageDepotUrl();
   expect(url).not.toBeNull();
   const forgotPasswordJwt = (url as string).split('jwt=')[1].split('&')[0];

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 
@@ -13,8 +13,18 @@ public interface IMiniLcmWriteApi
         UpdateObjectInput<WritingSystem> update);
 
 
-    Task CreatePartOfSpeech(PartOfSpeech partOfSpeech);
-    Task CreateSemanticDomain(SemanticDomain semanticDomain);
+    #region PartOfSpeech
+    Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
+    Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
+    Task DeletePartOfSpeech(Guid id);
+    #endregion
+
+    #region SemanticDomain
+    Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain);
+    Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update);
+    Task DeleteSemanticDomain(Guid id);
+    #endregion
+
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
 
     #region Entry

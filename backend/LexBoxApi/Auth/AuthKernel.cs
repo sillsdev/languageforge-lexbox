@@ -21,7 +21,7 @@ public static class AuthKernel
 {
     public const string DefaultScheme = "JwtOrCookie";
     public const string JwtOverBasicAuthUsername = "bearer";
-    public const string AuthCookieName = ".LexBoxAuth";
+    public const string AuthCookieName = LexAuthConstants.AuthCookieName;
 
     public static void AddLexBoxAuth(IServiceCollection services,
         IConfigurationRoot configuration,

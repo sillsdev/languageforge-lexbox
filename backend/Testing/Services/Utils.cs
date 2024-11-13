@@ -33,6 +33,14 @@ public static class Utils
     }
 
     public static async Task<LexboxProject> RegisterProjectInLexBox(
+        this ApiTestBase apiTester,
+        ProjectConfig config,
+        bool waitForRepoReady = false)
+    {
+        return await RegisterProjectInLexBox(config, apiTester, waitForRepoReady);
+    }
+
+    public static async Task<LexboxProject> RegisterProjectInLexBox(
         ProjectConfig config,
         ApiTestBase apiTester,
         bool waitForRepoReady = false
@@ -65,7 +73,7 @@ public static class Utils
             }
             """);
         if (waitForRepoReady) await WaitForHgRefreshIntervalAsync();
-        return new LexboxProject(apiTester, config.Id);
+        return new LexboxProject(apiTester, config);
     }
 
     public static async Task AddMemberToProject(
@@ -135,20 +143,22 @@ public static class Utils
 
 public record LexboxProject : IAsyncDisposable
 {
-    public readonly Guid id;
+    private static string? _jwt;
+    public Guid Id => _config.Id;
+    public string Code => _config.Code;
+    private readonly ProjectConfig _config;
     private readonly ApiTestBase _apiTester;
-    private readonly string _jwt;
 
-    public LexboxProject(ApiTestBase apiTester, Guid id)
+    public LexboxProject(ApiTestBase apiTester, ProjectConfig config)
     {
-        this.id = id;
+        _config = config;
         _apiTester = apiTester;
-        _jwt = apiTester.CurrJwt ?? throw new InvalidOperationException("No JWT found");
     }
 
     public async ValueTask DisposeAsync()
     {
-        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/{id}?jwt={_jwt}");
+        _jwt ??= await JwtHelper.GetJwtForUser(AdminAuth);
+        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/{Id}?jwt={_jwt}");
         response.EnsureSuccessStatusCode();
     }
 }
