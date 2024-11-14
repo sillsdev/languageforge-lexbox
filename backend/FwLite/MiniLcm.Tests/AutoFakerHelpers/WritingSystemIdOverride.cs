@@ -2,7 +2,7 @@ using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 
-namespace MiniLcm.Tests.FakerOverrids;
+namespace MiniLcm.Tests.AutoFakerHelpers;
 
 public class WritingSystemIdOverride: AutoFakerOverride<WritingSystemId>
 {

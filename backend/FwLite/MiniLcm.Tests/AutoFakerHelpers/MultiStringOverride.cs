@@ -2,7 +2,7 @@
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 
-namespace MiniLcm.Tests.FakerOverrids;
+namespace MiniLcm.Tests.AutoFakerHelpers;
 
 public class MultiStringOverride(string[]? validWs = null): AutoFakerOverride<MultiString>
 {
