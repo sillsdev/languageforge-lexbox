@@ -4,6 +4,11 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import UserLockedAlert from './UserLockedAlert.svelte';
   import { NULL_LABEL } from '$lib/i18n';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
+  import {_sendNewVerificationEmailByAdmin} from '../../../routes/(authenticated)/admin/+page';
+  import type {UUID} from 'crypto';
+  import {useNotifications} from '$lib/notify';
 
   type User = {
     id: string;
@@ -26,6 +31,16 @@
   export async function open(_user: User): Promise<void> {
     user = _user;
     await userDetailsModal.openModal(true, true);
+  }
+
+  const { notifySuccess } = useNotifications();
+
+  var sendingVerificationEmail = false;
+  async function sendVerificationEmail(user: User): Promise<void> {
+    sendingVerificationEmail = true;
+    await _sendNewVerificationEmailByAdmin(user.id as UUID);
+    sendingVerificationEmail = false;
+    notifySuccess($t('admin_dashboard.notifications.verification_email_sent', { email: user.email ?? '' }));
   }
 </script>
 
@@ -50,6 +65,18 @@
                 data-tip={$t('admin_dashboard.email_not_verified')}>
                 <span class="i-mdi-help-circle-outline" />
               </span>
+              <AdminContent>
+                <div class="tooltip" data-tip={$t('admin_dashboard.resend_verification_email')}>
+                  <IconButton
+                    size="btn-sm"
+                    icon="i-mdi-email-sync"
+                    outline={false}
+                    variant="btn-primary"
+                    loading={sendingVerificationEmail}
+                    on:click={() => sendVerificationEmail(user)}
+                  />
+                </div>
+              </AdminContent>
             {/if}
           {:else}
             –

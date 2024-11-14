@@ -7,6 +7,7 @@
 
 <script lang="ts">
   import t from '$lib/i18n';
+  import Notify from '$lib/notify/Notify.svelte';
   import { OverlayContainer } from '$lib/overlay';
   import { createEventDispatcher } from 'svelte';
   import { writable } from 'svelte/store';
@@ -129,5 +130,6 @@
         <button>invisible</button>
       </form>
     {/if}
+    <Notify />
   </dialog>
 {/if}
