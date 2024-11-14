@@ -193,10 +193,13 @@ public class LexQueries
     public IQueryable<User> UsersICanSee(LexBoxDbContext context, LoggedInContext loggedInContext)
     {
         var myOrgIds = loggedInContext.User.Orgs.Select(o => o.OrgId).ToList();
+        var myProjectIds = loggedInContext.User.Projects.Select(p => p.ProjectId).ToList();
         var myManagedProjectIds = loggedInContext.User.Projects.Where(p => p.Role == ProjectRole.Manager).Select(p => p.ProjectId).ToList();
         return context.Users.Where(u =>
             u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)) ||
-            u.Projects.Any(projMember => myManagedProjectIds.Contains(projMember.ProjectId)));
+            u.Projects.Any(projMember =>
+                myManagedProjectIds.Contains(projMember.ProjectId) ||
+                (projMember.Project != null && projMember.Project.IsConfidential == false && myProjectIds.Contains(projMember.ProjectId))));
     }
 
     [UseProjection]
