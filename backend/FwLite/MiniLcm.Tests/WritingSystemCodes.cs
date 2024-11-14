@@ -4,5 +4,5 @@ namespace MiniLcm.Tests;
 
 public static class WritingSystemCodes
 {
-    public static string[] ValidTwoLetterCodes = StandardSubtags.RegisteredLanguages.Select(lang => lang.Code).ToArray();
+    public static readonly string[] ValidTwoLetterCodes = StandardSubtags.RegisteredLanguages.Select(lang => lang.Code).ToArray();
 }
