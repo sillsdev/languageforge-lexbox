@@ -1,8 +1,8 @@
-﻿using MiniLcm.Models;
+﻿using MiniLcm.Tests.AutoFakerHelpers;
 
 namespace MiniLcm.Tests;
 
-public abstract class CreateEntryTestsBase: MiniLcmTestBase
+public abstract class CreateEntryTestsBase : MiniLcmTestBase
 {
     [Fact]
     public async Task CanCreateEntry()
@@ -11,6 +11,24 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
         entry.Should().NotBeNull();
         entry!.LexemeForm.Values.Should().ContainKey("en");
         entry.LexemeForm.Values["en"].Should().Be("test");
+    }
+
+    [Fact]
+    public async Task CanCreateEntry_AutoFaker()
+    {
+        var entry = await AutoFaker.EntryReadyForCreation(Api, createComplexFormTypes:false);
+        //todo limitation of fwdata prevents us from specifying the complex form type ahead of time
+        foreach (var entryComplexFormType in entry.ComplexFormTypes)
+        {
+            entryComplexFormType.Id = Guid.Empty;
+            await Api.CreateComplexFormType(entryComplexFormType);
+        }
+        var createdEntry = await Api.CreateEntry(entry);
+        createdEntry.Should().BeEquivalentTo(entry, options => options
+            .For(e => e.Components).Exclude(e => e.Id)
+            .For(e => e.ComplexForms).Exclude(e => e.Id)
+            //predefined is always true in fwdata bridge, so we need to exclude it for now
+            .For(e => e.Senses).For(s => s.SemanticDomains).Exclude(s => s.Predefined));
     }
 
     [Fact]
@@ -96,7 +114,9 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
 
         entry = await Api.GetEntry(complexFormEntryId);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id && c.ComponentSenseId == componentSenseId);
+        entry!.Components.Should().ContainSingle(c =>
+            c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id &&
+            c.ComponentSenseId == componentSenseId);
     }
 
     [Fact]
@@ -109,8 +129,7 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
 
         var entry = await Api.CreateEntry(new()
         {
-            LexemeForm = { { "en", "test" } },
-            ComplexFormTypes = [complexFormType]
+            LexemeForm = { { "en", "test" } }, ComplexFormTypes = [complexFormType]
         });
         entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();

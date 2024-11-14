@@ -1,9 +1,25 @@
-﻿namespace LcmCrdt.Tests.MiniLcmTests;
+﻿using Xunit.Abstractions;
 
-public class BasicApiTests(MiniLcmApiFixture fixture): BasicApiTestsBase, IClassFixture<MiniLcmApiFixture>
+namespace LcmCrdt.Tests.MiniLcmTests;
+
+public class BasicApiTests(ITestOutputHelper output): BasicApiTestsBase
 {
+    private readonly MiniLcmApiFixture _fixture = new();
+    public override async Task InitializeAsync()
+    {
+        _fixture.LogTo(output);
+        await _fixture.InitializeAsync();
+        await base.InitializeAsync();
+    }
+
     protected override Task<IMiniLcmApi> NewApi()
     {
-        return Task.FromResult<IMiniLcmApi>(fixture.Api);
+        return Task.FromResult<IMiniLcmApi>(_fixture.Api);
+    }
+
+    public override async Task DisposeAsync()
+    {
+        await base.DisposeAsync();
+        await _fixture.DisposeAsync();
     }
 }

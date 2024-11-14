@@ -1,9 +1,8 @@
 ﻿namespace LcmCrdt.Tests.MiniLcmTests;
 
-public class CreateEntryTests : CreateEntryTestsBase
+public class UpdateEntryTests : UpdateEntryTestsBase
 {
     private readonly MiniLcmApiFixture _fixture = new();
-
     protected override async Task<IMiniLcmApi> NewApi()
     {
         await _fixture.InitializeAsync();
