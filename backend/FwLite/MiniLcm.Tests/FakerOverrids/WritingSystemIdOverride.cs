@@ -6,6 +6,8 @@ namespace MiniLcm.Tests.FakerOverrids;
 
 public class WritingSystemIdOverride: AutoFakerOverride<WritingSystemId>
 {
+    public override bool Preinitialize => false;
+
     public override void Generate(AutoFakerOverrideContext context)
     {
         var ws = context.Faker.Random.ArrayElement(WritingSystemCodes.ValidTwoLetterCodes);

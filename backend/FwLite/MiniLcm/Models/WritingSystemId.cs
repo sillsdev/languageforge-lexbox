@@ -39,7 +39,7 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
         }
         else
         {
-            throw new ArgumentException($"Invalid writing system ID {code}", nameof(code));
+            throw new ArgumentException($"Invalid writing system ID '{code}'", nameof(code));
         }
     }
 
