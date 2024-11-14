@@ -75,11 +75,10 @@ public class UsersICanSeeQueryTests : ApiTestBase
     public async Task ManagerCanSeeProjectMembersOfAllProjects()
     {
         await LoginAs("manager");
-        await using var publicProject = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: false));
-        await using var privateProject = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: true));
+        await using var project = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: true));
         //refresh jwt
         await LoginAs("manager");
-        await AddUserToProject(privateProject.Id, "qa@test.com");
+        await AddUserToProject(project.Id, "qa@test.com");
         var json = GetUsers(await QueryUsersICanSee());
         MustHaveUser(json, "Qa Admin");
     }
@@ -88,11 +87,10 @@ public class UsersICanSeeQueryTests : ApiTestBase
     public async Task MemberCanSeeNotProjectMembersOfConfidentialProjects()
     {
         await LoginAs("manager");
-        await using var publicProject = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: false));
-        await using var privateProject = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: true));
+        await using var project = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: true));
         //refresh jwt
         await LoginAs("manager");
-        await AddUserToProject(privateProject.Id, "qa@test.com");
+        await AddUserToProject(project.Id, "qa@test.com");
         await LoginAs("editor");
         var json = GetUsers(await QueryUsersICanSee());
         MustNotHaveUser(json, "Qa Admin");
