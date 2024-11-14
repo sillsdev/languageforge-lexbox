@@ -186,6 +186,19 @@ public class LexQueries
         return context.Users.Where(u => u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)));
     }
 
+    [UseOffsetPaging]
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IQueryable<User> UsersICanSee(LexBoxDbContext context, LoggedInContext loggedInContext)
+    {
+        var myOrgIds = loggedInContext.User.Orgs.Select(o => o.OrgId).ToList();
+        var myManagedProjectIds = loggedInContext.User.Projects.Where(p => p.Role == ProjectRole.Manager).Select(p => p.ProjectId).ToList();
+        return context.Users.Where(u =>
+            u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)) ||
+            u.Projects.Any(projMember => myManagedProjectIds.Contains(projMember.ProjectId)));
+    }
+
     [UseProjection]
     [GraphQLType<OrgByIdGqlConfiguration>]
     public async Task<Organization?> OrgById(LexBoxDbContext dbContext,

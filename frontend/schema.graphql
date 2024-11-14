@@ -192,6 +192,10 @@ type InvalidEmailError implements Error {
   address: String!
 }
 
+type InvalidOperationError implements Error {
+  message: String!
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -439,6 +443,7 @@ type Query {
   orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   usersInMyOrg(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersInMyOrgCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
+  usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   orgById(orgId: UUID!): OrgById @cost(weight: "10")
   users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   me: MeDto @cost(weight: "10")
@@ -556,6 +561,15 @@ type UsersCollectionSegment {
 }
 
 "A segment of a collection."
+type UsersICanSeeCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [User!]
+  totalCount: Int! @cost(weight: "10")
+}
+
+"A segment of a collection."
 type UsersInMyOrgCollectionSegment {
   "Information to aid in pagination."
   pageInfo: CollectionSegmentInfo!
@@ -608,7 +622,7 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SendNewVerificationEmailByAdminError = NotFoundError | DbError | UniqueValueError
+union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
 union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
