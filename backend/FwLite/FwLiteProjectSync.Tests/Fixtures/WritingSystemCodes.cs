@@ -1,6 +1,6 @@
 using SIL.WritingSystems;
 
-namespace MiniLcm.Tests;
+namespace FwLiteProjectSync.Tests;
 
 public static class WritingSystemCodes
 {

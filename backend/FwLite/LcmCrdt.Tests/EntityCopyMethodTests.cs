@@ -10,7 +10,7 @@ public class EntityCopyMethodTests
 {
     private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
     {
-        Overrides = [new MultiStringOverride()]
+        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
     });
 
     public static IEnumerable<object[]> GetEntityTypes()
