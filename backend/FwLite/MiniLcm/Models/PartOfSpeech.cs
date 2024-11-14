@@ -20,6 +20,12 @@ public class PartOfSpeech : IObjectWithId
 
     public IObjectWithId Copy()
     {
-        return new PartOfSpeech { Id = Id, Name = Name, DeletedAt = DeletedAt, Predefined = Predefined };
+        return new PartOfSpeech
+        {
+            Id = Id,
+            Name = Name,
+            DeletedAt = DeletedAt,
+            Predefined = Predefined
+        };
     }
 }

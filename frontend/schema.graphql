@@ -211,6 +211,7 @@ type LeaveProjectPayload {
 }
 
 type LexAuthUser {
+  isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -266,6 +267,7 @@ type Mutation {
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload! @cost(weight: "10")
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload! @cost(weight: "10")
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  sendNewVerificationEmailByAdmin(input: SendNewVerificationEmailByAdminInput!): SendNewVerificationEmailByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload! @cost(weight: "10")
   setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
@@ -277,19 +279,19 @@ type NotFoundError implements Error {
 }
 
 type OrgById {
+  id: UUID!
   members: [OrgByIdMember!]!
   name: String!
   projects: [Project!]!
   memberCount: Int!
   projectCount: Int!
-  id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
 }
 
 type OrgByIdMember {
-  user: OrgByIdUser!
   userId: UUID!
+  user: OrgByIdUser!
   orgId: UUID!
   role: OrgRole!
   organization: Organization
@@ -409,9 +411,9 @@ type ProjectMembersMustBeVerifiedForRole implements Error {
 }
 
 type ProjectUsers {
+  userId: UUID!
   user: User!
   project: Project!
-  userId: UUID!
   projectId: UUID!
   role: ProjectRole!
   id: UUID!
@@ -457,6 +459,11 @@ type RemoveProjectMemberPayload {
 
 type RequiredError implements Error {
   message: String!
+}
+
+type SendNewVerificationEmailByAdminPayload {
+  user: User
+  errors: [SendNewVerificationEmailByAdminError!]
 }
 
 type SetOrgMemberRolePayload {
@@ -600,6 +607,8 @@ union LeaveOrgError = NotFoundError | LastMemberCantLeaveError
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
+
+union SendNewVerificationEmailByAdminError = NotFoundError | DbError | UniqueValueError
 
 union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
@@ -1032,6 +1041,10 @@ input RetentionPolicyOperationFilterInput {
   neq: RetentionPolicy @cost(weight: "10")
   in: [RetentionPolicy!] @cost(weight: "10")
   nin: [RetentionPolicy!] @cost(weight: "10")
+}
+
+input SendNewVerificationEmailByAdminInput {
+  userId: UUID!
 }
 
 input SetOrgMemberRoleInput {

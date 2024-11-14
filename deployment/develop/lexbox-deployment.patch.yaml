@@ -12,7 +12,7 @@ spec:
         - name: lexbox-api
           env:
             - name: CloudFlare__AllowDomain
-              value: "mailinator.com"
+              value: "developermail.com"
             - name: ASPNETCORE_ENVIRONMENT
               value: "Staging" #we don't want to act like dev as that's for local development
               valueFrom:

@@ -4,7 +4,7 @@ using Soenneker.Utils.AutoBogus.Override;
 
 namespace MiniLcm.Tests.FakerOverrids;
 
-public class MultiStringOverride: AutoFakerOverride<MultiString>
+public class MultiStringOverride(string[]? validWs = null): AutoFakerOverride<MultiString>
 {
     public override void Generate(AutoFakerOverrideContext context)
     {
@@ -16,8 +16,8 @@ public class MultiStringOverride: AutoFakerOverride<MultiString>
         var wordsArray = context.Faker.Random.WordsArray(1, 4);
         foreach (var word in wordsArray)
         {
-            var ws = context.Faker.Random.ArrayElement(WritingSystemCodes.ValidTwoLetterCodes);
-            target[ws] = word;
+            var writingSystemId = context.Faker.Random.ArrayElement(validWs ?? WritingSystemCodes.ValidTwoLetterCodes);
+            target[writingSystemId] = word;
         }
     }
 }

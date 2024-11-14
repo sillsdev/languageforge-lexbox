@@ -19,6 +19,6 @@ public record ComplexFormType : IObjectWithId
 
     public IObjectWithId Copy()
     {
-        return new ComplexFormType { Id = Id, Name = Name, DeletedAt = DeletedAt, };
+        return new ComplexFormType { Id = Id, Name = Name, DeletedAt = DeletedAt };
     }
 }

@@ -22,3 +22,9 @@ public interface IObjectWithId
 
     public IObjectWithId Copy();
 }
+
+public interface IObjectWithId<TSelf> : IObjectWithId where TSelf : IObjectWithId
+{
+    IObjectWithId IObjectWithId.Copy() => Copy();
+    new TSelf Copy();
+}
