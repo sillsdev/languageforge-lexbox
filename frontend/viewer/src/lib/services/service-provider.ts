@@ -1,10 +1,12 @@
 import type {LexboxApiClient} from './lexbox-api';
+import {openSearch} from '../search-bar/search';
 
 declare global {
 
   interface Lexbox {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     ServiceProvider: LexboxServiceProvider;
+    Search: { openSearch: (search: string) => void };
   }
 
   interface Window {
@@ -46,8 +48,11 @@ export class LexboxServiceProvider {
 
 if (!window.lexbox) {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  window.lexbox = {ServiceProvider: new LexboxServiceProvider()};
-} else window.lexbox.ServiceProvider = new LexboxServiceProvider();
+  window.lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}};
+} else {
+  window.lexbox.ServiceProvider = new LexboxServiceProvider();
+  window.lexbox.Search = {openSearch: openSearch};
+}
 
 export function useLexboxApi(): LexboxApiClient {
   return window.lexbox.ServiceProvider.getService(LexboxService.LexboxApi);

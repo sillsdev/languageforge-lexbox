@@ -8,7 +8,7 @@
   export let loading = false;
   export let active = false;
   export let join = false;
-  export let variant: 'btn-success' | 'btn-ghost' | undefined = undefined;
+  export let variant: 'btn-success' | 'btn-ghost' | 'btn-primary' | undefined = undefined;
   export let size: 'btn-sm' | undefined = undefined;
   let loadingSize = size === 'btn-sm' ? 'loading-xs' as const : undefined;
   export let outline = variant !== 'btn-ghost';

@@ -2,9 +2,9 @@
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 
-namespace FwLiteProjectSync.Tests.Fixtures;
+namespace MiniLcm.Tests.AutoFakerHelpers;
 
-public class MultiStringOverride: AutoFakerOverride<MultiString>
+public class MultiStringOverride(string[]? validWs = null): AutoFakerOverride<MultiString>
 {
     public override void Generate(AutoFakerOverrideContext context)
     {
@@ -16,7 +16,10 @@ public class MultiStringOverride: AutoFakerOverride<MultiString>
         var wordsArray = context.Faker.Random.WordsArray(1, 4);
         foreach (var word in wordsArray)
         {
-            target[context.Faker.Random.String(2, 'a', 'z')] = word;
+            var writingSystemId = validWs is not null
+                ? context.Faker.Random.ArrayElement(validWs)
+                : context.Faker.Random.String(2, 'a', 'z');
+            target[writingSystemId] = word;
         }
     }
 }

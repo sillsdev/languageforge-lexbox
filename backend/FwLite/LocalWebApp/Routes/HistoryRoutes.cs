@@ -32,7 +32,7 @@ public static class HistoryRoutes
             {
                 //todo requires the timestamp to be exact, otherwise the change made on that timestamp will not be included
                 //consider using a commitId and looking up the timestamp, but then we should be exact to the commit which we aren't right now.
-                return await dataModel.GetEntitySnapshotAtTime(new DateTimeOffset(timestamp), entityId);
+                return await dataModel.GetAtTime<IObjectBase>(new DateTimeOffset(timestamp), entityId);
             });
         group.MapGet("/{entityId}",
             (Guid entityId, ICrdtDbContext dbcontext) =>

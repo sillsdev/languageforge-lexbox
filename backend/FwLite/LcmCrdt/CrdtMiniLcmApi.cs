@@ -18,14 +18,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
 
-    private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
-    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<ComplexFormComponent>();
-    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.GetLatestObjects<ComplexFormType>();
-    private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
-    private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
-    private IQueryable<SemanticDomain> SemanticDomains => dataModel.GetLatestObjects<SemanticDomain>();
-    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.GetLatestObjects<PartOfSpeech>();
+    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
+    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
+    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>();
+    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>();
+    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>();
+    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
+    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
+    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -353,7 +353,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
-    }
+            }
 
     private async ValueTask<bool> IsEntryDeleted(Guid id)
     {
@@ -370,6 +370,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+    }
+
+    public async Task<Entry> UpdateEntry(Entry before, Entry after)
+    {
+        await EntrySync.Sync(after, before, this);
+        return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
     public async Task DeleteEntry(Guid id)

@@ -9,6 +9,8 @@ using LocalWebApp.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using NReco.Logging.File;
 
 namespace LocalWebApp;
 
@@ -17,7 +19,7 @@ public static class LocalWebAppServer
     public static WebApplication SetupAppServer(WebApplicationOptions options, Action<WebApplicationBuilder>? configure = null)
     {
         var builder = WebApplication.CreateBuilder(options);
-        if (!builder.Environment.IsDevelopment())
+        if (!builder.Environment.IsDevelopment() && options.Args?.Contains("--urls") != true)
             builder.WebHost.UseUrls("http://127.0.0.1:0");
         if (builder.Environment.IsDevelopment())
         {
@@ -35,6 +37,11 @@ public static class LocalWebAppServer
             config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
         builder.Logging.AddDebug();
+        if (builder.Configuration.GetValue<string>("LocalWebApp:LogFileName") is { Length: > 0 } logFileName)
+        {
+            builder.Logging.AddFile(logFileName);
+        }
+        builder.Services.AddCors();
         builder.Services.AddLocalAppServices(builder.Environment);
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -54,7 +61,15 @@ public static class LocalWebAppServer
             app.UseSwaggerUI();
         }
 
-//configure dotnet to serve static files from the embedded resources
+        if (app.Services.GetRequiredService<IOptions<LocalWebAppConfig>>().Value.CorsAllowAny)
+        {
+            app.UseCors(policyBuilder =>
+            {
+                policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            });
+        }
+
+        //configure dotnet to serve static files from the embedded resources
         SharedOptions sharedOptions;
         try
         {

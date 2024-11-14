@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm.Models;
 
-public class Entry : IObjectWithId
+public class Entry : IObjectWithId<Entry>
 {
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
@@ -34,7 +34,7 @@ public class Entry : IObjectWithId
     }
 
 
-    public IObjectWithId Copy()
+    public Entry Copy()
     {
         return new Entry
         {
