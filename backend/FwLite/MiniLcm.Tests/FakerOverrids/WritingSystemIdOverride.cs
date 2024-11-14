@@ -2,9 +2,9 @@ using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 
-namespace FwLiteProjectSync.Tests;
+namespace MiniLcm.Tests.FakerOverrids;
 
-public class WritingSystemOverride: AutoFakerOverride<WritingSystemId>
+public class WritingSystemIdOverride: AutoFakerOverride<WritingSystemId>
 {
     public override void Generate(AutoFakerOverrideContext context)
     {
