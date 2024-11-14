@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserInMyOrgTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { derived, writable } from 'svelte/store';
@@ -25,15 +25,15 @@
 
   const dispatch = createEventDispatcher<{
       selectedUserId: string | null;
-      selectedUser: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null;
+      selectedUser: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null;
   }>();
 
-  let selectedUser = writable<SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null>(null);
+  let selectedUser = writable<SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null>(null);
   let selectedUserId = derived(selectedUser, user => user?.id ?? null);
   $: dispatch('selectedUserId', $selectedUserId);
   $: dispatch('selectedUser', $selectedUser);
 
-  function formatResult(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+  function formatResult(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
     const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
                 : 'username' in user && user.username ? ` (${user.username})`
                 : 'email' in user && user.email ? ` (${user.email})`
@@ -41,7 +41,7 @@
     return `${user.name}${extra}`;
   }
 
-  function getInputValue(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+  function getInputValue(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
     if ('email' in user && user.email) return user.email;
     if ('username' in user && user.username) return user.username;
     if ('name' in user && user.name) return user.name;

@@ -58,15 +58,15 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
   return users;
 }
 
-export type UsersInMyOrgTypeaheadResult = NonNullable<NonNullable<LoadOrgMembersTypeaheadQuery['usersInMyOrg']>['items']>;
-export type SingleUserInMyOrgTypeaheadResult = UsersInMyOrgTypeaheadResult[number];
+export type UsersICanSeeTypeaheadResult = NonNullable<NonNullable<LoadOrgMembersTypeaheadQuery['usersICanSee']>['items']>;
+export type SingleUserICanSeeTypeaheadResult = UsersICanSeeTypeaheadResult[number];
 
-export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersInMyOrgTypeaheadResult> {
+export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersICanSeeTypeaheadResult> {
   if (!orgMemberSearch) return [];
   const client = getClient();
   const users = await client.query(graphql(`
     query loadOrgMembersTypeahead($filter: UserFilterInput, $take: Int!) {
-      usersInMyOrg(where: $filter, orderBy: {name: ASC}, take: $take) {
+      usersICanSee(where: $filter, orderBy: {name: ASC}, take: $take) {
         totalCount
         items {
           id
@@ -76,5 +76,5 @@ export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit =
     }
   `), { filter: userFilter(orgMemberSearch), take: limit });
 
-  return users.data?.usersInMyOrg?.items ?? [];
+  return users.data?.usersICanSee?.items ?? [];
 }
