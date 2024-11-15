@@ -361,6 +361,24 @@ public class ProjectMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
+    public async Task<IQueryable<Project>> UpdateProjectRepoSizeInKb(string code,
+        IPermissionService permissionService,
+        ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanViewProject(projectId);
+        if (projectId == default) throw NotFoundException.ForType<Project>();
+        await projectService.UpdateRepoSizeInKb(code);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
     public async Task<IQueryable<Project>> UpdateProjectLexEntryCount(string code,
         IPermissionService permissionService,
         ProjectService projectService,

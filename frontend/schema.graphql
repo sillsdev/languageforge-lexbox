@@ -257,6 +257,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload! @cost(weight: "10")
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload! @cost(weight: "10")
   setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload! @cost(weight: "10")
+  updateProjectRepoSizeInKb(input: UpdateProjectRepoSizeInKbInput!): UpdateProjectRepoSizeInKbPayload! @cost(weight: "10")
   updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload! @cost(weight: "10")
   updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload! @cost(weight: "10")
   updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload! @cost(weight: "10")
@@ -386,6 +387,7 @@ type Project {
   flexProjectMetadata: FlexProjectMetadata
   organizations: [Organization!]!
   lastCommit: DateTime
+  repoSizeInKb: Int
   deletedDate: DateTime
   resetStatus: ResetStatus!
   projectOrigin: ProjectMigrationStatus!
@@ -519,6 +521,11 @@ type UpdateProjectLexEntryCountPayload {
   errors: [UpdateProjectLexEntryCountError!]
 }
 
+type UpdateProjectRepoSizeInKbPayload {
+  project: Project
+  errors: [UpdateProjectRepoSizeInKbError!]
+}
+
 type User {
   email: String @authorize(policy: "AdminRequiredPolicy")
   emailVerified: Boolean! @authorize(policy: "AdminRequiredPolicy")
@@ -627,6 +634,8 @@ union UpdateLangProjectIdError = NotFoundError | DbError | UnauthorizedAccessErr
 union UpdateProjectLanguageListError = NotFoundError | DbError | UnauthorizedAccessError
 
 union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectRepoSizeInKbError = NotFoundError | DbError | UnauthorizedAccessError
 
 input AddProjectMemberInput {
   projectId: UUID!
@@ -939,6 +948,7 @@ input ProjectFilterInput {
   users: ListFilterInputTypeOfProjectUsersFilterInput
   organizations: ListFilterInputTypeOfOrganizationFilterInput
   lastCommit: DateTimeOperationFilterInput
+  repoSizeInKb: IntOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
@@ -973,6 +983,7 @@ input ProjectSortInput {
   isConfidential: SortEnumType @cost(weight: "10")
   flexProjectMetadata: FlexProjectMetadataSortInput @cost(weight: "10")
   lastCommit: SortEnumType @cost(weight: "10")
+  repoSizeInKb: SortEnumType @cost(weight: "10")
   deletedDate: SortEnumType @cost(weight: "10")
   resetStatus: SortEnumType @cost(weight: "10")
   projectOrigin: SortEnumType @cost(weight: "10")
@@ -1103,6 +1114,10 @@ input UpdateProjectLanguageListInput {
 }
 
 input UpdateProjectLexEntryCountInput {
+  code: String!
+}
+
+input UpdateProjectRepoSizeInKbInput {
   code: String!
 }
 

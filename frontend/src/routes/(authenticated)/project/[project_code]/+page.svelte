@@ -17,6 +17,7 @@
     _updateFLExModelVersion,
     _updateProjectLanguageList,
     _updateProjectLexEntryCount,
+    _updateProjectRepoSizeInKb,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -88,11 +89,26 @@
     if (urlValues.addUserId && urlValues.addUserName && addProjectMember) {
       void addProjectMember.openModal(urlValues.addUserId, urlValues.addUserName);
     }
+
+    if (project && project.repoSizeInKb == null) {
+      void updateRepoSize();
+    }
   });
 
   let addProjectMember: AddProjectMember;
 
   let userModal: UserModal;
+
+  let loadingRepoSize = false;
+  async function updateRepoSize(): Promise<void> {
+    loadingRepoSize = true;
+    await _updateProjectRepoSizeInKb(project.code);
+    loadingRepoSize = false;
+  }
+
+  function sizeStrInMb(sizeInKb: number): string {
+    return `${$number(sizeInKb / 1024, {maximumFractionDigits: 1})} MB`;
+  }
 
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
@@ -398,6 +414,7 @@
       <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
       <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
       <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
+      <DetailItem title={$t('project_page.repo_size')} loading={loadingRepoSize} text={sizeStrInMb(project.repoSizeInKb ?? 0)} />
       {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
           <AdminContent slot="extras">
