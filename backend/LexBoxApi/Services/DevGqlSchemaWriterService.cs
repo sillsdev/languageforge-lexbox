@@ -33,6 +33,7 @@ public class DevGqlSchemaWriterService : IHostedService
             .AddScoped<LexBoxDbContext>()
             .AddScoped<IPermissionService, PermissionService>()
             .AddScoped<ProjectService>()
+            .AddScoped<UserService>()
             .AddScoped<LexAuthService>()
             .AddLexGraphQL(builder.Environment, true);
         var host = builder.Build();
