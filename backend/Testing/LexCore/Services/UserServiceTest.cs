@@ -27,6 +27,7 @@ public class UserServiceTest
     {
         var serviceProvider = testing.ConfigureServices(s =>
         {
+            s.AddScoped<IEmailService>(_ => Mock.Of<IEmailService>());
             s.AddScoped<UserService>();
         });
         _userService = serviceProvider.GetRequiredService<UserService>();
