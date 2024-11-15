@@ -56,6 +56,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
     }
 
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        await WritingSystemSync.Sync(after, before, this);
+        return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
+    }
+
     private WritingSystem? _defaultVernacularWs;
     private WritingSystem? _defaultAnalysisWs;
     private async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)

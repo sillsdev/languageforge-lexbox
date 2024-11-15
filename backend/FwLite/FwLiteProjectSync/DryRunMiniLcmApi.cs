@@ -34,6 +34,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         }).First(w => w.WsId == id);
     }
 
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update {after.Type} writing system {after.Id}"));
+        return Task.FromResult(after);
+    }
+
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
         return api.GetPartsOfSpeech();

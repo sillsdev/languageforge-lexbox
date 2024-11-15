@@ -132,6 +132,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
+    public Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    {
+        throw new NotImplementedException();
+    }
+
     internal void CompleteExemplars(WritingSystems writingSystems)
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
@@ -185,7 +190,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(); // TODO: This needs to be implemented now, because UpdateWritingSystem(before, after) needs to call this
+    }
+
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
+            "Revert WritingSystem",
+            async () =>
+            {
+                await WritingSystemSync.Sync(after, before, this);
+            });
+        return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.Id);
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
