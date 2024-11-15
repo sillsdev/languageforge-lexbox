@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { derived, writable } from 'svelte/store';
@@ -19,7 +19,7 @@
   $: $input = value;
   let typeaheadResults = deriveAsync(
     input,
-    isAdmin ? _userTypeaheadSearch : _orgMemberTypeaheadSearch,
+    isAdmin ? _userTypeaheadSearch : _usersTypeaheadSearch,
     [],
     debounceMs);
 

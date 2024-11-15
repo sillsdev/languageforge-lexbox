@@ -1,7 +1,7 @@
-import type { LoadAdminUsersTypeaheadQuery, LoadOrgMembersTypeaheadQuery, UserFilterInput } from './types';
+import type {LoadAdminUsersTypeaheadQuery, LoadUsersICanSeeTypeaheadQuery, UserFilterInput} from './types';
 
-import { getClient } from './gql-client';
-import { graphql } from './generated';
+import {getClient} from './gql-client';
+import {graphql} from './generated';
 
 export function userFilter(userSearch: string): UserFilterInput {
   return {
@@ -58,14 +58,14 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
   return users;
 }
 
-export type UsersICanSeeTypeaheadResult = NonNullable<NonNullable<LoadOrgMembersTypeaheadQuery['usersICanSee']>['items']>;
+export type UsersICanSeeTypeaheadResult = NonNullable<NonNullable<LoadUsersICanSeeTypeaheadQuery['usersICanSee']>['items']>;
 export type SingleUserICanSeeTypeaheadResult = UsersICanSeeTypeaheadResult[number];
 
-export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersICanSeeTypeaheadResult> {
+export async function _usersTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersICanSeeTypeaheadResult> {
   if (!orgMemberSearch) return [];
   const client = getClient();
   const users = await client.query(graphql(`
-    query loadOrgMembersTypeahead($filter: UserFilterInput, $take: Int!) {
+    query loadUsersICanSeeTypeahead($filter: UserFilterInput, $take: Int!) {
       usersICanSee(where: $filter, orderBy: {name: ASC}, take: $take) {
         totalCount
         items {
