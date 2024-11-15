@@ -94,6 +94,6 @@ public class UserService(LexBoxDbContext dbContext, IEmailService emailService)
             u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)) ||
             u.Projects.Any(projMember =>
                 myManagedProjectIds.Contains(projMember.ProjectId) ||
-                (projMember.Project != null && projMember.Project.IsConfidential == false && myProjectIds.Contains(projMember.ProjectId))));
+                (projMember.Project != null && projMember.Project.IsConfidential != true && myProjectIds.Contains(projMember.ProjectId))));
     }
 }
