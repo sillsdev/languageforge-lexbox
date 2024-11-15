@@ -16,9 +16,7 @@ public class MultiStringOverride(string[]? validWs = null): AutoFakerOverride<Mu
         var wordsArray = context.Faker.Random.WordsArray(1, 4);
         foreach (var word in wordsArray)
         {
-            var writingSystemId = validWs is not null
-                ? context.Faker.Random.ArrayElement(validWs)
-                : context.Faker.Random.String(2, 'a', 'z');
+            var writingSystemId = context.Faker.Random.ArrayElement(validWs ?? WritingSystemCodes.ValidTwoLetterCodes);
             target[writingSystemId] = word;
         }
     }
