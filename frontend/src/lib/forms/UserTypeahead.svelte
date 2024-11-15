@@ -14,6 +14,7 @@
   export let value: string;
   export let debounceMs = 200;
   export let isAdmin: boolean = false;
+  export let exclude: string[] = [];
 
   let input = writable('');
   $: $input = value;
@@ -22,6 +23,8 @@
     isAdmin ? _userTypeaheadSearch : _usersTypeaheadSearch,
     [],
     debounceMs);
+
+  $: filteredResults = $typeaheadResults.filter(user => !exclude.includes(user.id));
 
   const dispatch = createEventDispatcher<{
       selectedUserId: string | null;
@@ -62,7 +65,7 @@
     />
     <div class="overlay-content">
       <ul class="menu p-0">
-      {#each $typeaheadResults as user}
+      {#each filteredResults as user}
         <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
           setTimeout(() => {
             if ('id' in user && user.id) {

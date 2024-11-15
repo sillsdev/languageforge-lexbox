@@ -500,7 +500,7 @@
               {$t('project_page.add_user.add_button')}
             </BadgeButton>
 
-            <AddProjectMember bind:this={addProjectMember} projectId={project.id} />
+            <AddProjectMember bind:this={addProjectMember} {project} />
             <BulkAddProjectMembers projectId={project.id} />
           </svelte:fragment>
           <UserModal bind:this={userModal}/>
