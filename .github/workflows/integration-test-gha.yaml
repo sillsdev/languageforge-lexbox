@@ -15,7 +15,7 @@ on:
         required: true
 
 jobs:
-  execute:
+  start-cluster:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -81,6 +81,15 @@ jobs:
           kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
       - name: verify ingress
         run: curl -v http://localhost:6579
+
+  dotnet-test:
+    runs-on: ubuntu-latest
+    needs: [ start-cluster ]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: build
         run: dotnet restore LexBoxOnly.slnf && dotnet build --no-restore LexBoxOnly.slnf
       - name: Dotnet test
@@ -92,6 +101,12 @@ jobs:
           TEST_DEFAULT_PASSWORD: 'pass'
         run: dotnet test LexBoxOnly.slnf --logger GitHubActions --filter "Category=Integration|Category=FlakyIntegration" --blame-hang-timeout 40m
 
+  playwright-test:
+    runs-on: ubuntu-latest
+    needs: [ start-cluster ]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
       ##playwright tests
       # First we need to setup Node...
       - uses: actions/setup-node@v4
@@ -133,7 +148,11 @@ jobs:
           path: |
             ./frontend/test-results
 
-
+  upload-logs:
+    needs: [ start-cluster, dotnet-test, playwright-test ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
       - name: status
         if: failure()
         run: |
