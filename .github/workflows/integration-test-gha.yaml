@@ -123,7 +123,7 @@ jobs:
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
         working-directory: frontend
-        run: pnpm test
+        run: pnpm run test -g "^(?!.*Viewer Page).*" # exclude the viewer page tests, because mongo is not available
 
       - name: Upload playwright results
         if: ${{ always() && steps.playwright-tests.outcome != 'skipped' }}
