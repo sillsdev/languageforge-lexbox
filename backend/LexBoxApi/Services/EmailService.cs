@@ -293,7 +293,7 @@ public class EmailService(
     {
         ArgumentException.ThrowIfNullOrEmpty(jwt);
         ArgumentException.ThrowIfNullOrEmpty(returnTo);
-        if (new Uri(returnTo).IsAbsoluteUri) throw new ArgumentException($"returnTo must be relative, was: {returnTo}", nameof(returnTo));
+        if (new Uri(returnTo, UriKind.RelativeOrAbsolute).IsAbsoluteUri) throw new ArgumentException($"returnTo must be relative, was: {returnTo}", nameof(returnTo));
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var loginRedirect = _linkGenerator.GetUriByAction(httpContext,
