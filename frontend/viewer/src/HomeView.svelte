@@ -231,7 +231,7 @@
                   <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
                 {/if}
               </div>
-              {@const serverProjects = remoteProjects[server.authority] ?? []}
+              {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
               {#each serverProjects as project}
                 {@const localProject = matchesProject(projects, project)}
                 <div class="flex flex-row items-center px-10">
