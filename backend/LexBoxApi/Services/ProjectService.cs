@@ -1,6 +1,7 @@
 using System.Data.Common;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services.Email;
+using LexCore.Auth;
 using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -38,6 +39,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 IsConfidential = isConfidentialIsUntrustworthy ? null : input.IsConfidential,
                 Organizations = theOrg is not null ? [theOrg] : [],
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
+                FlexProjectMetadata = input.Type == ProjectType.FLEx ? new() : null
             });
         // Also delete draft project, if any
         await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
@@ -301,5 +303,10 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             // We'll silently ignore it since the other process has already succeeded
         }
         return count;
+    }
+
+    public IQueryable<Project> UserProjects(Guid userId)
+    {
+        return dbContext.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
     }
 }
