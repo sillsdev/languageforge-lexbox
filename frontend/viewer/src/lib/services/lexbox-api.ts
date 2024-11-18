@@ -37,7 +37,7 @@ export interface LexboxApi {
   GetEntry(guid: string): Promise<IEntry>;
 
   CreateEntry(entry: IEntry): Promise<IEntry>;
-  UpdateEntry(guid: string, update: JsonPatch): Promise<IEntry>;
+  UpdateEntry(before: IEntry, after: IEntry): Promise<IEntry>;
   DeleteEntry(guid: string): Promise<void>;
 
   CreateSense(entryGuid: string, sense: ISense): Promise<ISense>;
