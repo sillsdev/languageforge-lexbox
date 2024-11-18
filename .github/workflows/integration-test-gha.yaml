@@ -81,40 +81,12 @@ jobs:
           kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
       - name: verify ingress
         run: curl -v http://localhost:6579
-      - name: Save kubeconfig
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/kubeconfig
-          cp ~/.kube/config $GITHUB_WORKSPACE/kubeconfig/config
-        # Upload kubeconfig as an artifact so it can be used in the next job
-      - name: Upload kubeconfig
-        uses: actions/upload-artifact@v3
-        with:
-          name: kubeconfig
-          path: $GITHUB_WORKSPACE/kubeconfig/config
 
   dotnet-test:
     runs-on: ubuntu-latest
     needs: [ start-cluster ]
     timeout-minutes: 30
     steps:
-      - name: Download kubeconfig artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: kubeconfig
-
-      - name: Set KUBECONFIG environment variable
-        run: |
-          export KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig/config
-          kubectl config view # Verify that the kubeconfig is loaded correctly
-
-      - name: Forward ingress
-        run: |
-          kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
-          kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
-
-      - name: Verify ingress
-        run: curl -v http://localhost:6579
-
       - uses: actions/checkout@v4
         with:
           submodules: true
@@ -134,23 +106,6 @@ jobs:
     needs: [ start-cluster ]
     timeout-minutes: 60
     steps:
-      - name: Download kubeconfig artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: kubeconfig
-
-      - name: Set KUBECONFIG environment variable
-        run: |
-          export KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig/config
-          kubectl config view # Verify that the kubeconfig is loaded correctly
-
-      - name: Forward ingress
-        run: |
-          kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
-          kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
-
-      - name: Verify ingress
-        run: curl -v http://localhost:6579
       - uses: actions/checkout@v4
       ##playwright tests
       # First we need to setup Node...
@@ -198,21 +153,8 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Download kubeconfig artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: kubeconfig
-
-      - name: Set KUBECONFIG environment variable
-        run: |
-          export KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig/config
-          kubectl config view # Verify that the kubeconfig is loaded correctly
-
-      - name: Forward ingress
-        run: |
-          kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
-          kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
       - name: status
+        if: failure()
         run: |
           mkdir -p k8s-logs
           for app in lexbox ui hg db; do
@@ -221,6 +163,7 @@ jobs:
           done
           kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt
       - name: upload status
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: k8s-logs
