@@ -113,10 +113,10 @@ public class AuthHelpers
         }
     }
 
-    public async Task<OAuthService.SignInResult> SignIn(CancellationToken cancellation = default)
+    public async Task<OAuthService.SignInResult> SignIn(string returnUrl, CancellationToken cancellation = default)
     {
         InvalidateProjectCache();
-        return await _oAuthService.SubmitLoginRequest(_application, cancellation);
+        return await _oAuthService.SubmitLoginRequest(_application, returnUrl, cancellation);
     }
 
     public async Task Logout()

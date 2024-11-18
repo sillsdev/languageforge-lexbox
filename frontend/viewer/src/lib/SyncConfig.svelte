@@ -67,7 +67,7 @@
     fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
     search={() => /* a hack to always show all options */ Promise.resolve()}>
   </SelectField>
-{:else if isUploaded}
+{:else if isUploaded && server.loggedIn}
   <Button disabled color="success" icon={mdiBookSyncOutline} size="md">
     Syncing with {server.displayName}
   </Button>
@@ -91,7 +91,10 @@
   <Button variant="fill-light" color="primary" disabled={!targetProjectId} loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
     Upload to {server.displayName}
   </Button>
-{:else if $projectServer && !isUploaded && !server.loggedIn}
-  <!--todo after login we are sent home, should be sent back to the current project-->
+{/if}
+{#if server && !server.loggedIn}
+  {#if isUploaded}
+    <span>Your login has expired to sync with {server.displayName}. Please login again.</span>
+  {/if}
   <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
 {/if}
