@@ -24,10 +24,9 @@ public static class AuthRoutes
             });
         });
         group.MapGet("/login/{authority}",
-            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options, [FromHeader] string referer, ILogger<AuthConfig> logger) =>
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>
             {
                 var returnUrl = new Uri(referer).PathAndQuery;
-                logger.LogInformation("Login redirect to {ReturnUrl}", returnUrl);
                 var result = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).SignIn(returnUrl);
                 if (result.HandledBySystemWebView)
                 {
