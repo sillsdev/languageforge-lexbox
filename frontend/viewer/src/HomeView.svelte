@@ -104,10 +104,6 @@
     if (project.id) {
       matches = projects.find(p => p.id == project.id && p.serverAuthority == project.serverAuthority);
     }
-    //for now the local project list does not include the id, so fallback to the name
-    if (!matches) {
-      matches = projects.find(p => p.name === project.name && p.serverAuthority == project.serverAuthority);
-    }
     return matches;
   }
 
