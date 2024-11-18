@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using LocalWebApp.Routes;
+using LocalWebApp.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
@@ -21,7 +22,8 @@ public class AuthHelpers
     private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
     private readonly OAuthService _oAuthService;
     private readonly UrlContext _urlContext;
-    private readonly Uri _authority;
+    private readonly LexboxServer _lexboxServer;
+    private readonly LexboxProjectService _lexboxProjectService;
     private readonly ILogger<AuthHelpers> _logger;
     private readonly IPublicClientApplication _application;
     AuthenticationResult? _authResult;
@@ -32,14 +34,16 @@ public class AuthHelpers
         LinkGenerator linkGenerator,
         OAuthService oAuthService,
         UrlContext urlContext,
-        Uri authority,
+        LexboxServer lexboxServer,
+        LexboxProjectService lexboxProjectService,
         ILogger<AuthHelpers> logger,
         IHostEnvironment hostEnvironment)
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;
         _oAuthService = oAuthService;
         _urlContext = urlContext;
-        _authority = authority;
+        _lexboxServer = lexboxServer;
+        _lexboxProjectService = lexboxProjectService;
         _logger = logger;
         (var hostUrl, _isRedirectHostGuess) = urlContext.GetUrl();
         _redirectHost = HostString.FromUriComponent(hostUrl);
@@ -56,7 +60,7 @@ public class AuthHelpers
             .WithLogging(loggerAdapter, hostEnvironment.IsDevelopment())
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
             .WithRedirectUri(redirectUri)
-            .WithOidcAuthority(authority.ToString())
+            .WithOidcAuthority(lexboxServer.Authority.ToString())
             .Build();
         _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
             task =>
@@ -111,6 +115,7 @@ public class AuthHelpers
 
     public async Task<OAuthService.SignInResult> SignIn(CancellationToken cancellation = default)
     {
+        InvalidateProjectCache();
         return await _oAuthService.SubmitLoginRequest(_application, cancellation);
     }
 
@@ -122,6 +127,12 @@ public class AuthHelpers
         {
             await _application.RemoveAsync(account);
         }
+        InvalidateProjectCache();
+    }
+
+    private void InvalidateProjectCache()
+    {
+        _lexboxProjectService.InvalidateProjectsCache(_lexboxServer);
     }
 
     private async ValueTask<AuthenticationResult?> GetAuth()
@@ -177,7 +188,7 @@ public class AuthHelpers
 
         var handler = _httpMessageHandlerFactory.CreateHandler(AuthHttpClientName);
         var client = new HttpClient(handler, false);
-        client.BaseAddress = _authority;
+        client.BaseAddress = _lexboxServer.Authority;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
         return client;
     }
