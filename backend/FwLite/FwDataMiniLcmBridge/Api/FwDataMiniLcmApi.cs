@@ -188,9 +188,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLcmWritingSystem(ws, index, type));
     }
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        throw new NotImplementedException(); // TODO: This needs to be implemented now, because UpdateWritingSystem(before, after) needs to call this
+        Cache.ServiceLocator.WritingSystemManager.GetOrSet(id.Code, out var lcmWritingSystem);
+        await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
+            "Revert WritingSystem",
+            async () =>
+            {
+                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, this) { Type = type }; // TODO: Doesn't compile, wants Font to be set. Also wants a GUID Id which we don't have...
+                update.Apply(updateProxy);
+                updateProxy.CommitUpdate(Cache);
+            });
+        return await GetWritingSystem(id, type);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
