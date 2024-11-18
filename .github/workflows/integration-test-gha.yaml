@@ -95,26 +95,32 @@ jobs:
       ##playwright tests
       # First we need to setup Node...
       - uses: actions/setup-node@v4
+        if: always()
         with:
           node-version-file: 'frontend/package.json'
       # Then we can set up pnpm...
       - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        if: always()
         with:
           package_json_file: 'frontend/package.json'
       # Then we can have Node set up package caching
       - uses: actions/setup-node@v4
+        if: always()
         with:
           node-version-file: 'frontend/package.json'
           cache: 'pnpm'
           cache-dependency-path: 'frontend/pnpm-lock.yaml'
       - name: Playwright setup
+        if: always()
         working-directory: frontend
         run: pnpm install
       - name: Set up Playwright dependencies
+        if: always()
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
 
       - name: Integration tests (Playwright)
+        if: always()
         id: playwright-tests
         env:
           TEST_SERVER_HOSTNAME: 'localhost:6579'
