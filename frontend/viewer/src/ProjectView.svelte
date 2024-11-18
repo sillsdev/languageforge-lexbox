@@ -37,6 +37,7 @@
   import {useEventBus} from './lib/services/event-bus';
   import AboutDialog from './lib/about/AboutDialog.svelte';
   import { initProjectCommands, type NewEntryDialogOptions } from './lib/commands';
+  import throttle from 'just-throttle';
 
   export let loading = false;
 
@@ -229,11 +230,11 @@
 
   let editorElem: HTMLElement | undefined;
   let spaceForEditorStyle: string = '';
-  const updateSpaceForEditor = makeDebouncer(() => {
+  const updateSpaceForEditor = throttle(() => {
     if (!editorElem) return;
     const availableHeight = getAvailableHeightForElement(editorElem);
     spaceForEditorStyle = `--space-for-editor: ${availableHeight}px`;
-  }, 30).debounce;
+  }, 20, { leading: false, trailing: true });
 
   $: editorElem && updateSpaceForEditor();
   onMount(() => {
