@@ -11,7 +11,7 @@ public class UpdateDiffTests
 {
     private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
     {
-        Overrides = [new MultiStringOverride()]
+        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
     });
 
     [Fact]

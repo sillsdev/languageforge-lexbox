@@ -7,14 +7,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
+using Soenneker.Utils.AutoBogus.Config;
 
 namespace LcmCrdt.Tests;
 
 public class DataModelSnapshotTests : IAsyncLifetime
 {
+    private static AutoFaker _faker = new AutoFaker(new AutoFakerConfig()
+    {
+        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
+    });
+
     protected readonly AsyncServiceScope _services;
     private readonly LcmCrdtDbContext _crdtDbContext;
     private CrdtConfig _crdtConfig;
@@ -76,7 +83,6 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Fact]
     public void VerifyIObjectWithIdsMatchAdapterGetObjectTypeName()
     {
-        var faker = new AutoFaker();
         var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
         var types = jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions?.DerivedTypes ?? [];
         using (new AssertionScope())
@@ -84,7 +90,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
             foreach (var jsonDerivedType in types)
             {
                 var typeDiscriminator = jsonDerivedType.TypeDiscriminator.Should().BeOfType<string>().Subject;
-                var obj = faker.Generate(jsonDerivedType.DerivedType);
+                var obj = _faker.Generate(jsonDerivedType.DerivedType);
                 new MiniLcmCrdtAdapter((IObjectWithId)obj).GetObjectTypeName().Should().Be(typeDiscriminator);
             }
         }

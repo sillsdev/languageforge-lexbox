@@ -1,5 +1,6 @@
 ﻿using SIL.Harmony.Entities;
 using LcmCrdt.Objects;
+using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
@@ -8,7 +9,11 @@ namespace LcmCrdt.Tests;
 
 public class EntityCopyMethodTests
 {
-    private readonly AutoFaker _autoFaker = new(new AutoFakerConfig());
+    private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
+    {
+        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
+    });
+
     public static IEnumerable<object[]> GetEntityTypes()
     {
         var crdtConfig = new CrdtConfig();

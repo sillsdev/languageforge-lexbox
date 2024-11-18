@@ -47,6 +47,14 @@ jobs:
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
           echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
+
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: |
+          corepack enable
+          pnpm install
+          pnpm run build-app
+
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
@@ -55,12 +63,6 @@ jobs:
       - name: Dotnet test
         run: dotnet test FwLiteOnly.slnf --configuration Release  --logger GitHubActions
 
-      - name: Build viewer
-        working-directory: frontend/viewer
-        run: |
-          corepack enable
-          pnpm install
-          pnpm run build-app
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -51,6 +51,11 @@
         <EmbeddedResource Include="..\..\..\frontend\viewer\dist\**\*" />
     </ItemGroup>
 
+    <Target Name="FailIfViewerNotEmbedded" BeforeTargets="Build">
+        <Error Condition="@(EmbeddedResource->Count()) == 0"
+            Text="The viewer app was not found. Run 'pnpm run build-app' from the viewer folder." />
+    </Target>
+
     <ItemGroup Condition="$([MSBuild]::IsOsPlatform('macOS'))">
         <!--
           This assumes that icu4c libs are installed under "/opt/local/lib" on macOS. This is the default

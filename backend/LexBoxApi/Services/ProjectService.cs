@@ -151,6 +151,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         var rowsAffected = await dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
             .ExecuteUpdateAsync(u => u
                 .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
+                .SetProperty(p => p.RepoSizeInKb, 0)
                 .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
         if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
         await ResetLexEntryCount(input.Code);
@@ -239,7 +240,18 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         }
 
         project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+        project.RepoSizeInKb = await hgService.GetRepoSizeInKb(project.Code);
         // Caller is responsible for caling dbContext.SaveChangesAsync()
+    }
+
+    public async Task<int?> UpdateRepoSizeInKb(string projectCode)
+    {
+        var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return null;
+        var size = await hgService.GetRepoSizeInKb(projectCode);
+        project.RepoSizeInKb = size;
+        await dbContext.SaveChangesAsync();
+        return size;
     }
 
     public async Task ResetLexEntryCount(string projectCode)

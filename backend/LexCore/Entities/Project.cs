@@ -20,6 +20,7 @@ public class Project : EntityBase
     public required List<ProjectUsers> Users { get; set; }
     public required List<Organization> Organizations { get; set; }
     public required DateTimeOffset? LastCommit { get; set; }
+    public int? RepoSizeInKb { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
     public ResetStatus ResetStatus { get; set; } = ResetStatus.None;
 
