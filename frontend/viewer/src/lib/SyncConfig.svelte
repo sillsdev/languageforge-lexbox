@@ -15,6 +15,7 @@
       throw error;
     });
   });
+
   let isUploaded = false;
   let projectServer = writable<string | null>(null, set => {
     projectsService.getProjectServer(projectName).then(server => {
@@ -36,11 +37,18 @@
   };
   let uploading = false;
 
+  let targetProjectId: string | null = null;
+  async function serverProjectsForUpload(serverAuthority: string) {
+    const remoteProjects = await projectsService.fetchRemoteProjects();
+    return remoteProjects[serverAuthority].filter(p => !p.crdt);
+  }
+
   async function upload() {
     if (!$projectServer) return;
+    if (!targetProjectId) return;
     uploading = true;
     //todo if not logged in then login
-    await projectsService.uploadCrdtProject($projectServer, projectName);
+    await projectsService.uploadCrdtProject($projectServer, projectName, targetProjectId);
     uploading = false;
     isUploaded = true;
   }
@@ -65,7 +73,22 @@
   </Button>
 {/if}
 {#if $projectServer && !isUploaded && server.loggedIn}
-  <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
+  {#await serverProjectsForUpload($projectServer)}
+    <div class="loading loading-dots loading-lg"></div>
+  {:then projects}
+    <SelectField
+      label="Target project"
+      options={(projects).map((p) => ({ value: p.id, label: p.name, group: p.name }))}
+      bind:value={targetProjectId}
+      classes={{root: 'view-select w-auto', options: 'view-select-options'}}
+      clearable={false}
+      labelPlacement="top"
+      clearSearchOnOpen={false}
+      fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
+      search={() => /* a hack to always show all options */ Promise.resolve()}>
+    </SelectField>
+  {/await}
+  <Button variant="fill-light" color="primary" disabled={!targetProjectId} loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
     Upload to {server.displayName}
   </Button>
 {:else if $projectServer && !isUploaded && !server.loggedIn}

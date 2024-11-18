@@ -42,8 +42,8 @@ export class ProjectService {
     }
   }
 
-  async uploadCrdtProject(server: string, projectName: string) {
-    await fetch(`/api/upload/crdt/${server}/${projectName}`, {method: 'POST'});
+  async uploadCrdtProject(server: string, projectName: string, lexboxProjectId: string) {
+    await fetch(`/api/upload/crdt/${server}/${projectName}?lexboxProjectId=${lexboxProjectId}`, {method: 'POST'});
   }
   async getProjectServer(projectName: string): Promise<string|null> {
     const projects = await this.fetchProjects();
