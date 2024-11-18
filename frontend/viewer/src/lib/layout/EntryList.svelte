@@ -17,22 +17,26 @@
   export let search: string;
   export let expand: boolean;
 
+  const selectedEntry = getContext<Writable<IEntry | undefined>>('selectedEntry');
+  let lastScrolledTo: string | undefined = undefined;
+
   $: {
-    entries;
+    const selectedId = $selectedEntry?.id;
+    const selectedDifferentEntry = selectedId && selectedId !== lastScrolledTo;
+
     // wait until the new entries have been rendered
     setTimeout(() => {
-      const selected = scrollContainerElem?.querySelector('.selected-entry');
-      selected?.scrollIntoView({block: 'nearest'});
+      const selectedEntryElem = scrollContainerElem?.querySelector('.selected-entry');
+      if (selectedEntryElem) {
+        if (selectedDifferentEntry) {
+          lastScrolledTo = selectedId;
+          selectedEntryElem?.scrollIntoView({block: 'nearest'});
+        }
+      }
     });
   }
 
-  const selectedEntry = getContext<Writable<IEntry | undefined>>('selectedEntry');
-
   let scrollContainerElem: HTMLDivElement;
-  $: {
-    entries;
-    if (scrollContainerElem) scrollContainerElem.scrollTop = 0;
-  }
 
   const standardPageSize = 50;
   $: perPage = (!$selectedEntry || !entries)
