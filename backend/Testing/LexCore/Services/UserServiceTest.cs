@@ -24,6 +24,7 @@ public class UserServiceTest : IAsyncLifetime
     // Users created for this test
     private User? Robin { get; set; }
     private User? John { get; set; }
+    private User? Alan { get; set; }
     private User? Marian { get; set; }
     private User? Bishop { get; set; }
     private User? Tuck { get; set; }
@@ -52,6 +53,7 @@ public class UserServiceTest : IAsyncLifetime
     {
         Robin = CreateUser("Robin Hood");
         John = CreateUser("Little John");
+        Alan = CreateUser("Alan a Dale");
         Marian = CreateUser("Maid Marian");
         Bishop = CreateUser("Bishop of Hereford");
         Tuck = CreateUser("Friar Tuck");
@@ -59,9 +61,9 @@ public class UserServiceTest : IAsyncLifetime
         Guy = CreateUser("Guy of Gisbourne");
 
         Nottingham = CreateProject([Sheriff.Id], [Marian.Id, Tuck.Id]);
-        Sherwood = CreateConfidentialProject([Robin.Id, Marian.Id], [John.Id, Tuck.Id]);
+        Sherwood = CreateConfidentialProject([Robin.Id, Marian.Id], [John.Id, Alan.Id, Tuck.Id]);
 
-        Outlaws = CreateOrg([Robin.Id], [John.Id]);
+        Outlaws = CreateOrg([Robin.Id], [John.Id]); // Alan a Dale should *NOT* be in this org
         LawEnforcement = CreateOrg([Sheriff.Id], [Guy.Id]);
         Church = CreateOrg([Bishop.Id], [Tuck.Id]);
 
@@ -99,7 +101,7 @@ public class UserServiceTest : IAsyncLifetime
         var authUser = new LexAuthUser(Robin!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // John, who is in both the Outlaws org (user) and Sherwood project (member) is not duplicated
-        UserListShouldBe(users, [Robin, Marian, John, Tuck]);
+        UserListShouldBe(users, [Robin, Marian, John, Alan, Tuck]);
     }
 
     [Fact]
@@ -119,7 +121,7 @@ public class UserServiceTest : IAsyncLifetime
         var authUser = new LexAuthUser(Marian!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // Marian can see everyone in both projects; Tuck is not duplicated despite being in both projects
-        UserListShouldBe(users, [Robin, Marian, John, Tuck, Sheriff]);
+        UserListShouldBe(users, [Robin, Marian, John, Alan, Tuck, Sheriff]);
     }
 
     [Fact]
@@ -169,6 +171,16 @@ public class UserServiceTest : IAsyncLifetime
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // Tuck can see everyone in Church and Nottingham, but nobody in Sherwood because it's private — though he can see Marian because he shares a public project with her
         UserListShouldBe(users, [Bishop, Tuck, Sheriff, Marian]);
+    }
+
+    [Fact]
+    public async Task MemberOfOnePrivateProjectButNoOrgsCanOnlySeeHimself()
+    {
+        // Alan a Dale is in Sherwood project (private, member) but no orgs
+        var authUser = new LexAuthUser(Alan!);
+        var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
+        // Alan can see himself in the Sherwood project, but nobody else because it's private
+        UserListShouldBe(users, [Alan]);
     }
 
     private User CreateUser(string name)
