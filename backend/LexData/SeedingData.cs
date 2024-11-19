@@ -156,6 +156,7 @@ public class SeedingData(
             Description = "Eastern Lawa project",
             Code = "elawa-dev-flex",
             Type = ProjectType.FLEx,
+            FlexProjectMetadata = new(),
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
