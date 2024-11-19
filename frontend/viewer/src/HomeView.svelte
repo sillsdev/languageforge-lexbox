@@ -1,10 +1,12 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
     mdiBookSyncOutline, mdiCloudSync,
+    mdiLogin,
+    mdiLogout,
     mdiTestTube,
   } from '@mdi/js';
   import {links} from 'svelte-routing';
@@ -217,16 +219,16 @@
             </div>
             {#each servers as server}
               <div class="border my-1"/>
-              <div class="flex flex-row items-center">
+              <div class="flex flex-row items-center py-1">
                 <p>{server.displayName}</p>
                 <div class="flex-grow"></div>
                 {#if server.loggedInAs}
-                  <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
+                  <p class="mr-2 px-2 py-1 text-sm border rounded-full">{server.loggedInAs}</p>
                 {/if}
                 {#if server.loggedIn}
-                  <Button variant="fill" href="/api/auth/logout/{server.authority}">Logout</Button>
+                  <Button variant="fill" color="primary" href="/api/auth/logout/{server.authority}" icon={mdiLogout}>Logout</Button>
                 {:else}
-                  <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
+                  <Button variant="fill-light" color="primary" href="/api/auth/login/{server.authority}" icon={mdiLogin}>Login</Button>
                 {/if}
               </div>
               {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
