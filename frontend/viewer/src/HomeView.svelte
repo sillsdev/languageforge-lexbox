@@ -81,14 +81,10 @@
       name: 'fwdata',
       header: 'FieldWorks',
     },
-    ...($isDev
-      ? [
-        {
-          name: 'crdt',
-          header: 'CRDT',
-        },
-      ]
-      : []),
+    {
+      name: 'crdt',
+      header: 'CRDT',
+    },
     ...(servers.find(s => s.loggedIn)
       ? [
         {
