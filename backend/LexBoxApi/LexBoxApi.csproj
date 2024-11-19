@@ -31,7 +31,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.0" />
         <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-        <PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.5" />
+        <PackageReference Include="Npgsql.OpenTelemetry" Version="9.0.0" />
         <PackageReference Include="OpenIddict.AspNetCore" Version="5.8.0" />
         <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.8.0" />
         <PackageReference Include="OpenIddict.Quartz" Version="5.8.0" />
