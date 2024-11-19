@@ -90,8 +90,10 @@ public class CrdtController(
 
     [HttpPost("crdt-sync/{projectId}")]
     [AdminRequired]
-    public async Task<SyncResult?> ExecuteMerge(Guid projectId)
+    public async Task<ActionResult<SyncResult?>> ExecuteMerge(Guid projectId)
     {
-        return await fwHeadlessClient.CrdtSync(projectId);
+        var result = await fwHeadlessClient.CrdtSync(projectId);
+        if (result is null) return Problem("Failed to sync CRDT");
+        return result;
     }
 }
