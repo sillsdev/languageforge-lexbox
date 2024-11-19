@@ -49,8 +49,8 @@ public class UserServiceTest : IAsyncLifetime
         Tuck = CreateUser("Friar Tuck");
         Sheriff = CreateUser("Sheriff of Nottingham");
 
-        Nottingham = CreateProject([Sheriff.Id], [Marian.Id]);
-        Sherwood = CreateConfidentialProject([Robin.Id, Marian.Id], [John.Id]);
+        Nottingham = CreateProject([Sheriff.Id], [Marian.Id, Tuck.Id]);
+        Sherwood = CreateConfidentialProject([Robin.Id, Marian.Id], [John.Id, Tuck.Id]);
 
         return _lexBoxDbContext.SaveChangesAsync();
     }
@@ -73,7 +73,7 @@ public class UserServiceTest : IAsyncLifetime
     {
         var authUser = new LexAuthUser(Robin!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-        users.Should().BeEquivalentTo([Robin, Marian, John]);
+        users.Should().BeEquivalentTo([Robin, Marian, John, Tuck]);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class UserServiceTest : IAsyncLifetime
     {
         var authUser = new LexAuthUser(Marian!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-        users.Should().BeEquivalentTo([Robin, Marian, John, Sheriff]);
+        users.Should().BeEquivalentTo([Robin, Marian, John, Tuck, Sheriff]);
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class UserServiceTest : IAsyncLifetime
             // ... but can still only see the users in Nottingham
             var authUser = new LexAuthUser(Sheriff!);
             var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-            users.Should().BeEquivalentTo([Sheriff, Marian]);
+            users.Should().BeEquivalentTo([Sheriff, Marian, Tuck]);
         }
         finally
         {
