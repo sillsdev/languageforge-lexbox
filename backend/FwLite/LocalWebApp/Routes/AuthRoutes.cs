@@ -1,6 +1,7 @@
 using System.Security.AccessControl;
 using System.Web;
 using LocalWebApp.Auth;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace LocalWebApp.Routes;
@@ -23,12 +24,13 @@ public static class AuthRoutes
             });
         });
         group.MapGet("/login/{authority}",
-            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>
             {
-                var result = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).SignIn();
+                var returnUrl = new Uri(referer).PathAndQuery;
+                var result = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).SignIn(returnUrl);
                 if (result.HandledBySystemWebView)
                 {
-                    return Results.Redirect("/");
+                    return Results.Redirect(returnUrl);
                 }
 
                 if (result.AuthUri is null) throw new InvalidOperationException("AuthUri is null");
@@ -43,8 +45,8 @@ public static class AuthRoutes
                     context.Request.Path);
                 uriBuilder.Query = context.Request.QueryString.ToUriComponent();
 
-                await oAuthService.FinishLoginRequest(uriBuilder.Uri);
-                return Results.Redirect("/");
+                var (_, returnUrl) = await oAuthService.FinishLoginRequest(uriBuilder.Uri);
+                return Results.Redirect(returnUrl);
             }).WithName(CallbackRoute);
         group.MapGet("/me/{authority}",
             async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>

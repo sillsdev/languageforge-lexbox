@@ -55,6 +55,7 @@
     "@microsoft/signalr": "^8.0.0",
     "autoprefixer": "^10.4.19",
     "fast-json-patch": "^3.1.1",
+    "just-throttle": "^4.2.0",
     "postcss": "catalog:",
     "svelte-exmarkdown": "^3.0.5",
     "svelte-preprocess": "catalog:",

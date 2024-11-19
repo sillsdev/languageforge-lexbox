@@ -19,12 +19,27 @@
   let append: HTMLElement;
 
   $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
+
+  function preserveSortOrder(unsortedValue: string[] | undefined): void {
+    unsortedValue?.sort((a, b) => {
+      let aIndex = value.findIndex(v => v === a);
+      if (aIndex < 0 ) aIndex = unsortedValue.findIndex(v => v === a) + unsortedValue.length; // it's new, so it should be after the existing ones
+      let bIndex = value.findIndex(v => v === b);
+      if (bIndex < 0) bIndex = unsortedValue.findIndex(v => v === b) + unsortedValue.length; // it's new, so it should be after the existing ones
+      return aIndex - bIndex;
+    });
+  }
 </script>
 
 <CrdtField on:change={(e) => dispatch('change', { value: e.detail.value})} bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
   <MultiSelectField
-    on:change={(e) =>
-      onEditorValueChange(e.detail.value ?? [], true)}
+    on:change={(e) => {
+      const newValue = [...e.detail.value ?? []];
+      // on changes, the order of the value reverts to the order of the options (because they're sorted in the UI?),
+      // so we have to "undo" that
+      if (preserveOrder) preserveSortOrder(newValue);
+      onEditorValueChange(newValue ?? [], true)
+    }}
     value={editorValue}
     disabled={readonly}
     options={sortedOptions}
@@ -34,7 +49,7 @@
       // sorted by order of selection
       ? value?.map(v => options.find(o => o.value === v)?.label).filter(label => !!label).join(', ')
       // sorted according to the order of options (e.g. alphabetical or by semantic domain)
-      : options.map(o => o.label).join(', ')) || 'None';
+      : options.map(o => o.label).join(', ')) ?? 'None';
     }}
     infiniteScroll
     clearSearchOnOpen={false}

@@ -271,8 +271,19 @@ public partial class HgService : IHgService, IHostedService
     {
         var result = await ExecuteHgCommandServerCommand(code, "flexmodelversion", token);
         var text = await result.ReadAsStringAsync(token);
-        var json = JsonDocument.Parse(text);
-        return json.RootElement.GetProperty("modelversion").GetInt32();
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        try
+        {
+            var json = JsonDocument.Parse(text);
+            if (json.RootElement.TryGetProperty("modelversion", out var modelversion) && modelversion.TryGetInt32(out int version)) return version;
+            _logger.LogError("Invalid JSON {text} in GetModelVersionOfFlexProject, should have one property \"modelversion\" that's a number", text);
+            return null;
+        }
+        catch (JsonException e)
+        {
+            _logger.LogError("Malformed JSON {text} in GetModelVersionOfFlexProject: {error}", text, e.ToString());
+            return null;
+        }
     }
 
     public Task RevertRepo(ProjectCode code, string revHash)
