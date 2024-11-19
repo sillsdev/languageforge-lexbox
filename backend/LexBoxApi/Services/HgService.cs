@@ -271,7 +271,7 @@ public partial class HgService : IHgService, IHostedService
     {
         var result = await ExecuteHgCommandServerCommand(code, "flexmodelversion", token);
         var text = await result.ReadAsStringAsync(token);
-        if (string.IsNullOrEmpty(text)) return null;
+        if (string.IsNullOrWhiteSpace(text)) return null;
         try
         {
             var json = JsonDocument.Parse(text);
