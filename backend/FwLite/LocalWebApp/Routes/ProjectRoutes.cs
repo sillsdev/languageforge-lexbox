@@ -4,6 +4,7 @@ using LcmCrdt;
 using LocalWebApp.Auth;
 using LocalWebApp.Hubs;
 using LocalWebApp.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
@@ -24,7 +25,9 @@ public static partial class ProjectRoutes
                 foreach (var server in options.Value.LexboxServers)
                 {
                     var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-                    serversProjects.Add(server.Authority.Authority, lexboxProjects.Select(p => new ProjectModel(p.Name, false, false, true, server.Authority.Authority, p.Id)).ToArray());
+                    serversProjects.Add(server.Authority.Authority, lexboxProjects.Select(p => new ProjectModel
+                            (p.Name, Crdt: p.IsCrdtProject, Fwdata: false, Lexbox: true, server.Authority.Authority, p.Id))
+                        .ToArray());
                 }
 
                 return serversProjects;
@@ -77,16 +80,21 @@ public static partial class ProjectRoutes
                 SyncService syncService,
                 IOptions<AuthConfig> options,
                 CurrentProjectService currentProjectService,
-                string serverAuthority) =>
+                string serverAuthority,
+                [FromQuery] Guid lexboxProjectId) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                var foundProjectGuid =
-                    await lexboxProjectService.GetLexboxProjectId(server, currentProjectService.ProjectData.Name);
-                if (foundProjectGuid is null)
-                    return Results.BadRequest(
-                        $"Project code {currentProjectService.ProjectData.Name} not found on lexbox");
-                await currentProjectService.SetProjectSyncOrigin(server.Authority, foundProjectGuid);
-                await syncService.ExecuteSync();
+                await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
+                try
+                {
+                    await syncService.ExecuteSync();
+                }
+                catch
+                {
+                    await currentProjectService.SetProjectSyncOrigin(null, null);
+                    throw;
+                }
+                lexboxProjectService.InvalidateProjectsCache(server);
                 return TypedResults.Ok();
             });
         group.MapPost("/download/crdt/{serverAuthority}/{newProjectName}",

@@ -27,7 +27,7 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
 
     private static string CacheKey(CrdtProject project)
     {
-        return project.DbPath + "|ProjectData";
+        return project.Name + "|ProjectData";
     }
 
     private static string CacheKey(Guid projectId)
@@ -57,7 +57,7 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         memoryCache.Remove(CacheKey(Project));
     }
 
-    public async Task SetProjectSyncOrigin(Uri domain, Guid? id)
+    public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
     {
         var originDomain = ProjectData.GetOriginDomain(domain);
         if (id is null)

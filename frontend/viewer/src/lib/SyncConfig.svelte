@@ -5,6 +5,7 @@
   import {writable} from 'svelte/store';
   import {type ServerStatus, useProjectsService} from './services/projects-service';
   import {getContext} from 'svelte';
+  import {AppNotification} from './notifications/notifications';
 
   const projectsService = useProjectsService();
   let projectName = getContext<string>('project-name');
@@ -15,6 +16,7 @@
       throw error;
     });
   });
+
   let isUploaded = false;
   let projectServer = writable<string | null>(null, set => {
     projectsService.getProjectServer(projectName).then(server => {
@@ -36,13 +38,20 @@
   };
   let uploading = false;
 
+  let targetProjectId: string | null = null;
+  async function serverProjectsForUpload(serverAuthority: string) {
+    const remoteProjects = await projectsService.fetchRemoteProjects();
+    return remoteProjects[serverAuthority].filter(p => !p.crdt);
+  }
+
   async function upload() {
     if (!$projectServer) return;
+    if (!targetProjectId) return;
     uploading = true;
     //todo if not logged in then login
-    await projectsService.uploadCrdtProject($projectServer, projectName);
+    const success = await projectsService.uploadCrdtProject($projectServer, projectName, targetProjectId);
     uploading = false;
-    isUploaded = true;
+    if (success) isUploaded = true;
   }
 </script>
 
@@ -59,16 +68,34 @@
     fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
     search={() => /* a hack to always show all options */ Promise.resolve()}>
   </SelectField>
-{:else if isUploaded}
+{:else if isUploaded && server.loggedIn}
   <Button disabled color="success" icon={mdiBookSyncOutline} size="md">
     Syncing with {server.displayName}
   </Button>
 {/if}
 {#if $projectServer && !isUploaded && server.loggedIn}
-  <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
+  {#await serverProjectsForUpload($projectServer)}
+    <div class="loading loading-dots loading-lg"></div>
+  {:then projects}
+    <SelectField
+      label="Target project"
+      options={(projects).map((p) => ({ value: p.id, label: p.name, group: p.name }))}
+      bind:value={targetProjectId}
+      classes={{root: 'view-select w-auto', options: 'view-select-options'}}
+      clearable={false}
+      labelPlacement="top"
+      clearSearchOnOpen={false}
+      fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
+      search={() => /* a hack to always show all options */ Promise.resolve()}>
+    </SelectField>
+  {/await}
+  <Button variant="fill-light" color="primary" disabled={!targetProjectId} loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
     Upload to {server.displayName}
   </Button>
-{:else if $projectServer && !isUploaded && !server.loggedIn}
-  <!--todo after login we are sent home, should be sent back to the current project-->
+{/if}
+{#if server && !server.loggedIn}
+  {#if isUploaded}
+    <span>Your login has expired to sync with {server.displayName}. Please login again.</span>
+  {/if}
   <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
 {/if}

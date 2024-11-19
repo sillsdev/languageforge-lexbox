@@ -12,23 +12,39 @@ public class LexboxProjectService(
     ILogger<LexboxProjectService> logger,
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
     BackgroundSyncService backgroundSyncService,
+    IOptions<AuthConfig> options,
     IMemoryCache cache)
 {
-    public record LexboxCrdtProject(Guid Id, string Name);
+    public record LexboxProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
 
-    public async Task<LexboxCrdtProject[]> GetLexboxProjects(LexboxServer server)
+    public LexboxServer[] Servers()
     {
-        var httpClient = await helpersFactory.GetHelper(server).CreateClient();
-        if (httpClient is null) return [];
-        try
-        {
-            return await httpClient.GetFromJsonAsync<LexboxCrdtProject[]>("api/crdt/listProjects") ?? [];
-        }
-        catch (HttpRequestException e)
-        {
-            logger.LogError(e, "Error getting lexbox projects");
-            return [];
-        }
+        return options.Value.LexboxServers;
+    }
+
+    public async Task<LexboxProject[]> GetLexboxProjects(LexboxServer server)
+    {
+        return await cache.GetOrCreateAsync(CacheKey(server),
+            async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                var httpClient = await helpersFactory.GetHelper(server).CreateClient();
+                if (httpClient is null) return [];
+                try
+                {
+                    return await httpClient.GetFromJsonAsync<LexboxProject[]>("api/crdt/listProjects") ?? [];
+                }
+                catch (HttpRequestException e)
+                {
+                    logger.LogError(e, "Error getting lexbox projects");
+                    return [];
+                }
+            }) ?? [];
+    }
+
+    private static string CacheKey(LexboxServer server)
+    {
+        return $"Projects|{server.Authority.Authority}";
     }
 
     public async Task<Guid?> GetLexboxProjectId(LexboxServer server, string code)
@@ -46,29 +62,34 @@ public class LexboxProjectService(
         }
     }
 
+    public void InvalidateProjectsCache(LexboxServer server)
+    {
+        cache.Remove(CacheKey(server));
+    }
+
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
         if (string.IsNullOrEmpty(projectData.OriginDomain)) return;
-        var lexboxConnection = await StartLexboxProjectChangeListener(projectData.OriginDomain, stoppingToken);
+        var lexboxConnection = await StartLexboxProjectChangeListener(options.Value.GetServer(projectData), stoppingToken);
         if (lexboxConnection is null) return;
         await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
     }
 
-    private string CacheKey(string originDomain) => $"LexboxProjectChangeListener|{originDomain}";
+    private static string HubConnectionCacheKey(LexboxServer server) => $"LexboxProjectChangeListener|{server.Authority.Authority}";
 
-    public async Task<HubConnection?> StartLexboxProjectChangeListener(string originDomain,
+    public async Task<HubConnection?> StartLexboxProjectChangeListener(LexboxServer server,
         CancellationToken stoppingToken)
     {
         HubConnection? connection;
-        if (cache.TryGetValue(CacheKey(originDomain), out connection) && connection is not null)
+        if (cache.TryGetValue(HubConnectionCacheKey(server), out connection) && connection is not null)
         {
             return connection;
         }
 
-        if (await helpersFactory.GetHelper(new Uri(originDomain)).GetCurrentToken() is null)
+        if (await helpersFactory.GetHelper(server).GetCurrentToken() is null)
         {
 
-            logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", originDomain);
+            logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", server.Authority);
             return null;
         }
 
@@ -76,7 +97,7 @@ public class LexboxProjectService(
             //todo bridge logging to the aspnet logger
             .ConfigureLogging(logging => logging.AddConsole())
             .WithAutomaticReconnect()
-            .WithUrl($"{originDomain}/api/hub/crdt/project-changes",
+            .WithUrl($"{server.Authority}/api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
                     connectionOptions.HttpMessageHandlerFactory = handler =>
@@ -85,7 +106,7 @@ public class LexboxProjectService(
                         return httpMessageHandlerFactory.CreateHandler(AuthHelpers.AuthHttpClientName);
                     };
                     connectionOptions.AccessTokenProvider =
-                        async () => await helpersFactory.GetHelper(new Uri(originDomain)).GetCurrentToken();
+                        async () => await helpersFactory.GetHelper(server).GetCurrentToken();
                 })
             .Build();
 
@@ -105,10 +126,10 @@ public class LexboxProjectService(
 
             connection.Closed += async (exception) =>
             {
-                cache.Remove(CacheKey(originDomain));
+                cache.Remove(HubConnectionCacheKey(server));
                 await connection.DisposeAsync();
             };
-            cache.CreateEntry(CacheKey(originDomain)).SetValue(connection).RegisterPostEvictionCallback(
+            cache.CreateEntry(HubConnectionCacheKey(server)).SetValue(connection).RegisterPostEvictionCallback(
                 static (key, value, reason, state) =>
                 {
                     if (value is HubConnection con)
