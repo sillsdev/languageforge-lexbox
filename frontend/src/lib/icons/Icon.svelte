@@ -10,6 +10,8 @@
   export let size: IconSize = 'text-lg';
   export let color: `text-${string}` | undefined = undefined;
   export let pale = false;
+  export let spin = false;
+  export let spinReverse = false;
   // For pixel perfect text alignment, because the svgs often contain vertical white-space
   export let y: string | undefined = undefined;
 
@@ -17,5 +19,5 @@
 </script>
 
 {#if icon}
-  <span class="{icon} {size} {color ?? ''} shrink-0" class:pale style:transform />
+  <span class="{icon} {size} {color ?? ''} shrink-0 {spinReverse ? 'transform rotate-180' : ''}" class:pale style:transform class:animate-spin={spin} />
 {/if}
