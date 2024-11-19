@@ -85,6 +85,13 @@ public class UserServiceTest : IAsyncLifetime
         return _lexBoxDbContext.SaveChangesAsync();
     }
 
+    public void UserListShouldBe(IEnumerable<User> actual, IEnumerable<User?> expected)
+    {
+        var actualNames = actual.Select(u => u.Name);
+        var expectedNames = expected.Select(u => u?.Name ?? "<null name>");
+        actualNames.Should().BeEquivalentTo(expectedNames, options => options.WithoutStrictOrdering());
+    }
+
     [Fact]
     public async Task ManagerCanSeeAllUsersEvenInConfidentialProjects()
     {
@@ -92,7 +99,7 @@ public class UserServiceTest : IAsyncLifetime
         var authUser = new LexAuthUser(Robin!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // John, who is in both the Outlaws org (user) and Sherwood project (member) is not duplicated
-        users.Should().BeEquivalentTo([Robin, Marian, John, Tuck], options => options.WithoutStrictOrdering());
+        UserListShouldBe(users, [Robin, Marian, John, Tuck]);
     }
 
     [Fact]
@@ -102,7 +109,7 @@ public class UserServiceTest : IAsyncLifetime
         var authUser = new LexAuthUser(John!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // John can see Robin because he shares an org, but not Marian even though she's a manager of the Sherwood project
-        users.Should().BeEquivalentTo([Robin, John], options => options.WithoutStrictOrdering());
+        UserListShouldBe(users, [Robin, John]);
     }
 
     [Fact]
@@ -112,7 +119,7 @@ public class UserServiceTest : IAsyncLifetime
         var authUser = new LexAuthUser(Marian!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // Marian can see everyone in both projects; Tuck is not duplicated despite being in both projects
-        users.Should().BeEquivalentTo([Robin, Marian, John, Tuck, Sheriff], options => options.WithoutStrictOrdering());
+        UserListShouldBe(users, [Robin, Marian, John, Tuck, Sheriff]);
     }
 
     [Fact]
@@ -126,7 +133,7 @@ public class UserServiceTest : IAsyncLifetime
             // ... but can still only see the users in Nottingham and LawEnforcement
             var authUser = new LexAuthUser(Sheriff!);
             var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-            users.Should().BeEquivalentTo([Sheriff, Guy, Marian, Tuck], options => options.WithoutStrictOrdering());
+            UserListShouldBe(users, [Sheriff, Guy, Marian, Tuck]);
         }
         finally
         {
@@ -140,7 +147,8 @@ public class UserServiceTest : IAsyncLifetime
         // Bishop of Hereford is in Church org (admin) but no projects
         var authUser = new LexAuthUser(Bishop!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-        users.Should().BeEquivalentTo([Bishop, Tuck], options => options.WithoutStrictOrdering());
+        // Bishop can only see members of Church org
+        UserListShouldBe(users, [Bishop, Tuck]);
     }
 
     [Fact]
@@ -149,7 +157,8 @@ public class UserServiceTest : IAsyncLifetime
         // Guy of Gisborne is in LawEnforcement org (user) but no projects
         var authUser = new LexAuthUser(Guy!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-        users.Should().BeEquivalentTo([Sheriff, Guy], options => options.WithoutStrictOrdering());
+        // Guy can only see members of LawEnforcement org
+        UserListShouldBe(users, [Sheriff, Guy]);
     }
 
     [Fact]
@@ -159,7 +168,7 @@ public class UserServiceTest : IAsyncLifetime
         var authUser = new LexAuthUser(Tuck!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
         // Tuck can see everyone in Church and Nottingham, but nobody in Sherwood because it's private — though he can see Marian because he shares a public project with her
-        users.Should().BeEquivalentTo([Bishop, Tuck, Sheriff, Marian], options => options.WithoutStrictOrdering());
+        UserListShouldBe(users, [Bishop, Tuck, Sheriff, Marian]);
     }
 
     private User CreateUser(string name)
