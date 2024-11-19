@@ -11,7 +11,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             return await response.Content.ReadFromJsonAsync<SyncResult>();
         logger.LogError("Failed to sync CRDT: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
             response.StatusCode,
-            response.StatusCode,
+            response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync());
         return null;
