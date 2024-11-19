@@ -211,6 +211,7 @@ type LeaveProjectPayload {
 }
 
 type LexAuthUser {
+  isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -256,6 +257,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload! @cost(weight: "10")
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload! @cost(weight: "10")
   setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload! @cost(weight: "10")
+  updateProjectRepoSizeInKb(input: UpdateProjectRepoSizeInKbInput!): UpdateProjectRepoSizeInKbPayload! @cost(weight: "10")
   updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload! @cost(weight: "10")
   updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload! @cost(weight: "10")
   updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload! @cost(weight: "10")
@@ -266,6 +268,7 @@ type Mutation {
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload! @cost(weight: "10")
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload! @cost(weight: "10")
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  sendNewVerificationEmailByAdmin(input: SendNewVerificationEmailByAdminInput!): SendNewVerificationEmailByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload! @cost(weight: "10")
   setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
@@ -277,19 +280,19 @@ type NotFoundError implements Error {
 }
 
 type OrgById {
+  id: UUID!
   members: [OrgByIdMember!]!
   name: String!
   projects: [Project!]!
   memberCount: Int!
   projectCount: Int!
-  id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
 }
 
 type OrgByIdMember {
-  user: OrgByIdUser!
   userId: UUID!
+  user: OrgByIdUser!
   orgId: UUID!
   role: OrgRole!
   organization: Organization
@@ -384,6 +387,7 @@ type Project {
   flexProjectMetadata: FlexProjectMetadata
   organizations: [Organization!]!
   lastCommit: DateTime
+  repoSizeInKb: Int
   deletedDate: DateTime
   resetStatus: ResetStatus!
   projectOrigin: ProjectMigrationStatus!
@@ -409,9 +413,9 @@ type ProjectMembersMustBeVerifiedForRole implements Error {
 }
 
 type ProjectUsers {
+  userId: UUID!
   user: User!
   project: Project!
-  userId: UUID!
   projectId: UUID!
   role: ProjectRole!
   id: UUID!
@@ -457,6 +461,11 @@ type RemoveProjectMemberPayload {
 
 type RequiredError implements Error {
   message: String!
+}
+
+type SendNewVerificationEmailByAdminPayload {
+  user: User
+  errors: [SendNewVerificationEmailByAdminError!]
 }
 
 type SetOrgMemberRolePayload {
@@ -510,6 +519,11 @@ type UpdateProjectLanguageListPayload {
 type UpdateProjectLexEntryCountPayload {
   project: Project
   errors: [UpdateProjectLexEntryCountError!]
+}
+
+type UpdateProjectRepoSizeInKbPayload {
+  project: Project
+  errors: [UpdateProjectRepoSizeInKbError!]
 }
 
 type User {
@@ -601,6 +615,8 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
+union SendNewVerificationEmailByAdminError = NotFoundError | DbError | UniqueValueError
+
 union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
 union SetProjectConfidentialityError = NotFoundError | DbError
@@ -618,6 +634,8 @@ union UpdateLangProjectIdError = NotFoundError | DbError | UnauthorizedAccessErr
 union UpdateProjectLanguageListError = NotFoundError | DbError | UnauthorizedAccessError
 
 union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectRepoSizeInKbError = NotFoundError | DbError | UnauthorizedAccessError
 
 input AddProjectMemberInput {
   projectId: UUID!
@@ -930,6 +948,7 @@ input ProjectFilterInput {
   users: ListFilterInputTypeOfProjectUsersFilterInput
   organizations: ListFilterInputTypeOfOrganizationFilterInput
   lastCommit: DateTimeOperationFilterInput
+  repoSizeInKb: IntOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
@@ -964,6 +983,7 @@ input ProjectSortInput {
   isConfidential: SortEnumType @cost(weight: "10")
   flexProjectMetadata: FlexProjectMetadataSortInput @cost(weight: "10")
   lastCommit: SortEnumType @cost(weight: "10")
+  repoSizeInKb: SortEnumType @cost(weight: "10")
   deletedDate: SortEnumType @cost(weight: "10")
   resetStatus: SortEnumType @cost(weight: "10")
   projectOrigin: SortEnumType @cost(weight: "10")
@@ -1034,6 +1054,10 @@ input RetentionPolicyOperationFilterInput {
   nin: [RetentionPolicy!] @cost(weight: "10")
 }
 
+input SendNewVerificationEmailByAdminInput {
+  userId: UUID!
+}
+
 input SetOrgMemberRoleInput {
   orgId: UUID!
   role: OrgRole!
@@ -1090,6 +1114,10 @@ input UpdateProjectLanguageListInput {
 }
 
 input UpdateProjectLexEntryCountInput {
+  code: String!
+}
+
+input UpdateProjectRepoSizeInKbInput {
   code: String!
 }
 

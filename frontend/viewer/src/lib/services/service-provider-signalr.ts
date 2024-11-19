@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { getHubProxyFactory, getReceiverRegister } from '../generated-signalr-client/TypedSignalR.Client';
 
-import {type HubConnection, HubConnectionBuilder, HubConnectionState} from '@microsoft/signalr';
+import {
+  type HubConnection,
+  HubConnectionBuilder,
+  HubConnectionState,
+  type IHttpConnectionOptions
+} from '@microsoft/signalr';
 import type { LexboxApiClient, LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
 import {LexboxService} from './service-provider';
 import {onDestroy} from 'svelte';
@@ -19,8 +24,9 @@ type ErrorHandler = (errorContext: ErrorContext) => {handled: boolean};
 export function SetupSignalR(
   url: string,
   features: LexboxApiFeatures,
-  onError?: ErrorHandler) : { connected: Readable<boolean>, lexboxApi: LexboxApiClient } {
-  const {connection, connected} = setupConnection(url, errorContext => {
+  onError?: ErrorHandler,
+  options: IHttpConnectionOptions = {}) : { connected: Readable<boolean>, lexboxApi: LexboxApiClient } {
+  const {connection, connected} = setupConnection(url, options, errorContext => {
     if (onError && onError(errorContext).handled) {
       return {handled: true};
     }
@@ -55,10 +61,10 @@ export function SetupSignalR(
   return {connected, lexboxApi: lexboxApiHubProxy};
 }
 
-function setupConnection(url: string, onError: ErrorHandler): {connection: HubConnection, connected: Writable<boolean>} {
+function setupConnection(url: string, options: IHttpConnectionOptions, onError: ErrorHandler): {connection: HubConnection, connected: Writable<boolean>} {
   const connected = writable(false)
   let connection = new HubConnectionBuilder()
-    .withUrl(url)
+    .withUrl(url, options)
     .withAutomaticReconnect()
     .build();
   onDestroy(() => connection.stop());

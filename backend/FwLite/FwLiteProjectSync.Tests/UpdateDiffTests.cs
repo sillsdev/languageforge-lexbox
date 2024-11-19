@@ -1,6 +1,7 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -10,7 +11,7 @@ public class UpdateDiffTests
 {
     private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
     {
-        Overrides = [new MultiStringOverride()]
+        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
     });
 
     [Fact]

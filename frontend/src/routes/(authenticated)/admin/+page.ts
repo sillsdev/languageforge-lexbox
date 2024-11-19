@@ -13,6 +13,7 @@ import type {
   CreateGuestUserByAdminMutation,
   DraftProjectFilterInput,
   ProjectFilterInput,
+  SendNewVerificationEmailByAdminMutation,
   SetUserLockedInput,
   SetUserLockedMutation,
   UserFilterInput,
@@ -202,6 +203,32 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
         }
       `),
       { input: input }
+    )
+  return result;
+}
+
+export async function _sendNewVerificationEmailByAdmin(userId: UUID): $OpResult<SendNewVerificationEmailByAdminMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation SendNewVerificationEmailByAdmin($input: SendNewVerificationEmailByAdminInput!) {
+          sendNewVerificationEmailByAdmin(input: $input) {
+            user {
+              id
+              email
+              emailVerified
+            }
+            errors {
+                __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { userId } }
     )
   return result;
 }

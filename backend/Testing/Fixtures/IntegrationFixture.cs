@@ -15,6 +15,8 @@ public class IntegrationFixture : IAsyncLifetime
     public static readonly FileInfo TemplateRepoZip = new(TemplateRepoZipName);
     public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; private set; } = new();
+    private string? _adminJwt = null;
+    public string AdminJwt => _adminJwt.ShouldNotBeNull();
 
     static IntegrationFixture()
     {
@@ -31,7 +33,7 @@ public class IntegrationFixture : IAsyncLifetime
     {
         Directory.CreateDirectory(BasePath);
         InitTemplateRepo();
-        await AdminApiTester.LoginAs(AdminAuth.Username, AdminAuth.Password);
+        _adminJwt = await AdminApiTester.LoginAs(AdminAuth.Username, AdminAuth.Password);
     }
 
     public Task DisposeAsync()

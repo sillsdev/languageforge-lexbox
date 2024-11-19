@@ -20,11 +20,13 @@
     "how_to_create_users": "How to Create Users",
     "is_draft": "Draft",
     "email_not_verified": "Not Verified",
+    "resend_verification_email": "Resend verification email",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
       "user_updated": "{name} has been updated.",
       "user_created": "{name} has been created.",
-      "email_need_verification": "You've requested to change the e-mail address for {name} to {requestedEmail}. The change will only come into effect when the user verifies the new address. They can do so using the link in the e-mail we just sent them."
+      "email_need_verification": "You've requested to change the e-mail address for {name} to {requestedEmail}. The change will only come into effect when the user verifies the new address. They can do so using the link in the e-mail we just sent them.",
+      "verification_email_sent": "Verification email has been sent to {email}",
     },
     "user_is_locked": "This user is locked. They cannot log in or Send/Receive until an administrator unlocks them.",
     "form_modal": {
@@ -448,6 +450,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     "history": "History",
     "project_code": "Project Code",
     "summary": "Summary",
+    "repo_size": "Size on disk",
     "num_entries": "Entries",
     "description": "Description",
     "created_at": "Created",

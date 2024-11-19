@@ -6,24 +6,28 @@ vars:
 
 tasks:
   unit:
+    interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
       - dotnet test --filter="Category!=Integration&Category!=FlakyIntegration&{{.FILTER}}"
 
   integration:
+    interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
       - dotnet test --filter="Category=Integration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
 
   flaky-integration:
+    interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
       - dotnet test --filter="Category=FlakyIntegration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
 
   integration-env:
+    interactive: true
     dotenv: [ local.env ]
     env:
 #      TEST_DEFAULT_PASSWORD: ***
@@ -35,6 +39,7 @@ tasks:
       - task integration -- {{.CLI_ARGS}}
 
   flaky-integration-env:
+    interactive: true
     dotenv: [ local.env ]
     env:
 #      TEST_DEFAULT_PASSWORD: ***

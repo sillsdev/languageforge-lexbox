@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "tipdate" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "tipdate" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -84,6 +84,10 @@ case $command_name in
 
     tipdate)
         chg tip --template '{date|hgdate}'
+        ;;
+
+    reposizeinkb)
+        du -ks .hg | cut -f1
         ;;
 
     verify)

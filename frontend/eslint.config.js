@@ -22,6 +22,7 @@ export default [
       '**/generated/**',
       'viewer/',
       'https-proxy/',
+      'platform.bible-extension/'
     ],
   },
   js.configs.recommended,

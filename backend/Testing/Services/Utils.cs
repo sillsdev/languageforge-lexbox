@@ -80,7 +80,8 @@ public static class Utils
         ProjectConfig config,
         ApiTestBase apiTester,
         string usernameOrEmail,
-        ProjectRole role
+        ProjectRole role,
+        string? overrideJwt = null
     )
     {
         await apiTester.ExecuteGql($$"""
@@ -105,7 +106,7 @@ public static class Utils
                     }
                 }
             }
-            """);
+            """, overrideJwt: overrideJwt);
     }
 
     public static void ValidateSendReceiveOutput(string srOutput)

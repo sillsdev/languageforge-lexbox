@@ -11,6 +11,8 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import {delay} from '$lib/util/time';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
+  import {Modal} from '$lib/components/modals';
+  import {useNotifications} from '$lib/notify';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -34,9 +36,9 @@
   let {form, enhance, errors} = lexSuperForm(formSchema, async () => {
       console.log('submit', $form);
   });
-function preFillForm(): void {
-  form.update(f => ({...f, name: 'John'}), {taint: false});
-}
+  function preFillForm(): void {
+    form.update(f => ({...f, name: 'John'}), {taint: false});
+  }
 
   let disableDropdown = false;
 
@@ -44,8 +46,12 @@ function preFillForm(): void {
     await _gqlThrows500();
   }
 
-let modal: ConfirmModal;
-let deleteModal: DeleteModal;
+  const { notifySuccess } = useNotifications();
+
+  let modal: ConfirmModal;
+  let deleteModal: DeleteModal;
+  let notificationModal: Modal;
+  let notificationModalIsAtBottom = false;
 
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
@@ -181,14 +187,9 @@ let deleteModal: DeleteModal;
       }}>
         Open Modal
       </Button>
-    </div>
-  </div>
 
-  <div class="card bg-base-200 shadow-lg">
-    <div class="card-body">
       <h2 class="card-title">Delete Modal</h2>
-      <DeleteModal bind:this={deleteModal}
-      entityName="Car">
+      <DeleteModal bind:this={deleteModal} entityName="Car">
         Would you like to delete this car?
       </DeleteModal>
       <Button variant="btn-primary" on:click={async () => {
@@ -196,6 +197,18 @@ let deleteModal: DeleteModal;
         if (result) alert('deleted')
       }}>
         Delete Car
+      </Button>
+
+      <h2 class="card-title">Notification modal</h2>
+      <Modal bind:this={notificationModal} bottom={notificationModalIsAtBottom}>
+        <h2 class="text-xl mb-2">Notification fun 🎉</h2>
+        <Button on:click={() => notifySuccess('Hurra you generated a notification! 😎')}>Generate notification</Button>
+        <Button on:click={() => notificationModalIsAtBottom = !notificationModalIsAtBottom}>Toggle position</Button>
+      </Modal>
+      <Button variant="btn-primary" on:click={() => {
+        notificationModal.openModal();
+      }}>
+        Play with notifications
       </Button>
     </div>
   </div>

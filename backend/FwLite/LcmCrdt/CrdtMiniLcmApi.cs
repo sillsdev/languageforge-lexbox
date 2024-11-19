@@ -353,7 +353,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
-    }
+            }
 
     private async ValueTask<bool> IsEntryDeleted(Guid id)
     {
@@ -370,6 +370,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+    }
+
+    public async Task<Entry> UpdateEntry(Entry before, Entry after)
+    {
+        await EntrySync.Sync(after, before, this);
+        return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
     public async Task DeleteEntry(Guid id)

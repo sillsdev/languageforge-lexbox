@@ -17,6 +17,7 @@
     _updateFLExModelVersion,
     _updateProjectLanguageList,
     _updateProjectLexEntryCount,
+    _updateProjectRepoSizeInKb,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -64,7 +65,7 @@
   $: isEmpty = project?.lastCommit == null;
   // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
   $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
-  $: members = project.users?.sort((a, b) => {
+  $: members = project.users.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role === ProjectRole.Manager ? -1 : 1;
     }
@@ -88,11 +89,26 @@
     if (urlValues.addUserId && urlValues.addUserName && addProjectMember) {
       void addProjectMember.openModal(urlValues.addUserId, urlValues.addUserName);
     }
+
+    if (project && project.repoSizeInKb == null) {
+      void updateRepoSize();
+    }
   });
 
   let addProjectMember: AddProjectMember;
 
   let userModal: UserModal;
+
+  let loadingRepoSize = false;
+  async function updateRepoSize(): Promise<void> {
+    loadingRepoSize = true;
+    await _updateProjectRepoSizeInKb(project.code);
+    loadingRepoSize = false;
+  }
+
+  function sizeStrInMb(sizeInKb: number): string {
+    return `${$number(sizeInKb / 1024, {maximumFractionDigits: 1})} MB`;
+  }
 
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
@@ -118,12 +134,12 @@
   $: orgRoles = project.organizations
     ?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role)
     .filter(r => !!r) ?? [];
-  $: projectRole = project?.users?.find((u) => u.user.id == user.id)?.role;
+  $: projectRole = project?.users.find((u) => u.user.id == user.id)?.role;
 
   // Mirrors PermissionService.CanViewProjectMembers() in C#
-  $: canViewProjectMembers = user.isAdmin
+  $: canViewOtherMembers = user.isAdmin
     || projectRole == ProjectRole.Manager
-    || projectRole == ProjectRole.Editor && !project.isConfidential
+    || projectRole && !project.isConfidential // public by default for members (non-members shouldn't even be here)
     || orgRoles.some(role => role === OrgRole.Admin);
 
   let resetProjectModal: ResetProjectModal;
@@ -178,7 +194,7 @@
 
   $: userId = user.id;
   $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
-  $: canManage = user.isAdmin || project?.users?.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations?.find((o) => orgsManagedByUser.includes(o.id));
+  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations?.find((o) => orgsManagedByUser.includes(o.id));
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
@@ -398,6 +414,7 @@
       <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
       <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
       <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
+      <DetailItem title={$t('project_page.repo_size')} loading={loadingRepoSize} text={sizeStrInMb(project.repoSizeInKb ?? 0)} />
       {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
           <AdminContent slot="extras">
@@ -486,37 +503,35 @@
           {$t('project_page.confirm_remove_org', {orgName: orgToRemove})}
         </DeleteModal>
       </OrgList>
-      {#if members}
-        <MembersList
-          projectId={project.id}
-          {members}
-          canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
-          canManageList={canManage}
-          canViewMembers={canViewProjectMembers}
-          on:openUserModal={(event) => userModal.open(event.detail.user)}
-          on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
+      <MembersList
+        projectId={project.id}
+        {members}
+        canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
+        canManageList={canManage}
+        {canViewOtherMembers}
+        on:openUserModal={(event) => userModal.open(event.detail.user)}
+        on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
+        >
+          <svelte:fragment slot="extraButtons">
+            <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={() => addProjectMember.openModal(undefined, undefined)}>
+              {$t('project_page.add_user.add_button')}
+            </BadgeButton>
+
+            <AddProjectMember bind:this={addProjectMember} projectId={project.id} />
+            <BulkAddProjectMembers projectId={project.id} />
+          </svelte:fragment>
+          <UserModal bind:this={userModal}/>
+
+          <DeleteModal
+            bind:this={removeUserModal}
+            entityName={$t('project_page.remove_project_user_title')}
+            isRemoveDialog
           >
-            <svelte:fragment slot="extraButtons">
-              <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={() => addProjectMember.openModal(undefined, undefined)}>
-                {$t('project_page.add_user.add_button')}
-              </BadgeButton>
-
-              <AddProjectMember bind:this={addProjectMember} projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} />
-            </svelte:fragment>
-            <UserModal bind:this={userModal}/>
-
-            <DeleteModal
-              bind:this={removeUserModal}
-              entityName={$t('project_page.remove_project_user_title')}
-              isRemoveDialog
-            >
-              {$t('project_page.confirm_remove', {
-                userName: userToDelete?.user.name ?? '',
-              })}
-            </DeleteModal>
-        </MembersList>
-      {/if}
+            {$t('project_page.confirm_remove', {
+              userName: userToDelete?.user.name ?? '',
+            })}
+          </DeleteModal>
+      </MembersList>
       <div class="divider" />
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">

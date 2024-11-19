@@ -21,6 +21,7 @@
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
         <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.64.0" />
+        <PackageReference Include="NReco.Logging.File" Version="1.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
         <PackageReference Include="System.Reactive" Version="6.0.1" />
     </ItemGroup>
@@ -46,6 +47,11 @@
     <ItemGroup>
         <EmbeddedResource Include="..\..\..\frontend\viewer\dist\**\*" />
     </ItemGroup>
+
+    <Target Name="FailIfViewerNotEmbedded" BeforeTargets="Build">
+        <Error Condition="@(EmbeddedResource->Count()) == 0"
+            Text="The viewer app was not found. Run 'pnpm run build-app' from the viewer folder." />
+    </Target>
 
     <ItemGroup Condition="$([MSBuild]::IsOsPlatform('macOS'))">
         <!--

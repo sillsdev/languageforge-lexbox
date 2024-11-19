@@ -1,4 +1,5 @@
-﻿using FwLiteProjectSync.Tests.Fixtures;
+﻿using FluentAssertions.Equivalency;
+using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

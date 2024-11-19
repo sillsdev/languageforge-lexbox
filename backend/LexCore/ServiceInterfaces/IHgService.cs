@@ -19,6 +19,7 @@ public interface IHgService
     Task FinishReset(ProjectCode code, Stream zipFile);
     Task<HttpContent> VerifyRepo(ProjectCode code, CancellationToken token);
     Task<string> GetTipHash(ProjectCode code, CancellationToken token = default);
+    Task<int?> GetRepoSizeInKb(ProjectCode code, CancellationToken token = default);
     Task<int?> GetLexEntryCount(ProjectCode code, ProjectType projectType);
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token);

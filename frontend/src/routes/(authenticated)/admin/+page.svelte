@@ -9,7 +9,7 @@
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
   import { RefineFilterMessage } from '$lib/components/Table';
-  import type { AdminSearchParams, User } from './+page';
+  import { type AdminSearchParams, type User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
   import { derived } from 'svelte/store';

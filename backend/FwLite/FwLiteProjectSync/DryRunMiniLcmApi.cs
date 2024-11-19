@@ -130,6 +130,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return GetEntry(id)!;
     }
 
+    public Task<Entry> UpdateEntry(Entry before, Entry after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update entry {after.Id}"));
+        return Task.FromResult(after);
+    }
+
     public Task DeleteEntry(Guid id)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteEntry), $"Delete entry {id}"));

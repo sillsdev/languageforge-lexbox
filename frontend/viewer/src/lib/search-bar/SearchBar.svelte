@@ -5,17 +5,17 @@
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable, type Writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
-  import { createEventDispatcher, getContext, onDestroy } from 'svelte';
+  import {createEventDispatcher, getContext, onDestroy, onMount} from 'svelte';
   import type { IEntry } from '../mini-lcm';
+  import {useSearch} from './search';
 
+  const {search, showSearchDialog} = useSearch();
   const dispatch = createEventDispatcher<{
     entrySelected: {entry: IEntry, search: string};
     createNew: string
   }>();
 
   export let createNew: boolean;
-
-  let showSearchDialog = false;
 
   let waitingForSecondShift = false;
   let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
@@ -25,7 +25,7 @@
     if (waitingForSecondShift) {
       waitingForSecondShift = false;
       clearTimeout(waitingForSecondShiftTimeout);
-      showSearchDialog = true;
+      $showSearchDialog = true;
     } else {
       waitingForSecondShift = true;
       waitingForSecondShiftTimeout = setTimeout(() => {
@@ -39,7 +39,6 @@
   });
 
   const lexboxApi = useLexboxApi();
-  const search = writable<string>('');
   const fetchCount = 105;
   const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
@@ -59,11 +58,24 @@
 
   function selectEntry(entry: IEntry) {
     dispatch('entrySelected', {entry, search: $search});
-    showSearchDialog = false;
+    $showSearchDialog = false;
   }
+
+  function trimPastedText(e: ClipboardEvent) {
+    console.log(e);
+    if (e.clipboardData) {
+      e.preventDefault();
+      const text = e.clipboardData.getData('text');
+      if (text !== null && text !== undefined) {
+        $search = text.trim();
+      }
+    }
+  }
+  let searchElement: HTMLInputElement | null | undefined;
+  $: if (searchElement) searchElement.addEventListener('paste', trimPastedText);
 </script>
 
-<button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => (showSearchDialog = true)}>
+<button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => ($showSearchDialog = true)}>
   <Field
     classes={{ input: 'my-1 justify-center opacity-60' }}
     class="cursor-pointer">
@@ -78,9 +90,10 @@
   </Field>
 </button>
 
-<Dialog bind:open={showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
+      bind:inputEl={searchElement}
       autofocus
       clearable
       bind:value={$search}
@@ -133,7 +146,7 @@
         noShadow
         on:click={() => {
             dispatch('createNew', $result.search ?? '');
-            showSearchDialog = false;
+            $showSearchDialog = false;
           }}
       />
     {/if}
@@ -149,7 +162,7 @@
             on:click={() => {
               $listSearch = $search;
               $selectedIndexExamplar = undefined;
-              showSearchDialog = false;
+              $showSearchDialog = false;
             }}
             class="border w-auto inline ml-0.5">
             Filter list

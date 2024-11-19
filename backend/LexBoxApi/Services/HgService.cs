@@ -426,6 +426,13 @@ public partial class HgService : IHgService, IHostedService
         return await content.ReadAsStringAsync();
     }
 
+    public async Task<int?> GetRepoSizeInKb(ProjectCode code, CancellationToken token = default)
+    {
+        var content = await ExecuteHgCommandServerCommand(code, "reposizeinkb", token);
+        var sizeStr = await content.ReadAsStringAsync();
+        return int.TryParse(sizeStr, out var size) ? size : null;
+    }
+
     private async Task WaitForRepoEmptyState(ProjectCode code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)
     {
         // Set timeout so unforeseen errors can't cause an infinite loop

@@ -57,16 +57,24 @@ public class JwtHelper
 
     public static string GetJwtFromLoginResponse(HttpResponseMessage response)
     {
-        response.EnsureSuccessStatusCode();
-        var cookies = response.Headers.GetValues("Set-Cookie");
-        var cookieContainer = new CookieContainer();
-        cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
-        var authCookie = cookieContainer.GetAllCookies()
-            .FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
-        authCookie.ShouldNotBeNull();
-        var jwt = authCookie.Value;
+        TryGetJwtFromLoginResponse(response, out var jwt);
         jwt.ShouldNotBeNullOrEmpty();
         return jwt;
+    }
+
+    public static bool TryGetJwtFromLoginResponse(HttpResponseMessage response, out string? jwt)
+    {
+        jwt = null;
+        response.EnsureSuccessStatusCode();
+        if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
+        {
+            var cookieContainer = new CookieContainer();
+            cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
+            var authCookie = cookieContainer.GetAllCookies()
+                .FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
+            jwt = authCookie?.Value;
+        }
+        return jwt is not null;
     }
 
     public static void ClearCookies(SocketsHttpHandler httpClientHandler)

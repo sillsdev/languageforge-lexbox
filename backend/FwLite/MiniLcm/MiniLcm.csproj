@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="SIL.WritingSystems" Version="14.2.0-beta*" />
       <PackageReference Include="System.Text.Json" Version="9.0.0" />
       <PackageReference Include="SystemTextJsonPatch" Version="3.2.1" />
     </ItemGroup>

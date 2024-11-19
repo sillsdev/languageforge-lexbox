@@ -30,6 +30,8 @@ public static class LocalAppKernel
         services.AddFwLiteProjectSync();
         services.AddFwDataBridge();
 
+        services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
+
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
         {
             jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
