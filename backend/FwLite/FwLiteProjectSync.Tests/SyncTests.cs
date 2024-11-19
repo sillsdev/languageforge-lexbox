@@ -150,6 +150,55 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task CreatingAComplexEntryInFwDataSyncsWithoutIssue()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var hat = await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Hat" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Hat" } }, }
+            ]
+        });
+        var stand = await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Stand" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Stand" } }, }
+            ]
+        });
+        var hatstand = await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Hatstand" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Hatstand" } }, }
+            ],
+        });
+        var component1 = ComplexFormComponent.FromEntries(hatstand, hat);
+        var component2 = ComplexFormComponent.FromEntries(hatstand, stand);
+        hatstand.Components = [component1, component2];
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+
+        // Sync again, ensure no problems or changes
+        var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
+        secondSync.CrdtChanges.Should().Be(0);
+        secondSync.FwdataChanges.Should().Be(0);
+    }
+
+
+    [Fact]
     public async Task PartsOfSpeechSyncBothWays()
     {
         var crdtApi = _fixture.CrdtApi;
