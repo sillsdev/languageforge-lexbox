@@ -4,6 +4,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
+using LexCore.Sync;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -19,7 +20,8 @@ public class CrdtController(
     LexBoxDbContext dbContext,
     IHubContext<CrdtProjectChangeHub, IProjectChangeListener> hubContext,
     IPermissionService permissionService,
-    ProjectService projectService) : ControllerBase
+    ProjectService projectService,
+    FwHeadlessClient fwHeadlessClient) : ControllerBase
 {
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
@@ -84,5 +86,12 @@ public class CrdtController(
         }
 
         return Ok(projectId);
+    }
+
+    [HttpPost("crdt-sync/{projectId}")]
+    [AdminRequired]
+    public async Task<SyncResult?> ExecuteMerge(Guid projectId)
+    {
+        return await fwHeadlessClient.CrdtSync(projectId);
     }
 }
