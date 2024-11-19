@@ -9,7 +9,7 @@ namespace FwLiteProjectSync.Tests;
 
 public class EntrySyncTests : IClassFixture<SyncFixture>
 {
-    private readonly AutoFaker _autoFaker = new(builder => builder.WithOverride(new MultiStringOverride()).WithOverride(new ObjectWithIdOverride()));
+    private static readonly AutoFaker AutoFaker = new(builder => builder.WithOverride(new MultiStringOverride()).WithOverride(new ObjectWithIdOverride()));
     public EntrySyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
@@ -20,8 +20,8 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     [Fact]
     public async Task CanSyncRandomEntries()
     {
-        var createdEntry = await _fixture.CrdtApi.CreateEntry(await _autoFaker.EntryReadyForCreation(_fixture.CrdtApi));
-        var after = await _autoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
+        var createdEntry = await _fixture.CrdtApi.CreateEntry(await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi));
+        var after = await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
         await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
