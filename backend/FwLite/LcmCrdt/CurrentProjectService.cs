@@ -57,7 +57,7 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         memoryCache.Remove(CacheKey(Project));
     }
 
-    public async Task SetProjectSyncOrigin(Uri domain, Guid? id)
+    public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
     {
         var originDomain = ProjectData.GetOriginDomain(domain);
         if (id is null)

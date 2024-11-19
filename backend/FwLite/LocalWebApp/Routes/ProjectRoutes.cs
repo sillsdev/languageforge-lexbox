@@ -85,7 +85,15 @@ public static partial class ProjectRoutes
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
                 await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
-                await syncService.ExecuteSync();
+                try
+                {
+                    await syncService.ExecuteSync();
+                }
+                catch
+                {
+                    await currentProjectService.SetProjectSyncOrigin(null, null);
+                    throw;
+                }
                 lexboxProjectService.InvalidateProjectsCache(server);
                 return TypedResults.Ok();
             });
