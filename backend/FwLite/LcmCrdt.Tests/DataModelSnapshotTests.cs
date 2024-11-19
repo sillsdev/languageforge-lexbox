@@ -17,7 +17,7 @@ namespace LcmCrdt.Tests;
 
 public class DataModelSnapshotTests : IAsyncLifetime
 {
-    private static AutoFaker _faker = new AutoFaker(new AutoFakerConfig()
+    private static readonly AutoFaker Faker = new AutoFaker(new AutoFakerConfig()
     {
         Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
     });
@@ -90,7 +90,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
             foreach (var jsonDerivedType in types)
             {
                 var typeDiscriminator = jsonDerivedType.TypeDiscriminator.Should().BeOfType<string>().Subject;
-                var obj = _faker.Generate(jsonDerivedType.DerivedType);
+                var obj = Faker.Generate(jsonDerivedType.DerivedType);
                 new MiniLcmCrdtAdapter((IObjectWithId)obj).GetObjectTypeName().Should().Be(typeDiscriminator);
             }
         }

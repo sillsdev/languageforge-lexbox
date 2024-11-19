@@ -16,7 +16,7 @@
   import { derived } from 'svelte/store';
 
   import type { IEntry } from './mini-lcm';
-  import { headword, pickBestAlternative } from './utils';
+  import { headword } from './utils';
   import {useWritingSystems} from './writing-systems';
   import { usePartsOfSpeech } from './parts-of-speech';
 

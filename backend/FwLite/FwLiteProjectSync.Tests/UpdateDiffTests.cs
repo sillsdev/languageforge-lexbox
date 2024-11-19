@@ -9,7 +9,7 @@ namespace FwLiteProjectSync.Tests;
 
 public class UpdateDiffTests
 {
-    private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
+    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
     {
         Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
     });
@@ -18,7 +18,7 @@ public class UpdateDiffTests
     public void EntryDiffShouldUpdateAllFields()
     {
         var before = new Entry();
-        var after = _autoFaker.Generate<Entry>();
+        var after = AutoFaker.Generate<Entry>();
         var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(before);
@@ -33,7 +33,7 @@ public class UpdateDiffTests
     public async Task SenseDiffShouldUpdateAllFields()
     {
         var before = new Sense();
-        var after = _autoFaker.Generate<Sense>();
+        var after = AutoFaker.Generate<Sense>();
         var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(before);
@@ -44,7 +44,7 @@ public class UpdateDiffTests
     public void ExampleSentenceDiffShouldUpdateAllFields()
     {
         var before = new ExampleSentence();
-        var after = _autoFaker.Generate<ExampleSentence>();
+        var after = AutoFaker.Generate<ExampleSentence>();
         var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
         exampleSentenceDiffToUpdate.Apply(before);
