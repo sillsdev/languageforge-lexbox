@@ -39,7 +39,6 @@ public class AuthHelpersFactory(
     /// </summary>
     public AuthHelpers GetHelper(ProjectData project)
     {
-        ;
         var originDomain = project.OriginDomain;
         if (string.IsNullOrEmpty(originDomain)) throw new InvalidOperationException("No origin domain in project data");
         return GetHelper(options.Value.GetServer(project));
