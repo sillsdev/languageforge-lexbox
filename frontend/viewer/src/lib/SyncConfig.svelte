@@ -5,6 +5,7 @@
   import {writable} from 'svelte/store';
   import {type ServerStatus, useProjectsService} from './services/projects-service';
   import {getContext} from 'svelte';
+  import {AppNotification} from './notifications/notifications';
 
   const projectsService = useProjectsService();
   let projectName = getContext<string>('project-name');
@@ -48,9 +49,9 @@
     if (!targetProjectId) return;
     uploading = true;
     //todo if not logged in then login
-    await projectsService.uploadCrdtProject($projectServer, projectName, targetProjectId);
+    const success = await projectsService.uploadCrdtProject($projectServer, projectName, targetProjectId);
     uploading = false;
-    isUploaded = true;
+    if (success) isUploaded = true;
   }
 </script>
 

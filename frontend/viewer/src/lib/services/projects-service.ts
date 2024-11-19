@@ -28,23 +28,35 @@ export class ProjectService {
     return {error: undefined};
   }
 
-  async importFwDataProject(name: string) {
-    await fetch(`/api/import/fwdata/${name}`, {
+  async importFwDataProject(name: string): Promise<boolean> {
+    const r = await fetch(`/api/import/fwdata/${name}`, {
       method: 'POST',
     });
+    if (!r.ok) {
+      AppNotification.display(`Failed to import FieldWorks project ${name}: ${r.statusText} (${r.status})`, 'error', 'long');
+      console.error(`Failed to import FieldWorks project ${name}: ${r.statusText} (${r.status})`, r, await r.text())
+    }
+    return r.ok;
   }
 
   async downloadCrdtProject(project: Project) {
     const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
-    if (r.status !== 200) {
-      AppNotification.display(`Failed to download project, status code ${r.status}`, 'error');
-      console.error(`Failed to download project ${project.name}`, r)
+    if (!r.ok) {
+      AppNotification.display(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, 'error', 'long');
+      console.error(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, r, await r.text())
     }
+    return r.ok;
   }
 
-  async uploadCrdtProject(server: string, projectName: string, lexboxProjectId: string) {
-    await fetch(`/api/upload/crdt/${server}/${projectName}?lexboxProjectId=${lexboxProjectId}`, {method: 'POST'});
+  async uploadCrdtProject(server: string, projectName: string, lexboxProjectId: string): Promise<boolean> {
+    const r = await fetch(`/api/upload/crdt/${server}/${projectName}?lexboxProjectId=${lexboxProjectId}`, {method: 'POST'});
+    if (!r.ok) {
+      AppNotification.display(`Failed to upload project ${projectName}: ${r.statusText} (${r.status})`, 'error', 'long');
+      console.error(`Failed to upload project ${projectName}: ${r.statusText} (${r.status})`, r, await r.text())
+    }
+    return r.ok;
   }
+
   async getProjectServer(projectName: string): Promise<string|null> {
     const projects = await this.fetchProjects();
     //todo project server is always null from local projects`
