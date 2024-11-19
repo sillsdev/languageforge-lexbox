@@ -275,8 +275,8 @@ public partial class HgService : IHgService, IHostedService
         try
         {
             var json = JsonDocument.Parse(text);
-            if (json.RootElement.GetProperty("modelversion").TryGetInt32(out int version)) return version;
-            _logger.LogError("Invalid model version in GetModelVersionOfFlexProject, should be a number but got {modelversion}", json.RootElement.GetProperty("modelversion").ToString());
+            if (json.RootElement.TryGetProperty("modelversion", out var modelversion) && modelversion.TryGetInt32(out int version)) return version;
+            _logger.LogError("Invalid JSON {text} in GetModelVersionOfFlexProject, should have one property \"modelversion\" that's a number", text);
             return null;
         }
         catch (JsonException e)
