@@ -162,6 +162,7 @@ public class EmailService(
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
 
+        //using GetPathByAction so the path is relative
         var returnTo = _linkGenerator.GetPathByAction(httpContext,
             nameof(Controllers.UserController.HandleInviteLink),
             "User");

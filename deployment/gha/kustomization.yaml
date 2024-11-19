@@ -21,4 +21,6 @@ images:
   - name: ghcr.io/sillsdev/lexbox-ui
     newTag: develop
   - name: ghcr.io/sillsdev/lexbox-hgweb
-    newTag: latest
+    newTag: develop
+  - name: ghcr.io/sillsdev/lexbox-fw-headless
+    newTag: develop

@@ -1,0 +1,55 @@
+﻿name: Setup and run playwright tests
+inputs:
+  lexbox-hostname:
+    description: 'The hostname of the lexbox server, should include port if not 80'
+    required: true
+  lexbox-default-password:
+    description: 'The default password for the lexbox server'
+    required: true
+  viewer-tests:
+    description: 'Whether to run viewer tests'
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    # First we need to setup Node...
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: 'frontend/package.json'
+    # Then we can set up pnpm...
+    - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      with:
+        package_json_file: 'frontend/package.json'
+    # Then we can have Node set up package caching
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: 'frontend/package.json'
+        cache: 'pnpm'
+        cache-dependency-path: 'frontend/pnpm-lock.yaml'
+    - name: Playwright setup
+      shell: bash
+      working-directory: frontend
+      run: pnpm install
+    - name: Set up Playwright dependencies
+      shell: bash
+      working-directory: frontend
+      run: pnpm exec playwright install --with-deps
+
+    - name: Integration tests (Playwright)
+      id: playwright-tests
+      shell: bash
+      env:
+        TEST_SERVER_HOSTNAME: ${{ inputs.lexbox-hostname }}
+        TEST_DEFAULT_PASSWORD: ${{ inputs.lexbox-default-password }}
+      working-directory: frontend
+      run: pnpm run test ${{ inputs.viewer-tests != 'true' && '-g "^(?!.*Viewer Page).*"' || '' }}
+
+    - name: Upload playwright results
+      if: ${{ always() && steps.playwright-tests.outcome != 'skipped' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-traces
+        path: |
+          ./frontend/test-results
