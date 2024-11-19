@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
@@ -31,6 +31,7 @@
   let importing = '';
 
   async function importFwDataProject(name: string) {
+    if (importing) return;
     importing = name;
     await projectsService.importFwDataProject(name);
     await refreshProjects();
@@ -177,6 +178,7 @@
                             size="md"
                             loading={importing === project.name}
                             icon={mdiBookArrowLeftOutline}
+                            disabled={!!importing}
                             on:click={() => importFwDataProject(project.name)}
                           >
                             Import
