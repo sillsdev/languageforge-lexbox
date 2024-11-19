@@ -8,6 +8,9 @@ export function useComplexFormTypes(): Readable<ComplexFormType[]> {
     complexFormTypesStore = writable<ComplexFormType[] | null>(null, (set) => {
       useLexboxApi().GetComplexFormTypes().then(complexFormTypes => {
         set(complexFormTypes);
+      }).catch(error => {
+        console.error('Failed to load parts of speech', error);
+        throw error;
       });
     });
   }
