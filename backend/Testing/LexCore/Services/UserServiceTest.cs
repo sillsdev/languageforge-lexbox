@@ -19,16 +19,23 @@ public class UserServiceTest : IAsyncLifetime
     private readonly LexBoxDbContext _lexBoxDbContext;
     private List<Project> ManagedProjects { get; } = [];
     private List<User> ManagedUsers { get; } = [];
+    private List<Organization> ManagedOrgs { get; } = [];
 
     // Users created for this test
     private User? Robin { get; set; }
     private User? John { get; set; }
     private User? Marian { get; set; }
+    private User? Bishop { get; set; }
     private User? Tuck { get; set; }
     private User? Sheriff { get; set; }
+    private User? Guy { get; set; }
     // Projects created for this test
     private Project? Sherwood { get; set; }
     private Project? Nottingham { get; set; }
+    // Orgs created for this test
+    private Organization? Outlaws { get; set; }
+    private Organization? LawEnforcement { get; set; }
+    private Organization? Church { get; set; }
 
     public UserServiceTest(TestingServicesFixture testing)
     {
@@ -46,11 +53,17 @@ public class UserServiceTest : IAsyncLifetime
         Robin = CreateUser("Robin Hood");
         John = CreateUser("Little John");
         Marian = CreateUser("Maid Marian");
+        Bishop = CreateUser("Bishop of Hereford");
         Tuck = CreateUser("Friar Tuck");
         Sheriff = CreateUser("Sheriff of Nottingham");
+        Guy = CreateUser("Guy of Gisbourne");
 
         Nottingham = CreateProject([Sheriff.Id], [Marian.Id, Tuck.Id]);
         Sherwood = CreateConfidentialProject([Robin.Id, Marian.Id], [John.Id, Tuck.Id]);
+
+        Outlaws = CreateOrg([Robin.Id], [John.Id]);
+        LawEnforcement = CreateOrg([Sheriff.Id], [Guy.Id]);
+        Church = CreateOrg([Bishop.Id], [Tuck.Id]);
 
         return _lexBoxDbContext.SaveChangesAsync();
     }
@@ -65,49 +78,88 @@ public class UserServiceTest : IAsyncLifetime
         {
             _lexBoxDbContext.Remove(user);
         }
+        foreach (var org in ManagedOrgs)
+        {
+            _lexBoxDbContext.Remove(org);
+        }
         return _lexBoxDbContext.SaveChangesAsync();
     }
 
     [Fact]
     public async Task ManagerCanSeeAllUsersEvenInConfidentialProjects()
     {
+        // Robin Hood is in Outlaws org (admin) and Sherwood project (private, manager)
         var authUser = new LexAuthUser(Robin!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
+        // John, who is in both the Outlaws org (user) and Sherwood project (member) is not duplicated
         users.Should().BeEquivalentTo([Robin, Marian, John, Tuck]);
     }
 
     [Fact]
     public async Task NonManagerCanNotSeeUsersInConfidentialProjects()
     {
+        // Little John is in Outlaws org (user) and Sherwood project (private, member)
         var authUser = new LexAuthUser(John!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-        users.Should().BeEmpty();
+        // John can see Robin because he shares an org, but not Marian even though she's a manager of the Sherwood project
+        users.Should().BeEquivalentTo([Robin, John]);
     }
 
     [Fact]
     public async Task ManagerOfOneProjectAndMemberOfAnotherPublicProjectCanSeeUsersInBoth()
     {
+        // Maid Marian is in no orgs and two projects: Sherwood (private, manager) and Nottingham (public, member)
         var authUser = new LexAuthUser(Marian!);
         var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
+        // Marian can see everyone in both projects; Tuck is not duplicated despite being in both projects
         users.Should().BeEquivalentTo([Robin, Marian, John, Tuck, Sheriff]);
     }
 
     [Fact]
     public async Task ManagerOfOneProjectAndMemberOfAnotherConfidentialProjectCanNotSeeUsersInConfidentialProject()
     {
+        // Sheriff of Nottingham is in LawEnforcement org (admin) and Nottingham project (pulbic, manager)
         try
         {
             // Sheriff tries to sneak into Sherwood...
             await AddUserToProject(Sherwood!, Sheriff!);
-            // ... but can still only see the users in Nottingham
+            // ... but can still only see the users in Nottingham and LawEnforcement
             var authUser = new LexAuthUser(Sheriff!);
             var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
-            users.Should().BeEquivalentTo([Sheriff, Marian, Tuck]);
+            users.Should().BeEquivalentTo([Sheriff, Guy, Marian, Tuck]);
         }
         finally
         {
             await RemoveUserFromProject(Sherwood!, Sheriff!);
         }
+    }
+
+    [Fact]
+    public async Task OrgAdminsInNoProjectsCanSeeOnlyTheirOrg()
+    {
+        // Bishop of Hereford is in Church org (admin) but no projects
+        var authUser = new LexAuthUser(Bishop!);
+        var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
+        users.Should().BeEquivalentTo([Bishop, Tuck]);
+    }
+
+    [Fact]
+    public async Task OrgMembersInNoProjectsCanSeeOnlyTheirOrg()
+    {
+        // Guy of Gisborne is in LawEnforcement org (user) but no projects
+        var authUser = new LexAuthUser(Guy!);
+        var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
+        users.Should().BeEquivalentTo([Sheriff, Guy]);
+    }
+
+    [Fact]
+    public async Task OrgAndProjectMembersCanSeeFellowOrgMembersAndFellowPublicProjectMembersButNotFellowPrivateProjectMembers()
+    {
+        // Friar Tuck is in Church org (user) and two projects: Nottingham (public, member) and Sherwood (private, member)
+        var authUser = new LexAuthUser(Tuck!);
+        var users = await _userService.UserQueryForTypeahead(authUser).ToArrayAsync();
+        // Tuck can see everyone in Church and Nottingham, but nobody in Sherwood because it's private — though he can see Marian because he shares a public project with her
+        users.Should().BeEquivalentTo([Bishop, Tuck, Sheriff, Marian]);
     }
 
     private User CreateUser(string name)
@@ -168,5 +220,22 @@ public class UserServiceTest : IAsyncLifetime
         var pu = project.Users.FirstOrDefault(pu => pu.UserId == user.Id);
         if (pu is not null) project.Users.Remove(pu);
         await _lexBoxDbContext.SaveChangesAsync();
+    }
+
+    private Organization CreateOrg(IEnumerable<Guid> managers, IEnumerable<Guid> members)
+    {
+        var id = Guid.NewGuid();
+        var shortId = id.ToString().Split("-")[0];
+        var org = new Organization
+        {
+            Name = shortId,
+            Members = [],
+            Projects = [],
+        };
+        org.Members.AddRange(managers.Select(userId => new OrgMember { UserId = userId, Role = OrgRole.Admin }));
+        org.Members.AddRange(members.Select(userId => new OrgMember { UserId = userId, Role = OrgRole.User }));
+        _lexBoxDbContext.Add(org);
+        ManagedOrgs.Add(org);
+        return org;
     }
 }
