@@ -88,6 +88,17 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task SecondSyncDoesNothing()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
+        secondSync.CrdtChanges.Should().Be(0);
+        secondSync.FwdataChanges.Should().Be(0);
+    }
+
+    [Fact]
     public static async Task SyncFailsWithMismatchedProjectIds()
     {
         var fixture = SyncFixture.Create();
