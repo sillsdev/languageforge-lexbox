@@ -195,7 +195,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Revert WritingSystem",
             async () =>
             {
-                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, this) { Type = type }; // TODO: Doesn't compile, wants Font to be set. Also wants a GUID Id which we don't have...
+                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, this)
+                {
+                    Id = Guid.Empty,
+                    Type = type,
+                };
                 update.Apply(updateProxy);
                 updateProxy.CommitUpdate(Cache);
             });

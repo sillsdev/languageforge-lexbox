@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
+using SIL.WritingSystems;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
@@ -11,10 +13,14 @@ public record UpdateWritingSystemProxy : WritingSystem
     private readonly CoreWritingSystemDefinition _workingLcmWritingSystem;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
 
+    [SetsRequiredMembers]
     public UpdateWritingSystemProxy(CoreWritingSystemDefinition lcmWritingSystem, FwDataMiniLcmApi lexboxLcmApi)
     {
         _origLcmWritingSystem = lcmWritingSystem;
         _workingLcmWritingSystem = new CoreWritingSystemDefinition(lcmWritingSystem, cloneId: true);
+        base.Abbreviation = Abbreviation = _origLcmWritingSystem.Abbreviation ?? "";
+        base.Name = Name = _origLcmWritingSystem.LanguageName ?? "";
+        base.Font = Font = _origLcmWritingSystem.DefaultFontName ?? "";
         _lexboxLcmApi = lexboxLcmApi;
     }
 
@@ -49,10 +55,15 @@ public record UpdateWritingSystemProxy : WritingSystem
         set => _workingLcmWritingSystem.Abbreviation = value;
     }
 
-    // TODO: Change WritingSystem Font property to be a list of strings instead of a single string, then do something like this
-    // public override required List<string> Fonts
-    // {
-    //     get => _workingLcmWritingSystem.Fonts.Select(f => f.Name).ToList();
-    //     set => throw new NotImplementedException();
-    // }
+    public override required string Font
+    {
+        get => _workingLcmWritingSystem.DefaultFontName;
+        set
+        {
+            if (value != _workingLcmWritingSystem.DefaultFontName)
+            {
+                _workingLcmWritingSystem.DefaultFont = new FontDefinition(value);
+            }
+        }
+    }
 }
