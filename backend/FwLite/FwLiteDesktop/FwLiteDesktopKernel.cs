@@ -1,4 +1,5 @@
-﻿using FwLiteDesktop.ServerBridge;
+﻿using Windows.ApplicationModel;
+using FwLiteDesktop.ServerBridge;
 using LcmCrdt;
 using LocalWebApp.Auth;
 using Microsoft.Extensions.Configuration;
@@ -15,21 +16,25 @@ public static class FwLiteDesktopKernel
         ILoggingBuilder logging)
     {
         services.AddSingleton<MainPage>();
+        configuration.AddJsonFile("appsettings.json", optional: true);
 
         string environment = "Production";
 #if DEBUG
         environment = "Development";
 #endif
+        var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
+        var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ?? defaultDataPath);
+        Directory.CreateDirectory(baseDataPath);
         var serverManager = new ServerManager(environment, webAppBuilder =>
         {
-            webAppBuilder.Logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "web-app.log"));
+            webAppBuilder.Logging.AddFile(Path.Combine(baseDataPath, "web-app.log"));
             webAppBuilder.Services.Configure<LcmCrdtConfig>(config =>
             {
-                config.ProjectPath = FileSystem.AppDataDirectory;
+                config.ProjectPath = baseDataPath;
             });
             webAppBuilder.Services.Configure<AuthConfig>(config =>
             {
-                config.CacheFileName = Path.Combine(FileSystem.AppDataDirectory, "msal.cache");
+                config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
                 config.SystemWebViewLogin = true;
             });
         });
@@ -39,10 +44,27 @@ public static class FwLiteDesktopKernel
         services.AddSingleton<IHostEnvironment>(_ => _.GetRequiredService<ServerManager>().WebServices.GetRequiredService<IHostEnvironment>());
         configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
         services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
-        logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "app.log"));
+        logging.AddFile(Path.Combine(baseDataPath, "app.log"));
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();
 #endif
     }
+
+    static readonly Lazy<bool> IsPackagedAppLazy = new(static () =>
+    {
+        try
+        {
+            if (Package.Current != null)
+                return true;
+        }
+        catch
+        {
+            // no-op
+        }
+
+        return false;
+    });
+
+    public static bool IsPackagedApp => IsPackagedAppLazy.Value;
 }
