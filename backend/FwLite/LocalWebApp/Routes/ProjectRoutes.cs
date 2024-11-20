@@ -97,22 +97,20 @@ public static partial class ProjectRoutes
                 lexboxProjectService.InvalidateProjectsCache(server);
                 return TypedResults.Ok();
             });
-        group.MapPost("/download/crdt/{serverAuthority}/{newProjectName}",
+        group.MapPost("/download/crdt/{serverAuthority}/{projectId}",
             async (LexboxProjectService lexboxProjectService,
                 IOptions<AuthConfig> options,
                 ProjectsService projectService,
-                string newProjectName,
+                Guid projectId,
+                [FromQuery] string projectName,
                 string serverAuthority
             ) =>
             {
-                if (!ProjectName().IsMatch(newProjectName))
+                if (!ProjectName().IsMatch(projectName))
                     return Results.BadRequest("Project name is invalid");
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(server,newProjectName);
-                if (foundProjectGuid is null)
-                    return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
-                await projectService.CreateProject(new(newProjectName,
-                    foundProjectGuid.Value,
+                await projectService.CreateProject(new(projectName,
+                    projectId,
                     server.Authority,
                     async (provider, project) =>
                     {

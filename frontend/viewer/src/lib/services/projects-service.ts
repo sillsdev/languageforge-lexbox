@@ -40,7 +40,7 @@ export class ProjectService {
   }
 
   async downloadCrdtProject(project: Project) {
-    const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
+    const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.id}?projectName=${project.name}`, {method: 'POST'});
     if (!r.ok) {
       AppNotification.display(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, 'error', 'long');
       console.error(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, r, await r.text())
