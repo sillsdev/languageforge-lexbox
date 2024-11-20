@@ -147,7 +147,7 @@
             <p>loading...</p>
           {:then projects}
             <Table {columns}
-                   data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))}
+                   data={projects.filter((p) => p.fwdata || p.crdt).sort((p1, p2) => p1.name.localeCompare(p2.name))}
                    classes={{ th: 'p-4' }}>
               <tbody slot="data" let:columns let:data let:getCellContent>
               {#each data ?? [] as project, rowIndex}
