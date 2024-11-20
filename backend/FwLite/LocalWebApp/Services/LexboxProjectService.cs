@@ -97,7 +97,7 @@ public class LexboxProjectService(
             //todo bridge logging to the aspnet logger
             .ConfigureLogging(logging => logging.AddConsole())
             .WithAutomaticReconnect()
-            .WithUrl($"{server.Authority}/api/hub/crdt/project-changes",
+            .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
                 connectionOptions =>
                 {
                     connectionOptions.HttpMessageHandlerFactory = handler =>
