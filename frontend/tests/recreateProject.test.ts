@@ -9,7 +9,7 @@ import { expect } from '@playwright/test';
 
 test('delete and recreate project', async ({ page, uniqueTestId }) => {
   // Step 1: Login
-  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await loginAs(page.request, 'admin');
   const adminDashboard = await new AdminDashboardPage(page).goto();
 
   // Step 2: Create a new project
