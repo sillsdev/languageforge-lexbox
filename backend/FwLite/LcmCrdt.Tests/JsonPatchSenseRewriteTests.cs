@@ -4,6 +4,7 @@ using LcmCrdt.Objects;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
+using Testing;
 
 namespace LcmCrdt.Tests;
 
@@ -47,7 +48,7 @@ public class JsonPatchSenseRewriteTests
         var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var setPartOfSpeechChange = changes.Should().ContainSingle()
-            .Subject.Should().BeOfType<SetPartOfSpeechChange>().Subject;
+            .Subject.ShouldBeOfType<SetPartOfSpeechChange>();
         setPartOfSpeechChange.EntityId.Should().Be(_sense.Id);
         setPartOfSpeechChange.PartOfSpeechId.Should().Be(newPartOfSpeechId);
     }

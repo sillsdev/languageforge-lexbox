@@ -1,5 +1,5 @@
 using LexCore;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.LexCore;
 
@@ -10,6 +10,6 @@ public class PasswordHashingTests
     [Theory]
     public void CanHashPassword(string pw, string salt, string hash)
     {
-        PasswordHashing.RedminePasswordHash(pw, salt, false).ShouldBe(hash);
+        PasswordHashing.RedminePasswordHash(pw, salt, false).Should().Be(hash);
     }
 }

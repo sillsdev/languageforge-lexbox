@@ -1,9 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Shouldly;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Testing.ApiTests;
 using Testing.Services;
 
@@ -28,27 +28,28 @@ password={password}
 
     private async Task ValidateResponse(HttpResponseMessage response)
     {
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
-        content.ValueKind.ShouldBe(JsonValueKind.Array);
+        content.ValueKind.Should().Be(JsonValueKind.Array);
         var projectArray = JsonArray.Create(content);
         projectArray.ShouldNotBeNull();
-        projectArray.Count.ShouldBeGreaterThan(0);
+        projectArray.Count.Should().BeGreaterThan(0);
         var project =
             projectArray.First(p => p?["identifier"]?.GetValue<string>() == TestingEnvironmentVariables.ProjectCode) as JsonObject;
         project.ShouldNotBeNull();
         var projectDict = new Dictionary<string, JsonNode?>(project);
-        projectDict.ShouldSatisfyAllConditions(
-            () => projectDict.ShouldContainKey("identifier"),
-            () => projectDict.ShouldContainKey("name"),
-            () => projectDict.ShouldContainKey("repository"),
-            () => projectDict.ShouldContainKey("role")
-        );
-        project["identifier"]!.GetValue<string>().ShouldBe(TestingEnvironmentVariables.ProjectCode);
-        project["name"]!.GetValue<string>().ShouldBe("Sena 3");
-        project["repository"]!.GetValue<string>().ShouldBe("http://public.languagedepot.org");
+        using (new AssertionScope())
+        {
+            projectDict.Should().ContainKey("identifier");
+            projectDict.Should().ContainKey("name");
+            projectDict.Should().ContainKey("repository");
+            projectDict.Should().ContainKey("role");
+        }
+        project["identifier"]!.GetValue<string>().Should().Be(TestingEnvironmentVariables.ProjectCode);
+        project["name"]!.GetValue<string>().Should().Be("Sena 3");
+        project["repository"]!.GetValue<string>().Should().Be("http://public.languagedepot.org");
         //todo what is role for? returns unknown in my single test
-        project["role"]!.GetValue<string>().ShouldNotBeEmpty();
+        project["role"]!.GetValue<string>().Should().NotBeEmpty();
     }
 
     [Fact]
@@ -96,13 +97,13 @@ password={password}
             $"{_baseUrl}/api/user/{TestData.User}/projects",
             new FormUrlEncodedContent(
                 new[] { new KeyValuePair<string, string>("password", "bad password") }));
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
-        content.ValueKind.ShouldBe(JsonValueKind.Object);
+        content.ValueKind.Should().Be(JsonValueKind.Object);
         var responseObject = JsonObject.Create(content);
         responseObject.ShouldNotBeNull();
-        responseObject.ShouldContainKey("error");
-        responseObject["error"]!.GetValue<string>().ShouldBe("Bad password");
+        responseObject.Should().ContainKey("error");
+        responseObject["error"]!.GetValue<string>().Should().Be("Bad password");
     }
 
     [Fact]
@@ -112,13 +113,13 @@ password={password}
             $"{_baseUrl}/api/user/not-a-real-user-account/projects",
             new FormUrlEncodedContent(
                 new[] { new KeyValuePair<string, string>("password", "doesn't matter") }));
-        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
-        content.ValueKind.ShouldBe(JsonValueKind.Object);
+        content.ValueKind.Should().Be(JsonValueKind.Object);
         var responseObject = JsonObject.Create(content);
         responseObject.ShouldNotBeNull();
-        responseObject.ShouldContainKey("error");
-        responseObject["error"]!.GetValue<string>().ShouldBe("Unknown user");
+        responseObject.Should().ContainKey("error");
+        responseObject["error"]!.GetValue<string>().Should().Be("Unknown user");
     }
 
     // LF sends lots of requests with no password/request body. Chorus might as well.
@@ -127,6 +128,6 @@ password={password}
     public async Task MissingPasswordReturns403()
     {
         var response = await Client.PostAsJsonAsync<object?>($"{_baseUrl}/api/user/{TestData.User}/projects", null);
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }

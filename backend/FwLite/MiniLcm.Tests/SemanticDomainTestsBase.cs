@@ -1,4 +1,5 @@
 ﻿using MiniLcm.Models;
+using Testing;
 
 namespace MiniLcm.Tests;
 
@@ -31,11 +32,11 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
         });
     }
 
-    private Task<Entry> GetEntry()
+    private async Task<Entry> GetEntry()
     {
-        var entry = Api.GetEntry(_entryId);
-        entry.Should().NotBeNull();
-        return entry!;
+        var entry = await Api.GetEntry(_entryId);
+        entry.ShouldNotBeNull();
+        return entry;
     }
 
     [Fact]
@@ -54,7 +55,7 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
     public async Task Sense_HasSemanticDomains()
     {
         var entry = await GetEntry();
-        entry.Should().NotBeNull();
+        entry.ShouldNotBeNull();
         var sense = entry!.Senses.First(s => s.SemanticDomains.Any());
         sense.SemanticDomains.Should().NotBeEmpty();
         sense.SemanticDomains.Should().AllSatisfy(sd =>

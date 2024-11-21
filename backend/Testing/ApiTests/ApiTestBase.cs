@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using FluentAssertions;
 using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
-using Shouldly;
 using Testing.LexCore.Utils;
 using Testing.Services;
 
@@ -70,11 +70,11 @@ public class ApiTestBase
         jsonResponse.ShouldNotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
         GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
         if (expectSuccessCode)
-            response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
+            response.IsSuccessStatusCode.Should().BeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         return jsonResponse;
     }
 
-    public async Task<string?> GetProjectLastCommit(string projectCode)
+    public async Task<DateTimeOffset?> GetProjectLastCommit(string projectCode)
     {
         var jsonResult = await ExecuteGql($$"""
 query projectLastCommit {
@@ -84,7 +84,8 @@ query projectLastCommit {
 }
 """);
         var project = jsonResult?["data"]?["projectByCode"].ShouldBeOfType<JsonObject>();
-        return project?["lastCommit"]?.ToString();
+        var stringDate = project?["lastCommit"]?.ToString();
+        return stringDate == null ? null : DateTimeOffset.Parse(stringDate);
     }
 
     public async Task StartLexboxProjectReset(string projectCode)

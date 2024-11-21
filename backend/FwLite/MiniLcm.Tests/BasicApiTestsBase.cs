@@ -1,4 +1,6 @@
-﻿namespace MiniLcm.Tests;
+﻿using Testing;
+
+namespace MiniLcm.Tests;
 
 public abstract class BasicApiTestsBase : MiniLcmTestBase
 {
@@ -201,7 +203,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     public async Task GetEntry()
     {
         var entry = await Api.GetEntry(Entry1Id);
-        entry.Should().NotBeNull();
+        entry.ShouldNotBeNull();
         entry!.LexemeForm.Values.Should().NotBeEmpty();
         var sense = entry.Senses.Should()
             .NotBeEmpty($"because '{entry.LexemeForm.Values.First().Value}' should have a sense").And.Subject.First();
@@ -275,7 +277,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 }
             ]
         });
-        entry.Should().NotBeNull();
+        entry.ShouldNotBeNull();
         entry.LexemeForm.Values["en"].Should().Be("Kevin");
         entry.LiteralMeaning.Values["en"].Should().Be("Kevin");
         entry.CitationForm.Values["en"].Should().Be("Kevin");

@@ -1,5 +1,6 @@
 ﻿using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
+using Testing;
 
 namespace MiniLcm.Tests;
 
@@ -17,7 +18,7 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
     public virtual async Task InitializeAsync()
     {
         Api = await NewApi();
-        Api.Should().NotBeNull();
+        Api.ShouldNotBeNull();
     }
 
     public virtual async Task DisposeAsync()

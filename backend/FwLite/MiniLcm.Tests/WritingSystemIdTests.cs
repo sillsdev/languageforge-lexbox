@@ -1,6 +1,4 @@
-﻿using MiniLcm.Models;
-
-namespace MiniLcm.Tests;
+﻿namespace MiniLcm.Tests;
 
 public class WritingSystemIdTests
 {
@@ -11,7 +9,7 @@ public class WritingSystemIdTests
     public void ValidWritingSystemId_ShouldNotThrow(string code)
     {
         var ws = new WritingSystemId(code);
-        ws.Should().NotBeNull();
+        ws.Should().NotBe(default);
     }
 
     [Theory]
@@ -29,6 +27,6 @@ public class WritingSystemIdTests
     public void DefaultWritingSystemId_IsValid()
     {
         var ws = new WritingSystemId("default");
-        ws.Should().NotBeNull();
+        ws.Should().NotBe(default);
     }
 }

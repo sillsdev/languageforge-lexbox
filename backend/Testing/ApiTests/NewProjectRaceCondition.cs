@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Nodes;
-using Shouldly;
+using FluentAssertions;
 using Testing.Services;
 
 namespace Testing.ApiTests;
@@ -52,7 +52,7 @@ public class NewProjectRaceCondition : ApiTestBase
             """);
 
         var project = response["data"]!["createProject"]!["createProjectResponse"].ShouldBeOfType<JsonObject>();
-        project["id"]!.GetValue<string>().ShouldBe(id.ToString());
+        project["id"]!.GetValue<string>().Should().Be(id.ToString());
 
         // Query a 2nd time to ensure the instability of new repos isn't causing trouble
         response = await ExecuteGql($$"""
@@ -67,6 +67,6 @@ public class NewProjectRaceCondition : ApiTestBase
             """);
 
         project = response["data"]!["projectByCode"].ShouldBeOfType<JsonObject>();
-        project["name"]!.GetValue<string>().ShouldBe(name);
+        project["name"]!.GetValue<string>().Should().Be(name);
     }
 }

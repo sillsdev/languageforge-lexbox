@@ -36,7 +36,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
         <PackageReference Include="Moq" Version="4.20.70" />
         <PackageReference Include="Moq.Contrib.HttpClient" Version="1.4.0" />
-        <PackageReference Include="Shouldly" Version="4.2.1" />
+        <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.1.0" />
         <PackageReference Include="SIL.Core" Version="14.2.0-*" />
         <PackageReference Include="xunit" Version="2.9.0" />

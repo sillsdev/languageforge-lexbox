@@ -8,7 +8,7 @@ using LexCore.Auth;
 using Microsoft.Extensions.Http.Resilience;
 using Mono.Unix.Native;
 using Polly;
-using Shouldly;
+using FluentAssertions;
 using Testing.ApiTests;
 
 namespace Testing.Services;

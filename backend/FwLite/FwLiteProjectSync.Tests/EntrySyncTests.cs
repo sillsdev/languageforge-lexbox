@@ -1,9 +1,10 @@
-﻿using FluentAssertions.Equivalency;
-using FwLiteProjectSync.Tests.Fixtures;
+﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
+using Testing;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -24,7 +25,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         var after = await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
         await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
-        actual.Should().NotBeNull();
+        actual.ShouldNotBeNull();
         actual.Should().BeEquivalentTo(after, options => options);
     }
 
@@ -56,7 +57,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         await EntrySync.Sync(after, complexForm, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
-        actual.Should().NotBeNull();
+        actual.ShouldNotBeNull();
         actual.Should().BeEquivalentTo(after, options => options);
     }
 
@@ -88,7 +89,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         await EntrySync.Sync(after, component, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
-        actual.Should().NotBeNull();
+        actual.ShouldNotBeNull();
         actual.Should().BeEquivalentTo(after, options => options);
     }
 
@@ -102,7 +103,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         await EntrySync.Sync(after, entry, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
-        actual.Should().NotBeNull();
+        actual.ShouldNotBeNull();
         actual.Should().BeEquivalentTo(after, options => options);
     }
 }

@@ -1,9 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Json;
-using System.Security.Claims;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 using LexCore.Auth;
-using Shouldly;
+using FluentAssertions;
 using Testing.Services;
 
 namespace Testing.ApiTests;
@@ -37,18 +35,18 @@ public class FlexJwtTests : ApiTestBase
         //intentionally not using the RefreshResponse class to make sure this test still fails if properties are renamed
         var json = await response.Content.ReadFromJsonAsync<JsonElement>();
         var projectToken = json.GetProperty("projectToken").GetString();
-        projectToken.ShouldNotBeEmpty();
+        projectToken.ShouldNotBeNullOrEmpty();
         var user = ParseUserToken(projectToken);
-        user.Projects.ShouldHaveSingleItem();
-        user.Audience.ShouldBe(LexboxAudience.SendAndReceive);
+        user.Projects.Should().ContainSingle();
+        user.Audience.Should().Be(LexboxAudience.SendAndReceive);
 
         var flexToken = json.GetProperty("flexToken").GetString();
-        flexToken.ShouldNotBeEmpty();
+        flexToken.ShouldNotBeNullOrEmpty();
         var flexUser = ParseUserToken(flexToken);
-        flexUser.Projects.ShouldBeEmpty();
-        flexUser.Audience.ShouldBe(LexboxAudience.SendAndReceiveRefresh);
+        flexUser.Projects.Should().BeEmpty();
+        flexUser.Audience.Should().Be(LexboxAudience.SendAndReceiveRefresh);
 
-        json.GetProperty("projectTokenExpiresAt").GetDateTime().ShouldNotBe(default);
-        json.GetProperty("flexTokenExpiresAt").GetDateTime().ShouldNotBe(default);
+        json.GetProperty("projectTokenExpiresAt").GetDateTime().Should().NotBe(default);
+        json.GetProperty("flexTokenExpiresAt").GetDateTime().Should().NotBe(default);
     }
 }

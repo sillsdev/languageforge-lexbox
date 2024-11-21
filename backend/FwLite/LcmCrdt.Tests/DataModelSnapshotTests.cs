@@ -12,6 +12,7 @@ using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
+using Testing;
 
 namespace LcmCrdt.Tests;
 
@@ -89,7 +90,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
         {
             foreach (var jsonDerivedType in types)
             {
-                var typeDiscriminator = jsonDerivedType.TypeDiscriminator.Should().BeOfType<string>().Subject;
+                var typeDiscriminator = jsonDerivedType.TypeDiscriminator.ShouldBeOfType<string>();
                 var obj = Faker.Generate(jsonDerivedType.DerivedType);
                 new MiniLcmCrdtAdapter((IObjectWithId)obj).GetObjectTypeName().Should().Be(typeDiscriminator);
             }

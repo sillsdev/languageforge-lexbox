@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Chorus;
 using Nini.Ini;
-using Shouldly;
+using FluentAssertions;
 using SIL.Progress;
 using Testing.Logging;
 using Xunit.Abstractions;
@@ -86,19 +86,19 @@ public class SendReceiveService
         // Clone
         var cloneResult = CloneProject(sendReceiveParams, auth);
 
-        Directory.Exists(projectDir).ShouldBeTrue($"Directory {projectDir} not found. Clone response: {cloneResult}");
-        Directory.EnumerateFiles(projectDir).ShouldContain(fwDataFile);
+        Directory.Exists(projectDir).Should().BeTrue($"Directory {projectDir} not found. Clone response: {cloneResult}");
+        Directory.EnumerateFiles(projectDir).Should().Contain(fwDataFile);
         var fwDataFileInfo = new FileInfo(fwDataFile);
-        fwDataFileInfo.Length.ShouldBeGreaterThan(0);
+        fwDataFileInfo.Length.Should().BeGreaterThan(0);
         var fwDataFileOriginalLength = fwDataFileInfo.Length;
 
         // SendReceive
         var srResult = SendReceiveProject(sendReceiveParams, auth);
 
-        srResult.ShouldContain("no changes from others");
+        srResult.Should().Contain("no changes from others");
         fwDataFileInfo.Refresh();
-        fwDataFileInfo.Exists.ShouldBeTrue();
-        fwDataFileInfo.Length.ShouldBe(fwDataFileOriginalLength);
+        fwDataFileInfo.Exists.Should().BeTrue();
+        fwDataFileInfo.Length.Should().Be(fwDataFileOriginalLength);
 
         return $"Clone: {cloneResult}{Environment.NewLine}SendReceive: {srResult}";
     }

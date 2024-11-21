@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using Shouldly;
+using FluentAssertions;
 using Testing.ApiTests;
 using Testing.Services;
 
@@ -28,10 +28,10 @@ public class ResumableTests
             }
         }, HttpCompletionOption.ResponseHeadersRead);
         var responseString = await responseMessage.Content.ReadAsStringAsync();
-        responseString.ShouldBeNullOrEmpty();
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        responseString.Should().BeNullOrEmpty();
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
         var headers = responseMessage.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(',', kvp.Value), StringComparer.OrdinalIgnoreCase);
-        headers.ShouldContainKeyAndValue("X-HgR-Version", "3");
+        headers.Should().Contain("X-HgR-Version", "3");
     }
 
     [Theory]
@@ -40,7 +40,7 @@ public class ResumableTests
     public async Task IsAvailableJwtInBasicAuth(string user)
     {
         var jwt = await JwtHelper.GetJwtForUser(new(user, TestData.Password));
-        jwt.ShouldNotBeNullOrEmpty();
+        jwt.Should().NotBeNullOrEmpty();
 
         var responseMessage = await Client.SendAsync(new(HttpMethod.Get,
             $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
@@ -51,10 +51,10 @@ public class ResumableTests
             }
         }, HttpCompletionOption.ResponseHeadersRead);
         var responseString = await responseMessage.Content.ReadAsStringAsync();
-        responseString.ShouldBeNullOrEmpty();
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        responseString.Should().BeNullOrEmpty();
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
         var headers = responseMessage.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(',', kvp.Value), StringComparer.OrdinalIgnoreCase);
-        headers.ShouldContainKeyAndValue("X-HgR-Version", "3");
+        headers.Should().Contain("X-HgR-Version", "3");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"not a user:doesnt matter")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:wrong password")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -115,6 +115,6 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userWithoutPermission}:{TestData.Password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

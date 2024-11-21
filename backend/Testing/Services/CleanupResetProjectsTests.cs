@@ -1,6 +1,6 @@
 ﻿using LexBoxApi.Services;
 using LexCore.Utils;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.Services;
 
@@ -12,8 +12,8 @@ public class CleanupResetProjectsTests
         var date = DateTimeOffset.UtcNow;
         var repoName = HgService.DeletedRepoName("test", HgService.ResetSoftDeleteSuffix(date));
         var match = HgService.ResetProjectsRegex().Match(repoName);
-        match.Success.ShouldBeTrue();
-        match.Groups[1].Value.ShouldBe(FileUtils.ToTimestamp(date));
+        match.Success.Should().BeTrue();
+        match.Groups[1].Value.Should().Be(FileUtils.ToTimestamp(date));
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class CleanupResetProjectsTests
         var repoName = HgService.DeletedRepoName("test", HgService.ResetSoftDeleteSuffix(expected));
         var actual = HgService.GetResetDate(repoName);
         actual.ShouldNotBeNull();
-        TruncateToMinutes(actual.Value).ShouldBe(TruncateToMinutes(expected));
+        TruncateToMinutes(actual.Value).Should().Be(TruncateToMinutes(expected));
     }
 
     private DateTimeOffset TruncateToMinutes(DateTimeOffset date)
@@ -36,8 +36,8 @@ public class CleanupResetProjectsTests
     public void ResetRegexCanFindTimestamp(string repoName, string timestamp)
     {
         var match = HgService.ResetProjectsRegex().Match(repoName);
-        match.Success.ShouldBeTrue();
-        match.Groups[1].Value.ShouldBe(timestamp);
+        match.Success.Should().BeTrue();
+        match.Groups[1].Value.Should().Be(timestamp);
     }
 
     [Theory]
@@ -47,7 +47,7 @@ public class CleanupResetProjectsTests
     public void ResetRegexDoesNotMatchNonResets(string repoName)
     {
         var match = HgService.ResetProjectsRegex().Match(repoName);
-        match.Success.ShouldBeFalse();
+        match.Success.Should().BeFalse();
     }
 
 }

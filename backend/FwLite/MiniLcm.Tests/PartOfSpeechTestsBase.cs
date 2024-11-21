@@ -1,4 +1,5 @@
 ﻿using MiniLcm.Models;
+using Testing;
 
 namespace MiniLcm.Tests;
 
@@ -40,7 +41,7 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         var entry = await Api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
         var sense = entry.Senses.First(s => !string.IsNullOrEmpty(s.PartOfSpeech));
         sense.PartOfSpeech.Should().NotBeNullOrEmpty();
-        sense.PartOfSpeechId.Should().NotBeNull();
+        sense.PartOfSpeechId.ShouldNotBeNull();
     }
 
     [Fact]

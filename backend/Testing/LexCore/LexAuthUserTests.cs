@@ -12,7 +12,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Shouldly;
+using FluentAssertions;
+using FluentAssertions.Execution;
 
 namespace Testing.LexCore;
 
@@ -58,12 +59,13 @@ public class LexAuthUserTests
         var emailClaim = new Claim(LexAuthConstants.EmailClaimType, _user.Email);
         var roleClaim = new Claim(LexAuthConstants.RoleClaimType, _user.Role.ToString());
         var projectClaim = new Claim("proj", _user.ProjectsJson);
-        claims.ShouldSatisfyAllConditions(
-            () => claims.ShouldContain(idClaim.ToString()),
-            () => claims.ShouldContain(emailClaim.ToString()),
-            () => claims.ShouldContain(roleClaim.ToString()),
-            () => claims.ShouldContain(projectClaim.ToString())
-        );
+        using (new AssertionScope())
+        {
+            claims.Should().Contain(idClaim.ToString());
+            claims.Should().Contain(emailClaim.ToString());
+            claims.Should().Contain(roleClaim.ToString());
+            claims.Should().Contain(projectClaim.ToString());
+        }
     }
 
     [Fact]
@@ -71,7 +73,7 @@ public class LexAuthUserTests
     {
         var claims = _user.GetPrincipal("Testing");
         var newUser = LexAuthUser.FromClaimsPrincipal(claims);
-        newUser.ShouldBeEquivalentTo(_user);
+        newUser.Should().BeEquivalentTo(_user);
     }
 
     [Fact]
@@ -83,7 +85,7 @@ public class LexAuthUserTests
         var outputJwt = tokenHandler.ReadJwtToken(encodedJwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
-        newUser.ShouldBeEquivalentTo(_user);
+        newUser.Should().BeEquivalentTo(_user);
     }
 
     [Fact]
@@ -105,11 +107,11 @@ public class LexAuthUserTests
         );
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.ReadJwtToken(jwt);
-        token.ValidTo.ShouldBe(expires.DateTime);
-        token.ValidFrom.ShouldBe(issuedAt.DateTime);
-        token.IssuedAt.ShouldBe(issuedAt.DateTime);
+        token.ValidTo.Should().Be(expires.DateTime);
+        token.ValidFrom.Should().Be(issuedAt.DateTime);
+        token.IssuedAt.Should().Be(issuedAt.DateTime);
         //props get converted to claims, but some we want to exclude because they are used elsewhere.
-        token.Claims.ShouldNotContain(c => c.Type == "props.issued" || c.Type == "props.expires");
+        token.Claims.Should().NotContain(c => c.Type == "props.issued" || c.Type == "props.expires");
 
         var json = Base64UrlEncoder.Decode(token.RawPayload);
         LexAuthUser? newUser;
@@ -122,7 +124,7 @@ public class LexAuthUserTests
             throw new JsonException("Could not deserialize user, json: " + json, e);
         }
 
-        newUser.ShouldBeEquivalentTo(_user);
+        newUser.Should().BeEquivalentTo(_user);
     }
 
     [Fact]
@@ -150,14 +152,14 @@ public class LexAuthUserTests
         );
         var actualTicket = JwtTicketDataFormat.ConvertJwtToAuthTicket(jwt, JwtBearerOptions, NullLogger.Instance);
         actualTicket.ShouldNotBeNull();
-        actualTicket.Properties.IssuedUtc.ShouldBe(ticket.Properties.IssuedUtc);
-        actualTicket.Properties.ExpiresUtc.ShouldBe(ticket.Properties.ExpiresUtc);
+        actualTicket.Properties.IssuedUtc.Should().Be(ticket.Properties.IssuedUtc);
+        actualTicket.Properties.ExpiresUtc.Should().Be(ticket.Properties.ExpiresUtc);
         //order by is because the order isn't important but the assertion fails if the order is different
         actualTicket.Properties.Items.OrderBy(kvp => kvp.Key)
-            .ShouldBe(ticket.Properties.Items.OrderBy(kvp => kvp.Key));
+            .Should().BeEquivalentTo(ticket.Properties.Items.OrderBy(kvp => kvp.Key));
 
         var newUser = LexAuthUser.FromClaimsPrincipal(actualTicket.Principal);
-        newUser.ShouldBeEquivalentTo(_user);
+        newUser.Should().BeEquivalentTo(_user);
     }
 
     [Fact]
@@ -169,7 +171,7 @@ public class LexAuthUserTests
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
-        newUser.ShouldBeEquivalentTo(_user);
+        newUser.Should().BeEquivalentTo(_user);
     }
 
     private const string knownGoodJwt =
@@ -183,11 +185,11 @@ public class LexAuthUserTests
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         newUser.ShouldNotBeNull();
-        newUser.UpdatedDate.ShouldBe(0);
+        newUser.UpdatedDate.Should().Be(0);
         //old jwt doesn't have updated date or orgs, we're ok with that so we correct the values to make the equivalence work
         newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];
         newUser.UpdatedDate = _user.UpdatedDate;
-        newUser.ShouldBeEquivalentTo(_user);
+        newUser.Should().BeEquivalentTo(_user);
     }
 
     [Fact]
@@ -200,7 +202,7 @@ public class LexAuthUserTests
                 .ToArray()
         };
         var (jwt, _, _) = _lexAuthService.GenerateJwt(user);
-        jwt.Length.ShouldBeLessThan(LexAuthUser.MaxJwtLength);
+        jwt.Length.Should().BeLessThan(LexAuthUser.MaxJwtLength);
     }
 
     [Fact]
@@ -223,6 +225,6 @@ public class LexAuthUserTests
         var loggedInPrincipal =
             new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(redirectJwt).Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(loggedInPrincipal);
-        newUser.ShouldBeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
+        newUser.Should().BeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
     }
 }
