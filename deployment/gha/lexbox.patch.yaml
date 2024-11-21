@@ -8,6 +8,9 @@ spec:
     spec:
       containers:
         - name: lexbox-api
+          env:
+            - name: Email__BaseUrl
+              value: "http://localhost:6579"
           volumeMounts:
             - mountPath: /frontend
               name: gql-schema

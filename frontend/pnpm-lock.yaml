@@ -297,6 +297,9 @@ importers:
       fast-json-patch:
         specifier: ^3.1.1
         version: 3.1.1
+      just-throttle:
+        specifier: ^4.2.0
+        version: 4.2.0
       postcss:
         specifier: 'catalog:'
         version: 8.4.47
@@ -3953,6 +3956,9 @@ packages:
 
   just-order-by@1.0.0:
     resolution: {integrity: sha512-m83kcBMoX43jRLDzR6J7NzIpEEpMmMmh0xwVSMKpXObIFh6ejxpQ02HXc9gCq5cFWHbL5gZ3yRHRGYgMGpoUnA==}
+
+  just-throttle@4.2.0:
+    resolution: {integrity: sha512-/iAZv1953JcExpvsywaPKjSzfTiCLqeguUTE6+VmK15mOcwxBx7/FHrVvS4WEErMR03TRazH8kcBSHqMagYIYg==}
 
   jwt-decode@4.0.0:
     resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
@@ -8656,7 +8662,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.9
       tinyrainbow: 1.2.0
-      vitest: 2.1.4(@types/node@20.12.12)(@vitest/ui@2.1.4)(happy-dom@15.7.4)
+      vitest: 2.1.4(@types/node@22.7.3)(@vitest/ui@2.1.4)(happy-dom@15.7.4)
 
   '@vitest/utils@2.1.4':
     dependencies:
@@ -10234,6 +10240,8 @@ snapshots:
       - encoding
 
   just-order-by@1.0.0: {}
+
+  just-throttle@4.2.0: {}
 
   jwt-decode@4.0.0: {}
 

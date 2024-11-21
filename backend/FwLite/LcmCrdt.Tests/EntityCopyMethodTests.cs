@@ -9,7 +9,7 @@ namespace LcmCrdt.Tests;
 
 public class EntityCopyMethodTests
 {
-    private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
+    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
     {
         Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
     });
@@ -35,7 +35,7 @@ public class EntityCopyMethodTests
     public void EntityCopyMethodShouldCopyAllFields(Type type)
     {
         type.IsAssignableTo(typeof(IObjectWithId)).Should().BeTrue();
-        var entity = (IObjectWithId) _autoFaker.Generate(type);
+        var entity = (IObjectWithId) AutoFaker.Generate(type);
         var copy = entity.Copy();
         copy.Should().BeEquivalentTo(entity, options => options.IncludingAllRuntimeProperties());
     }

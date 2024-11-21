@@ -12,14 +12,16 @@ namespace LocalWebApp.Auth;
 public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime applicationLifetime, IOptions<AuthConfig> options) : BackgroundService
 {
     public record SignInResult(Uri? AuthUri, bool HandledBySystemWebView);
-    public async Task<SignInResult> SubmitLoginRequest(IPublicClientApplication application, CancellationToken cancellation)
+    public async Task<SignInResult> SubmitLoginRequest(IPublicClientApplication application,
+        string returnUrl,
+        CancellationToken cancellation)
     {
         if (options.Value.SystemWebViewLogin)
         {
            await HandleSystemWebViewLogin(application, cancellation);
            return new(null, true);
         }
-        var request = new OAuthLoginRequest(application);
+        var request = new OAuthLoginRequest(application, returnUrl);
         if (!_requestChannel.Writer.TryWrite(request))
         {
             throw new InvalidOperationException("Only one request at a time");
@@ -40,7 +42,7 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
             .ExecuteAsync(cancellation);
     }
 
-    public async Task<AuthenticationResult> FinishLoginRequest(Uri uri, CancellationToken cancellation = default)
+    public async Task<(AuthenticationResult, string ClientReturnUrl)> FinishLoginRequest(Uri uri, CancellationToken cancellation = default)
     {
         var queryString = HttpUtility.ParseQueryString(uri.Query);
         var state = queryString.Get("state") ?? throw new InvalidOperationException("State is null");
@@ -48,7 +50,7 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
             throw new InvalidOperationException("Invalid state");
         //step 5
         request.SetReturnUri(uri);
-        return await request.GetAuthenticationResult(applicationLifetime.ApplicationStopping.Merge(cancellation));
+        return (await request.GetAuthenticationResult(applicationLifetime.ApplicationStopping.Merge(cancellation)), request.ClientReturnUrl);
         //step 8
     }
 
@@ -90,7 +92,7 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
 /// instead we have to do this so we can use the currently open browser, redirect it to the auth url passed in here and then once it's done and the callback comes to our server,
 /// send that  call to here so that MSAL can pull out the access token
 /// </summary>
-public class OAuthLoginRequest(IPublicClientApplication app) : ICustomWebUi
+public class OAuthLoginRequest(IPublicClientApplication app, string clientReturnUrl) : ICustomWebUi
 {
     public IPublicClientApplication Application { get; } = app;
     public string? State { get; private set; }
@@ -124,4 +126,8 @@ public class OAuthLoginRequest(IPublicClientApplication app) : ICustomWebUi
     }
 
     public Task<AuthenticationResult> GetAuthenticationResult(CancellationToken cancellation) => _resultTcs.Task.WaitAsync(cancellation);
+    /// <summary>
+    /// url to return the client to once the login is finished
+    /// </summary>
+    public string ClientReturnUrl { get; } = clientReturnUrl;
 }

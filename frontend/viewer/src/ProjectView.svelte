@@ -37,6 +37,7 @@
   import {useEventBus} from './lib/services/event-bus';
   import AboutDialog from './lib/about/AboutDialog.svelte';
   import { initProjectCommands, type NewEntryDialogOptions } from './lib/commands';
+  import throttle from 'just-throttle';
 
   export let loading = false;
 
@@ -196,11 +197,25 @@
     }
   }
 
+  function onEntryDeleted(event: CustomEvent<{entry: IEntry}>) {
+    const _entries = $entries!;
+    const deletedEntry = event.detail.entry;
+    const deletedIndex = _entries.findIndex(e => e.id === deletedEntry.id);
+    $selectedEntry = _entries[deletedIndex + 1];
+
+    if (deletedIndex >= 0 && deletedIndex < _entries.length) {
+      _entries.splice(deletedIndex, 1);
+      $entries = _entries;
+    }
+  }
+
   function navigateToEntry(entry: IEntry, searchText?: string) {
     // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
     $search = searchText ?? '';
     $selectedIndexExemplar = null;
     $selectedEntry = entry;
+    // This just forces and flushes a refresh.
+    // todo: The refresh should only be necessary if $search or $selectedIndexExemplar were actually changed
     refreshEntries();
     pickedEntry = true;
   }
@@ -215,11 +230,11 @@
 
   let editorElem: HTMLElement | undefined;
   let spaceForEditorStyle: string = '';
-  const updateSpaceForEditor = makeDebouncer(() => {
+  const updateSpaceForEditor = throttle(() => {
     if (!editorElem) return;
     const availableHeight = getAvailableHeightForElement(editorElem);
     spaceForEditorStyle = `--space-for-editor: ${availableHeight}px`;
-  }, 30).debounce;
+  }, 20, { leading: false, trailing: true });
 
   $: editorElem && updateSpaceForEditor();
   onMount(() => {
@@ -344,10 +359,7 @@
               $selectedEntry = $selectedEntry;
               $entries = $entries;
             }}
-            on:delete={_ => {
-              $selectedEntry = undefined;
-              refreshEntries();
-            }} />
+            on:delete={onEntryDeleted} />
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected

@@ -3,9 +3,9 @@
   import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
-  import { derived, writable, type Writable } from 'svelte/store';
+  import { derived, type Writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
-  import {createEventDispatcher, getContext, onDestroy, onMount} from 'svelte';
+  import {createEventDispatcher, getContext, onDestroy} from 'svelte';
   import type { IEntry } from '../mini-lcm';
   import {useSearch} from './search';
 

@@ -120,7 +120,7 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     throw new Error('Method not implemented.');
   }
 
-  UpdateEntry(_guid: string, _update: JsonPatch): Promise<IEntry> {
+  UpdateEntry(_before: IEntry, _after: IEntry): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 

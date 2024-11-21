@@ -1,4 +1,6 @@
-﻿import {entries, projectName, writingSystems} from './entry-data';
+﻿/* eslint-disable @typescript-eslint/naming-convention */
+
+import {entries, projectName, writingSystems} from './entry-data';
 import type {
   IEntry,
   IExampleSentence,
@@ -123,10 +125,9 @@ export class InMemoryApiService implements LexboxApiClient {
     return Promise.resolve(entry);
   }
 
-  UpdateEntry(guid: string, update: JsonPatch): Promise<IEntry> {
-    const entry = entries.find(e => e.id === guid)!;
-    applyPatch(entry, update);
-    return Promise.resolve(entry);
+  UpdateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
+    entries.splice(entries.findIndex(e => e.id === after.id), 1, after);
+    return Promise.resolve(after);
   }
 
   CreateSense(entryGuid: string, sense: ISense): Promise<ISense> {
