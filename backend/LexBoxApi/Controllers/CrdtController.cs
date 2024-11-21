@@ -6,6 +6,7 @@ using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using LexData;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -88,8 +89,9 @@ public class CrdtController(
         return Ok(projectId);
     }
 
-    [HttpPost("crdt-sync/{projectId}")]
+    [HttpPost("sync/{projectId}")]
     [AdminRequired]
+    [RequestTimeout(300_000)]//5 minutes
     public async Task<ActionResult<SyncResult?>> ExecuteMerge(Guid projectId)
     {
         var result = await fwHeadlessClient.CrdtSync(projectId);

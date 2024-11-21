@@ -12,7 +12,7 @@
   async function triggerSync(): Promise<void> {
     syncing = true;
     try {
-      const response = await fetch(`/api/crdt/crdt-sync/${projectId}`, {
+      const response = await fetch(`/api/crdt/sync/${projectId}`, {
         method: 'POST',
       });
 
