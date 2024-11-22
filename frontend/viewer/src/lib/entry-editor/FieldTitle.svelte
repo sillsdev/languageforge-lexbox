@@ -13,7 +13,7 @@
 
 </script>
 
-<div>
+<div class="field-title">
   <span class="inline-flex items-center relative">
     <span class="name" title={`${id}: ${fieldName({name, id})}`}>
       {fieldName({name, id}, $currentView.i18nKey)}
