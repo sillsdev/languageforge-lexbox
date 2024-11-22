@@ -293,8 +293,8 @@
 </div>
 {:else}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
-  <AppBar class="bg-secondary min-h-12 shadow-md">
-    <div slot="title" class="prose">
+  <AppBar class="bg-secondary min-h-12 shadow-md" head={false}>
+    <div slot="title" class="prose whitespace-nowrap">
       <h3>{projectName}</h3>
     </div>
     <Button
