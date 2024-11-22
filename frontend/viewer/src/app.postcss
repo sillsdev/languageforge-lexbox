@@ -45,9 +45,19 @@
 }
 
 @layer components {
+  .sm-form {
+    grid-template-columns: fit-content(70px) 1fr 1fr;
+  }
+
+  .xs-form {
+    grid-template-columns: fit-content(70px) 1fr;
+  }
+
   .editor-grid {
     display: grid;
     grid-template-columns: 170px fit-content(80px) 1fr;
+    @apply sm-form:sm-form;
+    @apply xs-form:xs-form;
   }
 
   .collapsible-col {

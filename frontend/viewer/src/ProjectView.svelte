@@ -360,7 +360,7 @@
       <div class="w-screen max-w-full lg:w-[500px] lg:min-w-[300px] collapsible-col side-scroller flex" class:lg:!w-[1024px]={expandList} class:lg:max-w-[25vw]={!expandList} class:max-lg:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg:w-screen collapsible-col overflow-x-visible" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
           <div class="mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
