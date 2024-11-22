@@ -36,9 +36,10 @@ tasks:
     desc: "Runs the frontend code checks done in CI. Note: the app must be built."
     aliases: [ sc, svelte-check ]
     deps: [ install ]
+    ignore_error: true
     cmds:
-      - pnpm run check
-      - pnpm run lint
+      - pnpm run {{.CLI_ARGS}} --no-bail check
+      - pnpm run {{.CLI_ARGS}} --no-bail lint
 
   svelte:
     desc: "Directory independent access to pnpm. E.g. `task svelte -- install`"

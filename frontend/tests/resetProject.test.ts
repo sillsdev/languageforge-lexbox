@@ -23,7 +23,7 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   const allZeroHash = '0000000000000000000000000000000000000000';
 
   // Step 1: Populate project with known initial state
-  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await loginAs(page.request, 'admin');
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
   await adminDashboardPage.clickProject(tempProject.name);
   const projectPage = await new ProjectPage(page, tempProject.name, tempProject.code).waitFor();

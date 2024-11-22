@@ -20,7 +20,7 @@ public class PermissionService(
             // Org admins can view, edit, and sync all projects, even confidential ones
             var managedOrgIds = user.Orgs.Where(o => o.Role == OrgRole.Admin).Select(o => o.OrgId).ToHashSet();
             var projectOrgIds = await projectService.LookupProjectOrgIds(projectId);
-            if (projectOrgIds.Any(oId => managedOrgIds.Contains(oId))) return true;
+            if (projectOrgIds.Any(managedOrgIds.Contains)) return true;
         }
         return false;
     }
@@ -31,7 +31,7 @@ public class PermissionService(
         {
             var memberOfOrgIds = User.Orgs.Select(o => o.OrgId).ToHashSet();
             var projectOrgIds = await projectService.LookupProjectOrgIds(projectId);
-            if (projectOrgIds.Any(oId => memberOfOrgIds.Contains(oId))) return true;
+            if (projectOrgIds.Any(memberOfOrgIds.Contains)) return true;
         }
         return false;
     }
@@ -40,20 +40,21 @@ public class PermissionService(
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        return await CanSyncProjectAsync(await projectService.LookupProjectId(projectCode));
+        return await CanSyncProject(await projectService.LookupProjectId(projectCode));
     }
 
-    public bool CanSyncProject(Guid projectId)
+    public bool IsProjectMember(Guid projectId, LexAuthUser? overrideUser = null)
+    {
+        var user = overrideUser ?? User;
+        if (user is null) return false;
+        return user.IsProjectMember(projectId);
+    }
+
+    public async ValueTask<bool> CanSyncProject(Guid projectId)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        if (User.Projects is null) return false;
-        return User.IsProjectMember(projectId);
-    }
-
-    public async ValueTask<bool> CanSyncProjectAsync(Guid projectId)
-    {
-        if (CanSyncProject(projectId)) return true;
+        if (User.IsProjectMember(projectId)) return true;
         // Org managers can sync any project owned by their org(s)
         return await ManagesOrgThatOwnsProject(projectId);
     }
@@ -65,7 +66,7 @@ public class PermissionService(
 
     public async ValueTask AssertCanSyncProject(Guid projectId)
     {
-        if (!await CanSyncProjectAsync(projectId)) throw new UnauthorizedAccessException();
+        if (!await CanSyncProject(projectId)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask<bool> CanViewProject(Guid projectId, LexAuthUser? overrideUser = null)

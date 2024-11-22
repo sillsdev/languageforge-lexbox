@@ -5,6 +5,8 @@
     mdiBookEditOutline,
     mdiBookPlusOutline,
     mdiBookSyncOutline, mdiCloudSync,
+    mdiLogin,
+    mdiLogout,
     mdiTestTube,
   } from '@mdi/js';
   import {links} from 'svelte-routing';
@@ -31,6 +33,7 @@
   let importing = '';
 
   async function importFwDataProject(name: string) {
+    if (importing) return;
     importing = name;
     await projectsService.importFwDataProject(name);
     await refreshProjects();
@@ -81,14 +84,10 @@
       name: 'fwdata',
       header: 'FieldWorks',
     },
-    ...($isDev
-      ? [
-        {
-          name: 'crdt',
-          header: 'CRDT',
-        },
-      ]
-      : []),
+    {
+      name: 'crdt',
+      header: 'CRDT',
+    },
     ...(servers.find(s => s.loggedIn)
       ? [
         {
@@ -103,10 +102,6 @@
     let matches: Project | undefined = undefined;
     if (project.id) {
       matches = projects.find(p => p.id == project.id && p.serverAuthority == project.serverAuthority);
-    }
-    //for now the local project list does not include the id, so fallback to the name
-    if (!matches) {
-      matches = projects.find(p => p.name === project.name && p.serverAuthority == project.serverAuthority);
     }
     return matches;
   }
@@ -152,7 +147,7 @@
             <p>loading...</p>
           {:then projects}
             <Table {columns}
-                   data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))}
+                   data={projects.filter((p) => p.fwdata || p.crdt).sort((p1, p2) => p1.name.localeCompare(p2.name))}
                    classes={{ th: 'p-4' }}>
               <tbody slot="data" let:columns let:data let:getCellContent>
               {#each data ?? [] as project, rowIndex}
@@ -185,6 +180,7 @@
                             size="md"
                             loading={importing === project.name}
                             icon={mdiBookArrowLeftOutline}
+                            disabled={!!importing}
                             on:click={() => importFwDataProject(project.name)}
                           >
                             Import
@@ -223,19 +219,19 @@
             </div>
             {#each servers as server}
               <div class="border my-1"/>
-              <div class="flex flex-row items-center">
+              <div class="flex flex-row items-center py-1">
                 <p>{server.displayName}</p>
                 <div class="flex-grow"></div>
                 {#if server.loggedInAs}
-                  <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
+                  <p class="mr-2 px-2 py-1 text-sm border rounded-full">{server.loggedInAs}</p>
                 {/if}
                 {#if server.loggedIn}
-                  <Button variant="fill" href="/api/auth/logout/{server.authority}">Logout</Button>
+                  <Button variant="fill" color="primary" href="/api/auth/logout/{server.authority}" icon={mdiLogout}>Logout</Button>
                 {:else}
-                  <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
+                  <Button variant="fill-light" color="primary" href="/api/auth/login/{server.authority}" icon={mdiLogin}>Login</Button>
                 {/if}
               </div>
-              {@const serverProjects = remoteProjects[server.authority] ?? []}
+              {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
               {#each serverProjects as project}
                 {@const localProject = matchesProject(projects, project)}
                 <div class="flex flex-row items-center px-10">

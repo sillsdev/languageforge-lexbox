@@ -3,10 +3,10 @@
 /* tslint:disable */
 
 import type {ComplexFormType, Entry, ExampleSentence, PartOfSpeech, QueryOptions, SemanticDomain, Sense, WritingSystem, WritingSystems} from '../../mini-lcm';
-import type { ILexboxApiHub, ILexboxClient } from './Lexbox.ClientServer.Hubs';
+import type {ILexboxApiHub, ILexboxClient} from './Lexbox.ClientServer.Hubs';
 
-import { HubConnection } from '@microsoft/signalr';
-import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
+import {HubConnection} from '@microsoft/signalr';
+import type {JsonOperation} from '../Lexbox.ClientServer.Hubs';
 import type {WritingSystemType} from '../../services/lexbox-api';
 
 // components
@@ -174,8 +174,8 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
         return await this.connection.invoke("CreateEntry", entry);
     }
 
-    public readonly UpdateEntry = async (id: string, update: JsonOperation[]): Promise<Entry> => {
-        return await this.connection.invoke("UpdateEntry", id, update);
+    public readonly UpdateEntry = async (before: Entry, after: Entry): Promise<Entry> => {
+        return await this.connection.invoke("UpdateEntry", before, after);
     }
 
     public readonly DeleteEntry = async (id: string): Promise<void> => {

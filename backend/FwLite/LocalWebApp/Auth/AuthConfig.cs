@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using LcmCrdt;
 
 namespace LocalWebApp.Auth;
 
@@ -14,6 +15,13 @@ public class AuthConfig
     public LexboxServer GetServerByAuthority(string authority)
     {
         return LexboxServers.FirstOrDefault(s => s.Authority.Authority == authority) ?? throw new ArgumentException($"Server {authority} not found");
+    }
+
+    public LexboxServer GetServer(ProjectData projectData)
+    {
+        var originDomain = projectData.OriginDomain;
+        if (string.IsNullOrEmpty(originDomain)) throw new InvalidOperationException("No origin domain in project data");
+        return GetServerByAuthority(new Uri(originDomain).Authority);
     }
     public LexboxServer GetServer(string serverName)
     {

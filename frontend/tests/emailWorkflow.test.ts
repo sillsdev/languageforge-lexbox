@@ -16,7 +16,7 @@ const userIdsToDelete: string[] = [];
 
 test.afterEach(async ({ page }) => {
   if (userIdsToDelete.length > 0) {
-    await loginAs(page.request, 'admin', defaultPassword);
+    await loginAs(page.request, 'admin');
     for (const userId of userIdsToDelete) {
       await deleteUser(page.request, userId);
     }
@@ -110,7 +110,7 @@ test('forgot password', async ({ page, tempUser }) => {
 test('register via new-user invitation email', async ({ page, mailboxFactory }) => {
   test.setTimeout(TEST_TIMEOUT_2X);
 
-  await loginAs(page.request, 'admin', defaultPassword);
+  await loginAs(page.request, 'admin');
   const adminPage = await new AdminDashboardPage(page).goto();
   const projectPage = await adminPage.openProject('Sena 3', 'sena-3');
 

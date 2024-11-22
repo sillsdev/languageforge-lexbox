@@ -35,7 +35,6 @@ public static class MauiProgram
             });
         }));
 
-        Directory.CreateDirectory(FileSystem.AppDataDirectory);
         builder.Services.AddFwLiteDesktopServices(builder.Configuration, builder.Logging);
 
         holder.App = builder.Build();

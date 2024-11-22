@@ -2,6 +2,7 @@ using HotChocolate.Resolvers;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
+using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -19,11 +20,11 @@ public class LexQueries
     public async Task<IQueryable<Project>> MyProjects(
         LexAuthService lexAuthService,
         LoggedInContext loggedInContext,
-        LexBoxDbContext dbContext,
+        ProjectService projectService,
         IResolverContext context)
     {
         var userId = loggedInContext.User.Id;
-        var myProjects = await dbContext.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId))
+        var myProjects = await projectService.UserProjects(userId)
             .AsNoTracking().Project(context).ToListAsync();
 
         if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
@@ -229,7 +230,7 @@ public class LexQueries
             }
         });
         // Members and non-members alike can see all public projects plus their own
-        org.Projects = org.Projects?.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id))?.ToList() ?? [];
+        org.Projects = org.Projects?.Where(p => p.IsConfidential == false || permissionService.IsProjectMember(p.Id, updatedUser))?.ToList() ?? [];
         if (!permissionService.IsOrgMember(orgId, updatedUser))
         {
             // Non-members also cannot see membership, only org admins

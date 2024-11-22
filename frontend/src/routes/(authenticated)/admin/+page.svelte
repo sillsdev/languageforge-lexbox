@@ -52,6 +52,7 @@
   $: tab = $queryParamValues.tab;
 
   const loadingUsers = derived(navigating, (nav) => {
+    if (!nav?.to?.route.id?.endsWith('/admin')) return false;
     const fromUrl = nav?.from?.url;
     return fromUrl && userFilterKeys.some((key) =>
       (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key]);
