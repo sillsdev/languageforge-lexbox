@@ -96,7 +96,7 @@
         </div>
       </Popover>
       <Button class="font-normal" color="info" iconOnly rounded="full" icon={statusIcon} on:click={toggle}>
-        <span class="max-md:hidden contents">
+        <span class="sm-view:hidden contents">
           {#if showStatus}
             {#if lastStatus === 'saved-to-disk'}
               <span class="text-sm">Project saved to disk</span>

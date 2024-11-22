@@ -303,35 +303,26 @@
       icon={mdiHome}
       on:click={() => navigate('/')}
     />
-    <div class="flex-grow-0 flex-shrink-0 lg:hidden mx-2 sm:mr-0" class:invisible={!pickedEntry}>
+    <div class="flex-grow-0 flex-shrink-0 lg-view:hidden ml-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
     {#if $features.write}
-      <div class="inline-flex flex-grow-0 basis-60 max-sm:hidden mx-2">
+      <div class="inline-flex flex-grow-0 basis-40 max-sm:hidden mx-2 sm-view:basis-10">
         <SaveStatus />
       </div>
     {/if}
 
-    <div class="max-sm:hidden sm:flex-grow"></div>
+    <div class="sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
       <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
                  createNew={newEntryDialog !== undefined}
                  on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
-    <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
+    <div slot="actions" class="flex items-center gap-2 lg-view:gap-4 whitespace-nowrap">
       {#if !readonly}
         <NewEntryDialog bind:this={newEntryDialog} />
       {/if}
-      <Button
-        on:click={() => (showOptionsDialog = true)}
-        size="sm"
-        variant="outline"
-        icon={mdiEyeSettingsOutline}>
-        <div class="hidden md:contents">
-          Configure
-        </div>
-      </Button>
       {#if $features.history}
         <ActivityView {projectName}/>
       {/if}
@@ -350,19 +341,28 @@
           </div>
         </Button>
       {/if}
+      <Button
+        on:click={() => (showOptionsDialog = true)}
+        size="sm"
+        variant="outline"
+        icon={mdiEyeSettingsOutline}>
+        <div class="hidden lg-view:contents">
+          Configure
+        </div>
+      </Button>
     </div>
   </AppBar>
   <main bind:this={editorElem} class="p-4 flex grow">
     <div
-      class="grid flex-grow items-start justify-stretch md:justify-center"
+      class="grid flex-grow items-start justify-stretch lg-view:justify-center"
       style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
     >
-      <div class="w-screen max-w-full lg:w-[500px] lg:min-w-[300px] collapsible-col side-scroller flex" class:lg:!w-[1024px]={expandList} class:lg:max-w-[25vw]={!expandList} class:max-lg:collapse-col={pickedEntry}>
+      <div class="w-screen max-w-full lg-view:w-[500px] lg-view:min-w-[300px] collapsible-col side-scroller flex" class:lg-view:!w-[1024px]={expandList} class:lg-view:max-w-[25vw]={!expandList} class:sm-view:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg:w-screen collapsible-col overflow-x-visible" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg-view:w-screen collapsible-col overflow-x-visible" class:lg-view:px-6={!expandList} class:sm-view:pr-6={pickedEntry && !readonly} class:lg-view:collapse-col={expandList} class:sm-view:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
-          <div class="mb-6">
+          <div class="sm-form:mb-4 mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
           </div>
           <Editor entry={$selectedEntry}
@@ -381,13 +381,15 @@
           </div>
         {/if}
       </div>
-      <div class="side-scroller pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !readonly} class:max-lg:hidden={!pickedEntry || readonly} class:lg:hidden={expandList}>
-        <div class="hidden" class:sm:hidden={expandList}>
-          <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
-        </div>
-        <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:lg:collapse-col={expandList} class:w-min={collapseActionBar}>
+      <div class="side-scroller pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:sm-view:border-l-2={pickedEntry && !readonly} class:sm-view:hidden={!pickedEntry || readonly} class:lg-view:hidden={expandList}>
+        {#if $selectedEntry}
+          <div class="sm-form:hidden" class:sm:hidden={expandList}>
+            <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+          </div>
+        {/if}
+        <div class="sm-form:w-auto w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
           {#if $selectedEntry}
-            <div class="contents" class:lg:hidden={expandList}>
+            <div class="contents" class:lg-view:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 {#if !readonly}
                   <div class="contents" bind:this={entryActionsElem}>
@@ -403,14 +405,14 @@
                       variant="fill-light"
                       color="info"
                       size="sm">
-                      <img src={flexLogo} alt="FieldWorks logo" class="h-6"/>
-                      <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
+                      <img src={flexLogo} alt="FieldWorks logo" class="h-6 max-w-fit"/>
+                      <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
                         Open in FieldWorks
                       </div>
                     </Button>
                   </div>
                 {/if}
-                <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>
+                <div class="contents sm-form:hidden" class:hidden={collapseActionBar}>
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>

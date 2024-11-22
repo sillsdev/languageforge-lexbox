@@ -60,10 +60,15 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'max-xs': { 'max': '400px' },
         'max-sm': { 'max': '639px' },
-        'max-md': { 'max': '767px' },
-        'max-lg': { 'max': '1023px' },
+
+        // Breakpoints for the entry form aka editor
+        'xs-form': {'max': '800px'},
+        'sm-form': {'max': '1279px'},
+
+        // Breakpoints for the project view layout
+        'sm-view': { 'max': '800px' },
+        'lg-view': '801px',
       },
     },
   },
