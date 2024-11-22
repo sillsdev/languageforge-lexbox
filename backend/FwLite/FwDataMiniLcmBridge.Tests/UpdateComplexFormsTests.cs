@@ -2,7 +2,6 @@
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using MiniLcm;
 using MiniLcm.Models;
-using Testing;
 
 namespace FwDataMiniLcmBridge.Tests;
 //these tests were not moved because they need to be rewritten once we have the new update api for MiniLcm

@@ -4,7 +4,6 @@ using MiniLcm.SyncHelpers;
 using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
-using Testing;
 
 namespace FwLiteProjectSync.Tests;
 

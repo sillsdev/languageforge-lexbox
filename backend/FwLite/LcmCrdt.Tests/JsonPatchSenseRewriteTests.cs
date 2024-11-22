@@ -4,7 +4,6 @@ using LcmCrdt.Objects;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
-using Testing;
 
 namespace LcmCrdt.Tests;
 

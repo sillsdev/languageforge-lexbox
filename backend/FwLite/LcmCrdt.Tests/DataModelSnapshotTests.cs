@@ -12,7 +12,6 @@ using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
-using Testing;
 
 namespace LcmCrdt.Tests;
 

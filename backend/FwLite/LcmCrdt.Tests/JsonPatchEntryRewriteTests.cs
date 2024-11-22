@@ -2,7 +2,6 @@
 using LcmCrdt.Objects;
 using SIL.Harmony.Changes;
 using SystemTextJsonPatch;
-using Testing;
 
 namespace LcmCrdt.Tests;
 

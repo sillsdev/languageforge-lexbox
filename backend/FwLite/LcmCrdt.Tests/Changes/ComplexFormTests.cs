@@ -2,7 +2,6 @@
 using LcmCrdt.Objects;
 using MiniLcm.Models;
 using SIL.Harmony.Changes;
-using Testing;
 using ComplexFormType = MiniLcm.Models.ComplexFormType;
 
 namespace LcmCrdt.Tests.Changes;

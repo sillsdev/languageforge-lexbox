@@ -1,5 +1,4 @@
 ﻿using MiniLcm.Tests.AutoFakerHelpers;
-using Testing;
 
 namespace MiniLcm.Tests;
 
