@@ -20,24 +20,14 @@ public class SyncFixture : IAsyncLifetime
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
     public IServiceProvider Services => _services.ServiceProvider;
     private readonly string _projectName;
-    private readonly MockProjectContext _projectContext = new(null);
 
     public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
 
-    public static SyncFixture Create(Action<IServiceCollection> extraServiceConfiguration, [CallerMemberName] string projectName = "") => new(projectName, extraServiceConfiguration);
-
-    private SyncFixture(string projectName, Action<IServiceCollection>? extraServiceConfiguration = null)
+    private SyncFixture(string projectName)
     {
         _projectName = projectName;
         var crdtServices = new ServiceCollection()
-            .AddLcmCrdtClient()
-            .AddSingleton<ProjectContext>(_projectContext)
-            .AddTestFwDataBridge()
-            .AddFwLiteProjectSync()
-            .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", _projectName, "FwData"))
-            .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", _projectName, "LcmCrdt"))
-            .AddLogging(builder => builder.AddDebug());
-        if (extraServiceConfiguration is not null) extraServiceConfiguration(crdtServices);
+            .AddSyncServices(_projectName);
         _services = crdtServices.BuildServiceProvider().CreateAsyncScope();
     }
 
@@ -72,9 +62,4 @@ public class SyncFixture : IAsyncLifetime
 
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
     public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
-}
-
-public class MockProjectContext(CrdtProject? project) : ProjectContext
-{
-    public override CrdtProject? Project { get; set; } = project;
 }

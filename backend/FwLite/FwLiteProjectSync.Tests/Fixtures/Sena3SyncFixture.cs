@@ -18,10 +18,12 @@ namespace FwLiteProjectSync.Tests.Fixtures;
 
 public class Sena3Fixture : IAsyncLifetime
 {
-    private readonly SyncFixture syncFixture;
+    private readonly AsyncServiceScope _services;
+
     public CrdtFwdataProjectSyncService SyncService =>
-        Services.GetRequiredService<CrdtFwdataProjectSyncService>();
-    public IServiceProvider Services => syncFixture.Services;
+        _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
+
+    public IServiceProvider Services => _services.ServiceProvider;
     private readonly LexboxConfig lexboxConfig;
     private readonly HttpClient http;
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
@@ -30,20 +32,20 @@ public class Sena3Fixture : IAsyncLifetime
 
     public Sena3Fixture()
     {
-        syncFixture = SyncFixture.Create(services =>
-        {
-            services.AddOptions<LexboxConfig>()
-                .BindConfiguration("LexboxConfig")
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
-            // TODO: How do I set default values if and only if they're not already set (e.g., via environment variables)?
-            services.Configure<LexboxConfig>(c =>
+        var services = new ServiceCollection()
+            .AddSyncServices(nameof(Sena3Fixture), false);
+        services.AddOptions<LexboxConfig>()
+            .BindConfiguration("LexboxConfig")
+            .Configure(c =>
             {
+                // TODO: How do I set default values if and only if they're not already set (e.g., via environment variables)?
                 c.LexboxUrl = "http://localhost/";
                 c.LexboxUsername = "admin";
                 c.LexboxPassword = "pass";
-            });
-        }, nameof(Sena3Fixture)); // TODO: Or create the project name in the constructor rather than in InitializeAsync, then pass it in here
+            })
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        _services = services.BuildServiceProvider().CreateAsyncScope();
         lexboxConfig = Services.GetRequiredService<IOptions<LexboxConfig>>().Value;
         var factory = Services.GetRequiredService<IHttpClientFactory>();
         http = factory.CreateClient(nameof(Sena3Fixture));
@@ -63,8 +65,7 @@ public class Sena3Fixture : IAsyncLifetime
         DirectoryHelper.Copy(sena3MasterCopy, fwDataProjectPath);
         File.Move(Path.Combine(fwDataProjectPath, "sena-3.fwdata"), fwDataProject.FilePath);
 
-        Services.GetRequiredService<IProjectLoader>().LoadCache(fwDataProject);
-        FwDataApi = Services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(projectName, false);
+        FwDataApi = Services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProjectsFolder =
             Services.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
@@ -77,7 +78,7 @@ public class Sena3Fixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await syncFixture.DisposeAsync();
+        await _services.DisposeAsync();
     }
 
     public async Task<Stream> DownloadProjectBackupStream(string code)
@@ -96,14 +97,13 @@ public class Sena3Fixture : IAsyncLifetime
 
     public async Task<string> DownloadSena3()
     {
-
         var tempFolder = Path.Combine(Path.GetTempPath(), nameof(Sena3Fixture));
         var sena3MasterCopy = Path.Combine(tempFolder, "sena-3");
         if (!Directory.Exists(sena3MasterCopy) || !File.Exists(Path.Combine(sena3MasterCopy, "sena-3.fwdata")))
         {
             await LoginAs(lexboxConfig.LexboxUsername, lexboxConfig.LexboxPassword);
             Directory.CreateDirectory(sena3MasterCopy);
-            var zipStream = await DownloadProjectBackupStream("sena-3");
+            await using var zipStream = await DownloadProjectBackupStream("sena-3");
             ZipFile.ExtractToDirectory(zipStream, sena3MasterCopy);
             MercurialTestHelper.HgUpdate(sena3MasterCopy, "tip");
             LfMergeBridge.LfMergeBridge.ReassembleFwdataFile(new NullProgress(), false, Path.Combine(sena3MasterCopy, "sena-3.fwdata"));
