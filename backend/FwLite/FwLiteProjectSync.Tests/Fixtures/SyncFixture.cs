@@ -24,7 +24,9 @@ public class SyncFixture : IAsyncLifetime
 
     public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
 
-    private SyncFixture(string projectName)
+    public static SyncFixture Create(Action<IServiceCollection> extraServiceConfiguration, [CallerMemberName] string projectName = "") => new(projectName, extraServiceConfiguration);
+
+    private SyncFixture(string projectName, Action<IServiceCollection>? extraServiceConfiguration = null)
     {
         _projectName = projectName;
         var crdtServices = new ServiceCollection()
@@ -34,9 +36,9 @@ public class SyncFixture : IAsyncLifetime
             .AddFwLiteProjectSync()
             .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", _projectName, "FwData"))
             .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", _projectName, "LcmCrdt"))
-            .AddLogging(builder => builder.AddDebug())
-            .BuildServiceProvider();
-        _services = crdtServices.CreateAsyncScope();
+            .AddLogging(builder => builder.AddDebug());
+        if (extraServiceConfiguration is not null) extraServiceConfiguration(crdtServices);
+        _services = crdtServices.BuildServiceProvider().CreateAsyncScope();
     }
 
     public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"))
@@ -64,6 +66,7 @@ public class SyncFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
+        // CAUTION: Do not assume that InitializeAsync() has been called
         await _services.DisposeAsync();
     }
 
