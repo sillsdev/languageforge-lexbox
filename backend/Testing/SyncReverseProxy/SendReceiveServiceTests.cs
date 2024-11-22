@@ -105,7 +105,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Verify pushed and store last commit
         var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
-        lastCommitDate.ShouldNotBeNull();
+        lastCommitDate.Should().NotBeNull();
 
         // Modify
         var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);
@@ -137,7 +137,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         var jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var originalTip = jsonResult?["node"]?.AsValue()?.ToString();
-        originalTip.ShouldNotBeNull();
+        originalTip.Should().NotBeNull();
 
         // /api/project/resetProject/{code}
         // /api/project/finishResetProject/{code}  // leave project empty
@@ -152,7 +152,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var emptyTip = jsonResult?["node"]?.AsValue()?.ToString();
-        emptyTip.ShouldNotBeNullOrEmpty();
+        emptyTip.Should().NotBeNullOrEmpty();
         emptyTip.Replace("0", "").Should().BeEmpty();
 
         // Step 3: do Send/Receive
@@ -174,7 +174,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var postSRTip = jsonResult?["node"]?.AsValue()?.ToString();
-        postSRTip.ShouldNotBeNull();
+        postSRTip.Should().NotBeNull();
         postSRTip.Should().Be(originalTip);
     }
 

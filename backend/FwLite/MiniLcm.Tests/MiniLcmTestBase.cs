@@ -17,7 +17,7 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
     public virtual async Task InitializeAsync()
     {
         Api = await NewApi();
-        Api.ShouldNotBeNull();
+        Api.Should().NotBeNull();
     }
 
     public virtual async Task DisposeAsync()

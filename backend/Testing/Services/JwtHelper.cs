@@ -58,7 +58,7 @@ public class JwtHelper
     public static string GetJwtFromLoginResponse(HttpResponseMessage response)
     {
         TryGetJwtFromLoginResponse(response, out var jwt);
-        jwt.ShouldNotBeNullOrEmpty();
+        jwt.Should().NotBeNullOrEmpty();
         return jwt;
     }
 

@@ -80,7 +80,7 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
         // if the user is allowed to view all members
         var json = await QueryMyProjectsWithMembers();
 
-        json.ShouldNotBeNull();
+        json.Should().NotBeNull();
         var myProjects = json["data"]!["myProjects"]!.AsArray();
         var ids = myProjects.Select(p => p!["id"]!.GetValue<Guid>());
 

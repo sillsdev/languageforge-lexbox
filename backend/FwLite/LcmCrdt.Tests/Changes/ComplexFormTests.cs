@@ -17,8 +17,8 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         var change = new AddComplexFormTypeChange(complexEntry.Id,complexFormType);
         await fixture.DataModel.AddChange(Guid.NewGuid(), change);
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
-        complexEntry.ShouldNotBeNull();
-        complexEntry!.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(change.ComplexFormType.Id);
+        complexEntry.Should().NotBeNull();
+        complexEntry.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(change.ComplexFormType.Id);
     }
 
     [Fact]
@@ -32,15 +32,15 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
             new AddComplexFormTypeChange(complexEntry.Id, complexFormType)
         );
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
-        complexEntry.ShouldNotBeNull();
-        complexEntry!.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(complexFormType.Id);
+        complexEntry.Should().NotBeNull();
+        complexEntry.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(complexFormType.Id);
         await fixture.DataModel.AddChange(
             Guid.NewGuid(),
             new RemoveComplexFormTypeChange(complexEntry.Id, complexFormType.Id)
         );
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
-        complexEntry.ShouldNotBeNull();
-        complexEntry!.ComplexFormTypes.Should().BeEmpty();
+        complexEntry.Should().NotBeNull();
+        complexEntry.ComplexFormTypes.Should().BeEmpty();
     }
 
     [Fact]
@@ -54,13 +54,13 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, coatEntry)));
         await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, rackEntry)));
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
-        complexEntry.ShouldNotBeNull();
-        complexEntry!.Components.Should().ContainSingle(e => e.ComponentEntryId == coatEntry.Id);
+        complexEntry.Should().NotBeNull();
+        complexEntry.Components.Should().ContainSingle(e => e.ComponentEntryId == coatEntry.Id);
         complexEntry.Components.Should().ContainSingle(e => e.ComponentEntryId == rackEntry.Id);
 
         coatEntry = await fixture.Api.GetEntry(coatEntry.Id);
-        coatEntry.ShouldNotBeNull();
-        coatEntry!.ComplexForms.Should().ContainSingle(e => e.ComplexFormEntryId == complexEntry.Id);
+        coatEntry.Should().NotBeNull();
+        coatEntry.ComplexForms.Should().ContainSingle(e => e.ComplexFormEntryId == complexEntry.Id);
     }
 
     [Fact]
@@ -73,12 +73,12 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, coatEntry)));
         await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, rackEntry)));
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
-        complexEntry.ShouldNotBeNull();
-        var component = complexEntry!.Components.First();
+        complexEntry.Should().NotBeNull();
+        var component = complexEntry.Components.First();
 
         await fixture.DataModel.AddChange(Guid.NewGuid(), new DeleteChange<ComplexFormComponent>(component.Id));
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
-        complexEntry.ShouldNotBeNull();
-        complexEntry!.Components.Should().NotContain(c => c.Id == component.Id);
+        complexEntry.Should().NotBeNull();
+        complexEntry.Components.Should().NotContain(c => c.Id == component.Id);
     }
 }

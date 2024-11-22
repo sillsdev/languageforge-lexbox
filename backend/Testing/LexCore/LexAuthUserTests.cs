@@ -151,7 +151,7 @@ public class LexAuthUserTests
             jwtUserOptions
         );
         var actualTicket = JwtTicketDataFormat.ConvertJwtToAuthTicket(jwt, JwtBearerOptions, NullLogger.Instance);
-        actualTicket.ShouldNotBeNull();
+        actualTicket.Should().NotBeNull();
         actualTicket.Properties.IssuedUtc.Should().Be(ticket.Properties.IssuedUtc);
         actualTicket.Properties.ExpiresUtc.Should().Be(ticket.Properties.ExpiresUtc);
         //order by is because the order isn't important but the assertion fails if the order is different
@@ -184,7 +184,7 @@ public class LexAuthUserTests
         var outputJwt = tokenHandler.ReadJwtToken(knownGoodJwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
-        newUser.ShouldNotBeNull();
+        newUser.Should().NotBeNull();
         newUser.UpdatedDate.Should().Be(0);
         //old jwt doesn't have updated date or orgs, we're ok with that so we correct the values to make the equivalence work
         newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];

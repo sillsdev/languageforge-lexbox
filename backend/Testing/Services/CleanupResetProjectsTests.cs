@@ -22,8 +22,8 @@ public class CleanupResetProjectsTests
         var expected = DateTimeOffset.Now;
         var repoName = HgService.DeletedRepoName("test", HgService.ResetSoftDeleteSuffix(expected));
         var actual = HgService.GetResetDate(repoName);
-        actual.ShouldNotBeNull();
-        TruncateToMinutes(actual.Value).Should().Be(TruncateToMinutes(expected));
+        actual.Should().NotBeNull();
+        TruncateToMinutes(actual!.Value).Should().Be(TruncateToMinutes(expected));
     }
 
     private DateTimeOffset TruncateToMinutes(DateTimeOffset date)

@@ -8,7 +8,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     public async Task CanCreateEntry()
     {
         var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "test" } } });
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         entry.LexemeForm.Values.Should().ContainKey("en");
         entry.LexemeForm.Values["en"].Should().Be("test");
     }
@@ -52,7 +52,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
             ]
         });
         entry = await Api.GetEntry(entry.Id);
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         entry.Components.Should().ContainSingle(c => c.ComponentEntryId == component.Id);
     }
 
@@ -77,7 +77,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
             ]
         });
         entry = await Api.GetEntry(entry.Id);
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         entry.ComplexForms.Should().ContainSingle(c => c.ComplexFormEntryId == complexForm.Id);
     }
 
@@ -109,11 +109,11 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         });
 
         var entry = await Api.GetEntry(component.Id);
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         entry.ComplexForms.Should().ContainSingle().Which.ComponentSenseId.Should().Be(componentSenseId);
 
         entry = await Api.GetEntry(complexFormEntryId);
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         entry.Components.Should().ContainSingle(c =>
             c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id &&
             c.ComponentSenseId == componentSenseId);
@@ -132,7 +132,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
             LexemeForm = { { "en", "test" } }, ComplexFormTypes = [complexFormType]
         });
         entry = await Api.GetEntry(entry.Id);
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         entry.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
     }
 }

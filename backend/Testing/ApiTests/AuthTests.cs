@@ -41,12 +41,12 @@ public class AuthTests : ApiTestBase
         var query = """query testGetMe {  meAuth {    id    email  }}""";
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var manager = await ExecuteGql(query);
-        manager.ShouldNotBeNull();
+        manager.Should().NotBeNull();
         manager["data"]!["meAuth"]!["email"]!.ToString().Should().Be("manager@test.com");
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var admin = await ExecuteGql(query);
-        admin.ShouldNotBeNull();
+        admin.Should().NotBeNull();
         admin["data"]!["meAuth"]!["email"]!.ToString().Should().Be("admin@test.com");
     }
 

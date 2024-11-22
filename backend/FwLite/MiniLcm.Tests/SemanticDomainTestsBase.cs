@@ -34,7 +34,7 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
     private async Task<Entry> GetEntry()
     {
         var entry = await Api.GetEntry(_entryId);
-        entry.ShouldNotBeNull();
+        entry.Should().NotBeNull();
         return entry;
     }
 
@@ -54,8 +54,8 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
     public async Task Sense_HasSemanticDomains()
     {
         var entry = await GetEntry();
-        entry.ShouldNotBeNull();
-        var sense = entry!.Senses.First(s => s.SemanticDomains.Any());
+        entry.Should().NotBeNull();
+        var sense = entry.Senses.First(s => s.SemanticDomains.Any());
         sense.SemanticDomains.Should().NotBeEmpty();
         sense.SemanticDomains.Should().AllSatisfy(sd =>
         {

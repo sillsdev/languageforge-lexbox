@@ -47,7 +47,7 @@ public class JsonPatchSenseRewriteTests
         var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var setPartOfSpeechChange = changes.Should().ContainSingle()
-            .Subject.ShouldBeOfType<SetPartOfSpeechChange>();
+            .Subject.Should().BeOfType<SetPartOfSpeechChange>().Subject;
         setPartOfSpeechChange.EntityId.Should().Be(_sense.Id);
         setPartOfSpeechChange.PartOfSpeechId.Should().Be(newPartOfSpeechId);
     }

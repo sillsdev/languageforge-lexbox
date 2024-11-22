@@ -17,7 +17,7 @@ public class JsonPatchEntryRewriteTests
         patch.Add(entry => entry.Components, ComplexFormComponent.FromEntries(_entry, componentEntry));
         var changes = _entry.ToChanges(patch);
         var addEntryComponentChange =
-            changes.Should().ContainSingle().Which.ShouldBeOfType<AddEntryComponentChange>();
+            changes.Should().ContainSingle().Which.Should().BeOfType<AddEntryComponentChange>().Subject;
         addEntryComponentChange.ComplexFormEntryId.Should().Be(_entry.Id);
         addEntryComponentChange.ComponentEntryId.Should().Be(componentEntry.Id);
         addEntryComponentChange.ComponentHeadword.Should().Be(componentEntry.Headword());
@@ -81,7 +81,7 @@ public class JsonPatchEntryRewriteTests
         patch.Add(entry => entry.ComplexForms, ComplexFormComponent.FromEntries(_entry, componentEntry));
         var changes = componentEntry.ToChanges(patch);
         var addEntryComponentChange =
-            changes.Should().ContainSingle().Which.ShouldBeOfType<AddEntryComponentChange>();
+            changes.Should().ContainSingle().Which.Should().BeOfType<AddEntryComponentChange>().Subject;
         addEntryComponentChange.ComplexFormEntryId.Should().Be(_entry.Id);
         addEntryComponentChange.ComponentEntryId.Should().Be(componentEntry.Id);
         addEntryComponentChange.ComponentHeadword.Should().Be(componentEntry.Headword());
@@ -145,7 +145,7 @@ public class JsonPatchEntryRewriteTests
         patch.Add(entry => entry.ComplexFormTypes, complexFormType);
         var changes = _entry.ToChanges(patch);
         var addComplexFormTypeChange =
-            changes.Should().ContainSingle().Which.ShouldBeOfType<AddComplexFormTypeChange>();
+            changes.Should().ContainSingle().Which.Should().BeOfType<AddComplexFormTypeChange>().Subject;
         addComplexFormTypeChange.EntityId.Should().Be(_entry.Id);
         addComplexFormTypeChange.ComplexFormType.Should().Be(complexFormType);
     }

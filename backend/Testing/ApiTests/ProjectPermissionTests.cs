@@ -56,7 +56,7 @@ public class ProjectPermissionTests : ApiTestBase
     private JsonObject GetProject(JsonObject json)
     {
         var project = json["data"]!["projectByCode"]?.AsObject();
-        project.ShouldNotBeNull();
+        project.Should().NotBeNull();
         return project;
     }
 
@@ -132,7 +132,7 @@ public class ProjectPermissionTests : ApiTestBase
         await LoginAs("user");
         var json = await QueryProject(project.Code, expectGqlError: true);
         var error = json["errors"]!.AsArray().First()?.AsObject();
-        error.ShouldNotBeNull();
+        error.Should().NotBeNull();
         error["extensions"]?["code"]?.GetValue<string>().Should().Be("AUTH_NOT_AUTHORIZED");
     }
 }

@@ -67,7 +67,7 @@ public class ApiTestBase
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql{jwtParam}", new { query = gql });
         if (JwtHelper.TryGetJwtFromLoginResponse(response, out var jwt)) CurrJwt = jwt;
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
-        jsonResponse.ShouldNotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
+        jsonResponse.Should().NotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
         GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
         if (expectSuccessCode)
             response.IsSuccessStatusCode.Should().BeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
@@ -83,7 +83,7 @@ query projectLastCommit {
     }
 }
 """);
-        var project = jsonResult?["data"]?["projectByCode"].ShouldBeOfType<JsonObject>();
+        var project = jsonResult?["data"]?["projectByCode"].Should().BeOfType<JsonObject>().Subject;
         var stringDate = project?["lastCommit"]?.ToString();
         return stringDate == null ? null : DateTimeOffset.Parse(stringDate);
     }

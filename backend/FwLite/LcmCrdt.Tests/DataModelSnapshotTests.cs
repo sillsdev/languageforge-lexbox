@@ -89,7 +89,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
         {
             foreach (var jsonDerivedType in types)
             {
-                var typeDiscriminator = jsonDerivedType.TypeDiscriminator.ShouldBeOfType<string>();
+                var typeDiscriminator = jsonDerivedType.TypeDiscriminator.Should().BeOfType<string>().Subject;
                 var obj = Faker.Generate(jsonDerivedType.DerivedType);
                 new MiniLcmCrdtAdapter((IObjectWithId)obj).GetObjectTypeName().Should().Be(typeDiscriminator);
             }

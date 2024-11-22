@@ -61,7 +61,7 @@ public class ProjectServiceTest
             new(null, "TestProject", "Test", "test2", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
         await _projectService.UpdateProjectLangTags(projectId);
         var project = await _lexBoxDbContext.Projects.Include(p => p.FlexProjectMetadata).SingleAsync(p => p.Id == projectId);
-        project.FlexProjectMetadata.ShouldNotBeNull();
+        project.FlexProjectMetadata.Should().NotBeNull();
         project.FlexProjectMetadata.WritingSystems.Should().BeEquivalentTo(_writingSystems);
     }
 

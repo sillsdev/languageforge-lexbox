@@ -32,11 +32,11 @@ password={password}
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.Should().Be(JsonValueKind.Array);
         var projectArray = JsonArray.Create(content);
-        projectArray.ShouldNotBeNull();
+        projectArray.Should().NotBeNull();
         projectArray.Count.Should().BeGreaterThan(0);
         var project =
             projectArray.First(p => p?["identifier"]?.GetValue<string>() == TestingEnvironmentVariables.ProjectCode) as JsonObject;
-        project.ShouldNotBeNull();
+        project.Should().NotBeNull();
         var projectDict = new Dictionary<string, JsonNode?>(project);
         using (new AssertionScope())
         {
@@ -101,7 +101,7 @@ password={password}
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.Should().Be(JsonValueKind.Object);
         var responseObject = JsonObject.Create(content);
-        responseObject.ShouldNotBeNull();
+        responseObject.Should().NotBeNull();
         responseObject.Should().ContainKey("error");
         responseObject["error"]!.GetValue<string>().Should().Be("Bad password");
     }
@@ -117,7 +117,7 @@ password={password}
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.Should().Be(JsonValueKind.Object);
         var responseObject = JsonObject.Create(content);
-        responseObject.ShouldNotBeNull();
+        responseObject.Should().NotBeNull();
         responseObject.Should().ContainKey("error");
         responseObject["error"]!.GetValue<string>().Should().Be("Unknown user");
     }

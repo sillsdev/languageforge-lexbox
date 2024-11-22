@@ -16,7 +16,7 @@ public class IntegrationFixture : IAsyncLifetime
     public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; private set; } = new();
     private string? _adminJwt = null;
-    public string AdminJwt => _adminJwt.ShouldNotBeNull();
+    public string AdminJwt => _adminJwt.Should().NotBeNull().And.Subject;
 
     static IntegrationFixture()
     {
