@@ -156,7 +156,7 @@ public class LexAuthUserTests
         actualTicket.Properties.ExpiresUtc.Should().Be(ticket.Properties.ExpiresUtc);
         //order by is because the order isn't important but the assertion fails if the order is different
         actualTicket.Properties.Items.OrderBy(kvp => kvp.Key)
-            .Should().BeEquivalentTo(ticket.Properties.Items.OrderBy(kvp => kvp.Key));
+            .Should().Equal(ticket.Properties.Items.OrderBy(kvp => kvp.Key));
 
         var newUser = LexAuthUser.FromClaimsPrincipal(actualTicket.Principal);
         newUser.Should().BeEquivalentTo(_user);

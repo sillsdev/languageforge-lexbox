@@ -51,7 +51,7 @@ public class ProjectServiceTest
     {
         var projectId = await _projectService.CreateProject(
             new(null, "TestProject", "Test", "test1", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
-        projectId.Should().NotBe((Guid)default);
+        projectId.Should().NotBe(Guid.Empty);
     }
 
     [Fact]
