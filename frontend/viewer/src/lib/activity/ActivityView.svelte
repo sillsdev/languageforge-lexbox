@@ -46,7 +46,7 @@
 
 <Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={load}>
   <Button on:click={toggleOn} icon={mdiHistory} variant="fill-outline" color="info" size="sm">
-    <div class="hidden sm:contents">
+    <div class="hidden lg-view:contents">
       Activity
     </div>
   </Button>

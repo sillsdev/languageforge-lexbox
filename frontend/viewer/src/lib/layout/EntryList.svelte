@@ -76,7 +76,7 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-    <div class="hidden lg:contents">
+    <div class="hidden lg-view:contents">
       <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded

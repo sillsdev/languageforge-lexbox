@@ -79,12 +79,12 @@
   <Field
     classes={{ input: 'my-1 justify-center opacity-60' }}
     class="cursor-pointer">
-    <div class="hidden lg:contents">
+    <div class="hidden lg-view:contents whitespace-nowrap">
       Find entry...
       <span class="ml-2"><Icon data={mdiMagnify} /></span>
       <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
     </div>
-    <div class="contents lg:hidden">
+    <div class="contents lg-view:hidden">
       <Icon data={mdiBookSearchOutline} />
     </div>
   </Field>

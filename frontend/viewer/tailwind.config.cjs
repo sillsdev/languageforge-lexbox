@@ -60,10 +60,11 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'max-xs': { 'max': '400px' },
         'max-sm': { 'max': '639px' },
-        'max-md': { 'max': '767px' },
-        'max-lg': { 'max': '1023px' },
+        'xs-form': { 'max': '400px' },
+        'sm-form': { 'max': '1023px' },
+        'sm-view': { 'max': '767px' },
+        'lg-view': '768px',
       },
     },
   },
