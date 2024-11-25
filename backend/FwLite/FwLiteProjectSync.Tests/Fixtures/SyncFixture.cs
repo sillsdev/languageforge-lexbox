@@ -69,6 +69,12 @@ public class SyncFixture : IAsyncLifetime
 
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
     public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
+
+    public void DeleteSyncSnapshot()
+    {
+        var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(FwDataApi.Project);
+        if (File.Exists(snapshotPath)) File.Delete(snapshotPath);
+    }
 }
 
 public class MockProjectContext(CrdtProject? project) : ProjectContext

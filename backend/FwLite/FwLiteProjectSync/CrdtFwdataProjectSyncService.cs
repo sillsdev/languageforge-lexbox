@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
+using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -11,7 +11,7 @@ using SystemTextJsonPatch.Operations;
 
 namespace FwLiteProjectSync;
 
-public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig, MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger)
+public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger)
 {
     public record SyncResult(int CrdtChanges, int FwdataChanges);
 
@@ -21,13 +21,13 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         {
             throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
         }
-        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath);
+        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project);
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
         fwdataApi.Save();
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath,
+            await SaveProjectSnapshot(fwdataApi.Project,
                 new ProjectSnapshot(
                     await fwdataApi.GetEntries().ToArrayAsync(),
                     await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
@@ -86,21 +86,25 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
     public record ProjectSnapshot(Entry[] Entries, PartOfSpeech[] PartsOfSpeech, SemanticDomain[] SemanticDomains);
 
-    private async Task<ProjectSnapshot?> GetProjectSnapshot(string projectName, string? projectPath)
+    private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
-        projectPath ??= lcmCrdtConfig.Value.ProjectPath;
-        var snapshotPath = Path.Combine(projectPath, $"{projectName}_snapshot.json");
+        var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file);
     }
 
-    private async Task SaveProjectSnapshot(string projectName, string? projectPath, ProjectSnapshot projectSnapshot)
+    private async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
     {
-        projectPath ??= lcmCrdtConfig.Value.ProjectPath;
-        var snapshotPath = Path.Combine(projectPath, $"{projectName}_snapshot.json");
+        var snapshotPath = SnapshotPath(project);
         await using var file = File.Create(snapshotPath);
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
     }
 
+    internal static string SnapshotPath(FwDataProject project)
+    {
+        var projectPath = project.ProjectsPath;
+        var snapshotPath = Path.Combine(projectPath, $"{project.Name}_snapshot.json");
+        return snapshotPath;
+    }
 }
