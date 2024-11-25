@@ -6,6 +6,7 @@ using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using SIL.LCModel;
@@ -559,40 +560,48 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
-            "Remove entry",
-            Cache.ServiceLocator.ActionHandler,
-            () =>
-            {
-                var lexEntry = LexEntryFactory.Create(entry.Id, Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-                lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
-                UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
-                UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
-                UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
-                UpdateLcmMultiString(lexEntry.Comment, entry.Note);
-
-                foreach (var sense in entry.Senses)
+        try
+        {
+            UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
+                "Remove entry",
+                Cache.ServiceLocator.ActionHandler,
+                () =>
                 {
-                    CreateSense(lexEntry, sense);
-                }
+                    var lexEntry = LexEntryFactory.Create(entry.Id,
+                        Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
+                    lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+                    UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
+                    UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
+                    UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
+                    UpdateLcmMultiString(lexEntry.Comment, entry.Note);
 
-                //form types should be created before components, otherwise the form type "unspecified" will be added
-                foreach (var complexFormType in entry.ComplexFormTypes)
-                {
-                    AddComplexFormType(lexEntry, complexFormType.Id);
-                }
+                    foreach (var sense in entry.Senses)
+                    {
+                        CreateSense(lexEntry, sense);
+                    }
 
-                foreach (var component in entry.Components)
-                {
-                    AddComplexFormComponent(lexEntry, component);
-                }
+                    //form types should be created before components, otherwise the form type "unspecified" will be added
+                    foreach (var complexFormType in entry.ComplexFormTypes)
+                    {
+                        AddComplexFormType(lexEntry, complexFormType.Id);
+                    }
 
-                foreach (var complexForm in entry.ComplexForms)
-                {
-                    var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
-                    AddComplexFormComponent(complexLexEntry, complexForm);
-                }
-            });
+                    foreach (var component in entry.Components)
+                    {
+                        AddComplexFormComponent(lexEntry, component);
+                    }
+
+                    foreach (var complexForm in entry.ComplexForms)
+                    {
+                        var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
+                        AddComplexFormComponent(complexLexEntry, complexForm);
+                    }
+                });
+        }
+        catch (Exception e)
+        {
+            throw new CreateObjectException($"Failed to create entry {entry}", e);
+        }
 
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }

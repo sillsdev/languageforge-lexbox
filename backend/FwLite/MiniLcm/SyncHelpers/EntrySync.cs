@@ -29,14 +29,21 @@ public static class EntrySync
 
     public static async Task<int> Sync(Entry afterEntry, Entry beforeEntry, IMiniLcmApi api)
     {
-        var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
-        if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
-        var changes = await SensesSync(afterEntry.Id, afterEntry.Senses, beforeEntry.Senses, api);
+        try
+        {
+            var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
+            if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
+            var changes = await SensesSync(afterEntry.Id, afterEntry.Senses, beforeEntry.Senses, api);
 
-        changes += await Sync(afterEntry.Components, beforeEntry.Components, api);
-        changes += await Sync(afterEntry.ComplexForms, beforeEntry.ComplexForms, api);
-        changes += await Sync(afterEntry.Id, afterEntry.ComplexFormTypes, beforeEntry.ComplexFormTypes, api);
-        return changes + (updateObjectInput is null ? 0 : 1);
+            changes += await Sync(afterEntry.Components, beforeEntry.Components, api);
+            changes += await Sync(afterEntry.ComplexForms, beforeEntry.ComplexForms, api);
+            changes += await Sync(afterEntry.Id, afterEntry.ComplexFormTypes, beforeEntry.ComplexFormTypes, api);
+            return changes + (updateObjectInput is null ? 0 : 1);
+        }
+        catch (Exception e)
+        {
+            throw new SyncObjectException($"Failed to sync entry {afterEntry}", e);
+        }
     }
 
     private static async Task<int> Sync(Guid entryId,
