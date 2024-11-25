@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using LexCore.Entities;
-using Shouldly;
+using FluentAssertions;
 using Testing.Fixtures;
 using static Testing.Services.Utils;
 
@@ -80,11 +80,11 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
         // if the user is allowed to view all members
         var json = await QueryMyProjectsWithMembers();
 
-        json.ShouldNotBeNull();
+        json.Should().NotBeNull();
         var myProjects = json["data"]!["myProjects"]!.AsArray();
         var ids = myProjects.Select(p => p!["id"]!.GetValue<Guid>());
 
-        projects.Select(p => p.Id).ShouldBeSubsetOf(ids);
+        projects.Select(p => p.Id).Should().BeSubsetOf(ids);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
                 }
             }
             """, expectGqlError: true); // we're not a member yet
-        _adminApiTester.CurrJwt.ShouldBe(editorJwt); // token wasn't updated
+        _adminApiTester.CurrJwt.Should().Be(editorJwt); // token wasn't updated
 
         await AddMemberToProject(config, _adminApiTester, "editor", ProjectRole.Editor, _adminJwt);
 
@@ -116,7 +116,7 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
                 }
             }
             """, expectGqlError: true); // we're a member, but didn't query for users, so...
-        _adminApiTester.CurrJwt.ShouldBe(editorJwt); // token wasn't updated
+        _adminApiTester.CurrJwt.Should().Be(editorJwt); // token wasn't updated
 
         var response = await _adminApiTester.ExecuteGql($$"""
             query {
@@ -129,6 +129,6 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
                 }
             }
             """, expectGqlError: false); // we queried for users, so...
-        _adminApiTester.CurrJwt.ShouldNotBe(editorJwt); // token was updated
+        _adminApiTester.CurrJwt.Should().NotBe(editorJwt); // token was updated
     }
 }

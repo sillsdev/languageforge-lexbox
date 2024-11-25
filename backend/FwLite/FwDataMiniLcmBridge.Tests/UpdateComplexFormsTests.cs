@@ -34,7 +34,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
                 ComplexFormComponent.FromEntries(complexForm, component)));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should()
+        entry.Components.Should()
             .ContainSingle(c => c.ComponentEntryId == component.Id && c.ComplexFormEntryId == complexForm.Id);
     }
 
@@ -63,7 +63,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Remove(e => e.Components, 0));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().BeEmpty();
+        entry.Components.Should().BeEmpty();
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentEntryId, component2.Id));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        var complexFormComponent = entry!.Components.Should().ContainSingle().Subject;
+        var complexFormComponent = entry.Components.Should().ContainSingle().Subject;
         complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
     }
 
@@ -127,7 +127,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentSenseId, component2SenseId));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        var complexFormComponent = entry!.Components.Should().ContainSingle().Subject;
+        var complexFormComponent = entry.Components.Should().ContainSingle().Subject;
         complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
         complexFormComponent.ComponentSenseId.Should().Be(component2SenseId);
     }
@@ -163,7 +163,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentSenseId, null));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should()
+        entry.Components.Should()
             .ContainSingle(c => c.ComponentEntryId == component2.Id && c.ComponentSenseId == null);
     }
 
@@ -193,7 +193,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComplexFormEntryId, complexForm2.Id));
         var entry = await _api.GetEntry(complexForm2.Id);
         entry.Should().NotBeNull();
-        var complexFormComponent = entry!.Components.Should().ContainSingle().Subject;
+        var complexFormComponent = entry.Components.Should().ContainSingle().Subject;
         complexFormComponent.ComponentEntryId.Should().Be(component1.Id);
     }
 
@@ -208,7 +208,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
                 ComplexFormComponent.FromEntries(complexForm, component)));
         var entry = await _api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should()
+        entry.ComplexForms.Should()
             .ContainSingle(c => c.ComponentEntryId == component.Id && c.ComplexFormEntryId == complexForm.Id);
     }
 
@@ -237,7 +237,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Remove(e => e.ComplexForms, 0));
         var entry = await _api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().BeEmpty();
+        entry.ComplexForms.Should().BeEmpty();
     }
 
     [Fact]
@@ -266,7 +266,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComplexFormEntryId, complexForm2.Id));
         var entry = await _api.GetEntry(component1.Id);
         entry.Should().NotBeNull();
-        var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
+        var complexFormComponent = entry.ComplexForms.Should().ContainSingle().Subject;
         complexFormComponent.ComplexFormEntryId.Should().Be(complexForm2.Id);
     }
 
@@ -296,7 +296,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComponentEntryId, component2.Id));
         var entry = await _api.GetEntry(component2.Id);
         entry.Should().NotBeNull();
-        var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
+        var complexFormComponent = entry.ComplexForms.Should().ContainSingle().Subject;
         complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
         complexFormComponent.ComplexFormEntryId.Should().Be(complexFormId);
     }
@@ -338,7 +338,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComponentSenseId, component1SenseId2));
         var entry = await _api.GetEntry(component1.Id);
         entry.Should().NotBeNull();
-        var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
+        var complexFormComponent = entry.ComplexForms.Should().ContainSingle().Subject;
         complexFormComponent.ComponentEntryId.Should().Be(componentId1);
         complexFormComponent.ComponentSenseId.Should().Be(component1SenseId2);
     }
@@ -353,7 +353,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Add(e => e.ComplexFormTypes, complexFormType));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
+        entry.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
     }
 
     [Fact]
@@ -369,7 +369,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Remove(e => e.ComplexFormTypes, 0));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexFormTypes.Should().BeEmpty();
+        entry.ComplexFormTypes.Should().BeEmpty();
     }
 
     [Fact]
@@ -382,6 +382,6 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             new UpdateObjectInput<Entry>().Set(e => e.ComplexFormTypes[0].Id, complexFormType2.Id));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(complexFormType2.Id);
+        entry.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(complexFormType2.Id);
     }
 }

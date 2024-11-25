@@ -26,14 +26,14 @@ public class ProjectMutations
         Requested
     }
 
-    public record CreateProjectResponse(Guid? Id, CreateProjectResult Result);
+    public record CreateProjectResponse(Guid Id, CreateProjectResult Result);
     [Error<DbError>]
     [Error<AlreadyExistsException>]
     [Error<ProjectCreatorsMustHaveEmail>]
     [UseMutationConvention]
     [RefreshJwt]
     [VerifiedEmailRequired]
-    public async Task<CreateProjectResponse?> CreateProject(
+    public async Task<CreateProjectResponse> CreateProject(
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
         CreateProjectInput input,

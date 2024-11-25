@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using LexData;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.ApiTests;
 
@@ -37,42 +37,42 @@ public class OrgPermissionTests : ApiTestBase
     private static JsonObject GetOrg(JsonObject json)
     {
         var org = json["data"]?["orgById"]?.AsObject();
-        org.ShouldNotBeNull();
+        org.Should().NotBeNull();
         return org;
     }
 
     private void MustHaveOneMemberWithEmail(JsonNode org)
     {
         org["members"]!.AsArray().Where(m => m?["user"]?["email"]?.GetValue<string>() is { Length: > 0 })
-            .ShouldNotBeEmpty();
+            .Should().NotBeNullOrEmpty();
     }
     private void MustNotHaveMemberWithEmail(JsonNode org)
     {
         org["members"]!.AsArray().Where(m => m?["user"]?["email"]?.GetValue<string>() is { Length: > 0 })
-            .ShouldBeEmpty();
+            .Should().BeEmpty();
     }
 
     private void MustHaveOneMemberWithUsername(JsonNode org)
     {
         org["members"]!.AsArray().Where(m => m?["user"]?["username"]?.GetValue<string>() is { Length: > 0 })
-            .ShouldNotBeEmpty();
+            .Should().NotBeNullOrEmpty();
     }
     private void MustNotHaveMemberWithUsername(JsonNode org)
     {
         org["members"]!.AsArray().Where(m => m?["user"]?["username"]?.GetValue<string>() is { Length: > 0 })
-            .ShouldBeEmpty();
+            .Should().BeEmpty();
     }
 
     private void MustHaveUserNames(JsonNode org)
     {
         org["members"]!.AsArray()
             .Where(m => m?["user"]?["name"]?.GetValue<string>() is { Length: > 0 })
-            .ShouldNotBeEmpty();
+            .Should().NotBeNullOrEmpty();
     }
 
     private void MustContainUser(JsonNode org, Guid id)
     {
-        org["members"]!.AsArray().ShouldContain(
+        org["members"]!.AsArray().Should().Contain(
             m => m!["user"]!["id"]!.GetValue<Guid>() == id,
             $"org: '{org["name"]}' members were: {org["members"]!.ToJsonString()}");
     }
@@ -81,14 +81,14 @@ public class OrgPermissionTests : ApiTestBase
     {
         org["members"]!.AsArray()
             .Where(m => m?["role"]?.GetValue<string>() is not "ADMIN")
-            .ShouldBeEmpty();
+            .Should().BeEmpty();
     }
 
     private void MustHaveNonManagers(JsonNode org)
     {
         org["members"]!.AsArray()
             .Where(m => m?["role"]?.GetValue<string>() is not "ADMIN")
-            .ShouldNotBeEmpty();
+            .Should().NotBeNullOrEmpty();
     }
 
     [Fact]
@@ -113,8 +113,8 @@ public class OrgPermissionTests : ApiTestBase
             """,
             true, false);
         var error = json["errors"]?.AsArray().First()?.AsObject();
-        error.ShouldNotBeNull();
-        error["extensions"]?["code"]?.GetValue<string>().ShouldBe("AUTH_NOT_AUTHORIZED");
+        error.Should().NotBeNull();
+        error["extensions"]?["code"]?.GetValue<string>().Should().Be("AUTH_NOT_AUTHORIZED");
     }
 
     [Fact]
@@ -134,8 +134,8 @@ public class OrgPermissionTests : ApiTestBase
             """,
             true, false);
         var error = json["errors"]?.AsArray().First()?.AsObject();
-        error.ShouldNotBeNull();
-        error["extensions"]?["code"]?.GetValue<string>().ShouldBe("AUTH_NOT_AUTHORIZED");
+        error.Should().NotBeNull();
+        error["extensions"]?["code"]?.GetValue<string>().Should().Be("AUTH_NOT_AUTHORIZED");
     }
 
     [Fact]
@@ -167,7 +167,7 @@ public class OrgPermissionTests : ApiTestBase
     {
         await LoginAs("editor");
         var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
-        org.ShouldNotBeNull();
+        org.Should().NotBeNull();
         MustContainUser(org, SeedingData.EditorId);
     }
 
@@ -176,7 +176,7 @@ public class OrgPermissionTests : ApiTestBase
     {
         await LoginAs("editor");
         var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
-        org.ShouldNotBeNull();
+        org.Should().NotBeNull();
         MustHaveUserNames(org);
         MustNotHaveMemberWithEmail(org);
     }
@@ -186,7 +186,7 @@ public class OrgPermissionTests : ApiTestBase
     {
         await LoginAs("editor");
         var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
-        org.ShouldNotBeNull();
+        org.Should().NotBeNull();
         MustHaveUserNames(org);
         MustNotHaveMemberWithUsername(org);
     }
@@ -203,24 +203,24 @@ public class OrgPermissionTests : ApiTestBase
     private void MustNotShowConfidentialProjects(JsonNode org)
     {
         var projects = org["projects"]!.AsArray();
-        projects.ShouldNotBeEmpty();
+        projects.Should().NotBeNullOrEmpty();
         projects
             .Where(p => p?["isConfidential"]?.GetValue<bool>() != false)
-            .ShouldBeEmpty();
+            .Should().BeEmpty();
     }
 
     private void MustContainProject(JsonNode org, Guid projectId)
     {
         var projects = org["projects"]!.AsArray();
-        projects.ShouldNotBeEmpty();
-        projects.ShouldContain(p => p!["id"]!.GetValue<Guid>() == projectId, $"project id '{projectId}' should exist in: {projects.ToJsonString()}");
+        projects.Should().NotBeNullOrEmpty();
+        projects.Should().Contain(p => p!["id"]!.GetValue<Guid>() == projectId, $"project id '{projectId}' should exist in: {projects.ToJsonString()}");
     }
 
     private void MustNotContainProject(JsonNode org, Guid projectId)
     {
         var projects = org["projects"]!.AsArray();
         if ((projects?.Count ?? 0) == 0) return;
-        projects!.ShouldNotContain(p => p!["id"]!.GetValue<Guid>() == projectId, $"project id '{projectId}' should not exist in: {projects!.ToJsonString()}");
+        projects!.Should().NotContain(p => p!["id"]!.GetValue<Guid>() == projectId, $"project id '{projectId}' should not exist in: {projects!.ToJsonString()}");
     }
 
     [Fact]

@@ -1,6 +1,6 @@
 using Chorus.VcsDrivers.Mercurial;
 using LexBoxApi.Auth;
-using Shouldly;
+using FluentAssertions;
 using SIL.Progress;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
@@ -35,10 +35,10 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     public async Task VerifyHgWorking()
     {
         var version = await _sendReceiveService.GetHgVersion();
-        version.ShouldStartWith("Mercurial Distributed SCM");
+        version.Should().StartWith("Mercurial Distributed SCM");
         _output.WriteLine("Hg version: " + version);
         HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
-        HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
+        HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
     }
 
     [Theory]
@@ -65,7 +65,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Verify pushed
         var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
-        lastCommitDate.ShouldNotBeNullOrEmpty();
+        lastCommitDate.Should().NotBeNull();
     }
 
     [Theory]
@@ -105,11 +105,11 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Verify pushed and store last commit
         var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
-        lastCommitDate.ShouldNotBeNullOrEmpty();
+        lastCommitDate.Should().NotBeNull();
 
         // Modify
         var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);
-        fwDataFileInfo.Length.ShouldBeGreaterThan(0);
+        fwDataFileInfo.Length.Should().BeGreaterThan(0);
         ModifyProjectHelper.ModifyProject(sendReceiveParams.FwDataFile);
 
         // Push changes
@@ -117,7 +117,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Verify the push updated the last commit date
         var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
-        lastCommitDateAfter.ShouldBeGreaterThan(lastCommitDate);
+        lastCommitDateAfter.Should().BeAfter(lastCommitDate.Value);
     }
 
     [Theory]
@@ -137,7 +137,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         var jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var originalTip = jsonResult?["node"]?.AsValue()?.ToString();
-        originalTip.ShouldNotBeNull();
+        originalTip.Should().NotBeNull();
 
         // /api/project/resetProject/{code}
         // /api/project/finishResetProject/{code}  // leave project empty
@@ -152,9 +152,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var emptyTip = jsonResult?["node"]?.AsValue()?.ToString();
-        emptyTip.ShouldNotBeNull();
-        emptyTip.ShouldNotBeEmpty();
-        emptyTip.Replace("0", "").ShouldBeEmpty();
+        emptyTip.Should().NotBeNullOrEmpty();
+        emptyTip.Replace("0", "").Should().BeEmpty();
 
         // Step 3: do Send/Receive
         if (protocol == HgProtocol.Resumable)
@@ -175,8 +174,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var postSRTip = jsonResult?["node"]?.AsValue()?.ToString();
-        postSRTip.ShouldNotBeNull();
-        postSRTip.ShouldBe(originalTip);
+        postSRTip.Should().NotBeNull();
+        postSRTip.Should().Be(originalTip);
     }
 
     [Fact]
@@ -207,7 +206,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
             var fileName = $"test-file{i}.bin";
             WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
             HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
-            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.ShouldBe(0);
+            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.Should().Be(0);
         }
 
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
@@ -235,7 +234,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidPass);
 
-        act.ShouldThrow<RepositoryAuthorizationException>();
+        act.Should().Throw<RepositoryAuthorizationException>();
     }
 
     [Fact]
@@ -244,7 +243,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = GetParams(HgProtocol.Resumable);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidPass);
 
-        act.ShouldThrow<UnauthorizedAccessException>();
+        act.Should().Throw<UnauthorizedAccessException>();
     }
 
     [Fact]
@@ -254,7 +253,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
         var act = () => _sendReceiveService.SendReceiveProject(sendReceiveParams, InvalidPass);
-        act.ShouldThrow<RepositoryAuthorizationException>();
+        act.Should().Throw<RepositoryAuthorizationException>();
     }
 
     [Fact]
@@ -264,7 +263,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
         var act = () => _sendReceiveService.SendReceiveProject(sendReceiveParams, InvalidPass);
-        act.ShouldThrow<UnauthorizedAccessException>();
+        act.Should().Throw<UnauthorizedAccessException>();
     }
 
     [Fact]
@@ -272,7 +271,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     {
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidUser);
-        act.ShouldThrow<RepositoryAuthorizationException>();
+        act.Should().Throw<RepositoryAuthorizationException>();
     }
 
     [Fact]
@@ -280,7 +279,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     {
         var sendReceiveParams = GetParams(HgProtocol.Resumable);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidUser);
-        act.ShouldThrow<UnauthorizedAccessException>();
+        act.Should().Throw<UnauthorizedAccessException>();
     }
 
     [Fact]
@@ -289,8 +288,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, "non-existent-project");
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
 
-        act.ShouldThrow<ProjectLabelErrorException>();
-        Directory.GetFiles(sendReceiveParams.Dir).ShouldBeEmpty();
+        act.Should().Throw<ProjectLabelErrorException>();
+        Directory.GetFiles(sendReceiveParams.Dir).Should().BeEmpty();
     }
 
     [Fact]
@@ -299,8 +298,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, "non-existent-project");
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
-        act.ShouldThrow<RepositoryAuthorizationException>();
-        Directory.GetFiles(sendReceiveParams.Dir).ShouldBeEmpty();
+        act.Should().Throw<RepositoryAuthorizationException>();
+        Directory.GetFiles(sendReceiveParams.Dir).Should().BeEmpty();
     }
 
     [Fact]
@@ -309,7 +308,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
 
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, UnauthorizedUser);
-        act.ShouldThrow<RepositoryAuthorizationException>();
+        act.Should().Throw<RepositoryAuthorizationException>();
     }
 
     [Fact]
@@ -318,6 +317,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = GetParams(HgProtocol.Resumable);
 
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, UnauthorizedUser);
-        act.ShouldThrow<UnauthorizedAccessException>();
+        act.Should().Throw<UnauthorizedAccessException>();
     }
 }

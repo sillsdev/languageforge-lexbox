@@ -76,7 +76,7 @@ public class SerializationTests(ITestOutputHelper output)
         };
         var actualMs = JsonSerializer.Deserialize<MultiString>(json);
         actualMs.Should().NotBeNull();
-        actualMs!.Values.Should().ContainKey("en");
+        actualMs.Values.Should().ContainKey("en");
         actualMs.Should().BeEquivalentTo(expectedMs);
     }
 

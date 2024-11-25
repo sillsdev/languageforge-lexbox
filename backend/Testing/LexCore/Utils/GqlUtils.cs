@@ -1,5 +1,5 @@
 using System.Text.Json.Nodes;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.LexCore.Utils;
 
@@ -9,13 +9,13 @@ public static class GqlUtils
     {
         if (!expectError)
         {
-            json["errors"].ShouldBeNull();
+            json!["errors"]?.Should().BeNull();
             if (json["data"] is JsonObject data)
             {
                 foreach (var (_, resultValue) in data)
                 {
                     if (resultValue is JsonObject resultObject)
-                        resultObject["errors"].ShouldBeNull();
+                        resultObject["errors"]?.Should().BeNull();
                 }
             }
         }
@@ -37,7 +37,7 @@ public static class GqlUtils
                     }
                 }
             }
-            foundError.ShouldBeTrue();
+            foundError.Should().BeTrue();
         }
     }
 }

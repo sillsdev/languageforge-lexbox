@@ -4,7 +4,7 @@ using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Shouldly;
+using FluentAssertions;
 using Testing.Fixtures;
 
 namespace Testing.LexCore;
@@ -71,8 +71,8 @@ public class CrdtServerCommitTests
         await _dbContext.SaveChangesAsync();
 
         var actualCommit = await _dbContext.Set<ServerCommit>().AsNoTracking().FirstAsync(c => c.Id == commitId);
-        actualCommit.ShouldNotBeSameAs(expectedCommit);
-        JsonSerializer.Serialize(actualCommit.ChangeEntities[0].Change).ShouldBe(changeJson);
+        actualCommit.Should().NotBeSameAs(expectedCommit);
+        JsonSerializer.Serialize(actualCommit.ChangeEntities[0].Change).Should().Be(changeJson);
     }
 
     [Fact]
@@ -80,6 +80,6 @@ public class CrdtServerCommitTests
     {
         var changeJson = """{"name":"Joe","$type":"test"}""";
         var jsonChange = JsonSerializer.Deserialize<ServerJsonChange>(changeJson);
-        JsonSerializer.Serialize(jsonChange).ShouldBe("""{"$type":"test","name":"Joe"}""");
+        JsonSerializer.Serialize(jsonChange).Should().Be("""{"$type":"test","name":"Joe"}""");
     }
 }

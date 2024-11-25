@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using LexBoxApi.Auth;
-using Shouldly;
+using FluentAssertions;
 using Testing.ApiTests;
 using Testing.Services;
 
@@ -18,7 +18,7 @@ public class ProxyHgRequests
     private void ShouldBeValidResponse(HttpResponseMessage responseMessage)
     {
         //the Basic realm part is required by the HG client, otherwise it won't request again with a basic auth header
-        responseMessage.Headers.WwwAuthenticate.ToString().ShouldContain("Basic realm=\"");
+        responseMessage.Headers.WwwAuthenticate.ToString().Should().Contain("Basic realm=\"");
     }
 
     [Theory]
@@ -35,7 +35,7 @@ public class ProxyHgRequests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{user}:{TestData.Password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class ProxyHgRequests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Theory]
@@ -59,7 +59,7 @@ public class ProxyHgRequests
     public async Task TestGetWithJwtInBasicAuth(string user)
     {
         var jwt = await JwtHelper.GetJwtForUser(new(user, TestData.Password));
-        jwt.ShouldNotBeNullOrEmpty();
+        jwt.Should().NotBeNullOrEmpty();
 
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
             $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}")
@@ -69,7 +69,7 @@ public class ProxyHgRequests
                 Authorization = new ("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"bearer:{jwt}")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class ProxyHgRequests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }
 
@@ -95,7 +95,7 @@ public class ProxyHgRequests
         var responseMessage =
             await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
                 $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}"));
-        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }
 
@@ -112,9 +112,9 @@ public class ProxyHgRequests
         };
         batchRequest.Headers.Add("x-hgarg-1", "cmds=heads+%3Bknown+nodes%3D");
         var batchResponse = await Client.SendAsync(batchRequest);
-        batchResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        batchResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var batchBody = await batchResponse.Content.ReadAsStringAsync();
-        batchBody.ShouldEndWith(";");
+        batchBody.Should().EndWith(";");
         var heads = batchBody.Split('\n')[^2];
 
         var getBundleRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}/{projectCode}?cmd=getbundle")

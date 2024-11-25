@@ -1,5 +1,5 @@
 ﻿using Moq;
-using Shouldly;
+using FluentAssertions;
 using Testing.ApiTests;
 
 namespace Testing.Fixtures;
@@ -18,7 +18,7 @@ public class IntegrationFixtureTests
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         IntegrationFixture.TemplateRepo.EnumerateFiles()
             .Select(f => f.Name)
-            .ShouldContain("kevin-test-01.fwdata");
+            .Should().Contain("kevin-test-01.fwdata");
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class IntegrationFixtureTests
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         IntegrationFixture.TemplateRepoZip
             .Directory!.EnumerateFiles().Select(f => f.Name)
-            .ShouldContain(IntegrationFixture.TemplateRepoZip.Name);
+            .Should().Contain(IntegrationFixture.TemplateRepoZip.Name);
     }
 
     [Fact]
@@ -36,6 +36,6 @@ public class IntegrationFixtureTests
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         var projectConfig = fixture.InitLocalFlexProjectWithRepo();
         Directory.EnumerateFiles(projectConfig.Dir)
-            .ShouldContain(projectConfig.FwDataFile);
+            .Should().Contain(projectConfig.FwDataFile);
     }
 }
