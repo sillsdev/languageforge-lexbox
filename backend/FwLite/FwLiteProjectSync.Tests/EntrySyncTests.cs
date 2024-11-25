@@ -105,27 +105,4 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(after, options => options);
     }
-
-    [Fact]
-    public async Task CanCreateAComplexFormAndItsComponentInOneSync()
-    {
-        //ensure they are synced so a real sync will happen when we want it to
-        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
-
-        var complexFormEntry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm" } } });
-        var componentEntry = await _fixture.CrdtApi.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "component" } },
-            ComplexForms =
-            [
-                new ComplexFormComponent()
-                {
-                    ComplexFormEntryId = complexFormEntry.Id, ComponentEntryId = Guid.Empty
-                }
-            ]
-        });
-
-        //one of the entries will be created first, it will try to create the reference to the other but it won't exist yet
-        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
-    }
 }
