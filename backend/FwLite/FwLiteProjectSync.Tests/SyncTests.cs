@@ -65,6 +65,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
+
+        _fixture.DeleteSyncSnapshot();
     }
 
     public SyncTests(SyncFixture fixture)
@@ -84,7 +86,18 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options.For(e => e.Components).Exclude(c => c.Id)
-                              .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
+    public async Task SecondSyncDoesNothing()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        var secondSync = await _syncService.SyncDryRun(crdtApi, fwdataApi);
+        secondSync.CrdtChanges.Should().Be(0, $"changes were {string.Join(", ", secondSync.CrdtDryRunRecords)}");
+        secondSync.FwdataChanges.Should().Be(0, $"changes were {string.Join(", ", secondSync.FwDataDryRunRecords)}");
     }
 
     [Fact]
@@ -273,7 +286,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             LexemeForm = { { "en", "Pear" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Pear" } }, SemanticDomains = [ semdom3 ] }
+                new Sense() { Gloss = { { "en", "Pear" } }, SemanticDomains = [semdom3] }
             ]
         });
         await crdtApi.CreateEntry(new Entry()
@@ -281,7 +294,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             LexemeForm = { { "en", "Banana" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Banana" } }, SemanticDomains = [ semdom3 ] }
+                new Sense() { Gloss = { { "en", "Banana" } }, SemanticDomains = [semdom3] }
             ]
         });
         await _syncService.Sync(crdtApi, fwdataApi);
@@ -365,7 +378,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _syncService.Sync(crdtApi, fwdataApi);
 
         await fwdataApi.CreateSense(_testEntry.Id, new Sense()
-        {
+            {
             Gloss = { { "en", "Fruit" } },
             Definition = { { "en", "a round fruit, red or yellow" } },
         });
@@ -373,7 +386,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Gloss = { { "en", "Tree" } },
             Definition = { { "en", "a tall, woody plant, which grows fruit" } },
-        });
+            });
 
         await _syncService.Sync(crdtApi, fwdataApi);
 
