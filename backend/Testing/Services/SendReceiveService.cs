@@ -95,7 +95,7 @@ public class SendReceiveService
         // SendReceive
         var srResult = SendReceiveProject(sendReceiveParams, auth);
 
-        srResult.Should().Contain("no changes from others");
+        srResult.Should().Contain("No changes from others");
         fwDataFileInfo.Refresh();
         fwDataFileInfo.Exists.Should().BeTrue();
         fwDataFileInfo.Length.Should().Be(fwDataFileOriginalLength);
