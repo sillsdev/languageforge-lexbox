@@ -1,9 +1,9 @@
-import type { $OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery, ProjectsByNameAndOrgQuery } from '$lib/gql/types';
-import { getClient, graphql } from '$lib/gql';
+import type {$OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery, ProjectsByNameAndOrgQuery} from '$lib/gql/types';
+import {getClient, graphql} from '$lib/gql';
 
-import type { PageLoadEvent } from './$types';
-import { getSearchParam } from '$lib/util/query-params';
-import { isGuid } from '$lib/util/guid';
+import type {PageLoadEvent} from './$types';
+import {getSearchParam} from '$lib/util/query-params';
+import {isGuid} from '$lib/util/guid';
 
 export async function load(event: PageLoadEvent) {
   const userIsAdmin = (await event.parent()).user.isAdmin;
@@ -14,7 +14,7 @@ export async function load(event: PageLoadEvent) {
     const userResultsPromise = await client.query(graphql(`
           query loadRequestingUser($userId: UUID!) {
               users(
-                where: {id: {eq: $userId}}) {
+                where: {id: {eq: $userId}}, take: 1) {
                 items {
                   id
                   name
