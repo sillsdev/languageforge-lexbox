@@ -18,14 +18,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
 
-    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
-    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
-    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>();
-    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>();
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>();
-    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
-    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
-    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
+    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>().AsTracking(false);
+    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>()
+        .AsTracking(false);
+    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>().AsTracking(false);
+    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>().AsTracking(false);
+    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>().AsTracking(false);
+    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>().AsTracking(false);
+    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>().AsTracking(false);
+    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>().AsTracking(false);
 
     public async Task<WritingSystems> GetWritingSystems()
     {
