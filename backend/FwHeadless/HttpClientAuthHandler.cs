@@ -34,7 +34,10 @@ public class HttpClientAuthHandler(IOptions<FwHeadlessConfig> config, IMemoryCac
     private async Task SetAuthHeader(HttpRequestMessage request, CancellationToken cancellationToken, Uri lexboxUrl)
     {
         var cookieContainer = new CookieContainer();
-        cookieContainer.Add(new Cookie(LexAuthConstants.AuthCookieName, await GetToken(cancellationToken), null, lexboxUrl.Authority));
+        cookieContainer.Add(new Cookie(LexAuthConstants.AuthCookieName, await GetToken(cancellationToken), null, lexboxUrl.Host)
+        {
+            Port = $"\"{lexboxUrl.Port}\""
+        });
         request.Headers.Add("Cookie", cookieContainer.GetCookieHeader(lexboxUrl));
     }
 

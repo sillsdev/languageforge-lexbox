@@ -1,11 +1,14 @@
 ﻿using System.Text.Json.Serialization;
-using LexBoxApi.Auth;
 using SIL.Harmony.Core;
+using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
+using LexCore.Sync;
 using LexData;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +24,8 @@ public class CrdtController(
     IHubContext<CrdtProjectChangeHub, IProjectChangeListener> hubContext,
     IPermissionService permissionService,
     LoggedInContext loggedInContext,
-    ProjectService projectService) : ControllerBase
+    ProjectService projectService,
+    FwHeadlessClient fwHeadlessClient) : ControllerBase
 {
     private DbSet<ServerCommit> ServerCommits => dbContext.Set<ServerCommit>();
 
@@ -89,5 +93,15 @@ public class CrdtController(
         }
 
         return Ok(projectId);
+    }
+
+    [HttpPost("sync/{projectId}")]
+    [AdminRequired]
+    [RequestTimeout(300_000)]//5 minutes
+    public async Task<ActionResult<SyncResult?>> ExecuteMerge(Guid projectId)
+    {
+        var result = await fwHeadlessClient.CrdtSync(projectId);
+        if (result is null) return Problem("Failed to sync CRDT");
+        return result;
     }
 }

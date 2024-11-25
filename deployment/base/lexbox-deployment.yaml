@@ -205,6 +205,9 @@ spec:
             value: /tmp/tus-test-upload
           - name: Tus__ResetUploadPath
             value: /tmp/tus-reset-upload
+          - name: Services__fwHeadless__http__0
+            value: fw-headless
+
 
       - name: otel-collector
         image: otel/opentelemetry-collector-contrib:0.101.0
