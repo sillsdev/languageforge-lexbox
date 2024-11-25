@@ -23,12 +23,16 @@ public static class SemanticDomainSync
                 await api.DeleteSemanticDomain(previousPos.Id);
                 return 1;
             },
-            async (api, previousPos, currentPos) =>
-            {
-                var updateObjectInput = SemanticDomainDiffToUpdate(previousPos, currentPos);
-                if (updateObjectInput is not null) await api.UpdateSemanticDomain(currentPos.Id, updateObjectInput);
-                return updateObjectInput is null ? 0 : 1;
-            });
+            (api, previousSemdom, currentSemdom) => Sync(previousSemdom, currentSemdom, api));
+    }
+
+    public static async Task<int> Sync(SemanticDomain before,
+        SemanticDomain after,
+        IMiniLcmApi api)
+    {
+        var updateObjectInput = SemanticDomainDiffToUpdate(before, after);
+        if (updateObjectInput is not null) await api.UpdateSemanticDomain(after.Id, updateObjectInput);
+        return updateObjectInput is null ? 0 : 1;
     }
 
     public static UpdateObjectInput<SemanticDomain>? SemanticDomainDiffToUpdate(SemanticDomain previousSemanticDomain, SemanticDomain currentSemanticDomain)
