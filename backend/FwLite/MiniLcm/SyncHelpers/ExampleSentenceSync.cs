@@ -22,19 +22,26 @@ public static class ExampleSentenceSync
             return 1;
         };
         Func<IMiniLcmApi, ExampleSentence, ExampleSentence, Task<int>> replace =
-            async (api, beforeExampleSentence, afterExampleSentence) =>
-            {
-                var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
-                if (updateObjectInput is null) return 0;
-                await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
-                return 1;
-            };
+            (api, beforeExampleSentence, afterExampleSentence) =>
+                Sync(entryId, senseId, afterExampleSentence, beforeExampleSentence, api);
         return await DiffCollection.Diff(api,
             beforeExampleSentences,
             afterExampleSentences,
             add,
             remove,
             replace);
+    }
+
+    public static async Task<int> Sync(Guid entryId,
+        Guid senseId,
+        ExampleSentence afterExampleSentence,
+        ExampleSentence beforeExampleSentence,
+        IMiniLcmApi api)
+    {
+        var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
+        if (updateObjectInput is null) return 0;
+        await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
+        return 1;
     }
 
     public static UpdateObjectInput<ExampleSentence>? DiffToUpdate(ExampleSentence beforeExampleSentence,

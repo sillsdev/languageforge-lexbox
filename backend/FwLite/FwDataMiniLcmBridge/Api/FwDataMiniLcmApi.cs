@@ -864,6 +864,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
+    public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        var lcmExampleSentence = ExampleSentenceRepository.GetObject(id);
+        return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
+    }
+
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence)
     {
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id, lexSense);
@@ -903,6 +909,20 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 update.Apply(updateProxy);
             });
         return Task.FromResult(FromLexExampleSentence(senseId, lexExampleSentence));
+    }
+
+    public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after)
+    {
+        await Cache.DoUsingNewOrCurrentUOW("Update Example Sentence",
+            "Revert Example Sentence",
+            async () =>
+            {
+                await ExampleSentenceSync.Sync(entryId, senseId, after, before, this);
+            });
+        return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

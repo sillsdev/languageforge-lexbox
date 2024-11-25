@@ -442,6 +442,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
     }
 
+    public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        var exampleSentence = await ExampleSentences.AsTracking(false)
+            .AsQueryable()
+            .SingleOrDefaultAsync(e => e.Id == id);
+        return exampleSentence;
+    }
+
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
@@ -451,6 +459,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch);
         await dataModel.AddChange(ClientId, patchChange);
         return await dataModel.GetLatest<ExampleSentence>(exampleSentenceId) ?? throw new NullReferenceException();
+    }
+
+    public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after)
+    {
+        await ExampleSentenceSync.Sync(entryId, senseId, after, before, this);
+        return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException();
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
