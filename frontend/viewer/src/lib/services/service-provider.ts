@@ -4,9 +4,10 @@ import {openSearch} from '../search-bar/search';
 declare global {
 
   interface Lexbox {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+    /* eslint-disable @typescript-eslint/naming-convention */
     ServiceProvider: LexboxServiceProvider;
-    Search: { openSearch: (search: string) => void };
+    Search: {openSearch: (search: string) => void};
+    /* eslint-enable @typescript-eslint/naming-convention */
   }
 
   interface Window {

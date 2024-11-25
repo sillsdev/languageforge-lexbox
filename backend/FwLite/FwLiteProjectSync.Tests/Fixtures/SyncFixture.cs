@@ -42,7 +42,7 @@ public class SyncFixture : IAsyncLifetime
         if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
         Directory.CreateDirectory(projectsFolder);
         _services.ServiceProvider.GetRequiredService<IProjectLoader>()
-            .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "fr");
+            .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "en");
         FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
 
         var crdtProjectsFolder =
@@ -62,4 +62,10 @@ public class SyncFixture : IAsyncLifetime
 
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
     public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
+
+    public void DeleteSyncSnapshot()
+    {
+        var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(FwDataApi.Project);
+        if (File.Exists(snapshotPath)) File.Delete(snapshotPath);
+    }
 }

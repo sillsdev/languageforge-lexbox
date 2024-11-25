@@ -237,6 +237,8 @@ public record LexAuthUser
 
     public bool IsProjectMember(Guid projectId, ProjectRole? role = null)
     {
+        if (Projects is null) return false;
+
         if (role is not null)
         {
             return Projects.Any(p => p.ProjectId == projectId && p.Role == role);

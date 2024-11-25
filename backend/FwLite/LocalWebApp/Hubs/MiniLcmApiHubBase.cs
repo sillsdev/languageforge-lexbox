@@ -65,9 +65,9 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
         return newEntry;
     }
 
-    public virtual async Task<Entry> UpdateEntry(Guid id, JsonPatchDocument<Entry> update)
+    public virtual async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        var entry = await miniLcmApi.UpdateEntry(id, new UpdateObjectInput<Entry>(update));
+        var entry = await miniLcmApi.UpdateEntry(before, after);
         await NotifyEntryUpdated(entry);
         return entry;
     }

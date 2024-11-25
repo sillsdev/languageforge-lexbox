@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm.Models;
 
-public class Entry : IObjectWithId<Entry>
+public record Entry : IObjectWithId<Entry>
 {
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
@@ -67,6 +67,11 @@ public class Entry : IObjectWithId<Entry>
 
     public void RemoveReference(Guid id, DateTimeOffset time)
     {
+    }
+
+    public Entry WithoutEntryRefs()
+    {
+        return this with { Components = [], ComplexForms = [] };
     }
 }
 

@@ -51,6 +51,22 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_UsingTheSameComponentWithNullSenseDoesNothing()
+    {
+        var component1 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var component2 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        component2.Should().BeEquivalentTo(component1);
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_UsingTheSameComponentWithSenseDoesNothing()
+    {
+        var component1 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));
+        var component2 = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));
+        component2.Should().BeEquivalentTo(component1);
+    }
+
+    [Fact]
     public async Task CreateComplexFormComponent_WorksWithSense()
     {
         var component = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry, _componentSenseId1));
