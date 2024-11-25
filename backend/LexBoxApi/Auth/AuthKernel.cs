@@ -7,12 +7,17 @@ using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Controllers;
 using LexCore.Auth;
 using LexData;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using OpenIddict.Core;
+using OpenIddict.Server;
+using OpenIddict.Server.AspNetCore;
+using OpenIddict.Validation;
 using OpenIddict.Validation.AspNetCore;
 
 namespace LexBoxApi.Auth;
@@ -219,6 +224,7 @@ public static class AuthKernel
 
         var openIdOptions = configuration.GetSection("Authentication:OpenId").Get<OpenIdOptions>();
         if (openIdOptions?.Enable == true) AddOpenId(services, environment);
+        services.AddOptions<AuthenticationOptions>().ValidateOnStart();
     }
 
     private static void AddOpenId(IServiceCollection services, IWebHostEnvironment environment)
@@ -287,6 +293,11 @@ public static class AuthKernel
                 options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());
                 options.EnableAuthorizationEntryValidation();
             });
+        //ensure that validation happens on startup, not on the first request which requires authentication
+        services.AddOptions<OpenIddictCoreOptions>().ValidateOnStart();
+        services.AddOptions<OpenIddictServerOptions>().ValidateOnStart();
+        services.AddOptions<OpenIddictValidationOptions>().ValidateOnStart();
+        services.AddOptions<OpenIddictServerAspNetCoreOptions>().ValidateOnStart();
     }
 
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
