@@ -151,6 +151,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
+        var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
+            c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
+            && c.ComponentEntryId == complexFormComponent.ComponentEntryId
+            && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
+        if (existing is not null) return existing;
         var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
         await dataModel.AddChange(ClientId, addEntryComponentChange);
         return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
