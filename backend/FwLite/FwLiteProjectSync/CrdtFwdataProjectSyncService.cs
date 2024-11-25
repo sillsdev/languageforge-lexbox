@@ -15,6 +15,16 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 {
     public record SyncResult(int CrdtChanges, int FwdataChanges);
 
+    public record DryRunSyncResult(
+        int CrdtChanges,
+        int FwdataChanges,
+        List<DryRunMiniLcmApi.DryRunRecord> CrdtDryRunRecords,
+        List<DryRunMiniLcmApi.DryRunRecord> FwDataDryRunRecords) : SyncResult(CrdtChanges, FwdataChanges);
+
+    public async Task<DryRunSyncResult> SyncDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi)
+    {
+        return (DryRunSyncResult) await Sync(crdtApi, fwdataApi, true);
+    }
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
         if (crdtApi is CrdtMiniLcmApi crdt && crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
@@ -69,7 +79,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         LogDryRun(fwdataApi, "fwdata");
 
         //todo push crdt changes to lexbox
-
+        if (dryRun) return new DryRunSyncResult(crdtChanges, fwdataChanges, GetDryRunRecords(crdtApi), GetDryRunRecords(fwdataApi));
         return new SyncResult(crdtChanges, fwdataChanges);
     }
 
@@ -82,6 +92,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         }
 
         logger.LogInformation($"Dry run {type} changes: {dryRunApi.DryRunRecords.Count}");
+    }
+
+    private List<DryRunMiniLcmApi.DryRunRecord> GetDryRunRecords(IMiniLcmApi api)
+    {
+        return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
     public record ProjectSnapshot(Entry[] Entries, PartOfSpeech[] PartsOfSpeech, SemanticDomain[] SemanticDomains);
