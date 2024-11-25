@@ -5,8 +5,8 @@ namespace MiniLcm.SyncHelpers;
 public static class SimpleStringDiff
 {
     public static IEnumerable<Operation<T>> GetStringDiff<T>(string path,
-        string before,
-        string after) where T : class
+        string? before,
+        string? after) where T : class
     {
         if (before == after) yield break;
         if (after is null) yield return new Operation<T>("remove", $"/{path}", null);
