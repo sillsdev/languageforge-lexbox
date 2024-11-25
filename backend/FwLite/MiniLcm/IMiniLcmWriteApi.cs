@@ -48,6 +48,7 @@ public interface IMiniLcmWriteApi
     #region Sense
     Task<Sense> CreateSense(Guid entryId, Sense sense);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
+    Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);

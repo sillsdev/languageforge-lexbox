@@ -911,6 +911,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
     }
 
+    public Task<Sense?> GetSense(Guid entryId, Guid id)
+    {
+        var lcmSense = SenseRepository.GetObject(id);
+        return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
+    }
+
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         if (sense.Id == default) sense.Id = Guid.NewGuid();
@@ -936,6 +942,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 update.Apply(updateProxy);
             });
         return Task.FromResult(FromLexSense(lexSense));
+    }
+
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    {
+        await Cache.DoUsingNewOrCurrentUOW("Update Sense",
+            "Revert Sense",
+            async () =>
+            {
+                await SenseSync.Sync(entryId, after, before, this);
+            });
+        return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
     public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)

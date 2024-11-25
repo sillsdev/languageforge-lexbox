@@ -190,6 +190,11 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         await Task.CompletedTask;
     }
 
+    public Task<Sense?> GetSense(Guid entryId, Guid id)
+    {
+        return api.GetSense(entryId, id);
+    }
+
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss}"));
@@ -204,6 +209,13 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
                     throw new NullReferenceException($"unable to find entry with id {entryId}");
         var sense = entry.Senses.First(s => s.Id == senseId);
         return sense;
+    }
+
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSense),
+            $"Update sense {after.Id}"));
+        return await GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
