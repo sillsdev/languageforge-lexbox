@@ -28,8 +28,10 @@ public record Entry : IObjectWithId<Entry>
 
     public string Headword()
     {
-        var word = CitationForm.Values.Values.FirstOrDefault();
-        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.Values.FirstOrDefault();
+        //order by code to ensure the headword is stable
+        //todo choose ws by preference based on ws order/default
+        var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
+        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         return word?.Trim() ?? "(Unknown)";
     }
 
