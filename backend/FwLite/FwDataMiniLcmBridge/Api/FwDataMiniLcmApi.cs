@@ -38,6 +38,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
     private ICmPossibilityList ComplexFormTypes => Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
+    private IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
+
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
 
     public void Dispose()
@@ -327,12 +329,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
     {
-        return ComplexFormTypes.PossibilitiesOS
-            .Select(ToComplexFormType)
-            .ToAsyncEnumerable();
+        return ComplexFormTypesFlattened.Select(ToComplexFormType).ToAsyncEnumerable();
     }
-
-    private ComplexFormType ToComplexFormType(ICmPossibility t)
+    private ComplexFormType ToComplexFormType(ILexEntryType t)
     {
         return new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
     }
@@ -351,7 +350,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
                 UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
             });
-        return Task.FromResult(ToComplexFormType(ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id)));
+        return Task.FromResult(ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == complexFormType.Id)));
     }
 
     public IAsyncEnumerable<VariantType> GetVariantTypes()
@@ -702,7 +701,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             entryRef.HideMinorEntry = 0;
         }
 
-        var lexEntryType = (ILexEntryType)ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormTypeId);
+        var lexEntryType = ComplexFormTypesFlattened.Single(c => c.Guid == complexFormTypeId);
         entryRef.ComplexEntryTypesRS.Add(lexEntryType);
     }
 
