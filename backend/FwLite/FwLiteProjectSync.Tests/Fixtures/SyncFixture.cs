@@ -4,6 +4,7 @@ using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using LcmCrdt;
+using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ public class SyncFixture : IAsyncLifetime
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
     public IServiceProvider Services => _services.ServiceProvider;
     private readonly string _projectName;
+    private readonly IDisposable _cleanup;
 
     public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
 
@@ -28,7 +30,9 @@ public class SyncFixture : IAsyncLifetime
         _projectName = projectName;
         var crdtServices = new ServiceCollection()
             .AddSyncServices(_projectName);
-        _services = crdtServices.BuildServiceProvider().CreateAsyncScope();
+        var rootServiceProvider = crdtServices.BuildServiceProvider();
+        _cleanup = Defer.Action(() => rootServiceProvider.Dispose());
+        _services = rootServiceProvider.CreateAsyncScope();
     }
 
     public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"))
@@ -56,8 +60,8 @@ public class SyncFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        // CAUTION: Do not assume that InitializeAsync() has been called
         await _services.DisposeAsync();
+        _cleanup.Dispose();
     }
 
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;

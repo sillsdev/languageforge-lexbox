@@ -6,6 +6,7 @@ using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using LcmCrdt;
+using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ public class Sena3Fixture : IAsyncLifetime
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
 
     public IServiceProvider Services => _services.ServiceProvider;
+    private IDisposable _cleanup;
     private readonly LexboxConfig lexboxConfig;
     private readonly HttpClient http;
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
@@ -45,7 +47,9 @@ public class Sena3Fixture : IAsyncLifetime
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        _services = services.BuildServiceProvider().CreateAsyncScope();
+        var rootServiceProvider = services.BuildServiceProvider();
+        _cleanup = Defer.Action(() => rootServiceProvider.Dispose());
+        _services = rootServiceProvider.CreateAsyncScope();
         lexboxConfig = Services.GetRequiredService<IOptions<LexboxConfig>>().Value;
         var factory = Services.GetRequiredService<IHttpClientFactory>();
         http = factory.CreateClient(nameof(Sena3Fixture));
@@ -79,6 +83,7 @@ public class Sena3Fixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await _services.DisposeAsync();
+        _cleanup.Dispose();
     }
 
     public async Task<Stream> DownloadProjectBackupStream(string code)
