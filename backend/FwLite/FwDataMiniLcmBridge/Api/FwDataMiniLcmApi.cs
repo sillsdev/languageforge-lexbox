@@ -390,6 +390,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
+    private string LexEntryHeadword(ILexEntry entry)
+    {
+        return new Entry()
+        {
+            LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+            CitationForm = FromLcmMultiString(entry.CitationForm),
+        }.Headword();
+    }
+
     private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
     {
         return entry.ComplexFormEntryRefs.SingleOrDefault()
@@ -438,9 +447,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = component.HeadWord.Text,
+            ComponentHeadword = LexEntryHeadword(component),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.HeadWord.Text
+            ComplexFormHeadword = LexEntryHeadword(complexEntry)
         };
     }
 
@@ -452,7 +461,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             ComponentSenseId = componentSense.Guid,
             ComponentHeadword = componentSense.Entry.HeadWord.Text,
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.HeadWord.Text
+            ComplexFormHeadword = LexEntryHeadword(complexEntry)
         };
     }
 
