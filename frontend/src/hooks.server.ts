@@ -1,13 +1,13 @@
-import { loadI18n, pickBestLocale } from '$lib/i18n';
-import { AUTH_COOKIE_NAME, getUser, isAuthn } from '$lib/user'
-import { apiVersion } from '$lib/util/version';
-import { redirect, type Handle, type HandleFetch, type HandleServerError, type RequestEvent, type ResolveOptions } from '@sveltejs/kit'
-import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
-import { env } from '$env/dynamic/private';
-import { getErrorMessage, validateFetchResponse } from './hooks.shared';
-import { setViewMode } from './routes/(authenticated)/shared';
+import {loadI18n, pickBestLocale} from '$lib/i18n';
+import {AUTH_COOKIE_NAME, getUser, isAuthn} from '$lib/user';
+import {apiVersion} from '$lib/util/version';
+import {redirect, type Handle, type HandleFetch, type HandleServerError, type RequestEvent, type ResolveOptions} from '@sveltejs/kit';
+import {ensureErrorIsTraced, traceRequest, traceFetch} from '$lib/otel/otel.server';
+import {env} from '$env/dynamic/private';
+import {getErrorMessage, validateFetchResponse} from './hooks.shared';
+import {setViewMode} from './routes/(authenticated)/shared';
 import * as setCookieParser from 'set-cookie-parser';
-import { AUTHENTICATED_ROOT, UNAUTHENTICATED_ROOT } from './routes';
+import {AUTHENTICATED_ROOT, UNAUTHENTICATED_ROOT} from './routes';
 
 const PUBLIC_ROUTE_ROOTS = [
   UNAUTHENTICATED_ROOT,
@@ -29,7 +29,7 @@ async function initI18n(event: RequestEvent): Promise<void> {
 }
 
 // eslint-disable-next-line func-style
-export const handle: Handle = ({ event, resolve }) => {
+export const handle: Handle = ({event, resolve}) => {
   console.log(`HTTP request: ${event.request.method} ${event.request.url}`);
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
@@ -39,14 +39,21 @@ export const handle: Handle = ({ event, resolve }) => {
       filterSerializedResponseHeaders: () => true,
     }
 
-    const { cookies, route: { id: routeId } } = event;
+    const {cookies, route: {id: routeId}} = event;
     if (!routeId) {
       redirect(307, '/');
     } else if (PUBLIC_ROUTE_ROOTS.includes(getRoot(routeId))) {
-      return resolve(event, options);
+      const response = await resolve(event, options);
+      if (routeId.endsWith('/logout')) {
+        response.headers.set('Clear-Site-Data', '"cache"');
+      }
+      return response;
     } else if (!isAuthn(cookies)) {
       const relativePath = event.url.href.substring(event.url.origin.length);
-      redirect(307, `/login?ReturnUrl=${encodeURIComponent(relativePath)}`);
+      if (relativePath !== '/')
+        redirect(307, `/login?ReturnUrl=${encodeURIComponent(relativePath)}`);
+      else
+        redirect(307, '/login');
     }
     //when at home
     if (routeId == `/${AUTHENTICATED_ROOT}`) {
@@ -54,7 +61,7 @@ export const handle: Handle = ({ event, resolve }) => {
     }
 
     return resolve(event, options);
-  })
+  });
 };
 
 // eslint-disable-next-line func-style

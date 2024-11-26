@@ -1,7 +1,7 @@
 using LexBoxApi.GraphQL;
 using LexCore.Auth;
 using LexCore.Entities;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.GraphQL;
 
@@ -20,10 +20,10 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DetectsUserAddedToProject()
     {
         var project = NewProject();
-        user.IsOutOfSyncWithProject(project).ShouldBeFalse();
+        user.IsOutOfSyncWithProject(project).Should().BeFalse();
 
         project.Users.Add(new() { UserId = user.Id, Role = ProjectRole.Editor });
-        user.IsOutOfSyncWithProject(project).ShouldBeTrue();
+        user.IsOutOfSyncWithProject(project).Should().BeTrue();
     }
 
     [Fact]
@@ -32,10 +32,10 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var project = NewProject();
         project.Users.Add(new() { UserId = user.Id, Role = ProjectRole.Editor });
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse();
+        editorUser.IsOutOfSyncWithProject(project).Should().BeFalse();
 
         project.Users.Clear();
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeTrue();
+        editorUser.IsOutOfSyncWithProject(project).Should().BeTrue();
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var projectUser = new ProjectUsers { UserId = user.Id, Role = ProjectRole.Editor };
         project.Users.Add(projectUser);
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse();
+        editorUser.IsOutOfSyncWithProject(project).Should().BeFalse();
 
         projectUser.Role = ProjectRole.Manager;
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeTrue();
+        editorUser.IsOutOfSyncWithProject(project).Should().BeTrue();
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var projectUser = new ProjectUsers { UserId = user.Id, Role = ProjectRole.Unknown };
         project.Users.Add(projectUser);
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
+        editorUser.IsOutOfSyncWithProject(project).Should().BeFalse(); // might be out of sync, but we can't tell
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class LexAuthUserOutOfSyncExtensionsTests
         project.Users = null!;
 
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
+        editorUser.IsOutOfSyncWithProject(project).Should().BeFalse(); // might be out of sync, but we can't tell
     }
 
     [Fact]
@@ -79,9 +79,9 @@ public class LexAuthUserOutOfSyncExtensionsTests
         // simulate Users not projected in GQL query
         project.Users = null!;
 
-        user.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
-        user.IsOutOfSyncWithProject(project, isMyProject: true).ShouldBeTrue();
-        user.IsOutOfSyncWithMyProjects([project]).ShouldBeTrue();
+        user.IsOutOfSyncWithProject(project).Should().BeFalse(); // might be out of sync, but we can't tell
+        user.IsOutOfSyncWithProject(project, isMyProject: true).Should().BeTrue();
+        user.IsOutOfSyncWithMyProjects([project]).Should().BeTrue();
     }
 
     [Fact]
@@ -92,18 +92,18 @@ public class LexAuthUserOutOfSyncExtensionsTests
         project.Users = null!;
 
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
-        editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
-        editorUser.IsOutOfSyncWithMyProjects([]).ShouldBeTrue();
+        editorUser.IsOutOfSyncWithProject(project).Should().BeFalse(); // might be out of sync, but we can't tell
+        editorUser.IsOutOfSyncWithMyProjects([]).Should().BeTrue();
     }
 
     [Fact]
     public void DetectsUserAddedToOrg()
     {
         var org = NewOrg();
-        user.IsOutOfSyncWithOrg(org).ShouldBeFalse();
+        user.IsOutOfSyncWithOrg(org).Should().BeFalse();
 
         org.Members.Add(new() { UserId = user.Id, Role = OrgRole.User });
-        user.IsOutOfSyncWithOrg(org).ShouldBeTrue();
+        user.IsOutOfSyncWithOrg(org).Should().BeTrue();
     }
 
     [Fact]
@@ -112,10 +112,10 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var org = NewOrg();
         org.Members.Add(new() { UserId = user.Id, Role = OrgRole.User });
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse();
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeFalse();
 
         org.Members.Clear();
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeTrue();
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeTrue();
     }
 
     [Fact]
@@ -125,10 +125,10 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var orgUser = new OrgMember { UserId = user.Id, Role = OrgRole.User };
         org.Members.Add(orgUser);
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse();
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeFalse();
 
         orgUser.Role = OrgRole.Admin;
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeTrue();
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeTrue();
     }
 
     [Fact]
@@ -138,7 +138,7 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var orgUser = new OrgMember { UserId = user.Id, Role = OrgRole.Unknown };
         org.Members.Add(orgUser);
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeFalse(); // might be out of sync, but we can't tell
     }
 
     [Fact]
@@ -147,10 +147,10 @@ public class LexAuthUserOutOfSyncExtensionsTests
         var org = NewOrg();
         var project = NewProject();
         org.Projects = [project];
-        user.IsOutOfSyncWithOrg(org).ShouldBeFalse();
+        user.IsOutOfSyncWithOrg(org).Should().BeFalse();
 
         project.Users.Add(new() { UserId = user.Id, Role = ProjectRole.Editor });
-        user.IsOutOfSyncWithOrg(org).ShouldBeTrue();
+        user.IsOutOfSyncWithOrg(org).Should().BeTrue();
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class LexAuthUserOutOfSyncExtensionsTests
         org.Members = null!;
 
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeFalse(); // might be out of sync, but we can't tell
     }
 
     [Fact]
@@ -171,9 +171,9 @@ public class LexAuthUserOutOfSyncExtensionsTests
         // simulate Members not projected in GQL query
         org.Members = null!;
 
-        user.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
-        user.IsOutOfSyncWithOrg(org, isMyOrg: true).ShouldBeTrue();
-        user.IsOutOfSyncWithMyOrgs([org]).ShouldBeTrue();
+        user.IsOutOfSyncWithOrg(org).Should().BeFalse(); // might be out of sync, but we can't tell
+        user.IsOutOfSyncWithOrg(org, isMyOrg: true).Should().BeTrue();
+        user.IsOutOfSyncWithMyOrgs([org]).Should().BeTrue();
     }
 
     [Fact]
@@ -184,8 +184,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
         org.Members = null!;
 
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
-        editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
-        editorUser.IsOutOfSyncWithMyOrgs([]).ShouldBeTrue();
+        editorUser.IsOutOfSyncWithOrg(org).Should().BeFalse(); // might be out of sync, but we can't tell
+        editorUser.IsOutOfSyncWithMyOrgs([]).Should().BeTrue();
     }
 
     private static Project NewProject()

@@ -1,4 +1,4 @@
-using Shouldly;
+using FluentAssertions;
 using Testing.Fixtures;
 using static Testing.Services.Utils;
 
@@ -41,9 +41,9 @@ public class ResetPojectRaceCondition : IClassFixture<IntegrationFixture>
         var lastCommitBefore2 = await _adminApiTester.GetProjectLastCommit(config2.Code);
         var lastCommitBefore3 = await _adminApiTester.GetProjectLastCommit(config3.Code);
 
-        lastCommitBefore1.ShouldBeNullOrWhiteSpace();
-        lastCommitBefore2.ShouldBeNullOrWhiteSpace();
-        lastCommitBefore3.ShouldBeNullOrWhiteSpace();
+        lastCommitBefore1.Should().BeNull();
+        lastCommitBefore2.Should().BeNull();
+        lastCommitBefore3.Should().BeNull();
 
         // Reset and fill projects on server
         var newLastCommits = await Task.WhenAll(
@@ -52,9 +52,9 @@ public class ResetPojectRaceCondition : IClassFixture<IntegrationFixture>
             DoFullProjectResetAndVerifyLastCommit(config3.Code)
         );
 
-        newLastCommits[0].ShouldNotBeNullOrWhiteSpace();
-        newLastCommits[0].ShouldBe(newLastCommits[1]);
-        newLastCommits[0].ShouldBe(newLastCommits[2]);
+        newLastCommits[0].Should().NotBeNull();
+        newLastCommits[0].Should().Be(newLastCommits[1]);
+        newLastCommits[0].Should().Be(newLastCommits[2]);
 
         // we need a short delay between resets or we'll get naming collisions on the backups of the reset projects
         await Task.Delay(1000);
@@ -68,15 +68,15 @@ public class ResetPojectRaceCondition : IClassFixture<IntegrationFixture>
         );
     }
 
-    private async Task<string?> DoFullProjectResetAndVerifyLastCommit(string projectCode, string? expectedLastCommit = null)
+    private async Task<DateTimeOffset?> DoFullProjectResetAndVerifyLastCommit(string projectCode, DateTimeOffset? expectedLastCommit = null)
     {
         await _adminApiTester.StartLexboxProjectReset(projectCode);
         var lastCommitBefore = await _adminApiTester.GetProjectLastCommit(projectCode);
-        lastCommitBefore.ShouldBeNullOrWhiteSpace();
+        lastCommitBefore.Should().BeNull();
         await _fixture.FinishLexboxProjectResetWithTemplateRepo(projectCode);
         var lastCommit = await _adminApiTester.GetProjectLastCommit(projectCode);
-        if (expectedLastCommit is not null) lastCommit.ShouldBe(expectedLastCommit);
-        else lastCommit.ShouldNotBeNullOrWhiteSpace();
+        if (expectedLastCommit is not null) lastCommit.Should().Be(expectedLastCommit);
+        else lastCommit.Should().NotBeNull();
         return lastCommit;
     }
 }

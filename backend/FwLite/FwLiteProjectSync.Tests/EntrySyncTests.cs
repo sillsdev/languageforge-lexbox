@@ -1,7 +1,7 @@
-﻿using FluentAssertions.Equivalency;
-using FwLiteProjectSync.Tests.Fixtures;
+﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 

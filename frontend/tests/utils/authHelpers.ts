@@ -1,12 +1,12 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
-import { serverBaseUrl } from '../envVars';
-import { RegisterPage } from '../pages/registerPage';
-import { UserDashboardPage } from '../pages/userDashboardPage';
-import type { UUID } from 'crypto';
-import { executeGql } from './gqlHelpers';
-import { LoginPage } from '../pages/loginPage';
+import {expect, type APIRequestContext, type Page} from '@playwright/test';
+import {defaultPassword, serverBaseUrl} from '../envVars';
+import {RegisterPage} from '../pages/registerPage';
+import {UserDashboardPage} from '../pages/userDashboardPage';
+import type {UUID} from 'crypto';
+import {executeGql} from './gqlHelpers';
+import {LoginPage} from '../pages/loginPage';
 
-export async function loginAs(api: APIRequestContext, emailOrUsername: string, password: string): Promise<void> {
+export async function loginAs(api: APIRequestContext, emailOrUsername: string, password: string = defaultPassword): Promise<void> {
   const loginData = {
     emailOrUsername: emailOrUsername,
     password: password,

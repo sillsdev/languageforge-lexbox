@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using LexCore.Entities;
 using Quartz.Util;
-using Shouldly;
+using FluentAssertions;
 using Testing.ApiTests;
 using static Testing.Services.Constants;
 
@@ -111,9 +111,9 @@ public static class Utils
 
     public static void ValidateSendReceiveOutput(string srOutput)
     {
-        srOutput.ShouldNotContain("abort");
-        srOutput.ShouldNotContain("failure");
-        srOutput.ShouldNotContain("error");
+        srOutput.Should().NotContain("abort");
+        srOutput.Should().NotContain("failure");
+        srOutput.Should().NotContain("error");
     }
 
     public static string ToProjectCodeFriendlyString(string name)
@@ -137,7 +137,7 @@ public static class Utils
         var randomIndexedId = $"{_folderIndex++}-{Guid.NewGuid().ToString().Split("-")[0]}";
         //fwdata file containing folder name will be the same as the file name
         projectDir = Path.Join(projectDir, randomIndexedId, projectCode);
-        projectDir.Length.ShouldBeLessThan(150, $"Path may be too long with mercurial directories {projectDir}");
+        projectDir.Length.Should().BeLessThan(150, $"Path may be too long with mercurial directories {projectDir}");
         return projectDir;
     }
 }

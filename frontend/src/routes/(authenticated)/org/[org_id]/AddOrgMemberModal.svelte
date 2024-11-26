@@ -10,7 +10,7 @@
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
   import { _addOrgMember, type Org } from './+page';
-  import type { SingleUserInMyOrgTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import type { SingleUserICanSeeTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
 
   export let org: Org;
@@ -37,7 +37,7 @@
     selectedProjects = [];
   }
 
-  function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null): void {
+  function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null): void {
     resetProjects();
     if (user && 'projects' in user) {
       const userProjects = [...user.projects.map(p => ({memberRole: p.role, id: p.project.id, code: p.project.code, name: p.project.name}))];
@@ -102,6 +102,7 @@
       error={errors.usernameOrEmail}
       on:selectedUser={(event) => populateUserProjects(event.detail)}
       autofocus
+      exclude={org.members.map(m => m.user.id)}
       />
   {:else}
     <Input

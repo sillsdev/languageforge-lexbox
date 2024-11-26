@@ -4,6 +4,7 @@ using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
+using LexCore.Sync;
 using LexData;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
@@ -51,7 +52,7 @@ app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 
 app.Run();
 
-static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
+static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
     ILogger<Program> logger,
     IServiceProvider services,
     SendReceiveService srService,
@@ -69,7 +70,7 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound,
     if (dryRun)
     {
         logger.LogInformation("Dry run, not actually syncing");
-        return TypedResults.Ok(new CrdtFwdataProjectSyncService.SyncResult(0, 0));
+        return TypedResults.Ok(new SyncResult(0, 0));
     }
 
     var projectCode = await projectLookupService.GetProjectCode(projectId);

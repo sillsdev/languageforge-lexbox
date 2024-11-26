@@ -1,7 +1,7 @@
 ﻿using LexBoxApi.GraphQL.CustomTypes;
 using Microsoft.Extensions.Time.Testing;
 using Polly;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.Services;
 
@@ -36,14 +36,14 @@ public class IsLanguageForgeProjectDataLoaderTests
 
     private void VerifyEmptyResult(Outcome<Dictionary<string, bool>> result)
     {
-        result.Exception.ShouldBeNull();
-        result.Result.ShouldBe(new Dictionary<string, bool>() { { "test", false } });
+        result.Exception.Should().BeNull();
+        result.Result.Should().BeEquivalentTo(new Dictionary<string, bool>() { { "test", false } });
     }
 
     private void VerifySuccessResult(Outcome<Dictionary<string, bool>> result)
     {
-        result.Exception.ShouldBeNull();
-        result.Result.ShouldBe(new Dictionary<string, bool>() { { "test", true } });
+        result.Exception.Should().BeNull();
+        result.Result.Should().BeEquivalentTo(new Dictionary<string, bool>() { { "test", true } });
     }
 
     [Fact]

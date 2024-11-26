@@ -1,13 +1,14 @@
 ﻿using System.Net.Mail;
-using LexBoxApi.Auth;
 using LexBoxApi.Services.Email;
+using LexCore.Auth;
+using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Services;
 
-public class UserService(LexBoxDbContext dbContext, IEmailService emailService, LexAuthService lexAuthService)
+public class UserService(LexBoxDbContext dbContext, IEmailService emailService)
 {
     public async Task ForgotPassword(string email)
     {
@@ -82,5 +83,18 @@ public class UserService(LexBoxDbContext dbContext, IEmailService emailService, 
             name = username;
         }
         return (name, email, username);
+    }
+
+    public IQueryable<User> UserQueryForTypeahead(LexAuthUser user)
+    {
+        var myOrgIds = user.Orgs.Select(o => o.OrgId).ToList();
+        var myProjectIds = user.Projects.Select(p => p.ProjectId).ToList();
+        var myManagedProjectIds = user.Projects.Where(p => p.Role == ProjectRole.Manager).Select(p => p.ProjectId).ToList();
+        return dbContext.Users.Where(u =>
+            u.Id == user.Id ||
+            u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)) ||
+            u.Projects.Any(projMember =>
+                myManagedProjectIds.Contains(projMember.ProjectId) ||
+                (projMember.Project != null && projMember.Project.IsConfidential != true && myProjectIds.Contains(projMember.ProjectId))));
     }
 }

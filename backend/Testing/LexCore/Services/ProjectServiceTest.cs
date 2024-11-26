@@ -8,7 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
-using Shouldly;
+using FluentAssertions;
 using Testing.Fixtures;
 
 namespace Testing.LexCore.Services;
@@ -51,7 +51,7 @@ public class ProjectServiceTest
     {
         var projectId = await _projectService.CreateProject(
             new(null, "TestProject", "Test", "test1", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
-        projectId.ShouldNotBe(default);
+        projectId.Should().NotBe(Guid.Empty);
     }
 
     [Fact]
@@ -61,8 +61,8 @@ public class ProjectServiceTest
             new(null, "TestProject", "Test", "test2", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
         await _projectService.UpdateProjectLangTags(projectId);
         var project = await _lexBoxDbContext.Projects.Include(p => p.FlexProjectMetadata).SingleAsync(p => p.Id == projectId);
-        project.FlexProjectMetadata.ShouldNotBeNull();
-        project.FlexProjectMetadata.WritingSystems.ShouldBeEquivalentTo(_writingSystems);
+        project.FlexProjectMetadata.Should().NotBeNull();
+        project.FlexProjectMetadata.WritingSystems.Should().BeEquivalentTo(_writingSystems);
     }
 
     [Fact]
@@ -72,11 +72,12 @@ public class ProjectServiceTest
         await _projectService.CreateProject(
             new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
 
-        var exception = await _projectService.CreateProject(
+        var act = () => _projectService.CreateProject(
             new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev, false, null, null)
-        ).ShouldThrowAsync<DbUpdateException>();
+        );
 
-        exception.InnerException.ShouldBeOfType<PostgresException>()
-            .SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
+        (await act.Should().ThrowAsync<DbUpdateException>())
+            .WithInnerException<PostgresException>()
+            .Which.SqlState.Should().Be(PostgresErrorCodes.UniqueViolation);
     }
 }

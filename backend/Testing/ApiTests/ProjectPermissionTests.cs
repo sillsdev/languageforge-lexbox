@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Nodes;
-using Shouldly;
+using FluentAssertions;
 using Testing.Services;
 
 namespace Testing.ApiTests;
@@ -56,27 +56,27 @@ public class ProjectPermissionTests : ApiTestBase
     private JsonObject GetProject(JsonObject json)
     {
         var project = json["data"]!["projectByCode"]?.AsObject();
-        project.ShouldNotBeNull();
+        project.Should().NotBeNull();
         return project;
     }
 
     private void MustHaveMembers(JsonObject project, int? count = null)
     {
         var members = project["users"]!.AsArray();
-        members.ShouldNotBeNull().ShouldNotBeEmpty();
-        if (count is not null) members.Count.ShouldBe(count.Value);
+        members.Should().NotBeNullOrEmpty();
+        if (count is not null) members.Count.Should().Be(count.Value);
     }
 
     private void MustNotHaveMembers(JsonObject project)
     {
         var users = project["users"]!.AsArray();
-        users.ShouldBeEmpty();
+        users.Should().BeEmpty();
     }
 
     private void MustHaveOnlyUserAsMember(JsonObject project, Guid userId)
     {
         var users = project["users"]!.AsArray();
-        users.ShouldContain(node => node!["user"]!["id"]!.GetValue<Guid>() == userId,
+        users.Should().Contain(node => node!["user"]!["id"]!.GetValue<Guid>() == userId,
             "user list " + users.ToJsonString());
     }
 
@@ -132,7 +132,7 @@ public class ProjectPermissionTests : ApiTestBase
         await LoginAs("user");
         var json = await QueryProject(project.Code, expectGqlError: true);
         var error = json["errors"]!.AsArray().First()?.AsObject();
-        error.ShouldNotBeNull();
-        error["extensions"]?["code"]?.GetValue<string>().ShouldBe("AUTH_NOT_AUTHORIZED");
+        error.Should().NotBeNull();
+        error["extensions"]?["code"]?.GetValue<string>().Should().Be("AUTH_NOT_AUTHORIZED");
     }
 }

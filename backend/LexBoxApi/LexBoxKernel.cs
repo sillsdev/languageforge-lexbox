@@ -49,6 +49,9 @@ public static class LexBoxKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddHttpClient();
+        services.AddServiceDiscovery();
+        services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))
+            .AddServiceDiscovery();//service discovery means that we lookup the hostname in Services__fwHeadless__http in config
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
         services.AddScoped<LoggedInContext>();

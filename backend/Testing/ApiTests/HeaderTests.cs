@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.ApiTests;
 
@@ -31,7 +31,7 @@ public class HeaderTests : ApiTestBase
 
             if (response.StatusCode != HttpStatusCode.OK) failStatusCodes.Add(response.StatusCode);
         }
-        failStatusCodes.ShouldBeEmpty();
+        failStatusCodes.Should().BeEmpty();
     }
 
     private string RandomString(int length)
