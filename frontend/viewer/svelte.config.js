@@ -8,6 +8,7 @@ const postcssConfig = path.join(__dirname, 'postcss.config.cjs');
 
 export default {
   compilerOptions: {
+    warningFilter: (warning) => warning.code != 'element_invalid_self_closing_tag',
     customElement: true,
   },
   // Consult https://svelte.dev/docs#compile-time-svelte-preprocess
