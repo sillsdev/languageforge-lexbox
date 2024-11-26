@@ -14,4 +14,5 @@ COPY . /app/
 COPY src /app/src
 COPY static /app/static
 ENV DockerDev=true
+RUN pnpm svelte-kit sync
 CMD [ "pnpm", "run", "-r", "--include-workspace-root", "lexbox-dev" ]
