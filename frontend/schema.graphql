@@ -192,6 +192,10 @@ type InvalidEmailError implements Error {
   address: String!
 }
 
+type InvalidOperationError implements Error {
+  message: String!
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -615,7 +619,7 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SendNewVerificationEmailByAdminError = NotFoundError | DbError | UniqueValueError
+union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
 union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
@@ -741,6 +745,7 @@ input CreateProjectInput {
   isConfidential: Boolean!
   projectManagerId: UUID
   orgId: UUID
+  forceDraft: Boolean! = false
 }
 
 input DateTimeOperationFilterInput {

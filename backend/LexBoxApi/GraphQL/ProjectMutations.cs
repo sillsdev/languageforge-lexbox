@@ -40,14 +40,14 @@ public class ProjectMutations
         ProjectService projectService,
         IEmailService emailService)
     {
-        if (!loggedInContext.User.IsAdmin)
+        if (!loggedInContext.User.IsAdmin || input.ForceDraft) //draft projects should always have a manager
         {
             // For non-admins we always implicitly set them as the project manager
             // Only admins can create empty projects or projects for other users
             input = input with { ProjectManagerId = loggedInContext.User.Id };
         }
 
-        if (!permissionService.HasProjectCreatePermission())
+        if (!permissionService.HasProjectCreatePermission() || input.ForceDraft)
         {
             if (!permissionService.HasProjectRequestPermission()) throw new ProjectCreatorsMustHaveEmail("Project creators must have a valid email address");
             var draftProjectId = await projectService.CreateDraftProject(input);
