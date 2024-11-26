@@ -17,6 +17,7 @@ const config = {
   },
   preprocess: [
     vitePreprocess({
+      script: true,
       postcss: true
     })
   ],
