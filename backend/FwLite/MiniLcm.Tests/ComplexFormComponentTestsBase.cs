@@ -99,4 +99,43 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         var types = await Api.GetComplexFormTypes().ToArrayAsync();
         types.Should().ContainSingle(t => t.Id == complexFormType.Id);
     }
+
+    [Fact]
+    public async Task AddComplexFormType_Works()
+    {
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreateComplexFormType(complexFormType);
+        await Api.AddComplexFormType(_complexFormEntryId, complexFormType.Id);
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        entry.Should().NotBeNull();
+        entry!.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
+    }
+
+    [Fact]
+    public async Task RemoveComplexFormType_Works()
+    {
+        await AddComplexFormType_Works();
+        var entry = await Api.GetEntry(_complexFormEntryId);
+        await Api.RemoveComplexFormType(_complexFormEntryId, entry!.ComplexFormTypes[0].Id);
+        entry = await Api.GetEntry(_complexFormEntryId);
+        entry.Should().NotBeNull();
+        entry!.ComplexFormTypes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RemoveComplexFormType_WorksWhenTypeDoesNotExist()
+    {
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        await Api.RemoveComplexFormType(_complexFormEntryId, Guid.NewGuid());
+    }
+
+    [Fact]
+    public async Task RemoveComplexFormType_WorksWhenTypeIsNotOnEntry()
+    {
+        //FW projects react differently if an entry has complex forms or not
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreateComplexFormType(complexFormType);
+        await Api.RemoveComplexFormType(_complexFormEntryId, Guid.NewGuid());
+    }
 }

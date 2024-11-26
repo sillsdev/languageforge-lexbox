@@ -710,7 +710,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
         if (entryRef is null) return;
-        var lexEntryType = (ILexEntryType)ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormTypeId);
+        var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
+        if (lexEntryType is null) return;
         entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
     }
 
