@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FluentValidation;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -9,11 +10,12 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Validators;
 using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, LcmCrdtDbContext dbContext) : IMiniLcmApi
+public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, LcmCrdtDbContext dbContext, MiniLcmValidators validators) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -144,6 +146,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
+        await validators.ComplexFormTypeValidator.ValidateAndThrowAsync(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
