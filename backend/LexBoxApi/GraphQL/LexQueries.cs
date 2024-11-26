@@ -187,6 +187,15 @@ public class LexQueries
         return context.Users.Where(u => u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)));
     }
 
+    [UseOffsetPaging]
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IQueryable<User> UsersICanSee(UserService userService, LoggedInContext loggedInContext)
+    {
+        return userService.UserQueryForTypeahead(loggedInContext.User);
+    }
+
     [UseProjection]
     [GraphQLType<OrgByIdGqlConfiguration>]
     public async Task<Organization?> OrgById(LexBoxDbContext dbContext,
