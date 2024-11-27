@@ -90,7 +90,7 @@ public class UserService(LexBoxDbContext dbContext, IEmailService emailService)
         var myOrgIds = user.Orgs.Select(o => o.OrgId).ToList();
         var myProjectIds = user.Projects.Select(p => p.ProjectId).ToList();
         var myManagedProjectIds = user.Projects.Where(p => p.Role == ProjectRole.Manager).Select(p => p.ProjectId).ToList();
-        return dbContext.Users.Where(u =>
+        return dbContext.Users.AsNoTracking().Where(u =>
             u.Id == user.Id ||
             u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)) ||
             u.Projects.Any(projMember =>
