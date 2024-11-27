@@ -9,11 +9,11 @@ using Microsoft.Identity.Client.Extensions.Msal;
 namespace FwLiteShared.Auth;
 
 /// <summary>
-/// when injected directly it will use the authority of the current project, to get a different authority use <see cref="AuthHelpersFactory"/>
+/// when injected directly it will use the authority of the current project, to get a different authority use <see cref="OAuthClientFactory"/>
 /// helper class for using MSAL.net
 /// docs: https://learn.microsoft.com/en-us/entra/msal/dotnet/acquiring-tokens/overview
 /// </summary>
-public class AuthHelpers
+public class OAuthClient
 {
     public static IReadOnlyCollection<string> DefaultScopes { get; } = ["profile", "openid"];
     public const string AuthHttpClientName = "AuthHttpClient";
@@ -22,18 +22,18 @@ public class AuthHelpers
     private readonly OAuthService _oAuthService;
     private readonly LexboxServer _lexboxServer;
     private readonly LexboxProjectService _lexboxProjectService;
-    private readonly ILogger<AuthHelpers> _logger;
+    private readonly ILogger<OAuthClient> _logger;
     private readonly IPublicClientApplication _application;
     AuthenticationResult? _authResult;
 
-    public AuthHelpers(LoggerAdapter loggerAdapter,
+    public OAuthClient(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         IOptions<AuthConfig> options,
         IRedirectUrlProvider? redirectUrlProvider,
         OAuthService oAuthService,
         LexboxServer lexboxServer,
         LexboxProjectService lexboxProjectService,
-        ILogger<AuthHelpers> logger,
+        ILogger<OAuthClient> logger,
         IHostEnvironment hostEnvironment)
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;

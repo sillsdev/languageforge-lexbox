@@ -6,22 +6,22 @@ using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.Auth;
 
-public class AuthHelpersFactory(IServiceProvider provider,
+public class OAuthClientFactory(IServiceProvider provider,
     IOptions<AuthConfig> options,
     IRedirectUrlProvider? redirectUrlProvider,
-    ILogger<AuthHelpersFactory> logger)
+    ILogger<OAuthClientFactory> logger)
 {
-    private readonly ConcurrentDictionary<string, AuthHelpers> _helpers = new();
+    private readonly ConcurrentDictionary<string, OAuthClient> _helpers = new();
 
     private string AuthorityKey(LexboxServer server) => "AuthHelper|" + server.Authority.Authority;
 
     /// <summary>
     /// gets an Auth Helper for the given server
     /// </summary>
-    public AuthHelpers GetHelper(LexboxServer server)
+    public OAuthClient GetClient(LexboxServer server)
     {
         var helper = _helpers.GetOrAdd(AuthorityKey(server),
-            static (host, arg) => ActivatorUtilities.CreateInstance<AuthHelpers>(arg.provider, arg.server),
+            static (host, arg) => ActivatorUtilities.CreateInstance<OAuthClient>(arg.provider, arg.server),
             (server, provider));
         //an auth helper can get created based on the server host, however in development that will not be the same as the client host
         //so we need to recreate it if the host is not valid, this is only required when not using system web view login
@@ -29,7 +29,7 @@ public class AuthHelpersFactory(IServiceProvider provider,
         {
             logger.LogInformation("Recreating auth helper with Redirect Url {RedirectUrl}", helper.RedirectUrl);
             _helpers.TryRemove(AuthorityKey(server), out _);
-            return GetHelper(server);
+            return GetClient(server);
         }
 
         return helper;
@@ -38,10 +38,10 @@ public class AuthHelpersFactory(IServiceProvider provider,
     /// <summary>
     /// get auth helper for a given project
     /// </summary>
-    public AuthHelpers GetHelper(ProjectData project)
+    public OAuthClient GetClient(ProjectData project)
     {
         var originDomain = project.OriginDomain;
         if (string.IsNullOrEmpty(originDomain)) throw new InvalidOperationException("No origin domain in project data");
-        return GetHelper(options.Value.GetServer(project));
+        return GetClient(options.Value.GetServer(project));
     }
 }

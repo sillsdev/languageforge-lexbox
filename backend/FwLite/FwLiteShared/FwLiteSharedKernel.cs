@@ -31,13 +31,14 @@ public static class FwLiteSharedKernel
 
     private static void AddAuthHelpers(this IServiceCollection services, IHostEnvironment environment)
     {
-        services.AddSingleton<AuthHelpersFactory>();
+        services.AddSingleton<AuthService>();
+        services.AddSingleton<OAuthClientFactory>();
         services.AddScoped(CurrentAuthHelperFactory);
         services.AddSingleton<OAuthService>();
         services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<OAuthService>());
         services.AddOptionsWithValidateOnStart<AuthConfig>().BindConfiguration("Auth").ValidateDataAnnotations();
         services.AddSingleton<LoggerAdapter>();
-        var httpClientBuilder = services.AddHttpClient(AuthHelpers.AuthHttpClientName);
+        var httpClientBuilder = services.AddHttpClient(OAuthClient.AuthHttpClientName);
         if (environment.IsDevelopment())
         {
             // Allow self-signed certificates in development
@@ -52,10 +53,10 @@ public static class FwLiteSharedKernel
         }
     }
 
-    private static AuthHelpers CurrentAuthHelperFactory(this IServiceProvider serviceProvider)
+    private static OAuthClient CurrentAuthHelperFactory(this IServiceProvider serviceProvider)
     {
-        var authHelpersFactory = serviceProvider.GetRequiredService<AuthHelpersFactory>();
+        var authHelpersFactory = serviceProvider.GetRequiredService<OAuthClientFactory>();
         var currentProjectService = serviceProvider.GetRequiredService<CurrentProjectService>();
-        return authHelpersFactory.GetHelper(currentProjectService.ProjectData);
+        return authHelpersFactory.GetClient(currentProjectService.ProjectData);
     }
 }

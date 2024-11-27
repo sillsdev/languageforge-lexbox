@@ -13,28 +13,21 @@ public static class AuthRoutes
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth").WithOpenApi();
-        group.MapGet("/servers", (IOptions<AuthConfig> options, AuthHelpersFactory factory) =>
-        {
-            return options.Value.LexboxServers.ToAsyncEnumerable().SelectAwait(async s =>
-            {
-                var currentName = await factory.GetHelper(s).GetCurrentName();
-                return new ServerStatus(s.DisplayName,
-                    !string.IsNullOrEmpty(currentName),
-                    currentName, s.Authority.Authority);
-            });
-        });
+        group.MapGet("/servers", (AuthService authService) => authService.Servers());
         group.MapGet("/login/{authority}",
-            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>
+            async (AuthService authService, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>
             {
                 var returnUrl = new Uri(referer).PathAndQuery;
-                var result = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).SignIn(returnUrl);
-                if (result.HandledBySystemWebView)
+                //todo blazor, once we're using blazor this endpoint will only be used for non webview logins
+                if (options.Value.SystemWebViewLogin)
                 {
+                    await authService.SignInWebView(options.Value.GetServerByAuthority(authority));
                     return Results.Redirect(returnUrl);
                 }
-
-                if (result.AuthUri is null) throw new InvalidOperationException("AuthUri is null");
-                return Results.Redirect(result.AuthUri.ToString());
+                else
+                {
+                    return Results.Redirect(await authService.SignInWebApp(options.Value.GetServerByAuthority(authority), returnUrl));
+                }
             });
         group.MapGet("/oauth-callback",
             async (OAuthService oAuthService, HttpContext context) =>
@@ -49,14 +42,14 @@ public static class AuthRoutes
                 return Results.Redirect(returnUrl);
             }).WithName(CallbackRoute);
         group.MapGet("/me/{authority}",
-            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
+            async (AuthService authService, string authority, IOptions<AuthConfig> options) =>
             {
-                return new { name = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).GetCurrentName() };
+                return new { name = await authService.GetLoggedInName(options.Value.GetServerByAuthority(authority)) };
             });
         group.MapGet("/logout/{authority}",
-            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
+            async (AuthService authService, string authority, IOptions<AuthConfig> options) =>
             {
-                await factory.GetHelper(options.Value.GetServerByAuthority(authority)).Logout();
+                await authService.Logout(options.Value.GetServerByAuthority(authority));
                 return Results.Redirect("/");
             });
         return group;

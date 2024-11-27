@@ -11,7 +11,7 @@ using MiniLcm.Push;
 namespace FwLiteShared.Projects;
 
 public class LexboxProjectService(
-    AuthHelpersFactory helpersFactory,
+    OAuthClientFactory clientFactory,
     ILogger<LexboxProjectService> logger,
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
     BackgroundSyncService backgroundSyncService,
@@ -31,7 +31,7 @@ public class LexboxProjectService(
             async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                var httpClient = await helpersFactory.GetHelper(server).CreateClient();
+                var httpClient = await clientFactory.GetClient(server).CreateClient();
                 if (httpClient is null) return [];
                 try
                 {
@@ -52,7 +52,7 @@ public class LexboxProjectService(
 
     public async Task<Guid?> GetLexboxProjectId(LexboxServer server, string code)
     {
-        var httpClient = await helpersFactory.GetHelper(server).CreateClient();
+        var httpClient = await clientFactory.GetClient(server).CreateClient();
         if (httpClient is null) return null;
         try
         {
@@ -89,7 +89,7 @@ public class LexboxProjectService(
             return connection;
         }
 
-        if (await helpersFactory.GetHelper(server).GetCurrentToken() is null)
+        if (await clientFactory.GetClient(server).GetCurrentToken() is null)
         {
 
             logger.LogWarning("Unable to create signalR client, user is not authenticated to {OriginDomain}", server.Authority);
@@ -106,10 +106,10 @@ public class LexboxProjectService(
                     connectionOptions.HttpMessageHandlerFactory = handler =>
                     {
                         //use a client that does not validate certs in dev
-                        return httpMessageHandlerFactory.CreateHandler(AuthHelpers.AuthHttpClientName);
+                        return httpMessageHandlerFactory.CreateHandler(OAuthClient.AuthHttpClientName);
                     };
                     connectionOptions.AccessTokenProvider =
-                        async () => await helpersFactory.GetHelper(server).GetCurrentToken();
+                        async () => await clientFactory.GetClient(server).GetCurrentToken();
                 })
             .Build();
 

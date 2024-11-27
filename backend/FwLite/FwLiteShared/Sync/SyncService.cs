@@ -12,7 +12,7 @@ namespace FwLiteShared.Sync;
 public class SyncService(
     DataModel dataModel,
     CrdtHttpSyncService remoteSyncServiceServer,
-    AuthHelpersFactory authHelpersFactory,
+    OAuthClientFactory oAuthClientFactory,
     CurrentProjectService currentProjectService,
     ChangeEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
@@ -29,7 +29,7 @@ public class SyncService(
             return new SyncResults([], [], false);
         }
 
-        var httpClient = await authHelpersFactory.GetHelper(project).CreateClient();
+        var httpClient = await oAuthClientFactory.GetClient(project).CreateClient();
         if (httpClient is null)
         {
             logger.LogWarning(
