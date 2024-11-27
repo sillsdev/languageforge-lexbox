@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Nodes;
-using Shouldly;
+using FluentAssertions;
 using Testing.Services;
 
 namespace Testing.ApiTests;
@@ -53,21 +53,21 @@ public class UsersICanSeeQueryTests : ApiTestBase
     private JsonArray GetUsers(JsonObject json)
     {
         var users = json["data"]!["usersICanSee"]!["items"]!.AsArray();
-        users.ShouldNotBeNull();
+        users.Should().NotBeNull();
         return users;
     }
 
     private void MustHaveUser(JsonArray users, string userName)
     {
-        users.ShouldNotBeNull().ShouldNotBeEmpty();
-        users.ShouldContain(node => node!["name"]!.GetValue<string>() == userName,
+        users.Should().NotBeNull().And.NotBeEmpty();
+        users.Should().Contain(node => node!["name"]!.GetValue<string>() == userName,
             "user list " + users.ToJsonString());
     }
 
     private void MustNotHaveUser(JsonArray users, string userName)
     {
-        users.ShouldNotBeNull().ShouldNotBeEmpty();
-        users.ShouldNotContain(node => node!["name"]!.GetValue<string>() == userName,
+        users.Should().NotBeNull().And.NotBeEmpty();
+        users.Should().NotContain(node => node!["name"]!.GetValue<string>() == userName,
             "user list " + users.ToJsonString());
     }
 
