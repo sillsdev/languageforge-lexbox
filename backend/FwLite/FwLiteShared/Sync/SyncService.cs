@@ -1,4 +1,5 @@
 ﻿using FwLiteShared.Auth;
+using FwLiteShared.Projects;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ public class SyncService(
     AuthHelpersFactory authHelpersFactory,
     CurrentProjectService currentProjectService,
     ChangeEventBus changeEventBus,
+    LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
     ILogger<SyncService> logger)
 {
@@ -73,5 +75,22 @@ public class SyncService(
             ExampleSentence exampleSentence => (await dataModel.GetLatest<Sense>(exampleSentence.SenseId))?.EntryId,
             _ => null
         };
+    }
+
+    public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)
+    {
+        await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
+        try
+        {
+            await ExecuteSync();
+        }
+        catch
+        {
+            await currentProjectService.SetProjectSyncOrigin(null, null);
+            throw;
+        }
+
+        //todo maybe decouple this
+        lexboxProjectService.InvalidateProjectsCache(server);
     }
 }

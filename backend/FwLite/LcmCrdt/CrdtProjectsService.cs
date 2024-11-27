@@ -1,4 +1,5 @@
-﻿using SIL.Harmony;
+﻿using System.Text.RegularExpressions;
+using SIL.Harmony;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ using LcmCrdt.Objects;
 
 namespace LcmCrdt;
 
-public class CrdtProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
+public partial class CrdtProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
 {
     public Task<CrdtProject[]> ListProjects()
     {
@@ -44,6 +45,7 @@ public class CrdtProjectsService(IServiceProvider provider, ProjectContext proje
 
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
+        if (!ProjectName().IsMatch(request.Name)) throw new InvalidOperationException("Project name is invalid");
         //poor man's sanitation
         var name = Path.GetFileName(request.Name);
         var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
@@ -104,4 +106,7 @@ public class CrdtProjectsService(IServiceProvider provider, ProjectContext proje
         var project = GetProject(name) ?? throw new InvalidOperationException($"Crdt Project {name} not found");
         SetProjectScope(project);
     }
+
+    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
+    private static partial Regex ProjectName();
 }

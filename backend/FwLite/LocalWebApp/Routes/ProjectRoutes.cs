@@ -20,52 +20,12 @@ public static partial class ProjectRoutes
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/remoteProjects",
-            async (
-                LexboxProjectService lexboxProjectService,
-                IOptions<AuthConfig> options) =>
+            async (CombinedProjectsService combinedProjectsService) =>
             {
-                var serversProjects = new Dictionary<string, ProjectModel[]>();
-                foreach (var server in options.Value.LexboxServers)
-                {
-                    var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-                    serversProjects.Add(server.Authority.Authority, lexboxProjects.Select(p => new ProjectModel
-                            (p.Name, Crdt: p.IsCrdtProject, Fwdata: false, Lexbox: true, server.Authority.Authority, p.Id))
-                        .ToArray());
-                }
-
-                return serversProjects;
+                return (await combinedProjectsService.RemoteProjects()).ToDictionary(p => p.Server.Authority.Authority, p => p.Projects);
             });
         group.MapGet("/localProjects",
-            async (
-            CrdtProjectsService projectService,
-            FieldWorksProjectList fieldWorksProjectList) =>
-        {
-            var crdtProjects = await projectService.ListProjects();
-            //todo get project Id and use that to specify the Id in the model. Also pull out server
-            var projects = crdtProjects.ToDictionary(p => p.Name, p =>
-            {
-                var uri = p.Data?.OriginDomain is not null ? new Uri(p.Data.OriginDomain) : null;
-                return new ProjectModel(p.Name,
-                    true,
-                    false,
-                    p.Data?.OriginDomain is not null,
-                    uri?.Authority,
-                    p.Data?.Id);
-            });
-            //basically populate projects and indicate if they are lexbox or fwdata
-            foreach (var p in fieldWorksProjectList.EnumerateProjects())
-            {
-                if (projects.TryGetValue(p.Name, out var project))
-                {
-                    projects[p.Name] = project with { Fwdata = true };
-                }
-                else
-                {
-                    projects.Add(p.Name, new ProjectModel(p.Name, false, true));
-                }
-            }
-            return projects.Values;
-        });
+            async (CombinedProjectsService combinedProjectsService) => await combinedProjectsService.LocalProjects());
         group.MapPost("/project",
             async (CrdtProjectsService projectService, string name) =>
             {
@@ -87,23 +47,12 @@ public static partial class ProjectRoutes
                 [FromQuery] Guid lexboxProjectId) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
-                try
-                {
-                    await syncService.ExecuteSync();
-                }
-                catch
-                {
-                    await currentProjectService.SetProjectSyncOrigin(null, null);
-                    throw;
-                }
-                lexboxProjectService.InvalidateProjectsCache(server);
+                await syncService.UploadProject(lexboxProjectId, server);
                 return TypedResults.Ok();
             });
         group.MapPost("/download/crdt/{serverAuthority}/{projectId}",
-            async (LexboxProjectService lexboxProjectService,
-                IOptions<AuthConfig> options,
-                CrdtProjectsService projectService,
+            async (IOptions<AuthConfig> options,
+                CombinedProjectsService combinedProjectsService,
                 Guid projectId,
                 [FromQuery] string projectName,
                 string serverAuthority
@@ -112,20 +61,11 @@ public static partial class ProjectRoutes
                 if (!ProjectName().IsMatch(projectName))
                     return Results.BadRequest("Project name is invalid");
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await projectService.CreateProject(new(projectName,
-                    projectId,
-                    server.Authority,
-                    async (provider, project) =>
-                    {
-                        await provider.GetRequiredService<SyncService>().ExecuteSync();
-                    },
-                    SeedNewProjectData: false));
+                await combinedProjectsService.DownloadProject(projectId, projectName, server);
                 return TypedResults.Ok();
             });
         return group;
     }
-
-    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false, string? ServerAuthority = null, Guid? Id = null);
 
     private static async Task AfterCreate(IServiceProvider provider, CrdtProject project)
     {
