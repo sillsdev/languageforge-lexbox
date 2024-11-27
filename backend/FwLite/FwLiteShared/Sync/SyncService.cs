@@ -1,13 +1,12 @@
-﻿using SIL.Harmony;
+﻿using FwLiteShared.Auth;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
-using LocalWebApp.Auth;
-using LocalWebApp.Services;
+using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
-using SIL.Harmony.Entities;
+using SIL.Harmony;
 
-namespace LocalWebApp;
+namespace FwLiteShared.Sync;
 
 public class SyncService(
     DataModel dataModel,

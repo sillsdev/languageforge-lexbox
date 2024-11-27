@@ -1,9 +1,12 @@
 ﻿using System.Threading.Channels;
-using SIL.Harmony;
 using LcmCrdt;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SIL.Harmony;
 
-namespace LocalWebApp;
+namespace FwLiteShared.Sync;
 
 public class BackgroundSyncService(
     ProjectsService projectsService,

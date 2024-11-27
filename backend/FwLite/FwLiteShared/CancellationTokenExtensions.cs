@@ -1,4 +1,4 @@
-﻿namespace LocalWebApp.Utils;
+﻿namespace FwLiteShared;
 
 public static class CancellationTokenExtensions
 {

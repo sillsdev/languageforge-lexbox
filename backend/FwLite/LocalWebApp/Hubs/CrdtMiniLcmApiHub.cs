@@ -1,6 +1,9 @@
-﻿using LcmCrdt;
+﻿using FwLiteShared;
+using FwLiteShared.Sync;
+using LcmCrdt;
 using LcmCrdt.Data;
 using LocalWebApp.Services;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Models;
@@ -15,7 +18,9 @@ public class CrdtMiniLcmApiHub(
     ChangeEventBus changeEventBus,
     CurrentProjectService projectContext,
     LexboxProjectService lexboxProjectService,
-    IMemoryCache memoryCache) : MiniLcmApiHubBase(miniLcmApi)
+    IMemoryCache memoryCache,
+    IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext
+) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;
@@ -31,10 +36,22 @@ public class CrdtMiniLcmApiHub(
         await syncService.ExecuteSync();
         Cleanup =
         [
-            changeEventBus.ListenForEntryChanges(projectContext.Project.Name, Context.ConnectionId)
+            changeEventBus.OnEntryUpdated.Subscribe(e => OnEntryChangedExternal(e, hubContext, memoryCache, Context.ConnectionId))
         ];
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
+    }
+
+    private static void OnEntryChangedExternal(Entry entry,
+        IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
+        IMemoryCache cache,
+        string connectionId)
+    {
+        var currentFilter = CurrentProjectFilter(cache, connectionId);
+        if (currentFilter.Invoke(entry))
+        {
+            _ = hubContext.Clients.Client(connectionId).OnEntryUpdated(entry);
+        }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

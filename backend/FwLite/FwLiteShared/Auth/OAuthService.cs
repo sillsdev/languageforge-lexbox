@@ -1,11 +1,12 @@
 using System.Threading.Channels;
 using System.Web;
-using LocalWebApp.Utils;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 
-namespace LocalWebApp.Auth;
+namespace FwLiteShared.Auth;
 
 //this class is commented with a number of step comments, these are the steps in the OAuth flow
 //if a step comes before a method that means it awaits that call, if it comes after that means it resumes after the above await

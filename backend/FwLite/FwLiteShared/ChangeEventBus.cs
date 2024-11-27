@@ -1,33 +1,13 @@
 ﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using LcmCrdt;
-using LocalWebApp.Hubs;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
 using MiniLcm.Models;
 
-namespace LocalWebApp.Services;
+namespace FwLiteShared;
 
-public class ChangeEventBus(
-    ProjectContext projectContext,
-    IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
-    ILogger<ChangeEventBus> logger,
-    IMemoryCache cache)
+public class ChangeEventBus(ProjectContext projectContext)
     : IDisposable
 {
-    public IDisposable ListenForEntryChanges(string projectName, string connectionId) =>
-        _entryUpdated
-            .Where(n => n.ProjectName == projectName)
-            .Subscribe(n => OnEntryChangedExternal(n.Entry, connectionId));
-
-    private void OnEntryChangedExternal(Entry e, string connectionId)
-    {
-        var currentFilter = CrdtMiniLcmApiHub.CurrentProjectFilter(cache, connectionId);
-        if (currentFilter.Invoke(e))
-        {
-            _ = hubContext.Clients.Client(connectionId).OnEntryUpdated(e);
-        }
-    }
 
     private record struct ChangeNotification(Entry Entry, string ProjectName);
 

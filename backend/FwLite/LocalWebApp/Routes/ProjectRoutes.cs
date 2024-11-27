@@ -1,7 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using FwDataMiniLcmBridge;
+using FwLiteShared;
+using FwLiteShared.Auth;
+using FwLiteShared.Sync;
 using LcmCrdt;
-using LocalWebApp.Auth;
 using LocalWebApp.Hubs;
 using LocalWebApp.Services;
 using Microsoft.AspNetCore.Mvc;

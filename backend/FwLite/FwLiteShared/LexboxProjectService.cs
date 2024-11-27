@@ -1,11 +1,14 @@
-﻿using LcmCrdt;
-using LocalWebApp.Auth;
-using Microsoft.Extensions.Options;
+﻿using System.Net.Http.Json;
+using FwLiteShared.Auth;
+using FwLiteShared.Sync;
+using LcmCrdt;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 
-namespace LocalWebApp.Services;
+namespace FwLiteShared;
 
 public class LexboxProjectService(
     AuthHelpersFactory helpersFactory,

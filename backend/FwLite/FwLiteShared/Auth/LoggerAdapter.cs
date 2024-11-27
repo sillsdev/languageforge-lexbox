@@ -1,6 +1,7 @@
-﻿using Microsoft.IdentityModel.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Abstractions;
 
-namespace LocalWebApp.Auth;
+namespace FwLiteShared.Auth;
 
 public class LoggerAdapter(ILogger<LoggerAdapter> logger): IIdentityLogger
 {

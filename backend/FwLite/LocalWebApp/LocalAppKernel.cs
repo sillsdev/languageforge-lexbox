@@ -2,9 +2,11 @@
 using SIL.Harmony;
 using FwLiteProjectSync;
 using FwDataMiniLcmBridge;
+using FwLiteShared;
+using FwLiteShared.Auth;
+using FwLiteShared.Sync;
 using LcmCrdt;
 using LocalWebApp.Services;
-using LocalWebApp.Auth;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -17,18 +19,11 @@ public static class LocalAppKernel
     public static IServiceCollection AddLocalAppServices(this IServiceCollection services, IHostEnvironment environment)
     {
         services.AddHttpContextAccessor();
-        services.AddHttpClient();
-        services.AddAuthHelpers(environment);
         services.AddSingleton<UrlContext>();
-        services.AddScoped<SyncService>();
-        services.AddSingleton<LexboxProjectService>();
-        services.AddSingleton<ChangeEventBus>();
+        services.AddSingleton<IRedirectUrlProvider, ServerRedirectUrlProvider>();
         services.AddSingleton<ImportFwdataService>();
-        services.AddSingleton<BackgroundSyncService>();
-        services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
-        services.AddLcmCrdtClient();
+        services.AddFwLiteShared(environment);
         services.AddFwLiteProjectSync();
-        services.AddFwDataBridge();
 
         services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
 
@@ -43,29 +38,5 @@ public static class LocalAppKernel
                 jsonOptions.PayloadSerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
             });
         return services;
-    }
-
-    private static void AddAuthHelpers(this IServiceCollection services, IHostEnvironment environment)
-    {
-        services.AddSingleton<AuthHelpersFactory>();
-        services.AddTransient<AuthHelpers>(sp => sp.GetRequiredService<AuthHelpersFactory>().GetCurrentHelper());
-        services.AddSingleton<OAuthService>();
-        services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<OAuthService>());
-        services.AddOptionsWithValidateOnStart<AuthConfig>().BindConfiguration("Auth").ValidateDataAnnotations();
-        services.AddSingleton<LoggerAdapter>();
-        var httpClientBuilder = services.AddHttpClient(AuthHelpers.AuthHttpClientName);
-        if (environment.IsDevelopment())
-        {
-            // Allow self-signed certificates in development
-            httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
-                {
-                    return new HttpClientHandler
-                    {
-                        ClientCertificateOptions = ClientCertificateOption.Manual,
-                        ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
-                    };
-                });
-        }
-
     }
 }

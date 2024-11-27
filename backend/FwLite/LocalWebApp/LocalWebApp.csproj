@@ -21,9 +21,7 @@
         <PackageReference Include="Humanizer.Core" Version="2.14.1" />
         <PackageReference Include="icu.net" Version="3.0.0-beta.297" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.10" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.10" />
-        <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.64.0" />
         <PackageReference Include="NReco.Logging.File" Version="1.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
         <PackageReference Include="System.Reactive" Version="6.0.1" />
@@ -38,11 +36,13 @@
           <Link>icu.net.dll.config</Link>
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <Content Include="msal.json.lockfile" Watch="false"/>  
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
       <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+      <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
       <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>
@@ -75,5 +75,9 @@
             <Link>%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Auth\" />
     </ItemGroup>
 </Project>

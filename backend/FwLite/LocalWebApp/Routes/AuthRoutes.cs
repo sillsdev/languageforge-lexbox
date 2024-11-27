@@ -1,6 +1,6 @@
 using System.Security.AccessControl;
 using System.Web;
-using LocalWebApp.Auth;
+using FwLiteShared.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
