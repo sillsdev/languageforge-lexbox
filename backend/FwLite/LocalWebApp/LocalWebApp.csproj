@@ -36,7 +36,6 @@
           <Link>icu.net.dll.config</Link>
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <Content Include="msal.json.lockfile" Watch="false"/>  
     </ItemGroup>
 
     <ItemGroup>
@@ -75,9 +74,5 @@
             <Link>%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Auth\" />
     </ItemGroup>
 </Project>
