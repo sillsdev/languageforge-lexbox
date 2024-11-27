@@ -43,6 +43,11 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
         string? Path = null,
         Guid? FwProjectId = null);
 
+    public async Task<CrdtProject> CreateExampleProject(string name)
+    {
+        return await CreateProject(new(name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
+    }
+
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
         if (!ProjectName().IsMatch(request.Name)) throw new InvalidOperationException("Project name is invalid");
@@ -108,5 +113,60 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
-    private static partial Regex ProjectName();
+    public static partial Regex ProjectName();
+
+    public static async Task SampleProjectData(IServiceProvider provider, CrdtProject project)
+    {
+        var lexboxApi = provider.GetRequiredService<IMiniLcmApi>();
+        await lexboxApi.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { Values = { { "en", "Apple" } } },
+            CitationForm = { Values = { { "en", "Apple" } } },
+            LiteralMeaning = { Values = { { "en", "Fruit" } } },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { Values = { { "en", "Fruit" } } },
+                    Definition =
+                    {
+                        Values =
+                        {
+                            {
+                                "en",
+                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+                            }
+                        }
+                    },
+                    SemanticDomains = [],
+                    ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
+                }
+            ]
+        });
+
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+    }
 }
