@@ -35,6 +35,7 @@ public static class LcmCrdtKernel
         );
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<CurrentProjectService>();
+        services.AddScoped<HistoryService>();
         services.AddSingleton<ProjectContext>();
         services.AddSingleton<CrdtProjectsService>();
 
