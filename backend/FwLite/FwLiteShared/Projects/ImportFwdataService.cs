@@ -1,11 +1,13 @@
 using System.Diagnostics;
-using FwLiteProjectSync;
 using FwDataMiniLcmBridge;
+using FwLiteProjectSync;
 using Humanizer;
 using LcmCrdt;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MiniLcm;
 
-namespace LocalWebApp.Services;
+namespace FwLiteShared.Projects;
 
 public class ImportFwdataService(
     ProjectsService projectsService,

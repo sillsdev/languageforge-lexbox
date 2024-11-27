@@ -2,6 +2,7 @@
 using FwDataMiniLcmBridge;
 using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteShared.Projects;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using LocalWebApp.Hubs;

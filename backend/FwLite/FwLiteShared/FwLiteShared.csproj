@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
       <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.11" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
       <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
@@ -16,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+      <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
       <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
     </ItemGroup>
 

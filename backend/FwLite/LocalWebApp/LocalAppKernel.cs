@@ -21,9 +21,7 @@ public static class LocalAppKernel
         services.AddHttpContextAccessor();
         services.AddSingleton<UrlContext>();
         services.AddSingleton<IRedirectUrlProvider, ServerRedirectUrlProvider>();
-        services.AddSingleton<ImportFwdataService>();
         services.AddFwLiteShared(environment);
-        services.AddFwLiteProjectSync();
 
         services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
 

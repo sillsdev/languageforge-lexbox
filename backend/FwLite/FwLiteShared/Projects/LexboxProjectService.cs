@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 
-namespace FwLiteShared;
+namespace FwLiteShared.Projects;
 
 public class LexboxProjectService(
     AuthHelpersFactory helpersFactory,
