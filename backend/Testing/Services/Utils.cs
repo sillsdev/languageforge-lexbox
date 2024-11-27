@@ -24,11 +24,11 @@ public static class Utils
 
     public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, bool isConfidential = false, Guid? owningOrgId = null, [CallerMemberName] string projectName = "")
     {
+        projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
         var id = Guid.NewGuid();
         var shortId = id.ToString().Split("-")[0];
-        var projectCodeName = ToProjectCodeFriendlyString(projectName)[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
-        var projectCode = $"{projectCodeName}-{shortId}-dev-flex";
+        var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
         var dir = GetNewProjectDir(projectCode, "");
         return new ProjectConfig(id, projectName, projectCode, dir, isConfidential, owningOrgId);
     }
