@@ -190,7 +190,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        Cache.ServiceLocator.WritingSystemManager.GetOrSet(id.Code, out var lcmWritingSystem);
+        if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
+        {
+            throw new InvalidOperationException($"Writing system {id.Code} not found");
+        }
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
             async () =>
@@ -214,7 +217,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 await WritingSystemSync.Sync(after, before, this);
             });
-        return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.Id);
+        return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()

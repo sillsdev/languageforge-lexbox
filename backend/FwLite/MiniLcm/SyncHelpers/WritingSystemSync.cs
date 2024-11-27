@@ -1,7 +1,7 @@
-using MiniLcm;
 using MiniLcm.Models;
-using MiniLcm.SyncHelpers;
 using SystemTextJsonPatch;
+
+namespace MiniLcm.SyncHelpers;
 
 public static class WritingSystemSync
 {
@@ -12,7 +12,7 @@ public static class WritingSystemSync
         return await DiffCollection.Diff(api,
             previousWritingSystems,
             currentWritingSystems,
-            ws => ws.Id,
+            ws => (ws.WsId, ws.Type),
             async (api, currentWs) =>
             {
                 await api.CreateWritingSystem(currentWs.Type, currentWs);
@@ -40,9 +40,11 @@ public static class WritingSystemSync
     public static UpdateObjectInput<WritingSystem>? WritingSystemDiffToUpdate(WritingSystem previousWritingSystem, WritingSystem currentWritingSystem)
     {
         JsonPatchDocument<WritingSystem> patchDocument = new();
-        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.WsId),
-            previousWritingSystem.WsId,
-            currentWritingSystem.WsId));
+        if (previousWritingSystem.WsId != currentWritingSystem.WsId)
+        {
+            // TODO: Throw? Or silently ignore?
+            throw new InvalidOperationException($"Tried to change immutable WsId from {previousWritingSystem.WsId} to {currentWritingSystem.WsId}");
+        }
         patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.Name),
             previousWritingSystem.Name,
             currentWritingSystem.Name));
