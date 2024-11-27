@@ -29,7 +29,7 @@ public class SyncService(
             return new SyncResults([], [], false);
         }
 
-        var httpClient = await oAuthClientFactory.GetClient(project).CreateClient();
+        var httpClient = await oAuthClientFactory.GetClient(project).CreateHttpClient();
         if (httpClient is null)
         {
             logger.LogWarning(

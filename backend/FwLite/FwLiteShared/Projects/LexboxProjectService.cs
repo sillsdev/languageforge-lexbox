@@ -31,7 +31,7 @@ public class LexboxProjectService(
             async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                var httpClient = await clientFactory.GetClient(server).CreateClient();
+                var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
                 if (httpClient is null) return [];
                 try
                 {
@@ -52,7 +52,7 @@ public class LexboxProjectService(
 
     public async Task<Guid?> GetLexboxProjectId(LexboxServer server, string code)
     {
-        var httpClient = await clientFactory.GetClient(server).CreateClient();
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
         if (httpClient is null) return null;
         try
         {

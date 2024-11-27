@@ -164,10 +164,10 @@ public class OAuthClient
         return auth?.AccessToken;
     }
 
-    /// <summary>
+    /// <summary>]
     /// will return null if no auth token is available
     /// </summary>
-    public async ValueTask<HttpClient?> CreateClient()
+    public async ValueTask<HttpClient?> CreateHttpClient()
     {
         var auth = await GetAuth();
         if (auth is null) return null;
