@@ -43,11 +43,11 @@ public class LexQueries
     {
         if (withDeleted)
         {
-            return context.Projects.IgnoreQueryFilters();
+            return context.Projects.AsNoTracking().IgnoreQueryFilters();
         }
         else
         {
-            return context.Projects;
+            return context.Projects.AsNoTracking();
         }
     }
 
@@ -56,7 +56,7 @@ public class LexQueries
     public IQueryable<DraftProject> MyDraftProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
         var userId = loggedInContext.User.Id;
-        return context.DraftProjects.Where(p => p.ProjectManagerId == userId);
+        return context.DraftProjects.AsNoTracking().Where(p => p.ProjectManagerId == userId);
     }
 
     [UseProjection]
@@ -65,7 +65,7 @@ public class LexQueries
     [AdminRequired]
     public IQueryable<DraftProject> DraftProjects(LexBoxDbContext context)
     {
-        return context.DraftProjects;
+        return context.DraftProjects.AsNoTracking();
     }
 
     public record ProjectsByLangCodeAndOrgInput(Guid OrgId, string LangCode);
@@ -75,8 +75,8 @@ public class LexQueries
     {
         if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
         // Convert 3-letter code to 2-letter code if relevant, otherwise leave as-is
-        var langCode = Services.LangTagConstants.ThreeToTwo.GetValueOrDefault(input.LangCode, input.LangCode);
-        var query = context.Projects.Where(p =>
+        var langCode = LangTagConstants.ThreeToTwo.GetValueOrDefault(input.LangCode, input.LangCode);
+        var query = context.Projects.AsNoTracking().Where(p =>
             p.Organizations.Any(o => o.Id == input.OrgId) &&
             p.FlexProjectMetadata != null &&
             p.FlexProjectMetadata.WritingSystems != null &&
@@ -103,7 +103,7 @@ public class LexQueries
     public IQueryable<Project> ProjectsInMyOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsInMyOrgInput input)
     {
         if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
-        var query = context.Projects.Where(p => p.Organizations.Any(o => o.Id == input.OrgId));
+        var query = context.Projects.AsNoTracking().Where(p => p.Organizations.Any(o => o.Id == input.OrgId));
         // Org admins can see all projects, everyone else can only see non-confidential
         if (!permissionService.CanEditOrg(input.OrgId))
         {
@@ -117,7 +117,7 @@ public class LexQueries
     public async Task<IQueryable<Project>> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)
     {
         await permissionService.AssertCanViewProject(projectId);
-        return context.Projects.Where(p => p.Id == projectId);
+        return context.Projects.AsNoTracking().Where(p => p.Id == projectId);
     }
 
     [UseProjection]
@@ -141,20 +141,12 @@ public class LexQueries
         return project;
     }
 
-    [UseSingleOrDefault]
-    [UseProjection]
-    [AdminRequired]
-    public IQueryable<DraftProject> DraftProjectByCode(LexBoxDbContext context, string code)
-    {
-        return context.DraftProjects.Where(p => p.Code == code);
-    }
-
     [UseProjection]
     [UseFiltering]
     [UseSorting]
     public IQueryable<Organization> Orgs(LexBoxDbContext context)
     {
-        return context.Orgs;
+        return context.Orgs.AsNoTracking();
     }
 
     [UseProjection]
@@ -175,16 +167,6 @@ public class LexQueries
             await lexAuthService.RefreshUser(userId, LexAuthConstants.OrgsClaimType);
         }
         return myOrgs.AsQueryable();
-    }
-
-    [UseOffsetPaging]
-    [UseProjection]
-    [UseFiltering]
-    [UseSorting]
-    public IQueryable<User> UsersInMyOrg(LexBoxDbContext context, LoggedInContext loggedInContext)
-    {
-        var myOrgIds = loggedInContext.User.Orgs.Select(o => o.OrgId).ToList();
-        return context.Users.Where(u => u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)));
     }
 
     [UseOffsetPaging]
@@ -278,7 +260,7 @@ public class LexQueries
         // Only site admins and org admins are allowed to run this query
         if (!permissionService.CanEditOrg(orgId)) return null;
 
-        var user = await context.Users.Include(u => u.Organizations).Include(u => u.CreatedBy).Where(u => u.Id == userId).FirstOrDefaultAsync();
+        var user = await context.Users.AsNoTracking().Include(u => u.Organizations).Include(u => u.CreatedBy).Where(u => u.Id == userId).FirstOrDefaultAsync();
         if (user is null) return null;
 
         var userInOrg = user.Organizations.Any(om => om.OrgId == orgId);
