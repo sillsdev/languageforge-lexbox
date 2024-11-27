@@ -14,8 +14,6 @@ namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger)
 {
-    public record SyncResult(int CrdtChanges, int FwdataChanges);
-
     public record DryRunSyncResult(
         int CrdtChanges,
         int FwdataChanges,
