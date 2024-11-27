@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
@@ -13,8 +14,6 @@ namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig, MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger)
 {
-    public record SyncResult(int CrdtChanges, int FwdataChanges);
-
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
         if (crdtApi is CrdtMiniLcmApi crdt && crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)

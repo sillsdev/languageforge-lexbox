@@ -1,15 +1,13 @@
 ﻿using System.IO.Compression;
 using LexBoxApi.Services;
 using LexCore.Config;
-using LexCore.Entities;
 using LexCore.Exceptions;
 using LexSyncReverseProxy;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Contrib.HttpClient;
-using Shouldly;
-using Testing.Fixtures;
+using FluentAssertions;
 
 namespace Testing.LexCore.Services;
 
@@ -59,7 +57,7 @@ public class HgServiceTests
     [InlineData(HgType.resumable, LexboxResumable)]
     public void DetermineProjectPrefixWorks(HgType type, string expectedUrl)
     {
-        HgService.DetermineProjectUrlPrefix(type, _hgConfig).ShouldBe(expectedUrl);
+        HgService.DetermineProjectUrlPrefix(type, _hgConfig).Should().Be(expectedUrl);
     }
 
     [Theory]
@@ -82,7 +80,7 @@ public class HgServiceTests
     {
         DateTimeOffset? expected = expectedStr == null ? null : DateTimeOffset.Parse(expectedStr);
         var actual = HgService.ConvertHgDate(input);
-        actual.ShouldBe(expected);
+        actual.Should().Be(expected);
     }
 
     [Theory]
@@ -108,7 +106,7 @@ public class HgServiceTests
         var repoPath = Path.GetFullPath(Path.Join(_hgConfig.RepoPath, "u", code));
         Directory.EnumerateFiles(repoPath, "*", SearchOption.AllDirectories)
             .Select(p => Path.GetRelativePath(repoPath, p))
-            .ShouldHaveSingleItem().ShouldBe(Path.Join(".hg", "important-file.bin"));
+            .Should().ContainSingle().Which.Should().Be(Path.Join(".hg", "important-file.bin"));
     }
 
     [Theory]
@@ -143,6 +141,6 @@ public class HgServiceTests
 
         stream.Position = 0;
         var act = () => _hgService.FinishReset(code, stream);
-        act.ShouldThrow<ProjectResetException>();
+        await act.Should().ThrowAsync<ProjectResetException>();
     }
 }

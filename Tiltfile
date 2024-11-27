@@ -28,7 +28,7 @@ docker_build(
     context='backend',
     dockerfile='./backend/FwHeadless/dev.Dockerfile',
     only=['.'],
-    ignore=['LexBoxApi'],
+    ignore=['LexBoxApi', '**/Mercurial', '**/MercurialExtensions'],
     live_update=[
         sync('backend', '/src/backend')
     ]

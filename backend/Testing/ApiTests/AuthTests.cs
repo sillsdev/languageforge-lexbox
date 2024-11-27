@@ -7,7 +7,7 @@ using System.Text.Json;
 using LexCore.Auth;
 using LexSyncReverseProxy;
 using LfClassicData;
-using Shouldly;
+using FluentAssertions;
 using Testing.Services;
 
 namespace Testing.ApiTests;
@@ -22,16 +22,16 @@ public class AuthTests : ApiTestBase
         var managerResponse = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
                 $"{BaseUrl}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
-        managerResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        managerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var manager = await managerResponse.Content.ReadFromJsonAsync<JsonElement>();
-        manager.GetProperty("email").GetString().ShouldBe("manager@test.com");
+        manager.GetProperty("email").GetString().Should().Be("manager@test.com");
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var response = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
                 $"{BaseUrl}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var admin = await response.Content.ReadFromJsonAsync<JsonElement>();
-        admin.GetProperty("email").GetString().ShouldBe("admin@test.com");
+        admin.GetProperty("email").GetString().Should().Be("admin@test.com");
     }
 
     [Fact]
@@ -41,20 +41,20 @@ public class AuthTests : ApiTestBase
         var query = """query testGetMe {  meAuth {    id    email  }}""";
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var manager = await ExecuteGql(query);
-        manager.ShouldNotBeNull();
-        manager["data"]!["meAuth"]!["email"]!.ToString().ShouldBe("manager@test.com");
+        manager.Should().NotBeNull();
+        manager["data"]!["meAuth"]!["email"]!.ToString().Should().Be("manager@test.com");
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var admin = await ExecuteGql(query);
-        admin.ShouldNotBeNull();
-        admin["data"]!["meAuth"]!["email"]!.ToString().ShouldBe("admin@test.com");
+        admin.Should().NotBeNull();
+        admin["data"]!["meAuth"]!["email"]!.ToString().Should().Be("admin@test.com");
     }
 
     [Fact]
     public async Task NotLoggedInIsNotPermittedToCallRequiresAuthApi()
     {
         var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-auth");
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class AuthTests : ApiTestBase
     {
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-admin");
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -86,11 +86,11 @@ public class AuthTests : ApiTestBase
     {
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-forgot-password");
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-forgot-password");
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class AuthTests : ApiTestBase
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         ClearCookies();
         var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-auth");
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact(Skip = "Not working due to oauth, to solve we should setup a login via oauth to use the right jwt")]
@@ -136,7 +136,7 @@ public class AuthTests : ApiTestBase
         {
             Headers = { Authorization = new AuthenticationHeaderValue("Bearer", newJwt) }
         });
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     //these must match because auth determines the project code from the route key using the method in HgHelpers
@@ -144,6 +144,6 @@ public class AuthTests : ApiTestBase
     [Fact]
     public void RouteKeyInLfClassicRoutesMustMatchRouteKeyInProxyConstants()
     {
-        LfClassicRoutes.ProjectCodeRouteKey.ShouldBe(ProxyConstants.HgProjectCodeRouteKey);
+        LfClassicRoutes.ProjectCodeRouteKey.Should().Be(ProxyConstants.HgProjectCodeRouteKey);
     }
 }

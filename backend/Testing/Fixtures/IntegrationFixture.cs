@@ -1,7 +1,7 @@
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using LexCore.Utils;
-using Shouldly;
+using FluentAssertions;
 using Squidex.Assets;
 using Testing.ApiTests;
 using Testing.Services;
@@ -16,7 +16,7 @@ public class IntegrationFixture : IAsyncLifetime
     public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; private set; } = new();
     private string? _adminJwt = null;
-    public string AdminJwt => _adminJwt.ShouldNotBeNull();
+    public string AdminJwt => _adminJwt.Should().NotBeNull().And.Subject;
 
     static IntegrationFixture()
     {
@@ -69,7 +69,7 @@ public class IntegrationFixture : IAsyncLifetime
         var projectDir = Directory.CreateDirectory(projectPath.Dir);
         FileUtils.CopyFilesRecursively(TemplateRepo, projectDir);
         File.Move(Path.Join(projectPath.Dir, "kevin-test-01.fwdata"), projectPath.FwDataFile);
-        Directory.EnumerateFiles(projectPath.Dir).ShouldContain(projectPath.FwDataFile);
+        Directory.EnumerateFiles(projectPath.Dir).Should().Contain(projectPath.FwDataFile);
     }
 
     public async Task FinishLexboxProjectResetWithTemplateRepo(string projectCode)

@@ -58,7 +58,7 @@ test('catch fetch 500 and error dialog', async ({ page }) => {
 
 //we want to verify that once we get the 500 in GQL we can still navigate to another page
 test('client-side gql 500 does not break the application', async ({ page }) => {
-  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await loginAs(page.request, 'admin');
   await new SandboxPage(page).goto();
   // Create promise first before triggering the action
   const responsePromise = page.waitForResponse('/api/graphql');
@@ -72,7 +72,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
 });
 
 test('server-side gql 500 does not kill the server', async ({ page }) => {
-  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await loginAs(page.request, 'admin');
   await new SandboxPage(page).goto({ urlEnd: '?ssr-gql-500', expectErrorResponse: true });
   await expect(page.locator(':text-matches("Unexpected Execution Error", "g")').first()).toBeVisible();
   // we've verified that a 500 occured, now we verify that the server is still alive
@@ -89,7 +89,7 @@ test('server page load 401 is redirected to login', async ({ context }) => {
 
 test('client page load 401 is redirected to login', async ({ page }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
-  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await loginAs(page.request, 'admin');
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
 
   // Now mess up the login cookie and watch the redirect
@@ -122,14 +122,14 @@ test('can catch 403 errors from goto in new tab', async ({ page, context }) => {
 });
 
 test('page load 403 is redirected to home', async ({ page }) => {
-  await loginAs(page.request, 'manager', testEnv.defaultPassword);
+  await loginAs(page.request, 'manager');
   await new SandboxPage(page).goto();
   await page.getByText('Goto page load 403', {exact: true}).click();
   await new UserDashboardPage(page).waitFor();
 });
 
 test('page load 403 in new tab is redirected to home', async ({ page }) => {
-  await loginAs(page.request, 'manager', testEnv.defaultPassword);
+  await loginAs(page.request, 'manager');
   await new SandboxPage(page).goto();
   const pagePromise = page.context().waitForEvent('page');
   await page.getByText('Goto page load 403 new tab').click();

@@ -7,13 +7,16 @@
   export let type: undefined | 'submit' = undefined;
   export let size: undefined | 'btn-sm' = undefined;
   export let disabled = false;
+  export let customLoader = false;
 </script>
 
 <!-- https://daisyui.com/components/button -->
 <button on:click {...$$restProps} class="btn whitespace-nowrap {variant ?? ''} {$$restProps.class ?? ''} {size ?? ''}" {type}
   class:btn-outline={outline}
   disabled={disabled && !loading}
-  class:pointer-events-none={loading}>
-  <Loader {loading} />
+  class:pointer-events-none={loading || $$restProps.class?.includes('pointer-events-none')}>
+  {#if !customLoader}
+    <Loader {loading} />
+  {/if}
   <slot />
 </button>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserInMyOrgTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { derived, writable } from 'svelte/store';
@@ -14,26 +14,29 @@
   export let value: string;
   export let debounceMs = 200;
   export let isAdmin: boolean = false;
+  export let exclude: string[] = [];
 
   let input = writable('');
   $: $input = value;
   let typeaheadResults = deriveAsync(
     input,
-    isAdmin ? _userTypeaheadSearch : _orgMemberTypeaheadSearch,
+    isAdmin ? _userTypeaheadSearch : _usersTypeaheadSearch,
     [],
     debounceMs);
 
+  $: filteredResults = $typeaheadResults.filter(user => !exclude.includes(user.id));
+
   const dispatch = createEventDispatcher<{
       selectedUserId: string | null;
-      selectedUser: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null;
+      selectedUser: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null;
   }>();
 
-  let selectedUser = writable<SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null>(null);
+  let selectedUser = writable<SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null>(null);
   let selectedUserId = derived(selectedUser, user => user?.id ?? null);
   $: dispatch('selectedUserId', $selectedUserId);
   $: dispatch('selectedUser', $selectedUser);
 
-  function formatResult(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+  function formatResult(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
     const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
                 : 'username' in user && user.username ? ` (${user.username})`
                 : 'email' in user && user.email ? ` (${user.email})`
@@ -41,7 +44,7 @@
     return `${user.name}${extra}`;
   }
 
-  function getInputValue(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+  function getInputValue(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
     if ('email' in user && user.email) return user.email;
     if ('username' in user && user.username) return user.username;
     if ('name' in user && user.name) return user.name;
@@ -62,7 +65,7 @@
     />
     <div class="overlay-content">
       <ul class="menu p-0">
-      {#each $typeaheadResults as user}
+      {#each filteredResults as user}
         <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
           setTimeout(() => {
             if ('id' in user && user.id) {

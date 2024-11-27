@@ -55,6 +55,7 @@
   import { onMount } from 'svelte';
   import { getSearchParamValues } from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
+  import CrdtSyncButton from './CrdtSyncButton.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -312,6 +313,7 @@
         </a>
       {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
+        <CrdtSyncButton projectId={project.id} />
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}
@@ -517,7 +519,7 @@
               {$t('project_page.add_user.add_button')}
             </BadgeButton>
 
-            <AddProjectMember bind:this={addProjectMember} projectId={project.id} />
+            <AddProjectMember bind:this={addProjectMember} {project} />
             <BulkAddProjectMembers projectId={project.id} />
           </svelte:fragment>
           <UserModal bind:this={userModal}/>

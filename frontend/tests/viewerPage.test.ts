@@ -1,5 +1,3 @@
-import * as testEnv from './envVars';
-
 import {UserDashboardPage} from './pages/userDashboardPage';
 import {ViewerPage} from './pages/viewerPage';
 import {expect} from '@playwright/test';
@@ -10,7 +8,7 @@ test.describe('Viewer Page', () => {
 
   test('navigate to viewer', async ({page}) => {
     // Step 1: Login
-    await loginAs(page.request, 'editor', testEnv.defaultPassword);
+    await loginAs(page.request, 'editor');
     const userDashboard = await new UserDashboardPage(page).goto();
 
     // Step 2: Click through to viewer
@@ -21,7 +19,7 @@ test.describe('Viewer Page', () => {
 
   test('find entry', async ({page}) => {
     // Step 1: Login to viewer
-    await loginAs(page.request, 'editor', testEnv.defaultPassword);
+    await loginAs(page.request, 'editor');
     const viewerPage = await new ViewerPage(page, 'Sena 3', 'sena-3').goto();
     await viewerPage.dismissAboutDialog();
 
@@ -51,7 +49,7 @@ test.describe('Viewer Page', () => {
 
   test('entry details', async ({page}) => {
     // Step 1: Login to viewer at entry "thembe"
-    await loginAs(page.request, 'editor', testEnv.defaultPassword);
+    await loginAs(page.request, 'editor');
     const viewerPage = await new ViewerPage(page, 'Sena 3', 'sena-3')
       .goto({urlEnd: '?entryId=49cc9257-90c7-4fe0-a9e0-2c8d72aa5e2b&search=animal'});
     await viewerPage.dismissAboutDialog();

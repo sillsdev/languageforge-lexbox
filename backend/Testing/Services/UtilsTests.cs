@@ -1,4 +1,4 @@
-using Shouldly;
+using FluentAssertions;
 using Testing.SyncReverseProxy;
 
 namespace Testing.Services;
@@ -14,6 +14,6 @@ public class UtilsTests
     [InlineData("SimultaneousResetsDontResultIn404S", "simultaneous-resets-dont-result-in-404-s")]
     public void VerifyToProjectCodeFriendlyString(string input, string expected)
     {
-        Utils.ToProjectCodeFriendlyString(input).ShouldBe(expected);
+        Utils.ToProjectCodeFriendlyString(input).Should().Be(expected);
     }
 }

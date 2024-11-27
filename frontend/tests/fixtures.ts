@@ -108,7 +108,7 @@ export const test = base.extend<Fixtures>({
     });
     await use(tempUser);
     const context = await browser.newContext();
-    await loginAs(context.request, 'admin', testEnv.defaultPassword);
+    await loginAs(context.request, 'admin');
     await deleteUser(context.request, tempUser.id);
     await context.close();
   },

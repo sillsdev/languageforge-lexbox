@@ -9,7 +9,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "test" } } });
         entry.Should().NotBeNull();
-        entry!.LexemeForm.Values.Should().ContainKey("en");
+        entry.LexemeForm.Values.Should().ContainKey("en");
         entry.LexemeForm.Values["en"].Should().Be("test");
     }
 
@@ -53,7 +53,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         });
         entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComponentEntryId == component.Id);
+        entry.Components.Should().ContainSingle(c => c.ComponentEntryId == component.Id);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         });
         entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().ContainSingle(c => c.ComplexFormEntryId == complexForm.Id);
+        entry.ComplexForms.Should().ContainSingle(c => c.ComplexFormEntryId == complexForm.Id);
     }
 
     [Fact]
@@ -110,11 +110,11 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
 
         var entry = await Api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().ContainSingle().Which.ComponentSenseId.Should().Be(componentSenseId);
+        entry.ComplexForms.Should().ContainSingle().Which.ComponentSenseId.Should().Be(componentSenseId);
 
         entry = await Api.GetEntry(complexFormEntryId);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c =>
+        entry.Components.Should().ContainSingle(c =>
             c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id &&
             c.ComponentSenseId == componentSenseId);
     }
@@ -133,6 +133,6 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         });
         entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
+        entry.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
     }
 }

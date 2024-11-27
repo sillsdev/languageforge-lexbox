@@ -4,14 +4,14 @@
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
-  import { _addProjectMember } from './+page';
+  import { _addProjectMember, type Project } from './+page';
   import { useNotifications } from '$lib/notify';
   import { page } from '$app/stores'
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
   import Checkbox from '$lib/forms/Checkbox.svelte';
 
-  export let projectId: string;
+  export let project: Project;
   const schema = z.object({
     usernameOrEmail: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
@@ -31,7 +31,7 @@
     if (initialUserId) selectedUserId = initialUserId;
     const { response, formState } = await formModal.open(initialValue, async () => {
       const { error } = await _addProjectMember({
-        projectId,
+        projectId: project.id,
         usernameOrEmail: $form.usernameOrEmail ?? '',
         userId: selectedUserId,
         role: $form.role,
@@ -86,6 +86,7 @@
     on:selectedUserId={({ detail }) => {
         selectedUserId = detail;
     }}
+    exclude={project.users.map(m => m.user.id)}
   />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <svelte:fragment slot="extraActions">

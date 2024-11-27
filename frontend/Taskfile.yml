@@ -21,7 +21,8 @@ tasks:
       - corepack enable || true
       - pnpm install
   playwright-tests:
-    cmd: pnpm test
+    aliases: [ pt ]
+    cmd: pnpm run test {{.CLI_ARGS}}
 
   playwright-generate-tests:
     cmds:

@@ -5,6 +5,7 @@ on:
     paths:
       - 'backend/**'
       - '!backend/FwLite/**'
+      - 'frontend/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/lexbox-deployment.yaml'
@@ -14,6 +15,7 @@ on:
     paths:
       - 'backend/**'
       - '!backend/FwLite/**'
+      - 'frontend/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/lexbox-deployment.yaml'

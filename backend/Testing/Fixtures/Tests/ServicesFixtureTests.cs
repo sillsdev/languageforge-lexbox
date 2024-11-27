@@ -1,4 +1,4 @@
-﻿using Shouldly;
+﻿using FluentAssertions;
 
 namespace Testing.Fixtures.Tests;
 
@@ -13,6 +13,6 @@ public class ServicesFixtureTests
             await fixture.InitializeAsync();
             await fixture.DisposeAsync();
         };
-        Should.CompleteIn(act, TimeSpan.FromSeconds(10));
+        await act.Should().CompleteWithinAsync(TimeSpan.FromSeconds(10));
     }
 }

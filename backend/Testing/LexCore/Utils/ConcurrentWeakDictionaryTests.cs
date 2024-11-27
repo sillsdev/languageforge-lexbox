@@ -1,5 +1,5 @@
 ﻿using LexCore.Utils;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.LexCore.Utils;
 
@@ -12,8 +12,8 @@ public class ConcurrentWeakDictionaryTests
         var obj = new object();
         var dict = new ConcurrentWeakDictionary<string, object>();
         dict.Add("key", obj);
-        dict.TryGetValue("key", out var value).ShouldBeTrue();
-        value.ShouldBe(obj);
+        dict.TryGetValue("key", out var value).Should().BeTrue();
+        value.Should().Be(obj);
     }
 
     [Fact]
@@ -25,9 +25,9 @@ public class ConcurrentWeakDictionaryTests
 
         var returnedValue = dictionary.GetOrAdd("key", k => value);
 
-        returnedValue.ShouldBe(value);
-        dictionary.TryGetValue("key", out var existingValue).ShouldBeTrue();
-        existingValue.ShouldBe(value);
+        returnedValue.Should().Be(value);
+        dictionary.TryGetValue("key", out var existingValue).Should().BeTrue();
+        existingValue.Should().Be(value);
     }
 
     [Fact]
@@ -41,9 +41,9 @@ public class ConcurrentWeakDictionaryTests
 
         var returnedValue = dictionary.GetOrAdd(key, k => new object());
 
-        returnedValue.ShouldBe(value);
-        dictionary.TryGetValue(key, out var existingValue).ShouldBeTrue();
-        existingValue.ShouldBe(value);
+        returnedValue.Should().Be(value);
+        dictionary.TryGetValue(key, out var existingValue).Should().BeTrue();
+        existingValue.Should().Be(value);
     }
 
     private ConcurrentWeakDictionary<string, object> Setup(string key)
@@ -69,6 +69,6 @@ public class ConcurrentWeakDictionaryTests
         GC.WaitForPendingFinalizers();
 
         // Check that the value for the key no longer exists.
-        dictionary.TryGetValue(key, out var result).ShouldBeFalse();
+        dictionary.TryGetValue(key, out var result).Should().BeFalse();
     }
 }

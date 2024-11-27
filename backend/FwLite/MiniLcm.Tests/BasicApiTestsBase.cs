@@ -202,7 +202,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.GetEntry(Entry1Id);
         entry.Should().NotBeNull();
-        entry!.LexemeForm.Values.Should().NotBeEmpty();
+        entry.LexemeForm.Values.Should().NotBeEmpty();
         var sense = entry.Senses.Should()
             .NotBeEmpty($"because '{entry.LexemeForm.Values.First().Value}' should have a sense").And.Subject.First();
         sense.Gloss.Values.Should().NotBeEmpty();

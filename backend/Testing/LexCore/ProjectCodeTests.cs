@@ -1,5 +1,5 @@
 ﻿using LexCore.Entities;
-using Shouldly;
+using FluentAssertions;
 
 namespace Testing.LexCore;
 
@@ -29,7 +29,7 @@ public class ProjectCodeTests
     public void ValidCodes(string code)
     {
         var projectCode = new ProjectCode(code);
-        projectCode.Value.ShouldBe(code);
-        projectCode.ToString().ShouldBe(code);
+        projectCode.Value.Should().Be(code);
+        projectCode.ToString().Should().Be(code);
     }
 }
