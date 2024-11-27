@@ -27,7 +27,8 @@ public static class Utils
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
         var id = Guid.NewGuid();
         var shortId = id.ToString().Split("-")[0];
-        var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
+        var projectCodeName = ToProjectCodeFriendlyString(projectName)[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
+        var projectCode = $"{projectCodeName}-{shortId}-dev-flex";
         var dir = GetNewProjectDir(projectCode, "");
         return new ProjectConfig(id, projectName, projectCode, dir, isConfidential, owningOrgId);
     }
@@ -132,6 +133,7 @@ public static class Utils
     private static string GetNewProjectDir(string projectCode,
         [CallerMemberName] string projectName = "")
     {
+        projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
         var projectDir = projectName.IsNullOrWhiteSpace() ? BasePath : Path.Join(BasePath, projectName);
         // Add a random id to the path to be certain we prevent naming clashes
         var randomIndexedId = $"{_folderIndex++}-{Guid.NewGuid().ToString().Split("-")[0]}";
