@@ -9,7 +9,7 @@ using SIL.Harmony;
 namespace FwLiteShared.Sync;
 
 public class BackgroundSyncService(
-    ProjectsService projectsService,
+    CrdtProjectsService crdtProjectsService,
     IHostApplicationLifetime applicationLifetime,
     ProjectContext projectContext,
     ILogger<BackgroundSyncService> logger,
@@ -31,7 +31,7 @@ public class BackgroundSyncService(
             return;
         }
 
-        var crdtProject = projectsService.GetProject(projectData.Name);
+        var crdtProject = crdtProjectsService.GetProject(projectData.Name);
         if (crdtProject is null)
         {
             logger.LogWarning("Received project update for unknown project {ProjectName}", projectData.Name);
@@ -61,7 +61,7 @@ public class BackgroundSyncService(
     {
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
-        var crdtProjects = await projectsService.ListProjects();
+        var crdtProjects = await crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
             await SyncProject(crdtProject);
@@ -79,7 +79,7 @@ public class BackgroundSyncService(
     {
         try
         {
-            await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
+            await using var serviceScope = crdtProjectsService.CreateProjectScope(crdtProject);
             await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
             var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();

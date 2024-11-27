@@ -37,7 +37,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        await ProjectsService.InitProjectDb(_crdtDbContext,
+        await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
 

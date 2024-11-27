@@ -37,7 +37,7 @@ public static partial class ProjectRoutes
             });
         group.MapGet("/localProjects",
             async (
-            ProjectsService projectService,
+            CrdtProjectsService projectService,
             FieldWorksProjectList fieldWorksProjectList) =>
         {
             var crdtProjects = await projectService.ListProjects();
@@ -67,7 +67,7 @@ public static partial class ProjectRoutes
             return projects.Values;
         });
         group.MapPost("/project",
-            async (ProjectsService projectService, string name) =>
+            async (CrdtProjectsService projectService, string name) =>
             {
                 if (string.IsNullOrWhiteSpace(name))
                     return Results.BadRequest("Project name is required");
@@ -103,7 +103,7 @@ public static partial class ProjectRoutes
         group.MapPost("/download/crdt/{serverAuthority}/{projectId}",
             async (LexboxProjectService lexboxProjectService,
                 IOptions<AuthConfig> options,
-                ProjectsService projectService,
+                CrdtProjectsService projectService,
                 Guid projectId,
                 [FromQuery] string projectName,
                 string serverAuthority

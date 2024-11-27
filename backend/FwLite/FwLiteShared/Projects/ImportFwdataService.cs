@@ -10,7 +10,7 @@ using MiniLcm;
 namespace FwLiteShared.Projects;
 
 public class ImportFwdataService(
-    ProjectsService projectsService,
+    CrdtProjectsService crdtProjectsService,
     ILogger<ImportFwdataService> logger,
     FwDataFactory fwDataFactory,
     FieldWorksProjectList fieldWorksProjectList,
@@ -28,7 +28,7 @@ public class ImportFwdataService(
         try
         {
             using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
-            var project = await projectsService.CreateProject(new(fwDataProject.Name,
+            var project = await crdtProjectsService.CreateProject(new(fwDataProject.Name,
                 SeedNewProjectData: false,
                 FwProjectId: fwDataApi.ProjectId,
                 AfterCreate: async (provider, project) =>

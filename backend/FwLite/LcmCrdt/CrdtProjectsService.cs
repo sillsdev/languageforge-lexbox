@@ -7,7 +7,7 @@ using LcmCrdt.Objects;
 
 namespace LcmCrdt;
 
-public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
+public class CrdtProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
 {
     public Task<CrdtProject[]> ListProjects()
     {

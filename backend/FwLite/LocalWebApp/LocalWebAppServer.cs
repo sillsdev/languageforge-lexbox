@@ -89,7 +89,7 @@ public static class LocalWebAppServer
             var projectName = context.GetProjectName();
             if (!string.IsNullOrWhiteSpace(projectName))
             {
-                var projectsService = context.RequestServices.GetRequiredService<ProjectsService>();
+                var projectsService = context.RequestServices.GetRequiredService<CrdtProjectsService>();
                 projectsService.SetProjectScope(projectsService.GetProject(projectName) ??
                                                 throw new InvalidOperationException(
                                                     $"Project {projectName} not found"));
