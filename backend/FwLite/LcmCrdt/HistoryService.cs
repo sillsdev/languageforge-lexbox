@@ -4,6 +4,7 @@ using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt;
@@ -64,10 +65,10 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
     public IAsyncEnumerable<ProjectActivity> ProjectActivity()
     {
         return dbContext.Commits
-            .DefaultOrderDescending()
-            .Take(20)
-            .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities))
-            .AsAsyncEnumerable();
+                .DefaultOrderDescending()
+                .Take(20)
+                .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities))
+                .AsAsyncEnumerable();
     }
 
     public async Task<ObjectSnapshot?> GetSnapshot(Guid snapshotId)
@@ -84,10 +85,11 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
 
     public IAsyncEnumerable<HistoryLineItem> GetHistory(Guid entityId)
     {
+        var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
         var query = from commit in dbContext.Commits.DefaultOrder()
             from snapshot in dbContext.Snapshots.LeftJoin(
                 s => s.CommitId == commit.Id && s.EntityId == entityId)
-            from change in dbContext.Set<ChangeEntity<IChange>>().LeftJoin(c =>
+            from change in changeEntities.LeftJoin(c =>
                 c.CommitId == commit.Id && c.EntityId == entityId)
             where snapshot.Id != null || change.EntityId != null
             select new HistoryLineItem(commit.Id,
@@ -97,6 +99,6 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
                 change.Change,
                 snapshot.Entity,
                 snapshot.TypeName);
-        return query.AsAsyncEnumerable();
+        return query.ToLinqToDB().AsAsyncEnumerable();
     }
 }
