@@ -2,14 +2,17 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <RootNamespace>FixFwData</RootNamespace>
+    <Description>FixFwData</Description>
+    <Company>SIL Global</Company>
+    <Authors>SIL Global</Authors>
+    <Product>LexBoxApi Testing</Product>
+    <Copyright>Copyright © 2024 SIL Global</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
     <PackageReference Include="SIL.LCModel.FixData" Version="11.0.0-beta0109" />
   </ItemGroup>
 </Project>

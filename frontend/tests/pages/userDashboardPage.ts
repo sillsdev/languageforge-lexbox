@@ -9,10 +9,15 @@ export class UserDashboardPage extends AuthenticatedBasePage {
   }
 
   async openProject(projectName: string, projectCode: string): Promise<ProjectPage> {
+    await this.selectGridView();
     const projectHeader = this.page.getByRole('heading', {name: projectName});
     const projectCard = this.page.locator('.card', {has: projectHeader});
     await projectCard.click();
     return new ProjectPage(this.page, projectName, projectCode).waitFor();
+  }
+
+  async selectGridView(): Promise<void> {
+    await this.page.click('.i-mdi-grid');
   }
 
   async clickCreateProject(): Promise<CreateProjectPage> {

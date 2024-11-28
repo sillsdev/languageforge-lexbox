@@ -10,6 +10,7 @@ public class OpenProjectTests
     public async Task OpeningAProjectWorks()
     {
         var sqliteConnectionString = "OpeningAProjectWorks.sqlite";
+        if (File.Exists(sqliteConnectionString)) File.Delete(sqliteConnectionString);
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddLcmCrdtClient();
         using var host = builder.Build();
