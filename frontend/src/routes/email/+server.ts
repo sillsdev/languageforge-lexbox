@@ -1,7 +1,7 @@
-import { render } from '$lib/email/emailRenderer.server';
-import { json } from '@sveltejs/kit';
-import type { RequestEvent } from './$types';
-import { componentMap, EmailTemplate, type EmailTemplateProps } from './emails';
+import {render} from '$lib/email/emailRenderer.server';
+import {json} from '@sveltejs/kit';
+import type {RequestEvent} from './$types';
+import {componentMap, EmailTemplate, type EmailTemplateProps} from './emails';
 import type {Component} from 'svelte';
 
 export async function POST(event: RequestEvent): Promise<Response> {
@@ -22,5 +22,5 @@ export function GET(event: RequestEvent): Response {
     template: EmailTemplate.ForgotPassword,
     resetUrl: 'https://example.com/reset'
   };
-  return json(render(componentMap[type] as unknown as any, props, event.locals.activeLocale));
+  return json(render(componentMap[type] as unknown as Component<EmailTemplateProps>, props, event.locals.activeLocale));
 }

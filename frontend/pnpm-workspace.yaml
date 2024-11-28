@@ -14,4 +14,8 @@ catalog:
   eslint: ^9.15.0
   vitest: ^2.1.5
   "@vitest/ui": ^2.1.5
-  "@typescript-eslint/parser": ^6.21.0
+  "@typescript-eslint/eslint-plugin": "^8.16.0"
+  "@typescript-eslint/parser": ^8.16.0
+  "eslint-plugin-svelte": "^3.0.0-next.0"
+  "svelte-eslint-parser": "^1.0.0-next.0"
+  "@stylistic/eslint-plugin": "^2.11.0"

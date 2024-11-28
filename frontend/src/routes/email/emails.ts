@@ -10,7 +10,6 @@ import UserAdded from '$lib/email/UserAdded.svelte';
 import CreateAccountRequestOrg from '$lib/email/CreateAccountRequestOrg.svelte';
 import CreateAccountRequestProject from '$lib/email/CreateAccountRequestProject.svelte';
 
-
 export const enum EmailTemplate {
     NewAdmin = 'NEW_ADMIN',
     ForgotPassword = 'FORGOT_PASSWORD',
@@ -35,7 +34,7 @@ export const componentMap = {
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
     [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
     [EmailTemplate.UserAdded]: UserAdded,
-} satisfies Record<EmailTemplate, any>;
+} as const;
 
 interface EmailTemplatePropsBase<T extends EmailTemplate> {
     template: T;

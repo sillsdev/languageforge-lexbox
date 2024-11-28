@@ -1,5 +1,5 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import { fileURLToPath } from 'url';
+import {FlatCompat} from '@eslint/eslintrc';
+import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
@@ -25,7 +25,7 @@ export default [
   // TypeScript and Svelte plugins don't seem to support the new config format yet
   // So, using backwards compatibility util: https://eslint.org/blog/2022/08/new-config-system-part-2/#backwards-compatibility-utility
   ...compat.config({
-    plugins: ['@typescript-eslint'],
+    plugins: ['@typescript-eslint', '@stylistic'],
     extends: ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'],
     overrides: [
       {
@@ -79,7 +79,7 @@ export default [
           'format': ['camelCase', 'PascalCase'],
         }
       ],
-      '@typescript-eslint/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
+      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
