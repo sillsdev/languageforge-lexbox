@@ -47,7 +47,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
                 crdtEntry.Should().BeEquivalentTo(fwdataEntry,
                     options => options
                         .For(e => e.Components).Exclude(c => c.Id)
-                        .For(e => e.ComplexForms).Exclude(c => c.Id), $"entry {crdtEntry.Id} should include fw data");
+                        .For(e => e.ComplexForms).Exclude(c => c.Id), $"CRDT entry {crdtEntry.Id} was synced with FwData");
             }
         }
     }
