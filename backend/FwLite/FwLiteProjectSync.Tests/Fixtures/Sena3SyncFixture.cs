@@ -26,7 +26,6 @@ public class Sena3Fixture : IAsyncLifetime
 
     public IServiceProvider Services => _services.ServiceProvider;
     private IDisposable _cleanup;
-    private readonly LexboxConfig lexboxConfig;
     private readonly HttpClient http;
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
     public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
@@ -36,21 +35,9 @@ public class Sena3Fixture : IAsyncLifetime
     {
         var services = new ServiceCollection()
             .AddSyncServices(nameof(Sena3Fixture), false);
-        services.AddOptions<LexboxConfig>()
-            .BindConfiguration("LexboxConfig")
-            .Configure(c =>
-            {
-                // TODO: How do I set default values if and only if they're not already set (e.g., via environment variables)?
-                c.LexboxUrl = "http://localhost/";
-                c.LexboxUsername = "admin";
-                c.LexboxPassword = "pass";
-            })
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
         var rootServiceProvider = services.BuildServiceProvider();
         _cleanup = Defer.Action(() => rootServiceProvider.Dispose());
         _services = rootServiceProvider.CreateAsyncScope();
-        lexboxConfig = Services.GetRequiredService<IOptions<LexboxConfig>>().Value;
         var factory = Services.GetRequiredService<IHttpClientFactory>();
         http = factory.CreateClient(nameof(Sena3Fixture));
     }
@@ -86,30 +73,24 @@ public class Sena3Fixture : IAsyncLifetime
         _cleanup.Dispose();
     }
 
-    public async Task<Stream> DownloadProjectBackupStream(string code)
+    public async Task<Stream> DownloadSena3ProjectBackupStream()
     {
-        var backupUrl = new Uri($"{lexboxConfig.LexboxUrl}api/project/backupProject/{code}");
-        var result = await http.GetAsync(backupUrl);
+        var backupUrl = new Uri("https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS");
+        var result = await http.GetAsync(backupUrl, HttpCompletionOption.ResponseHeadersRead);
         return await result.Content.ReadAsStreamAsync();
     }
-
-    public async Task LoginAs(string lexboxUsername, string lexboxPassword)
-    {
-        if (AlreadyLoggedIn) return;
-        await http.PostAsync($"{lexboxConfig.LexboxUrl}api/login", JsonContent.Create(new { EmailOrUsername=lexboxUsername, Password=lexboxPassword }));
-        AlreadyLoggedIn = true;
-    }
-
     public async Task<string> DownloadSena3()
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), nameof(Sena3Fixture));
         var sena3MasterCopy = Path.Combine(tempFolder, "sena-3");
         if (!Directory.Exists(sena3MasterCopy) || !File.Exists(Path.Combine(sena3MasterCopy, "sena-3.fwdata")))
         {
-            await LoginAs(lexboxConfig.LexboxUsername, lexboxConfig.LexboxPassword);
             Directory.CreateDirectory(sena3MasterCopy);
-            await using var zipStream = await DownloadProjectBackupStream("sena-3");
-            ZipFile.ExtractToDirectory(zipStream, sena3MasterCopy);
+            await using var zipStream = await DownloadSena3ProjectBackupStream();
+            //the zip file is structured like this: /sena-3/.hg
+            //by extracting it to tempFolder it should merge with sena-3
+            ZipFile.ExtractToDirectory(zipStream, tempFolder);
+
             MercurialTestHelper.HgUpdate(sena3MasterCopy, "tip");
             LfMergeBridge.LfMergeBridge.ReassembleFwdataFile(new NullProgress(), false, Path.Combine(sena3MasterCopy, "sena-3.fwdata"));
             MercurialTestHelper.HgClean(sena3MasterCopy, "sena-3.fwdata");

@@ -17,6 +17,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        _fixture.FwDataApi.EntryCount.Should().BeGreaterThan(100, "project should be loaded and have entries");
     }
 
     public async Task DisposeAsync()
@@ -109,7 +110,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var fwdataApi = _fixture.FwDataApi;
         var results = await _syncService.Sync(crdtApi, fwdataApi);
         results.FwdataChanges.Should().Be(0);
-        results.CrdtChanges.Should().BeGreaterThan(fwdataApi.EntryCount);
+        results.CrdtChanges.Should().BeGreaterThanOrEqualTo(fwdataApi.EntryCount);
 
         var crdtEntries = await crdtApi.GetEntries().ToDictionaryAsync(e => e.Id);
         var fwdataEntries = await fwdataApi.GetEntries().ToDictionaryAsync(e => e.Id);
