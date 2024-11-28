@@ -13,6 +13,12 @@ public class ComplexFormTypeValidationTests
         var complexFormType = new ComplexFormType() { Name = new MultiString() };
         _validator.TestValidate(complexFormType).ShouldHaveValidationErrorFor(c => c.Name);
     }
+    [Fact]
+    public void FailsForNameWithEmptyStringValue()
+    {
+        var complexFormType = new ComplexFormType() { Name = new(){ { "en", string.Empty } } };
+        _validator.TestValidate(complexFormType).ShouldHaveValidationErrorFor(c => c.Name);
+    }
 
     [Fact]
     public void FailsForNonNullDeletedAt()
