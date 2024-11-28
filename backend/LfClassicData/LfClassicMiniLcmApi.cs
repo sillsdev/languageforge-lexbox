@@ -314,4 +314,15 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (entry is null) return null;
         return ToEntry(entry);
     }
+
+    public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();
+        if (entry is null) return null;
+        var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == senseId);
+        if (sense is null) return null;
+        var exampleSentence = sense.Examples?.FirstOrDefault(e => e?.Guid == id);
+        if (exampleSentence is null) return null;
+        return ToExampleSentence(sense.Guid, exampleSentence);
+    }
 }

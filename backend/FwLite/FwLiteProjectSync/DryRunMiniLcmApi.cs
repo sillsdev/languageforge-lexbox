@@ -188,6 +188,11 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        return api.GetExampleSentence(entryId, senseId, id);
+    }
+
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence}"));
@@ -201,11 +206,17 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence),
             $"Update example sentence {exampleSentenceId}, changes: {update.Summarize()}"));
-        var entry = await GetEntry(entryId) ??
-                    throw new NullReferenceException($"unable to find entry with id {entryId}");
-        var sense = entry.Senses.First(s => s.Id == senseId);
-        var exampleSentence = sense.ExampleSentences.First(s => s.Id == exampleSentenceId);
-        return exampleSentence;
+        var exampleSentence = await GetExampleSentence(entryId, senseId, exampleSentenceId);
+        return exampleSentence ?? throw new NullReferenceException($"unable to find example sentence with id {exampleSentenceId}");
+    }
+
+    public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence), $"Update example sentence {after.Id}"));
+        return Task.FromResult(after);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

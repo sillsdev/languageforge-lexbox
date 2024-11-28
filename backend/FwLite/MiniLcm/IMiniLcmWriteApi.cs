@@ -54,6 +54,10 @@ public interface IMiniLcmWriteApi
         Guid senseId,
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update);
+    Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
     #endregion
