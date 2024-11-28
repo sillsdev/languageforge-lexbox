@@ -14,7 +14,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import type { MaybePromise, RequestEvent, NavigationEvent } from '@sveltejs/kit';
+import type { RequestEvent, NavigationEvent } from '@sveltejs/kit';
 import {
   traceFetch as _traceFetch,
   traceEventAttributes,
@@ -62,7 +62,7 @@ export function getRootTraceparent(): string | undefined {
 
 export async function traceRequest(
     event: RequestEvent,
-    responseBuilder: (requestSpan: Span) => MaybePromise<Response>,
+    responseBuilder: (requestSpan: Span) => Response | Promise<Response>,
 ): Promise<Response> {
   const tracparentContext = buildContextWithTraceparentBaggage(event);
   return context.with(tracparentContext, () => {

@@ -10,7 +10,6 @@ import {
   type Writable,
   type Unsubscriber,
   type Subscriber,
-  type Invalidator
 } from 'svelte/store';
 import { availableLocales, registerAll } from '$locales';
 import type { Get } from 'type-fest';
@@ -107,7 +106,7 @@ export function initI18n(locale: string): { t: I18n, locale: Writable<string> } 
 }
 
 export const locale: Readable<string> = {
-  subscribe(run: Subscriber<string>, invalidate?: Invalidator<string>): Unsubscriber {
+  subscribe(run: Subscriber<string>, invalidate?: () => void): Unsubscriber {
     return useLocale().subscribe(run, invalidate);
   }
 };

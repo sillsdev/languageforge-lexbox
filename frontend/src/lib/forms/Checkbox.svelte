@@ -3,6 +3,7 @@
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import type {Component} from 'svelte';
 
   export let label: string;
   export let value: boolean;
@@ -23,7 +24,7 @@
   {#if description}
     <label for={id} class="label pb-0">
       <span class="label-text-alt">
-        <Markdown md={description} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <Markdown md={description} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
       </span>
     </label>
   {/if}

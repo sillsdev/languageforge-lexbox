@@ -98,6 +98,9 @@ importers:
       e2e-mailbox:
         specifier: 1.1.5
         version: 1.1.5
+      estree-walker:
+        specifier: ^3.0.3
+        version: 3.0.3
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -111,8 +114,8 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       svelte-exmarkdown:
-        specifier: ^3.0.5
-        version: 3.0.5(svelte@5.2.8)
+        specifier: ^4.0.1
+        version: 4.0.1(svelte@5.2.8)
       svelte-intl-precompile:
         specifier: ^0.12.3
         version: 0.12.3(@babel/core@7.24.4)(svelte@5.2.8)
@@ -5004,9 +5007,6 @@ packages:
   remark-parse@11.0.0:
     resolution: {integrity: sha512-FCxlKLNGknS5ba/1lmpYijMUzX2esxW5xQqjWxw2eHFfS2MSdaHVINFmhjo+qN1WhZhNimq0dZATN9pH0IDrpA==}
 
-  remark-rehype@11.1.0:
-    resolution: {integrity: sha512-z3tJrAs2kIs1AqIIy6pzHmAHlF1hWQ+OdY4/hv+Wxe35EhyLKcajL33iUEn3ScxtFox9nUvRufR/Zre8Q08H/g==}
-
   remark-rehype@11.1.1:
     resolution: {integrity: sha512-g/osARvjkBXb6Wo0XvAeXQohVta8i84ACbenPpoSsxTOQH/Ae0/RGP4WZgnMH5pMLpsj4FG7OHmcIcXxpza8eQ==}
 
@@ -5312,11 +5312,6 @@ packages:
     peerDependenciesMeta:
       svelte:
         optional: true
-
-  svelte-exmarkdown@3.0.5:
-    resolution: {integrity: sha512-x0ELw7oTziBaJLFsdGZaoursycGK9HPzxRTRZ/rBi2KmseFG29ryyborJxFmeE0X6ORrEW1pRjoi8q41xpIeRQ==}
-    peerDependencies:
-      svelte: ^3.47.0 || ^4.0.0 || >=5.0.0-next.115
 
   svelte-exmarkdown@4.0.1:
     resolution: {integrity: sha512-Rbyp1qyYtGbseEwJ09cmdCeUYDwfXKv7MLTDeacb+/OCPYaTBdMy/3kvn8wF8w7v4JggyOboxhvJxoXEkmDxMQ==}
@@ -11673,14 +11668,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  remark-rehype@11.1.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      '@types/mdast': 4.0.3
-      mdast-util-to-hast: 13.1.0
-      unified: 11.0.4
-      vfile: 6.0.1
-
   remark-rehype@11.1.1:
     dependencies:
       '@types/hast': 3.0.4
@@ -12000,16 +11987,6 @@ snapshots:
       postcss-scss: 4.0.9(postcss@8.4.49)
     optionalDependencies:
       svelte: 5.2.8
-
-  svelte-exmarkdown@3.0.5(svelte@5.2.8):
-    dependencies:
-      remark-gfm: 4.0.0
-      remark-parse: 11.0.0
-      remark-rehype: 11.1.0
-      svelte: 5.2.8
-      unified: 11.0.4
-    transitivePeerDependencies:
-      - supports-color
 
   svelte-exmarkdown@4.0.1(svelte@5.2.8):
     dependencies:

@@ -6,6 +6,7 @@
   import CreateUser from '$lib/components/Users/CreateUser.svelte';
   import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import type {Component} from 'svelte';
   import Icon from '$lib/icons/Icon.svelte';
   import { createEventDispatcher } from 'svelte';
 
@@ -31,11 +32,11 @@
       <div>
         <Markdown
           md={$t('admin_dashboard.create_user_modal.help_create_single_guest_user', { helpLink: helpLinks.addProjectMember })}
-          plugins={[{ renderer: { a: NewTabLinkRenderer } }]}
+          plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]}
         />
         <Markdown
           md={$t('admin_dashboard.create_user_modal.help_create_bulk_guest_users', { helpLink: helpLinks.bulkAddCreate })}
-          plugins={[{ renderer: { a: NewTabLinkRenderer } }]}
+          plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]}
         />
       </div>
     </div>

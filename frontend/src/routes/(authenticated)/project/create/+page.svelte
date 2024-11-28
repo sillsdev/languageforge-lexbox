@@ -10,7 +10,7 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
+  import { onMount, type Component } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived, writable, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
@@ -287,7 +287,7 @@
           {/each}
           <label for="group-extra-projects" class="label pb-0">
             <span class="label-text-alt">
-              <Markdown md={$t('project.create.maybe_related_description')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+              <Markdown md={$t('project.create.maybe_related_description')} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
             </span>
           </label>
         </div>

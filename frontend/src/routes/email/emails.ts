@@ -1,6 +1,5 @@
 import ForgotPassword from '$lib/email/ForgotPassword.svelte';
 import NewAdmin from '$lib/email/NewAdmin.svelte';
-import type {ComponentType} from 'svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
 import JoinProjectRequest from '$lib/email/JoinProjectRequest.svelte';
@@ -36,7 +35,7 @@ export const componentMap = {
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
     [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
     [EmailTemplate.UserAdded]: UserAdded,
-} satisfies Record<EmailTemplate, ComponentType>;
+} satisfies Record<EmailTemplate, any>;
 
 interface EmailTemplatePropsBase<T extends EmailTemplate> {
     template: T;
