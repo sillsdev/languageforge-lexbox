@@ -1,17 +1,10 @@
 ﻿using System.IO.Compression;
-using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
-using FwDataMiniLcmBridge.LcmUtils;
-using FwDataMiniLcmBridge.Tests.Fixtures;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MiniLcm;
 using SIL.IO;
 using SIL.Progress;
 
@@ -19,67 +12,67 @@ namespace FwLiteProjectSync.Tests.Fixtures;
 
 public class Sena3Fixture : IAsyncLifetime
 {
-    private readonly AsyncServiceScope _services;
+    private static readonly HttpClient http = new HttpClient();
 
-    public CrdtFwdataProjectSyncService SyncService =>
-        _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
-
-    public IServiceProvider Services => _services.ServiceProvider;
-    private IDisposable _cleanup;
-    private readonly HttpClient http;
-    public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
-    public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
-    private bool AlreadyLoggedIn { get; set; } = false;
-
-    public Sena3Fixture()
+    public async Task InitializeAsync()
     {
         var services = new ServiceCollection()
             .AddSyncServices(nameof(Sena3Fixture), false);
         var rootServiceProvider = services.BuildServiceProvider();
-        _cleanup = Defer.Action(() => rootServiceProvider.Dispose());
-        _services = rootServiceProvider.CreateAsyncScope();
-        var factory = Services.GetRequiredService<IHttpClientFactory>();
-        http = factory.CreateClient(nameof(Sena3Fixture));
+        var fwProjectsFolder = rootServiceProvider.GetRequiredService<IOptions<FwDataBridgeConfig>>()
+            .Value
+            .ProjectsFolder;
+        if (Path.Exists(fwProjectsFolder)) Directory.Delete(fwProjectsFolder, true);
+        Directory.CreateDirectory(fwProjectsFolder);
+
+        var crdtProjectsFolder =
+            rootServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
+        if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
+        rootServiceProvider.Dispose();
+
+        Directory.CreateDirectory(crdtProjectsFolder);
+        await DownloadSena3();
     }
 
-    public async Task InitializeAsync()
+    public async Task<(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwDataApi, IServiceProvider services, IDisposable cleanup)> SetupProjects()
     {
         var sena3MasterCopy = await DownloadSena3();
+
+        var rootServiceProvider = new ServiceCollection()
+            .AddSyncServices(nameof(Sena3Fixture), false)
+            .BuildServiceProvider();
+        var cleanup = Defer.Action(() => rootServiceProvider.Dispose());
+        var services = rootServiceProvider.CreateAsyncScope().ServiceProvider;
         var projectName = "sena-3_" + Guid.NewGuid().ToString("N");
 
-        var projectsFolder = Services.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value
+        var projectsFolder = services.GetRequiredService<IOptions<FwDataBridgeConfig>>()
+            .Value
             .ProjectsFolder;
-        if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
-        Directory.CreateDirectory(projectsFolder);
         var fwDataProject = new FwDataProject(projectName, projectsFolder);
         var fwDataProjectPath = Path.Combine(fwDataProject.ProjectsPath, fwDataProject.Name);
         DirectoryHelper.Copy(sena3MasterCopy, fwDataProjectPath);
         File.Move(Path.Combine(fwDataProjectPath, "sena-3.fwdata"), fwDataProject.FilePath);
+        var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
-        FwDataApi = Services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
-
-        var crdtProjectsFolder =
-            Services.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
-        if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
-        Directory.CreateDirectory(crdtProjectsFolder);
-        var crdtProject = await Services.GetRequiredService<ProjectsService>()
-            .CreateProject(new(projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
-        CrdtApi = (CrdtMiniLcmApi) await Services.OpenCrdtProject(crdtProject);
+        var crdtProject = await services.GetRequiredService<ProjectsService>()
+            .CreateProject(new(projectName, FwProjectId: fwDataMiniLcmApi.ProjectId, SeedNewProjectData: false));
+        var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.OpenCrdtProject(crdtProject);
+        return (crdtMiniLcmApi, fwDataMiniLcmApi, services, cleanup);
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        await _services.DisposeAsync();
-        _cleanup.Dispose();
+        return Task.CompletedTask;
     }
 
-    public async Task<Stream> DownloadSena3ProjectBackupStream()
+    private async Task<Stream> DownloadSena3ProjectBackupStream()
     {
         var backupUrl = new Uri("https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS");
         var result = await http.GetAsync(backupUrl, HttpCompletionOption.ResponseHeadersRead);
         return await result.Content.ReadAsStreamAsync();
     }
-    public async Task<string> DownloadSena3()
+
+    private async Task<string> DownloadSena3()
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), nameof(Sena3Fixture));
         var sena3MasterCopy = Path.Combine(tempFolder, "sena-3");
