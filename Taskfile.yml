@@ -68,7 +68,12 @@ tasks:
     cmds:
       - tilt up
 
-      # dev
+  prod-ui-up:
+    interactive: true
+    desc: 'Starts the cluster using the production build of UI, good for automated testing'
+    cmds:
+      - tilt up -- --prod-ui-build
+    # dev
   infra-up:
     desc: 'Starts infrastructure for our ui and api, does not forward ports for api, if you want port forwarding use k8s:infra-forward'
     cmds:
