@@ -4,7 +4,13 @@ using MiniLcm.Models;
 
 namespace MiniLcm.Validators;
 
-public record MiniLcmValidators(IValidator<ComplexFormType> ComplexFormTypeValidator);
+public record MiniLcmValidators(IValidator<ComplexFormType> ComplexFormTypeValidator)
+{
+    public async Task ValidateAndThrow(ComplexFormType value)
+    {
+        await ComplexFormTypeValidator.ValidateAndThrowAsync(value);
+    }
+}
 
 public static class MiniLcmValidatorsExtensions
 {
