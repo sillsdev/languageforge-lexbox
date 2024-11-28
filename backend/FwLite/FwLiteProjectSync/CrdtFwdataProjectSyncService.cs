@@ -58,6 +58,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         {
             await miniLcmImport.ImportProject(crdtApi, fwdataApi, entryCount);
             LogDryRun(crdtApi, "crdt");
+            if (dryRun) return new DryRunSyncResult(entryCount, 0, GetDryRunRecords(crdtApi), []);
             return new SyncResult(entryCount, 0);
         }
 
@@ -109,7 +110,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file);
     }
 
-    private async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
+    internal async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
     {
         var snapshotPath = SnapshotPath(project);
         await using var file = File.Create(snapshotPath);

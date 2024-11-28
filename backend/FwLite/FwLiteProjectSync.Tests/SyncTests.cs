@@ -95,9 +95,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Sync(crdtApi, fwdataApi);
-        var secondSync = await _syncService.SyncDryRun(crdtApi, fwdataApi);
-        secondSync.CrdtChanges.Should().Be(0, $"changes were {string.Join(", ", secondSync.CrdtDryRunRecords)}");
-        secondSync.FwdataChanges.Should().Be(0, $"changes were {string.Join(", ", secondSync.FwDataDryRunRecords)}");
+        var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
+        secondSync.CrdtChanges.Should().Be(0);
+        secondSync.FwdataChanges.Should().Be(0);
     }
 
     [Fact]
@@ -149,6 +149,41 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options.For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
+    public async Task SyncDryRun_NoChangesAreSynced()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        var fwDataEntryId = Guid.NewGuid();
+        var crdtEntryId = Guid.NewGuid();
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            Id = fwDataEntryId,
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            Id = crdtEntryId,
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, }
+            ]
+        });
+        await _syncService.SyncDryRun(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Select(e => e.Id).Should().NotContain(fwDataEntryId);
+        fwdataEntries.Select(e => e.Id).Should().NotContain(crdtEntryId);
     }
 
     [Fact]
