@@ -169,9 +169,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapSecurityTxt();
 app.MapNitroApp("/api/graphql/ui").WithOptions(new (){ServeMode = GraphQLToolServeMode.Embedded}).AllowAnonymous();
-if (app.Environment.IsDevelopment())
-    //required for vite to generate types
-    app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
+app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
