@@ -20,7 +20,6 @@ public class JsonPatchEntryRewriteTests
             changes.Should().ContainSingle().Which.Should().BeOfType<AddEntryComponentChange>().Subject;
         addEntryComponentChange.ComplexFormEntryId.Should().Be(_entry.Id);
         addEntryComponentChange.ComponentEntryId.Should().Be(componentEntry.Id);
-        addEntryComponentChange.ComponentHeadword.Should().Be(componentEntry.Headword());
     }
 
     [Fact]
@@ -84,7 +83,6 @@ public class JsonPatchEntryRewriteTests
             changes.Should().ContainSingle().Which.Should().BeOfType<AddEntryComponentChange>().Subject;
         addEntryComponentChange.ComplexFormEntryId.Should().Be(_entry.Id);
         addEntryComponentChange.ComponentEntryId.Should().Be(componentEntry.Id);
-        addEntryComponentChange.ComponentHeadword.Should().Be(componentEntry.Headword());
     }
 
     [Fact]

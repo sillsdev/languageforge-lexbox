@@ -134,7 +134,22 @@ public static class LcmCrdtKernel
             .Add<ComplexFormType>()
             .Add<ComplexFormComponent>(builder =>
             {
+                const string componentSenseId = "ComponentSenseId";
                 builder.ToTable("ComplexFormComponents");
+                builder.Property(c => c.ComponentSenseId).HasColumnName(componentSenseId);
+                //these indexes are used to ensure that we don't create duplicate complex form components
+                //we need the filter otherwise 2 components which are the same and have a null sense id can be created because 2 rows with the same null are not considered duplicates
+                builder.HasIndex(component => new
+                {
+                    component.ComplexFormEntryId,
+                    component.ComponentEntryId,
+                    component.ComponentSenseId
+                }).IsUnique().HasFilter($"{componentSenseId} IS NOT NULL");
+                builder.HasIndex(component => new
+                {
+                    component.ComplexFormEntryId,
+                    component.ComponentEntryId
+                }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()

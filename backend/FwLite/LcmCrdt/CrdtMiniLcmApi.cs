@@ -18,14 +18,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
 
-    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
-    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
-    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>();
-    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>();
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>();
-    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
-    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
-    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
+    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>().AsTracking(false);
+    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>()
+        .AsTracking(false);
+    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>().AsTracking(false);
+    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>().AsTracking(false);
+    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>().AsTracking(false);
+    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>().AsTracking(false);
+    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>().AsTracking(false);
+    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>().AsTracking(false);
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -134,7 +135,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
     {
-        await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
+        await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)));
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -151,6 +152,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
+        var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
+            c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
+            && c.ComponentEntryId == complexFormComponent.ComponentEntryId
+            && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
+        if (existing is not null) return existing;
         var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
         await dataModel.AddChange(ClientId, addEntryComponentChange);
         return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
@@ -256,7 +262,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
         var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
-        await dataModel.AddChanges(ClientId, entries.ToBlockingEnumerable().SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech)));
+        await dataModel.AddChanges(ClientId,
+            entries.ToBlockingEnumerable()
+                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech))
+                //force entries to be created first, this avoids issues where references are created before the entry is created
+                .OrderBy(c => c is CreateEntryChange ? 0 : 1)
+        );
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, PartOfSpeech> partsOfSpeech)

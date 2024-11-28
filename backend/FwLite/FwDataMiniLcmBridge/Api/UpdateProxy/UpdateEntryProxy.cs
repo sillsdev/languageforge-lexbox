@@ -4,7 +4,7 @@ using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateEntryProxy : Entry
+public record UpdateEntryProxy : Entry
 {
     private readonly ILexEntry _lcmEntry;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
