@@ -62,6 +62,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return GetPartOfSpeech(id)!;
     }
 
+    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {after.Id}"));
+        return Task.FromResult(after);
+    }
+
     public Task DeletePartOfSpeech(Guid id)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeletePartOfSpeech), $"Delete part of speech {id}"));
@@ -87,13 +93,19 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update part of speech {id}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {id}"));
         return GetSemanticDomain(id)!;
+    }
+
+    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {after.Id}"));
+        return Task.FromResult(after);
     }
 
     public Task DeleteSemanticDomain(Guid id)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(DeleteSemanticDomain), $"Delete part of speech {id}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteSemanticDomain), $"Delete semantic domain {id}"));
         return Task.CompletedTask;
     }
 

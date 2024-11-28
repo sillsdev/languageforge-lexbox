@@ -104,6 +104,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
     }
 
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    {
+        await PartOfSpeechSync.Sync(before, after, this);
+        return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
+    }
+
     public async Task DeletePartOfSpeech(Guid id)
     {
         await dataModel.AddChange(ClientId, new DeleteChange<PartOfSpeech>(id));
@@ -132,6 +138,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         await dataModel.AddChanges(ClientId, [..semDom.ToChanges(update.Patch)]);
         return await GetSemanticDomain(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    {
+        await SemanticDomainSync.Sync(before, after, this);
+        return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
 
     public async Task DeleteSemanticDomain(Guid id)

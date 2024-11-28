@@ -270,6 +270,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech));
     }
 
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    {
+        await PartOfSpeechSync.Sync(before, after, this);
+        return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
+    }
+
     public Task DeletePartOfSpeech(Guid id)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Part of Speech",
@@ -339,6 +345,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 update.Apply(updateProxy);
             });
         return Task.FromResult(FromLcmSemanticDomain(lcmSemanticDomain));
+    }
+
+    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    {
+        await SemanticDomainSync.Sync(before, after, this);
+        return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
 
     public Task DeleteSemanticDomain(Guid id)

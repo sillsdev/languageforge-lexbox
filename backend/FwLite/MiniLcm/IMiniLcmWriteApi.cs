@@ -17,12 +17,14 @@ public interface IMiniLcmWriteApi
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
+    Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after);
     Task DeletePartOfSpeech(Guid id);
     #endregion
 
     #region SemanticDomain
     Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain);
     Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update);
+    Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after);
     Task DeleteSemanticDomain(Guid id);
     #endregion
 
