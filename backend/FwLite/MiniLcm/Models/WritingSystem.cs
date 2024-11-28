@@ -3,10 +3,10 @@
 public record WritingSystem: IObjectWithId
 {
     public required Guid Id { get; set; }
-    public required WritingSystemId WsId { get; set; }
-    public required string Name { get; set; }
-    public required string Abbreviation { get; set; }
-    public required string Font { get; set; }
+    public virtual required WritingSystemId WsId { get; set; }
+    public virtual required string Name { get; set; }
+    public virtual required string Abbreviation { get; set; }
+    public virtual required string Font { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
     public required WritingSystemType Type { get; set; }

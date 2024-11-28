@@ -34,6 +34,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         }).First(w => w.WsId == id);
     }
 
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update {after.Type} writing system {after.WsId}"));
+        return Task.FromResult(after);
+    }
+
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
         return api.GetPartsOfSpeech();
@@ -216,7 +222,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component: {complexFormComponent}"));
         return Task.CompletedTask;
     }
 

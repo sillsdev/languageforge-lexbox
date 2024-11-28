@@ -134,7 +134,7 @@ type CreateProjectPayload {
 }
 
 type CreateProjectResponse {
-  id: UUID
+  id: UUID!
   result: CreateProjectResult!
 }
 
@@ -546,7 +546,6 @@ type User {
   createdById: UUID
   createdBy: User
   usersICreated: [User!]!
-  googleId: String
   organizations: [OrgMember!]!
   id: UUID!
   createdDate: DateTime!
@@ -755,6 +754,7 @@ input CreateProjectInput {
   isConfidential: Boolean!
   projectManagerId: UUID
   orgId: UUID
+  forceDraft: Boolean! = false
 }
 
 input DateTimeOperationFilterInput {
@@ -896,13 +896,6 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput @cost(weight: "10")
   none: ProjectUsersFilterInput @cost(weight: "10")
   some: ProjectUsersFilterInput @cost(weight: "10")
-  any: Boolean @cost(weight: "10")
-}
-
-input ListFilterInputTypeOfUserFilterInput {
-  all: UserFilterInput @cost(weight: "10")
-  none: UserFilterInput @cost(weight: "10")
-  some: UserFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
 }
 
@@ -1140,46 +1133,17 @@ input UserFilterInput {
   or: [UserFilterInput!]
   name: StringOperationFilterInput
   email: StringOperationFilterInput
-  localizationCode: StringOperationFilterInput
   isAdmin: BooleanOperationFilterInput
-  passwordHash: StringOperationFilterInput
-  salt: StringOperationFilterInput
-  passwordStrength: IntOperationFilterInput
-  lastActive: DateTimeOperationFilterInput
-  emailVerified: BooleanOperationFilterInput
-  canCreateProjects: BooleanOperationFilterInput
   createdById: UuidOperationFilterInput
-  createdBy: UserFilterInput
-  usersICreated: ListFilterInputTypeOfUserFilterInput
-  locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
-  googleId: StringOperationFilterInput
-  projects: ListFilterInputTypeOfProjectUsersFilterInput
-  organizations: ListFilterInputTypeOfOrgMemberFilterInput
   id: UuidOperationFilterInput
-  createdDate: DateTimeOperationFilterInput
-  updatedDate: DateTimeOperationFilterInput
 }
 
 input UserSortInput {
   name: SortEnumType @cost(weight: "10")
   email: SortEnumType @cost(weight: "10")
-  localizationCode: SortEnumType @cost(weight: "10")
-  isAdmin: SortEnumType @cost(weight: "10")
-  passwordHash: SortEnumType @cost(weight: "10")
-  salt: SortEnumType @cost(weight: "10")
-  passwordStrength: SortEnumType @cost(weight: "10")
-  lastActive: SortEnumType @cost(weight: "10")
-  emailVerified: SortEnumType @cost(weight: "10")
-  canCreateProjects: SortEnumType @cost(weight: "10")
-  createdById: SortEnumType @cost(weight: "10")
-  createdBy: UserSortInput @cost(weight: "10")
-  locked: SortEnumType @cost(weight: "10")
   username: SortEnumType @cost(weight: "10")
-  googleId: SortEnumType @cost(weight: "10")
-  id: SortEnumType @cost(weight: "10")
   createdDate: SortEnumType @cost(weight: "10")
-  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input UuidOperationFilterInput {

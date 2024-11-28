@@ -1,7 +1,7 @@
-using MiniLcm;
 using MiniLcm.Models;
-using MiniLcm.SyncHelpers;
 using SystemTextJsonPatch;
+
+namespace MiniLcm.SyncHelpers;
 
 public static class PartOfSpeechSync
 {

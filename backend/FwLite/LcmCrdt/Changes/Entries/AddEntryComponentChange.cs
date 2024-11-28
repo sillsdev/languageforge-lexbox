@@ -10,10 +10,8 @@ namespace LcmCrdt.Changes.Entries;
 public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelfNamedType<AddEntryComponentChange>
 {
     public Guid ComplexFormEntryId { get; }
-    public string? ComplexFormHeadword { get; }
     public Guid ComponentEntryId { get; }
     public Guid? ComponentSenseId { get; }
-    public string? ComponentHeadword { get; }
 
     [JsonConstructor]
     public AddEntryComponentChange(Guid entityId,
@@ -24,9 +22,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
         Guid? componentSenseId = null) : base(entityId)
     {
         ComplexFormEntryId = complexFormEntryId;
-        ComplexFormHeadword = complexFormHeadword;
         ComponentEntryId = componentEntryId;
-        ComponentHeadword = componentHeadword;
         ComponentSenseId = componentSenseId;
     }
 
@@ -41,17 +37,22 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
 
     public override async ValueTask<ComplexFormComponent> NewEntity(Commit commit, ChangeContext context)
     {
+        var complexFormEntry = await context.GetCurrent<Entry>(ComplexFormEntryId);
+        var componentEntry = await context.GetCurrent<Entry>(ComponentEntryId);
+        Sense? componentSense = null;
+        if (ComponentSenseId is not null)
+            componentSense = await context.GetCurrent<Sense>(ComponentSenseId.Value);
         return new ComplexFormComponent
         {
             Id = EntityId,
             ComplexFormEntryId = ComplexFormEntryId,
-            ComplexFormHeadword = ComplexFormHeadword,
+            ComplexFormHeadword = complexFormEntry?.Headword(),
             ComponentEntryId = ComponentEntryId,
-            ComponentHeadword = ComponentHeadword,
+            ComponentHeadword = componentEntry?.Headword(),
             ComponentSenseId = ComponentSenseId,
-            DeletedAt = (await context.IsObjectDeleted(ComponentEntryId) ||
-                         await context.IsObjectDeleted(ComplexFormEntryId) ||
-                         ComponentSenseId.HasValue && await context.IsObjectDeleted(ComponentSenseId.Value))
+            DeletedAt = (complexFormEntry?.DeletedAt is not null ||
+                         componentEntry?.DeletedAt is not null ||
+                         (ComponentSenseId.HasValue && componentSense?.DeletedAt is not null))
                 ? commit.DateTime
                 : (DateTime?)null,
         };
