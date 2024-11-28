@@ -26,12 +26,14 @@
   const viewSettings = useViewSettings();
 
   async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
+    if (readonly) return;
     await updateEntry(e.entry);
     dispatch('change', {entry: e.entry});
     updateInitialEntry();
   }
 
   async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
+    if (readonly) return;
     if (e.example !== undefined && e.sense !== undefined) {
       await saveHandler(() => lexboxApi.DeleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
     } else if (e.sense !== undefined) {
