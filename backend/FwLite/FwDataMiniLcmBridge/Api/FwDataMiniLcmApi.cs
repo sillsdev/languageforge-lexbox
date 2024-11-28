@@ -135,6 +135,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
+    public Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    {
+        throw new NotImplementedException();
+    }
+
     internal void CompleteExemplars(WritingSystems writingSystems)
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
@@ -186,9 +191,36 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLcmWritingSystem(ws, index, type));
     }
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        throw new NotImplementedException();
+        if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
+        {
+            throw new InvalidOperationException($"Writing system {id.Code} not found");
+        }
+        await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
+            "Revert WritingSystem",
+            async () =>
+            {
+                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, this)
+                {
+                    Id = Guid.Empty,
+                    Type = type,
+                };
+                update.Apply(updateProxy);
+                updateProxy.CommitUpdate(Cache);
+            });
+        return await GetWritingSystem(id, type);
+    }
+
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
+            "Revert WritingSystem",
+            async () =>
+            {
+                await WritingSystemSync.Sync(after, before, this);
+            });
+        return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
