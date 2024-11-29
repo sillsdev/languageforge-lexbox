@@ -50,6 +50,7 @@ app.UseHttpsRedirection();
 app.MapHealthChecks("/api/healthz");
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
+app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 
 app.Run();
 
@@ -61,6 +62,7 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     FwDataFactory fwDataFactory,
     CrdtProjectsService projectsService,
     ProjectLookupService projectLookupService,
+    ProjectSyncStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
@@ -73,6 +75,8 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
         logger.LogInformation("Dry run, not actually syncing");
         return TypedResults.Ok(new SyncResult(0, 0));
     }
+
+    using var syncStatusUpdater = new ProjectSyncStatusUpdater(syncStatusService, projectId);
 
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
@@ -104,7 +108,6 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
     await crdtSyncService.Sync();
 
-
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
 
@@ -112,6 +115,14 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
     return TypedResults.Ok(result);
+}
+
+static Results<Ok<ProjectSyncStatus>, NotFound> GetMergeStatus(
+    ProjectSyncStatusService syncStatusService,
+    Guid projectId)
+{
+    var status = syncStatusService.SyncStatus(projectId);
+    return status is null ? TypedResults.NotFound() : TypedResults.Ok(status.Value);
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,

@@ -17,6 +17,7 @@ public static class FwHeadlessKernel
             .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddSingleton<ProjectSyncStatusService>();
         services.AddScoped<SendReceiveService>();
         services.AddScoped<ProjectLookupService>();
         services.AddScoped<LogSanitizerService>();
