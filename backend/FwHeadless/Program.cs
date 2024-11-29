@@ -117,12 +117,16 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     return TypedResults.Ok(result);
 }
 
-static Results<Ok<ProjectSyncStatus>, NotFound> GetMergeStatus(
+static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
+    ProjectLookupService projectLookupService,
     ProjectSyncStatusService syncStatusService,
     Guid projectId)
 {
     var status = syncStatusService.SyncStatus(projectId);
-    return status is null ? TypedResults.NotFound() : TypedResults.Ok(status.Value);
+    if (status is not null) return TypedResults.Ok(status.Value);
+    // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
+    if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.ReadyToSync);
+    else return TypedResults.NotFound();
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
