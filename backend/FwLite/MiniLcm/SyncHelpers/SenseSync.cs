@@ -17,6 +17,24 @@ public static class SenseSync
             afterSense.ExampleSentences,
             beforeSense.ExampleSentences,
             api);
+        changes += await DiffCollection.Diff(api,
+            beforeSense.SemanticDomains,
+            afterSense.SemanticDomains,
+            async (api, domain) =>
+            {
+                await api.AddSemanticDomainToSense(beforeSense.Id, domain);
+                return 1;
+            },
+            async (api, beforeDomain) =>
+            {
+                await api.RemoveSemanticDomainFromSense(beforeSense.Id, beforeDomain.Id);
+                return 1;
+            },
+            (_, beforeDomain, afterDomain) =>
+            {
+                //do nothing, semantic domains are not editable here
+                return Task.FromResult(0);
+            });
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 
@@ -38,25 +56,6 @@ public static class SenseSync
             patchDocument.Replace(sense => sense.PartOfSpeechId, afterSense.PartOfSpeechId);
         }
 
-        await DiffCollection.Diff(null!,
-            beforeSense.SemanticDomains,
-            afterSense.SemanticDomains,
-            (_, domain) =>
-            {
-                patchDocument.Add(sense => sense.SemanticDomains, domain);
-                return Task.FromResult(1);
-            },
-            (_, beforeDomain) =>
-            {
-                patchDocument.Remove(sense => sense.SemanticDomains,
-                    beforeSense.SemanticDomains.IndexOf(beforeDomain));
-                return Task.FromResult(1);
-            },
-            (_, beforeDomain, afterDomain) =>
-            {
-                //do nothing, semantic domains are not editable here
-                return Task.FromResult(0);
-            });
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Sense>(patchDocument);
     }
