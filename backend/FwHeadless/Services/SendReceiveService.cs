@@ -1,8 +1,7 @@
 using FwDataMiniLcmBridge;
-using FwHeadless.Services;
 using Microsoft.Extensions.Options;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingProgress progress)
 {

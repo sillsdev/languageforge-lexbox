@@ -2,7 +2,7 @@ using LexData;
 using Microsoft.EntityFrameworkCore;
 using SIL.Harmony.Core;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public class ProjectLookupService(LexBoxDbContext dbContext)
 {
