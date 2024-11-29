@@ -54,7 +54,7 @@ public class Sena3Fixture : IAsyncLifetime
         File.Move(Path.Combine(fwDataProjectPath, "sena-3.fwdata"), fwDataProject.FilePath);
         var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
-        var crdtProject = await services.GetRequiredService<ProjectsService>()
+        var crdtProject = await services.GetRequiredService<CrdtProjectsService>()
             .CreateProject(new(projectName, FwProjectId: fwDataMiniLcmApi.ProjectId, SeedNewProjectData: false));
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.OpenCrdtProject(crdtProject);
         return (crdtMiniLcmApi, fwDataMiniLcmApi, services, cleanup);
