@@ -24,6 +24,8 @@
       ComponentEntryId (Guid) Required FK Index
       ComponentHeadword (string)
       ComponentSenseId (Guid?) FK Index
+        Annotations: 
+          Relational:ColumnName: ComponentSenseId
       DeletedAt (DateTimeOffset?)
       SnapshotId (no field, Guid?) Shadow FK Index
     Keys: 
@@ -34,10 +36,15 @@
       ComplexFormComponent {'ComponentSenseId'} -> Sense {'Id'} Cascade
       ComplexFormComponent {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
-      ComplexFormEntryId
       ComponentEntryId
       ComponentSenseId
       SnapshotId Unique
+      ComplexFormEntryId, ComponentEntryId Unique
+        Annotations: 
+          Relational:Filter: ComponentSenseId IS NULL
+      ComplexFormEntryId, ComponentEntryId, ComponentSenseId Unique
+        Annotations: 
+          Relational:Filter: ComponentSenseId IS NOT NULL
     Annotations: 
       DiscriminatorProperty: 
       Relational:FunctionName: 
@@ -328,4 +335,4 @@
       Relational:ViewName: 
       Relational:ViewSchema: 
 Annotations: 
-  ProductVersion: 8.0.4
+  ProductVersion: 8.0.11

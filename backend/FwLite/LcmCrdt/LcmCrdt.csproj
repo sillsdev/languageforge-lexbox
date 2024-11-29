@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <InformationalVersion>$(ApplicationDisplayVersion)</InformationalVersion>
         <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
     </PropertyGroup>
@@ -15,12 +12,12 @@
     <ItemGroup>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="linq2db.AspNet" Version="5.4.1"/>
-        <PackageReference Include="linq2db.EntityFrameworkCore" Version="8.1.0"/>
+        <PackageReference Include="linq2db.EntityFrameworkCore" Version="8.1.0" />
         <PackageReference Include="linq2db.SQLite" Version="5.4.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-        <PackageReference Include="Refit" Version="7.1.2"/>
-        <PackageReference Include="Refit.HttpClientFactory" Version="7.1.2"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+        <PackageReference Include="Refit" Version="8.0.0"/>
+        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>

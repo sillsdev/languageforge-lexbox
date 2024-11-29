@@ -8,6 +8,7 @@ using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using LocalWebApp.Hubs;
 using Microsoft.OpenApi.Models;
+using MiniLcm.Models;
 
 namespace LocalWebApp.Routes;
 

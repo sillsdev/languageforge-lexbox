@@ -34,6 +34,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         }).First(w => w.WsId == id);
     }
 
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update {after.Type} writing system {after.WsId}"));
+        return Task.FromResult(after);
+    }
+
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
         return api.GetPartsOfSpeech();
@@ -54,6 +60,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {id}"));
         return GetPartOfSpeech(id)!;
+    }
+
+    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {after.Id}"));
+        return Task.FromResult(after);
     }
 
     public Task DeletePartOfSpeech(Guid id)
@@ -81,13 +93,19 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update part of speech {id}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {id}"));
         return GetSemanticDomain(id)!;
+    }
+
+    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {after.Id}"));
+        return Task.FromResult(after);
     }
 
     public Task DeleteSemanticDomain(Guid id)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(DeleteSemanticDomain), $"Delete part of speech {id}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteSemanticDomain), $"Delete semantic domain {id}"));
         return Task.CompletedTask;
     }
 
@@ -182,6 +200,11 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        return api.GetExampleSentence(entryId, senseId, id);
+    }
+
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence}"));
@@ -195,11 +218,17 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence),
             $"Update example sentence {exampleSentenceId}, changes: {update.Summarize()}"));
-        var entry = await GetEntry(entryId) ??
-                    throw new NullReferenceException($"unable to find entry with id {entryId}");
-        var sense = entry.Senses.First(s => s.Id == senseId);
-        var exampleSentence = sense.ExampleSentences.First(s => s.Id == exampleSentenceId);
-        return exampleSentence;
+        var exampleSentence = await GetExampleSentence(entryId, senseId, exampleSentenceId);
+        return exampleSentence ?? throw new NullReferenceException($"unable to find example sentence with id {exampleSentenceId}");
+    }
+
+    public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence), $"Update example sentence {after.Id}"));
+        return Task.FromResult(after);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -216,7 +245,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component: {complexFormComponent}"));
         return Task.CompletedTask;
     }
 

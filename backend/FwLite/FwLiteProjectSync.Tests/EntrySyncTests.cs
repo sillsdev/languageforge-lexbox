@@ -95,8 +95,8 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     [Fact]
     public async Task CanChangeComplexFormTypeViaSync()
     {
+        var complexFormType = await _fixture.CrdtApi.CreateComplexFormType(new() { Name = new() { { "en", "complexFormType" } } });
         var entry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm1" } } });
-        var complexFormType = await _fixture.CrdtApi.GetComplexFormTypes().FirstAsync();
         var after = (Entry) entry.Copy();
         after.ComplexFormTypes = [complexFormType];
         await EntrySync.Sync(after, entry, _fixture.CrdtApi);

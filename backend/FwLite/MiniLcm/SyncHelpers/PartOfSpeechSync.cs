@@ -1,7 +1,7 @@
-using MiniLcm;
 using MiniLcm.Models;
-using MiniLcm.SyncHelpers;
 using SystemTextJsonPatch;
+
+namespace MiniLcm.SyncHelpers;
 
 public static class PartOfSpeechSync
 {
@@ -23,12 +23,16 @@ public static class PartOfSpeechSync
                 await api.DeletePartOfSpeech(previousPos.Id);
                 return 1;
             },
-            async (api, previousPos, currentPos) =>
-            {
-                var updateObjectInput = PartOfSpeechDiffToUpdate(previousPos, currentPos);
-                if (updateObjectInput is not null) await api.UpdatePartOfSpeech(currentPos.Id, updateObjectInput);
-                return updateObjectInput is null ? 0 : 1;
-            });
+            (api, previousPos, currentPos) => Sync(previousPos, currentPos, api));
+    }
+
+    public static async Task<int> Sync(PartOfSpeech before,
+        PartOfSpeech after,
+        IMiniLcmApi api)
+    {
+        var updateObjectInput = PartOfSpeechDiffToUpdate(before, after);
+        if (updateObjectInput is not null) await api.UpdatePartOfSpeech(after.Id, updateObjectInput);
+        return updateObjectInput is null ? 0 : 1;
     }
 
     public static UpdateObjectInput<PartOfSpeech>? PartOfSpeechDiffToUpdate(PartOfSpeech previousPartOfSpeech, PartOfSpeech currentPartOfSpeech)
