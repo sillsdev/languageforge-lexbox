@@ -13,7 +13,7 @@ public static class SqlSortingExtensions
     internal static string CollateUnicode(this string value, WritingSystem ws)
     {
         //could optionally just return the value here, but it would work differently than sql
-        throw new InvalidOperationException("CollateUnicode is server-side only API.");
+        throw new InvalidOperationException("CollateUnicode is a LinqToDB only API.");
     }
 
     private static Expression<Func<string, WritingSystem, string>> CollateUnicodeExpression()
