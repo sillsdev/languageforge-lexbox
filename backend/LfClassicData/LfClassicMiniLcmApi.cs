@@ -206,7 +206,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                                 new BsonDocument("$ne", new BsonArray { new BsonDocument("$trim", new BsonDocument("input", $"$citationForm.{sortWs}.value")), "" }),
                             })
                         },
-                        { "then", $"$citationForm.{sortWs}.value" },
+                        { "then", new BsonDocument("$toLower", $"$citationForm.{sortWs}.value") },
                         { "else", new BsonDocument("$cond", new BsonDocument
                             {
                                 { "if", new BsonDocument("$and", new BsonArray
@@ -216,7 +216,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                                         new BsonDocument("$ne", new BsonArray { new BsonDocument("$trim", new BsonDocument("input", $"$lexeme.{sortWs}.value")), "" }),
                                     })
                                 },
-                                { "then", $"$lexeme.{sortWs}.value" },
+                                { "then", new BsonDocument("$toLower", $"$lexeme.{sortWs}.value") },
                                 { "else", "" }
                             })
                         }
