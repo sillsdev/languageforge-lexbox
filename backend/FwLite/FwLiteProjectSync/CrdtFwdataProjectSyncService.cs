@@ -42,7 +42,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
                     await fwdataApi.GetEntries().ToArrayAsync(),
                     await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
                     await fwdataApi.GetSemanticDomains().ToArrayAsync(),
-                    await fwdataApi.GetComplexFormTypes().ToArrayAsync()));
+                    await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
+                    await fwdataApi.GetWritingSystems()));
         }
         return result;
     }
@@ -63,11 +64,13 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
             return new SyncResult(entryCount, 0);
         }
 
-        //todo sync complex form types, writing systems
+        var currentFwDataWritingSystems = await fwdataApi.GetWritingSystems();
+        var crdtChanges = await WritingSystemSync.Sync(currentFwDataWritingSystems, projectSnapshot.WritingSystems, crdtApi);
+        var fwdataChanges = await WritingSystemSync.Sync(await crdtApi.GetWritingSystems(), currentFwDataWritingSystems, fwdataApi);
 
         var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
-        var crdtChanges = await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, projectSnapshot.PartsOfSpeech, crdtApi);
-        var fwdataChanges = await PartOfSpeechSync.Sync(await crdtApi.GetPartsOfSpeech().ToArrayAsync(), currentFwDataPartsOfSpeech, fwdataApi);
+        crdtChanges += await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, projectSnapshot.PartsOfSpeech, crdtApi);
+        fwdataChanges += await PartOfSpeechSync.Sync(await crdtApi.GetPartsOfSpeech().ToArrayAsync(), currentFwDataPartsOfSpeech, fwdataApi);
 
         var currentFwDataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
         crdtChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, projectSnapshot.SemanticDomains, crdtApi);
@@ -109,9 +112,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         Entry[] Entries,
         PartOfSpeech[] PartsOfSpeech,
         SemanticDomain[] SemanticDomains,
-        ComplexFormType[] ComplexFormTypes)
+        ComplexFormType[] ComplexFormTypes,
+        WritingSystems WritingSystems)
     {
-        internal static ProjectSnapshot Empty { get; } = new([], [], [], []);
+        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], new WritingSystems());
     }
 
     private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
