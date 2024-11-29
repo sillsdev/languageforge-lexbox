@@ -114,11 +114,35 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetComplexFormTypes();
     }
 
+    public Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        return api.GetComplexFormType(id);
+    }
+
+
     public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormType),
             $"Create complex form type {complexFormType.Name}"));
         return Task.FromResult(complexFormType);
+    }
+
+    public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateComplexFormType), $"Update complex form type {id}"));
+        return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
+    }
+
+    public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateComplexFormType), $"Update complex form type {after.Id}"));
+        return Task.FromResult(after);
+    }
+
+    public Task DeleteComplexFormType(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormType), $"Delete complex form type {id}"));
+        return Task.CompletedTask;
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)

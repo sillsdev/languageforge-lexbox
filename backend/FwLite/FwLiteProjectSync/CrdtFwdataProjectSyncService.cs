@@ -41,7 +41,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
                 new ProjectSnapshot(
                     await fwdataApi.GetEntries().ToArrayAsync(),
                     await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
-                    await fwdataApi.GetSemanticDomains().ToArrayAsync()));
+                    await fwdataApi.GetSemanticDomains().ToArrayAsync(),
+                    await fwdataApi.GetComplexFormTypes().ToArrayAsync()));
         }
         return result;
     }
@@ -72,6 +73,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         crdtChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, projectSnapshot.SemanticDomains, crdtApi);
         fwdataChanges += await SemanticDomainSync.Sync(await crdtApi.GetSemanticDomains().ToArrayAsync(), currentFwDataSemanticDomains, fwdataApi);
 
+        var currentFwDataComplexFormTypes = await fwdataApi.GetComplexFormTypes().ToArrayAsync();
+        crdtChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, projectSnapshot.ComplexFormTypes, crdtApi);
+        fwdataChanges += await ComplexFormTypeSync.Sync(await crdtApi.GetComplexFormTypes().ToArrayAsync(), currentFwDataComplexFormTypes, fwdataApi);
+
         var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtChanges += await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
         LogDryRun(crdtApi, "crdt");
@@ -100,7 +105,14 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
-    public record ProjectSnapshot(Entry[] Entries, PartOfSpeech[] PartsOfSpeech, SemanticDomain[] SemanticDomains);
+    public record ProjectSnapshot(
+        Entry[] Entries,
+        PartOfSpeech[] PartsOfSpeech,
+        SemanticDomain[] SemanticDomains,
+        ComplexFormType[] ComplexFormTypes)
+    {
+        internal static ProjectSnapshot Empty { get; } = new([], [], [], []);
+    }
 
     private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {

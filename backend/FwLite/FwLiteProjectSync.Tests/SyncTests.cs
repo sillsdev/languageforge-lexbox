@@ -500,4 +500,18 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         //one of the entries will be created first, it will try to create the reference to the other but it won't exist yet
         await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
     }
+
+    [Fact]
+    public async Task CanCreateAComplexFormTypeAndSyncsIt()
+    {
+        //ensure they are synced so a real sync will happen when we want it to
+        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
+
+        var complexFormEntry = await _fixture.CrdtApi.CreateComplexFormType(new() { Name = new() { { "en", "complexFormType" } } });
+
+        //one of the entries will be created first, it will try to create the reference to the other but it won't exist yet
+        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
+
+        _fixture.FwDataApi.GetComplexFormTypes().ToBlockingEnumerable().Should().ContainEquivalentOf(complexFormEntry);
+    }
 }

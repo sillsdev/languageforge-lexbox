@@ -58,7 +58,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     //by default the first sync is an import, this will skip that so that the sync will actually sync data
     private async Task BypassImport()
     {
-        await _syncService.SaveProjectSnapshot(_fwDataApi.Project, new ([], [], []));
+        await _syncService.SaveProjectSnapshot(_fwDataApi.Project, CrdtFwdataProjectSyncService.ProjectSnapshot.Empty);
     }
 
     //this lets us query entries when there is no writing system

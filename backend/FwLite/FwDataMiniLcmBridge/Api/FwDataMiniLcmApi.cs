@@ -377,6 +377,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         return ComplexFormTypesFlattened.Select(ToComplexFormType).ToAsyncEnumerable();
     }
+
+    public Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        var lexEntryType = ComplexFormTypesFlattened.SingleOrDefault(c => c.Guid == id);
+        if (lexEntryType is null) return Task.FromResult<ComplexFormType?>(null);
+        return Task.FromResult<ComplexFormType?>(ToComplexFormType(lexEntryType));
+    }
+
     private ComplexFormType ToComplexFormType(ILexEntryType t)
     {
         return new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
@@ -398,6 +406,40 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
             });
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == complexFormType.Id));
+    }
+
+    public Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        var type = ComplexFormTypesFlattened.SingleOrDefault(c => c.Guid == id);
+        if (type is null) throw new NullReferenceException($"unable to find complex form type with id {id}");
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Complex Form Type",
+            "Revert Complex Form Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdateComplexFormTypeProxy(type, null, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(ToComplexFormType(type));
+    }
+
+    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    {
+        await ComplexFormTypeSync.Sync(before, after, this);
+        return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
+    }
+
+    public async Task DeleteComplexFormType(Guid id)
+    {
+        var type = ComplexFormTypesFlattened.SingleOrDefault(c => c.Guid == id);
+        if (type is null) return;
+        await Cache.DoUsingNewOrCurrentUOW("Delete Complex Form Type",
+            "Revert delete",
+            () =>
+            {
+                type.Delete();
+                return ValueTask.CompletedTask;
+            });
     }
 
     public IAsyncEnumerable<VariantType> GetVariantTypes()

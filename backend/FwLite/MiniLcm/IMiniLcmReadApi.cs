@@ -9,6 +9,7 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech();
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains();
     IAsyncEnumerable<ComplexFormType> GetComplexFormTypes();
+    Task<ComplexFormType?> GetComplexFormType(Guid id);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);

@@ -161,6 +161,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<WritingSystem>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
+            .Add<JsonPatchChange<ComplexFormType>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<ExampleSentence>>()

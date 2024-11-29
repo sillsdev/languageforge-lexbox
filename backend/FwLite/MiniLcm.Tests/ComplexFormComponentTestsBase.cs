@@ -101,6 +101,25 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task UpdateComplexFormType_Works()
+    {
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreateComplexFormType(complexFormType);
+        var updatedComplexFormType = await Api.UpdateComplexFormType(complexFormType.Id, new UpdateObjectInput<ComplexFormType>().Set(c => c.Name["en"], "updated"));
+        updatedComplexFormType.Name["en"].Should().Be("updated");
+    }
+
+    [Fact]
+    public async Task UpdateComplexFormTypeSync_Works()
+    {
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreateComplexFormType(complexFormType);
+        var afterFormType = complexFormType with { Name = new() { { "en", "updated" } } };
+        var actualFormType = await Api.UpdateComplexFormType(complexFormType, afterFormType);
+        actualFormType.Should().BeEquivalentTo(afterFormType, options => options.Excluding(c => c.Id));
+    }
+
+    [Fact]
     public async Task AddComplexFormType_Works()
     {
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
