@@ -1,5 +1,7 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 using System.Globalization;
+using System.Text;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -8,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt.Data;
 
-internal class SetupCollationInterceptor(IMemoryCache cache, ILogger<SetupCollationInterceptor> logger) : IDbConnectionInterceptor, ISaveChangesInterceptor
+public class SetupCollationInterceptor(IMemoryCache cache, ILogger<SetupCollationInterceptor> logger) : IDbConnectionInterceptor, ISaveChangesInterceptor
 {
     private WritingSystem[] GetWritingSystems(LcmCrdtDbContext dbContext, DbConnection connection)
     {
@@ -116,9 +118,35 @@ internal class SetupCollationInterceptor(IMemoryCache cache, ILogger<SetupCollat
             logger.LogError(e, "Failed to create compare info for '{WritingSystemId}'", writingSystem.WsId);
             compareInfo = CultureInfo.InvariantCulture.CompareInfo;
         }
-        connection.CreateCollation(SqlSortingExtensions.CollationName(writingSystem),
-            //todo use custom comparison based on the writing system
+
+        //todo use custom comparison based on the writing system
+        CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem),
             compareInfo,
             static (compareInfo, x, y) => compareInfo.Compare(x, y, CompareOptions.IgnoreCase));
+    }
+
+    //this is a premature optimization, but it avoids creating strings for each comparison and instead uses spans which avoids allocations
+    //if the new comparison function does not support spans then we can use SqliteConnection.CreateCollation instead which works with strings
+    private void CreateSpanCollation<T>(SqliteConnection connection,
+        string name, T state,
+        Func<T, ReadOnlySpan<char>, ReadOnlySpan<char>, int> compare)
+    {
+        if (connection.State != ConnectionState.Open)
+            throw new InvalidOperationException("Unable to create custom collation Connection must be open.");
+        var rc = SQLitePCL.raw.sqlite3__create_collation_utf8(connection.Handle,
+            name,
+            Tuple.Create(state, compare),
+            static (s, x, y) =>
+            {
+                var (state, compare) = (Tuple<T, Func<T, ReadOnlySpan<char>, ReadOnlySpan<char>, int>>) s;
+                Span<char> xSpan = stackalloc char[Encoding.UTF8.GetCharCount(x)];
+                Span<char> ySpan = stackalloc char[Encoding.UTF8.GetCharCount(y)];
+                Encoding.UTF8.GetChars(x, xSpan);
+                Encoding.UTF8.GetChars(y, ySpan);
+
+                return compare(state, xSpan, ySpan);
+            });
+        SqliteException.ThrowExceptionForRC(rc, connection.Handle);
+
     }
 }
