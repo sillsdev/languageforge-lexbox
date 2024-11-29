@@ -1,6 +1,7 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
+using MiniLcm.Validators;
 
 namespace FwDataMiniLcmBridge;
 
@@ -16,6 +17,7 @@ public static class FwDataBridgeKernel
         services.AddSingleton<FieldWorksProjectList>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddKeyedScoped<IMiniLcmApi>(FwDataApiKey, (provider, o) => provider.GetRequiredService<FwDataFactory>().GetCurrentFwDataMiniLcmApi(true));
+        services.AddMiniLcmValidators();
         services.AddSingleton<FwDataProjectContext>();
         return services;
     }

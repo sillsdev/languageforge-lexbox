@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using FluentValidation;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Validators;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -18,7 +20,7 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : IMiniLcmApi, IDisposable
+public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project, MiniLcmValidators validators) : IMiniLcmApi, IDisposable
 {
     internal LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
@@ -380,8 +382,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
     }
 
-    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
+        await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
@@ -394,7 +397,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
                 UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
             });
-        return Task.FromResult(ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == complexFormType.Id)));
+        return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == complexFormType.Id));
     }
 
     public IAsyncEnumerable<VariantType> GetVariantTypes()

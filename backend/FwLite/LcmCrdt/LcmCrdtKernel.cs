@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Validators;
 using Refit;
 using SIL.Harmony.Db;
 
@@ -34,6 +35,7 @@ public static class LcmCrdtKernel
             ConfigureCrdt
         );
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddSingleton<ProjectContext>();
         services.AddSingleton<ProjectsService>();

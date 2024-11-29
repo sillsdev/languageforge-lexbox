@@ -11,7 +11,7 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
     [Fact]
     public async Task AddComplexFormType()
     {
-        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
         await fixture.Api.CreateComplexFormType(complexFormType);
         var complexEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat rack" } }, });
         var change = new AddComplexFormTypeChange(complexEntry.Id,complexFormType);
@@ -25,7 +25,7 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
     public async Task RemoveComplexFormType()
     {
         var complexEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat rack" } }, });
-        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new(){ { "en", "test" } } };
         await fixture.Api.CreateComplexFormType(complexFormType);
         await fixture.DataModel.AddChange(
             Guid.NewGuid(),
