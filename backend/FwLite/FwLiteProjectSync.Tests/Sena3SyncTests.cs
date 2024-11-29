@@ -119,7 +119,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
     }
 
-    [Fact(Skip = "this test is waiting for syncing ComplexFormTypes and WritingSystems")]
+    [Fact]
     public async Task SyncWithoutImport_CrdtShouldMatchFwdata()
     {
         await BypassImport();
