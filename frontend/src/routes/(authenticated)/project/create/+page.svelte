@@ -21,6 +21,7 @@
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
   import {projectUrl} from '$lib/util/project';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   export let data;
   $: user = data.user;
@@ -47,6 +48,7 @@
     isConfidential: z.boolean().default(false),
     orgId: z.string().trim()
   });
+  let forceDraft = false;
 
   //random guid
   let projectId:string = crypto.randomUUID();
@@ -61,6 +63,7 @@
       isConfidential: $form.isConfidential,
       projectManagerId: requestingUser?.id,
       orgId: $form.orgId === '' ? null : $form.orgId,
+      forceDraft
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
@@ -329,6 +332,9 @@
         <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
       </div>
 
+      <DevContent>
+        <Checkbox label="Force draft project creation" bind:value={forceDraft}/>
+      </DevContent>
       <FormError error={$message} />
       <SubmitButton loading={$submitting}>
           {#if data.user.canCreateProjects}

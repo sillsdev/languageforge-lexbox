@@ -24,6 +24,7 @@ public static class Utils
 
     public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, bool isConfidential = false, Guid? owningOrgId = null, [CallerMemberName] string projectName = "")
     {
+        projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
         var id = Guid.NewGuid();
         var shortId = id.ToString().Split("-")[0];
@@ -132,6 +133,7 @@ public static class Utils
     private static string GetNewProjectDir(string projectCode,
         [CallerMemberName] string projectName = "")
     {
+        projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
         var projectDir = projectName.IsNullOrWhiteSpace() ? BasePath : Path.Join(BasePath, projectName);
         // Add a random id to the path to be certain we prevent naming clashes
         var randomIndexedId = $"{_folderIndex++}-{Guid.NewGuid().ToString().Split("-")[0]}";

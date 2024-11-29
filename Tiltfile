@@ -4,8 +4,10 @@
 version_settings(constraint='>=0.33.20')
 secret_settings(disable_scrub=True)
 config.define_bool("lexbox-api-local")
+config.define_bool("prod-ui-build")
 cfg = config.parse()
 forward_lexbox = not cfg.get("lexbox-api-local", False)
+prod_ui_build = cfg.get("prod-ui-build", False)
 
 docker_build(
     'local-dev-init',
@@ -33,16 +35,23 @@ docker_build(
         sync('backend', '/src/backend')
     ]
 )
-
-docker_build(
-    'ghcr.io/sillsdev/lexbox-ui',
-    context='frontend',
-    dockerfile='./frontend/dev.Dockerfile',
-    only=['.'],
-    live_update=[
-        sync('frontend', '/app'),
-    ]
-)
+if prod_ui_build:
+    docker_build(
+        'ghcr.io/sillsdev/lexbox-ui',
+        context='frontend',
+        dockerfile='./frontend/Dockerfile',
+        only=['.']
+    )
+else:
+    docker_build(
+        'ghcr.io/sillsdev/lexbox-ui',
+        context='frontend',
+        dockerfile='./frontend/dev.Dockerfile',
+        only=['.'],
+        live_update=[
+            sync('frontend', '/app'),
+        ]
+    )
 
 docker_build(
     'ghcr.io/sillsdev/lexbox-hgweb',

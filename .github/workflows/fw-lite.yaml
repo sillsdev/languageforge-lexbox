@@ -35,10 +35,14 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
+
+      - name: Setup Maui
+        run: dotnet workload install maui-windows
+
       - name: Set Version
         id: setVersion
         shell: bash
@@ -86,7 +90,7 @@ jobs:
           path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
@@ -123,7 +127,7 @@ jobs:
           path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
@@ -156,7 +160,7 @@ jobs:
           path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       - name: Setup Maui
         run: dotnet workload install maui-windows

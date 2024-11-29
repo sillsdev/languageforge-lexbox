@@ -11,17 +11,20 @@ public interface IMiniLcmWriteApi
     Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
-
+    Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after);
+    // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
+    Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after);
     Task DeletePartOfSpeech(Guid id);
     #endregion
 
     #region SemanticDomain
     Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain);
     Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update);
+    Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after);
     Task DeleteSemanticDomain(Guid id);
     #endregion
 
@@ -53,6 +56,10 @@ public interface IMiniLcmWriteApi
         Guid senseId,
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update);
+    Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
     #endregion

@@ -134,7 +134,7 @@ type CreateProjectPayload {
 }
 
 type CreateProjectResponse {
-  id: UUID
+  id: UUID!
   result: CreateProjectResult!
 }
 
@@ -190,6 +190,10 @@ type FlexProjectMetadata {
 type InvalidEmailError implements Error {
   message: String!
   address: String!
+}
+
+type InvalidOperationError implements Error {
+  message: String!
 }
 
 type IsAdminResponse {
@@ -441,6 +445,7 @@ type Query {
   orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   usersInMyOrg(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersInMyOrgCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
+  usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   orgById(orgId: UUID!): OrgById @cost(weight: "10")
   users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   me: MeDto @cost(weight: "10")
@@ -541,7 +546,6 @@ type User {
   createdById: UUID
   createdBy: User
   usersICreated: [User!]!
-  googleId: String
   organizations: [OrgMember!]!
   id: UUID!
   createdDate: DateTime!
@@ -555,6 +559,15 @@ type UserProjectRole {
 
 "A segment of a collection."
 type UsersCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [User!]
+  totalCount: Int! @cost(weight: "10")
+}
+
+"A segment of a collection."
+type UsersICanSeeCollectionSegment {
   "Information to aid in pagination."
   pageInfo: CollectionSegmentInfo!
   "A flattened list of the items."
@@ -615,7 +628,7 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SendNewVerificationEmailByAdminError = NotFoundError | DbError | UniqueValueError
+union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
 union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
@@ -741,6 +754,7 @@ input CreateProjectInput {
   isConfidential: Boolean!
   projectManagerId: UUID
   orgId: UUID
+  forceDraft: Boolean! = false
 }
 
 input DateTimeOperationFilterInput {
@@ -882,13 +896,6 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput @cost(weight: "10")
   none: ProjectUsersFilterInput @cost(weight: "10")
   some: ProjectUsersFilterInput @cost(weight: "10")
-  any: Boolean @cost(weight: "10")
-}
-
-input ListFilterInputTypeOfUserFilterInput {
-  all: UserFilterInput @cost(weight: "10")
-  none: UserFilterInput @cost(weight: "10")
-  some: UserFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
 }
 
@@ -1126,46 +1133,17 @@ input UserFilterInput {
   or: [UserFilterInput!]
   name: StringOperationFilterInput
   email: StringOperationFilterInput
-  localizationCode: StringOperationFilterInput
   isAdmin: BooleanOperationFilterInput
-  passwordHash: StringOperationFilterInput
-  salt: StringOperationFilterInput
-  passwordStrength: IntOperationFilterInput
-  lastActive: DateTimeOperationFilterInput
-  emailVerified: BooleanOperationFilterInput
-  canCreateProjects: BooleanOperationFilterInput
   createdById: UuidOperationFilterInput
-  createdBy: UserFilterInput
-  usersICreated: ListFilterInputTypeOfUserFilterInput
-  locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
-  googleId: StringOperationFilterInput
-  projects: ListFilterInputTypeOfProjectUsersFilterInput
-  organizations: ListFilterInputTypeOfOrgMemberFilterInput
   id: UuidOperationFilterInput
-  createdDate: DateTimeOperationFilterInput
-  updatedDate: DateTimeOperationFilterInput
 }
 
 input UserSortInput {
   name: SortEnumType @cost(weight: "10")
   email: SortEnumType @cost(weight: "10")
-  localizationCode: SortEnumType @cost(weight: "10")
-  isAdmin: SortEnumType @cost(weight: "10")
-  passwordHash: SortEnumType @cost(weight: "10")
-  salt: SortEnumType @cost(weight: "10")
-  passwordStrength: SortEnumType @cost(weight: "10")
-  lastActive: SortEnumType @cost(weight: "10")
-  emailVerified: SortEnumType @cost(weight: "10")
-  canCreateProjects: SortEnumType @cost(weight: "10")
-  createdById: SortEnumType @cost(weight: "10")
-  createdBy: UserSortInput @cost(weight: "10")
-  locked: SortEnumType @cost(weight: "10")
   username: SortEnumType @cost(weight: "10")
-  googleId: SortEnumType @cost(weight: "10")
-  id: SortEnumType @cost(weight: "10")
   createdDate: SortEnumType @cost(weight: "10")
-  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input UuidOperationFilterInput {

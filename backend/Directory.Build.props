@@ -9,7 +9,10 @@
         <BaseOutputPath>$(MSBuildProjectDirectory)/bin/container/</BaseOutputPath>
     </PropertyGroup>
     <PropertyGroup>
+        <InformationalVersion>dev</InformationalVersion>
+        <TargetFramework>net9.0</TargetFramework>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
     </PropertyGroup>

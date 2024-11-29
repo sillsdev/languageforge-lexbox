@@ -13,5 +13,6 @@ public record CreateProjectInput(
     RetentionPolicy RetentionPolicy,
     bool IsConfidential,
     Guid? ProjectManagerId,
-    Guid? OrgId
+    Guid? OrgId,
+    bool ForceDraft = false
 );
