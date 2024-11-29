@@ -1,15 +1,25 @@
-﻿using System.Text.Json;
+﻿using System.Data.Common;
+using System.Text.Json;
+using LcmCrdt.Data;
+using Microsoft.Data.Sqlite;
 using SIL.Harmony;
 using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
 
-public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOptions, IOptions<CrdtConfig> options): DbContext(dbContextOptions), ICrdtDbContext
+public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOptions, IOptions<CrdtConfig> options, SetupCollationInterceptor setupCollationInterceptor)
+    : DbContext(dbContextOptions), ICrdtDbContext
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
+    public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.AddInterceptors(setupCollationInterceptor);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

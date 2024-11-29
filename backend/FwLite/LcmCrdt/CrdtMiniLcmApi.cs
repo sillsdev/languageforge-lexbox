@@ -230,7 +230,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
         }
 
-        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
+        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable
@@ -238,7 +238,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
-            .OrderBy(e => e.Headword(sortWs.Value))
+            .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
             .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);

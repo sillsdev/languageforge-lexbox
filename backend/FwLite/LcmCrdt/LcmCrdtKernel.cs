@@ -5,6 +5,7 @@ using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
 using LinqToDB;
@@ -27,6 +28,7 @@ public static class LcmCrdtKernel
     {
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
+        services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
