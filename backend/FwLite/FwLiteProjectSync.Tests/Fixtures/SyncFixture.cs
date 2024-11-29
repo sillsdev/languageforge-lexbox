@@ -53,7 +53,7 @@ public class SyncFixture : IAsyncLifetime
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
         if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
         Directory.CreateDirectory(crdtProjectsFolder);
-        var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
+        var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
             .CreateProject(new(_projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
         CrdtApi = (CrdtMiniLcmApi) await _services.ServiceProvider.OpenCrdtProject(crdtProject);
     }

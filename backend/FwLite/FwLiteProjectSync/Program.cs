@@ -52,7 +52,7 @@ public class Program
                 var services = scope.ServiceProvider;
                 var logger = services.GetRequiredService<ILogger<Program>>();
                 var fwdataApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwProjectName, true);
-                var projectsService = services.GetRequiredService<ProjectsService>();
+                var projectsService = services.GetRequiredService<CrdtProjectsService>();
                 var crdtProject = projectsService.GetProject(crdtProjectName);
                 if (crdtProject is null)
                 {

@@ -1,20 +1,21 @@
-﻿using SIL.Harmony;
+﻿using FwLiteShared.Auth;
+using FwLiteShared.Projects;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
-using LocalWebApp.Auth;
-using LocalWebApp.Services;
+using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
-using SIL.Harmony.Entities;
+using SIL.Harmony;
 
-namespace LocalWebApp;
+namespace FwLiteShared.Sync;
 
 public class SyncService(
     DataModel dataModel,
     CrdtHttpSyncService remoteSyncServiceServer,
-    AuthHelpersFactory authHelpersFactory,
+    OAuthClientFactory oAuthClientFactory,
     CurrentProjectService currentProjectService,
     ChangeEventBus changeEventBus,
+    LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
     ILogger<SyncService> logger)
 {
@@ -28,7 +29,7 @@ public class SyncService(
             return new SyncResults([], [], false);
         }
 
-        var httpClient = await authHelpersFactory.GetHelper(project).CreateClient();
+        var httpClient = await oAuthClientFactory.GetClient(project).CreateHttpClient();
         if (httpClient is null)
         {
             logger.LogWarning(
@@ -74,5 +75,22 @@ public class SyncService(
             ExampleSentence exampleSentence => (await dataModel.GetLatest<Sense>(exampleSentence.SenseId))?.EntryId,
             _ => null
         };
+    }
+
+    public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)
+    {
+        await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
+        try
+        {
+            await ExecuteSync();
+        }
+        catch
+        {
+            await currentProjectService.SetProjectSyncOrigin(null, null);
+            throw;
+        }
+
+        //todo maybe decouple this
+        lexboxProjectService.InvalidateProjectsCache(server);
     }
 }

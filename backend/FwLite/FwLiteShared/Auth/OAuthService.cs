@@ -1,11 +1,12 @@
 using System.Threading.Channels;
 using System.Web;
-using LocalWebApp.Utils;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 
-namespace LocalWebApp.Auth;
+namespace FwLiteShared.Auth;
 
 //this class is commented with a number of step comments, these are the steps in the OAuth flow
 //if a step comes before a method that means it awaits that call, if it comes after that means it resumes after the above await
@@ -36,7 +37,7 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
 
     private async Task HandleSystemWebViewLogin(IPublicClientApplication application, CancellationToken cancellation)
     {
-        var result = await application.AcquireTokenInteractive(AuthHelpers.DefaultScopes)
+        var result = await application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
             .WithUseEmbeddedWebView(false)
             .WithSystemWebViewOptions(new() { })
             .ExecuteAsync(cancellation);
@@ -69,7 +70,7 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
             {
                 //todo we can get stuck here if the user doesn't complete the login, this basically bricks the login at the moment. We need a timeout or something
                 //step 2
-                var result = await loginRequest.Application.AcquireTokenInteractive(AuthHelpers.DefaultScopes)
+                var result = await loginRequest.Application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
                     .WithCustomWebUi(loginRequest)
                     .ExecuteAsync(stoppingToken);
                 //step 7, causes step 8 to resume

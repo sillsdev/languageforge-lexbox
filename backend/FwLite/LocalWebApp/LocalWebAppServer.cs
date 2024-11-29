@@ -1,9 +1,9 @@
 ﻿using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
+using FwLiteShared.Auth;
 using LcmCrdt;
 using LocalWebApp;
 using LocalWebApp.Hubs;
-using LocalWebApp.Auth;
 using LocalWebApp.Routes;
 using LocalWebApp.Utils;
 using Microsoft.AspNetCore.SignalR;
@@ -89,7 +89,7 @@ public static class LocalWebAppServer
             var projectName = context.GetProjectName();
             if (!string.IsNullOrWhiteSpace(projectName))
             {
-                var projectsService = context.RequestServices.GetRequiredService<ProjectsService>();
+                var projectsService = context.RequestServices.GetRequiredService<CrdtProjectsService>();
                 projectsService.SetProjectScope(projectsService.GetProject(projectName) ??
                                                 throw new InvalidOperationException(
                                                     $"Project {projectName} not found"));

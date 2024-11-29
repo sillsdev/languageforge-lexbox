@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LcmCrdt;
 
-namespace LocalWebApp.Auth;
+namespace FwLiteShared.Auth;
 
 public class AuthConfig
 {

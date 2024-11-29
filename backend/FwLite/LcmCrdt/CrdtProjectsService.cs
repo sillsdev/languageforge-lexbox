@@ -1,4 +1,5 @@
-﻿using SIL.Harmony;
+﻿using System.Text.RegularExpressions;
+using SIL.Harmony;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ using LcmCrdt.Objects;
 
 namespace LcmCrdt;
 
-public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
+public partial class CrdtProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
 {
     public Task<CrdtProject[]> ListProjects()
     {
@@ -42,8 +43,14 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         string? Path = null,
         Guid? FwProjectId = null);
 
+    public async Task<CrdtProject> CreateExampleProject(string name)
+    {
+        return await CreateProject(new(name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
+    }
+
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
+        if (!ProjectName().IsMatch(request.Name)) throw new InvalidOperationException("Project name is invalid");
         //poor man's sanitation
         var name = Path.GetFileName(request.Name);
         var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
@@ -103,5 +110,63 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
     {
         var project = GetProject(name) ?? throw new InvalidOperationException($"Crdt Project {name} not found");
         SetProjectScope(project);
+    }
+
+    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
+    public static partial Regex ProjectName();
+
+    public static async Task SampleProjectData(IServiceProvider provider, CrdtProject project)
+    {
+        var lexboxApi = provider.GetRequiredService<IMiniLcmApi>();
+        await lexboxApi.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { Values = { { "en", "Apple" } } },
+            CitationForm = { Values = { { "en", "Apple" } } },
+            LiteralMeaning = { Values = { { "en", "Fruit" } } },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { Values = { { "en", "Fruit" } } },
+                    Definition =
+                    {
+                        Values =
+                        {
+                            {
+                                "en",
+                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+                            }
+                        }
+                    },
+                    SemanticDomains = [],
+                    ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
+                }
+            ]
+        });
+
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
     }
 }

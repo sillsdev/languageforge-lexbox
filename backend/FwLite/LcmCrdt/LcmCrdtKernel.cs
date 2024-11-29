@@ -37,8 +37,9 @@ public static class LcmCrdtKernel
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
+        services.AddScoped<HistoryService>();
         services.AddSingleton<ProjectContext>();
-        services.AddSingleton<ProjectsService>();
+        services.AddSingleton<CrdtProjectsService>();
 
         services.AddHttpClient();
         services.AddSingleton<RefitSettings>(provider => new RefitSettings
@@ -190,7 +191,7 @@ public static class LcmCrdtKernel
         //this method must not be async, otherwise Setting the project scope will not work as expected.
         //the project is stored in the async scope, if a new scope is created in this method then it will be gone once the method returns
         //making the lcm api unusable
-        var projectsService = services.GetRequiredService<ProjectsService>();
+        var projectsService = services.GetRequiredService<CrdtProjectsService>();
         projectsService.SetProjectScope(project);
         return LoadMiniLcmApi(services);
     }

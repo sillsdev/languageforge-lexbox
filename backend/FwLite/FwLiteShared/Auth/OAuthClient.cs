@@ -1,65 +1,56 @@
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using LocalWebApp.Routes;
-using LocalWebApp.Services;
+using FwLiteShared.Projects;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 
-namespace LocalWebApp.Auth;
+namespace FwLiteShared.Auth;
 
 /// <summary>
-/// when injected directly it will use the authority of the current project, to get a different authority use <see cref="AuthHelpersFactory"/>
+/// when injected directly it will use the authority of the current project, to get a different authority use <see cref="OAuthClientFactory"/>
 /// helper class for using MSAL.net
 /// docs: https://learn.microsoft.com/en-us/entra/msal/dotnet/acquiring-tokens/overview
 /// </summary>
-public class AuthHelpers
+public class OAuthClient
 {
     public static IReadOnlyCollection<string> DefaultScopes { get; } = ["profile", "openid"];
     public const string AuthHttpClientName = "AuthHttpClient";
-    private readonly HostString _redirectHost;
-    private readonly bool _isRedirectHostGuess;
+    public string? RedirectUrl { get; }
     private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
     private readonly OAuthService _oAuthService;
-    private readonly UrlContext _urlContext;
     private readonly LexboxServer _lexboxServer;
     private readonly LexboxProjectService _lexboxProjectService;
-    private readonly ILogger<AuthHelpers> _logger;
+    private readonly ILogger<OAuthClient> _logger;
     private readonly IPublicClientApplication _application;
     AuthenticationResult? _authResult;
 
-    public AuthHelpers(LoggerAdapter loggerAdapter,
+    public OAuthClient(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         IOptions<AuthConfig> options,
-        LinkGenerator linkGenerator,
+        IRedirectUrlProvider? redirectUrlProvider,
         OAuthService oAuthService,
-        UrlContext urlContext,
         LexboxServer lexboxServer,
         LexboxProjectService lexboxProjectService,
-        ILogger<AuthHelpers> logger,
+        ILogger<OAuthClient> logger,
         IHostEnvironment hostEnvironment)
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;
         _oAuthService = oAuthService;
-        _urlContext = urlContext;
         _lexboxServer = lexboxServer;
         _lexboxProjectService = lexboxProjectService;
         _logger = logger;
-        (var hostUrl, _isRedirectHostGuess) = urlContext.GetUrl();
-        _redirectHost = HostString.FromUriComponent(hostUrl);
-        var redirectUri = options.Value.SystemWebViewLogin
+        RedirectUrl = options.Value.SystemWebViewLogin
             ? "http://localhost" //system web view will always have no path, changing this will not do anything in that case
-            : linkGenerator.GetUriByRouteValues(AuthRoutes.CallbackRoute,
-                new RouteValueDictionary(),
-                hostUrl.Scheme,
-                _redirectHost);
+            :  redirectUrlProvider?.GetRedirectUrl() ?? throw new InvalidOperationException("No IRedirectUrlProvider configured, required for non-system web view login");
         //todo configure token cache as seen here
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
         _application = PublicClientApplicationBuilder.Create(options.Value.ClientId)
             .WithExperimentalFeatures()
             .WithLogging(loggerAdapter, hostEnvironment.IsDevelopment())
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
-            .WithRedirectUri(redirectUri)
+            .WithRedirectUri(RedirectUrl)
             .WithOidcAuthority(lexboxServer.Authority.ToString())
             .Build();
         _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
@@ -97,11 +88,6 @@ public class AuthHelpers
             .WithMacKeyChain(KeyChainServiceName, KeyChainAccountName);
 #endif
         return propertiesBuilder.Build();
-    }
-
-    public bool IsHostUrlValid()
-    {
-        return !_isRedirectHostGuess || _redirectHost == HostString.FromUriComponent(_urlContext.GetUrl().host);
     }
 
     private class HttpClientFactoryAdapter(IHttpMessageHandlerFactory httpMessageHandlerFactory)
@@ -178,10 +164,10 @@ public class AuthHelpers
         return auth?.AccessToken;
     }
 
-    /// <summary>
+    /// <summary>]
     /// will return null if no auth token is available
     /// </summary>
-    public async ValueTask<HttpClient?> CreateClient()
+    public async ValueTask<HttpClient?> CreateHttpClient()
     {
         var auth = await GetAuth();
         if (auth is null) return null;

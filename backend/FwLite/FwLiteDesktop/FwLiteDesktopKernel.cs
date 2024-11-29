@@ -1,7 +1,7 @@
 ﻿using Windows.ApplicationModel;
 using FwLiteDesktop.ServerBridge;
+using FwLiteShared.Auth;
 using LcmCrdt;
-using LocalWebApp.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
