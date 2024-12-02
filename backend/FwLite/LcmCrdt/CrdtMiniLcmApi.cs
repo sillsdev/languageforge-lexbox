@@ -264,9 +264,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Components)
             .AsQueryable()
             .OrderBy(e => e.Headword(sortWs.Value))
-            .ThenBy(e => e.Id)
-            .Skip(options.Offset)
-            .Take(options.Count);
+            .ThenBy(e => e.Id);
+        queryable = options.ApplyPaging(queryable);
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {

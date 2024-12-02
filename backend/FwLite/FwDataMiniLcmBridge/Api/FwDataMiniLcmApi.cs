@@ -633,9 +633,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 string? text = e.CitationForm.get_String(sortWs).Text;
                 text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
                 return text?.Trim(LcmHelpers.WhitespaceChars);
-            })
-            .Skip(options.Offset)
-            .Take(options.Count);
+            });
+        entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
