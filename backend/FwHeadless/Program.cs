@@ -12,6 +12,9 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using Scalar.AspNetCore;
 using LexCore.Utils;
+using LinqToDB;
+using SIL.Harmony.Core;
+using SIL.Harmony;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,15 +130,26 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
 }
 
 static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
+    ProjectContext projectContext,
     ProjectLookupService projectLookupService,
     ProjectSyncStatusService syncStatusService,
+    IServiceProvider services,
+    LexBoxDbContext lexBoxDb,
     Guid projectId)
 {
     var status = syncStatusService.SyncStatus(projectId);
-    if (status is not null) return TypedResults.Ok(status.Value);
-    // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
-    if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.ReadyToSync);
-    else return TypedResults.NotFound();
+    if (status is not null) return TypedResults.Ok(new ProjectSyncStatus(status.Value, 0));
+    var project = projectContext.Project;
+    if (project is null)
+    {
+        // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
+        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
+        else return TypedResults.NotFound();
+    }
+    var commitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
+    var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>(); // TODO: This *cannot* be right, can it?
+    var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
+    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(localCommits - commitsOnServer));
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
