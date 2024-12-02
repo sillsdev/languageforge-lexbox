@@ -22,24 +22,6 @@ public class ProjectSyncStatusService()
     }
 }
 
-public class ProjectSyncStatusUpdater : IDisposable
-{
-    private readonly Guid _projectId;
-    private readonly ProjectSyncStatusService _statusService;
-
-    public ProjectSyncStatusUpdater(ProjectSyncStatusService statusService, Guid projectId)
-    {
-        _projectId = projectId;
-        _statusService = statusService;
-        _statusService.StartSyncing(_projectId);
-    }
-
-    public void Dispose()
-    {
-        _statusService.StopSyncing(_projectId);
-    }
-}
-
 public enum ProjectSyncStatus
 {
     ReadyToSync,

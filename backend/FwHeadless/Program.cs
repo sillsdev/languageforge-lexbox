@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using Scalar.AspNetCore;
+using LexCore.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,7 +77,8 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
         return TypedResults.Ok(new SyncResult(0, 0));
     }
 
-    using var syncStatusUpdater = new ProjectSyncStatusUpdater(syncStatusService, projectId);
+    syncStatusService.StartSyncing(projectId);
+    using var stopSyncing = Defer.Action(() => syncStatusService.StopSyncing(projectId));
 
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
