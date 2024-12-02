@@ -110,12 +110,16 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     [Fact]
     public async Task FirstSena3SyncJustDoesAnSync()
     {
+        _fwDataApi.EntryCount.Should().BeGreaterThan(1000,
+            "projects with less than 1000 entries don't trip over the default query limit");
+
         var results = await _syncService.Sync(_crdtApi, _fwDataApi);
         results.FwdataChanges.Should().Be(0);
         results.CrdtChanges.Should().BeGreaterThanOrEqualTo(_fwDataApi.EntryCount);
 
         var crdtEntries = await _crdtApi.GetEntries().ToDictionaryAsync(e => e.Id);
         var fwdataEntries = await _fwDataApi.GetEntries().ToDictionaryAsync(e => e.Id);
+        fwdataEntries.Count.Should().Be(_fwDataApi.EntryCount);
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
     }
 
