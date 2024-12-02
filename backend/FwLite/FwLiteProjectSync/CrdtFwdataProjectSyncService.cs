@@ -39,7 +39,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         {
             await SaveProjectSnapshot(fwdataApi.Project,
                 new ProjectSnapshot(
-                    await fwdataApi.GetEntries().ToArrayAsync(),
+                    await fwdataApi.GetAllEntries().ToArrayAsync(),
                     await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
                     await fwdataApi.GetSemanticDomains().ToArrayAsync(),
                     await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
@@ -80,11 +80,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         crdtChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, projectSnapshot.ComplexFormTypes, crdtApi);
         fwdataChanges += await ComplexFormTypeSync.Sync(await crdtApi.GetComplexFormTypes().ToArrayAsync(), currentFwDataComplexFormTypes, fwdataApi);
 
-        var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtChanges += await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
         LogDryRun(crdtApi, "crdt");
 
-        fwdataChanges += await EntrySync.Sync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
+        fwdataChanges += await EntrySync.Sync(await crdtApi.GetAllEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
         LogDryRun(fwdataApi, "fwdata");
 
         //todo push crdt changes to lexbox

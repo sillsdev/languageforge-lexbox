@@ -117,8 +117,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         results.FwdataChanges.Should().Be(0);
         results.CrdtChanges.Should().BeGreaterThanOrEqualTo(_fwDataApi.EntryCount);
 
-        var crdtEntries = await _crdtApi.GetEntries().ToDictionaryAsync(e => e.Id);
-        var fwdataEntries = await _fwDataApi.GetEntries().ToDictionaryAsync(e => e.Id);
+        var crdtEntries = await _crdtApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
+        var fwdataEntries = await _fwDataApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
         fwdataEntries.Count.Should().Be(_fwDataApi.EntryCount);
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
     }
@@ -132,8 +132,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         results.FwdataChanges.Should().Be(0);
         results.CrdtChanges.Should().BeGreaterThan(_fwDataApi.EntryCount);
 
-        var crdtEntries = await _crdtApi.GetEntries().ToDictionaryAsync(e => e.Id);
-        var fwdataEntries = await _fwDataApi.GetEntries().ToDictionaryAsync(e => e.Id);
+        var crdtEntries = await _crdtApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
+        var fwdataEntries = await _fwDataApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
     }
 

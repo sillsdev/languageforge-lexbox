@@ -36,7 +36,7 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
 
 
         var semanticDomains = importFrom.GetSemanticDomains();
-        var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
+        var entries = importFrom.GetAllEntries();
         if (importTo is CrdtMiniLcmApi crdtLexboxApi)
         {
             logger.LogInformation("Importing semantic domains");
