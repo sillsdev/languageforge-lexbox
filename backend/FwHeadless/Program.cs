@@ -38,6 +38,13 @@ app.Use(async (context, next) =>
     await next();
 });
 
+// Load project ID from request
+app.Use((context, next) =>
+{
+    var renameThisService = context.RequestServices.GetRequiredService<ProjectContextFromIdService>();
+    return renameThisService.PopulateProjectContext(context, next);
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

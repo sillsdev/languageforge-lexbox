@@ -27,6 +27,7 @@ public static class FwHeadlessKernel
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
         services.AddScoped<CrdtSyncService>();
+        services.AddScoped<ProjectContextFromIdService>();
         services.AddTransient<HttpClientAuthHandler>();
         services.AddHttpClient(LexboxHttpClientName,
             (provider, client) =>
