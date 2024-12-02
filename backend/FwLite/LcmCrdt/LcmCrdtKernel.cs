@@ -61,6 +61,7 @@ public static class LcmCrdtKernel
 #if DEBUG
         builder.EnableSensitiveDataLogging();
 #endif
+        builder.EnableDetailedErrors();
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDB(optionsBuilder =>
             {
