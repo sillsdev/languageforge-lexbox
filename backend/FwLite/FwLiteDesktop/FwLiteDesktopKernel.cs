@@ -22,6 +22,7 @@ public static class FwLiteDesktopKernel
 #if DEBUG
         environment = "Development";
 #endif
+
         var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ?? defaultDataPath);
         Directory.CreateDirectory(baseDataPath);
@@ -41,7 +42,11 @@ public static class FwLiteDesktopKernel
         //using a lambda here means that the serverManager will be disposed when the app is disposed
         services.AddSingleton<ServerManager>(_ => serverManager);
         services.AddSingleton<IMauiInitializeService>(_ => _.GetRequiredService<ServerManager>());
+        services.AddHttpClient();
+        if (IsPackagedApp)
+            services.AddSingleton<IMauiInitializeService, AppUpdateService>();
         services.AddSingleton<IHostEnvironment>(_ => _.GetRequiredService<ServerManager>().WebServices.GetRequiredService<IHostEnvironment>());
+        services.AddSingleton<IPreferences>(Preferences.Default);
         configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
         services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
         logging.AddFile(Path.Combine(baseDataPath, "app.log"));

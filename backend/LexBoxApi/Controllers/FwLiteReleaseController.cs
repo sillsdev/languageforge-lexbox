@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using LexCore.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -8,23 +9,41 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fwlite-release")]
+[ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cache) : ControllerBase
 {
     private const string GithubLatestRelease = "GithubLatestRelease";
 
+    [HttpGet("download-latest")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> LatestDownload()
+    {
+        var latestRelease = await GetLatestRelease(default);
+        if (latestRelease is null) return NotFound();
+        return Redirect(latestRelease.Url);
+    }
+
     [HttpGet("latest")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> Latest()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesDefaultResponseType]
+    public async ValueTask<ActionResult<FwLiteRelease>> LatestRelease()
     {
-        var latestReleaseUrl = await cache.GetOrCreateAsync(GithubLatestRelease,
-            LatestVersionFromGithub,
-            new HybridCacheEntryOptions() { Expiration = TimeSpan.FromDays(1) });
-        if (latestReleaseUrl is null) return NotFound();
-        return Redirect(latestReleaseUrl);
+        var latestRelease = await GetLatestRelease(default);
+        if (latestRelease is null) return NotFound();
+        return latestRelease;
     }
 
-    private async ValueTask<string?> LatestVersionFromGithub(CancellationToken token)
+    private async ValueTask<FwLiteRelease?> GetLatestRelease(CancellationToken token)
+    {
+        return await cache.GetOrCreateAsync(GithubLatestRelease,
+            FetchLatestReleaseFromGithub,
+            new HybridCacheEntryOptions() { Expiration = TimeSpan.FromDays(1) }, cancellationToken: token);
+    }
+
+    private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(CancellationToken token)
     {
         var response = await factory.CreateClient("Github")
             .SendAsync(new HttpRequestMessage(HttpMethod.Get,
@@ -55,7 +74,7 @@ public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cac
             var msixBundle = release.Assets.FirstOrDefault(a => a.Name.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase));
             if (msixBundle is not null)
             {
-                return msixBundle.BrowserDownloadUrl;
+                return new FwLiteRelease(release.TagName, msixBundle.BrowserDownloadUrl);
             }
         }
         return null;
@@ -137,7 +156,7 @@ public class Release
     /// The name of the tag.
     /// </summary>
     [JsonPropertyName("tag_name")]
-    public string? TagName { get; set; }
+    public required string TagName { get; set; }
 
     [JsonPropertyName("tarball_url")]
     public string? TarballUrl { get; set; }
