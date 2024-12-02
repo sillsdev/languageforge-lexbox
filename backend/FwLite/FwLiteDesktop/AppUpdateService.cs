@@ -12,13 +12,16 @@ public class AppUpdateService(
     ILogger<AppUpdateService> logger,
     IPreferences preferences) : IMauiInitializeService
 {
-
-
     private const string LastUpdateCheck = "lastUpdateChecked";
     private const string FwliteUpdateUrlEnvVar = "FWLITE_UPDATE_URL";
     private const string ForceUpdateCheckEnvVar = "FWLITE_FORCE_UPDATE_CHECK";
-    private static readonly SearchValues<string> ValidPositiveEnvVarValues = SearchValues.Create([ "1", "true", "yes" ], StringComparison.OrdinalIgnoreCase);
-    private static readonly string UpdateUrl = Environment.GetEnvironmentVariable(FwliteUpdateUrlEnvVar) ?? "https://lexbox.org/api/fwlite-release/latest";
+    private const string PreventUpdateCheckEnvVar = "FWLITE_PREVENT_UPDATE";
+
+    private static readonly SearchValues<string> ValidPositiveEnvVarValues =
+        SearchValues.Create(["1", "true", "yes"], StringComparison.OrdinalIgnoreCase);
+
+    private static readonly string UpdateUrl = Environment.GetEnvironmentVariable(FwliteUpdateUrlEnvVar) ??
+                                               $"https://lexbox.org/api/fwlite-release/latest?appVersion={AppVersion.Version}";
 
     public void Initialize(IServiceProvider services)
     {
@@ -27,6 +30,12 @@ public class AppUpdateService(
 
     private async Task TryUpdate()
     {
+        if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(PreventUpdateCheckEnvVar) ?? ""))
+        {
+            logger.LogInformation("Update check prevented by env var {EnvVar}", PreventUpdateCheckEnvVar);
+            return;
+        }
+
         if (!ShouldCheckForUpdate()) return;
         var latestRelease = await FetchRelease();
         if (latestRelease is null) return;
@@ -34,7 +43,10 @@ public class AppUpdateService(
         var shouldUpdateToRelease = String.Compare(latestRelease.Version, currentVersion, StringComparison.Ordinal) > 0;
         if (!shouldUpdateToRelease)
         {
-            logger.LogInformation("Version {CurrentVersion} is more recent than latest release {LatestRelease}, not updating", currentVersion, latestRelease.Version);
+            logger.LogInformation(
+                "Version {CurrentVersion} is more recent than latest release {LatestRelease}, not updating",
+                currentVersion,
+                latestRelease.Version);
             return;
         }
 
@@ -56,6 +68,7 @@ public class AppUpdateService(
             logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
             return;
         }
+
         logger.LogInformation("Update downloaded, will install on next restart");
     }
 
@@ -63,9 +76,22 @@ public class AppUpdateService(
     {
         try
         {
-            var latestRelease = await httpClientFactory
+            var response = await httpClientFactory
                 .CreateClient("Lexbox")
-                .GetFromJsonAsync<FwLiteRelease>(UpdateUrl);
+                .SendAsync(new HttpRequestMessage(HttpMethod.Get, UpdateUrl)
+                {
+                    Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{AppVersion.Version}" } }
+                });
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                logger.LogError("Failed to get latest release from github: {StatusCode} {ResponseContent}",
+                    response.StatusCode,
+                    responseContent);
+                return null;
+            }
+
+            var latestRelease = await response.Content.ReadFromJsonAsync<FwLiteRelease>();
             return latestRelease;
         }
         catch (Exception e)

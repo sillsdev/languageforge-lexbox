@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using LexBoxApi.Otel;
 using LexCore.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +30,10 @@ public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cac
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
-    public async ValueTask<ActionResult<FwLiteRelease>> LatestRelease()
+    public async ValueTask<ActionResult<FwLiteRelease>> LatestRelease(string? appVersion = null)
     {
+        using var activity = LexBoxActivitySource.Get().StartActivity();
+        activity?.AddTag("app.fw-lite-client.version", appVersion ?? "unknown");
         var latestRelease = await GetLatestRelease(default);
         if (latestRelease is null) return NotFound();
         return latestRelease;
