@@ -38,6 +38,11 @@ public class AppUpdateService(
             return;
         }
 
+        await ApplyUpdate(latestRelease);
+    }
+
+    private async Task ApplyUpdate(FwLiteRelease latestRelease)
+    {
         logger.LogInformation("New version available: {Version}", latestRelease.Version);
         var packageManager = new PackageManager();
         var asyncOperation = packageManager.AddPackageAsync(new Uri(latestRelease.Url), [], DeploymentOptions.None);
