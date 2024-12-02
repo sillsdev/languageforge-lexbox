@@ -258,4 +258,9 @@ jobs:
             fw-lite-msix/*
             fw-lite-portable.zip
             fw-lite-local-web-app-linux.zip
+      - name: Invalidate Lexbox Release endpoint
+        continue-on-error: true
+        run: |
+          sleep 10
+          curl -X POST https://lexbox.org/api/api/fwlite-release/new-release
 
