@@ -9,18 +9,7 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
 {
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
-        var writingSystems = await importFrom.GetWritingSystems();
-        foreach (var ws in writingSystems.Analysis)
-        {
-            await importTo.CreateWritingSystem(WritingSystemType.Analysis, ws);
-            logger.LogInformation("Imported ws {WsId}", ws.WsId);
-        }
-
-        foreach (var ws in writingSystems.Vernacular)
-        {
-            await importTo.CreateWritingSystem(WritingSystemType.Vernacular, ws);
-            logger.LogInformation("Imported ws {WsId}", ws.WsId);
-        }
+        await ImportWritingSystems(importTo, importFrom);
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
         {
@@ -61,5 +50,21 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
         }
 
         logger.LogInformation("Imported {Count} entries", entryCount);
+    }
+
+    internal async Task ImportWritingSystems(IMiniLcmApi importTo, IMiniLcmApi importFrom)
+    {
+        var writingSystems = await importFrom.GetWritingSystems();
+        foreach (var ws in writingSystems.Analysis)
+        {
+            await importTo.CreateWritingSystem(WritingSystemType.Analysis, ws);
+            logger.LogInformation("Imported ws {WsId}", ws.WsId);
+        }
+
+        foreach (var ws in writingSystems.Vernacular)
+        {
+            await importTo.CreateWritingSystem(WritingSystemType.Vernacular, ws);
+            logger.LogInformation("Imported ws {WsId}", ws.WsId);
+        }
     }
 }

@@ -18,6 +18,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     private CrdtMiniLcmApi _crdtApi = null!;
     private FwDataMiniLcmApi _fwDataApi = null!;
     private IDisposable? _cleanup;
+    private MiniLcmImport _miniLcmImport = null!;
 
 
     public Sena3SyncTests(Sena3Fixture fixture)
@@ -29,6 +30,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     {
         (_crdtApi, _fwDataApi, var services, _cleanup) = await _fixture.SetupProjects();
         _syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+        _miniLcmImport = services.GetRequiredService<MiniLcmImport>();
         _fwDataApi.EntryCount.Should().BeGreaterThan(100, "project should be loaded and have entries");
     }
 
@@ -56,9 +58,11 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     //by default the first sync is an import, this will skip that so that the sync will actually sync data
-    private async Task BypassImport()
+    private async Task BypassImport(bool wsImported = false)
     {
-        await _syncService.SaveProjectSnapshot(_fwDataApi.Project, CrdtFwdataProjectSyncService.ProjectSnapshot.Empty);
+        var snapshot = CrdtFwdataProjectSyncService.ProjectSnapshot.Empty;
+        if (wsImported) snapshot = snapshot with { WritingSystems = await _fwDataApi.GetWritingSystems() };
+        await _syncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
     }
 
     //this lets us query entries when there is no writing system
@@ -98,13 +102,18 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
     }
 
-    [Fact(Skip = "this test is waiting for syncing ComplexFormTypes and WritingSystems")]
-    public async Task DryRunSync_MakesTheSameChangesAsImport()
+    [Fact]
+    public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
-        await BypassImport();
+        //syncing requires querying entries, which fails if there are no writing systems, so we import those first
+        await _miniLcmImport.ImportWritingSystems(_crdtApi, _fwDataApi);
+        await BypassImport(true);
+
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi);
         var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi);
-        dryRunSyncResult.Should().BeEquivalentTo(syncResult);
+        dryRunSyncResult.CrdtChanges.Should().Be(syncResult.CrdtChanges);
+        //can't test fwdata changes as they will not work correctly since the sync code expects Crdts to contain data from FWData
+        //this throws off the algorithm and it will try to delete everything in fwdata since there's no data in the crdt since it was a dry run
     }
 
     [Fact]
@@ -134,6 +143,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
         var crdtEntries = await _crdtApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
         var fwdataEntries = await _fwDataApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
+        fwdataEntries.Count.Should().Be(_fwDataApi.EntryCount);
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
     }
 
