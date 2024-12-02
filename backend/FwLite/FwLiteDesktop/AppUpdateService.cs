@@ -106,7 +106,14 @@ public class AppUpdateService(
         if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(ForceUpdateCheckEnvVar) ?? ""))
             return true;
         var lastChecked = preferences.Get(LastUpdateCheck, DateTime.MinValue);
-        if (lastChecked.AddDays(1) > DateTime.UtcNow) return false;
+        var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
+        //if last checked is in the future (should never happen), then we want to reset the time and check again
+        if (timeSinceLastCheck.Hours < -1)
+        {
+            preferences.Set(LastUpdateCheck, DateTime.UtcNow);
+            return true;
+        }
+        if (timeSinceLastCheck.Hours < 20) return false;
         preferences.Set(LastUpdateCheck, DateTime.UtcNow);
         return true;
     }
