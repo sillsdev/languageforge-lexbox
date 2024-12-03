@@ -26,6 +26,10 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+        builder.ConfigureEssentials(essentialsBuilder =>
+        {
+            essentialsBuilder.UseVersionTracking();
+        });
         builder.ConfigureLifecycleEvents(events => events.AddWindows(windowsEvents =>
         {
             windowsEvents.OnClosed((window, args) =>
