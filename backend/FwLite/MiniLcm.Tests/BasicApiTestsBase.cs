@@ -8,28 +8,6 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        await Api.CreateWritingSystem(WritingSystemType.Analysis,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Analysis,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "En",
-                Font = "Arial",
-                Exemplars = []
-            });
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "En",
-                Font = "Arial",
-                Exemplars = []
-            });
         await Api.CreateEntry(new Entry
         {
             Id = Entry1Id,
@@ -141,7 +119,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 Id = Guid.NewGuid(),
                 Type = WritingSystemType.Vernacular,
-                WsId = "en",
+                WsId = "es",
                 Name = "test",
                 Abbreviation = "test",
                 Font = "Arial",
