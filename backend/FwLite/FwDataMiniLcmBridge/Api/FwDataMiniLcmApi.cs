@@ -163,6 +163,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
+        var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
+        if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
+        {
+            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
+        }
         CoreWritingSystemDefinition? ws = null;
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Writing System",
             "Remove writing system",

@@ -8,6 +8,7 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
@@ -46,7 +47,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var entityId = Guid.NewGuid();
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
-        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+        try
+        {
+            await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+        }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.InnerException is SqliteException { SqliteErrorCode: 19 }) //19 is a unique constraint violation
+        {
+            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
+        }
         return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
     }
 

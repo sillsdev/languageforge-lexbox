@@ -129,6 +129,7 @@ public static class LcmCrdtKernel
             })
             .Add<WritingSystem>(builder =>
             {
+                builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();
                 builder.Property(w => w.Exemplars)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
