@@ -38,6 +38,6 @@ public record ProjectSyncStatus(
     public static ProjectSyncStatus Syncing => new(ProjectSyncStatusEnum.Syncing, 0);
     public static ProjectSyncStatus ReadyToSync(int changes)
     {
-        return new(ProjectSyncStatusEnum.Syncing, changes);
+        return new(ProjectSyncStatusEnum.ReadyToSync, changes);
     }
 }
