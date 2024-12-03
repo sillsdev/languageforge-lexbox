@@ -65,8 +65,6 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
-
-        _fixture.DeleteSyncSnapshot();
     }
 
     public SyncTests(SyncFixture fixture)
