@@ -26,7 +26,7 @@
   </Button>
   <Dialog {open} on:close={toggleOff} class="w-[700px]">
     <div class="m-6 prose">
-      <Markdown md={$text} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
+      <Markdown md={$text} plugins={[{ renderer: { a: NewTabLinkRenderer as unknown as Component } }]} />
     </div>
     <div class="flex-grow"></div>
     <div slot="actions">

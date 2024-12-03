@@ -12,7 +12,7 @@
   import {links} from 'svelte-routing';
   import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
-  import DevContent, {isDev} from './lib/layout/DevContent.svelte';
+  import DevContent from './lib/layout/DevContent.svelte';
   import {useProjectsService, type Project, type ServerStatus} from './lib/services/projects-service';
   import {onMount} from 'svelte';
 
@@ -218,7 +218,7 @@
               {/if}
             </div>
             {#each servers as server}
-              <div class="border my-1"/>
+              <div class="border my-1"></div>
               <div class="flex flex-row items-center py-1">
                 <p>{server.displayName}</p>
                 <div class="flex-grow"></div>

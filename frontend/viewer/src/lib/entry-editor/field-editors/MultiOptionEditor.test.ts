@@ -85,6 +85,7 @@ describe('MultiOptionEditor displayed sorting', () => {
   });
 
   test('matches values sorting if `preserveOrder` option is set', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     component.$set({preserveOrder: true});
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('1'));
