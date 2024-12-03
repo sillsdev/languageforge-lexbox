@@ -262,5 +262,5 @@ jobs:
         continue-on-error: true
         run: |
           sleep 10
-          curl -X POST https://lexbox.org/api/api/fwlite-release/new-release
+          curl -X POST https://lexbox.org/api/fwlite-release/new-release
 
