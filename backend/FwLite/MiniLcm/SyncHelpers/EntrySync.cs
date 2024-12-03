@@ -109,14 +109,59 @@ public static class EntrySync
         );
     }
 
+    private static double CalcOrderValueForIndex<T>(int i, IDictionary<int, T> stable, double prevMin) where T : IOrderable
+    {
+        double? stableOrderBefore = null;
+        double? stableOrderAfter = null;
+
+        for (var j = i - 1; j >= 0; j--)
+        {
+            if (stable.TryGetValue(j, out var stableItem))
+            {
+                stableOrderBefore = stableItem.Order;
+                break;
+            }
+        }
+
+        for (var j = i + 1; j < stable.Count; j++)
+        {
+            if (stable.TryGetValue(j, out var stableItem))
+            {
+                stableOrderAfter = stableItem.Order;
+                break;
+            }
+        }
+
+        if (stableOrderBefore is not null && stableOrderAfter is not null)
+            return (stableOrderBefore.Value + stableOrderAfter.Value) / 2;
+        if (stableOrderBefore is not null)
+            return stableOrderBefore.Value + 1;
+        if (stableOrderAfter is not null)
+            return stableOrderAfter.Value - 1;
+        return prevMin;
+    }
+
     private static async Task<int> SensesSync(Guid entryId,
         IList<Sense> afterSenses,
         IList<Sense> beforeSenses,
         IMiniLcmApi api)
     {
-        Func<IMiniLcmApi, Sense, Task<int>> add = async (api, afterSense) =>
+        var prevMin = beforeSenses.Min(s => s.Order);
+        Func<IMiniLcmApi, Sense, int, IDictionary<int, Sense>, Task<int>> add = async (api, afterSense, to, stable) =>
         {
             await api.CreateSense(entryId, afterSense);
+            // todo: calculating
+            var order = CalcOrderValueForIndex(to, stable, prevMin);
+            afterSense.Order = order;
+            stable.Add(to, afterSense);
+            return 1;
+        };
+        Func<IMiniLcmApi, Sense, int, IDictionary<int, Sense>, Task<int>> move = async (api, afterSense, to, stable) =>
+        {
+            var order = CalcOrderValueForIndex(to, stable, prevMin);
+            afterSense.Order = order;
+            stable.Add(to, afterSense);
+            await api.MoveSense(entryId, afterSense);
             return 1;
         };
         Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, beforeSense) =>
@@ -125,7 +170,7 @@ public static class EntrySync
             return 1;
         };
         Func<IMiniLcmApi, Sense, Sense, Task<int>> replace = async (api, beforeSense, afterSense) => await SenseSync.Sync(entryId, afterSense, beforeSense, api);
-        return await DiffCollection.Diff(api, beforeSenses, afterSenses, add, remove, replace);
+        return await DiffCollection.DiffOrderable(api, beforeSenses, afterSenses, add, remove, move, replace);
     }
 
     public static UpdateObjectInput<Entry>? EntryDiffToUpdate(Entry beforeEntry, Entry afterEntry)

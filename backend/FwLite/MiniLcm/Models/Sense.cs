@@ -1,8 +1,12 @@
-﻿namespace MiniLcm.Models;
+﻿using System.Text.Json.Serialization;
 
-public class Sense : IObjectWithId
+namespace MiniLcm.Models;
+
+public class Sense : IObjectWithId, IOrderable
 {
     public virtual Guid Id { get; set; }
+    [JsonIgnore]
+    public double Order { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid EntryId { get; set; }
     public virtual MultiString Definition { get; set; } = new();
