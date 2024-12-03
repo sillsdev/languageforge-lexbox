@@ -5,25 +5,25 @@ namespace MiniLcm.SyncHelpers;
 
 public static class PartOfSpeechSync
 {
-    public static async Task<int> Sync(PartOfSpeech[] previousPartsOfSpeech,
-        PartOfSpeech[] currentPartsOfSpeech,
+    public static async Task<int> Sync(PartOfSpeech[] beforePartsOfSpeech,
+        PartOfSpeech[] afterPartsOfSpeech,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(api,
-            previousPartsOfSpeech,
-            currentPartsOfSpeech,
+            beforePartsOfSpeech,
+            afterPartsOfSpeech,
             pos => pos.Id,
-            async (api, currentPos) =>
+            async (api, afterPos) =>
             {
-                await api.CreatePartOfSpeech(currentPos);
+                await api.CreatePartOfSpeech(afterPos);
                 return 1;
             },
-            async (api, previousPos) =>
+            async (api, beforePos) =>
             {
-                await api.DeletePartOfSpeech(previousPos.Id);
+                await api.DeletePartOfSpeech(beforePos.Id);
                 return 1;
             },
-            (api, previousPos, currentPos) => Sync(previousPos, currentPos, api));
+            (api, beforePos, afterPos) => Sync(beforePos, afterPos, api));
     }
 
     public static async Task<int> Sync(PartOfSpeech before,
@@ -35,12 +35,12 @@ public static class PartOfSpeechSync
         return updateObjectInput is null ? 0 : 1;
     }
 
-    public static UpdateObjectInput<PartOfSpeech>? PartOfSpeechDiffToUpdate(PartOfSpeech previousPartOfSpeech, PartOfSpeech currentPartOfSpeech)
+    public static UpdateObjectInput<PartOfSpeech>? PartOfSpeechDiffToUpdate(PartOfSpeech beforePartOfSpeech, PartOfSpeech afterPartOfSpeech)
     {
         JsonPatchDocument<PartOfSpeech> patchDocument = new();
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<PartOfSpeech>(nameof(PartOfSpeech.Name),
-            previousPartOfSpeech.Name,
-            currentPartOfSpeech.Name));
+            beforePartOfSpeech.Name,
+            afterPartOfSpeech.Name));
         // TODO: Once we add abbreviations to MiniLcm's PartOfSpeech objects, then:
         // patchDocument.Operations.AddRange(GetMultiStringDiff<PartOfSpeech>(nameof(PartOfSpeech.Abbreviation),
         //     previousPartOfSpeech.Abbreviation,
