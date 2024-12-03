@@ -1,3 +1,7 @@
-﻿namespace MiniLcm;
+﻿using MiniLcm.Models;
 
-public interface IMiniLcmApi: IMiniLcmReadApi, IMiniLcmWriteApi;
+namespace MiniLcm;
+
+public interface IMiniLcmApi : IMiniLcmReadApi, IMiniLcmWriteApi
+{
+}

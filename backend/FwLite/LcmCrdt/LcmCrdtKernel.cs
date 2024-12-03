@@ -159,6 +159,11 @@ public static class LcmCrdtKernel
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
+        config.ObjectTypeListBuilder.OrderConfig(new OrderConfig<IOrderable>(
+            o => o.Order,
+            o => o.Id
+        ));
+
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
             .Add<JsonPatchChange<ExampleSentence>>()
@@ -188,7 +193,8 @@ public static class LcmCrdtKernel
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()
             .Add<SetComplexFormComponentChange>()
-            .Add<CreateComplexFormType>();
+            .Add<CreateComplexFormType>()
+            .Add<Changes.SetOrderChange<Sense>>();
     }
 
     public static Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)

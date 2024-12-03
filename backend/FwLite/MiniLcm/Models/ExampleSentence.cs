@@ -1,8 +1,12 @@
-﻿namespace MiniLcm.Models;
+﻿using System.Text.Json.Serialization;
 
-public class ExampleSentence : IObjectWithId
+namespace MiniLcm.Models;
+
+public class ExampleSentence : IObjectWithId, IOrderable
 {
     public virtual Guid Id { get; set; }
+    [JsonIgnore]
+    public double Order { get; set; }
     public virtual MultiString Sentence { get; set; } = new();
     public virtual MultiString Translation { get; set; } = new();
     public virtual string? Reference { get; set; } = null;

@@ -955,6 +955,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
+    public Task<Sense> MoveSense(Guid entryId, Sense afterSense, int to)
+    {
+        // todo: to is the final destination
+        return Task.FromResult(afterSense);
+    }
+
     public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Semantic Domain to Sense",

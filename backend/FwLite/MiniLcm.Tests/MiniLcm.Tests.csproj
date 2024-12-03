@@ -21,6 +21,7 @@
         <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
         <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1"/>
+        <PackageReference Include="Moq" Version="4.20.70" />
     </ItemGroup>
 
     <ItemGroup>

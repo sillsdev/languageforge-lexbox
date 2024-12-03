@@ -1,6 +1,8 @@
-﻿namespace MiniLcm.Models;
+﻿using System.Text.Json.Serialization;
 
-public record ComplexFormComponent : IObjectWithId
+namespace MiniLcm.Models;
+
+public record ComplexFormComponent : IObjectWithId, IOrderable
 {
     public static ComplexFormComponent FromEntries(Entry complexFormEntry,
         Entry componentEntry,
@@ -20,6 +22,8 @@ public record ComplexFormComponent : IObjectWithId
     }
 
     public Guid Id { get; set; }
+    [JsonIgnore]
+    public double Order { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public virtual required Guid ComplexFormEntryId { get; set; }
     public string? ComplexFormHeadword { get; set; }

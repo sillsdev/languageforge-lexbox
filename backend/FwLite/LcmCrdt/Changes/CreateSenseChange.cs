@@ -25,6 +25,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     }
 
     public Guid EntryId { get; set; }
+    public double Order { get; set; }
     public MultiString? Definition { get; set; }
     public MultiString? Gloss { get; set; }
     public string? PartOfSpeech { get; set; }
@@ -36,6 +37,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
         return new Sense
         {
             Id = EntityId,
+            Order = Order,
             EntryId = EntryId,
             Definition = Definition ?? new MultiString(),
             Gloss = Gloss ?? new MultiString(),
