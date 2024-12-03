@@ -54,7 +54,7 @@ public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cac
                 {
                     Headers =
                     {
-                        { "X-GitHub-Api-Version", " 2022-11-28" },
+                        { "X-GitHub-Api-Version", "2022-11-28" },
                         { "Accept", "application/vnd.github+json" },
                         { "User-Agent", "Lexbox-Release-Endpoint" }
                     }
