@@ -103,6 +103,7 @@ export default [
       'svelte/no-store-async': 'error',
       'svelte/require-store-reactive-access': 'error',
       'svelte/mustache-spacing': 'error',
+      'svelte/valid-compile' : 'warn',
       'func-style': ['warn', 'declaration'],
       "no-restricted-imports": ["error", {
         "patterns": [{
