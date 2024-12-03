@@ -6,10 +6,9 @@ import type {Component} from 'svelte';
 
 export async function POST(event: RequestEvent): Promise<Response> {
   const request = await event.request.json() as EmailTemplateProps;
-  const {...props} = request;
-  const component = componentMap[props.template] as unknown as Component<EmailTemplateProps>;
-  if (!component) throw new Error(`Invalid email template ${props.template}.}`);
-  return json(render(component, props, event.locals.activeLocale));
+  const component = componentMap[request.template] as unknown as Component<EmailTemplateProps>;
+  if (!component) throw new Error(`Invalid email template ${request.template}.}`);
+  return json(render(component, request, event.locals.activeLocale));
 }
 
 
