@@ -39,11 +39,24 @@ public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cac
         return latestRelease;
     }
 
+    [HttpGet("should-update")]
+    public async Task<ActionResult<ShouldUpdateResponse>> ShouldUpdate([FromQuery] string appVersion)
+    {
+        using var activity = LexBoxActivitySource.Get().StartActivity();
+        activity?.AddTag("app.fw-lite-client.version", appVersion);
+        var latestRelease = await GetLatestRelease(default);
+        if (latestRelease is null) return new ShouldUpdateResponse(null);
+
+        var shouldUpdateToRelease = String.Compare(latestRelease.Version, appVersion, StringComparison.Ordinal) > 0;
+        return shouldUpdateToRelease ? new ShouldUpdateResponse(latestRelease) : new ShouldUpdateResponse(null);
+    }
+
     private async ValueTask<FwLiteRelease?> GetLatestRelease(CancellationToken token)
     {
         return await cache.GetOrCreateAsync(GithubLatestRelease,
             FetchLatestReleaseFromGithub,
-            new HybridCacheEntryOptions() { Expiration = TimeSpan.FromDays(1) }, cancellationToken: token);
+            new HybridCacheEntryOptions() { Expiration = TimeSpan.FromDays(1) },
+            cancellationToken: token);
     }
 
     private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(CancellationToken token)
@@ -65,6 +78,7 @@ public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cac
             var responseContent = await response.Content.ReadAsStringAsync(token);
             throw new Exception($"Failed to get latest release from github: {response.StatusCode} {responseContent}");
         }
+
         response.EnsureSuccessStatusCode();
         var releases = await response.Content.ReadFromJsonAsync<Release[]>(token);
         if (releases is null) return null;
@@ -74,12 +88,15 @@ public class FwLiteReleaseController(IHttpClientFactory factory, HybridCache cac
             {
                 continue;
             }
-            var msixBundle = release.Assets.FirstOrDefault(a => a.Name.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase));
+
+            var msixBundle = release.Assets.FirstOrDefault(a =>
+                a.Name.EndsWith(".msixbundle", StringComparison.InvariantCultureIgnoreCase));
             if (msixBundle is not null)
             {
                 return new FwLiteRelease(release.TagName, msixBundle.BrowserDownloadUrl);
             }
         }
+
         return null;
     }
 
@@ -235,7 +252,6 @@ public class ReleaseAsset
 [JsonConverter(typeof(StateConverter))]
 public enum State { Open, Uploaded };
 
-
 internal class StateConverter : JsonConverter<State>
 {
     public override bool CanConvert(Type t) => t == typeof(State);
@@ -268,5 +284,4 @@ internal class StateConverter : JsonConverter<State>
 
         throw new Exception("Cannot marshal type State");
     }
-
 }

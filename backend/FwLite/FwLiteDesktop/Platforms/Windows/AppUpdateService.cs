@@ -20,8 +20,8 @@ public class AppUpdateService(
     private static readonly SearchValues<string> ValidPositiveEnvVarValues =
         SearchValues.Create(["1", "true", "yes"], StringComparison.OrdinalIgnoreCase);
 
-    private static readonly string UpdateUrl = Environment.GetEnvironmentVariable(FwliteUpdateUrlEnvVar) ??
-                                               $"https://lexbox.org/api/fwlite-release/latest?appVersion={AppVersion.Version}";
+    private static readonly string ShouldUpdateUrl = Environment.GetEnvironmentVariable(FwliteUpdateUrlEnvVar) ??
+                                               $"https://lexbox.org/api/fwlite-release/should-update?appVersion={AppVersion.Version}";
 
     public void Initialize(IServiceProvider services)
     {
@@ -37,20 +37,10 @@ public class AppUpdateService(
         }
 
         if (!ShouldCheckForUpdate()) return;
-        var latestRelease = await FetchRelease();
-        if (latestRelease is null) return;
-        var currentVersion = AppVersion.Version;
-        var shouldUpdateToRelease = String.Compare(latestRelease.Version, currentVersion, StringComparison.Ordinal) > 0;
-        if (!shouldUpdateToRelease)
-        {
-            logger.LogInformation(
-                "Version {CurrentVersion} is more recent than latest release {LatestRelease}, not updating",
-                currentVersion,
-                latestRelease.Version);
-            return;
-        }
+        var response = await ShouldUpdate();
+        if (!response.Update) return;
 
-        await ApplyUpdate(latestRelease);
+        await ApplyUpdate(response.Release);
     }
 
     private async Task ApplyUpdate(FwLiteRelease latestRelease)
@@ -72,27 +62,26 @@ public class AppUpdateService(
         logger.LogInformation("Update downloaded, will install on next restart");
     }
 
-    private async Task<FwLiteRelease?> FetchRelease()
+    private async Task<ShouldUpdateResponse> ShouldUpdate()
     {
         try
         {
             var response = await httpClientFactory
                 .CreateClient("Lexbox")
-                .SendAsync(new HttpRequestMessage(HttpMethod.Get, UpdateUrl)
+                .SendAsync(new HttpRequestMessage(HttpMethod.Get, ShouldUpdateUrl)
                 {
                     Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{AppVersion.Version}" } }
                 });
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                logger.LogError("Failed to get latest release from github: {StatusCode} {ResponseContent}",
+                logger.LogError("Failed to get should update response lexbox: {StatusCode} {ResponseContent}",
                     response.StatusCode,
                     responseContent);
-                return null;
+                return new ShouldUpdateResponse(null);
             }
 
-            var latestRelease = await response.Content.ReadFromJsonAsync<FwLiteRelease>();
-            return latestRelease;
+            return await response.Content.ReadFromJsonAsync<ShouldUpdateResponse>() ?? new ShouldUpdateResponse(null);
         }
         catch (Exception e)
         {
@@ -105,7 +94,7 @@ public class AppUpdateService(
                 logger.LogInformation(e, "Failed to fetch latest release, no internet connection");
             }
 
-            return null;
+            return new ShouldUpdateResponse(null);
         }
     }
 
