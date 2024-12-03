@@ -146,6 +146,7 @@ export function tScoped<Scope extends I18nScope>(scope: Scope): Readable<(key: D
 
 export function tTypeScoped<Shape extends object>(scope: I18nShapeKey<Shape>): Readable<(key: DeepPathsToString<Shape>, values?: InterpolationValues) => string> {
   return derived(t, tFunc => (key: DeepPathsToString<Shape>, values?: InterpolationValues) =>
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     tFunc(`${String(scope)}.${String(key)}` as I18nKey, values));
 }
 

@@ -22,6 +22,7 @@
   onMount(autofocusIfRequested);
 
   function autofocusIfRequested(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     autofocus && elem.querySelector<HTMLElement>('input, select, textarea')?.focus();
   }
 </script>

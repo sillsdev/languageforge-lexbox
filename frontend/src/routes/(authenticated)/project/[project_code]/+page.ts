@@ -609,6 +609,7 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
 
   if (result.error) {
     // this should be meaningless, but just in case and it makes the linter happy
+    // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw result.error;
   }
 }
