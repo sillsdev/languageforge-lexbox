@@ -5,8 +5,8 @@ namespace MiniLcm.SyncHelpers;
 
 public static class PartOfSpeechSync
 {
-    public static async Task<int> Sync(PartOfSpeech[] currentPartsOfSpeech,
-        PartOfSpeech[] previousPartsOfSpeech,
+    public static async Task<int> Sync(PartOfSpeech[] previousPartsOfSpeech,
+        PartOfSpeech[] currentPartsOfSpeech,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(api,

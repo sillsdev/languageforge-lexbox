@@ -6,16 +6,16 @@ namespace MiniLcm.SyncHelpers;
 public static class SenseSync
 {
     public static async Task<int> Sync(Guid entryId,
-        Sense afterSense,
         Sense beforeSense,
+        Sense afterSense,
         IMiniLcmApi api)
     {
         var updateObjectInput = await SenseDiffToUpdate(beforeSense, afterSense);
         if (updateObjectInput is not null) await api.UpdateSense(entryId, beforeSense.Id, updateObjectInput);
         var changes = await ExampleSentenceSync.Sync(entryId,
             beforeSense.Id,
-            afterSense.ExampleSentences,
             beforeSense.ExampleSentences,
+            afterSense.ExampleSentences,
             api);
         return changes + (updateObjectInput is null ? 0 : 1);
     }

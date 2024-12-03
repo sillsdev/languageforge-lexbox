@@ -220,7 +220,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Revert WritingSystem",
             async () =>
             {
-                await WritingSystemSync.Sync(after, before, this);
+                await WritingSystemSync.Sync(before, after, this);
             });
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
     }
@@ -852,7 +852,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Revert entry",
             async () =>
             {
-                await EntrySync.Sync(after, before, this);
+                await EntrySync.Sync(before, after, this);
             });
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
@@ -1026,7 +1026,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Revert Example Sentence",
             async () =>
             {
-                await ExampleSentenceSync.Sync(entryId, senseId, after, before, this);
+                await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
             });
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }
