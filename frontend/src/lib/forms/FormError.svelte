@@ -1,8 +1,6 @@
 <script lang="ts">
-  import Markdown from 'svelte-exmarkdown';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import type { ErrorMessage } from './types';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
-  import type {Component} from 'svelte';
 
   export let error: ErrorMessage = undefined;
   export let markdown = false;
@@ -12,7 +10,7 @@
 {#if error}
   <span class="label text-lg text-error" class:justify-end={right}>
     {#if markdown}
-      <Markdown md={error} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
+      <NewTabLinkMarkdown md={error} />
     {:else}
       {error}
     {/if}

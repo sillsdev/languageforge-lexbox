@@ -10,15 +10,14 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount, type Component } from 'svelte';
+  import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived, writable, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
   import { _getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg } from './+page';
-  import Markdown from 'svelte-exmarkdown';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
   import {projectUrl} from '$lib/util/project';
 
@@ -287,7 +286,7 @@
           {/each}
           <label for="group-extra-projects" class="label pb-0">
             <span class="label-text-alt">
-              <Markdown md={$t('project.create.maybe_related_description')} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
+              <NewTabLinkMarkdown md={$t('project.create.maybe_related_description')} />
             </span>
           </label>
         </div>

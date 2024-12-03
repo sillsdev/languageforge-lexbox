@@ -3,9 +3,7 @@
   import Checkbox from '../../forms/Checkbox.svelte';
   import { slide } from 'svelte/transition';
   import { Icon } from '$lib/icons';
-  import Markdown from 'svelte-exmarkdown';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
-  import type {Component} from 'svelte';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
   export let value: boolean;
 </script>
@@ -22,6 +20,6 @@
 {#if value}
   <div class="alert alert-warning mt-4" transition:slide>
     <Icon icon="i-mdi-alert-outline" />
-    <Markdown md={$t('project.confidential.suggestions')} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
+    <NewTabLinkMarkdown md={$t('project.confidential.suggestions')} />
   </div>
 {/if}

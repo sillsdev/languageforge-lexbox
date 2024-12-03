@@ -1,12 +1,11 @@
 <script lang="ts">
   import Modal from '$lib/components/modals/Modal.svelte';
   import Markdown from 'svelte-exmarkdown';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import type { Project } from './+page';
   import t from '$lib/i18n';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
-  import type {Component} from 'svelte';
 
   export let project: Project;
   let modal: Modal;
@@ -21,7 +20,7 @@
     <h3>{$t('project_page.open_with_flex.button')}</h3>
     <div class="alert alert-info mb-4 not-prose">
       <span class="i-mdi-info-outline text-xl"></span>
-      <Markdown md={$t('project_page.open_with_flex.supported_version')} plugins={[{ renderer: { a: NewTabLinkRenderer as Component<any> } }]} />
+      <NewTabLinkMarkdown md={$t('project_page.open_with_flex.supported_version')} />
     </div>
     <div class="not-prose">
       <Markdown md={$t('project_page.open_with_flex.instructions')} />
