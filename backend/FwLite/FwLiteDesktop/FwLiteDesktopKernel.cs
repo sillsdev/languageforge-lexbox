@@ -44,18 +44,12 @@ public static class FwLiteDesktopKernel
         services.AddSingleton<ServerManager>(_ => serverManager);
         services.AddSingleton<IMauiInitializeService>(_ => _.GetRequiredService<ServerManager>());
         services.AddHttpClient();
-        if (IsPackagedApp)
-        {
-            services.AddSingleton<IMauiInitializeService, AppUpdateService>();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();
-            }
-        }
+
 
         services.AddSingleton<IHostEnvironment>(_ => _.GetRequiredService<ServerManager>().WebServices.GetRequiredService<IHostEnvironment>());
         services.AddSingleton<IPreferences>(Preferences.Default);
         services.AddSingleton<IVersionTracking>(VersionTracking.Default);
+        services.AddSingleton<IConnectivity>(Connectivity.Current);
         configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
         services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
         logging.AddFile(Path.Combine(baseDataPath, "app.log"));

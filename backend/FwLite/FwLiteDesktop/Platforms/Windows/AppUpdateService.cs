@@ -3,14 +3,14 @@ using System.Net.Http.Json;
 using Windows.Management.Deployment;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
 
 namespace FwLiteDesktop;
 
 public class AppUpdateService(
     IHttpClientFactory httpClientFactory,
     ILogger<AppUpdateService> logger,
-    IPreferences preferences) : IMauiInitializeService
+    IPreferences preferences,
+    IConnectivity connectivity) : IMauiInitializeService
 {
     private const string LastUpdateCheck = "lastUpdateChecked";
     private const string FwliteUpdateUrlEnvVar = "FWLITE_UPDATE_URL";
@@ -96,7 +96,15 @@ public class AppUpdateService(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Failed to fetch latest release");
+            if (connectivity.NetworkAccess == NetworkAccess.Internet)
+            {
+                logger.LogError(e, "Failed to fetch latest release");
+            }
+            else
+            {
+                logger.LogInformation(e, "Failed to fetch latest release, no internet connection");
+            }
+
             return null;
         }
     }
