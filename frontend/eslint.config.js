@@ -5,6 +5,7 @@ import js from '@eslint/js';
 import path from 'path';
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
+import svelteConfig from './svelte.config.js';
 
 // mimic CommonJS variables
 const __filename = fileURLToPath(import.meta.url);
@@ -108,6 +109,7 @@ export default [
       'svelte/no-store-async': 'error',
       'svelte/require-store-reactive-access': 'error',
       'svelte/mustache-spacing': 'error',
+      'svelte/valid-compile' : 'warn',
       'func-style': ['warn', 'declaration'],
       "no-restricted-imports": ["error", {
         "patterns": [{
@@ -124,6 +126,7 @@ export default [
         project: true,
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files
+        svelteConfig: svelteConfig,
       },
       globals: {
         ...globals.browser,
