@@ -874,9 +874,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
-    internal void CreateSense(ILexEntry lexEntry, Sense sense)
+    internal void CreateSense(ILexEntry lexEntry, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
-        var lexSense = LexSenseFactory.Create(sense.Id, lexEntry);
+        var lexSense = LexSenseFactory.Create(sense.Id);
         var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
         if (sense.PartOfSpeechId.HasValue && PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos))
         {
@@ -884,6 +884,33 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
         lexSense.SandboxMSA = msa;
         ApplySenseToLexSense(sense, lexSense);
+        InsertSense(lexEntry, lexSense, afterSenseId, beforeSenseId);
+    }
+
+    internal void InsertSense(ILexEntry lexEntry, ILexSense lexSense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
+    {
+        if (beforeSenseId.HasValue || afterSenseId.HasValue)
+        {
+            var senseDict = lexEntry.SensesOS.ToDictionary(s => s.Guid);
+            if (afterSenseId.HasValue && senseDict.TryGetValue(afterSenseId.Value, out var afterSense))
+            {
+                var insertI = lexEntry.SensesOS.IndexOf(afterSense) + 1;
+                lexEntry.SensesOS.Insert(insertI, lexSense);
+            }
+            else if (beforeSenseId.HasValue && senseDict.TryGetValue(beforeSenseId.Value, out var beforeSense))
+            {
+                var insertI = lexEntry.SensesOS.IndexOf(beforeSense);
+                lexEntry.SensesOS.Insert(insertI, lexSense);
+            }
+            else
+            {
+                lexEntry.SensesOS.Add(lexSense);
+            }
+        }
+        else
+        {
+            lexEntry.SensesOS.Add(lexSense);
+        }
     }
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
@@ -917,7 +944,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    public Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public Task<Sense> CreateSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
@@ -925,7 +952,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
-            () => CreateSense(lexEntry, sense));
+            () => CreateSense(lexEntry, sense, beforeSenseId, afterSenseId));
         return Task.FromResult(FromLexSense(SenseRepository.GetObject(sense.Id)));
     }
 
@@ -955,10 +982,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
-    public Task<Sense> MoveSense(Guid entryId, Sense afterSense, int to)
+    public Task<Sense> MoveSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
-        // todo: to is the final destination
-        return Task.FromResult(afterSense);
+        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
+            throw new InvalidOperationException("Entry not found");
+        if (!SenseRepository.TryGetObject(sense.Id, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+        lexEntry.SensesOS.Remove(lexSense);
+        InsertSense(lexEntry, lexSense, afterSenseId, beforeSenseId);
+        return Task.FromResult(sense);
     }
 
     public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)

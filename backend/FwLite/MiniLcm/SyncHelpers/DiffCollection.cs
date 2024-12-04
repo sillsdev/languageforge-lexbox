@@ -125,9 +125,9 @@ public static class DiffCollection
         IList<T> before,
         IList<T> after,
         Func<T, TId> identity,
-        Func<IMiniLcmApi, T, int, IDictionary<int, T>, Task<int>> add,
+        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> add,
         Func<IMiniLcmApi, T, Task<int>> remove,
-        Func<IMiniLcmApi, T, int, IDictionary<int, T>, Task<int>> move,
+        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> move,
         Func<IMiniLcmApi, T, T, Task<int>> replace) where TId : notnull where T : IOrderable
     {
         var positionDiffs = DiffPositions(before, after, identity)
@@ -137,9 +137,7 @@ public static class DiffCollection
             .OrderBy(d => d.To ?? -1).ToList();
 
         var unstableIndexes = positionDiffs.Select(diff => diff.From).Where(i => i is not null).ToList();
-        var stable = before.Select((value, index) => new { value, index })
-            .Where(x => !unstableIndexes.Contains(x.index))
-            .ToDictionary(x => x.index, x => x.value);
+        var stableIds = before.Where((_, i) => !unstableIndexes.Contains(i)).Select(item => item.Id).ToList();
 
         var changes = 0;
         foreach (var diff in positionDiffs)
@@ -147,7 +145,7 @@ public static class DiffCollection
             if (diff.From is not null && diff.To is not null)
             {
                 var afterEntry = after[diff.To.Value];
-                changes += await move(api, afterEntry, diff.To.Value, stable);
+                changes += await move(api, afterEntry, diff.To.Value, stableIds);
             }
             else if (diff.From is not null)
             {
@@ -156,7 +154,7 @@ public static class DiffCollection
             else if (diff.To is not null)
             {
                 var afterEntry = after[diff.To.Value];
-                changes += await add(api, afterEntry, diff.To.Value, stable);
+                changes += await add(api, afterEntry, diff.To.Value, stableIds);
             }
         }
 
@@ -187,9 +185,9 @@ public static class DiffCollection
         IMiniLcmApi api,
         IList<T> before,
         IList<T> after,
-        Func<IMiniLcmApi, T, int, IDictionary<int, T>, Task<int>> add,
+        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> add,
         Func<IMiniLcmApi, T, Task<int>> remove,
-        Func<IMiniLcmApi, T, int, IDictionary<int, T>, Task<int>> move,
+        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> move,
         Func<IMiniLcmApi, T, T, Task<int>> replace) where T : IObjectWithId, IOrderable
     {
         return await DiffOrderable(api, before, after, t => (t as IObjectWithId).Id, add, remove, move, replace);
@@ -219,52 +217,51 @@ public static class DiffCollection
             async (api, beforeEntry, afterEntry) => await replace(api, beforeEntry, afterEntry));
     }
 
-    private static List<PositionDiff> DiffPositions<T, TId>(
+    private static IEnumerable<PositionDiff> DiffPositions<T, TId>(
         IList<T> before,
         IList<T> after,
         Func<T, TId> identity)
     {
         var beforeJson = new JsonArray(before.Select(item => JsonValue.Create(identity(item))).ToArray());
         var afterJson = new JsonArray(after.Select(item => JsonValue.Create(identity(item))).ToArray());
-        var result = JsonDiffPatcher.Diff(beforeJson, afterJson) as JsonObject;
 
-        static IEnumerable<PositionDiff> GetDiff(JsonObject result)
+        if (JsonDiffPatcher.Diff(beforeJson, afterJson) is not JsonObject result)
         {
-            foreach (var prop in result)
+            yield break; // no changes
+        }
+
+        foreach (var prop in result!)
+        {
+            if (prop.Key == "_t") // diff type
             {
-                if (prop.Key == "_t") // diff type
+                if (prop.Value!.ToString() != "a") // we're only using the library for diffing shallow arrays
                 {
-                    if (prop.Value!.ToString() != "a") // we're only using the library for diffing shallow arrays
-                    {
-                        throw new InvalidOperationException("Only array diff results are supported");
-                    }
-                    continue;
+                    throw new InvalidOperationException("Only array diff results are supported");
                 }
-                else if (prop.Key.StartsWith("_")) // e.g _4 => the key represents an old index (removed or moved)
+                continue;
+            }
+            else if (prop.Key.StartsWith("_")) // e.g _4 => the key represents an old index (removed or moved)
+            {
+                var previousIndex = int.Parse(prop.Key[1..]);
+                var delta = prop.Value!.AsArray();
+                var wasMoved = delta[2]!.GetValue<int>() == 3; // 3 is magic number for a move operation
+                int? newIndex = wasMoved ? delta[1]!.GetValue<int>() : null; // if it was moved, the new index is at index 1
+                if (newIndex is not null)
                 {
-                    var previousIndex = int.Parse(prop.Key[1..]);
-                    var delta = prop.Value!.AsArray();
-                    var wasMoved = delta[2]!.GetValue<int>() == 3; // 3 is magic number for a move operation
-                    int? newIndex = wasMoved ? delta[1]!.GetValue<int>() : null; // if it was moved, the new index is at index 1
-                    if (newIndex is not null)
-                    {
-                        yield return new PositionDiff { From = previousIndex, To = newIndex }; // move
-                    }
-                    else
-                    {
-                        yield return new PositionDiff { From = previousIndex }; // remove
-                    }
+                    yield return new PositionDiff { From = previousIndex, To = newIndex }; // move
                 }
-                else // e.g. 4 => the key represents a new index
+                else
                 {
-                    var addIndex = int.Parse(prop.Key);
-                    var value = JsonSerializer.Deserialize<TId>(prop.Value!.ToString());
-                    yield return new PositionDiff { To = addIndex }; // add
+                    yield return new PositionDiff { From = previousIndex }; // remove
                 }
+            }
+            else // e.g. 4 => the key represents a new index
+            {
+                var addIndex = int.Parse(prop.Key);
+                yield return new PositionDiff { To = addIndex }; // add
             }
         }
 
-        return GetDiff(result!).ToList();
     }
 
     private class PositionDiff

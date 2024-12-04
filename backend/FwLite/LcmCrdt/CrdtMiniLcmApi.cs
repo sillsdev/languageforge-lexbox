@@ -267,10 +267,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable
-            .LoadWith(e => e.Senses.DefaultOrder())
-            .ThenLoad(s => s.ExampleSentences.DefaultOrder())
+            .LoadWith(e => e.Senses)
+            .ThenLoad(s => s.ExampleSentences)
             .LoadWith(e => e.ComplexForms)
-            .LoadWith(e => e.Components.DefaultOrder())
+            .LoadWith(e => e.Components)
             .AsQueryable()
             .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
             .ThenBy(e => e.Id);
@@ -278,6 +278,13 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
+            entry.Senses = entry.Senses.DefaultOrder().ToList();
+            entry.ComplexForms = entry.ComplexForms.DefaultOrder().ToList();
+            entry.Components = entry.Components.DefaultOrder().ToList();
+            foreach (var sense in entry.Senses)
+            {
+                sense.ExampleSentences = sense.ExampleSentences.DefaultOrder().ToList();
+            }
             yield return entry;
         }
     }
@@ -479,13 +486,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return entry?.Senses.FirstOrDefault(s => s.Id == id);
     }
 
-    public async Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
-        if (sense.Order == default)
-        {
-            var entry = await GetEntry(entryId) ?? throw new NullReferenceException($"unable to find entry with id {entryId}");
-            sense.Order = entry.Senses.Max(s => s.Order) + 1;
-        }
+        if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
+            throw new InvalidOperationException("Order should not be provided when creating a sense");
+        sense.Order = await dataModel.PickOrder<Sense>(afterSenseId, beforeSenseId);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
@@ -506,8 +511,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
-    public async Task<Sense> MoveSense(Guid entryId, Sense sense)
+    public async Task<Sense> MoveSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
+        sense.Order = await dataModel.PickOrder<Sense>(afterSenseId, beforeSenseId);
         await dataModel.AddChange(ClientId, Changes.SetOrderChange<Sense>.To(sense.Id, sense.Order));
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }

@@ -11,6 +11,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     {
         sense.Id = EntityId;
         EntryId = entryId;
+        Order = sense.Order;
         Definition = sense.Definition;
         SemanticDomains = sense.SemanticDomains;
         Gloss = sense.Gloss;

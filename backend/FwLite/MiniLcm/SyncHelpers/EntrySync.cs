@@ -109,64 +109,51 @@ public static class EntrySync
         );
     }
 
-    private static double CalcOrderValueForIndex<T>(int i, IDictionary<int, T> stable, double prevMin) where T : IOrderable
+    private static (Guid? beforeId, Guid? afterId) GetSurroundingIds<T>(int i, IList<T> current, List<Guid> stable) where T : class, IOrderable
     {
-        double? stableOrderBefore = null;
-        double? stableOrderAfter = null;
-
+        T? beforeEntity = null;
+        T? afterEntity = null;
         for (var j = i - 1; j >= 0; j--)
         {
-            if (stable.TryGetValue(j, out var stableItem))
+            if (stable.Contains(current[j].Id))
             {
-                stableOrderBefore = stableItem.Order;
+                beforeEntity = current[j];
                 break;
             }
         }
-
         for (var j = i + 1; j < stable.Count; j++)
         {
-            if (stable.TryGetValue(j, out var stableItem))
+            if (stable.Contains(current[j].Id))
             {
-                stableOrderAfter = stableItem.Order;
+                afterEntity = current[j];
                 break;
             }
         }
-
-        if (stableOrderBefore is not null && stableOrderAfter is not null)
-            return (stableOrderBefore.Value + stableOrderAfter.Value) / 2;
-        if (stableOrderBefore is not null)
-            return stableOrderBefore.Value + 1;
-        if (stableOrderAfter is not null)
-            return stableOrderAfter.Value - 1;
-        return prevMin;
+        return (beforeEntity?.Id, afterEntity?.Id);
     }
-
     private static async Task<int> SensesSync(Guid entryId,
         IList<Sense> afterSenses,
         IList<Sense> beforeSenses,
         IMiniLcmApi api)
     {
         var prevMin = beforeSenses.Min(s => s.Order);
-        Func<IMiniLcmApi, Sense, int, IDictionary<int, Sense>, Task<int>> add = async (api, afterSense, to, stable) =>
+        Func<IMiniLcmApi, Sense, int, List<Guid>, Task<int>> add = async (api, sense, to, stable) =>
         {
-            await api.CreateSense(entryId, afterSense);
-            // todo: calculating
-            var order = CalcOrderValueForIndex(to, stable, prevMin);
-            afterSense.Order = order;
-            stable.Add(to, afterSense);
+            var (beforeId, afterId) = GetSurroundingIds(to, afterSenses, stable);
+            await api.CreateSense(entryId, sense, beforeId, afterId);
+            stable.Add(sense.Id);
             return 1;
         };
-        Func<IMiniLcmApi, Sense, int, IDictionary<int, Sense>, Task<int>> move = async (api, afterSense, to, stable) =>
+        Func<IMiniLcmApi, Sense, int, List<Guid>, Task<int>> move = async (api, sense, to, stable) =>
         {
-            var order = CalcOrderValueForIndex(to, stable, prevMin);
-            afterSense.Order = order;
-            stable.Add(to, afterSense);
-            await api.MoveSense(entryId, afterSense);
+            var (beforeId, afterId) = GetSurroundingIds(to, afterSenses, stable);
+            await api.MoveSense(entryId, sense, beforeId, afterId);
+            stable.Add(sense.Id);
             return 1;
         };
-        Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, beforeSense) =>
+        Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, sense) =>
         {
-            await api.DeleteSense(entryId, beforeSense.Id);
+            await api.DeleteSense(entryId, sense.Id);
             return 1;
         };
         Func<IMiniLcmApi, Sense, Sense, Task<int>> replace = async (api, beforeSense, afterSense) => await SenseSync.Sync(entryId, afterSense, beforeSense, api);
