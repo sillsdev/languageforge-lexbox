@@ -27,7 +27,7 @@ public class UpdateDiffTests
         var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(before);
-         before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
             .Excluding(x => x.DeletedAt).Excluding(x => x.Senses)
             .Excluding(x => x.Components)
             .Excluding(x => x.ComplexForms)
@@ -35,11 +35,11 @@ public class UpdateDiffTests
     }
 
     [Fact]
-    public async Task SenseDiffShouldUpdateAllFields()
+    public void SenseDiffShouldUpdateAllFields()
     {
         var before = new Sense();
         var after = AutoFaker.Generate<Sense>();
-        var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(before, after);
+        var senseDiffToUpdate = SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(before);
         before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences).Excluding(x => x.SemanticDomains));

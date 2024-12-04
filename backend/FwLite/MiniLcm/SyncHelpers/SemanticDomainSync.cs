@@ -5,13 +5,13 @@ namespace MiniLcm.SyncHelpers;
 
 public static class SemanticDomainSync
 {
-    public static async Task<int> Sync(SemanticDomain[] previousSemanticDomains,
-        SemanticDomain[] currentSemanticDomains,
+    public static async Task<int> Sync(SemanticDomain[] beforeSemanticDomains,
+        SemanticDomain[] afterSemanticDomains,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(
-            previousSemanticDomains,
-            currentSemanticDomains,
+            beforeSemanticDomains,
+            afterSemanticDomains,
             new SemanticDomainsDiffApi(api));
     }
 
@@ -24,16 +24,16 @@ public static class SemanticDomainSync
         return updateObjectInput is null ? 0 : 1;
     }
 
-    public static UpdateObjectInput<SemanticDomain>? SemanticDomainDiffToUpdate(SemanticDomain previousSemanticDomain, SemanticDomain currentSemanticDomain)
+    public static UpdateObjectInput<SemanticDomain>? SemanticDomainDiffToUpdate(SemanticDomain beforeSemanticDomain, SemanticDomain afterSemanticDomain)
     {
         JsonPatchDocument<SemanticDomain> patchDocument = new();
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Name),
-            previousSemanticDomain.Name,
-            currentSemanticDomain.Name));
+            beforeSemanticDomain.Name,
+            afterSemanticDomain.Name));
         // TODO: Once we add abbreviations to MiniLcm's SemanticDomain objects, then:
         // patchDocument.Operations.AddRange(GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Abbreviation),
-        //     previousSemanticDomain.Abbreviation,
-        //     currentSemanticDomain.Abbreviation));
+        //     beforeSemanticDomain.Abbreviation,
+        //     afterSemanticDomain.Abbreviation));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<SemanticDomain>(patchDocument);
     }
@@ -46,15 +46,15 @@ public static class SemanticDomainSync
             return 1;
         }
 
-        public override async Task<int> Remove(SemanticDomain previousSemDom)
+        public override async Task<int> Remove(SemanticDomain beforeSemDom)
         {
-            await api.DeleteSemanticDomain(previousSemDom.Id);
+            await api.DeleteSemanticDomain(beforeSemDom.Id);
             return 1;
         }
 
-        public override Task<int> Replace(SemanticDomain previousSemDom, SemanticDomain currentSemDom)
+        public override Task<int> Replace(SemanticDomain beforeSemDom, SemanticDomain afterSemDom)
         {
-            return Sync(previousSemDom, currentSemDom, api);
+            return Sync(beforeSemDom, afterSemDom, api);
         }
     }
 }
