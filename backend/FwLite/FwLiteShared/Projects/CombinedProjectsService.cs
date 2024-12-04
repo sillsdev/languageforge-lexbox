@@ -40,7 +40,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
         return serverProjects;
     }
 
-    [JSInvokable]
+    [JSInvokable("fetchProjects")]
     public async Task<IReadOnlyCollection<ProjectModel>> LocalProjects()
     {
         var crdtProjects = await crdtProjectsService.ListProjects();
