@@ -1,5 +1,6 @@
 import type {LexboxApiClient} from './lexbox-api';
 import {openSearch} from '../search-bar/search';
+import {ProjectService} from './projects-service';
 
 declare global {
 
@@ -17,10 +18,12 @@ declare global {
 
 export enum LexboxService {
   LexboxApi = 'LexboxApi',
+  ProjectsService = 'ProjectsService',
 }
 
-type LexboxServiceRegistry = {
+export type LexboxServiceRegistry = {
   [LexboxService.LexboxApi]: LexboxApiClient,
+  [LexboxService.ProjectsService]: ProjectService,
 };
 
 const SERVICE_KEYS = Object.values(LexboxService);
@@ -33,11 +36,11 @@ export class LexboxServiceProvider {
     this.services[key] = service;
   }
 
-  public getService<K extends LexboxService>(key: LexboxService): LexboxServiceRegistry[K] {
+  public getService<K extends LexboxService>(key: K): LexboxServiceRegistry[K] {
     this.validateServiceKey(key);
-    const service = this.services[key];
+    const service = globalThis.window.lexbox.DotNetServiceProvider?.getService(key) ?? this.services[key];
     if (!service) throw new Error(`Lexbox service '${key}' not found`);
-    return this.services[key];
+    return service;
   }
 
   private validateServiceKey(key: LexboxService): void {
@@ -47,14 +50,21 @@ export class LexboxServiceProvider {
   }
 }
 
-if (!window.lexbox) {
+{
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  window.lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}};
-} else {
-  window.lexbox.ServiceProvider = new LexboxServiceProvider();
-  window.lexbox.Search = {openSearch: openSearch};
+  const lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}}
+  if (!window.lexbox) {
+    window.lexbox = lexbox;
+  } else {
+    window.lexbox = {...window.lexbox, ...lexbox};
+  }
 }
 
 export function useLexboxApi(): LexboxApiClient {
   return window.lexbox.ServiceProvider.getService(LexboxService.LexboxApi);
 }
+
+export function useProjectsService(): ProjectService {
+  return window.lexbox.ServiceProvider.getService(LexboxService.ProjectsService);
+}
+window.lexbox.ServiceProvider.setService(LexboxService.ProjectsService, new ProjectService());

@@ -9,9 +9,6 @@ export type Project = {
   id: string | null
 };
 export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null, authority: string };
-export function useProjectsService(): ProjectService {
-  return projectService;
-}
 export class ProjectService {
   async createProject(newProjectName: string): Promise<{error: string|undefined}> {
 
@@ -78,4 +75,3 @@ export class ProjectService {
     return (await r.json()) as ServerStatus[];
   }
 }
-const projectService = new ProjectService();

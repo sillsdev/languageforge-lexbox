@@ -3,7 +3,9 @@
 import './app.postcss';
 
 import App from './App.svelte';
+import {setupDotnetServiceProvider} from './lib/services/service-provider-dotnet';
 
+setupDotnetServiceProvider();
 new App({
   target: document.getElementById('app')!,
 });

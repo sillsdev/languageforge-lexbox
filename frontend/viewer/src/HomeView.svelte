@@ -13,8 +13,9 @@
   import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
-  import {useProjectsService, type Project, type ServerStatus} from './lib/services/projects-service';
+  import {type Project, type ServerStatus} from './lib/services/projects-service';
   import {onMount} from 'svelte';
+  import {useProjectsService} from './lib/services/service-provider';
 
   const projectsService = useProjectsService();
 

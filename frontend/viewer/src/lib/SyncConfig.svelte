@@ -3,9 +3,10 @@
   import {mdiBookArrowUpOutline, mdiBookSyncOutline} from '@mdi/js';
   import {Button, SelectField} from 'svelte-ux';
   import {writable} from 'svelte/store';
-  import {type ServerStatus, useProjectsService} from './services/projects-service';
+  import {type ServerStatus} from './services/projects-service';
   import {getContext} from 'svelte';
   import {AppNotification} from './notifications/notifications';
+  import {useProjectsService} from './services/service-provider';
 
   const projectsService = useProjectsService();
   let projectName = getContext<string>('project-name');
