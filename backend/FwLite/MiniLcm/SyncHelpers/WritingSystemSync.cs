@@ -5,35 +5,35 @@ namespace MiniLcm.SyncHelpers;
 
 public static class WritingSystemSync
 {
-    public static async Task<int> Sync(WritingSystems previousWritingSystems,
-        WritingSystems currentWritingSystems,
+    public static async Task<int> Sync(WritingSystems beforeWritingSystems,
+        WritingSystems afterWritingSystems,
         IMiniLcmApi api)
     {
-        return await Sync(previousWritingSystems.Vernacular, currentWritingSystems.Vernacular, api) +
-               await Sync(previousWritingSystems.Analysis, currentWritingSystems.Analysis, api);
+        return await Sync(beforeWritingSystems.Vernacular, afterWritingSystems.Vernacular, api) +
+               await Sync(beforeWritingSystems.Analysis, afterWritingSystems.Analysis, api);
     }
-    public static async Task<int> Sync(WritingSystem[] previousWritingSystems,
-        WritingSystem[] currentWritingSystems,
+    public static async Task<int> Sync(WritingSystem[] beforeWritingSystems,
+        WritingSystem[] afterWritingSystems,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(api,
-            previousWritingSystems,
-            currentWritingSystems,
+            beforeWritingSystems,
+            afterWritingSystems,
             ws => (ws.WsId, ws.Type),
-            async (api, currentWs) =>
+            async (api, afterWs) =>
             {
-                await api.CreateWritingSystem(currentWs.Type, currentWs);
+                await api.CreateWritingSystem(afterWs.Type, afterWs);
                 return 1;
             },
-            async (api, previousWs) =>
+            async (api, beforeWs) =>
             {
-                // await api.DeleteWritingSystem(previousWs.Id); // Deleting writing systems is dangerous as it causes cascading data deletion. Needs careful thought.
+                // await api.DeleteWritingSystem(beforeWs.Id); // Deleting writing systems is dangerous as it causes cascading data deletion. Needs careful thought.
                 // TODO: should we throw an exception?
                 return 0;
             },
-            async (api, previousWs, currentWs) =>
+            async (api, beforeWs, afterWs) =>
             {
-                return await Sync(previousWs, currentWs, api);
+                return await Sync(beforeWs, afterWs, api);
             });
     }
 
@@ -44,23 +44,23 @@ public static class WritingSystemSync
         return updateObjectInput is null ? 0 : 1;
     }
 
-    public static UpdateObjectInput<WritingSystem>? WritingSystemDiffToUpdate(WritingSystem previousWritingSystem, WritingSystem currentWritingSystem)
+    public static UpdateObjectInput<WritingSystem>? WritingSystemDiffToUpdate(WritingSystem beforeWritingSystem, WritingSystem afterWritingSystem)
     {
         JsonPatchDocument<WritingSystem> patchDocument = new();
-        if (previousWritingSystem.WsId != currentWritingSystem.WsId)
+        if (beforeWritingSystem.WsId != afterWritingSystem.WsId)
         {
             // TODO: Throw? Or silently ignore?
-            throw new InvalidOperationException($"Tried to change immutable WsId from {previousWritingSystem.WsId} to {currentWritingSystem.WsId}");
+            throw new InvalidOperationException($"Tried to change immutable WsId from {beforeWritingSystem.WsId} to {afterWritingSystem.WsId}");
         }
         patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.Name),
-            previousWritingSystem.Name,
-            currentWritingSystem.Name));
+            beforeWritingSystem.Name,
+            afterWritingSystem.Name));
         patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.Abbreviation),
-            previousWritingSystem.Abbreviation,
-            currentWritingSystem.Abbreviation));
+            beforeWritingSystem.Abbreviation,
+            afterWritingSystem.Abbreviation));
         patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.Font),
-            previousWritingSystem.Font,
-            currentWritingSystem.Font));
+            beforeWritingSystem.Font,
+            afterWritingSystem.Font));
         // TODO: Exemplars, Order, and do we need DeletedAt?
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<WritingSystem>(patchDocument);

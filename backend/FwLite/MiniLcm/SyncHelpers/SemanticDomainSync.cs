@@ -5,25 +5,25 @@ namespace MiniLcm.SyncHelpers;
 
 public static class SemanticDomainSync
 {
-    public static async Task<int> Sync(SemanticDomain[] previousSemanticDomains,
-        SemanticDomain[] currentSemanticDomains,
+    public static async Task<int> Sync(SemanticDomain[] beforeSemanticDomains,
+        SemanticDomain[] afterSemanticDomains,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(api,
-            previousSemanticDomains,
-            currentSemanticDomains,
+            beforeSemanticDomains,
+            afterSemanticDomains,
             pos => pos.Id,
-            async (api, currentPos) =>
+            async (api, afterPos) =>
             {
-                await api.CreateSemanticDomain(currentPos);
+                await api.CreateSemanticDomain(afterPos);
                 return 1;
             },
-            async (api, previousPos) =>
+            async (api, beforePos) =>
             {
-                await api.DeleteSemanticDomain(previousPos.Id);
+                await api.DeleteSemanticDomain(beforePos.Id);
                 return 1;
             },
-            (api, previousSemdom, currentSemdom) => Sync(previousSemdom, currentSemdom, api));
+            (api, beforeSemdom, afterSemdom) => Sync(beforeSemdom, afterSemdom, api));
     }
 
     public static async Task<int> Sync(SemanticDomain before,
@@ -35,12 +35,12 @@ public static class SemanticDomainSync
         return updateObjectInput is null ? 0 : 1;
     }
 
-    public static UpdateObjectInput<SemanticDomain>? SemanticDomainDiffToUpdate(SemanticDomain previousSemanticDomain, SemanticDomain currentSemanticDomain)
+    public static UpdateObjectInput<SemanticDomain>? SemanticDomainDiffToUpdate(SemanticDomain beforeSemanticDomain, SemanticDomain afterSemanticDomain)
     {
         JsonPatchDocument<SemanticDomain> patchDocument = new();
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Name),
-            previousSemanticDomain.Name,
-            currentSemanticDomain.Name));
+            beforeSemanticDomain.Name,
+            afterSemanticDomain.Name));
         // TODO: Once we add abbreviations to MiniLcm's SemanticDomain objects, then:
         // patchDocument.Operations.AddRange(GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Abbreviation),
         //     previousSemanticDomain.Abbreviation,
