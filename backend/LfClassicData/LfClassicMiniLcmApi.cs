@@ -20,6 +20,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return AsyncEnumerable.Empty<ComplexFormType>();
     }
 
+    public Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        return Task.FromResult<ComplexFormType?>(null);
+    }
+
     public async Task<WritingSystems> GetWritingSystems()
     {
         var inputSystems = await systemDbContext.Projects.AsQueryable()
