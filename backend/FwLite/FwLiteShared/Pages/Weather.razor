@@ -1,0 +1,40 @@
+﻿@page "/weather"
+
+<PageTitle>Files</PageTitle>
+
+<h1>Files</h1>
+
+@if (files == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>File name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var file in files)
+            {
+                <tr>
+                    <td>@file.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private FileSystemInfo[]? files;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate a loading indicator
+        await Task.Delay(500);
+
+        files = new DirectoryInfo("/").GetFileSystemInfos();
+    }
+}

@@ -3,6 +3,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 
 namespace FwLiteShared.Projects;
 
@@ -39,6 +40,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
         return serverProjects;
     }
 
+    [JSInvokable]
     public async Task<IReadOnlyCollection<ProjectModel>> LocalProjects()
     {
         var crdtProjects = await crdtProjectsService.ListProjects();

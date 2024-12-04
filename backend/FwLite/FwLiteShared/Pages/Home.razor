@@ -1,0 +1,42 @@
+﻿@page "/"
+@using FwLiteShared.Layout
+@using FwLiteShared.Services
+@inject IJSRuntime JS
+@inject FwLiteProvider FwLiteProvider
+@layout EmptyLayout;
+<HeadContent>
+    @* <script type="module" src="@Assets["_content/FwLiteShared/viewer/index.js"]"></script> *@
+    <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
+    <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
+    <script>
+        window.setOverrideService = (key, service) => {
+            if (window.lexbox) {
+                window.lexbox.FwLiteProvider = {};
+                window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
+            } else {
+                window.lexbox = {FwLiteProvider: {}};
+            }
+            const services = window.lexbox.FwLiteProvider;
+            services[key] = service;
+        };
+    </script>
+</HeadContent>
+<div id="app" class="contents">
+    <lexbox-svelte projectName="Test project"></lexbox-svelte>
+</div>
+
+@code {
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var projectService = DotNetObjectReference.Create(FwLiteProvider.ProjectService);
+            await JS.InvokeVoidAsync("setOverrideService", "ProjectsService", projectService);
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "/" + Assets["_content/FwLiteShared/viewer/index.js"]);
+        }
+    }
+
+}
