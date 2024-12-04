@@ -23,7 +23,7 @@ on:
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: windows-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
