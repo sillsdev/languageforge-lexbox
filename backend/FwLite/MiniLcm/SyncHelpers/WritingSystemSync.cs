@@ -5,15 +5,15 @@ namespace MiniLcm.SyncHelpers;
 
 public static class WritingSystemSync
 {
-    public static async Task<int> Sync(WritingSystems currentWritingSystems,
-        WritingSystems previousWritingSystems,
+    public static async Task<int> Sync(WritingSystems previousWritingSystems,
+        WritingSystems currentWritingSystems,
         IMiniLcmApi api)
     {
-        return await Sync(currentWritingSystems.Vernacular, previousWritingSystems.Vernacular, api) +
-               await Sync(currentWritingSystems.Analysis, previousWritingSystems.Analysis, api);
+        return await Sync(previousWritingSystems.Vernacular, currentWritingSystems.Vernacular, api) +
+               await Sync(previousWritingSystems.Analysis, currentWritingSystems.Analysis, api);
     }
-    public static async Task<int> Sync(WritingSystem[] currentWritingSystems,
-        WritingSystem[] previousWritingSystems,
+    public static async Task<int> Sync(WritingSystem[] previousWritingSystems,
+        WritingSystem[] currentWritingSystems,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(api,
@@ -33,11 +33,11 @@ public static class WritingSystemSync
             },
             async (api, previousWs, currentWs) =>
             {
-                return await Sync(currentWs, previousWs, api);
+                return await Sync(previousWs, currentWs, api);
             });
     }
 
-    public static async Task<int> Sync(WritingSystem afterWs, WritingSystem beforeWs, IMiniLcmApi api)
+    public static async Task<int> Sync(WritingSystem beforeWs, WritingSystem afterWs, IMiniLcmApi api)
     {
         var updateObjectInput = WritingSystemDiffToUpdate(beforeWs, afterWs);
         if (updateObjectInput is not null) await api.UpdateWritingSystem(afterWs.WsId, afterWs.Type, updateObjectInput);
