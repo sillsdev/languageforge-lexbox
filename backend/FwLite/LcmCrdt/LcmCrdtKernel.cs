@@ -159,11 +159,6 @@ public static class LcmCrdtKernel
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
-        config.ObjectTypeListBuilder.OrderConfig(new OrderConfig<IOrderable>(
-            o => o.Order,
-            o => o.Id
-        ));
-
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
             .Add<JsonPatchChange<ExampleSentence>>()

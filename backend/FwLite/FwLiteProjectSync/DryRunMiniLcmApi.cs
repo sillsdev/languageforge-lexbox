@@ -195,7 +195,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetSense(entryId, id);
     }
 
-    public Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public Task<Sense> CreateSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss}"));
         return Task.FromResult(sense);
@@ -218,9 +218,9 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
     }
 
-    public Task<Sense> MoveSense(Guid entryId, Sense sense)
+    public Task<Sense> MoveSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {sense.Gloss} to {sense.Order}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {sense.Gloss} between {beforeSenseId} and {afterSenseId}"));
         return Task.FromResult(sense);
     }
 
