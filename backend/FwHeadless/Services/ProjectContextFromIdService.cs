@@ -15,7 +15,7 @@ public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, Crdt
             {
                 var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{projectCode}-{projectId}");
                 var crdtFile = Path.Join(projectFolder, "crdt.sqlite");
-                if (Path.Exists(crdtFile))
+                if (File.Exists(crdtFile))
                 {
                     var project = new CrdtProject("crdt", crdtFile);
                     projectsService.SetProjectScope(project);
