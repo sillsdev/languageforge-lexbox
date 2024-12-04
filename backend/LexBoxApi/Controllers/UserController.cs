@@ -184,7 +184,7 @@ public class UserController : ControllerBase
             EmailVerified = jwtUser?.Email == input.Email,
             CreatedById = creatorId,
             Locked = false,
-            CanCreateProjects = false
+            CanCreateProjects = jwtUser?.Email == input.Email && jwtUser.CanCreateProjects == true,
         };
         UpdateUserMemberships(jwtUser, userEntity);
         return userEntity;

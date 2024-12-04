@@ -103,7 +103,7 @@ public class EmailService(
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var authUser = CreateUserForInvite(emailAddress, language);
+        var authUser = CreateUserForInvite(emailAddress, language, canCreateProjects: orgRole == OrgRole.Admin);
         authUser.Orgs = [new AuthUserOrg(orgRole, orgId)];
         await SendInvitationEmail(authUser, emailAddress, managerName, orgName, language, isProjectInvitation: false);
 
@@ -124,12 +124,12 @@ public class EmailService(
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var authUser = CreateUserForInvite(emailAddress, language);
+        var authUser = CreateUserForInvite(emailAddress, language, canCreateProjects: role == ProjectRole.Manager);
         authUser.Projects = [new AuthUserProject(role, projectId)];
         await SendInvitationEmail(authUser, emailAddress, managerName, projectName, language, isProjectInvitation: true);
 
     }
-    private LexAuthUser CreateUserForInvite(string emailAddress, string? language)
+    private LexAuthUser CreateUserForInvite(string emailAddress, string? language, bool canCreateProjects = false)
     {
         language ??= User.DefaultLocalizationCode;
         return new LexAuthUser
@@ -141,7 +141,7 @@ public class EmailService(
             EmailVerificationRequired = null,
             Role = UserRole.user,
             UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-            CanCreateProjects = null,
+            CanCreateProjects = canCreateProjects ? true : null,
             Locale = language,
             Locked = null,
             Projects = [],
