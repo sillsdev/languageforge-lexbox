@@ -69,7 +69,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
-        await WritingSystemSync.Sync(after, before, this);
+        await WritingSystemSync.Sync(before, after, this);
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
 
@@ -448,7 +448,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        await EntrySync.Sync(after, before, this);
+        await EntrySync.Sync(before, after, this);
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
@@ -509,7 +509,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
-        await SenseSync.Sync(entryId, after, before, this);
+        await SenseSync.Sync(entryId, before, after, this);
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
@@ -566,7 +566,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         ExampleSentence before,
         ExampleSentence after)
     {
-        await ExampleSentenceSync.Sync(entryId, senseId, after, before, this);
+        await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException();
     }
 

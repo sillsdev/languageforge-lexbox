@@ -5,8 +5,8 @@ namespace MiniLcm.SyncHelpers;
 
 public static class SemanticDomainSync
 {
-    public static async Task<int> Sync(SemanticDomain[] currentSemanticDomains,
-        SemanticDomain[] previousSemanticDomains,
+    public static async Task<int> Sync(SemanticDomain[] previousSemanticDomains,
+        SemanticDomain[] currentSemanticDomains,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(

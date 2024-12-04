@@ -5,8 +5,8 @@ namespace MiniLcm.SyncHelpers;
 
 public static class ComplexFormTypeSync
 {
-    public static async Task<int> Sync(ComplexFormType[] afterComplexFormTypes,
-        ComplexFormType[] beforeComplexFormTypes,
+    public static async Task<int> Sync(ComplexFormType[] beforeComplexFormTypes,
+        ComplexFormType[] afterComplexFormTypes,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(
