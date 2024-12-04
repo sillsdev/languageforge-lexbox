@@ -24,3 +24,4 @@ artifacts/
 
 #Verify
 *.received.*
+backend/FwLite/FwLiteShared/wwwroot/viewer
