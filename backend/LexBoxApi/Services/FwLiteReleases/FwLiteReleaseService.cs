@@ -25,8 +25,13 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache)
         var latestRelease = await GetLatestRelease(default);
         if (latestRelease is null) return new ShouldUpdateResponse(null);
 
-        var shouldUpdateToRelease = String.Compare(latestRelease.Version, appVersion, StringComparison.Ordinal) > 0;
+        var shouldUpdateToRelease = ShouldUpdateToRelease(appVersion, latestRelease.Version);
         return shouldUpdateToRelease ? new ShouldUpdateResponse(latestRelease) : new ShouldUpdateResponse(null);
+    }
+
+    public static bool ShouldUpdateToRelease(string appVersion, string latestVersion)
+    {
+        return String.Compare(latestVersion, appVersion, StringComparison.Ordinal) > 0;
     }
 
     public async ValueTask InvalidateReleaseCache()
