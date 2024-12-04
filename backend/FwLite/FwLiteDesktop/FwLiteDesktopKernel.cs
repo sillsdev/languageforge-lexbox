@@ -1,9 +1,10 @@
 ﻿using Windows.ApplicationModel;
-using FwLiteDesktop.ServerBridge;
+using FwLiteShared;
 using FwLiteShared.Auth;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
 
@@ -18,32 +19,24 @@ public static class FwLiteDesktopKernel
         services.AddSingleton<MainPage>();
         configuration.AddJsonFile("appsettings.json", optional: true);
 
+
         string environment = "Production";
 #if DEBUG
         environment = "Development";
 #endif
+        services.AddFwLiteShared(new HostingEnvironment() { EnvironmentName = environment });
         var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ?? defaultDataPath);
         Directory.CreateDirectory(baseDataPath);
-        var serverManager = new ServerManager(environment, webAppBuilder =>
+        services.Configure<LcmCrdtConfig>(config =>
         {
-            webAppBuilder.Logging.AddFile(Path.Combine(baseDataPath, "web-app.log"));
-            webAppBuilder.Services.Configure<LcmCrdtConfig>(config =>
-            {
-                config.ProjectPath = baseDataPath;
-            });
-            webAppBuilder.Services.Configure<AuthConfig>(config =>
-            {
-                config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
-                config.SystemWebViewLogin = true;
-            });
+            config.ProjectPath = baseDataPath;
         });
-        //using a lambda here means that the serverManager will be disposed when the app is disposed
-        services.AddSingleton<ServerManager>(_ => serverManager);
-        services.AddSingleton<IMauiInitializeService>(_ => _.GetRequiredService<ServerManager>());
-        services.AddSingleton<IHostEnvironment>(_ => _.GetRequiredService<ServerManager>().WebServices.GetRequiredService<IHostEnvironment>());
-        configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
-        services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
+        services.Configure<AuthConfig>(config =>
+        {
+            config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
+            config.SystemWebViewLogin = true;
+        });
         logging.AddFile(Path.Combine(baseDataPath, "app.log"));
         logging.AddConsole();
 #if DEBUG

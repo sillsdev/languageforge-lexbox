@@ -1,7 +1,8 @@
-﻿using FwLiteDesktop.ServerBridge;
+﻿using FwLiteShared;
 using LcmCrdt;
 using LocalWebApp;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using NReco.Logging.File;
@@ -17,7 +18,7 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
     {
-        AppHolder holder = new AppHolder(null);
+        // AppHolder holder = new AppHolder(null);
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -30,14 +31,19 @@ public static class MauiProgram
         {
             windowsEvents.OnClosed((window, args) =>
             {
-                holder.App?.Services.GetRequiredService<ServerManager>().Stop();
             });
         }));
 
+        builder.Services.AddMauiBlazorWebView();
+#if DEBUG
+        builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Logging.AddDebug();
+#endif
+        Directory.CreateDirectory(FileSystem.AppDataDirectory);
         builder.Services.AddFwLiteDesktopServices(builder.Configuration, builder.Logging);
 
-        holder.App = builder.Build();
-        var logger = holder.App.Services.GetRequiredService<ILogger<MauiApp>>();
+        var app = builder.Build();
+        var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
         logger.LogInformation("App started");
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
@@ -54,6 +60,6 @@ public static class MauiProgram
         {
             logger.LogError(e.Exception, "Unobserved task exception");
         };
-        return holder.App;
+        return app;
     }
 }
