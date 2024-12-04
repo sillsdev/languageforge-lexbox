@@ -25,6 +25,10 @@
       TypeDiscriminator: jsonPatch:SemanticDomain
     },
     {
+      DerivedType: JsonPatchChange<ComplexFormType>,
+      TypeDiscriminator: jsonPatch:ComplexFormType
+    },
+    {
       DerivedType: DeleteChange<Entry>,
       TypeDiscriminator: delete:Entry
     },

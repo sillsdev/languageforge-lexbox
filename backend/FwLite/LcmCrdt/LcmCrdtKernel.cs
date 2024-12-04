@@ -63,6 +63,7 @@ public static class LcmCrdtKernel
 #if DEBUG
         builder.EnableSensitiveDataLogging();
 #endif
+        builder.EnableDetailedErrors();
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDB(optionsBuilder =>
             {
@@ -128,6 +129,7 @@ public static class LcmCrdtKernel
             })
             .Add<WritingSystem>(builder =>
             {
+                builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();
                 builder.Property(w => w.Exemplars)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
@@ -163,6 +165,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<WritingSystem>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
+            .Add<JsonPatchChange<ComplexFormType>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<ExampleSentence>>()

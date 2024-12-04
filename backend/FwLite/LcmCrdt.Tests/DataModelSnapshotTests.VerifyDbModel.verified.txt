@@ -236,14 +236,15 @@
       Name (string) Required
       Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
-      Type (WritingSystemType) Required
-      WsId (WritingSystemId) Required
+      Type (WritingSystemType) Required Index
+      WsId (WritingSystemId) Required Index
     Keys: 
       Id PK
     Foreign keys: 
       WritingSystem {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       SnapshotId Unique
+      WsId, Type Unique
     Annotations: 
       DiscriminatorProperty: 
       Relational:FunctionName: 

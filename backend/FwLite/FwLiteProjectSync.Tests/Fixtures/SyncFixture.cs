@@ -2,14 +2,10 @@
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
-using FwDataMiniLcmBridge.Tests.Fixtures;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MiniLcm;
 
 namespace FwLiteProjectSync.Tests.Fixtures;
 
@@ -23,19 +19,19 @@ public class SyncFixture : IAsyncLifetime
     private readonly string _projectName;
     private readonly IDisposable _cleanup;
 
-    public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
+    public static SyncFixture Create([CallerMemberName] string projectName = "", [CallerMemberName] string projectFolder = "") => new(projectName, projectFolder);
 
-    private SyncFixture(string projectName)
+    private SyncFixture(string projectName, string projectFolder)
     {
         _projectName = projectName;
         var crdtServices = new ServiceCollection()
-            .AddSyncServices(_projectName);
+            .AddSyncServices(projectFolder);
         var rootServiceProvider = crdtServices.BuildServiceProvider();
         _cleanup = Defer.Action(() => rootServiceProvider.Dispose());
         _services = rootServiceProvider.CreateAsyncScope();
     }
 
-    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"))
+    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"), "FwLiteSyncFixture")
     {
     }
 

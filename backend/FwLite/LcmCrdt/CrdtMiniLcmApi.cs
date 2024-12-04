@@ -8,6 +8,7 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
@@ -46,7 +47,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var entityId = Guid.NewGuid();
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
-        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+        try
+        {
+            await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+        }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.InnerException is SqliteException { SqliteErrorCode: 19 }) //19 is a unique constraint violation
+        {
+            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
+        }
         return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
     }
 
@@ -163,12 +171,34 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return ComplexFormTypes.AsAsyncEnumerable();
     }
 
+    public async Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        return await ComplexFormTypes.SingleOrDefaultAsync(c => c.Id == id);
+    }
+
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
+    }
+
+    public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        await dataModel.AddChange(ClientId, new JsonPatchChange<ComplexFormType>(id, update.Patch));
+        return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
+    }
+
+    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    {
+        await ComplexFormTypeSync.Sync(before, after, this);
+        return await GetComplexFormType(after.Id) ?? throw new NullReferenceException($"unable to find complex form type with id {after.Id}");
+    }
+
+    public async Task DeleteComplexFormType(Guid id)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormType>(id));
     }
 
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -242,9 +272,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Components)
             .AsQueryable()
             .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
-            .ThenBy(e => e.Id)
-            .Skip(options.Offset)
-            .Take(options.Count);
+            .ThenBy(e => e.Id);
+        queryable = options.ApplyPaging(queryable);
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {

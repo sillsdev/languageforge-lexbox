@@ -29,6 +29,9 @@ public interface IMiniLcmWriteApi
     #endregion
 
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
+    Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update);
+    Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after);
+    Task DeleteComplexFormType(Guid id);
 
     #region Entry
     Task<Entry> CreateEntry(Entry entry);

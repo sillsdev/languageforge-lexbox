@@ -5,6 +5,13 @@ namespace MiniLcm.SyncHelpers;
 
 public static class WritingSystemSync
 {
+    public static async Task<int> Sync(WritingSystems currentWritingSystems,
+        WritingSystems previousWritingSystems,
+        IMiniLcmApi api)
+    {
+        return await Sync(currentWritingSystems.Vernacular, previousWritingSystems.Vernacular, api) +
+               await Sync(currentWritingSystems.Analysis, previousWritingSystems.Analysis, api);
+    }
     public static async Task<int> Sync(WritingSystem[] currentWritingSystems,
         WritingSystem[] previousWritingSystems,
         IMiniLcmApi api)

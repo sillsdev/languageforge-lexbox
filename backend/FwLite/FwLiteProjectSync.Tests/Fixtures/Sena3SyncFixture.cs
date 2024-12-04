@@ -28,7 +28,7 @@ public class Sena3Fixture : IAsyncLifetime
         var crdtProjectsFolder =
             rootServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
         if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
-        rootServiceProvider.Dispose();
+        await rootServiceProvider.DisposeAsync();
 
         Directory.CreateDirectory(crdtProjectsFolder);
         await DownloadSena3();

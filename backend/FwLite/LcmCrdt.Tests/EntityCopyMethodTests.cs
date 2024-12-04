@@ -25,7 +25,8 @@ public class EntityCopyMethodTests
             typeof(ExampleSentence),
             typeof(WritingSystem),
             typeof(PartOfSpeech),
-            typeof(SemanticDomain)
+            typeof(SemanticDomain),
+            typeof(ComplexFormType)
         ];
         return types.Select(t => new object[] { t });
     }
@@ -37,6 +38,7 @@ public class EntityCopyMethodTests
         type.IsAssignableTo(typeof(IObjectWithId)).Should().BeTrue();
         var entity = (IObjectWithId) AutoFaker.Generate(type);
         var copy = entity.Copy();
+        //todo this does not detect a deep copy, but it should as that breaks stuff
         copy.Should().BeEquivalentTo(entity, options => options.IncludingAllRuntimeProperties());
     }
 }

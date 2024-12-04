@@ -2,33 +2,6 @@
 
 public abstract class SortingTestsBase : MiniLcmTestBase
 {
-    public override async Task InitializeAsync()
-    {
-        await base.InitializeAsync();
-        await Api.CreateWritingSystem(WritingSystemType.Analysis,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Analysis,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "En",
-                Font = "Arial",
-                Exemplars = []
-            });
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "en-US",
-                Name = "English",
-                Abbreviation = "En",
-                Font = "Arial",
-                Exemplars = []
-            });
-    }
-
     private Task CreateEntry(string headword)
     {
         return Api.CreateEntry(new() { LexemeForm = { { "en", headword } }, });
