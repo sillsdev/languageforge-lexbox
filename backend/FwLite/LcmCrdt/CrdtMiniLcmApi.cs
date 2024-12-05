@@ -278,13 +278,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
-            entry.Senses = entry.Senses.DefaultOrder().ToList();
-            entry.ComplexForms = entry.ComplexForms.DefaultOrder().ToList();
-            entry.Components = entry.Components.DefaultOrder().ToList();
-            foreach (var sense in entry.Senses)
-            {
-                sense.ExampleSentences = sense.ExampleSentences.DefaultOrder().ToList();
-            }
+            entry.DefaultOrder();
             yield return entry;
         }
     }
@@ -298,6 +292,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Components)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
+        entry?.DefaultOrder();
         return entry;
     }
 
@@ -486,11 +481,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return entry?.Senses.FirstOrDefault(s => s.Id == id);
     }
 
-    public async Task<Sense> CreateSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
         if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
             throw new InvalidOperationException("Order should not be provided when creating a sense");
-        sense.Order = await dataModel.PickOrder<Sense>(afterSenseId, beforeSenseId);
+
+        sense.Order = await dataModel.PickOrder(between, Senses.Where(s => s.EntryId == entryId));
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
@@ -511,11 +507,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
-    public async Task<Sense> MoveSense(Guid entryId, Sense sense, Guid? afterSenseId = null, Guid? beforeSenseId = null)
+    public async Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
     {
-        sense.Order = await dataModel.PickOrder<Sense>(afterSenseId, beforeSenseId);
-        await dataModel.AddChange(ClientId, Changes.SetOrderChange<Sense>.To(sense.Id, sense.Order));
-        return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
+        var order = await dataModel.PickOrder<Sense>(between);
+        await dataModel.AddChange(ClientId, Changes.SetOrderChange<Sense>.To(sense.Id, order));
+        var updatedSense = await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
+        return updatedSense;
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)

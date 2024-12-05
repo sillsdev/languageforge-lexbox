@@ -38,8 +38,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
         return new Sense
         {
             Id = EntityId,
-            Order = Order,
             EntryId = EntryId,
+            Order = Order,
             Definition = Definition ?? new MultiString(),
             Gloss = Gloss ?? new MultiString(),
             PartOfSpeech = PartOfSpeech ?? string.Empty,

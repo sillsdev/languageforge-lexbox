@@ -1,8 +1,10 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json.Serialization.Metadata;
 using LinqToDB;
 using LinqToDB.Common;
 using LinqToDB.SqlQuery;
+using SIL.Harmony;
 
 namespace LcmCrdt;
 
@@ -108,5 +110,12 @@ public static class Json
     public static TValue? Value<TProp, TValue>(TProp prop, Func<TProp, TValue> valueAccess)
     {
         return valueAccess(prop);
+    }
+
+    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
+    {
+        var resolver = config.MakeJsonTypeResolver();
+        resolver = resolver.AddMiniLcmModifiers();
+        return resolver;
     }
 }

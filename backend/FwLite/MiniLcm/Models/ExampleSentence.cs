@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public class ExampleSentence : IObjectWithId, IOrderable
+public class ExampleSentence : IObjectWithId//, IOrderable
 {
     public virtual Guid Id { get; set; }
     [JsonIgnore]

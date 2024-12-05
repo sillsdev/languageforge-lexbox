@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public record ComplexFormComponent : IObjectWithId, IOrderable
+public record ComplexFormComponent : IObjectWithId//, IOrderable
 {
     public static ComplexFormComponent FromEntries(Entry complexFormEntry,
         Entry componentEntry,
