@@ -1,11 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
-public class Sense : IObjectWithId, IOrderable
+public partial class Sense : IObjectWithId, IOrderable
 {
     public virtual Guid Id { get; set; }
-    [JsonIgnore]
+    [MiniLcmInternal]
     public double Order { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid EntryId { get; set; }
@@ -37,6 +37,7 @@ public class Sense : IObjectWithId, IOrderable
         {
             Id = Id,
             EntryId = EntryId,
+            Order = Order,
             DeletedAt = DeletedAt,
             Definition = Definition.Copy(),
             Gloss = Gloss.Copy(),

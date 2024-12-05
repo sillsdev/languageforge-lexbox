@@ -1,4 +1,5 @@
-﻿using SIL.Harmony.Changes;
+﻿using System.Text.Json.Serialization;
+using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -26,6 +27,7 @@ public class SetOrderChange<T> : EditChange<T>, ISelfNamedType<SetOrderChange<T>
         return new SetOrderChange<T>(entityId, order);
     }
 
+    [JsonConstructor]
     protected SetOrderChange(Guid entityId, double order) : base(entityId)
     {
         Order = order;

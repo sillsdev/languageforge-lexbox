@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Text.Json;
+﻿using System.Text.Json;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
@@ -19,7 +18,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Validators;
 using Refit;
-using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -44,12 +42,12 @@ public static class LcmCrdtKernel
         services.AddSingleton<CrdtProjectsService>();
 
         services.AddHttpClient();
-        services.AddSingleton<RefitSettings>(provider => new RefitSettings
+        services.AddSingleton(provider => new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
                 TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeJsonTypeResolver()
+                    .MakeLcmCrdtExternalJsonTypeResolver()
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();

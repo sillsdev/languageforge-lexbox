@@ -2,6 +2,6 @@
 
 public interface IOrderable
 {
-    public Guid Id { get; }
-    public double Order { get; set; }
+    Guid Id { get; }
+    double Order { get; set; }
 }

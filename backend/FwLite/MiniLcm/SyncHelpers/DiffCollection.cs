@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.JsonDiffPatch;
 using System.Text.Json.Nodes;
 using MiniLcm.Models;
@@ -125,9 +126,9 @@ public static class DiffCollection
         IList<T> before,
         IList<T> after,
         Func<T, TId> identity,
-        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> add,
+        Func<IMiniLcmApi, T, BetweenPosition, Task<int>> add,
         Func<IMiniLcmApi, T, Task<int>> remove,
-        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> move,
+        Func<IMiniLcmApi, T, BetweenPosition, Task<int>> move,
         Func<IMiniLcmApi, T, T, Task<int>> replace) where TId : notnull where T : IOrderable
     {
         var positionDiffs = DiffPositions(before, after, identity)
@@ -145,7 +146,9 @@ public static class DiffCollection
             if (diff.From is not null && diff.To is not null)
             {
                 var afterEntry = after[diff.To.Value];
-                changes += await move(api, afterEntry, diff.To.Value, stableIds);
+                var between = GetSurroundingStableIds(diff.To.Value, after, stableIds);
+                changes += await move(api, afterEntry, between);
+                stableIds.Add(afterEntry.Id);
             }
             else if (diff.From is not null)
             {
@@ -154,7 +157,9 @@ public static class DiffCollection
             else if (diff.To is not null)
             {
                 var afterEntry = after[diff.To.Value];
-                changes += await add(api, afterEntry, diff.To.Value, stableIds);
+                var between = GetSurroundingStableIds(diff.To.Value, after, stableIds);
+                changes += await add(api, afterEntry, between);
+                stableIds.Add(afterEntry.Id);
             }
         }
 
@@ -185,9 +190,9 @@ public static class DiffCollection
         IMiniLcmApi api,
         IList<T> before,
         IList<T> after,
-        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> add,
+        Func<IMiniLcmApi, T, BetweenPosition, Task<int>> add,
         Func<IMiniLcmApi, T, Task<int>> remove,
-        Func<IMiniLcmApi, T, int, List<Guid>, Task<int>> move,
+        Func<IMiniLcmApi, T, BetweenPosition, Task<int>> move,
         Func<IMiniLcmApi, T, T, Task<int>> replace) where T : IObjectWithId, IOrderable
     {
         return await DiffOrderable(api, before, after, t => (t as IObjectWithId).Id, add, remove, move, replace);
@@ -215,6 +220,33 @@ public static class DiffCollection
                 return 1;
             },
             async (api, beforeEntry, afterEntry) => await replace(api, beforeEntry, afterEntry));
+    }
+
+    private static BetweenPosition GetSurroundingStableIds<T>(int i, IList<T> current, IReadOnlyList<Guid> stable) where T : IOrderable
+    {
+        T? beforeEntity = default;
+        T? afterEntity = default;
+        for (var j = i - 1; j >= 0; j--)
+        {
+            if (stable.Contains(current[j].Id))
+            {
+                beforeEntity = current[j];
+                break;
+            }
+        }
+        for (var j = i + 1; j < current.Count; j++)
+        {
+            if (stable.Contains(current[j].Id))
+            {
+                afterEntity = current[j];
+                break;
+            }
+        }
+        return new BetweenPosition
+        {
+            Before = beforeEntity?.Id,
+            After = afterEntity?.Id
+        };
     }
 
     private static IEnumerable<PositionDiff> DiffPositions<T, TId>(
@@ -268,5 +300,41 @@ public static class DiffCollection
     {
         public int? From { get; init; }
         public int? To { get; init; }
+    }
+}
+
+public class BetweenPosition : IEquatable<BetweenPosition>
+{
+    // The ID of the item before the new item (not the ID of the item that the new item should be before)
+    public Guid? Before { get; set; }
+    // The ID of the item after the new item (not the ID of the item that the new item should be after)
+    public Guid? After { get; set; }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as BetweenPosition);
+    }
+
+    public bool Equals(BetweenPosition? other)
+    {
+        if (other is null)
+            return false;
+
+        return Before == other.Before && After == other.After;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Before, After);
+    }
+
+    public static bool operator ==(BetweenPosition left, BetweenPosition right)
+    {
+        return EqualityComparer<BetweenPosition>.Default.Equals(left, right);
+    }
+
+    public static bool operator !=(BetweenPosition left, BetweenPosition right)
+    {
+        return !(left == right);
     }
 }

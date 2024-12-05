@@ -109,46 +109,20 @@ public static class EntrySync
         );
     }
 
-    private static (Guid? beforeId, Guid? afterId) GetSurroundingIds<T>(int i, IList<T> current, List<Guid> stable) where T : class, IOrderable
-    {
-        T? beforeEntity = null;
-        T? afterEntity = null;
-        for (var j = i - 1; j >= 0; j--)
-        {
-            if (stable.Contains(current[j].Id))
-            {
-                beforeEntity = current[j];
-                break;
-            }
-        }
-        for (var j = i + 1; j < stable.Count; j++)
-        {
-            if (stable.Contains(current[j].Id))
-            {
-                afterEntity = current[j];
-                break;
-            }
-        }
-        return (beforeEntity?.Id, afterEntity?.Id);
-    }
     private static async Task<int> SensesSync(Guid entryId,
         IList<Sense> afterSenses,
         IList<Sense> beforeSenses,
         IMiniLcmApi api)
     {
         var prevMin = beforeSenses.Min(s => s.Order);
-        Func<IMiniLcmApi, Sense, int, List<Guid>, Task<int>> add = async (api, sense, to, stable) =>
+        Func<IMiniLcmApi, Sense, BetweenPosition, Task<int>> add = async (api, sense, between) =>
         {
-            var (beforeId, afterId) = GetSurroundingIds(to, afterSenses, stable);
-            await api.CreateSense(entryId, sense, beforeId, afterId);
-            stable.Add(sense.Id);
+            await api.CreateSense(entryId, sense, between);
             return 1;
         };
-        Func<IMiniLcmApi, Sense, int, List<Guid>, Task<int>> move = async (api, sense, to, stable) =>
+        Func<IMiniLcmApi, Sense, BetweenPosition, Task<int>> move = async (api, sense, between) =>
         {
-            var (beforeId, afterId) = GetSurroundingIds(to, afterSenses, stable);
-            await api.MoveSense(entryId, sense, beforeId, afterId);
-            stable.Add(sense.Id);
+            await api.MoveSense(entryId, sense, between);
             return 1;
         };
         Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, sense) =>
