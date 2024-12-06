@@ -115,9 +115,10 @@
   function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): ILexboxServer | undefined {
     //this may be null, even if the project is synced, when the project info isn't cached on the server yet.
     if (project.serverAuthority) {
-      return serversStatus.find(s => s.server.authority == project.serverAuthority)?.server ?? {
+      return serversStatus.find(s => s.server.id == project.serverAuthority)?.server ?? {
         displayName: 'Unknown server ' + project.serverAuthority,
-        authority: project.serverAuthority
+        authority: project.serverAuthority,
+        id: project.serverAuthority
       } satisfies ILexboxServer;
     }
     let authority =  Object.entries(serversProjects)
@@ -231,9 +232,9 @@
                   <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
                 {/if}
                 {#if status.loggedIn}
-                  <Button variant="fill" color="primary" href="/api/auth/logout/{server.authority}" icon={mdiLogout}>Logout</Button>
+                  <Button variant="fill" color="primary" href="/api/auth/logout/{server.id}" icon={mdiLogout}>Logout</Button>
                 {:else}
-                  <Button variant="fill-light" color="primary" href="/api/auth/login/{server.authority}" icon={mdiLogin}>Login</Button>
+                  <Button variant="fill-light" color="primary" href="/api/auth/login/{server.id}" icon={mdiLogin}>Login</Button>
                 {/if}
               </div>
               {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}

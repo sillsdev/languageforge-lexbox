@@ -7,5 +7,6 @@ export interface ILexboxServer
 {
 	authority: any;
 	displayName: string;
+	id: string;
 }
 /* eslint-enable */

@@ -29,4 +29,7 @@ public class AuthConfig
     }
 }
 
-public record LexboxServer(Uri Authority, string DisplayName);
+public record LexboxServer(Uri Authority, string DisplayName)
+{
+    public string Id => Authority.Authority;
+}
