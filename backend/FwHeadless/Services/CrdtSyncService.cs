@@ -2,7 +2,7 @@
 using LcmCrdt.RemoteSync;
 using SIL.Harmony;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public class CrdtSyncService(
     CrdtHttpSyncService httpSyncService,

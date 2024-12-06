@@ -2,7 +2,7 @@ using LexData;
 using Microsoft.EntityFrameworkCore;
 using SIL.Harmony.Core;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public class ProjectLookupService(LexBoxDbContext dbContext)
 {
@@ -13,6 +13,11 @@ public class ProjectLookupService(LexBoxDbContext dbContext)
             .Select(p => p.Code)
             .FirstOrDefaultAsync();
         return projectCode;
+    }
+
+    public async Task<bool> ProjectExists(Guid projectId)
+    {
+        return await dbContext.Projects.AnyAsync(p => p.Id == projectId);
     }
 
     public async Task<bool> IsCrdtProject(Guid projectId)
