@@ -464,6 +464,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         }
     }
 
+    public async Task<Sense?> GetSense(Guid entryId, Guid id)
+    {
+        var entry = await Entries.AsTracking(false)
+            .LoadWith(e => e.Senses)
+            .ThenLoad(s => s.ExampleSentences)
+            .AsQueryable()
+            .SingleOrDefaultAsync(e => e.Id == entryId);
+        return entry?.Senses.FirstOrDefault(s => s.Id == id);
+    }
+
     public async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
@@ -478,6 +488,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
         await dataModel.AddChanges(ClientId, [..sense.ToChanges(update.Patch)]);
         return await dataModel.GetLatest<Sense>(senseId) ?? throw new NullReferenceException();
+    }
+
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    {
+        await SenseSync.Sync(entryId, after, before, this);
+        return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)

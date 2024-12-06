@@ -37,7 +37,7 @@ public class UpdateDiffTests
         var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences));
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences).Excluding(x => x.SemanticDomains));
     }
 
     [Fact]

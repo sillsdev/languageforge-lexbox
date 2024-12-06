@@ -13,6 +13,7 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
+    Task<Sense?> GetSense(Guid entryId, Guid id);
     Task<PartOfSpeech?> GetPartOfSpeech(Guid id);
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
