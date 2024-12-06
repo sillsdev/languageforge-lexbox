@@ -24,7 +24,7 @@ export enum LexboxService {
 export type ServiceKey = keyof LexboxServiceRegistry;
 
 export type LexboxServiceRegistry = {
-  [LexboxService.LexboxApi]: LexboxApiClient,
+  [DotnetService.MiniLcmApi]: LexboxApiClient,
   [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
@@ -65,7 +65,7 @@ export class LexboxServiceProvider {
 }
 
 export function useLexboxApi(): LexboxApiClient {
-  return window.lexbox.ServiceProvider.getService(LexboxService.LexboxApi);
+  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
 }
 
 export function useProjectsService(): ICombinedProjectsService {

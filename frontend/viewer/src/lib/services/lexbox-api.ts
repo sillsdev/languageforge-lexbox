@@ -50,7 +50,7 @@ export interface LexboxApi {
 }
 
 export interface LexboxApiMetadata {
-  SupportedFeatures(): LexboxApiFeatures;
+  SupportedFeatures(): Promise<LexboxApiFeatures>;
 }
 
 export type LexboxApiClient = LexboxApi & LexboxApiMetadata;

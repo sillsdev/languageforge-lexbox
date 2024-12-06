@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 export enum DotnetService {
+	MiniLcmApi = "MiniLcmApi",
 	CombinedProjectsService = "CombinedProjectsService",
 	AuthService = "AuthService",
 	ImportFwdataService = "ImportFwdataService"

@@ -7,7 +7,11 @@ import type {DotnetService} from './DotnetService';
 
 export interface IFwLiteProvider
 {
+	dispose() : void;
 	getServices() : { [key in DotnetService]: any };
 	getService(service: DotnetService) : any;
+	setService(service: DotnetService, serviceInstance: any) : Promise<void>;
+	injectCrdtProject(projectName: string) : Promise<void>;
+	injectFwDataProject(projectName: string) : Promise<void>;
 }
 /* eslint-enable */

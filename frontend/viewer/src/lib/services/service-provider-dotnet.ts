@@ -19,10 +19,11 @@ export class DotNetServiceProvider {
     this.services = fwLiteProvider;
   }
 
-  public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
+  public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
     this.validateAllServices();
     let service = this.services[key] as unknown as DotNet.DotNetObject;
-    if (!service) throw new Error(`Service ${key} is null`);
+    //todo maybe don't return undefined
+    if (!service) return undefined;
     return wrapInProxy(service) as LexboxServiceRegistry[K];
   }
   private validateAllServices() {

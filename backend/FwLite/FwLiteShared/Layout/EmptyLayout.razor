@@ -1,3 +1,46 @@
 ﻿@inherits LayoutComponentBase
+@using FwLiteShared.Services
+@using LexCore.Entities
+@inject IJSRuntime JS
+@inject FwLiteProvider FwLiteProvider
+<HeadContent>
+    @* <script type="module" src="@Assets["_content/FwLiteShared/viewer/index.js"]"></script> *@
+    <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
+    <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
+    <script>
+        window.setOverrideService = (key, service) => {
+            if (!window.lexbox || !window.lexbox.FwLiteProvider) {
+                if (window.lexbox && window.lexbox.DotNetServiceProvider) {
+                    window.lexbox.FwLiteProvider = {};
+                    window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
+                } else {
+                    window.lexbox = {FwLiteProvider: {}};
+                }
+            }
+            const services = window.lexbox.FwLiteProvider;
+            services[key] = service;
+        };
+    </script>
+</HeadContent>
+<div id="app" class="contents">
+</div>
 
 @Body
+
+@code {
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            foreach (var (serviceKey, service) in FwLiteProvider.GetServices())
+            {
+                await FwLiteProvider.SetService(serviceKey, service);
+            }
+
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "/" + Assets["_content/FwLiteShared/viewer/index.js"]);
+        }
+    }
+}

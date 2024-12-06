@@ -1,0 +1,20 @@
+﻿@page "/fwdata/{projectName}"
+@using FwLiteShared.Layout
+@using FwLiteShared.Services
+@inject FwLiteProvider FwLiteProvider
+@layout EmptyLayout;
+<h3>CrdtProject</h3>
+
+@code {
+    [Parameter]
+    public required string ProjectName { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await FwLiteProvider.InjectFwDataProject(ProjectName);
+        }
+    }
+}

@@ -62,7 +62,10 @@
   }));
 
   const lexboxApi = useLexboxApi();
-  const features = writable<LexboxFeatures>(lexboxApi.SupportedFeatures());
+  void lexboxApi.SupportedFeatures().then(f => {
+    features.set(f);
+  });
+  const features = writable<LexboxFeatures>({});
   setContext<Readable<LexboxFeatures>>('features', features);
   setContext('saveEvents', saveEventDispatcher);
   setContext('saveHandler', saveHandler);
