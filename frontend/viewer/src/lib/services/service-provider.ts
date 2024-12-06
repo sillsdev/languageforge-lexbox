@@ -1,7 +1,8 @@
 import type {LexboxApiClient} from './lexbox-api';
 import {openSearch} from '../search-bar/search';
 import {ProjectService} from './projects-service';
-import {DotnetService} from '../dotnet-types/generated-types/FwLiteShared/Services/DotnetService';
+import {DotnetService, type ICombinedProjectsService, type IAuthService} from '../dotnet-types';
+import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IImportFwdataService';
 
 declare global {
 
@@ -24,7 +25,9 @@ export type ServiceKey = keyof LexboxServiceRegistry;
 
 export type LexboxServiceRegistry = {
   [LexboxService.LexboxApi]: LexboxApiClient,
-  [DotnetService.CombinedProjectsService]: ProjectService,
+  [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
+  [DotnetService.AuthService]: IAuthService,
+  [DotnetService.ImportFwdataService]: IImportFwdataService,
 };
 
 export const SERVICE_KEYS = [...Object.values(LexboxService), ...Object.values(DotnetService)];
@@ -65,7 +68,13 @@ export function useLexboxApi(): LexboxApiClient {
   return window.lexbox.ServiceProvider.getService(LexboxService.LexboxApi);
 }
 
-export function useProjectsService(): ProjectService {
+export function useProjectsService(): ICombinedProjectsService {
   return window.lexbox.ServiceProvider.getService(DotnetService.CombinedProjectsService);
+}
+export function useAuthService(): IAuthService {
+  return window.lexbox.ServiceProvider.getService(DotnetService.AuthService);
+}
+export function useImportFwdataService(): IImportFwdataService {
+  return window.lexbox.ServiceProvider.getService(DotnetService.ImportFwdataService);
 }
 window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, new ProjectService());

@@ -5,6 +5,7 @@ using Humanizer;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using MiniLcm;
 
 namespace FwLiteShared.Projects;
@@ -17,6 +18,7 @@ public class ImportFwdataService(
     MiniLcmImport miniLcmImport
 )
 {
+    [JSInvokable]
     public async Task<CrdtProject> Import(string projectName)
     {
         var startTime = Stopwatch.GetTimestamp();

@@ -1,12 +1,15 @@
 ﻿using System.Text.Json.Serialization;
+using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 
 namespace FwLiteShared.Services;
 
-public class FwLiteProvider(CombinedProjectsService projectService)
+public class FwLiteProvider(
+    CombinedProjectsService projectService,
+    AuthService authService,
+    ImportFwdataService importFwdataService
+)
 {
-    public CombinedProjectsService ProjectService { get; } = projectService;
-
     public Dictionary<DotnetService, object> GetServices()
     {
         return Enum.GetValues<DotnetService>().ToDictionary(s => s, GetService);
@@ -16,7 +19,9 @@ public class FwLiteProvider(CombinedProjectsService projectService)
     {
         return service switch
         {
-            DotnetService.CombinedProjectsService => ProjectService,
+            DotnetService.CombinedProjectsService => projectService,
+            DotnetService.AuthService => authService,
+            DotnetService.ImportFwdataService => importFwdataService,
             _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
         };
     }
@@ -25,5 +30,7 @@ public class FwLiteProvider(CombinedProjectsService projectService)
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DotnetService
 {
-    CombinedProjectsService
+    CombinedProjectsService,
+    AuthService,
+    ImportFwdataService,
 }

@@ -21,13 +21,15 @@ export class DotNetServiceProvider {
 
   public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
     this.validateAllServices();
-    return wrapInProxy(this.services[key] as unknown as DotNet.DotNetObject) as LexboxServiceRegistry[K];
+    let service = this.services[key] as unknown as DotNet.DotNetObject;
+    if (!service) throw new Error(`Service ${key} is null`);
+    return wrapInProxy(service) as LexboxServiceRegistry[K];
   }
   private validateAllServices() {
-    const serviceKeys = Object.keys(this.services);
     const validServiceKeys = SERVICE_KEYS;
-    for (const key of serviceKeys) {
-      if (!validServiceKeys.includes(key as LexboxService)) {
+    for (const [key, value] of Object.entries(this.services)) {
+      if (!value) throw new Error(`Service ${key} is null`);
+      if (!validServiceKeys.includes(key as ServiceKey)) {
         throw new Error(`Invalid service key: ${key}. Valid values are: ${validServiceKeys.join(', ')}`);
       }
     }

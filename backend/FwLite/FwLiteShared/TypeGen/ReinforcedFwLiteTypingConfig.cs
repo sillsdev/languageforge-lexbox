@@ -62,14 +62,13 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<FwLiteProvider>().WithPublicMethods();
 
         builder.ExportAsEnum<DotnetService>().UseString();
+        builder.ExportAsInterface<AuthService>().WithPublicMethods();
+        builder.ExportAsInterface<ImportFwdataService>().WithPublicMethods();
+        builder.ExportAsInterface<ServerStatus>().WithPublicProperties();
         builder.ExportAsInterface<CombinedProjectsService>().WithPublicMethods();
         builder.ExportAsInterface<ProjectModel>().WithPublicProperties();
         builder.ExportAsInterface<ServerProjects>().WithPublicProperties();
         builder.ExportAsInterface<LexboxServer>().WithPublicProperties();
-        builder.SubstituteGeneric(typeof(IAsyncEnumerable<>),
-            (type, resolver) => new RtAsyncType(
-                new RtArrayType(resolver.ResolveTypeName(type.GenericTypeArguments[0]))
-            ));
     }
 
     private static void DisableEsLintChecks(ConfigurationBuilder builder)

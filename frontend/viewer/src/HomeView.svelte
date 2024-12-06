@@ -13,11 +13,14 @@
   import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
-  import {type Project, type ServerStatus} from './lib/services/projects-service';
+  import {type Project} from './lib/services/projects-service';
   import {onMount} from 'svelte';
-  import {useProjectsService} from './lib/services/service-provider';
+  import {useAuthService, useImportFwdataService, useProjectsService} from './lib/services/service-provider';
+  import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
 
   const projectsService = useProjectsService();
+  const authService = useAuthService();
+  const importFwdataService = useImportFwdataService();
 
   let newProjectName = '';
 
@@ -36,16 +39,17 @@
   async function importFwDataProject(name: string) {
     if (importing) return;
     importing = name;
-    await projectsService.importFwDataProject(name);
+    await importFwdataService.import(name);
     await refreshProjects();
     importing = '';
   }
 
   let downloading = '';
 
-  async function downloadCrdtProject(project: Project) {
+  async function downloadCrdtProject(project: Project, server: ILexboxServer) {
     downloading = project.name;
-    await projectsService.downloadCrdtProject(project);
+    if (project.id == null) throw new Error('Project id is null');
+    await projectsService.downloadProject(project.id, project.name, server);
     await refreshProjects();
     downloading = '';
   }
@@ -63,7 +67,10 @@
   let loadingRemoteProjects = false;
   async function fetchRemoteProjects(): Promise<void> {
     loadingRemoteProjects = true;
-    remoteProjects = await projectsService.fetchRemoteProjects();
+    let result = await projectsService.remoteProjects();
+    for (let serverProjects of result) {
+      remoteProjects[serverProjects.server.authority] = serverProjects.projects;
+    }
     loadingRemoteProjects = false;
   }
 
@@ -73,8 +80,8 @@
   });
 
 
-  let servers: ServerStatus[] = [];
-  onMount(async () => servers = await projectsService.fetchServers());
+  let serversStatus: IServerStatus[] = [];
+  onMount(async () => serversStatus = await authService.servers());
 
   $: columns = [
     {
@@ -89,7 +96,7 @@
       name: 'crdt',
       header: 'CRDT',
     },
-    ...(servers.find(s => s.loggedIn)
+    ...(serversStatus.find(s => s.loggedIn)
       ? [
         {
           name: 'lexbox',
@@ -107,19 +114,17 @@
     return matches;
   }
 
-  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): ServerStatus | undefined {
+  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): ILexboxServer | undefined {
     //this may be null, even if the project is synced, when the project info isn't cached on the server yet.
     if (project.serverAuthority) {
-      return servers.find(s => s.authority == project.serverAuthority) ?? {
+      return serversStatus.find(s => s.server.authority == project.serverAuthority)?.server ?? {
         displayName: 'Unknown server ' + project.serverAuthority,
-        loggedIn: false,
-        loggedInAs: null,
         authority: project.serverAuthority
-      };
+      } satisfies ILexboxServer;
     }
     let authority =  Object.entries(serversProjects)
       .find(([_server, projects]) => matchesProject(projects, project))?.[0];
-    return authority ? servers.find(s => s.authority == authority) : undefined;
+    return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
   }
 </script>
 
@@ -218,15 +223,16 @@
                   <ProgressCircle class="text-surface-content" indeterminate={true}/>
               {/if}
             </div>
-            {#each servers as server}
+            {#each serversStatus as status}
+              {@const server = status.server}
               <div class="border my-1"/>
               <div class="flex flex-row items-center py-1">
                 <p>{server.displayName}</p>
                 <div class="flex-grow"></div>
-                {#if server.loggedInAs}
-                  <p class="mr-2 px-2 py-1 text-sm border rounded-full">{server.loggedInAs}</p>
+                {#if status.loggedInAs}
+                  <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
                 {/if}
-                {#if server.loggedIn}
+                {#if status.loggedIn}
                   <Button variant="fill" color="primary" href="/api/auth/logout/{server.authority}" icon={mdiLogout}>Logout</Button>
                 {:else}
                   <Button variant="fill-light" color="primary" href="/api/auth/login/{server.authority}" icon={mdiLogin}>Login</Button>
@@ -245,7 +251,7 @@
                       icon={mdiBookArrowDownOutline}
                       size="md"
                       loading={downloading === project.name}
-                      on:click={() => downloadCrdtProject(project)}
+                      on:click={() => downloadCrdtProject(project, server)}
                     >
                       Download
                     </Button>

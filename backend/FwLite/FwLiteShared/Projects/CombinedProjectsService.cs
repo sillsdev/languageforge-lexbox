@@ -19,6 +19,7 @@ public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService, CrdtProjectsService crdtProjectsService,
     FieldWorksProjectList fieldWorksProjectList)
 {
+    [JSInvokable]
     public async Task<ServerProjects[]> RemoteProjects()
     {
         var lexboxServers = lexboxProjectService.Servers();

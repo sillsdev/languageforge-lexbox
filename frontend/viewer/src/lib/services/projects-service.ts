@@ -1,11 +1,8 @@
 ﻿import {AppNotification} from '../notifications/notifications';
-import type {IProjectModel} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IProjectModel';
-import type {
-  ICombinedProjectsService
-} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/ICombinedProjectsService';
+import type {IServerStatus, ICombinedProjectsService, IProjectModel} from '$lib/dotnet-types';
 
 export type Project = IProjectModel;
-export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null, authority: string };
+export type ServerStatus = IServerStatus;
 export class ProjectService implements ICombinedProjectsService {
   async createProject(newProjectName: string): Promise<{error: string|undefined}> {
 
