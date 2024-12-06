@@ -1,5 +1,4 @@
-﻿using Windows.ApplicationModel;
-using FwLiteShared;
+﻿using FwLiteShared;
 using FwLiteShared.Auth;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
@@ -19,14 +18,24 @@ public static class FwLiteDesktopKernel
         services.AddSingleton<MainPage>();
         configuration.AddJsonFile("appsettings.json", optional: true);
 
+        services.Configure<AuthConfig>(config =>
+            config.LexboxServers =
+            [
+                new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
+                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
+            ]);
+        services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
 
         string environment = "Production";
 #if DEBUG
         environment = "Development";
 #endif
-        services.AddFwLiteShared(new HostingEnvironment() { EnvironmentName = environment });
+        var env = new HostingEnvironment() { EnvironmentName = environment };
+        services.AddSingleton<IHostEnvironment>(env);
+        services.AddFwLiteShared(env);
         var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
-        var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ?? defaultDataPath);
+        var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??
+                                            defaultDataPath);
         Directory.CreateDirectory(baseDataPath);
         services.Configure<LcmCrdtConfig>(config =>
         {
@@ -37,19 +46,21 @@ public static class FwLiteDesktopKernel
             config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
             config.SystemWebViewLogin = true;
         });
-        logging.AddFile(Path.Combine(baseDataPath, "app.log"));
+        // logging.AddFile(Path.Combine(baseDataPath, "app.log"));
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();
 #endif
     }
 
-    static readonly Lazy<bool> IsPackagedAppLazy = new(static () =>
+#if WINDOWS
+    private static readonly Lazy<bool> IsPackagedAppLazy = new(static () =>
     {
         try
         {
-            if (Package.Current != null)
+            if (Windows.ApplicationModel.Package.Current != null)
                 return true;
+            return false;
         }
         catch
         {
@@ -60,4 +71,7 @@ public static class FwLiteDesktopKernel
     });
 
     public static bool IsPackagedApp => IsPackagedAppLazy.Value;
+#else
+    private static bool IsPackagedApp => true;
+#endif
 }

@@ -29,12 +29,13 @@ public class OAuthClient
     public OAuthClient(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         IOptions<AuthConfig> options,
-        IRedirectUrlProvider? redirectUrlProvider,
         OAuthService oAuthService,
         LexboxServer lexboxServer,
         LexboxProjectService lexboxProjectService,
         ILogger<OAuthClient> logger,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment? hostEnvironment = null,
+        IRedirectUrlProvider? redirectUrlProvider = null
+            )
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;
         _oAuthService = oAuthService;
@@ -48,7 +49,7 @@ public class OAuthClient
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
         _application = PublicClientApplicationBuilder.Create(options.Value.ClientId)
             .WithExperimentalFeatures()
-            .WithLogging(loggerAdapter, hostEnvironment.IsDevelopment())
+            .WithLogging(loggerAdapter, hostEnvironment?.IsDevelopment() ?? false)
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
             .WithRedirectUri(RedirectUrl)
             .WithOidcAuthority(lexboxServer.Authority.ToString())
