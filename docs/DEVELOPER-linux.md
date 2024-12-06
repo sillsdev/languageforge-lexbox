@@ -22,7 +22,7 @@
     * downloads the FLEx repo for the project seed data
   * optional but recommended: turn off logging for Docker Desktop
     * Docker Desktop's default is to log verbose messages to stderr, which by default gets sent to the systemd journal and/or /var/log/syslog
-    * This can result in your /var parition filling up fast (one developer saw his syslog grow by multiple gigabytes in a single week)
+    * This can result in your /var partition filling up fast (one developer saw his syslog grow by multiple gigabytes in a single week)
     * To silence Docker Desktop logs, create the following drop-in at `$HOME/.config/systemd/user/docker-desktop.service.d/stop-log-spam.conf`:
     ```
     [Service]
