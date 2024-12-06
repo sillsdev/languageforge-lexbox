@@ -26,7 +26,6 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="flex gap-2 items-center text-sm h-10">
       <Switch bind:checked={viewSettings.hideEmptyFields}
               color="neutral"/>
@@ -40,17 +39,14 @@
     <DevContent>
       <div class="flex flex-col gap-4">
         Debug
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={features.write}/>
           Write
         </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={features.history}/>
           History
         </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={$generateExternalChanges}
                   color="warning"/>

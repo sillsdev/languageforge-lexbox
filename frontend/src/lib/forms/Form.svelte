@@ -6,6 +6,7 @@
 
   export let enhance: AnySuperForm['enhance'] | undefined = undefined;
   function enhanceIfRequested(...args: Parameters<AnySuperForm['enhance']>): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     enhance && enhance(...args);
   }
 

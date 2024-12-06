@@ -1,6 +1,5 @@
 import ForgotPassword from '$lib/email/ForgotPassword.svelte';
 import NewAdmin from '$lib/email/NewAdmin.svelte';
-import type {ComponentType} from 'svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
 import JoinProjectRequest from '$lib/email/JoinProjectRequest.svelte';
@@ -10,7 +9,7 @@ import ApproveProjectRequest from '$lib/email/ApproveProjectRequest.svelte';
 import UserAdded from '$lib/email/UserAdded.svelte';
 import CreateAccountRequestOrg from '$lib/email/CreateAccountRequestOrg.svelte';
 import CreateAccountRequestProject from '$lib/email/CreateAccountRequestProject.svelte';
-
+import type {Component} from 'svelte';
 
 export const enum EmailTemplate {
     NewAdmin = 'NEW_ADMIN',
@@ -36,7 +35,8 @@ export const componentMap = {
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
     [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
     [EmailTemplate.UserAdded]: UserAdded,
-} satisfies Record<EmailTemplate, ComponentType>;
+} satisfies Record<EmailTemplate, Component<never>>;
+// Note: Foo<never> means "Foo<T> but I don't care what T is" and is apparently preferred over Foo<any> in modern Typescript
 
 interface EmailTemplatePropsBase<T extends EmailTemplate> {
     template: T;

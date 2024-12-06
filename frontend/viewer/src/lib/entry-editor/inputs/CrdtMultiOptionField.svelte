@@ -59,6 +59,6 @@
     {label}
     {labelPlacement}
     {placeholder}>
-    <span bind:this={append} slot="append" />
+    <span bind:this={append} slot="append"></span>
   </MultiSelectField>
 </CrdtField>

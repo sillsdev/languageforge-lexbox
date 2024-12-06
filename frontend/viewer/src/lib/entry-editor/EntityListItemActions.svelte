@@ -68,8 +68,10 @@
         </menu>
       </Popover>
       {#if first}
+        <!-- eslint-disable-next-line @typescript-eslint/no-unused-expressions -->
         <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 1)}} variant="fill-light" color="info" rounded icon={mdiArrowDownBold} size="sm"></Button>
       {:else if last}
+        <!-- eslint-disable-next-line @typescript-eslint/no-unused-expressions -->
         <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 0)}} variant="fill-light" color="info" rounded icon={mdiArrowUpBold} size="sm"></Button>
       {:else}
         <Button on:click={toggle} variant="fill-light" color="info" rounded icon={mdiArrowUpDownBold} size="sm"></Button>

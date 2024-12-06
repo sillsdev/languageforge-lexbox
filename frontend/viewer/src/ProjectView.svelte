@@ -15,7 +15,7 @@
   import type {IEntry} from './lib/mini-lcm';
   import {onDestroy, onMount, setContext} from 'svelte';
   import {derived, writable, type Readable} from 'svelte/store';
-  import {deriveAsync, makeDebouncer} from './lib/utils/time';
+  import {deriveAsync} from './lib/utils/time';
   import { type LexboxPermissions, type LexboxFeatures} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
@@ -90,6 +90,7 @@
 
   const location = useLocation();
   $: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     $location;
     const searchParams = getSearchParams();
     $search = searchParams.get(ViewerSearchParam.Search) ?? '';
@@ -150,12 +151,14 @@
   // For some reason reactive syntax doesn't pick up every change, so we need to manually subscribe
   // and we need the extra call to updateEntryIdSearchParam in refreshSelection
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   $: { pickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
     updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
   }
 
   $: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     $entries;
     refreshSelection();
   }
@@ -236,6 +239,7 @@
     spaceForEditorStyle = `--space-for-editor: ${availableHeight}px`;
   }, 20, { leading: false, trailing: true });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   $: editorElem && updateSpaceForEditor();
   onMount(() => {
     const abortController = new AbortController();

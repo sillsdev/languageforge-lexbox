@@ -39,7 +39,7 @@
 
 <svelte:options customElement={{ tag: 'fw-data-project-view' }} />
 
-<svelte:element this="style">
+<svelte:element this={'style'}>
   {css}
 </svelte:element>
 

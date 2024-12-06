@@ -35,6 +35,7 @@
   let viewingMerge = true;
 
   $: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     value;
     onExternalChange();
   }

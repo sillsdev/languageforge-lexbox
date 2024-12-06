@@ -5,7 +5,6 @@
   import {writable} from 'svelte/store';
   import {type ServerStatus, useProjectsService} from './services/projects-service';
   import {getContext} from 'svelte';
-  import {AppNotification} from './notifications/notifications';
 
   const projectsService = useProjectsService();
   let projectName = getContext<string>('project-name');
