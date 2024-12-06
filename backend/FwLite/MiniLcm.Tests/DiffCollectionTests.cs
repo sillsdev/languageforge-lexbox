@@ -77,7 +77,8 @@ public class DiffCollectionTests
             OldValues = [_1, _2, _3],
             NewValues = [_3, _2, _1],
             ExpectedOperations = [
-                new(_1) { From = 0, To = 2, Between = Between(_2) },
+                new(_2) { From = 1, To = 1, Between = Between(before: _3) },
+                new(_1) { From = 0, To = 2, Between = Between(before: _2) },
             ],
         }];
         yield return [new CollectionDiffTestCase
@@ -104,7 +105,7 @@ public class DiffCollectionTests
         {
             OldValues = [_1, _2, _3, _4, _5, _6],
             NewValues = [_2, _3, _1, _6, _4, _5],
-            ExpectedOperations = [ // When more than 4, the 2 outsides to middle is represented slightly differently:
+            ExpectedOperations = [ // When 6+, moving the 2 outsides to middle is represented as such:
                 new(_1) { From = 0, To = 2, Between = Between(_3, _4) },
                 new(_6) { From = 5, To = 3, Between = Between(_1, _4) },
             ],
@@ -132,13 +133,19 @@ public class DiffCollectionTests
     [MemberData(nameof(CollectionDiffTestCaseData))]
     public async Task DiffTests(CollectionDiffTestCase testCase)
     {
-        // Check for silly mistakes
-        foreach (var operation in testCase.ExpectedOperations)
+        using (new AssertionScope("Check for silly test case mistakes"))
         {
-            if (operation.From is not null)
-                testCase.OldValues[operation.From.Value].Should().Be(operation.Value);
-            if (operation.To is not null)
-                testCase.NewValues[operation.To.Value].Should().Be(operation.Value);
+            foreach (var operation in testCase.ExpectedOperations)
+            {
+                if (operation.From is not null)
+                    testCase.OldValues[operation.From.Value].Should().Be(operation.Value);
+                if (operation.To is not null)
+                    testCase.NewValues[operation.To.Value].Should().Be(operation.Value);
+                if (operation.Between?.Before is not null)
+                    testCase.NewValues.Should().ContainSingle(v => v.Id == operation.Between.Before);
+                if (operation.Between?.After is not null)
+                    testCase.NewValues.Should().ContainSingle(v => v.Id == operation.Between.After);
+            }
         }
 
         var (changeCount, diffApi, api) = await Diff(testCase.OldValues, testCase.NewValues);

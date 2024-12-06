@@ -1,9 +1,13 @@
-﻿namespace MiniLcm.Tests;
+﻿using System.Globalization;
+
+namespace MiniLcm.Tests;
 
 public abstract class UpdateEntryTestsBase : MiniLcmTestBase
 {
     protected readonly Guid Entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
     protected readonly Guid Entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
+
+    protected virtual bool ApiUsesImplicitOrdering => false;
 
     public override async Task InitializeAsync()
     {
@@ -101,5 +105,56 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         updatedEntry2.LexemeForm["es"].Should().Be("updated again");
         updatedEntry2.Should().BeEquivalentTo(update2,
             options => options.Excluding(e => e.LexemeForm));
+    }
+
+    [Theory]
+    [InlineData("1,2", "1,2,3,4", "1,2,3,4")] // append
+    [InlineData("1,2", "3,1,2", "0,1,2")] // single prepend
+    [InlineData("1,2", "4,3,1,2", "0,0.5,1,2")] // multi prepend
+    [InlineData("1,2,3,4", "4,1,2,3", "0,1,2,3")] // move to back
+    [InlineData("1,2,3,4", "2,3,4,1", "2,3,4,5")] // move to front
+    [InlineData("1,2,3,4,5", "1,2,5,3,4", "1,2,2.5,3,4")] // move to middle
+    [InlineData("1,2,3", "3,2,1", "3,4,5")] // reverse
+    [InlineData("1,2,3,4", "4,2,3,1", "1,2,3,4")] // swap
+    public async Task UpdateEntry_CanReorderSenses(string before, string after, string expectedOrderValues)
+    {
+        // arrange
+        var entryId = Guid.NewGuid();
+        var senseIds = before.Split(',').Concat(after.Split(',')).Distinct()
+            .ToDictionary(i => i, _ => Guid.NewGuid());
+        var beforeSenses = before.Split(',').Select(i => new Sense() { Id = senseIds[i], EntryId = entryId, Gloss = { { "en", i } } }).ToList();
+        var afterSenses = after.Split(',').Select(i => new Sense() { Id = senseIds[i], EntryId = entryId, Gloss = { { "en", i } } }).ToList();
+
+        var beforeEntry = await Api.CreateEntry(new()
+        {
+            Id = entryId,
+            LexemeForm = { { "en", "order" } },
+            Senses = beforeSenses,
+        });
+
+        var afterEntry = beforeEntry!.Copy();
+        afterEntry.Senses = afterSenses;
+
+        // sanity checks
+        beforeEntry.Senses.Should().BeEquivalentTo(beforeSenses, options => options.WithStrictOrdering());
+        if (!ApiUsesImplicitOrdering)
+        {
+            beforeEntry.Senses.Select(s => s.Order).Should()
+                .BeEquivalentTo(Enumerable.Range(1, beforeSenses.Count), options => options.WithStrictOrdering());
+        }
+
+        // act
+        await Api.UpdateEntry(beforeEntry, afterEntry);
+        var actual = await Api.GetEntry(afterEntry.Id);
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.Senses.Should().BeEquivalentTo(afterEntry.Senses, options => options.WithStrictOrdering());
+
+        if (!ApiUsesImplicitOrdering)
+        {
+            var actualOrderValues = string.Join(',', actual.Senses.Select(s => s.Order.ToString(CultureInfo.GetCultureInfo("en-US"))));
+            actualOrderValues.Should().Be(expectedOrderValues);
+        }
     }
 }
