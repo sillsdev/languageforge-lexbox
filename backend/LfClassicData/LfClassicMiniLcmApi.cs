@@ -20,6 +20,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return AsyncEnumerable.Empty<ComplexFormType>();
     }
 
+    public Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        return Task.FromResult<ComplexFormType?>(null);
+    }
+
     public async Task<WritingSystems> GetWritingSystems()
     {
         var inputSystems = await systemDbContext.Projects.AsQueryable()
@@ -313,6 +318,15 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
         return ToEntry(entry);
+    }
+
+    public async Task<Sense?> GetSense(Guid entryId, Guid id)
+    {
+        var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();
+        if (entry is null) return null;
+        var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == id);
+        if (sense is null) return null;
+        return ToSense(entryId, sense);
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
