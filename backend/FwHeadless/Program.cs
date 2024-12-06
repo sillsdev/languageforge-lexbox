@@ -149,7 +149,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var commitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
     var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>(); // TODO: This *cannot* be right, can it?
     var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
-    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(localCommits - commitsOnServer));
+    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
