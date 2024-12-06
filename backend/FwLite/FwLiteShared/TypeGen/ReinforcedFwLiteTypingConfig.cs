@@ -16,7 +16,13 @@ public static class ReinforcedFwLiteTypingConfig
 {
     public static void Configure(ConfigurationBuilder builder)
     {
-        builder.Global(c => c.AutoAsync().UseModules().UnresolvedToUnknown().CamelCaseForProperties().AutoOptionalProperties().UseVisitor<TypedImportsVisitor>());
+        builder.Global(c => c.AutoAsync()
+            .UseModules()
+            .UnresolvedToUnknown()
+            .CamelCaseForProperties()
+            .CamelCaseForMethods()
+            .AutoOptionalProperties()
+            .UseVisitor<TypedImportsVisitor>());
         DisableEsLintChecks(builder);
         builder.Substitute(typeof(WritingSystemId), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));

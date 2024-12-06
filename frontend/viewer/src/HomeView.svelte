@@ -50,11 +50,11 @@
     downloading = '';
   }
 
-  let projectsPromise = projectsService.fetchProjects().then(p => projects = p);
+  let projectsPromise = projectsService.localProjects().then(p => projects = p);
   let projects: Project[] = [];
 
   async function refreshProjects() {
-    let promise = projectsService.fetchProjects();
+    let promise = projectsService.localProjects();
     projects = await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;
   }

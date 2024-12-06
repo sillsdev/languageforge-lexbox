@@ -1,15 +1,12 @@
 ﻿import {AppNotification} from '../notifications/notifications';
+import type {IProjectModel} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IProjectModel';
+import type {
+  ICombinedProjectsService
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/ICombinedProjectsService';
 
-export type Project = {
-  name: string;
-  crdt: boolean;
-  fwdata: boolean;
-  lexbox: boolean,
-  serverAuthority: string | null,
-  id: string | null
-};
+export type Project = IProjectModel;
 export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null, authority: string };
-export class ProjectService {
+export class ProjectService implements ICombinedProjectsService {
   async createProject(newProjectName: string): Promise<{error: string|undefined}> {
 
     if (!newProjectName) {
@@ -55,12 +52,12 @@ export class ProjectService {
   }
 
   async getProjectServer(projectName: string): Promise<string|null> {
-    const projects = await this.fetchProjects();
+    const projects = await this.localProjects();
     //todo project server is always null from local projects`
     return projects.find(p => p.name === projectName)?.serverAuthority ?? null;
   }
 
-  async fetchProjects(): Promise<Project[]> {
+  async localProjects(): Promise<Project[]> {
     const r = await fetch('/api/localProjects');
     return (await r.json()) as Project[];
   }

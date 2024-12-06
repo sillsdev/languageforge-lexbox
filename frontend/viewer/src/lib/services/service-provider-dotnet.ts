@@ -37,12 +37,18 @@ export class DotNetServiceProvider {
 function wrapInProxy(dotnetObject: DotNet.DotNetObject): any {
   return new Proxy(dotnetObject, {
     get(target: DotNet.DotNetObject, prop: string) {
+      let dotnetMethodName = uppercaseFirstLetter(prop);
       return function (...args: any[]) {
-        return target.invokeMethodAsync(prop, ...args);
+        return target.invokeMethodAsync(dotnetMethodName, ...args);
       };
     },
   });
 }
+
+function uppercaseFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function setupDotnetServiceProvider() {
   const lexbox = {DotNetServiceProvider: new DotNetServiceProvider()};
   if (globalThis.window.lexbox) {
