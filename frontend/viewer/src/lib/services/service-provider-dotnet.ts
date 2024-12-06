@@ -1,6 +1,6 @@
 /* eslint-disable */
 import  { type DotNet } from '@microsoft/dotnet-js-interop';
-import {LexboxService, type LexboxServiceRegistry} from './service-provider';
+import {LexboxService, type LexboxServiceRegistry, SERVICE_KEYS, type ServiceKey} from './service-provider';
 
 declare global {
   interface Lexbox {
@@ -19,13 +19,13 @@ export class DotNetServiceProvider {
     this.services = fwLiteProvider;
   }
 
-  public getService<K extends LexboxService>(key: K): LexboxServiceRegistry[K] {
+  public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
     this.validateAllServices();
     return wrapInProxy(this.services[key] as unknown as DotNet.DotNetObject) as LexboxServiceRegistry[K];
   }
   private validateAllServices() {
     const serviceKeys = Object.keys(this.services);
-    const validServiceKeys = Object.values(LexboxService);
+    const validServiceKeys = SERVICE_KEYS;
     for (const key of serviceKeys) {
       if (!validServiceKeys.includes(key as LexboxService)) {
         throw new Error(`Invalid service key: ${key}. Valid values are: ${validServiceKeys.join(', ')}`);

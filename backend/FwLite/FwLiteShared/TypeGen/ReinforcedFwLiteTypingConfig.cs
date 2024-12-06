@@ -61,6 +61,7 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithProperties(BindingFlags.Public | BindingFlags.Instance));
         builder.ExportAsInterface<FwLiteProvider>().WithPublicMethods();
 
+        builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsInterface<CombinedProjectsService>().WithPublicMethods();
         builder.ExportAsInterface<ProjectModel>().WithPublicProperties();
         builder.ExportAsInterface<ServerProjects>().WithPublicProperties();

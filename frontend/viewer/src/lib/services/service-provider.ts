@@ -1,6 +1,7 @@
 import type {LexboxApiClient} from './lexbox-api';
 import {openSearch} from '../search-bar/search';
 import {ProjectService} from './projects-service';
+import {DotnetService} from '../dotnet-types/generated-types/FwLiteShared/Services/DotnetService';
 
 declare global {
 
@@ -17,33 +18,33 @@ declare global {
 }
 
 export enum LexboxService {
-  LexboxApi = 'LexboxApi',
-  ProjectsService = 'ProjectsService',
+  LexboxApi = 'LexboxApi'
 }
+export type ServiceKey = keyof LexboxServiceRegistry;
 
 export type LexboxServiceRegistry = {
   [LexboxService.LexboxApi]: LexboxApiClient,
-  [LexboxService.ProjectsService]: ProjectService,
+  [DotnetService.CombinedProjectsService]: ProjectService,
 };
 
-const SERVICE_KEYS = Object.values(LexboxService);
+export const SERVICE_KEYS = [...Object.values(LexboxService), ...Object.values(DotnetService)];
 
 export class LexboxServiceProvider {
   private services: LexboxServiceRegistry = {} as LexboxServiceRegistry;
 
-  public setService<K extends LexboxService>(key: K, service: LexboxServiceRegistry[K]): void {
+  public setService<K extends ServiceKey>(key: K, service: LexboxServiceRegistry[K]): void {
     this.validateServiceKey(key);
     this.services[key] = service;
   }
 
-  public getService<K extends LexboxService>(key: K): LexboxServiceRegistry[K] {
+  public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
     this.validateServiceKey(key);
     const service = globalThis.window.lexbox.DotNetServiceProvider?.getService(key) ?? this.services[key];
     if (!service) throw new Error(`Lexbox service '${key}' not found`);
     return service;
   }
 
-  private validateServiceKey(key: LexboxService): void {
+  private validateServiceKey(key: ServiceKey): void {
     if (!SERVICE_KEYS.includes(key)) {
       throw new Error(`Invalid service key: ${key}. Valid values are: ${SERVICE_KEYS.join(', ')}`);
     }
@@ -65,6 +66,6 @@ export function useLexboxApi(): LexboxApiClient {
 }
 
 export function useProjectsService(): ProjectService {
-  return window.lexbox.ServiceProvider.getService(LexboxService.ProjectsService);
+  return window.lexbox.ServiceProvider.getService(DotnetService.CombinedProjectsService);
 }
-window.lexbox.ServiceProvider.setService(LexboxService.ProjectsService, new ProjectService());
+window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, new ProjectService());

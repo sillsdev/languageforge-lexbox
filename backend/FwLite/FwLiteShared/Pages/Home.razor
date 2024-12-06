@@ -1,4 +1,5 @@
 ﻿@page "/"
+@implements IDisposable
 @using FwLiteShared.Layout
 @using FwLiteShared.Services
 @inject IJSRuntime JS
@@ -27,16 +28,28 @@
 
 @code {
     private IJSObjectReference? module;
+    private List<IDisposable> disposables = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var projectService = DotNetObjectReference.Create(FwLiteProvider.ProjectService);
-            await JS.InvokeVoidAsync("setOverrideService", "ProjectsService", projectService);
+            foreach (var (serviceKey, service) in FwLiteProvider.GetServices())
+            {
+                var reference = DotNetObjectReference.Create(service);
+                disposables.Add(reference);
+                await JS.InvokeVoidAsync("setOverrideService", serviceKey.ToString(), reference);
+            }
             module = await JS.InvokeAsync<IJSObjectReference>("import",
                 "/" + Assets["_content/FwLiteShared/viewer/index.js"]);
         }
     }
 
+    public void Dispose()
+    {
+        foreach (var disposable in disposables)
+        {
+            disposable.Dispose();
+        }
+    }
 }
