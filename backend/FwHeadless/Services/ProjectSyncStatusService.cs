@@ -2,13 +2,13 @@ using System.Collections.Concurrent;
 
 namespace FwHeadless.Services;
 
-public class ProjectSyncStatusService()
+public class SyncJobStatusService()
 {
-    private ConcurrentDictionary<Guid, ProjectSyncStatusEnum> Status { get; init; } = new();
+    private ConcurrentDictionary<Guid, SyncJobStatus> Status { get; init; } = new();
 
     public void StartSyncing(Guid projectId)
     {
-        Status.AddOrUpdate(projectId, (_) => ProjectSyncStatusEnum.Syncing, (_, _) => ProjectSyncStatusEnum.Syncing);
+        Status.AddOrUpdate(projectId, (_) => SyncJobStatus.Running, (_, _) => SyncJobStatus.Running);
     }
 
     public void StopSyncing(Guid projectId)
@@ -16,10 +16,16 @@ public class ProjectSyncStatusService()
         Status.Remove(projectId, out var _);
     }
 
-    public ProjectSyncStatusEnum? SyncStatus(Guid projectId)
+    public SyncJobStatus SyncStatus(Guid projectId)
     {
-        return Status.TryGetValue(projectId, out var status) ? status : null;
+        return Status.TryGetValue(projectId, out var status) ? status : SyncJobStatus.NotRunning;
     }
+}
+
+public enum SyncJobStatus
+{
+    NotRunning,
+    Running,
 }
 
 public enum ProjectSyncStatusEnum

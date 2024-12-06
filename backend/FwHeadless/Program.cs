@@ -73,7 +73,7 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     FwDataFactory fwDataFactory,
     CrdtProjectsService projectsService,
     ProjectLookupService projectLookupService,
-    ProjectSyncStatusService syncStatusService,
+    SyncJobStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
@@ -132,13 +132,13 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
 static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     ProjectContext projectContext,
     ProjectLookupService projectLookupService,
-    ProjectSyncStatusService syncStatusService,
+    SyncJobStatusService syncJobStatusService,
     IServiceProvider services,
     LexBoxDbContext lexBoxDb,
     Guid projectId)
 {
-    var status = syncStatusService.SyncStatus(projectId);
-    if (status is not null) return TypedResults.Ok(new ProjectSyncStatus(status.Value, 0));
+    var jobStatus = syncJobStatusService.SyncStatus(projectId);
+    if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
     var project = projectContext.Project;
     if (project is null)
     {
@@ -147,7 +147,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         else return TypedResults.NotFound();
     }
     var commitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
-    var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>(); // TODO: This *cannot* be right, can it?
+    var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
     var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
 }
