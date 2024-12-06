@@ -20,3 +20,12 @@
     * tells Git to use our ignore revs file
     * checks out Git submodules
     * downloads the FLEx repo for the project seed data
+  * optional but recommended: turn off logging for Docker Desktop
+    * Docker Desktop's default is to log verbose messages to stderr, which by default gets sent to the systemd journal and/or /var/log/syslog
+    * This can result in your /var parition filling up fast (one developer saw his syslog grow by multiple gigabytes in a single week)
+    * To silence Docker Desktop logs, create the following drop-in at `$HOME/.config/systemd/user/docker-desktop.service.d/stop-log-spam.conf`:
+    ```
+    [Service]
+    StandardError=null
+    ```
+    * This file can be named anything as long as it ends in `.conf` and is in the correct directory, e.g. `override.conf` would work. The directory must be named exactly as shown.
