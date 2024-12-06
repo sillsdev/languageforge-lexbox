@@ -5,8 +5,10 @@ using FwLiteShared.Services;
 using MiniLcm;
 using MiniLcm.Models;
 using Reinforced.Typings;
+using Reinforced.Typings.Ast.Dependency;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
+using Reinforced.Typings.Visitors.TypeScript;
 
 namespace FwLiteShared.TypeGen;
 
@@ -14,17 +16,17 @@ public static class ReinforcedFwLiteTypingConfig
 {
     public static void Configure(ConfigurationBuilder builder)
     {
-        builder.Global(c => c.AutoAsync().UseModules());
-        typeof(ExportContext).GetProperty(nameof(ExportContext.FileOperations))?.SetValue(builder.Context, new EsLintDisableFileOperation()
-        {
-            Context = builder.Context
-        });
+        builder.Global(c => c.AutoAsync().UseModules().UnresolvedToUnknown().CamelCaseForProperties().AutoOptionalProperties().UseVisitor<TypedImportsVisitor>());
+        DisableEsLintChecks(builder);
         builder.Substitute(typeof(WritingSystemId), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
         //todo generate a multistring type rather than just substituting it everywhere
-        builder.Substitute(typeof(MultiString),
-            new RtDictionaryType(new RtSimpleTypeName("string"), new RtSimpleTypeName("string")));
+        builder.ExportAsThirdParty<MultiString>().WithName("IMultiString").Imports([new ()
+        {
+            From = "$lib/dotnet-types/i-multi-string",
+            Target = "type {IMultiString}"
+        }]);
         builder.ExportAsInterfaces([
                 typeof(Entry),
                 typeof(Sense),
@@ -37,9 +39,18 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(ComplexFormComponent),
             ],
             exportBuilder => exportBuilder.WithPublicProperties());
-        builder.ExportAsEnum<WritingSystemType>();
-        builder.ExportAsInterface<IMiniLcmApi>().FlattenHierarchy().WithPublicProperties().WithPublicMethods();
-        builder.ExportAsEnum<SortField>();
+        builder.ExportAsEnum<WritingSystemType>().UseString();
+        builder.ExportAsInterface<IMiniLcmApi>().FlattenHierarchy().WithPublicProperties().WithPublicMethods(
+            exportBuilder =>
+            {
+                var isUpdatePatchMethod = exportBuilder.Member.GetParameters()
+                    .Any(p => p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == (typeof(UpdateObjectInput<>)));
+                if (isUpdatePatchMethod)
+                {
+                    exportBuilder.Ignore();
+                }
+            });
+        builder.ExportAsEnum<SortField>().UseString();
         builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions)],
             exportBuilder => exportBuilder.WithProperties(BindingFlags.Public | BindingFlags.Instance));
         builder.ExportAsInterface<FwLiteProvider>().WithPublicMethods();
@@ -49,12 +60,15 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<ServerProjects>().WithPublicProperties();
         builder.ExportAsInterface<LexboxServer>().WithPublicProperties();
         builder.SubstituteGeneric(typeof(IAsyncEnumerable<>),
-            (type, resolver) =>
-            {
-                return new RtAsyncType(
-                    new RtArrayType(resolver.ResolveTypeName(type.GenericTypeArguments[0]))
-                );
-            });
+            (type, resolver) => new RtAsyncType(
+                new RtArrayType(resolver.ResolveTypeName(type.GenericTypeArguments[0]))
+            ));
+    }
+
+    private static void DisableEsLintChecks(ConfigurationBuilder builder)
+    {
+        typeof(ExportContext).GetProperty(nameof(ExportContext.FileOperations))?.SetValue(builder.Context,
+            new EsLintDisableFileOperation() { Context = builder.Context });
     }
 
     internal class EsLintDisableFileOperation : FilesOperations
@@ -64,6 +78,23 @@ public static class ReinforcedFwLiteTypingConfig
             tw.WriteLine("/* eslint-disable */");
             base.ExportCore(tw, file);
             tw.WriteLine("/* eslint-enable */");
+        }
+    }
+
+    internal class TypedImportsVisitor(TextWriter writer, ExportContext exportContext)
+        : TypeScriptExportVisitor(writer, exportContext)
+    {
+        public override void Visit(RtImport node)
+        {
+            //change import, was:
+            // import { IEntry} from './i-entry';
+            //now:
+            // import type {IEntry} from './i-entry';
+            if (!node.Target.StartsWith("type "))
+            {
+                node.Target = $"type {node.Target.Replace("{ ", "{").Replace(" }", "}")}";
+            }
+            base.Visit(node);
         }
     }
 }
