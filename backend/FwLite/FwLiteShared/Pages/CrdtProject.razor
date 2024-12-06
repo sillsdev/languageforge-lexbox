@@ -2,19 +2,30 @@
 @using FwLiteShared.Layout
 @using FwLiteShared.Services
 @inject FwLiteProvider FwLiteProvider
+@implements IAsyncDisposable
 @layout EmptyLayout;
 <h3>CrdtProject</h3>
 
 @code {
+
     [Parameter]
     public required string ProjectName { get; set; }
+
+    private IAsyncDisposable? _disposable;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            await FwLiteProvider.InjectCrdtProject(ProjectName);
+            _disposable = await FwLiteProvider.InjectCrdtProject(ProjectName);
         }
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposable is not null)
+            await _disposable.DisposeAsync();
+    }
+
 }

@@ -3,6 +3,7 @@ using FwDataMiniLcmBridge;
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using LcmCrdt;
+using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -52,18 +53,21 @@ public class FwLiteProvider(
         await jsRuntime.InvokeVoidAsync("setOverrideService", service.ToString(), reference);
     }
 
-    public async Task InjectCrdtProject(string projectName)
+    public async Task<IAsyncDisposable> InjectCrdtProject(string projectName)
     {
         crdtProjectsService.SetActiveProject(projectName);
         var service = new MiniLcmJsInvokable(serviceProvider.GetRequiredService<IMiniLcmApi>());
         await SetService(DotnetService.MiniLcmApi, service);
+        return Defer.Async(async () => await jsRuntime.InvokeVoidAsync("setOverrideService", DotnetService.MiniLcmApi.ToString(), null));
     }
 
-    public async Task InjectFwDataProject(string projectName)
+    public async Task<IAsyncDisposable> InjectFwDataProject(string projectName)
     {
         fwDataProjectContext.Project = fieldWorksProjectList.GetProject(projectName);
         var service = new MiniLcmJsInvokable(serviceProvider.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
         await SetService(DotnetService.MiniLcmApi, service);
+        return Defer.Async(async () => await jsRuntime.InvokeVoidAsync("setOverrideService",
+            DotnetService.MiniLcmApi.ToString(), null));
     }
 }
 

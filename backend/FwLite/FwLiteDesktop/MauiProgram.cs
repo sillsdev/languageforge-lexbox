@@ -1,11 +1,5 @@
-﻿using FwLiteShared;
-using LcmCrdt;
-using LocalWebApp;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
-using NReco.Logging.File;
 
 namespace FwLiteDesktop;
 

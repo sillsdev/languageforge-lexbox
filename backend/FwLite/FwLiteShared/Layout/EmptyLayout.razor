@@ -3,25 +3,23 @@
 @using LexCore.Entities
 @inject IJSRuntime JS
 @inject FwLiteProvider FwLiteProvider
-<HeadContent>
-    @* <script type="module" src="@Assets["_content/FwLiteShared/viewer/index.js"]"></script> *@
-    <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
-    <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
-    <script>
-        window.setOverrideService = (key, service) => {
-            if (!window.lexbox || !window.lexbox.FwLiteProvider) {
-                if (window.lexbox && window.lexbox.DotNetServiceProvider) {
-                    window.lexbox.FwLiteProvider = {};
-                    window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
-                } else {
-                    window.lexbox = {FwLiteProvider: {}};
-                }
+
+<link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
+<link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
+<script>
+    window.setOverrideService = (key, service) => {
+        if (!window.lexbox || !window.lexbox.FwLiteProvider) {
+            if (window.lexbox && window.lexbox.DotNetServiceProvider) {
+                window.lexbox.FwLiteProvider = {};
+                window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
+            } else {
+                window.lexbox = {FwLiteProvider: {}};
             }
-            const services = window.lexbox.FwLiteProvider;
-            services[key] = service;
-        };
-    </script>
-</HeadContent>
+        }
+        const services = window.lexbox.FwLiteProvider;
+        services[key] = service;
+    };
+</script>
 <div id="app" class="contents">
 </div>
 

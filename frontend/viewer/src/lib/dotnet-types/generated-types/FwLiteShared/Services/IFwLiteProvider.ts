@@ -11,7 +11,7 @@ export interface IFwLiteProvider
 	getServices() : { [key in DotnetService]: any };
 	getService(service: DotnetService) : any;
 	setService(service: DotnetService, serviceInstance: any) : Promise<void>;
-	injectCrdtProject(projectName: string) : Promise<void>;
-	injectFwDataProject(projectName: string) : Promise<void>;
+	injectCrdtProject(projectName: string) : Promise<any>;
+	injectFwDataProject(projectName: string) : Promise<any>;
 }
 /* eslint-enable */

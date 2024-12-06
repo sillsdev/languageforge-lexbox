@@ -1,12 +1,12 @@
 ﻿<script lang="ts">
   import {Router, Route, navigate} from 'svelte-routing';
-  import CrdtProjectView from './CrdtProjectView.svelte';
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import Sandbox from './lib/sandbox/Sandbox.svelte';
   import { settings } from 'svelte-ux';
+  import DotnetProjectView from './DotnetProjectView.svelte';
 
   export let url = '';
 
@@ -47,7 +47,7 @@
     <Route path="/project/:name" let:params>
       <Router {url} basepath="/project/{params.name}">
         {#key params.name}
-          <CrdtProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name}/>
         {/key}
       </Router>
     </Route>

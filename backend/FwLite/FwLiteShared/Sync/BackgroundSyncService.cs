@@ -10,10 +10,10 @@ namespace FwLiteShared.Sync;
 
 public class BackgroundSyncService(
     CrdtProjectsService crdtProjectsService,
-    IHostApplicationLifetime applicationLifetime,
     ProjectContext projectContext,
     ILogger<BackgroundSyncService> logger,
-    IMemoryCache memoryCache) : BackgroundService
+    IMemoryCache memoryCache,
+    IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
 
@@ -52,6 +52,7 @@ public class BackgroundSyncService(
 
     private Task StartedAsync()
     {
+        if (applicationLifetime is null) return Task.CompletedTask;
         var tcs = new TaskCompletionSource();
         applicationLifetime.ApplicationStarted.Register(() => tcs.SetResult());
         return tcs.Task;
