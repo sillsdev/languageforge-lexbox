@@ -2,9 +2,8 @@
   import { mdiInformationVariantCircle } from '@mdi/js';
   import { Button, Dialog, Toggle } from 'svelte-ux';
   import type { Readable } from 'svelte/store';
-  import Markdown from 'svelte-exmarkdown';
-  import NewTabLinkRenderer from './NewTabLinkRenderer.svelte';
-  import { onMount, type Component } from 'svelte';
+  import NewTabLinkMarkdown from '../markdown/NewTabLinKMarkdown.svelte';
+  import { onMount } from 'svelte';
 
   export let text: Readable<string>;
 
@@ -26,7 +25,7 @@
   </Button>
   <Dialog {open} on:close={toggleOff} class="w-[700px]">
     <div class="m-6 prose">
-      <Markdown md={$text} plugins={[{ renderer: { a: NewTabLinkRenderer as unknown as Component } }]} />
+      <NewTabLinkMarkdown md={$text} />
     </div>
     <div class="flex-grow"></div>
     <div slot="actions">
