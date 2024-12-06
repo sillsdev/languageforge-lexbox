@@ -1,15 +1,25 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
-using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
+using Soenneker.Utils.AutoBogus.Config;
 
 namespace FwLiteProjectSync.Tests;
 
 public class EntrySyncTests : IClassFixture<SyncFixture>
 {
-    private static readonly AutoFaker AutoFaker = new(builder => builder.WithOverride(new MultiStringOverride()).WithOverride(new ObjectWithIdOverride()));
+    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
+    {
+        RepeatCount = 5,
+        Overrides =
+        [
+            new MultiStringOverride(),
+            new ObjectWithIdOverride(),
+            new OrderableOverride(),
+        ]
+    });
+
     public EntrySyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
@@ -22,6 +32,16 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     {
         var createdEntry = await _fixture.CrdtApi.CreateEntry(await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi));
         var after = await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
+
+        // copy some senses over, so moves happen
+        List<Sense> createdSenses = [.. createdEntry.Senses];
+        for (var i = 0; i < Random.Shared.Next(AutoFaker.Config.RepeatCount); i++)
+        {
+            var copy = createdSenses[Random.Shared.Next(createdSenses.Count - 1)];
+            createdSenses.Remove(copy); // we don't want duplicates
+            after.Senses.Insert(Random.Shared.Next(after.Senses.Count), copy);
+        }
+
         await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
