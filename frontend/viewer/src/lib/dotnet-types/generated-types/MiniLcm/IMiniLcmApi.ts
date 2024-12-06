@@ -7,13 +7,13 @@ import type {IWritingSystems} from './Models/IWritingSystems';
 import type {IComplexFormType} from './Models/IComplexFormType';
 import type {IQueryOptions} from './IQueryOptions';
 import type {IEntry} from './Models/IEntry';
+import type {ISense} from './Models/ISense';
 import type {IPartOfSpeech} from './Models/IPartOfSpeech';
 import type {ISemanticDomain} from './Models/ISemanticDomain';
 import type {IExampleSentence} from './Models/IExampleSentence';
 import type {IWritingSystem} from './Models/IWritingSystem';
 import type {WritingSystemType} from './Models/WritingSystemType';
 import type {IComplexFormComponent} from './Models/IComplexFormComponent';
-import type {ISense} from './Models/ISense';
 
 export interface IMiniLcmApi
 {
@@ -25,6 +25,7 @@ export interface IMiniLcmApi
 	getEntries(options?: IQueryOptions) : any;
 	searchEntries(query: string, options?: IQueryOptions) : any;
 	getEntry(id: string) : Promise<IEntry>;
+	getSense(entryId: string, id: string) : Promise<ISense>;
 	getPartOfSpeech(id: string) : Promise<IPartOfSpeech>;
 	getSemanticDomain(id: string) : Promise<ISemanticDomain>;
 	getExampleSentence(entryId: string, senseId: string, id: string) : Promise<IExampleSentence>;
@@ -47,6 +48,7 @@ export interface IMiniLcmApi
 	addComplexFormType(entryId: string, complexFormTypeId: string) : Promise<void>;
 	removeComplexFormType(entryId: string, complexFormTypeId: string) : Promise<void>;
 	createSense(entryId: string, sense: ISense) : Promise<ISense>;
+	updateSense(entryId: string, before: ISense, after: ISense) : Promise<ISense>;
 	deleteSense(entryId: string, senseId: string) : Promise<void>;
 	addSemanticDomainToSense(senseId: string, semanticDomain: ISemanticDomain) : Promise<void>;
 	removeSemanticDomainFromSense(senseId: string, semanticDomainId: string) : Promise<void>;

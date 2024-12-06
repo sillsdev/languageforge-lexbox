@@ -73,6 +73,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
         return projects.Values;
     }
 
+    [JSInvokable]
     public async Task DownloadProject(Guid lexboxProjectId, string projectName, LexboxServer server)
     {
         await crdtProjectsService.CreateProject(new(projectName,
@@ -83,5 +84,11 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
                 await provider.GetRequiredService<SyncService>().ExecuteSync();
             },
             SeedNewProjectData: false));
+    }
+
+    [JSInvokable]
+    public async Task CreateProject(string name)
+    {
+        await crdtProjectsService.CreateExampleProject(name);
     }
 }

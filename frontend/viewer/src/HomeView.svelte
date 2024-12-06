@@ -27,9 +27,7 @@
   let createError: string;
 
   async function createProject() {
-    const response = await projectsService.createProject(newProjectName);
-    createError = response.error ?? '';
-    if (createError) return;
+    await projectsService.createProject(newProjectName);
     newProjectName = '';
     await refreshProjects();
   }

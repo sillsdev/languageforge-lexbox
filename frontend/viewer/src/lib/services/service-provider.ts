@@ -77,4 +77,3 @@ export function useAuthService(): IAuthService {
 export function useImportFwdataService(): IImportFwdataService {
   return window.lexbox.ServiceProvider.getService(DotnetService.ImportFwdataService);
 }
-window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, new ProjectService());

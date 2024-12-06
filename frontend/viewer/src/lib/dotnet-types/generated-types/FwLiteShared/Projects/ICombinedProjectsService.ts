@@ -12,5 +12,6 @@ export interface ICombinedProjectsService
 	remoteProjects() : Promise<IServerProjects[]>;
 	localProjects() : Promise<IProjectModel[]>;
 	downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer) : Promise<void>;
+	createProject(name: string) : Promise<void>;
 }
 /* eslint-enable */
