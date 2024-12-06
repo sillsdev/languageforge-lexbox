@@ -3,7 +3,7 @@ using MiniLcm.Attributes;
 
 public static class MiniLcmJson
 {
-    public static IJsonTypeInfoResolver AddMiniLcmModifiers(this IJsonTypeInfoResolver resolver)
+    public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver)
     {
         resolver = resolver.WithAddedModifier(IgnoreInternalMiniLcmProperties);
         return resolver;
