@@ -1,6 +1,7 @@
 ### Prerequisites
- * docker and compose
-   * enable Kubernetes in the Docker Desktop settings
+  * [Docker Desktop for Linux](https://docs.docker.com/desktop/setup/install/linux/) (provides docker and compose)
+    * using native docker can lead to permissions issues with shared volumes, and some of our code (e.g. the Tiltfile) assumes you're running Docker Desktop
+    * enable Kubernetes in the Docker Desktop settings
 
 ### Setup
   * install [Taskfile](https://taskfile.dev/installation/)

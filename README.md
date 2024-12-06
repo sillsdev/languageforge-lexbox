@@ -21,7 +21,7 @@ See the appropriate file for your operating system:
 
 * [Windows](docs/DEVELOPER-win.md)
 * [Linux](docs/DEVELOPER-linux.md)
-* [Max](docs/DEVELOPER-osx.md)
+* [Mac](docs/DEVELOPER-osx.md)
 
 ### Kubernetes workflow
 

@@ -8,7 +8,7 @@
     * Or via npm: `npm install -g @go-task/cli`
   * install [Tilt](https://docs.tilt.dev/) and add it to your path (don't forget to read the script before running it)
     * the Tilt installer will create a `bin` folder in your home folder and put the Tilt binary there
-    * you may then need to do add `C:\Users\YOUR_USER_NAME\bin` to your PATH
+    * you may then need to add `C:\Users\YOUR_USER_NAME\bin` to your PATH
   * run `tilt version` to check that Tilt is installed correctly
   * clone the repo
   * run `git push` to make sure your GitHub credentials are set up
