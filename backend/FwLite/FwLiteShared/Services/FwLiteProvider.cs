@@ -56,6 +56,7 @@ public class FwLiteProvider(
     public async Task<IAsyncDisposable> InjectCrdtProject(string projectName)
     {
         crdtProjectsService.SetActiveProject(projectName);
+        await serviceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         var service = new MiniLcmJsInvokable(serviceProvider.GetRequiredService<IMiniLcmApi>());
         await SetService(DotnetService.MiniLcmApi, service);
         return Defer.Async(async () => await jsRuntime.InvokeVoidAsync("setOverrideService", DotnetService.MiniLcmApi.ToString(), null));
