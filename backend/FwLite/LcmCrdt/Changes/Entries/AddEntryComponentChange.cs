@@ -16,9 +16,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
     [JsonConstructor]
     public AddEntryComponentChange(Guid entityId,
         Guid complexFormEntryId,
-        string? complexFormHeadword,
         Guid componentEntryId,
-        string? componentHeadword,
         Guid? componentSenseId = null) : base(entityId)
     {
         ComplexFormEntryId = complexFormEntryId;
@@ -28,9 +26,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
 
     public AddEntryComponentChange(ComplexFormComponent component) : this(component.Id == default ? Guid.NewGuid() : component.Id,
         component.ComplexFormEntryId,
-        component.ComplexFormHeadword,
         component.ComponentEntryId,
-        component.ComponentHeadword,
         component.ComponentSenseId)
     {
     }
