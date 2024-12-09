@@ -232,9 +232,9 @@
                   <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
                 {/if}
                 {#if status.loggedIn}
-                  <Button variant="fill" color="primary" href="/api/auth/logout/{server.id}" icon={mdiLogout}>Logout</Button>
+                  <Button variant="fill" color="primary" on:click={() => authService.logout(server)} icon={mdiLogout}>Logout</Button>
                 {:else}
-                  <Button variant="fill-light" color="primary" href="/api/auth/login/{server.id}" icon={mdiLogin}>Login</Button>
+                  <Button variant="fill-light" color="primary" on:click={() => authService.signInWebView(server)} icon={mdiLogin}>Login</Button>
                 {/if}
               </div>
               {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}

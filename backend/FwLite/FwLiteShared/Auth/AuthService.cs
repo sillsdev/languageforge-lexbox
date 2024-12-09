@@ -20,6 +20,7 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
         }).ToArrayAsync();
     }
 
+    [JSInvokable]
     public async Task SignInWebView(LexboxServer server)
     {
         var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
@@ -34,6 +35,7 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
         return result.AuthUri.ToString();
     }
 
+    [JSInvokable]
     public async Task Logout(LexboxServer server)
     {
         await clientFactory.GetClient(server).Logout();
