@@ -47,13 +47,21 @@ public class OAuthClient
             :  redirectUrlProvider?.GetRedirectUrl() ?? throw new InvalidOperationException("No IRedirectUrlProvider configured, required for non-system web view login");
         //todo configure token cache as seen here
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
-        _application = PublicClientApplicationBuilder.Create(options.Value.ClientId)
+        var builder = PublicClientApplicationBuilder.Create(options.Value.ClientId)
             .WithExperimentalFeatures()
             .WithLogging(loggerAdapter, hostEnvironment?.IsDevelopment() ?? false)
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
-            .WithRedirectUri(RedirectUrl)
-            .WithOidcAuthority(lexboxServer.Authority.ToString())
-            .Build();
+            .WithParentActivityOrWindow(() => options.Value.ParentActivityOrWindow)
+            .WithOidcAuthority(lexboxServer.Authority.ToString());
+        if (!options.Value.SystemWebViewLogin)
+        {
+            builder.WithRedirectUri(RedirectUrl);
+        }
+        else
+        {
+            builder.WithDefaultRedirectUri();
+        }
+        _application = builder.Build();
         _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
             task =>
             {

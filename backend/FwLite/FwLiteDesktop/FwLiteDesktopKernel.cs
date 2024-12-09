@@ -24,7 +24,6 @@ public static class FwLiteDesktopKernel
                 new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
                 new(new("https://staging.languagedepot.org"), "Lexbox Staging")
             ]);
-        services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
 
         string environment = "Production";
 #if DEBUG
@@ -33,6 +32,9 @@ public static class FwLiteDesktopKernel
         var env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
         services.AddFwLiteShared(env);
+#if ANDROID
+        services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
+#endif
         var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??
                                             defaultDataPath);

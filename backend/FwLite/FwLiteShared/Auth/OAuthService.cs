@@ -34,7 +34,8 @@ public class OAuthService(
         }
 
         //step 1
-        var uri = await request.GetAuthUri(applicationLifetime?.ApplicationStopping.Merge(cancellation) ?? cancellation);
+        var uri = await request.GetAuthUri(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
+                                           cancellation);
         //step 4
         if (request.State is null) throw new InvalidOperationException("State is null");
         _oAuthLoginRequests[request.State] = request;
@@ -45,6 +46,7 @@ public class OAuthService(
     {
         var result = await application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
             .WithUseEmbeddedWebView(false)
+            .WithParentActivityOrWindow(options.Value.ParentActivityOrWindow)
             .WithSystemWebViewOptions(new() { })
             .ExecuteAsync(cancellation);
     }
@@ -58,7 +60,9 @@ public class OAuthService(
             throw new InvalidOperationException("Invalid state");
         //step 5
         request.SetReturnUri(uri);
-        return (await request.GetAuthenticationResult(applicationLifetime?.ApplicationStopping.Merge(cancellation) ?? cancellation),
+        return (
+            await request.GetAuthenticationResult(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
+                                                  cancellation),
             request.ClientReturnUrl);
         //step 8
     }
