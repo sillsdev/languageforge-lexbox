@@ -14,7 +14,7 @@ public partial class App : Application
     {
         return new Window(_mainPage)
         {
-            Title = "FieldWorks lite " + AppVersion.Version
+            Title = "FieldWorks Lite " + AppVersion.Version
         };
     }
 }
