@@ -1,4 +1,5 @@
 ﻿using FwLiteDesktop.ServerBridge;
+using FwLiteDesktop.WinUI;
 using LcmCrdt;
 using LocalWebApp;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +27,10 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+        builder.ConfigureEssentials(essentialsBuilder =>
+        {
+            essentialsBuilder.UseVersionTracking();
+        });
         builder.ConfigureLifecycleEvents(events => events.AddWindows(windowsEvents =>
         {
             windowsEvents.OnClosed((window, args) =>
@@ -33,7 +38,9 @@ public static class MauiProgram
                 holder.App?.Services.GetRequiredService<ServerManager>().Stop();
             });
         }));
-
+        #if WINDOWS
+        builder.AddFwLiteWindows();
+        #endif
         builder.Services.AddFwLiteDesktopServices(builder.Configuration, builder.Logging);
 
         holder.App = builder.Build();

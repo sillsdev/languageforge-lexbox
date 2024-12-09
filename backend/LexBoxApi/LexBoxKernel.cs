@@ -4,6 +4,7 @@ using LexBoxApi.GraphQL;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
+using LexBoxApi.Services.FwLiteReleases;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
@@ -62,6 +63,7 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        services.AddSingleton<FwLiteReleaseService>();
         services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddTransient<FwHeadlessHealthCheck>();
