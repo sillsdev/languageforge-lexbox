@@ -22,7 +22,7 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
     public async Task<ActionResult> DownloadLatest()
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
-        var latestRelease = await releaseService.GetLatestRelease(default);
+        var latestRelease = await releaseService.GetLatestRelease();
         if (latestRelease is null)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Latest release not found");
@@ -41,7 +41,7 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag(FwLiteReleaseService.FwLiteClientVersionTag, appVersion ?? "unknown");
-        var latestRelease = await releaseService.GetLatestRelease(default);
+        var latestRelease = await releaseService.GetLatestRelease();
         activity?.AddTag(FwLiteReleaseService.FwLiteReleaseVersionTag, latestRelease?.Version);
         if (latestRelease is null) return NotFound();
         return latestRelease;

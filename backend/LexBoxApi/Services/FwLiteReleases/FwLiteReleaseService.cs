@@ -12,7 +12,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache)
     public const string FwLiteClientVersionTag = "app.fw-lite.client.version";
     public const string FwLiteReleaseVersionTag = "app.fw-lite.release.version";
 
-    public async ValueTask<FwLiteRelease?> GetLatestRelease(CancellationToken token)
+    public async ValueTask<FwLiteRelease?> GetLatestRelease(CancellationToken token = default)
     {
         return await cache.GetOrCreateAsync(GithubLatestRelease,
             FetchLatestReleaseFromGithub,
@@ -22,7 +22,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache)
 
     public async ValueTask<ShouldUpdateResponse> ShouldUpdate(string appVersion)
     {
-        var latestRelease = await GetLatestRelease(default);
+        var latestRelease = await GetLatestRelease();
         if (latestRelease is null) return new ShouldUpdateResponse(null);
 
         var shouldUpdateToRelease = ShouldUpdateToRelease(appVersion, latestRelease.Version);
