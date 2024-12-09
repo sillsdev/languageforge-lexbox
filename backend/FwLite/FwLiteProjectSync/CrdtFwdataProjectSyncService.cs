@@ -65,26 +65,26 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         }
 
         var currentFwDataWritingSystems = await fwdataApi.GetWritingSystems();
-        var crdtChanges = await WritingSystemSync.Sync(currentFwDataWritingSystems, projectSnapshot.WritingSystems, crdtApi);
-        var fwdataChanges = await WritingSystemSync.Sync(await crdtApi.GetWritingSystems(), currentFwDataWritingSystems, fwdataApi);
+        var crdtChanges = await WritingSystemSync.Sync(projectSnapshot.WritingSystems, currentFwDataWritingSystems, crdtApi);
+        var fwdataChanges = await WritingSystemSync.Sync(currentFwDataWritingSystems, await crdtApi.GetWritingSystems(), fwdataApi);
 
         var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
-        crdtChanges += await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, projectSnapshot.PartsOfSpeech, crdtApi);
-        fwdataChanges += await PartOfSpeechSync.Sync(await crdtApi.GetPartsOfSpeech().ToArrayAsync(), currentFwDataPartsOfSpeech, fwdataApi);
+        crdtChanges += await PartOfSpeechSync.Sync(projectSnapshot.PartsOfSpeech, currentFwDataPartsOfSpeech, crdtApi);
+        fwdataChanges += await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, await crdtApi.GetPartsOfSpeech().ToArrayAsync(), fwdataApi);
 
         var currentFwDataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
-        crdtChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, projectSnapshot.SemanticDomains, crdtApi);
-        fwdataChanges += await SemanticDomainSync.Sync(await crdtApi.GetSemanticDomains().ToArrayAsync(), currentFwDataSemanticDomains, fwdataApi);
+        crdtChanges += await SemanticDomainSync.Sync(projectSnapshot.SemanticDomains, currentFwDataSemanticDomains, crdtApi);
+        fwdataChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, await crdtApi.GetSemanticDomains().ToArrayAsync(), fwdataApi);
 
         var currentFwDataComplexFormTypes = await fwdataApi.GetComplexFormTypes().ToArrayAsync();
-        crdtChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, projectSnapshot.ComplexFormTypes, crdtApi);
-        fwdataChanges += await ComplexFormTypeSync.Sync(await crdtApi.GetComplexFormTypes().ToArrayAsync(), currentFwDataComplexFormTypes, fwdataApi);
+        crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
+        fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
 
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtChanges += await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
+        crdtChanges += await EntrySync.Sync(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
         LogDryRun(crdtApi, "crdt");
 
-        fwdataChanges += await EntrySync.Sync(await crdtApi.GetAllEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
+        fwdataChanges += await EntrySync.Sync(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
         LogDryRun(fwdataApi, "fwdata");
 
         //todo push crdt changes to lexbox
