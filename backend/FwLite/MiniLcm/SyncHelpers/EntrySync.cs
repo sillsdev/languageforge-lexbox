@@ -114,18 +114,24 @@ public static class EntrySync
         IList<Sense> beforeSenses,
         IMiniLcmApi api)
     {
-        Func<IMiniLcmApi, Sense, Task<int>> add = async (api, afterSense) =>
+        var prevMin = beforeSenses.Min(s => s.Order);
+        Func<IMiniLcmApi, Sense, BetweenPosition, Task<int>> add = async (api, sense, between) =>
         {
-            await api.CreateSense(entryId, afterSense);
+            await api.CreateSense(entryId, sense, between);
             return 1;
         };
-        Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, beforeSense) =>
+        Func<IMiniLcmApi, Sense, BetweenPosition, Task<int>> move = async (api, sense, between) =>
         {
-            await api.DeleteSense(entryId, beforeSense.Id);
+            await api.MoveSense(entryId, sense, between);
+            return 1;
+        };
+        Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, sense) =>
+        {
+            await api.DeleteSense(entryId, sense.Id);
             return 1;
         };
         Func<IMiniLcmApi, Sense, Sense, Task<int>> replace = async (api, beforeSense, afterSense) => await SenseSync.Sync(entryId, afterSense, beforeSense, api);
-        return await DiffCollection.Diff(api, beforeSenses, afterSenses, add, remove, replace);
+        return await DiffCollection.DiffOrderable(api, beforeSenses, afterSenses, add, remove, move, replace);
     }
 
     public static UpdateObjectInput<Entry>? EntryDiffToUpdate(Entry beforeEntry, Entry afterEntry)
