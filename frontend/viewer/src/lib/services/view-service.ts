@@ -48,6 +48,6 @@ export function objectTemplateAreas(view: View, obj: object | string[]): string 
   const fields = Array.isArray(obj) ? obj : Object.keys(obj);
   return Object.entries(view.fields)
     .filter(([id, field]) => fields.includes(id) && field.show)
-    .toSorted((a, b) => a[1].order - b[1].order)
+    .sort((a, b) => a[1].order - b[1].order)
     .map(([id, _field]) => `"${id} ${id} ${id}"`).join(' ');
 }
