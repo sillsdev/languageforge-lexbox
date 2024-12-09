@@ -13,7 +13,6 @@ public class WindowsShortcutService(IVersionTracking versionTracking) : IMauiIni
         var package = Package.Current;
         IShellLink link = (IShellLink)new ShellLink();
         link.SetPath($@"shell:AppsFolder\{package.Id.FamilyName}!App");
-        link.SetIconLocation(Path.Combine(package.InstalledLocation.Path, "logo_light.ico"), 0);
         var file = (IPersistFile)link;
         file.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "FieldWorks Lite.lnk"),
             false);
