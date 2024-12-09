@@ -16,6 +16,7 @@
     error.subscribe((e) => {
       dialog = dialog ?? (browser ? document.querySelector('.error-alert') : undefined) ?? undefined;
       if (!dialog) return;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       e ? open() : close();
     })
   );

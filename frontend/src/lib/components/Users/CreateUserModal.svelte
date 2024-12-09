@@ -4,8 +4,7 @@
   import { helpLinks } from '$lib/components/help';
   import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import CreateUser from '$lib/components/Users/CreateUser.svelte';
-  import Markdown from 'svelte-exmarkdown';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import Icon from '$lib/icons/Icon.svelte';
   import { createEventDispatcher } from 'svelte';
 
@@ -29,13 +28,11 @@
     <div>
       <h3 class="text-lg">{$t('common.did_you_know')}</h3>
       <div>
-        <Markdown
+        <NewTabLinkMarkdown
           md={$t('admin_dashboard.create_user_modal.help_create_single_guest_user', { helpLink: helpLinks.addProjectMember })}
-          plugins={[{ renderer: { a: NewTabLinkRenderer } }]}
         />
-        <Markdown
+        <NewTabLinkMarkdown
           md={$t('admin_dashboard.create_user_modal.help_create_bulk_guest_users', { helpLink: helpLinks.bulkAddCreate })}
-          plugins={[{ renderer: { a: NewTabLinkRenderer } }]}
         />
       </div>
     </div>

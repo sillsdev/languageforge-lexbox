@@ -8,6 +8,7 @@ import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 import type { I18nType } from './i18n';
 import type { ConditionalPickDeep, ValueOf } from 'type-fest';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const allFieldConfigs = ({
   entry: {
     lexemeForm: { id: 'lexemeForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm' },
