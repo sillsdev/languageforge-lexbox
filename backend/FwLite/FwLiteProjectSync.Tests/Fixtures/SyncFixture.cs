@@ -31,7 +31,7 @@ public class SyncFixture : IAsyncLifetime
         _services = rootServiceProvider.CreateAsyncScope();
     }
 
-    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"), "FwLiteSyncFixture")
+    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString().Split("-")[0], "FwLiteSyncFixture" + Guid.NewGuid().ToString().Split("-")[0])
     {
     }
 
@@ -56,8 +56,19 @@ public class SyncFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
+        var dbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        await dbContext.Database.EnsureDeletedAsync(); // this is necessary or else the db is still in use when we try to delete the crdtProjectsFolder. Is that bad?
+
+        var projectsFolder = _services.ServiceProvider.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value
+            .ProjectsFolder;
+        var crdtProjectsFolder =
+            _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
+
         await _services.DisposeAsync();
         _cleanup.Dispose();
+
+        Directory.Delete(crdtProjectsFolder, true);
+        Directory.Delete(projectsFolder, true);
     }
 
     public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
