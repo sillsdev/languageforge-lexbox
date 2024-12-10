@@ -114,7 +114,6 @@ public static class EntrySync
         IList<Sense> beforeSenses,
         IMiniLcmApi api)
     {
-        var prevMin = beforeSenses.Min(s => s.Order);
         Func<IMiniLcmApi, Sense, BetweenPosition, Task<int>> add = async (api, sense, between) =>
         {
             await api.CreateSense(entryId, sense, between);

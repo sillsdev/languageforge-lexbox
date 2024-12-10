@@ -262,7 +262,7 @@ public static class DiffCollection
             yield break; // no changes
         }
 
-        foreach (var prop in result!)
+        foreach (var prop in result)
         {
             if (prop.Key == "_t") // diff type
             {
