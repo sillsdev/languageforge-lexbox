@@ -1,18 +1,22 @@
-using System.Collections;
-
 namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void DefaultOrder(this Entry entry)
+    public static void ApplySortOrder(this Entry entry)
     {
-        // ArrayList.Adapter((IList)entry.Senses).Sort();
-        entry.Senses = entry.Senses.DefaultOrder().ToList();
+        entry.Senses.ApplySortOrder();
     }
-    public static IEnumerable<T> DefaultOrder<T>(this IEnumerable<T> queryable) where T : IOrderable
+
+    public static void ApplySortOrder<T>(this List<T> items) where T : IOrderable
     {
-        return queryable
-            .OrderBy(e => e.Order)
-            .ThenBy(e => e.Id);
+        items.Sort((x, y) =>
+        {
+            var result = x.Order.CompareTo(y.Order);
+            if (result == 0)
+            {
+                result = x.Id.CompareTo(y.Id);
+            }
+            return result;
+        });
     }
 }

@@ -278,7 +278,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
-            entry.DefaultOrder();
+            entry.ApplySortOrder();
             yield return entry;
         }
     }
@@ -292,7 +292,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Components)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
-        entry?.DefaultOrder();
+        entry?.ApplySortOrder();
         return entry;
     }
 

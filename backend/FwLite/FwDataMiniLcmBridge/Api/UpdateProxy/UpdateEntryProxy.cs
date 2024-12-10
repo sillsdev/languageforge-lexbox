@@ -45,15 +45,9 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override IList<Sense> Senses
+    public override List<Sense> Senses
     {
-        get =>
-            new UpdateListProxy<Sense>(
-                sense => _lexboxLcmApi.CreateSense(_lcmEntry, sense),
-                sense => _lexboxLcmApi.DeleteSense(Id, sense.Id),
-                i => new UpdateSenseProxy(_lcmEntry.AllSenses[i], _lexboxLcmApi),
-                _lcmEntry.AllSenses.Count
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
