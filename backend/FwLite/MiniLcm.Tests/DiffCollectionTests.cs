@@ -11,7 +11,7 @@ public class DiffCollectionTests
     {
         var value1 = Orderable(1, Guid.NewGuid());
         var value2 = Orderable(2, Guid.NewGuid());
-        var (changeCount, _, _) = await Diff([value1, value2], [value1, value2]);
+        var (changeCount, _) = await Diff([value1, value2], [value1, value2]);
 
         changeCount.Should().Be(0);
     }
@@ -22,17 +22,17 @@ public class DiffCollectionTests
         var value1 = Orderable(1, Guid.NewGuid());
         var value2 = Orderable(2, Guid.NewGuid());
         var value3 = Orderable(3, Guid.NewGuid());
-        var (changeCount, diffApi, api) = await Diff([value1], [value2, value1, value3]);
+        var (changeCount, diffApi) = await Diff([value1], [value2, value1, value3]);
 
         changeCount.Should().Be(2);
 
         var x_v1 = Between(next: value1);
-        diffApi.Verify(dApi => dApi.Add(api, value2, x_v1), Times.Once);
+        diffApi.Verify(dApi => dApi.Add(value2, x_v1), Times.Once);
 
         var v1_x = Between(previous: value1);
-        diffApi.Verify(dApi => dApi.Add(api, value3, v1_x), Times.Once);
+        diffApi.Verify(dApi => dApi.Add(value3, v1_x), Times.Once);
 
-        diffApi.Verify(dApi => dApi.Replace(api, value1, value1), Times.Once);
+        diffApi.Verify(dApi => dApi.Replace(value1, value1), Times.Once);
         diffApi.VerifyNoOtherCalls();
     }
 
@@ -42,12 +42,12 @@ public class DiffCollectionTests
         var value1 = Orderable(1, Guid.NewGuid());
         var value2 = Orderable(2, Guid.NewGuid());
         var value3 = Orderable(3, Guid.NewGuid());
-        var (changeCount, diffApi, api) = await Diff([value2, value1, value3], [value1]);
+        var (changeCount, diffApi) = await Diff([value2, value1, value3], [value1]);
 
         changeCount.Should().Be(2);
-        diffApi.Verify(dApi => dApi.Remove(api, value2), Times.Once);
-        diffApi.Verify(dApi => dApi.Remove(api, value3), Times.Once);
-        diffApi.Verify(dApi => dApi.Replace(api, value1, value1), Times.Once);
+        diffApi.Verify(dApi => dApi.Remove(value2), Times.Once);
+        diffApi.Verify(dApi => dApi.Remove(value3), Times.Once);
+        diffApi.Verify(dApi => dApi.Replace(value1, value1), Times.Once);
         diffApi.VerifyNoOtherCalls();
     }
 
@@ -56,13 +56,13 @@ public class DiffCollectionTests
     {
         var value1 = Orderable(1, Guid.NewGuid());
         var value2 = Orderable(2, Guid.NewGuid());
-        var (changeCount, diffApi, api) = await Diff([value1, value2], [value2, value1]);
+        var (changeCount, diffApi) = await Diff([value1, value2], [value2, value1]);
 
         changeCount.Should().Be(1);
         var v2_x = Between(previous: value2);
-        diffApi.Verify(dApi => dApi.Move(api, value1, v2_x), Times.Once);
-        diffApi.Verify(dApi => dApi.Replace(api, value1, value1), Times.Once);
-        diffApi.Verify(dApi => dApi.Replace(api, value2, value2), Times.Once);
+        diffApi.Verify(dApi => dApi.Move(value1, v2_x), Times.Once);
+        diffApi.Verify(dApi => dApi.Replace(value1, value1), Times.Once);
+        diffApi.Verify(dApi => dApi.Replace(value2, value2), Times.Once);
         diffApi.VerifyNoOtherCalls();
     }
 
@@ -148,14 +148,14 @@ public class DiffCollectionTests
             }
         }
 
-        var (changeCount, diffApi, api) = await Diff(testCase.OldValues, testCase.NewValues);
+        var (changeCount, diffApi) = await Diff(testCase.OldValues, testCase.NewValues);
 
         using var scope = new AssertionScope();
 
         changeCount.Should().Be(testCase.ExpectedOperations.Count);
 
         var expectedReplaceCount = testCase.OldValues.Select(v => v.Id).Intersect(testCase.NewValues.Select(v => v.Id)).Count();
-        diffApi.Verify(dApi => dApi.Replace(api, It.IsAny<IOrderable>(), It.IsAny<IOrderable>()), Times.Exactly(expectedReplaceCount));
+        diffApi.Verify(dApi => dApi.Replace(It.IsAny<IOrderable>(), It.IsAny<IOrderable>()), Times.Exactly(expectedReplaceCount));
 
         foreach (var operation in testCase.ExpectedOperations)
         {
@@ -167,7 +167,6 @@ public class DiffCollectionTests
                     var movedValue = testCase.OldValues[operation.From.Value];
                     diffApi.Verify(
                         dApi => dApi.Move(
-                            api,
                             movedValue,
                             operation.Between
                         ),
@@ -179,7 +178,6 @@ public class DiffCollectionTests
                     var removedValue = testCase.OldValues[operation.From.Value];
                     diffApi.Verify(
                         dApi => dApi.Remove(
-                            api,
                             removedValue
                         ),
                         Times.Once
@@ -191,7 +189,6 @@ public class DiffCollectionTests
                     var addedValue = testCase.NewValues[operation.To.Value];
                     diffApi.Verify(
                         dApi => dApi.Add(
-                            api,
                             addedValue,
                             operation.Between
                         ),
@@ -231,17 +228,16 @@ public class DiffCollectionTests
         };
     }
 
-    private static async Task<(int, Mock<DiffApi>, IMiniLcmApi)> Diff(IOrderable[] oldValues, IOrderable[] newValues)
+    private static async Task<(int, Mock<OrderableCollectionDiffApi<IOrderable>>)> Diff(IOrderable[] oldValues, IOrderable[] newValues)
     {
-        var api = new Mock<IMiniLcmApi>().Object;
-        var diffApi = new Mock<DiffApi>();
-        diffApi.Setup(f => f.Add(api, It.IsAny<IOrderable>(), It.IsAny<BetweenPosition?>()))
+        var diffApi = new Mock<OrderableCollectionDiffApi<IOrderable>>();
+        diffApi.Setup(f => f.Add(It.IsAny<IOrderable>(), It.IsAny<BetweenPosition>()))
             .ReturnsAsync(1);
-        diffApi.Setup(f => f.Remove(api, It.IsAny<IOrderable>()))
+        diffApi.Setup(f => f.Remove(It.IsAny<IOrderable>()))
             .ReturnsAsync(1);
-        diffApi.Setup(f => f.Move(api, It.IsAny<IOrderable>(), It.IsAny<BetweenPosition>()))
+        diffApi.Setup(f => f.Move(It.IsAny<IOrderable>(), It.IsAny<BetweenPosition>()))
             .ReturnsAsync(1);
-        diffApi.Setup(f => f.Replace(api, It.IsAny<IOrderable>(), It.IsAny<IOrderable>()))
+        diffApi.Setup(f => f.Replace(It.IsAny<IOrderable>(), It.IsAny<IOrderable>()))
             .Returns((IMiniLcmApi api, IOrderable oldValue, IOrderable newValue) =>
             {
                 try
@@ -255,29 +251,17 @@ public class DiffCollectionTests
                 }
             });
 
-        var changeCount = await DiffCollection.DiffOrderable(api, oldValues, newValues,
-            diffApi.Object.Add,
-            diffApi.Object.Remove,
-            diffApi.Object.Move,
-            diffApi.Object.Replace);
+        var changeCount = await DiffCollection.DiffOrderable(oldValues, newValues, diffApi.Object);
 
-        return (changeCount, diffApi, api);
+        return (changeCount, diffApi);
     }
 }
 
 public class DiffResult
 {
     public required int ChangeCount { get; init; }
-    public required Mock<DiffApi> DiffApi { get; init; }
+    public required Mock<OrderableCollectionDiffApi<IOrderable>> DiffApi { get; init; }
     public required IMiniLcmApi Api { get; init; }
-}
-
-public interface DiffApi
-{
-    Task<int> Add(IMiniLcmApi api, IOrderable value, BetweenPosition? between);
-    Task<int> Remove(IMiniLcmApi api, IOrderable value);
-    Task<int> Move(IMiniLcmApi api, IOrderable value, BetweenPosition? between);
-    Task<int> Replace(IMiniLcmApi api, IOrderable oldValue, IOrderable newValue);
 }
 
 public class CollectionDiffTestCase

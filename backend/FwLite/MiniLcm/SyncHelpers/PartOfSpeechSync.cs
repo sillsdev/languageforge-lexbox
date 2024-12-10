@@ -9,21 +9,10 @@ public static class PartOfSpeechSync
         PartOfSpeech[] previousPartsOfSpeech,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(api,
+        return await DiffCollection.Diff(
             previousPartsOfSpeech,
             currentPartsOfSpeech,
-            pos => pos.Id,
-            async (api, currentPos) =>
-            {
-                await api.CreatePartOfSpeech(currentPos);
-                return 1;
-            },
-            async (api, previousPos) =>
-            {
-                await api.DeletePartOfSpeech(previousPos.Id);
-                return 1;
-            },
-            (api, previousPos, currentPos) => Sync(previousPos, currentPos, api));
+            new PartsOfSpeechDiffApi(api));
     }
 
     public static async Task<int> Sync(PartOfSpeech before,
@@ -47,5 +36,25 @@ public static class PartOfSpeechSync
         //     currentPartOfSpeech.Abbreviation));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<PartOfSpeech>(patchDocument);
+    }
+
+    private class PartsOfSpeechDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<PartOfSpeech>
+    {
+        public override async Task<int> Add(PartOfSpeech currentPos)
+        {
+            await api.CreatePartOfSpeech(currentPos);
+            return 1;
+        }
+
+        public override async Task<int> Remove(PartOfSpeech previousPos)
+        {
+            await api.DeletePartOfSpeech(previousPos.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(PartOfSpeech previousPos, PartOfSpeech currentPos)
+        {
+            return Sync(previousPos, currentPos, api);
+        }
     }
 }
