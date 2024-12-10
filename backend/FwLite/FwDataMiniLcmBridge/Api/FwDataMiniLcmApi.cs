@@ -888,37 +888,37 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void InsertSense(ILexEntry lexEntry, ILexSense lexSense, BetweenPosition? between = null)
     {
-        var beforeSenseId = between?.Before;
-        var afterSenseId = between?.After;
+        var previousSenseId = between?.Previous;
+        var nextSenseId = between?.Next;
 
-        var beforeSense = beforeSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == beforeSenseId) : null;
-        if (beforeSense is not null)
+        var previousSense = previousSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == previousSenseId) : null;
+        if (previousSense is not null)
         {
-            if (beforeSense.SensesOS.Count > 0)
+            if (previousSense.SensesOS.Count > 0)
             {
                 // if the sense has sub-senses, our sense will only come directly after it if it is the first sub-sense
-                beforeSense.SensesOS.Insert(0, lexSense);
+                previousSense.SensesOS.Insert(0, lexSense);
             }
             else
             {
-                // todo the user might have wanted it to be a subsense of beforeSense
-                var allSiblings = beforeSense.Owner == lexEntry ? lexEntry.SensesOS
-                    : beforeSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                // todo the user might have wanted it to be a subsense of previousSense
+                var allSiblings = previousSense.Owner == lexEntry ? lexEntry.SensesOS
+                    : previousSense.Owner is ILexSense parentSense ? parentSense.SensesOS
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
-                var insertI = allSiblings.IndexOf(beforeSense) + 1;
+                var insertI = allSiblings.IndexOf(previousSense) + 1;
                 lexEntry.SensesOS.Insert(insertI, lexSense);
             }
             return;
         }
 
-        var afterSense = afterSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == afterSenseId) : null;
-        if (afterSense is not null)
+        var nextSense = nextSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == nextSenseId) : null;
+        if (nextSense is not null)
         {
-            // todo the user might have wanted it to be a subsense of whatever is before afterSense
-            var allSiblings = afterSense.Owner == lexEntry ? lexEntry.SensesOS
-                    : afterSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+            // todo the user might have wanted it to be a subsense of whatever is before nextSense
+            var allSiblings = nextSense.Owner == lexEntry ? lexEntry.SensesOS
+                    : nextSense.Owner is ILexSense parentSense ? parentSense.SensesOS
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
-            var insertI = allSiblings.IndexOf(afterSense);
+            var insertI = allSiblings.IndexOf(nextSense);
             lexEntry.SensesOS.Insert(insertI, lexSense);
             return;
         }

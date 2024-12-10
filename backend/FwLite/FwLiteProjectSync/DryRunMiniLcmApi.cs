@@ -198,7 +198,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss} between {position?.Before} and {position?.After}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss} between {position?.Previous} and {position?.Next}"));
         return Task.FromResult(sense);
     }
 
@@ -221,7 +221,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {sense.Gloss} between {between.Before} and {between.After}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {sense.Gloss} between {between.Previous} and {between.Next}"));
         return Task.FromResult(sense);
     }
 

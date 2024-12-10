@@ -516,7 +516,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
     {
         var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await dataModel.AddChange(ClientId, Changes.SetOrderChange<Sense>.To(sense.Id, order));
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<Sense>(sense.Id, order));
         var updatedSense = await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
         return updatedSense;
     }

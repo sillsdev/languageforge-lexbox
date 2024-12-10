@@ -26,11 +26,11 @@ public class DiffCollectionTests
 
         changeCount.Should().Be(2);
 
-        var after1 = Between(after: value1);
-        diffApi.Verify(dApi => dApi.Add(api, value2, after1), Times.Once);
+        var x_v1 = Between(next: value1);
+        diffApi.Verify(dApi => dApi.Add(api, value2, x_v1), Times.Once);
 
-        var before1 = Between(before: value1);
-        diffApi.Verify(dApi => dApi.Add(api, value3, before1), Times.Once);
+        var v1_x = Between(previous: value1);
+        diffApi.Verify(dApi => dApi.Add(api, value3, v1_x), Times.Once);
 
         diffApi.Verify(dApi => dApi.Replace(api, value1, value1), Times.Once);
         diffApi.VerifyNoOtherCalls();
@@ -59,8 +59,8 @@ public class DiffCollectionTests
         var (changeCount, diffApi, api) = await Diff([value1, value2], [value2, value1]);
 
         changeCount.Should().Be(1);
-        var before2 = Between(before: value2);
-        diffApi.Verify(dApi => dApi.Move(api, value1, before2), Times.Once);
+        var v2_x = Between(previous: value2);
+        diffApi.Verify(dApi => dApi.Move(api, value1, v2_x), Times.Once);
         diffApi.Verify(dApi => dApi.Replace(api, value1, value1), Times.Once);
         diffApi.Verify(dApi => dApi.Replace(api, value2, value2), Times.Once);
         diffApi.VerifyNoOtherCalls();
@@ -77,8 +77,8 @@ public class DiffCollectionTests
             OldValues = [_1, _2, _3],
             NewValues = [_3, _2, _1],
             ExpectedOperations = [
-                new(_2) { From = 1, To = 1, Between = Between(before: _3) },
-                new(_1) { From = 0, To = 2, Between = Between(before: _2) },
+                new(_2) { From = 1, To = 1, Between = Between(previous: _3) },
+                new(_1) { From = 0, To = 2, Between = Between(previous: _2) },
             ],
         }];
         yield return [new CollectionDiffTestCase
@@ -121,10 +121,10 @@ public class DiffCollectionTests
                 new(_1) { From = 0 },
                 new(_3) { From = 2 },
                 new(_5) { From = 4 },
-                new(_6) { To = 0, Between = Between(after: _4) }, // (not after: _8, because _8 is not "stable")
+                new(_6) { To = 0, Between = Between(next: _4) }, // (not next: _8, because _8 is not "stable")
                 new(_8) { To = 1, Between = Between(_6, _4) },
-                new(_2) { From = 1, To = 3, Between = Between(before: _4) },
-                new(_7) { To = 4, Between = Between(before: _2) },
+                new(_2) { From = 1, To = 3, Between = Between(previous: _4) },
+                new(_7) { To = 4, Between = Between(previous: _2) },
             ],
         }];
     }
@@ -141,10 +141,10 @@ public class DiffCollectionTests
                     testCase.OldValues[operation.From.Value].Should().Be(operation.Value);
                 if (operation.To is not null)
                     testCase.NewValues[operation.To.Value].Should().Be(operation.Value);
-                if (operation.Between?.Before is not null)
-                    testCase.NewValues.Should().ContainSingle(v => v.Id == operation.Between.Before);
-                if (operation.Between?.After is not null)
-                    testCase.NewValues.Should().ContainSingle(v => v.Id == operation.Between.After);
+                if (operation.Between?.Previous is not null)
+                    testCase.NewValues.Should().ContainSingle(v => v.Id == operation.Between.Previous);
+                if (operation.Between?.Next is not null)
+                    testCase.NewValues.Should().ContainSingle(v => v.Id == operation.Between.Next);
             }
         }
 
@@ -217,17 +217,17 @@ public class DiffCollectionTests
         return orderable.Object;
     }
 
-    private static BetweenPosition Between(IOrderable? before = null, IOrderable? after = null)
+    private static BetweenPosition Between(IOrderable? previous = null, IOrderable? next = null)
     {
-        return Between(before?.Id, after?.Id);
+        return Between(previous?.Id, next?.Id);
     }
 
-    private static BetweenPosition Between(Guid? before = null, Guid? after = null)
+    private static BetweenPosition Between(Guid? previous = null, Guid? next = null)
     {
         return new BetweenPosition
         {
-            Before = before,
-            After = after
+            Previous = previous,
+            Next = next
         };
     }
 
@@ -256,7 +256,6 @@ public class DiffCollectionTests
             });
 
         var changeCount = await DiffCollection.DiffOrderable(api, oldValues, newValues,
-            (value) => value.Id,
             diffApi.Object.Add,
             diffApi.Object.Remove,
             diffApi.Object.Move,
