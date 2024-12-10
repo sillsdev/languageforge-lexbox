@@ -336,6 +336,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         {
             yield return addComplexFormTypeChange;
         }
+        var i = 1;
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
@@ -347,6 +348,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 sense.PartOfSpeechId = partOfSpeech.Id;
                 sense.PartOfSpeech = partOfSpeech.Name["en"] ?? string.Empty;
             }
+            if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
+                throw new InvalidOperationException("Order should not be provided when creating a sense");
+            sense.Order = i++;
             yield return new CreateSenseChange(sense, entry.Id);
             foreach (var exampleSentence in sense.ExampleSentences)
             {
