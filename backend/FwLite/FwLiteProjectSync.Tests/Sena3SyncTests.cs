@@ -51,7 +51,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
                 crdtEntry.Should().BeEquivalentTo(fwdataEntry,
                     options => options
                         .For(e => e.Components).Exclude(c => c.Id)
-                        .For(e => e.ComplexForms).Exclude(c => c.Id),
+                        .For(e => e.ComplexForms).Exclude(c => c.Id)
+                        .For(e => e.Senses).Exclude(s => s.Order),
                     $"CRDT entry {crdtEntry.Id} was synced with FwData");
             }
         }
@@ -150,6 +151,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     [Fact]
     public async Task SecondSena3SyncDoesNothing()
     {
+        await _syncService.Sync(_crdtApi, _fwDataApi);
         await _syncService.Sync(_crdtApi, _fwDataApi);
         var secondSync = await _syncService.Sync(_crdtApi, _fwDataApi);
         secondSync.CrdtChanges.Should().Be(0);

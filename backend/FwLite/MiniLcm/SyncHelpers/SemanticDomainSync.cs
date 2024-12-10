@@ -9,21 +9,10 @@ public static class SemanticDomainSync
         SemanticDomain[] previousSemanticDomains,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(api,
+        return await DiffCollection.Diff(
             previousSemanticDomains,
             currentSemanticDomains,
-            pos => pos.Id,
-            async (api, currentPos) =>
-            {
-                await api.CreateSemanticDomain(currentPos);
-                return 1;
-            },
-            async (api, previousPos) =>
-            {
-                await api.DeleteSemanticDomain(previousPos.Id);
-                return 1;
-            },
-            (api, previousSemdom, currentSemdom) => Sync(previousSemdom, currentSemdom, api));
+            new SemanticDomainsDiffApi(api));
     }
 
     public static async Task<int> Sync(SemanticDomain before,
@@ -47,5 +36,25 @@ public static class SemanticDomainSync
         //     currentSemanticDomain.Abbreviation));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<SemanticDomain>(patchDocument);
+    }
+
+    private class SemanticDomainsDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<SemanticDomain>
+    {
+        public override async Task<int> Add(SemanticDomain currentSemDom)
+        {
+            await api.CreateSemanticDomain(currentSemDom);
+            return 1;
+        }
+
+        public override async Task<int> Remove(SemanticDomain previousSemDom)
+        {
+            await api.DeleteSemanticDomain(previousSemDom.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(SemanticDomain previousSemDom, SemanticDomain currentSemDom)
+        {
+            return Sync(previousSemDom, currentSemDom, api);
+        }
     }
 }

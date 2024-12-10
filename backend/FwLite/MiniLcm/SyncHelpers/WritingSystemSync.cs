@@ -16,25 +16,10 @@ public static class WritingSystemSync
         WritingSystem[] previousWritingSystems,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(api,
+        return await DiffCollection.Diff(
             previousWritingSystems,
             currentWritingSystems,
-            ws => (ws.WsId, ws.Type),
-            async (api, currentWs) =>
-            {
-                await api.CreateWritingSystem(currentWs.Type, currentWs);
-                return 1;
-            },
-            async (api, previousWs) =>
-            {
-                // await api.DeleteWritingSystem(previousWs.Id); // Deleting writing systems is dangerous as it causes cascading data deletion. Needs careful thought.
-                // TODO: should we throw an exception?
-                return 0;
-            },
-            async (api, previousWs, currentWs) =>
-            {
-                return await Sync(currentWs, previousWs, api);
-            });
+            new WritingSystemsDiffApi(api));
     }
 
     public static async Task<int> Sync(WritingSystem afterWs, WritingSystem beforeWs, IMiniLcmApi api)
@@ -64,5 +49,31 @@ public static class WritingSystemSync
         // TODO: Exemplars, Order, and do we need DeletedAt?
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<WritingSystem>(patchDocument);
+    }
+
+    private class WritingSystemsDiffApi(IMiniLcmApi api) : CollectionDiffApi<WritingSystem, (WritingSystemId, WritingSystemType)>
+    {
+        public override (WritingSystemId, WritingSystemType) GetId(WritingSystem value)
+        {
+            return (value.WsId, value.Type);
+        }
+
+        public override async Task<int> Add(WritingSystem currentWs)
+        {
+            await api.CreateWritingSystem(currentWs.Type, currentWs);
+            return 1;
+        }
+
+        public override Task<int> Remove(WritingSystem beforeDomain)
+        {
+            // await api.DeleteWritingSystem(previousWs.Id); // Deleting writing systems is dangerous as it causes cascading data deletion. Needs careful thought.
+            // TODO: should we throw an exception?
+            return Task.FromResult(0);
+        }
+
+        public override Task<int> Replace(WritingSystem previousWs, WritingSystem currentWs)
+        {
+            return Sync(currentWs, previousWs, api);
+        }
     }
 }

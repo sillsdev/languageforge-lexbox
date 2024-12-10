@@ -9,21 +9,10 @@ public static class ComplexFormTypeSync
         ComplexFormType[] beforeComplexFormTypes,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(api,
+        return await DiffCollection.Diff(
             beforeComplexFormTypes,
             afterComplexFormTypes,
-            complexFormType => complexFormType.Id,
-            static async (api, afterComplexFormType) =>
-            {
-                await api.CreateComplexFormType(afterComplexFormType);
-                return 1;
-            },
-            static async (api, beforeComplexFormType) =>
-            {
-                await api.DeleteComplexFormType(beforeComplexFormType.Id);
-                return 1;
-            },
-            static (api, beforeComplexFormType, afterComplexFormType) => Sync(beforeComplexFormType, afterComplexFormType, api));
+            new ComplexFormTypesDiffApi(api));
     }
 
     public static async Task<int> Sync(ComplexFormType before,
@@ -43,5 +32,25 @@ public static class ComplexFormTypeSync
             after.Name));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<ComplexFormType>(patchDocument);
+    }
+
+    private class ComplexFormTypesDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<ComplexFormType>
+    {
+        public override async Task<int> Add(ComplexFormType afterComplexFormType)
+        {
+            await api.CreateComplexFormType(afterComplexFormType);
+            return 1;
+        }
+
+        public override async Task<int> Remove(ComplexFormType beforeComplexFormType)
+        {
+            await api.DeleteComplexFormType(beforeComplexFormType.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(ComplexFormType beforeComplexFormType, ComplexFormType afterComplexFormType)
+        {
+            return Sync(beforeComplexFormType, afterComplexFormType, api);
+        }
     }
 }

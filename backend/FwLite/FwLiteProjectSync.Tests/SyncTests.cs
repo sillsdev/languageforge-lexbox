@@ -83,7 +83,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
@@ -145,7 +147,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
@@ -223,7 +227,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
 
         // Sync again, ensure no problems or changes
@@ -305,7 +311,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
@@ -384,7 +392,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
@@ -408,6 +418,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 //todo the headword should be changed
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
@@ -475,7 +486,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options
+                .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 

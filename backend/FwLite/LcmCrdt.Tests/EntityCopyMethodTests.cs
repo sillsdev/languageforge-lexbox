@@ -1,7 +1,4 @@
-﻿using SIL.Harmony.Entities;
-using LcmCrdt.Objects;
-using MiniLcm.Tests.AutoFakerHelpers;
-using SIL.Harmony;
+﻿using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -11,7 +8,13 @@ public class EntityCopyMethodTests
 {
     private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
     {
-        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
+        RepeatCount = 5,
+        Overrides =
+        [
+            new MultiStringOverride(),
+            new WritingSystemIdOverride(),
+            new OrderableOverride(),
+        ],
     });
 
     public static IEnumerable<object[]> GetEntityTypes()

@@ -17,24 +17,10 @@ public static class SenseSync
             afterSense.ExampleSentences,
             beforeSense.ExampleSentences,
             api);
-        changes += await DiffCollection.Diff(api,
+        changes += await DiffCollection.Diff(
             beforeSense.SemanticDomains,
             afterSense.SemanticDomains,
-            async (api, domain) =>
-            {
-                await api.AddSemanticDomainToSense(beforeSense.Id, domain);
-                return 1;
-            },
-            async (api, beforeDomain) =>
-            {
-                await api.RemoveSemanticDomainFromSense(beforeSense.Id, beforeDomain.Id);
-                return 1;
-            },
-            (_, beforeDomain, afterDomain) =>
-            {
-                //do nothing, semantic domains are not editable here
-                return Task.FromResult(0);
-            });
+            new SenseSemanticDomainsDiffApi(api, beforeSense.Id));
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 
@@ -58,5 +44,25 @@ public static class SenseSync
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Sense>(patchDocument);
+    }
+
+    private class SenseSemanticDomainsDiffApi(IMiniLcmApi api, Guid senseId) : ObjectWithIdCollectionDiffApi<SemanticDomain>
+    {
+        public override async Task<int> Add(SemanticDomain domain)
+        {
+            await api.AddSemanticDomainToSense(senseId, domain);
+            return 1;
+        }
+
+        public override async Task<int> Remove(SemanticDomain beforeDomain)
+        {
+            await api.RemoveSemanticDomainFromSense(senseId, beforeDomain.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(SemanticDomain previousSemDom, SemanticDomain currentSemDom)
+        {
+            return Task.FromResult(0);
+        }
     }
 }
