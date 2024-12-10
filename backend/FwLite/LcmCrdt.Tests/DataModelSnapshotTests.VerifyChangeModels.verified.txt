@@ -119,6 +119,10 @@
     {
       DerivedType: CreateComplexFormType,
       TypeDiscriminator: CreateComplexFormType
+    },
+    {
+      DerivedType: SetOrderChange<Sense>,
+      TypeDiscriminator: SetOrderChange`1
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,

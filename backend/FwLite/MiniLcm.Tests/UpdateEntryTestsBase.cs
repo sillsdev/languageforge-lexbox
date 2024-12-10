@@ -149,7 +149,8 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
 
         // assert
         actual.Should().NotBeNull();
-        actual.Senses.Should().BeEquivalentTo(afterEntry.Senses, options => options.WithStrictOrdering());
+        actual.Senses.Should().BeEquivalentTo(afterEntry.Senses,
+            options => options.WithStrictOrdering().Excluding(s => s.Order));
 
         if (!ApiUsesImplicitOrdering)
         {

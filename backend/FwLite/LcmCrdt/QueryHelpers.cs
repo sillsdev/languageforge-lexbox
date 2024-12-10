@@ -1,9 +1,12 @@
+using System.Collections;
+
 namespace LcmCrdt;
 
 public static class QueryHelpers
 {
     public static void DefaultOrder(this Entry entry)
     {
+        // ArrayList.Adapter((IList)entry.Senses).Sort();
         entry.Senses = entry.Senses.DefaultOrder().ToList();
     }
     public static IEnumerable<T> DefaultOrder<T>(this IEnumerable<T> queryable) where T : IOrderable

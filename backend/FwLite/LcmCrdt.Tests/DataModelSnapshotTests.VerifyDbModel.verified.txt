@@ -200,6 +200,7 @@
       Gloss (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
+      Order (double) Required
       PartOfSpeech (string) Required
       PartOfSpeechId (Guid?)
       SemanticDomains (IList<SemanticDomain>) Required
