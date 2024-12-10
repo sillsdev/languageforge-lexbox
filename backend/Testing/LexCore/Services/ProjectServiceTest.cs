@@ -14,6 +14,7 @@ using Testing.Fixtures;
 namespace Testing.LexCore.Services;
 
 [Collection(nameof(TestingServicesFixture))]
+[Trait("Category", "Integration")]
 public class ProjectServiceTest
 {
     private readonly ProjectService _projectService;

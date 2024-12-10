@@ -2,6 +2,7 @@
 
 namespace Testing.Fixtures.Tests;
 
+[Trait("Category", "Integration")]
 public class ServicesFixtureTests
 {
     [Fact]
