@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public partial class Sense : IObjectWithId, IOrderable
+public class Sense : IObjectWithId, IOrderable
 {
     public virtual Guid Id { get; set; }
     [MiniLcmInternal]
