@@ -51,8 +51,8 @@ public record UpdateEntryProxy : Entry
             new UpdateListProxy<Sense>(
                 sense => _lexboxLcmApi.CreateSense(_lcmEntry, sense),
                 sense => _lexboxLcmApi.DeleteSense(Id, sense.Id),
-                i => new UpdateSenseProxy(_lcmEntry.SensesOS[i], _lexboxLcmApi),
-                _lcmEntry.SensesOS.Count
+                i => new UpdateSenseProxy(_lcmEntry.AllSenses[i], _lexboxLcmApi),
+                _lcmEntry.AllSenses.Count
             );
         set => throw new NotImplementedException();
     }

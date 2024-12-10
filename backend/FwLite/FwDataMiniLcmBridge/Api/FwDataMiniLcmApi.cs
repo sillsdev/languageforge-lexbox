@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using System.Globalization;
-using System.Reflection;
 using System.Text;
 using FluentValidation;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
@@ -649,7 +648,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var entries = GetEntries(e =>
             e.CitationForm.SearchValue(query) ||
             e.LexemeFormOA.Form.SearchValue(query) ||
-            e.SensesOS.Any(s => s.Gloss.SearchValue(query)), options);
+            e.AllSenses.Any(s => s.Gloss.SearchValue(query)), options);
         return entries;
     }
 
@@ -889,30 +888,42 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void InsertSense(ILexEntry lexEntry, ILexSense lexSense, BetweenPosition? between = null)
     {
-        if (between?.Before.HasValue is not null || between?.After is not null)
+        var beforeSenseId = between?.Before;
+        var afterSenseId = between?.After;
+
+        var beforeSense = beforeSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == beforeSenseId) : null;
+        if (beforeSense is not null)
         {
-            var beforeSenseId = between?.Before;
-            var afterSenseId = between?.After;
-            var senseDict = lexEntry.SensesOS.ToDictionary(s => s.Guid);
-            if (beforeSenseId.HasValue && senseDict.TryGetValue(beforeSenseId.Value, out var beforeSense))
+            if (beforeSense.SensesOS.Count > 0)
             {
-                var insertI = lexEntry.SensesOS.IndexOf(beforeSense) + 1;
-                lexEntry.SensesOS.Insert(insertI, lexSense);
-            }
-            else if (afterSenseId.HasValue && senseDict.TryGetValue(afterSenseId.Value, out var afterSense))
-            {
-                var insertI = lexEntry.SensesOS.IndexOf(afterSense);
-                lexEntry.SensesOS.Insert(insertI, lexSense);
+                // if the sense has sub-senses, our sense will only come directly after it if it is the first sub-sense
+                beforeSense.SensesOS.Insert(0, lexSense);
             }
             else
             {
-                lexEntry.SensesOS.Add(lexSense);
+                // todo the user might have wanted it to be a subsense of beforeSense
+                var allSiblings = beforeSense.Owner == lexEntry ? lexEntry.SensesOS
+                    : beforeSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                    : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
+                var insertI = allSiblings.IndexOf(beforeSense) + 1;
+                lexEntry.SensesOS.Insert(insertI, lexSense);
             }
+            return;
         }
-        else
+
+        var afterSense = afterSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == afterSenseId) : null;
+        if (afterSense is not null)
         {
-            lexEntry.SensesOS.Add(lexSense);
+            // todo the user might have wanted it to be a subsense of whatever is before afterSense
+            var allSiblings = afterSense.Owner == lexEntry ? lexEntry.SensesOS
+                    : afterSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                    : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
+            var insertI = allSiblings.IndexOf(afterSense);
+            lexEntry.SensesOS.Insert(insertI, lexSense);
+            return;
         }
+
+        lexEntry.SensesOS.Add(lexSense);
     }
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
@@ -990,9 +1001,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(sense.Id, out var lexSense))
             throw new InvalidOperationException("Sense not found");
-        // LibLCM treats an insert as a move if the sense is already in the entry
-        InsertSense(lexEntry, lexSense, between);
-        return Task.FromResult(sense);
+
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Sense",
+            "Move Sense back",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                // LibLCM treats an insert as a move if the sense is already in the entry
+                InsertSense(lexEntry, lexSense, between);
+            });
+        return Task.FromResult(FromLexSense(lexSense));
     }
 
     public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
