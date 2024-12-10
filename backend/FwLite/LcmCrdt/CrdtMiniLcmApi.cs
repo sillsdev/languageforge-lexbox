@@ -492,7 +492,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
             throw new InvalidOperationException("Order should not be provided when creating a sense");
 
-        sense.Order = await dataModel.PickOrder(between, Senses.Where(s => s.EntryId == entryId));
+        sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
@@ -515,7 +515,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
     {
-        var order = await dataModel.PickOrder<Sense>(between);
+        var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await dataModel.AddChange(ClientId, Changes.SetOrderChange<Sense>.To(sense.Id, order));
         var updatedSense = await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
         return updatedSense;
