@@ -3,8 +3,8 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class AddSemanticDomainChange(SemanticDomain semanticDomain, Guid senseId)
-    : EditChange<Sense>(senseId), ISelfNamedType<AddSemanticDomainChange>
+public class AddSemanticDomainChange(SemanticDomain semanticDomain, Guid entityId)
+    : EditChange<Sense>(entityId), ISelfNamedType<AddSemanticDomainChange>
 {
     public SemanticDomain SemanticDomain { get; } = semanticDomain;
 
