@@ -48,6 +48,7 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
     }
 
     [HttpGet("should-update")]
+    [AllowAnonymous]
     public async Task<ActionResult<ShouldUpdateResponse>> ShouldUpdate([FromQuery] string appVersion)
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
