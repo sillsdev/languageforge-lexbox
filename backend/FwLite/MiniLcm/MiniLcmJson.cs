@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization.Metadata;
 using MiniLcm.Attributes;
 
+namespace MiniLcm;
+
 public static class MiniLcmJson
 {
     public static IJsonTypeInfoResolver AddExternalMiniLcmModifiers(this IJsonTypeInfoResolver resolver)
