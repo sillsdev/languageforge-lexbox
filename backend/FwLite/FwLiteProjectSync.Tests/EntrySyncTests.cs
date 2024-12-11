@@ -33,14 +33,11 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         var createdEntry = await _fixture.CrdtApi.CreateEntry(await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi));
         var after = await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
 
-        // copy some senses over, so moves happen
-        List<Sense> createdSenses = [.. createdEntry.Senses];
-        for (var i = 0; i < Random.Shared.Next(AutoFaker.Config.RepeatCount); i++)
-        {
-            var copy = createdSenses[Random.Shared.Next(createdSenses.Count - 1)];
-            createdSenses.Remove(copy); // we don't want duplicates
-            after.Senses.Insert(Random.Shared.Next(after.Senses.Count), copy);
-        }
+        after.Senses = AutoFaker.Faker.Random.Shuffle([
+                // copy some senses over, so moves happen
+                ..AutoFaker.Faker.Random.ListItems(createdEntry.Senses),
+                ..(after.Senses)
+            ]).ToList();
 
         await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
