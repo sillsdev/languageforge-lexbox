@@ -130,6 +130,8 @@ public static class EntrySync
 
         public override async Task<int> Add(ComplexFormComponent afterComplexFormType)
         {
+            //change id, since we're not using the id as the key for this collection
+            //the id may be the same, which is not what we want here
             afterComplexFormType.Id = Guid.NewGuid();
             try
             {
