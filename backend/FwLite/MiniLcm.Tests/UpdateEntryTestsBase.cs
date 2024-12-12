@@ -108,14 +108,14 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     }
 
     [Theory]
-    [InlineData("1,2", "1,2,3,4", "1,2,3,4")] // append
-    [InlineData("1,2", "3,1,2", "0,1,2")] // single prepend
-    [InlineData("1,2", "4,3,1,2", "0,0.5,1,2")] // multi prepend
-    [InlineData("1,2,3,4", "4,1,2,3", "0,1,2,3")] // move to back
-    [InlineData("1,2,3,4", "2,3,4,1", "2,3,4,5")] // move to front
-    [InlineData("1,2,3,4,5", "1,2,5,3,4", "1,2,2.5,3,4")] // move to middle
-    [InlineData("1,2,3", "3,2,1", "3,4,5")] // reverse
-    [InlineData("1,2,3,4", "4,2,3,1", "1,2,3,4")] // swap
+    [InlineData("a,b", "a,b,c,d", "1,2,3,4")] // append
+    [InlineData("a,2", "c,a,b", "0,1,2")] // single prepend
+    [InlineData("a,b", "d,c,a,b", "0,0.5,1,2")] // multi prepend
+    [InlineData("a,b,c,d", "d,a,b,c", "0,1,2,3")] // move to back
+    [InlineData("a,b,c,d", "b,c,d,a", "2,3,4,5")] // move to front
+    [InlineData("a,b,c,d,e", "a,b,e,c,d", "1,2,2.5,3,4")] // move to middle
+    [InlineData("a,b,c", "c,b,a", "3,4,5")] // reverse
+    [InlineData("a,b,c,d", "d,b,c,a", "1,2,3,4")] // swap
     public async Task UpdateEntry_CanReorderSenses(string before, string after, string expectedOrderValues)
     {
         // arrange
