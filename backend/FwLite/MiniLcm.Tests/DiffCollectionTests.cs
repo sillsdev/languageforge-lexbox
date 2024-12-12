@@ -207,11 +207,11 @@ public class DiffCollectionTests
 
     private static IOrderable Orderable(double order, Guid? id = null)
     {
-        id ??= Guid.NewGuid();
-        var orderable = new Mock<IOrderable>();
-        orderable.SetupGet(o => o.Order).Returns(order);
-        orderable.SetupGet(o => o.Id).Returns(id.Value);
-        return orderable.Object;
+        return new TestOrderable()
+        {
+            Order = order,
+            Id = id ?? Guid.NewGuid(),
+        };
     }
 
     private static BetweenPosition Between(IOrderable? previous = null, IOrderable? next = null)
@@ -257,13 +257,6 @@ public class DiffCollectionTests
     }
 }
 
-public class DiffResult
-{
-    public required int ChangeCount { get; init; }
-    public required Mock<OrderableCollectionDiffApi<IOrderable>> DiffApi { get; init; }
-    public required IMiniLcmApi Api { get; init; }
-}
-
 public class CollectionDiffTestCase
 {
     public required IOrderable[] OldValues { get; init; }
@@ -277,4 +270,10 @@ public class CollectionDiffOperation(IOrderable value)
     public int? From { get; init; }
     public int? To { get; init; }
     public BetweenPosition? Between { get; init; }
+}
+
+public class TestOrderable : IOrderable
+{
+    public required Guid Id { get; set; }
+    public required double Order { get; set; }
 }
