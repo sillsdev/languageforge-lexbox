@@ -995,11 +995,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
-    public Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
-        if (!SenseRepository.TryGetObject(sense.Id, out var lexSense))
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Sense",
@@ -1010,7 +1010,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 // LibLCM treats an insert as a move if the sense is already in the entry
                 InsertSense(lexEntry, lexSense, between);
             });
-        return Task.FromResult(FromLexSense(lexSense));
+        return Task.CompletedTask;
     }
 
     public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)

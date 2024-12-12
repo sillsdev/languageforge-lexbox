@@ -50,7 +50,7 @@ public interface IMiniLcmWriteApi
     Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after);
-    Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition position);
+    Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);

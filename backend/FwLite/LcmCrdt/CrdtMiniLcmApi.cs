@@ -513,12 +513,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
-    public async Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
+    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
         var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<Sense>(sense.Id, order));
-        var updatedSense = await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
-        return updatedSense;
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<Sense>(senseId, order));
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)

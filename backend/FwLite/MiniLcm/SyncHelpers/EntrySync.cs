@@ -172,7 +172,7 @@ public static class EntrySync
 
         public async Task<int> Move(Sense sense, BetweenPosition between)
         {
-            await api.MoveSense(entryId, sense, between);
+            await api.MoveSense(entryId, sense.Id, between);
             return 1;
         }
 

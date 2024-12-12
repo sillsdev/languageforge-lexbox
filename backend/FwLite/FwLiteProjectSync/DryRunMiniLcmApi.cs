@@ -219,10 +219,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
     }
 
-    public Task<Sense> MoveSense(Guid entryId, Sense sense, BetweenPosition between)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {sense.Gloss} between {between.Previous} and {between.Next}"));
-        return Task.FromResult(sense);
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {senseId} between {between.Previous} and {between.Next}"));
+        return Task.CompletedTask;
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
