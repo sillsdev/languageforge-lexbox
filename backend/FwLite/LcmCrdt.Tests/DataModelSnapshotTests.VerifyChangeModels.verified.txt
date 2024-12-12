@@ -122,7 +122,7 @@
     },
     {
       DerivedType: SetOrderChange<Sense>,
-      TypeDiscriminator: SetOrderChange`1
+      TypeDiscriminator: SetOrderChange:Sense
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,
