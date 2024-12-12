@@ -195,7 +195,7 @@ jobs:
           MakeAppx.exe bundle /v /bv ${{ needs.build-and-test.outputs.semver-version }}.1 /d . /p ../sign/FwLiteDesktop.msixbundle
 
       - name: Sign with Trusted Signing
-#        if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' || github.ref_name == 'chore/auto-update-package-in-use' }}
+        if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
         uses: sillsdev/codesign/trusted-signing-action@v3
         with:
           credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
