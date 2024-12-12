@@ -152,7 +152,6 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     public async Task SecondSena3SyncDoesNothing()
     {
         await _syncService.Sync(_crdtApi, _fwDataApi);
-        await _syncService.Sync(_crdtApi, _fwDataApi);
         var secondSync = await _syncService.Sync(_crdtApi, _fwDataApi);
         secondSync.CrdtChanges.Should().Be(0);
         secondSync.FwdataChanges.Should().Be(0);
