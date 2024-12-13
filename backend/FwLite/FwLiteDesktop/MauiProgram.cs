@@ -30,15 +30,6 @@ public static class MauiProgram
         {
             essentialsBuilder.UseVersionTracking();
         });
-        #if WINDOWS
-        builder.AddFwLiteWindows();
-        #endif
-        builder.Services.AddMauiBlazorWebView();
-#if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
-        builder.Logging.AddDebug();
-#endif
-        Directory.CreateDirectory(FileSystem.AppDataDirectory);
         builder.Services.AddFwLiteDesktopServices(builder.Configuration, builder.Logging);
 
         var app = builder.Build();

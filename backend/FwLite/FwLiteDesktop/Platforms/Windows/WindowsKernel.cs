@@ -4,13 +4,13 @@ namespace FwLiteDesktop;
 
 public static class WindowsKernel
 {
-    public static void AddFwLiteWindows(this MauiAppBuilder builder)
+    public static void AddFwLiteWindows(this IServiceCollection services)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
         if (FwLiteDesktopKernel.IsPackagedApp)
         {
-            builder.Services.AddSingleton<IMauiInitializeService, AppUpdateService>();
-            builder.Services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();
+            services.AddSingleton<IMauiInitializeService, AppUpdateService>();
+            services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();
         }
     }
 }

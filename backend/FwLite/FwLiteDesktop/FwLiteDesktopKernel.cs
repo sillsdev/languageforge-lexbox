@@ -29,10 +29,16 @@ public static class FwLiteDesktopKernel
         string environment = "Production";
 #if DEBUG
         environment = "Development";
+        services.AddBlazorWebViewDeveloperTools();
 #endif
         var env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
         services.AddFwLiteShared(env);
+        services.AddMauiBlazorWebView();
+
+#if WINDOWS
+        services.AddFwLiteWindows();
+#endif
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif

@@ -20,8 +20,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
 		<Nullable>enable</Nullable>
-<!--        <SelfContained>true</SelfContained>-->
-<!--        <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>-->
+        <SelfContained>true</SelfContained>
+        <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>
 
 		<!-- controls display name in Package.appxmanifest -->
 		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
@@ -39,10 +39,9 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-        <WindowsPackageType>None</WindowsPackageType>
-
 	</PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+        <WindowsPackageType>None</WindowsPackageType>
         <PublishReadyToRun>false</PublishReadyToRun>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
