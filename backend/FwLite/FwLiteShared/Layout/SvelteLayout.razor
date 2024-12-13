@@ -1,13 +1,15 @@
 ﻿@inherits LayoutComponentBase
 @using FwLiteShared.Services
 @using LexCore.Entities
+@using Microsoft.Extensions.Logging
 @inject IJSRuntime JS
+@inject ILogger<SvelteLayout> Logger
 @inject FwLiteProvider FwLiteProvider
 
 <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
 <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
 <script>
-    window['@FwLiteProvider.OverrideServiceFunctionName'] = (key, service) => {
+    window['setOverrideService'] = (key, service) => {
         if (!window.lexbox || !window.lexbox.FwLiteProvider) {
             if (window.lexbox && window.lexbox.DotNetServiceProvider) {
                 window.lexbox.FwLiteProvider = {};
@@ -19,6 +21,7 @@
         const services = window.lexbox.FwLiteProvider;
         services[key] = service;
     };
+
 </script>
 <div id="svelte-app" class="contents">
 </div>
@@ -30,6 +33,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        Logger.LogInformation("OnAfterRenderAsync SvelteLayout");
         if (firstRender)
         {
             foreach (var (serviceKey, service) in FwLiteProvider.GetServices())

@@ -1,11 +1,18 @@
-﻿<script lang="ts">
-  import {Router, Route, navigate} from 'svelte-routing';
+﻿<script lang="ts" context="module">
+  import {navigate} from 'svelte-routing';
+  window.svelteNavigate =  (to: string) => {
+   console.log('svelteNavigate', to);
+   navigate(to, {replace: true});
+  };
+</script>
+<script lang="ts">
+  import {Router, Route} from 'svelte-routing';
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import Sandbox from './lib/sandbox/Sandbox.svelte';
-  import { settings } from 'svelte-ux';
+  import {settings} from 'svelte-ux';
   import DotnetProjectView from './DotnetProjectView.svelte';
 
   export let url = '';
@@ -54,7 +61,7 @@
     <Route path="/fwdata/:name" let:params>
       <Router {url} basepath="/fwdata/{params.name}">
         {#key params.name}
-          <FwDataProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name}/>
         {/key}
       </Router>
     </Route>
@@ -67,10 +74,10 @@
       <HomeView/>
     </Route>
     <Route path="/sandbox">
-      <Sandbox />
+      <Sandbox/>
     </Route>
     <Route path="/*">
-      {setTimeout(() => navigate('/', { replace: true }))}
+      {setTimeout(() => navigate('/', {replace: true}))}
     </Route>
   </div>
 </Router>

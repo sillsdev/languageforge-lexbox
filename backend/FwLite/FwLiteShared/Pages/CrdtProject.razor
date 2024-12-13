@@ -1,7 +1,9 @@
 ﻿@page "/project/{projectName}"
 @using FwLiteShared.Layout
 @using FwLiteShared.Services
+@using Microsoft.Extensions.Logging
 @inject FwLiteProvider FwLiteProvider
+@inject ILogger<CrdtProject> Logger
 @implements IAsyncDisposable
 @layout SvelteLayout;
 
@@ -14,7 +16,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnAfterRenderAsync(firstRender);
+        Logger.LogInformation("OnAfterRenderAsync CrdtProject, firstRender: {firstRender}", firstRender);
         if (firstRender)
         {
             _disposable = await FwLiteProvider.InjectCrdtProject(ProjectName);

@@ -6,6 +6,13 @@
     <title>FwLiteDesktop</title>
     <base href="/" />
     <link rel="icon" type="image/png" href="_content/FwLiteShared/favicon.png"/>
+    <script>
+        window.onBlazorNavigate = (path) => {
+            if ('svelteNavigate' in window) {
+                window.svelteNavigate(path);
+            }
+        };
+    </script>
 </head>
 
 <body>

@@ -46,6 +46,7 @@ public static class FwLiteDesktopKernel
         var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??
                                             defaultDataPath);
+        logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);
         Directory.CreateDirectory(baseDataPath);
         services.Configure<LcmCrdtConfig>(config =>
         {

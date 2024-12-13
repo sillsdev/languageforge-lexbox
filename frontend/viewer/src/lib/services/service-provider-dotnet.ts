@@ -19,6 +19,10 @@ export class DotNetServiceProvider {
     this.services = fwLiteProvider;
   }
 
+  public hasService(key: ServiceKey): boolean {
+    return !!this.services[key];
+  }
+
   public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
     this.validateAllServices();
     let service = this.services[key] as unknown as DotNet.DotNetObject;

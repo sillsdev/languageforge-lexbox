@@ -158,7 +158,7 @@
               {#each data ?? [] as project, rowIndex}
                 <tr class="tabular-nums">
                   {#each columns as column (column.name)}
-                    <td use:tableCell={{ column, rowData:project, rowIndex, tableData: data }} use:links>
+                    <td use:tableCell={{ column, rowData:project, rowIndex, tableData: data }}>
                       {#if column.name === 'fwdata'}
                         {#if project.fwdata}
                           <Button size="md" href={`/fwdata/${project.name}`}>
@@ -204,7 +204,7 @@
                   <td>
                     Test project
                   </td>
-                  <td use:links>
+                  <td>
                     <Button size="md" icon={mdiTestTube} href="/testing/project-view">
                       Open
                     </Button>

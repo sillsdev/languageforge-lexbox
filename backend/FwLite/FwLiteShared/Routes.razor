@@ -1,4 +1,11 @@
-﻿<Router AppAssembly="typeof(Layout.MainLayout).Assembly">
+﻿@inject IJSRuntime jsRuntime
+@code {
+    private async Task OnNavigateAsync(NavigationContext context)
+    {
+        await jsRuntime.InvokeVoidAsync("onBlazorNavigate", context.Path);
+    }
+}
+<Router AppAssembly="typeof(Layout.MainLayout).Assembly" OnNavigateAsync="OnNavigateAsync">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.SvelteLayout)"/>
         <FocusOnNavigate RouteData="routeData" Selector="h1"/>
