@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
@@ -189,6 +191,18 @@ public static class LcmCrdtKernel
             .Add<CreateComplexFormType>()
             .Add<Changes.SetOrderChange<Sense>>();
     }
+
+    public static Type[] AllChangeTypes()
+    {
+        var crdtConfig = new CrdtConfig();
+        ConfigureCrdt(crdtConfig);
+
+
+        var list = typeof(ChangeTypeListBuilder).GetProperty("Types", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.GetValue(crdtConfig.ChangeTypeListBuilder) as List<JsonDerivedType>;
+        return list?.Select(t => t.DerivedType).ToArray() ?? [];
+    }
+
 
     public static Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
     {

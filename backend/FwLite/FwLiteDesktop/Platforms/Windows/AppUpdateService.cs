@@ -45,14 +45,24 @@ public class AppUpdateService(
 
     private async Task ApplyUpdate(FwLiteRelease latestRelease)
     {
-        logger.LogInformation("New version available: {Version}", latestRelease.Version);
+        logger.LogInformation("New version available: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
         var packageManager = new PackageManager();
-        var asyncOperation = packageManager.AddPackageAsync(new Uri(latestRelease.Url), [], DeploymentOptions.None);
+        var asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
+            new AddPackageOptions()
+            {
+                DeferRegistrationWhenPackagesAreInUse = true,
+                ForceUpdateFromAnyVersion = true
+            });
         asyncOperation.Progress = (info, progressInfo) =>
         {
+            if (progressInfo.state == DeploymentProgressState.Queued)
+            {
+                logger.LogInformation("Queued update");
+                return;
+            }
             logger.LogInformation("Downloading update: {ProgressPercentage}%", progressInfo.percentage);
         };
-        var result = await asyncOperation.AsTask();
+        var result = await asyncOperation;
         if (!string.IsNullOrEmpty(result.ErrorText))
         {
             logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
