@@ -1,4 +1,7 @@
-﻿using System.Text.Json.JsonDiffPatch;
+﻿using System.Collections.Immutable;
+using System.Text.Json.JsonDiffPatch;
+using System.Text.Json.JsonDiffPatch.Diffs;
+using System.Text.Json.JsonDiffPatch.Diffs.Formatters;
 using System.Text.Json.Nodes;
 using MiniLcm.Models;
 
@@ -110,35 +113,37 @@ public static class DiffCollection
         IList<T> after,
         OrderableCollectionDiffApi<T> diffApi) where T : IOrderable
     {
-        var positionDiffs = DiffPositions(before, after)
-            // Order: Deletes first, then adds and moves from lowest to highest new index
-            // important, because new indexes represent final positions, which might not exist yet in the before list
-            // With this order, callers don't have to account for potential gaps
-            .OrderBy(d => d.To ?? -1).ToList();
-
-        var unstableIndexes = positionDiffs.Select(diff => diff.From).Where(i => i is not null).ToList();
-        var stableIds = before.Where((_, i) => !unstableIndexes.Contains(i)).Select(item => item.Id).ToList();
-
         var changes = 0;
-        foreach (var diff in positionDiffs)
+
+        var positionDiffs = DiffPositions(before, after);
+        if (positionDiffs is not null)
         {
-            if (diff.From is not null && diff.To is not null)
+            var stableIds = after.Where((_, i) => !positionDiffs.ContainsKey(i))
+                .Select(item => item.Id)
+                .ToHashSet();
+
+            foreach (var (_, diff) in positionDiffs)
             {
-                var afterEntry = after[diff.To.Value];
-                var between = GetStableBetween(diff.To.Value, after, stableIds);
-                changes += await diffApi.Move(afterEntry, between);
-                stableIds.Add(afterEntry.Id);
-            }
-            else if (diff.From is not null)
-            {
-                changes += await diffApi.Remove(before[diff.From.Value]);
-            }
-            else if (diff.To is not null)
-            {
-                var afterEntry = after[diff.To.Value];
-                var between = GetStableBetween(diff.To.Value, after, stableIds);
-                changes += await diffApi.Add(afterEntry, between);
-                stableIds.Add(afterEntry.Id);
+                switch (diff.Kind)
+                {
+                    case PositionDiffKind.Move:
+                        var movedEntry = after[diff.Index];
+                        var between = GetStableBetween(diff.Index, after, stableIds);
+                        changes += await diffApi.Move(movedEntry, between);
+                        stableIds.Add(movedEntry.Id);
+                        break;
+                    case PositionDiffKind.Remove:
+                        changes += await diffApi.Remove(before[diff.Index]);
+                        break;
+                    case PositionDiffKind.Add:
+                        var addedEntry = after[diff.Index];
+                        between = GetStableBetween(diff.Index, after, stableIds);
+                        changes += await diffApi.Add(addedEntry, between);
+                        stableIds.Add(addedEntry.Id);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unsupported position diff kind {diff.Kind}");
+                }
             }
         }
 
@@ -154,7 +159,7 @@ public static class DiffCollection
         return changes;
     }
 
-    private static BetweenPosition GetStableBetween<T>(int i, IList<T> current, IReadOnlyList<Guid> stable) where T : IOrderable
+    private static BetweenPosition GetStableBetween<T>(int i, IList<T> current, HashSet<Guid> stable) where T : IOrderable
     {
         T? beforeEntity = default;
         T? afterEntity = default;
@@ -181,57 +186,50 @@ public static class DiffCollection
         };
     }
 
-    private static IEnumerable<PositionDiff> DiffPositions<T>(
+    private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T>(
         IList<T> before,
         IList<T> after) where T : IOrderable
     {
-        var beforeJson = new JsonArray(before.Select(item => JsonValue.Create(item.Id)).ToArray());
-        var afterJson = new JsonArray(after.Select(item => JsonValue.Create(item.Id)).ToArray());
-
-        if (JsonDiffPatcher.Diff(beforeJson, afterJson) is not JsonObject result)
-        {
-            yield break; // no changes
-        }
-
-        foreach (var prop in result)
-        {
-            if (prop.Key == "_t") // diff type
-            {
-                if (prop.Value!.ToString() != "a") // we're only using the library for diffing shallow arrays
-                {
-                    throw new InvalidOperationException("Only array diff results are supported");
-                }
-                continue;
-            }
-            else if (prop.Key.StartsWith("_")) // e.g _4 => the key represents an old index (removed or moved)
-            {
-                var previousIndex = int.Parse(prop.Key[1..]);
-                var delta = prop.Value!.AsArray();
-                var wasMoved = delta[2]!.GetValue<int>() == 3; // 3 is magic number for a move operation
-                int? newIndex = wasMoved ? delta[1]!.GetValue<int>() : null; // if it was moved, the new index is at index 1
-                if (newIndex is not null)
-                {
-                    yield return new PositionDiff { From = previousIndex, To = newIndex }; // move
-                }
-                else
-                {
-                    yield return new PositionDiff { From = previousIndex }; // remove
-                }
-            }
-            else // e.g. 4 => the key represents a new index
-            {
-                var addIndex = int.Parse(prop.Key);
-                yield return new PositionDiff { To = addIndex }; // add
-            }
-        }
-
+        var beforeJson = new JsonArray([.. before.Select(item => JsonValue.Create(item.Id))]);
+        var afterJson = new JsonArray([.. after.Select(item => JsonValue.Create(item.Id))]);
+        return JsonDiffPatcher.Diff(beforeJson, afterJson, DiffFormatter.Instance);
     }
 
-    private class PositionDiff
+#pragma warning disable IDE0072 // Add missing cases
+    /// <summary>
+    /// Formats Json array diffs into a list sorted by:
+    /// - deletes first (with arbitrary negative indexes)
+    /// - added and moved in order of new/current index (using current index)
+    /// </summary>
+    private class DiffFormatter : IJsonDiffDeltaFormatter<ImmutableSortedDictionary<int, PositionDiff>>
     {
-        public int? From { get; init; }
-        public int? To { get; init; }
+        public static readonly DiffFormatter Instance = new();
+
+        private DiffFormatter() { }
+
+        public ImmutableSortedDictionary<int, PositionDiff>? Format(ref JsonDiffDelta delta, JsonNode? left)
+        {
+            if (delta.Kind == DeltaKind.None) return null;
+
+            return delta.GetArrayChangeEnumerable().Select(change =>
+            {
+                return change.Diff.Kind switch
+                {
+                    DeltaKind.ArrayMove => new PositionDiff(change.Diff.GetNewIndex(), PositionDiffKind.Move),
+                    DeltaKind.Added => new PositionDiff(change.Index, PositionDiffKind.Add),
+                    DeltaKind.Deleted => new PositionDiff(change.Index, PositionDiffKind.Remove),
+                    _ => throw new InvalidOperationException("Only array diff results are supported"),
+                };
+            }).ToImmutableSortedDictionary(diff => diff.SortIndex, diff => diff);
+        }
     }
+#pragma warning restore IDE0072 // Add missing cases
+}
+
+public enum PositionDiffKind { Add, Remove, Move }
+public record PositionDiff(int Index, PositionDiffKind Kind)
+{
+    public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
 }
 
 public class BetweenPosition : IEquatable<BetweenPosition>
