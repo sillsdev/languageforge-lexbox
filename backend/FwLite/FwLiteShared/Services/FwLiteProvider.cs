@@ -19,9 +19,11 @@ public class FwLiteProvider(
     FwDataProjectContext fwDataProjectContext,
     FieldWorksProjectList fieldWorksProjectList,
     IJSRuntime jsRuntime
-): IDisposable
+) : IDisposable
 {
+    public const string OverrideServiceFunctionName = "setOverrideService";
     private readonly List<IDisposable> _disposables = [];
+
     public void Dispose()
     {
         foreach (var disposable in _disposables)
@@ -32,7 +34,8 @@ public class FwLiteProvider(
 
     public Dictionary<DotnetService, object> GetServices()
     {
-        return Enum.GetValues<DotnetService>().Where(s => s != DotnetService.MiniLcmApi).ToDictionary(s => s, GetService);
+        return Enum.GetValues<DotnetService>().Where(s => s != DotnetService.MiniLcmApi)
+            .ToDictionary(s => s, GetService);
     }
 
     public object GetService(DotnetService service)
@@ -46,11 +49,16 @@ public class FwLiteProvider(
         };
     }
 
-    public async Task SetService(DotnetService service, object serviceInstance)
+    public async Task SetService(DotnetService service, object? serviceInstance)
     {
-        var reference = DotNetObjectReference.Create(serviceInstance);
-        _disposables.Add(reference);
-        await jsRuntime.InvokeVoidAsync("setOverrideService", service.ToString(), reference);
+        DotNetObjectReference<object>? reference = null;
+        if (serviceInstance is not null)
+        {
+            reference = DotNetObjectReference.Create(serviceInstance);
+            _disposables.Add(reference);
+        }
+
+        await jsRuntime.InvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
     }
 
     public async Task<IAsyncDisposable> InjectCrdtProject(string projectName)
@@ -59,16 +67,17 @@ public class FwLiteProvider(
         await serviceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         var service = new MiniLcmJsInvokable(serviceProvider.GetRequiredService<IMiniLcmApi>());
         await SetService(DotnetService.MiniLcmApi, service);
-        return Defer.Async(async () => await jsRuntime.InvokeVoidAsync("setOverrideService", DotnetService.MiniLcmApi.ToString(), null));
+        return Defer.Async(async () => await SetService(DotnetService.MiniLcmApi, null));
     }
 
     public async Task<IAsyncDisposable> InjectFwDataProject(string projectName)
     {
         fwDataProjectContext.Project = fieldWorksProjectList.GetProject(projectName);
-        var service = new MiniLcmJsInvokable(serviceProvider.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
+        var service =
+            new MiniLcmJsInvokable(
+                serviceProvider.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
         await SetService(DotnetService.MiniLcmApi, service);
-        return Defer.Async(async () => await jsRuntime.InvokeVoidAsync("setOverrideService",
-            DotnetService.MiniLcmApi.ToString(), null));
+        return Defer.Async(async () => await SetService(DotnetService.MiniLcmApi, null));
     }
 }
 
