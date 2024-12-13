@@ -17,6 +17,7 @@ public static class FwHeadlessKernel
             .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddSingleton<SyncJobStatusService>();
         services.AddScoped<SendReceiveService>();
         services.AddScoped<ProjectLookupService>();
         services.AddScoped<LogSanitizerService>();
@@ -26,6 +27,7 @@ public static class FwHeadlessKernel
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
         services.AddScoped<CrdtSyncService>();
+        services.AddScoped<ProjectContextFromIdService>();
         services.AddTransient<HttpClientAuthHandler>();
         services.AddHttpClient(LexboxHttpClientName,
             (provider, client) =>

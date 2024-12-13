@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+using FwLiteDesktop.ServerBridge;
+using FwLiteDesktop.WinUI;
+using LcmCrdt;
+using LocalWebApp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 
 namespace FwLiteDesktop;
@@ -21,7 +26,13 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
-
+        builder.ConfigureEssentials(essentialsBuilder =>
+        {
+            essentialsBuilder.UseVersionTracking();
+        });
+        #if WINDOWS
+        builder.AddFwLiteWindows();
+        #endif
         builder.Services.AddMauiBlazorWebView();
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

@@ -1,7 +1,7 @@
 using FwDataMiniLcmBridge;
 using SIL.Progress;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public static class SendReceiveHelpers
 {

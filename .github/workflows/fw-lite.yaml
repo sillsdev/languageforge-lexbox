@@ -172,16 +172,14 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
-          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
-          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -258,4 +256,9 @@ jobs:
             fw-lite-msix/*
             fw-lite-portable.zip
             fw-lite-local-web-app-linux.zip
+      - name: Invalidate Lexbox Release endpoint
+        continue-on-error: true
+        run: |
+          sleep 10
+          curl -X POST https://lexbox.org/api/fwlite-release/new-release
 

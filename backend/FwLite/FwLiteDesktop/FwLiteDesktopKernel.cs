@@ -1,4 +1,5 @@
-﻿using FwLiteShared;
+using System.Runtime.InteropServices;
+using FwLiteShared;
 using FwLiteShared.Auth;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,7 @@ public static class FwLiteDesktopKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
+
         var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??
                                             defaultDataPath);
@@ -49,6 +51,9 @@ public static class FwLiteDesktopKernel
             config.SystemWebViewLogin = true;
         });
         // logging.AddFile(Path.Combine(baseDataPath, "app.log"));
+        services.AddSingleton<IPreferences>(Preferences.Default);
+        services.AddSingleton<IVersionTracking>(VersionTracking.Default);
+        services.AddSingleton<IConnectivity>(Connectivity.Current);
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();

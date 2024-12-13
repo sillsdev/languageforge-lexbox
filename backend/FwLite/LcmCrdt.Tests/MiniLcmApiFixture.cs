@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
 using Xunit.Abstractions;
@@ -17,6 +18,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
     private LcmCrdtDbContext? _crdtDbContext;
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
     public DataModel DataModel => _services.ServiceProvider.GetRequiredService<DataModel>();
+    public CrdtConfig CrdtConfig => _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
 
     public MiniLcmApiFixture()
     {
