@@ -10,7 +10,7 @@ public static class OrderPicker
         // a common case that we can optimize by not querying whole objects
         if (between is null or { Previous: null, Next: null })
         {
-            var currMaxOrder = siblings.Select(s => s.Order).DefaultIfEmpty().Max();
+            var currMaxOrder = await siblings.Select(s => s.Order).DefaultIfEmpty().MaxAsync();
             return currMaxOrder + 1;
         }
 
@@ -27,7 +27,7 @@ public static class OrderPicker
         return (previous, next) switch
         {
             // another user deleted items in the meantime?
-            (null, null) => siblings.Select(s => s.Order).DefaultIfEmpty().Max() + 1,
+            (null, null) => items.Select(s => s.Order).DefaultIfEmpty().Max() + 1,
             (_, null) => previous.Order + 1,
             (null, _) => next.Order - 1,
             // If the next item has been shifted previous the previous item, then between is likely not the actual intent,
