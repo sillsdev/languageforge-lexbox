@@ -43,7 +43,7 @@ public static class FwLiteDesktopKernel
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
 
-        var defaultDataPath = IsPackagedApp ? FileSystem.AppDataDirectory : Directory.GetCurrentDirectory();
+        var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??
                                             defaultDataPath);
         Directory.CreateDirectory(baseDataPath);
@@ -83,8 +83,11 @@ public static class FwLiteDesktopKernel
         return false;
     });
 
-    public static bool IsPackagedApp => IsPackagedAppLazy.Value;
+    public static bool IsPortableApp => !IsPackagedAppLazy.Value;
 #else
-    private static bool IsPackagedApp => true;
+    /// <summary>
+    /// indicates that the app is running in portable mode and it should put log files and data in the current directory
+    /// </summary>
+    public static bool IsPortableApp => false;
 #endif
 }

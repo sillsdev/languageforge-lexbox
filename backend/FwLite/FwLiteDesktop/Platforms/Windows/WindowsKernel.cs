@@ -7,7 +7,7 @@ public static class WindowsKernel
     public static void AddFwLiteWindows(this IServiceCollection services)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
-        if (FwLiteDesktopKernel.IsPackagedApp)
+        if (!FwLiteDesktopKernel.IsPortableApp)
         {
             services.AddSingleton<IMauiInitializeService, AppUpdateService>();
             services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();
