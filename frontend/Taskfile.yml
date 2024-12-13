@@ -50,6 +50,9 @@ tasks:
   build-viewer-app:
     deps: [viewer:build-app]
     label: vite
+  watch-viewer-app:
+    deps: [viewer:watch-app]
+    label: vite
   viewer-dev:
     deps: [viewer:app]
     label: vite
