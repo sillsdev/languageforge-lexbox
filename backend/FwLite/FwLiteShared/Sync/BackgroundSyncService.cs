@@ -16,6 +16,7 @@ public class BackgroundSyncService(
     IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
+    private bool _running = false;
 
     public void TriggerSync(Guid projectId, Guid? ignoredClientId = null)
     {
@@ -47,6 +48,7 @@ public class BackgroundSyncService(
 
     public void TriggerSync(CrdtProject crdtProject)
     {
+        if (!_running) throw new InvalidOperationException("Background sync service is not running");
         _syncResultsChannel.Writer.TryWrite(crdtProject);
     }
 
@@ -62,6 +64,7 @@ public class BackgroundSyncService(
     {
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
+        _running = true;
         var crdtProjects = await crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
