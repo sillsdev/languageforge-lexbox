@@ -106,10 +106,11 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
         projectContext.Project = crdtProject;
     }
 
-    public void SetActiveProject(string name)
+    public CrdtProject SetActiveProject(string name)
     {
         var project = GetProject(name) ?? throw new InvalidOperationException($"Crdt Project {name} not found");
         SetProjectScope(project);
+        return project;
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]

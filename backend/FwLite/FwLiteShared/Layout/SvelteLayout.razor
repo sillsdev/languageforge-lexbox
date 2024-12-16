@@ -21,6 +21,11 @@
         const services = window.lexbox.FwLiteProvider;
         services[key] = service;
     };
+    window['notifyEntryUpdated'] = (projectName, entry) => {
+        if (window.lexbox?.EventBus) {
+            window.lexbox.EventBus.notifyEntryUpdated(entry);
+        }
+    }
 
 </script>
 <div id="svelte-app" class="contents">
