@@ -35,6 +35,7 @@ public static class FwLiteDesktopKernel
         services.AddSingleton<IHostEnvironment>(env);
         services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
+        services.AddSingleton<IMauiInitializeService, HostedServiceAdapter>();
 
 #if WINDOWS
         services.AddFwLiteWindows();
@@ -47,6 +48,7 @@ public static class FwLiteDesktopKernel
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??
                                             defaultDataPath);
         logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);
+        logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);
         Directory.CreateDirectory(baseDataPath);
         services.Configure<LcmCrdtConfig>(config =>
         {
@@ -57,6 +59,7 @@ public static class FwLiteDesktopKernel
             config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
             config.SystemWebViewLogin = true;
         });
+
         // logging.AddFile(Path.Combine(baseDataPath, "app.log"));
         services.AddSingleton<IPreferences>(Preferences.Default);
         services.AddSingleton<IVersionTracking>(VersionTracking.Default);
@@ -91,4 +94,29 @@ public static class FwLiteDesktopKernel
     /// </summary>
     public static bool IsPortableApp => false;
 #endif
+
+    private class HostedServiceAdapter(IEnumerable<IHostedService> hostedServices, ILogger<HostedServiceAdapter> logger) : IMauiInitializeService, IAsyncDisposable
+    {
+        private CancellationTokenSource _cts = new();
+        public void Initialize(IServiceProvider services)
+        {
+            logger.LogInformation("Initializing hosted services");
+            foreach (var hostedService in hostedServices)
+            {
+                _ = Task.Run(() => hostedService.StartAsync(_cts.Token), _cts.Token);
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            //todo this is never called because the service provider is not disposed
+            logger.LogInformation("Disposing hosted services");
+            foreach (var hostedService in hostedServices)
+            {
+                await hostedService.StopAsync(_cts.Token);
+            }
+            await _cts.CancelAsync();
+            _cts.Dispose();
+        }
+    }
 }
