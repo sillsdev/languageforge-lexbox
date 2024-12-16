@@ -9,6 +9,7 @@ using Reinforced.Typings.Ast.Dependency;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
 using Reinforced.Typings.Visitors.TypeScript;
+using StructureMap.TypeRules;
 
 namespace FwLiteShared.TypeGen;
 
@@ -27,6 +28,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(WritingSystemId), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
+        builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         //todo generate a multistring type rather than just substituting it everywhere
         builder.ExportAsThirdParty<MultiString>().WithName("IMultiString").Imports([new ()
         {
@@ -43,10 +45,12 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(SemanticDomain),
                 typeof(ComplexFormType),
                 typeof(ComplexFormComponent),
+
+                typeof(MiniLcmJsInvokable.MiniLcmFeatures),
             ],
             exportBuilder => exportBuilder.WithPublicProperties());
         builder.ExportAsEnum<WritingSystemType>().UseString();
-        builder.ExportAsInterface<IMiniLcmApi>().FlattenHierarchy().WithPublicProperties().WithPublicMethods(
+        builder.ExportAsInterface<MiniLcmJsInvokable>().FlattenHierarchy().WithPublicProperties().WithPublicMethods(
             exportBuilder =>
             {
                 var isUpdatePatchMethod = exportBuilder.Member.GetParameters()
@@ -54,6 +58,22 @@ public static class ReinforcedFwLiteTypingConfig
                 if (isUpdatePatchMethod)
                 {
                     exportBuilder.Ignore();
+                    return;
+                }
+                var isTaskMethod = (exportBuilder.Member.ReturnType.IsGenericType &&
+                                    (exportBuilder.Member.ReturnType.GetGenericTypeDefinition() == typeof(Task<>)
+                                     || exportBuilder.Member.ReturnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
+                    || exportBuilder.Member.ReturnType == typeof(Task)
+                    || exportBuilder.Member.ReturnType == typeof(ValueTask);
+                if (!isTaskMethod)
+                {
+                    if (exportBuilder.Member.ReturnType == typeof(void))
+                    {
+                        exportBuilder.Returns(typeof(Task));
+                    } else
+                    {
+                        exportBuilder.Returns(typeof(Task<>).MakeGenericType(exportBuilder.Member.ReturnType));
+                    }
                 }
             });
         builder.ExportAsEnum<SortField>().UseString();
