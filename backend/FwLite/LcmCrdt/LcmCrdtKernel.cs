@@ -78,6 +78,7 @@ public static class LcmCrdtKernel
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
+                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
                 var loggerFactory = provider.GetService<ILoggerFactory>();
                 if (loggerFactory is not null)
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
