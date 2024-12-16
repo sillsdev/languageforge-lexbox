@@ -3,27 +3,30 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IWritingSystems} from './Models/IWritingSystems';
-import type {IComplexFormType} from './Models/IComplexFormType';
-import type {IQueryOptions} from './IQueryOptions';
-import type {IEntry} from './Models/IEntry';
-import type {ISense} from './Models/ISense';
-import type {IPartOfSpeech} from './Models/IPartOfSpeech';
-import type {ISemanticDomain} from './Models/ISemanticDomain';
-import type {IExampleSentence} from './Models/IExampleSentence';
-import type {IWritingSystem} from './Models/IWritingSystem';
-import type {WritingSystemType} from './Models/WritingSystemType';
-import type {IComplexFormComponent} from './Models/IComplexFormComponent';
+import type {IMiniLcmFeatures} from './IMiniLcmFeatures';
+import type {IWritingSystems} from '../../MiniLcm/Models/IWritingSystems';
+import type {IPartOfSpeech} from '../../MiniLcm/Models/IPartOfSpeech';
+import type {ISemanticDomain} from '../../MiniLcm/Models/ISemanticDomain';
+import type {IComplexFormType} from '../../MiniLcm/Models/IComplexFormType';
+import type {IEntry} from '../../MiniLcm/Models/IEntry';
+import type {IQueryOptions} from '../../MiniLcm/IQueryOptions';
+import type {ISense} from '../../MiniLcm/Models/ISense';
+import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
+import type {IWritingSystem} from '../../MiniLcm/Models/IWritingSystem';
+import type {WritingSystemType} from '../../MiniLcm/Models/WritingSystemType';
+import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormComponent';
 
-export interface IMiniLcmApi
+export interface IMiniLcmJsInvokable
 {
+	disposeAsync() : any;
+	supportedFeatures() : Promise<IMiniLcmFeatures>;
 	getWritingSystems() : Promise<IWritingSystems>;
-	getPartsOfSpeech() : any;
-	getSemanticDomains() : any;
-	getComplexFormTypes() : any;
+	getPartsOfSpeech() : Promise<IPartOfSpeech[]>;
+	getSemanticDomains() : Promise<ISemanticDomain[]>;
+	getComplexFormTypes() : Promise<IComplexFormType[]>;
 	getComplexFormType(id: string) : Promise<IComplexFormType>;
-	getEntries(options?: IQueryOptions) : any;
-	searchEntries(query: string, options?: IQueryOptions) : any;
+	getEntries(options?: IQueryOptions) : Promise<IEntry[]>;
+	searchEntries(query: string, options?: IQueryOptions) : Promise<IEntry[]>;
 	getEntry(id: string) : Promise<IEntry>;
 	getSense(entryId: string, id: string) : Promise<ISense>;
 	getPartOfSpeech(id: string) : Promise<IPartOfSpeech>;
