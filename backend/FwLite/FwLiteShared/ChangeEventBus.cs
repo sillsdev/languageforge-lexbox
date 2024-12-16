@@ -13,14 +13,18 @@ public class ChangeEventBus(ProjectContext projectContext)
 
     private readonly Subject<ChangeNotification> _entryUpdated = new();
 
+    public IObservable<Entry> OnProjectEntryUpdated(CrdtProject project)
+    {
+        var projectName = project.Name;
+        return _entryUpdated
+            .Where(n => n.ProjectName == projectName)
+            .Select(n => n.Entry);
+    }
     public IObservable<Entry> OnEntryUpdated
     {
         get
         {
-            var projectName = projectContext.Project?.Name ?? throw new InvalidOperationException("Not in a project");
-            return _entryUpdated
-                .Where(n => n.ProjectName == projectName)
-                .Select(n => n.Entry);
+            return OnProjectEntryUpdated(projectContext.Project ?? throw new InvalidOperationException("Not in a project"));
         }
     }
 

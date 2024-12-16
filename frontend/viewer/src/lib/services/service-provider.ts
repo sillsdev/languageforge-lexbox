@@ -1,8 +1,9 @@
-import type {LexboxApiClient} from './lexbox-api';
 import {openSearch} from '../search-bar/search';
 import {ProjectService} from './projects-service';
 import {DotnetService, type ICombinedProjectsService, type IAuthService} from '../dotnet-types';
 import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IImportFwdataService';
+import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
+import {type EventBus, useEventBus} from '$lib/services/event-bus';
 
 declare global {
 
@@ -10,6 +11,7 @@ declare global {
     /* eslint-disable @typescript-eslint/naming-convention */
     ServiceProvider: LexboxServiceProvider;
     Search: {openSearch: (search: string) => void};
+    EventBus: EventBus;
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 
@@ -24,7 +26,7 @@ export enum LexboxService {
 export type ServiceKey = keyof LexboxServiceRegistry;
 
 export type LexboxServiceRegistry = {
-  [DotnetService.MiniLcmApi]: LexboxApiClient,
+  [DotnetService.MiniLcmApi]: IMiniLcmJsInvokable,
   [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
@@ -56,7 +58,7 @@ export class LexboxServiceProvider {
 
 {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}}
+  const lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}, EventBus: useEventBus()}
   if (!window.lexbox) {
     window.lexbox = lexbox;
   } else {
@@ -64,7 +66,7 @@ export class LexboxServiceProvider {
   }
 }
 
-export function useLexboxApi(): LexboxApiClient {
+export function useLexboxApi(): IMiniLcmJsInvokable {
   return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
 }
 

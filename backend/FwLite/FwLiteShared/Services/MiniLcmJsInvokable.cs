@@ -1,4 +1,5 @@
 ﻿using FwDataMiniLcmBridge.Api;
+using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -6,15 +7,28 @@ using MiniLcm.Models;
 
 namespace FwLiteShared.Services;
 
-internal class MiniLcmJsInvokable(IMiniLcmApi api)
+internal class MiniLcmJsInvokable(
+    IMiniLcmApi api,
+    BackgroundSyncService backgroundSyncService,
+    CrdtProject? crdtProject = null)
 {
+
     public record MiniLcmFeatures(bool History, bool Write, bool OpenWithFlex, bool Feedback, bool Sync);
+    private bool SupportsSync => api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = api is CrdtMiniLcmApi;
         var isFwDataProject = api is FwDataMiniLcmApi;
-        return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: isCrdtProject);
+        return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
+    }
+
+    private void TriggerSync()
+    {
+        if (SupportsSync && crdtProject is not null)
+        {
+            backgroundSyncService.TriggerSync(crdtProject);
+        }
     }
 
     [JSInvokable]
@@ -162,9 +176,12 @@ internal class MiniLcmJsInvokable(IMiniLcmApi api)
     }
 
     [JSInvokable]
-    public Task<Entry> UpdateEntry(Entry before, Entry after)
+    public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        return api.UpdateEntry(before, after);
+        //todo trigger sync on the test
+        var result = await api.UpdateEntry(before, after);
+        TriggerSync();
+        return result;
     }
 
     [JSInvokable]

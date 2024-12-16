@@ -14,9 +14,9 @@
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {onDestroy, onMount, setContext} from 'svelte';
-  import {derived, writable, type Readable} from 'svelte/store';
-  import {deriveAsync, makeDebouncer} from './lib/utils/time';
-  import { type LexboxPermissions, type LexboxFeatures} from './lib/config-types';
+  import {derived, type Readable, writable} from 'svelte/store';
+  import {deriveAsync} from './lib/utils/time';
+  import {type LexboxFeatures, type LexboxPermissions} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
@@ -25,10 +25,10 @@
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
   import ActivityView from './lib/activity/ActivityView.svelte';
-  import { getAvailableHeightForElement } from './lib/utils/size';
-  import { ViewerSearchParam, getSearchParam, getSearchParams, updateSearchParam } from './lib/utils/search-params';
+  import {getAvailableHeightForElement} from './lib/utils/size';
+  import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
-  import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
+  import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
   import {AppNotification} from './lib/notifications/notifications';
   import flexLogo from './lib/assets/flex-logo.png';
   import {initView, initViewSettings} from './lib/services/view-service';
@@ -36,8 +36,9 @@
   import {initWritingSystems} from './lib/writing-systems';
   import {useEventBus} from './lib/services/event-bus';
   import AboutDialog from './lib/about/AboutDialog.svelte';
-  import { initProjectCommands, type NewEntryDialogOptions } from './lib/commands';
+  import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
+  import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 
   export let loading = false;
 
@@ -62,10 +63,11 @@
   }));
 
   const lexboxApi = useLexboxApi();
-  void lexboxApi.SupportedFeatures().then(f => {
+  void lexboxApi.supportedFeatures().then(f => {
     features.set(f);
   });
-  const features = writable<LexboxFeatures>({});
+  //not having write enabled at the start fixes an issue where the default viewSetting.hideEmptyFields would be incorrect
+  const features = writable<LexboxFeatures>({write: true});
   setContext<Readable<LexboxFeatures>>('features', features);
   setContext('saveEvents', saveEventDispatcher);
   setContext('saveHandler', saveHandler);
@@ -106,7 +108,7 @@
 
   const writingSystems = initWritingSystems(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetWritingSystems();
+    return lexboxApi.getWritingSystems();
   }).value);
   const indexExamplars = derived(writingSystems, wsList => {
     return wsList?.vernacular[0].exemplars;
@@ -136,11 +138,11 @@
 
   function fetchEntries(s: string, isConnected: boolean, exemplar: string | null): Promise<IEntry[] | undefined> {
     if (!isConnected) return Promise.resolve(undefined);
-    return lexboxApi.SearchEntries(s ?? '', {
+    return lexboxApi.searchEntries(s ?? '', {
       offset: 0,
       // we always load full exemplar lists for now, so we can guaruntee that the selected entry is in the list
       count: exemplar ? 1_000_000_000 : 1000,
-      order: {field: 'headword', writingSystem: 'default'},
+      order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
       exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
     });
   }

@@ -18,6 +18,8 @@ public class FwLiteProvider(
     IServiceProvider serviceProvider,
     FwDataProjectContext fwDataProjectContext,
     FieldWorksProjectList fieldWorksProjectList,
+    LexboxProjectService lexboxProjectService,
+    ChangeEventBus changeEventBus,
     IJSRuntime jsRuntime
 ) : IDisposable
 {
@@ -63,19 +65,26 @@ public class FwLiteProvider(
 
     public async Task<IAsyncDisposable> InjectCrdtProject(string projectName)
     {
-        crdtProjectsService.SetActiveProject(projectName);
-        await serviceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-        var service = new MiniLcmJsInvokable(serviceProvider.GetRequiredService<IMiniLcmApi>());
+        var project = crdtProjectsService.SetActiveProject(projectName);
+        var projectData = await serviceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
+        var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
+        {
+            _ = jsRuntime.InvokeVoidAsync("notifyEntryUpdated", projectName, entry);
+        });
+        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(serviceProvider, project);
         await SetService(DotnetService.MiniLcmApi, service);
-        return Defer.Async(async () => await SetService(DotnetService.MiniLcmApi, null));
+        return Defer.Async(async () =>
+        {
+            entryUpdatedSubscription.Dispose();
+            await SetService(DotnetService.MiniLcmApi, null);
+        });
     }
 
     public async Task<IAsyncDisposable> InjectFwDataProject(string projectName)
     {
         fwDataProjectContext.Project = fieldWorksProjectList.GetProject(projectName);
-        var service =
-            new MiniLcmJsInvokable(
-                serviceProvider.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
+        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(serviceProvider, serviceProvider.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
         await SetService(DotnetService.MiniLcmApi, service);
         return Defer.Async(async () => await SetService(DotnetService.MiniLcmApi, null));
     }
