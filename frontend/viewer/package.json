@@ -31,9 +31,9 @@
     "@egoist/tailwindcss-icons": "^1.8.0",
     "@iconify-json/mdi": "^1.1.66",
     "@mdi/js": "^7.4.47",
-    "@sveltejs/vite-plugin-svelte": "^4.0.2",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
     "@tailwindcss/typography": "^0.5.13",
-    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/svelte": "^5.2.6",
     "@testing-library/user-event": "^14.5.2",
     "@tsconfig/svelte": "^5.0.4",
@@ -43,7 +43,7 @@
     "@vitest/ui": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-svelte": "catalog:",
-    "happy-dom": "^15.7.4",
+    "happy-dom": "^15.11.7",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
     "svelte-eslint-parser": "catalog:",
@@ -61,10 +61,10 @@
     "fast-json-patch": "^3.1.1",
     "just-throttle": "^4.2.0",
     "postcss": "catalog:",
-    "svelte-exmarkdown": "^4.0.1",
+    "svelte-exmarkdown": "catalog:",
     "svelte-preprocess": "catalog:",
     "svelte-routing": "^2.12.0",
-    "svelte-ux": "^0.75.1",
+    "svelte-ux": "^0.76.0",
     "type-fest": "^4.18.2"
   }
 }
