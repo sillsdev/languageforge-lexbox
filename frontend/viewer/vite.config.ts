@@ -36,6 +36,9 @@ export default defineConfig(({ mode }) => {
         }
       },
     },
+    resolve: {
+      alias: [{find: "$lib", replacement: "/src/lib"}]
+    },
     plugins: [svelte({
       onwarn: (warning, handler) => {
         // we don't have control over these warnings and there are lots
