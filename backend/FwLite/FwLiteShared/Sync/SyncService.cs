@@ -19,7 +19,7 @@ public class SyncService(
     IMiniLcmApi lexboxApi,
     ILogger<SyncService> logger)
 {
-    public async Task<SyncResults> ExecuteSync()
+    public async Task<SyncResults> ExecuteSync(bool skipNotifications = false)
     {
         var project = await currentProjectService.GetProjectData();
         if (string.IsNullOrEmpty(project.OriginDomain))
@@ -38,31 +38,39 @@ public class SyncService(
                 project.OriginDomain);
             return new SyncResults([], [], false);
         }
+
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
         var syncResults = await dataModel.SyncWith(remoteModel);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
-        await SendNotifications(syncResults);
+        if (!skipNotifications) await SendNotifications(syncResults);
         return syncResults;
     }
 
     private async Task SendNotifications(SyncResults syncResults)
     {
-        await foreach (var entryId in syncResults.MissingFromLocal
-                     .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
-                     .ToAsyncEnumerable()
-                     .SelectAwait(async e => await GetEntryId(e.DbObject as IObjectWithId))
-                     .Distinct())
+        try
         {
-            if (entryId is null) continue;
-            var entry = await lexboxApi.GetEntry(entryId.Value);
-            if (entry is not null)
+            await foreach (var entryId in syncResults.MissingFromLocal
+                               .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
+                               .ToAsyncEnumerable()
+                               .SelectAwait(async e => await GetEntryId(e.DbObject as IObjectWithId))
+                               .Distinct())
             {
-                changeEventBus.NotifyEntryUpdated(entry);
+                if (entryId is null) continue;
+                var entry = await lexboxApi.GetEntry(entryId.Value);
+                if (entry is not null)
+                {
+                    changeEventBus.NotifyEntryUpdated(entry);
+                }
+                else
+                {
+                    logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
+                }
             }
-            else
-            {
-                logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
-            }
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to send notifications, continuing");
         }
     }
 
