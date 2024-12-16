@@ -5,7 +5,7 @@ using MiniLcm.Models;
 
 namespace FwLiteShared;
 
-public class ChangeEventBus(ProjectContext projectContext)
+public class ChangeEventBus
     : IDisposable
 {
 
@@ -20,18 +20,10 @@ public class ChangeEventBus(ProjectContext projectContext)
             .Where(n => n.ProjectName == projectName)
             .Select(n => n.Entry);
     }
-    public IObservable<Entry> OnEntryUpdated
-    {
-        get
-        {
-            return OnProjectEntryUpdated(projectContext.Project ?? throw new InvalidOperationException("Not in a project"));
-        }
-    }
 
-    public void NotifyEntryUpdated(Entry entry)
+    public void NotifyEntryUpdated(Entry entry, CrdtProject project)
     {
-        _entryUpdated.OnNext(new ChangeNotification(entry,
-            projectContext.Project?.Name ?? throw new InvalidOperationException("Not in a project")));
+        _entryUpdated.OnNext(new ChangeNotification(entry, project.Name));
     }
 
     public void Dispose()

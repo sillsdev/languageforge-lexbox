@@ -42,7 +42,6 @@ public static class LcmCrdtKernel
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
-        services.AddSingleton<ProjectContext>();
         services.AddSingleton<CrdtProjectsService>();
 
         services.AddHttpClient();
@@ -60,8 +59,8 @@ public static class LcmCrdtKernel
 
     private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
     {
-        var projectContext = provider.GetRequiredService<ProjectContext>();
-        if (projectContext.Project is null) throw new NullReferenceException("Project is null");
+        var projectContext = provider.GetRequiredService<CurrentProjectService>();
+        projectContext.ValidateProjectScope();
 #if DEBUG
         builder.EnableSensitiveDataLogging();
 #endif
@@ -212,13 +211,12 @@ public static class LcmCrdtKernel
         //the project is stored in the async scope, if a new scope is created in this method then it will be gone once the method returns
         //making the lcm api unusable
         var projectsService = services.GetRequiredService<CrdtProjectsService>();
-        projectsService.SetProjectScope(project);
-        return LoadMiniLcmApi(services);
+        return LoadMiniLcmApi(services, project);
     }
 
-    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services)
+    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services, CrdtProject project)
     {
-        await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         return services.GetRequiredService<IMiniLcmApi>();
     }
 }

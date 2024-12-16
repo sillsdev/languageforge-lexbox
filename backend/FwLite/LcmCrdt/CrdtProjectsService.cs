@@ -8,7 +8,7 @@ using LcmCrdt.Objects;
 
 namespace LcmCrdt;
 
-public partial class CrdtProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
+public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
 {
     public Task<CrdtProject[]> ListProjects()
     {
@@ -56,7 +56,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
         var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
-        await using var serviceScope = CreateProjectScope(crdtProject);
+        await using var serviceScope = provider.CreateAsyncScope();
+        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        currentProjectService.SetupProjectContextForNewDb(crdtProject);
         var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
         try
         {
@@ -65,7 +67,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
                 ProjectData.GetOriginDomain(request.Domain),
                 Guid.NewGuid(), request.FwProjectId);
             await InitProjectDb(db, projectData);
-            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            await currentProjectService.RefreshProjectData();
             if (request.SeedNewProjectData)
                 await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
@@ -91,26 +93,6 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
         await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
         await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
         await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
-    }
-
-    public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)
-    {
-        //todo make this helper method call `CurrentProjectService.PopulateProjectDataCache`
-        var serviceScope = provider.CreateAsyncScope();
-        SetProjectScope(crdtProject);
-        return serviceScope;
-    }
-
-    public void SetProjectScope(CrdtProject crdtProject)
-    {
-        projectContext.Project = crdtProject;
-    }
-
-    public CrdtProject SetActiveProject(string name)
-    {
-        var project = GetProject(name) ?? throw new InvalidOperationException($"Crdt Project {name} not found");
-        SetProjectScope(project);
-        return project;
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]

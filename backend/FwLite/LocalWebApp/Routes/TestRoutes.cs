@@ -1,4 +1,5 @@
 ﻿using FwLiteShared;
+using LcmCrdt;
 using LocalWebApp.Hubs;
 using LocalWebApp.Services;
 using Microsoft.OpenApi.Models;
@@ -26,16 +27,16 @@ public static class TestRoutes
             {
                 return api.GetEntries();
             });
-        group.MapPost("/set-entry-note", async (IMiniLcmApi api, ChangeEventBus eventBus, Guid entryId, string ws, string note) =>
+        group.MapPost("/set-entry-note", async (IMiniLcmApi api, CurrentProjectService projectContext, ChangeEventBus eventBus, Guid entryId, string ws, string note) =>
         {
             var entry = await api.UpdateEntry(entryId, new UpdateObjectInput<Entry>().Set(e => e.Note[ws], note));
-            eventBus.NotifyEntryUpdated(entry);
+            eventBus.NotifyEntryUpdated(entry, projectContext.Project);
         });
         group.MapPost("/add-new-entry",
-            async (IMiniLcmApi api, ChangeEventBus eventBus, Entry entry) =>
+            async (IMiniLcmApi api, CurrentProjectService projectContext, ChangeEventBus eventBus, Entry entry) =>
             {
                 var createdEntry = await api.CreateEntry(entry);
-                eventBus.NotifyEntryUpdated(createdEntry);
+                eventBus.NotifyEntryUpdated(createdEntry, projectContext.Project);
             });
         return group;
     }

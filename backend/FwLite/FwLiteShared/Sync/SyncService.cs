@@ -60,7 +60,7 @@ public class SyncService(
                 var entry = await lexboxApi.GetEntry(entryId.Value);
                 if (entry is not null)
                 {
-                    changeEventBus.NotifyEntryUpdated(entry);
+                    changeEventBus.NotifyEntryUpdated(entry, currentProjectService.Project);
                 }
                 else
                 {

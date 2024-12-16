@@ -65,8 +65,8 @@ public class FwLiteProvider(
 
     public async Task<IAsyncDisposable> InjectCrdtProject(string projectName)
     {
-        var project = crdtProjectsService.SetActiveProject(projectName);
-        var projectData = await serviceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        var project = crdtProjectsService.GetProject(projectName) ?? throw new InvalidOperationException($"Crdt Project {projectName} not found");
+        var projectData = await serviceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
         var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
         {

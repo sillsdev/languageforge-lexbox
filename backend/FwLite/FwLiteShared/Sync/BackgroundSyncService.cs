@@ -10,9 +10,9 @@ namespace FwLiteShared.Sync;
 
 public class BackgroundSyncService(
     CrdtProjectsService crdtProjectsService,
-    ProjectContext projectContext,
     ILogger<BackgroundSyncService> logger,
     IMemoryCache memoryCache,
+    IServiceProvider serviceProvider,
     IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
@@ -40,10 +40,6 @@ public class BackgroundSyncService(
         }
 
         TriggerSync(crdtProject);
-    }
-    public void TriggerSync()
-    {
-        TriggerSync(projectContext.Project ?? throw new InvalidOperationException("No project selected"));
     }
 
     public void TriggerSync(CrdtProject crdtProject)
@@ -83,8 +79,8 @@ public class BackgroundSyncService(
     {
         try
         {
-            await using var serviceScope = crdtProjectsService.CreateProjectScope(crdtProject);
-            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            await using var serviceScope = serviceProvider.CreateAsyncScope();
+            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
             var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }
