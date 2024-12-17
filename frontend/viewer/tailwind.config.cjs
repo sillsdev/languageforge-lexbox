@@ -16,7 +16,7 @@ module.exports = {
       // Search showing aliases and version (of root source) icons were introduced: https://pictogrammers.com/library/mdi/
       collections: getIconCollections(['mdi']),
     }),
-    svelteUx({ colorSpace: 'oklch' }),
+    svelteUx({ colorSpace: 'hsl' }),
     require('@tailwindcss/typography'),
   ],
   ux: {
