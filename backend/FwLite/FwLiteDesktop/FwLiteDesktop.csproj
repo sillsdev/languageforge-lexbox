@@ -45,7 +45,7 @@
         <WindowsPackageType>None</WindowsPackageType>
         <PublishReadyToRun>false</PublishReadyToRun>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
         <!--        single file disabled as it's less efficient for updates-->
         <PublishSingleFile>false</PublishSingleFile>
         <PublishTrimmed>false</PublishTrimmed>
