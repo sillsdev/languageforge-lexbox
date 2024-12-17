@@ -5,7 +5,7 @@
 
 export interface ILexboxServer
 {
-	authority: any;
+	authority: string;
 	displayName: string;
 	id: string;
 }

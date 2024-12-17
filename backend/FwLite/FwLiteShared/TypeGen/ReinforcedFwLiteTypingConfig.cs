@@ -2,6 +2,7 @@
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
+using LcmCrdt;
 using MiniLcm;
 using MiniLcm.Models;
 using Reinforced.Typings;
@@ -13,6 +14,7 @@ using StructureMap.TypeRules;
 
 namespace FwLiteShared.TypeGen;
 
+//docs https://github.com/reinforced/Reinforced.Typings/wiki/Fluent-configuration
 public static class ReinforcedFwLiteTypingConfig
 {
     public static void Configure(ConfigurationBuilder builder)
@@ -27,6 +29,7 @@ public static class ReinforcedFwLiteTypingConfig
         DisableEsLintChecks(builder);
         builder.Substitute(typeof(WritingSystemId), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         //todo generate a multistring type rather than just substituting it everywhere
@@ -79,7 +82,6 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<SortField>().UseString();
         builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions)],
             exportBuilder => exportBuilder.WithProperties(BindingFlags.Public | BindingFlags.Instance));
-        builder.ExportAsInterface<FwLiteProvider>().WithPublicMethods();
 
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsInterface<AuthService>().WithPublicMethods();
@@ -89,6 +91,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<ProjectModel>().WithPublicProperties();
         builder.ExportAsInterface<ServerProjects>().WithPublicProperties();
         builder.ExportAsInterface<LexboxServer>().WithPublicProperties();
+        builder.ExportAsInterface<CrdtProject>().WithPublicProperties();
     }
 
     private static void DisableEsLintChecks(ConfigurationBuilder builder)

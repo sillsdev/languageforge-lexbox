@@ -3,8 +3,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ICrdtProject} from '../../LcmCrdt/ICrdtProject';
+
 export interface IImportFwdataService
 {
-	import(projectName: string) : Promise<any>;
+	import(projectName: string) : Promise<ICrdtProject>;
 }
 /* eslint-enable */
