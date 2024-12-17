@@ -77,6 +77,23 @@
     throw error;
   });
 
+  let loadingServer: string = '';
+  async function login(server: ILexboxServer) {
+    loadingServer = server.authority;
+    await authService.signInWebView(server);
+    await fetchRemoteProjects();
+    serversStatus = await authService.servers();
+    loadingServer = '';
+  }
+
+  async function logout(server: ILexboxServer) {
+    loadingServer = server.authority;
+    await authService.logout(server);
+    await fetchRemoteProjects();
+    serversStatus = await authService.servers();
+    loadingServer = '';
+  }
+
 
   let serversStatus: IServerStatus[] = [];
   onMount(async () => serversStatus = await authService.servers());
@@ -232,9 +249,9 @@
                   <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
                 {/if}
                 {#if status.loggedIn}
-                  <Button variant="fill" color="primary" on:click={() => authService.logout(server)} icon={mdiLogout}>Logout</Button>
+                  <Button loading={loadingServer === server.authority} variant="fill" color="primary" on:click={() => logout(server)} icon={mdiLogout}>Logout</Button>
                 {:else}
-                  <Button variant="fill-light" color="primary" on:click={() => authService.signInWebView(server)} icon={mdiLogin}>Login</Button>
+                  <Button loading={loadingServer === server.authority} variant="fill-light" color="primary" on:click={() => login(server)} icon={mdiLogin}>Login</Button>
                 {/if}
               </div>
               {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
