@@ -44,7 +44,7 @@
         {
             foreach (var (serviceKey, service) in FwLiteProvider.GetServices())
             {
-                await FwLiteProvider.SetService(serviceKey, service);
+                await FwLiteProvider.SetService(JS, serviceKey, service);
             }
 
             module = await JS.InvokeAsync<IJSObjectReference>("import",
