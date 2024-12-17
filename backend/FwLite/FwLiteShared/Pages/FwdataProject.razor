@@ -1,19 +1,30 @@
 ﻿@page "/fwdata/{projectName}"
 @using FwLiteShared.Layout
 @using FwLiteShared.Services
-@inject FwLiteProvider FwLiteProvider
+@using Microsoft.Extensions.DependencyInjection
+@inherits OwningComponentBase
+@implements IAsyncDisposable
 @layout SvelteLayout;
 
 @code {
+
     [Parameter]
     public required string ProjectName { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private IAsyncDisposable? _disposable;
+
+    protected override async Task OnInitializedAsync()
     {
-        await base.OnAfterRenderAsync(firstRender);
-        if (firstRender)
-        {
-            await FwLiteProvider.InjectFwDataProject(ProjectName);
-        }
+        var fwLiteProvider = ScopedServices.GetRequiredService<FwLiteProvider>();
+        _disposable = await fwLiteProvider.InjectFwDataProject(ScopedServices, ProjectName);
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposable is not null)
+            await _disposable.DisposeAsync();
+        //dispose isn't called because this component implements IAsyncDisposable
+        ((IDisposable)this).Dispose();
+    }
+
 }

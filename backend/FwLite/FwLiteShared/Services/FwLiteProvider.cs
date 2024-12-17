@@ -15,7 +15,6 @@ public class FwLiteProvider(
     AuthService authService,
     ImportFwdataService importFwdataService,
     CrdtProjectsService crdtProjectsService,
-    IServiceProvider serviceProvider,
     FwDataProjectContext fwDataProjectContext,
     FieldWorksProjectList fieldWorksProjectList,
     LexboxProjectService lexboxProjectService,
@@ -63,16 +62,16 @@ public class FwLiteProvider(
         await jsRuntime.InvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
     }
 
-    public async Task<IAsyncDisposable> InjectCrdtProject(string projectName)
+    public async Task<IAsyncDisposable> InjectCrdtProject(IServiceProvider scopedServices, string projectName)
     {
         var project = crdtProjectsService.GetProject(projectName) ?? throw new InvalidOperationException($"Crdt Project {projectName} not found");
-        var projectData = await serviceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
+        var projectData = await scopedServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
         var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
         {
             _ = jsRuntime.InvokeVoidAsync("notifyEntryUpdated", projectName, entry);
         });
-        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(serviceProvider, project);
+        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
         await SetService(DotnetService.MiniLcmApi, service);
         return Defer.Async(async () =>
         {
@@ -81,10 +80,11 @@ public class FwLiteProvider(
         });
     }
 
-    public async Task<IAsyncDisposable> InjectFwDataProject(string projectName)
+    public async Task<IAsyncDisposable> InjectFwDataProject(IServiceProvider scopedServices, string projectName)
     {
         fwDataProjectContext.Project = fieldWorksProjectList.GetProject(projectName);
-        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(serviceProvider, serviceProvider.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
+        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
+            scopedServices.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
         await SetService(DotnetService.MiniLcmApi, service);
         return Defer.Async(async () => await SetService(DotnetService.MiniLcmApi, null));
     }
