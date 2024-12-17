@@ -10,7 +10,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <InformationalVersion>dev</InformationalVersion>
-        <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">net9.0</TargetFrameworks>
+        <TargetFramework Condition="'$(TargetFramework)' == ''">net9.0</TargetFramework>
         <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
