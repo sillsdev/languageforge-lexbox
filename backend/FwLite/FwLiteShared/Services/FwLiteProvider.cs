@@ -61,9 +61,10 @@ public class FwLiteProvider(
         await jsRuntime.InvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
     }
 
-    public async Task<IAsyncDisposable> InjectCrdtProject(IServiceProvider scopedServices, string projectName)
+    public async Task<IAsyncDisposable> InjectCrdtProject(IJSRuntime jsRuntime,
+        IServiceProvider scopedServices,
+        string projectName)
     {
-        var jsRuntime = scopedServices.GetRequiredService<IJSRuntime>();
         var project = crdtProjectsService.GetProject(projectName) ?? throw new InvalidOperationException($"Crdt Project {projectName} not found");
         var projectData = await scopedServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
@@ -80,9 +81,8 @@ public class FwLiteProvider(
         });
     }
 
-    public async Task<IAsyncDisposable> InjectFwDataProject(IServiceProvider scopedServices, string projectName)
+    public async Task<IAsyncDisposable> InjectFwDataProject(IJSRuntime jsRuntime, IServiceProvider scopedServices, string projectName)
     {
-        var jsRuntime = scopedServices.GetRequiredService<IJSRuntime>();
         fwDataProjectContext.Project = fieldWorksProjectList.GetProject(projectName);
         var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
             scopedServices.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
