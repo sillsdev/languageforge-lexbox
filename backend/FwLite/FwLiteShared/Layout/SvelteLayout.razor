@@ -1,10 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @using FwLiteShared.Services
-@using LexCore.Entities
 @using Microsoft.Extensions.Logging
 @inject IJSRuntime JS
 @inject ILogger<SvelteLayout> Logger
 @inject FwLiteProvider FwLiteProvider
+@implements IAsyncDisposable
 
 <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
 <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
@@ -21,6 +21,7 @@
         const services = window.lexbox.FwLiteProvider;
         services[key] = service;
     };
+    //called from FwLiteProvider.InjectCrdtProject
     window['notifyEntryUpdated'] = (projectName, entry) => {
         if (window.lexbox?.EventBus) {
             window.lexbox.EventBus.notifyEntryUpdated(entry);
@@ -50,4 +51,10 @@
                 "/" + Assets["_content/FwLiteShared/viewer/index.js"]);
         }
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        await (module?.DisposeAsync() ?? ValueTask.CompletedTask);
+    }
+
 }
