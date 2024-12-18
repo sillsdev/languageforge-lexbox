@@ -28,7 +28,7 @@ public abstract class ObjectWithIdCollectionDiffApi<T> : CollectionDiffApi<T, Gu
     }
 }
 
-public interface OrderableCollectionDiffApi<T> where T : IOrderable
+public interface IOrderableCollectionDiffApi<T> where T : IOrderable
 {
     Task<int> Add(T value, BetweenPosition between);
     Task<int> Remove(T value);
@@ -111,13 +111,15 @@ public static class DiffCollection
     public static async Task<int> DiffOrderable<T>(
         IList<T> before,
         IList<T> after,
-        OrderableCollectionDiffApi<T> diffApi) where T : IOrderable
+        IOrderableCollectionDiffApi<T> diffApi) where T : IOrderable
     {
         var changes = 0;
 
         var positionDiffs = DiffPositions(before, after);
         if (positionDiffs is not null)
         {
+            // The positive keys in positionDiffs are the indexes of added or moved items. I.e. they're the unstable ones.
+            // Deleted items are given a negative index. So, they aren't picked up here. They also don't exist in the after list, so they're not relevant.
             var stableIds = after.Where((_, i) => !positionDiffs.ContainsKey(i))
                 .Select(item => item.Id)
                 .ToHashSet();
@@ -179,11 +181,7 @@ public static class DiffCollection
                 break;
             }
         }
-        return new BetweenPosition
-        {
-            Previous = beforeEntity?.Id,
-            Next = afterEntity?.Id
-        };
+        return new BetweenPosition(beforeEntity?.Id, afterEntity?.Id);
     }
 
     private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T>(
@@ -229,39 +227,14 @@ public static class DiffCollection
 public enum PositionDiffKind { Add, Remove, Move }
 public record PositionDiff(int Index, PositionDiffKind Kind)
 {
+    // Indexes for add and move operations represent final positions.
+    // I.e. the order of the diffs doesn't really have meaning, but rather the caller is expected to make sure that's where the item ends up.
+    // Also, final position indexes might not yet exist in the current list.
+
+    // So, the easiest way to make sure the caller will be able to apply the diffs sequentially is to order them so that:
+    // - Deletes happens first
+    // - Adds and moves are then ordered by the new index (i.e. we work from front to back)
     public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
 }
 
-public class BetweenPosition : IEquatable<BetweenPosition>
-{
-    public Guid? Previous { get; set; }
-    public Guid? Next { get; set; }
-
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as BetweenPosition);
-    }
-
-    public bool Equals(BetweenPosition? other)
-    {
-        if (other is null)
-            return false;
-
-        return Previous == other.Previous && Next == other.Next;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Previous, Next);
-    }
-
-    public static bool operator ==(BetweenPosition left, BetweenPosition right)
-    {
-        return EqualityComparer<BetweenPosition>.Default.Equals(left, right);
-    }
-
-    public static bool operator !=(BetweenPosition left, BetweenPosition right)
-    {
-        return !(left == right);
-    }
-}
+public record BetweenPosition(Guid? Previous, Guid? Next);

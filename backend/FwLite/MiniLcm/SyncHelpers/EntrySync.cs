@@ -162,7 +162,7 @@ public static class EntrySync
         }
     }
 
-    private class SensesDiffApi(IMiniLcmApi api, Guid entryId) : OrderableCollectionDiffApi<Sense>
+    private class SensesDiffApi(IMiniLcmApi api, Guid entryId) : IOrderableCollectionDiffApi<Sense>
     {
         public async Task<int> Add(Sense sense, BetweenPosition between)
         {

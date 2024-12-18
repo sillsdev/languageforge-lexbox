@@ -8,8 +8,8 @@ public class DiffCollectionTests
     public async Task MatchingCollections_NoChangesAreGenerated()
     {
         // arrange
-        var value1 = Orderable(1, Guid.NewGuid());
-        var value2 = Orderable(2, Guid.NewGuid());
+        var value1 = new TestOrderable(1, Guid.NewGuid());
+        var value2 = new TestOrderable(2, Guid.NewGuid());
 
         // act
         var (changeCount, diffOperations, replacements) = await Diff([value1, value2], [value1, value2]);
@@ -24,9 +24,9 @@ public class DiffCollectionTests
     public async Task AddedValues()
     {
         // arrange
-        var value1 = Orderable(1, Guid.NewGuid());
-        var value2 = Orderable(2, Guid.NewGuid());
-        var value3 = Orderable(3, Guid.NewGuid());
+        var value1 = new TestOrderable(1, Guid.NewGuid());
+        var value2 = new TestOrderable(2, Guid.NewGuid());
+        var value3 = new TestOrderable(3, Guid.NewGuid());
 
         // act
         var (changeCount, diffOperations, replacements) = await Diff([value1], [value2, value1, value3]);
@@ -44,9 +44,9 @@ public class DiffCollectionTests
     public async Task RemovedValues()
     {
         // arrange
-        var value1 = Orderable(1, Guid.NewGuid());
-        var value2 = Orderable(2, Guid.NewGuid());
-        var value3 = Orderable(3, Guid.NewGuid());
+        var value1 = new TestOrderable(1, Guid.NewGuid());
+        var value2 = new TestOrderable(2, Guid.NewGuid());
+        var value3 = new TestOrderable(3, Guid.NewGuid());
 
         // act
         var (changeCount, diffOperations, replacements) = await Diff([value2, value1, value3], [value1]);
@@ -64,8 +64,8 @@ public class DiffCollectionTests
     public async Task SwappedValues()
     {
         // arrange
-        var value1 = Orderable(1, Guid.NewGuid());
-        var value2 = Orderable(2, Guid.NewGuid());
+        var value1 = new TestOrderable(1, Guid.NewGuid());
+        var value2 = new TestOrderable(2, Guid.NewGuid());
 
         // act
         var (changeCount, diffOperations, replacements) = await Diff([value1, value2], [value2, value1]);
@@ -80,10 +80,10 @@ public class DiffCollectionTests
 
     public static IEnumerable<object[]> CollectionDiffTestCaseData()
     {
-        var _1 = Orderable(1, Guid.NewGuid());
-        var _2 = Orderable(2, Guid.NewGuid());
-        var _3 = Orderable(3, Guid.NewGuid());
-        var _4 = Orderable(4, Guid.NewGuid());
+        var _1 = new TestOrderable(1, Guid.NewGuid());
+        var _2 = new TestOrderable(2, Guid.NewGuid());
+        var _3 = new TestOrderable(3, Guid.NewGuid());
+        var _4 = new TestOrderable(4, Guid.NewGuid());
         yield return [new CollectionDiffTestCase
         {
             OldValues = [_1, _2, _3],
@@ -111,8 +111,8 @@ public class DiffCollectionTests
             ],
         }];
 
-        var _5 = Orderable(5, Guid.NewGuid());
-        var _6 = Orderable(6, Guid.NewGuid());
+        var _5 = new TestOrderable(5, Guid.NewGuid());
+        var _6 = new TestOrderable(6, Guid.NewGuid());
         yield return [new CollectionDiffTestCase
         {
             OldValues = [_1, _2, _3, _4, _5, _6],
@@ -123,8 +123,8 @@ public class DiffCollectionTests
             ],
         }];
 
-        var _7 = Orderable(7, Guid.NewGuid());
-        var _8 = Orderable(8, Guid.NewGuid());
+        var _7 = new TestOrderable(7, Guid.NewGuid());
+        var _8 = new TestOrderable(8, Guid.NewGuid());
         yield return [new CollectionDiffTestCase
         {
             OldValues = [_1, _2, _3, _4, _5],
@@ -161,19 +161,11 @@ public class DiffCollectionTests
     {
         var diffApi = new TestOrderableDiffApi(oldValues);
         var changeCount = await DiffCollection.DiffOrderable(oldValues, newValues, diffApi);
-        diffApi.Current.Should().BeEquivalentTo(newValues);
+        // verify that the operations did in fact transform the old collection into the new collection
+        diffApi.Current.Should().BeEquivalentTo(newValues, options => options.WithStrictOrdering());
         var expectedReplacements = oldValues.Join(newValues, o => o.Id, o => o.Id, (o, n) => (o, n)).ToList();
-        diffApi.Replacements.Should().BeEquivalentTo(expectedReplacements);
+        diffApi.Replacements.Should().BeEquivalentTo(expectedReplacements, options => options.WithStrictOrdering());
         return (changeCount, diffApi.DiffOperations, diffApi.Replacements);
-    }
-
-    private static TestOrderable Orderable(double order, Guid? id = null)
-    {
-        return new TestOrderable()
-        {
-            Order = order,
-            Id = id ?? Guid.NewGuid(),
-        };
     }
 
     private static BetweenPosition Between(TestOrderable? previous, TestOrderable? next)
@@ -183,11 +175,7 @@ public class DiffCollectionTests
 
     private static BetweenPosition Between(Guid? previous = null, Guid? next = null)
     {
-        return new BetweenPosition
-        {
-            Previous = previous,
-            Next = next
-        };
+        return new BetweenPosition(previous, next);
     }
 
     private static CollectionDiffOperation Move(TestOrderable value, BetweenPosition between)
@@ -211,81 +199,4 @@ public class CollectionDiffTestCase
     public required TestOrderable[] OldValues { get; init; }
     public required TestOrderable[] NewValues { get; init; }
     public required List<CollectionDiffOperation> ExpectedOperations { get; init; }
-}
-
-public record CollectionDiffOperation(TestOrderable Value, PositionDiffKind Kind, BetweenPosition? Between = null);
-
-public class TestOrderable : IOrderable
-{
-    public required Guid Id { get; set; }
-    public required double Order { get; set; }
-}
-
-public class TestOrderableDiffApi(TestOrderable[] before) : OrderableCollectionDiffApi<TestOrderable>
-{
-    public List<TestOrderable> Current { get; } = [.. before];
-    public List<CollectionDiffOperation> DiffOperations = new();
-    public List<(TestOrderable before, TestOrderable after)> Replacements = new();
-
-    public Task<int> Add(TestOrderable value, BetweenPosition between)
-    {
-        DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Add, between));
-        return AddInternal(value, between);
-    }
-
-    private Task<int> AddInternal(TestOrderable value, BetweenPosition between)
-    {
-        if (between.Previous is not null)
-        {
-            var previousIndex = Current.FindIndex(v => v.Id == between.Previous);
-            Current.Insert(previousIndex + 1, value);
-        }
-        else if (between.Next is not null)
-        {
-            var nextIndex = Current.FindIndex(v => v.Id == between.Next);
-            Current.Insert(nextIndex, value);
-        }
-        else
-        {
-            Current.Add(value);
-        }
-        return Task.FromResult(1);
-    }
-
-    public Task<int> Remove(TestOrderable value)
-    {
-        DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Remove));
-        return RemoveInternal(value);
-    }
-
-    public Task<int> RemoveInternal(TestOrderable value)
-    {
-        var removeCount = Current.RemoveAll(v => v.Id == value.Id);
-        removeCount.Should().Be(1);
-        return Task.FromResult(1);
-    }
-
-    public async Task<int> Move(TestOrderable value, BetweenPosition between)
-    {
-        DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Move, between));
-        await RemoveInternal(value);
-        await AddInternal(value, between);
-        return 1;
-    }
-
-    public Task<int> Replace(TestOrderable before, TestOrderable after)
-    {
-        Replacements.Add((before, after));
-        before.Id.Should().Be(after.Id);
-        Current[Current.FindIndex(v => v.Id == before.Id)] = after;
-        try
-        {
-            before.Should().BeEquivalentTo(after);
-            return Task.FromResult(0);
-        }
-        catch
-        {
-            return Task.FromResult(1);
-        }
-    }
 }
