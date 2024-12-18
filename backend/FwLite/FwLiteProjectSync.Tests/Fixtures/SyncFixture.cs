@@ -20,7 +20,7 @@ public class SyncFixture : IAsyncLifetime
     private readonly string _projectFolder;
     private readonly IDisposable _cleanup;
     private static readonly Lock _preCleanupLock = new();
-    private static readonly Dictionary<string, bool> _preCleanupDone = [];
+    private static readonly HashSet<string> _preCleanupDone = [];
 
     public static SyncFixture Create([CallerMemberName] string projectName = "", [CallerMemberName] string projectFolder = "") => new(projectName, projectFolder);
 
@@ -41,11 +41,11 @@ public class SyncFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        using (_preCleanupLock.EnterScope())
+        lock (_preCleanupLock)
         {
-            if (!_preCleanupDone.ContainsKey(_projectFolder))
+            if (!_preCleanupDone.Contains(_projectFolder))
             {
-                _preCleanupDone.Add(_projectFolder, true);
+                _preCleanupDone.Add(_projectFolder);
                 if (Path.Exists(_projectFolder))
                 {
                     Directory.Delete(_projectFolder, true);
