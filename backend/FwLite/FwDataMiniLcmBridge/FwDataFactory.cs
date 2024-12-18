@@ -10,7 +10,6 @@ using SIL.LCModel;
 namespace FwDataMiniLcmBridge;
 
 public class FwDataFactory(
-    FwDataProjectContext context,
     ILogger<FwDataMiniLcmApi> fwdataLogger,
     IMemoryCache cache,
     ILogger<FwDataFactory> logger,
@@ -19,14 +18,13 @@ public class FwDataFactory(
     MiniLcmValidators validators) : IDisposable
 {
     private bool _shuttingDown = false;
-    public FwDataFactory(FwDataProjectContext context,
-        ILogger<FwDataMiniLcmApi> fwdataLogger,
+    public FwDataFactory(ILogger<FwDataMiniLcmApi> fwdataLogger,
         IMemoryCache cache,
         ILogger<FwDataFactory> logger,
         IProjectLoader projectLoader,
         IHostApplicationLifetime lifetime,
         FieldWorksProjectList fieldWorksProjectList,
-        MiniLcmValidators validators) : this(context, fwdataLogger, cache, logger, projectLoader, fieldWorksProjectList, validators)
+        MiniLcmValidators validators) : this(fwdataLogger, cache, logger, projectLoader, fieldWorksProjectList, validators)
     {
         lifetime.ApplicationStopping.Register(() =>
         {
@@ -105,23 +103,6 @@ public class FwDataFactory(
             lcmCache.Dispose(); //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
             logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
         }
-    }
-
-    public FwDataMiniLcmApi GetCurrentFwDataMiniLcmApi(bool saveOnDispose)
-    {
-        var fwDataProject = context.Project;
-        if (fwDataProject is null)
-        {
-            throw new InvalidOperationException("No project is set in the context.");
-        }
-        return GetFwDataMiniLcmApi(fwDataProject, true);
-    }
-
-    public void CloseCurrentProject()
-    {
-        var fwDataProject = context.Project;
-        if (fwDataProject is null) return;
-        CloseProject(fwDataProject);
     }
 
     public void CloseProject(FwDataProject project)

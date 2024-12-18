@@ -4,7 +4,7 @@ using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge;
 
-public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
+public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config, FwDataFactory fwDataFactory) : IProjectProvider
 {
     protected readonly IOptions<FwDataBridgeConfig> _config = config;
 
@@ -23,5 +23,11 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
     public virtual FwDataProject? GetProject(string name)
     {
         return EnumerateProjects().OfType<FwDataProject>().FirstOrDefault(p => p.Name == name);
+    }
+
+    public IMiniLcmApi OpenProject(IProjectIdentifier project, bool saveOnDispose = true)
+    {
+        if (project is not FwDataProject fwDataProject) throw new ArgumentException("Project is not a fwdata project");
+        return fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, saveOnDispose);
     }
 }
