@@ -14,6 +14,7 @@
   import Sandbox from './lib/sandbox/Sandbox.svelte';
   import {settings} from 'svelte-ux';
   import DotnetProjectView from './DotnetProjectView.svelte';
+  import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
 
   export let url = '';
 
@@ -45,6 +46,8 @@
     },
   });
   /* eslint-enable @typescript-eslint/naming-convention */
+
+  setupGlobalErrorHandlers();
 </script>
 
 <Router {url}>
