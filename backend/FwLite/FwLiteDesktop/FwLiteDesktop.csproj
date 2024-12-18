@@ -24,7 +24,7 @@
         <SelfContained>true</SelfContained>
         <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>
         <IncludeFwDataBridge>false</IncludeFwDataBridge>
-        <IncludeFwDataBridge Condition="$([MSBuild]::IsOSPlatform('windows'))">true</IncludeFwDataBridge>
+        <IncludeFwDataBridge Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</IncludeFwDataBridge>
         <DefineConstants Condition="$(IncludeFwDataBridge)">$(DefineConstants);INCLUDE_FWDATA_BRIDGE</DefineConstants>
 
 		<!-- controls display name in Package.appxmanifest -->
