@@ -37,9 +37,12 @@
   async function importFwDataProject(name: string) {
     if (importing) return;
     importing = name;
-    await importFwdataService.import(name);
-    await refreshProjects();
-    importing = '';
+    try {
+      await importFwdataService.import(name);
+      await refreshProjects();
+    } finally {
+      importing = '';
+    }
   }
 
   let downloading = '';
@@ -47,9 +50,12 @@
   async function downloadCrdtProject(project: Project, server: ILexboxServer) {
     downloading = project.name;
     if (project.id == null) throw new Error('Project id is null');
-    await projectsService.downloadProject(project.id, project.name, server);
-    await refreshProjects();
-    downloading = '';
+    try {
+      await projectsService.downloadProject(project.id, project.name, server);
+      await refreshProjects();
+    } finally {
+      downloading = '';
+    }
   }
 
   let projectsPromise = projectsService.localProjects().then(p => projects = p);
@@ -65,11 +71,14 @@
   let loadingRemoteProjects = false;
   async function fetchRemoteProjects(): Promise<void> {
     loadingRemoteProjects = true;
-    let result = await projectsService.remoteProjects();
-    for (let serverProjects of result) {
-      remoteProjects[serverProjects.server.authority] = serverProjects.projects;
+    try {
+      let result = await projectsService.remoteProjects();
+      for (let serverProjects of result) {
+        remoteProjects[serverProjects.server.authority] = serverProjects.projects;
+      }
+    } finally {
+      loadingRemoteProjects = false;
     }
-    loadingRemoteProjects = false;
   }
 
   fetchRemoteProjects().catch((error) => {
@@ -80,18 +89,24 @@
   let loadingServer: string = '';
   async function login(server: ILexboxServer) {
     loadingServer = server.authority;
-    await authService.signInWebView(server);
-    await fetchRemoteProjects();
-    serversStatus = await authService.servers();
-    loadingServer = '';
+    try {
+      await authService.signInWebView(server);
+      await fetchRemoteProjects();
+      serversStatus = await authService.servers();
+    } finally {
+      loadingServer = '';
+    }
   }
 
   async function logout(server: ILexboxServer) {
     loadingServer = server.authority;
-    await authService.logout(server);
-    await fetchRemoteProjects();
-    serversStatus = await authService.servers();
-    loadingServer = '';
+    try {
+      await authService.logout(server);
+      await fetchRemoteProjects();
+      serversStatus = await authService.servers();
+    } finally {
+      loadingServer = '';
+    }
   }
 
 
