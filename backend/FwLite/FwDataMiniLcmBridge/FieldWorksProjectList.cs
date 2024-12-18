@@ -1,12 +1,24 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Options;
+using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Project;
 
 namespace FwDataMiniLcmBridge;
 
 public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config, FwDataFactory fwDataFactory) : IProjectProvider
 {
+    public ProjectDataFormat DataFormat => ProjectDataFormat.FwData;
     protected readonly IOptions<FwDataBridgeConfig> _config = config;
+    IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
+    {
+        return EnumerateProjects();
+    }
+
+    IProjectIdentifier? IProjectProvider.GetProject(string name)
+    {
+        return GetProject(name);
+    }
 
     public virtual IEnumerable<IProjectIdentifier> EnumerateProjects()
     {

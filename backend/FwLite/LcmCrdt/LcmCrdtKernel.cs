@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
 using SIL.Harmony.Db;
@@ -43,6 +44,7 @@ public static class LcmCrdtKernel
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
         services.AddSingleton<CrdtProjectsService>();
+        services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
         services.AddHttpClient();
         services.AddSingleton<RefitSettings>(provider => new RefitSettings

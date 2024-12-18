@@ -1,5 +1,4 @@
-﻿using FwDataMiniLcmBridge.Api;
-using FwLiteShared.Sync;
+﻿using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -10,24 +9,24 @@ namespace FwLiteShared.Services;
 internal class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
-    CrdtProject? crdtProject = null)
+    IProjectIdentifier project) : IDisposable
 {
 
     public record MiniLcmFeatures(bool History, bool Write, bool OpenWithFlex, bool Feedback, bool Sync);
-    private bool SupportsSync => api is CrdtMiniLcmApi;
+    private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
-        var isCrdtProject = api is CrdtMiniLcmApi;
-        var isFwDataProject = api is FwDataMiniLcmApi;
+        var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
+        var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
         return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
     }
 
     private void TriggerSync()
     {
-        if (SupportsSync && crdtProject is not null)
+        if (SupportsSync)
         {
-            backgroundSyncService.TriggerSync(crdtProject);
+            backgroundSyncService.TriggerSync(project);
         }
     }
 
@@ -260,5 +259,10 @@ internal class MiniLcmJsInvokable(
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         return api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+    }
+
+    public void Dispose()
+    {
+        api.Dispose();
     }
 }

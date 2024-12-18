@@ -5,21 +5,39 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using MiniLcm.Project;
 
 namespace LcmCrdt;
 
-public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
+public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache): IProjectProvider
 {
-    public Task<CrdtProject[]> ListProjects()
+    public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
+    IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
     {
-        return Task.FromResult(Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
+        return ListProjects();
+    }
+
+    IProjectIdentifier? IProjectProvider.GetProject(string name)
+    {
+        return GetProject(name);
+    }
+
+    IMiniLcmApi IProjectProvider.OpenProject(IProjectIdentifier project, bool saveChangesOnDispose = true)
+    {
+        //todo not sure if we should implement this, it's mostly there for the FwData version
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<CrdtProject> ListProjects()
+    {
+        return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var name = Path.GetFileNameWithoutExtension(file);
             return new CrdtProject(name, file)
             {
                 Data = CurrentProjectService.LookupProjectData(memoryCache, name)
             };
-        }).ToArray());
+        });
     }
 
     public CrdtProject? GetProject(string name)

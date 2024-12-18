@@ -1,12 +1,12 @@
 ﻿using System.Text.Json.Serialization;
-using FwDataMiniLcmBridge;
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
-using MiniLcm;
+using MiniLcm.Models;
+using MiniLcm.Project;
 
 namespace FwLiteShared.Services;
 
@@ -15,14 +15,16 @@ public class FwLiteProvider(
     AuthService authService,
     ImportFwdataService importFwdataService,
     CrdtProjectsService crdtProjectsService,
-    FwDataProjectContext fwDataProjectContext,
-    FieldWorksProjectList fieldWorksProjectList,
     LexboxProjectService lexboxProjectService,
-    ChangeEventBus changeEventBus
+    ChangeEventBus changeEventBus,
+    IEnumerable<IProjectProvider> projectProviders
 ) : IDisposable
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
     private readonly List<IDisposable> _disposables = [];
+
+    private IProjectProvider? FwDataProjectProvider =>
+        projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
 
     public void Dispose()
     {
@@ -83,9 +85,10 @@ public class FwLiteProvider(
 
     public async Task<IAsyncDisposable> InjectFwDataProject(IJSRuntime jsRuntime, IServiceProvider scopedServices, string projectName)
     {
-        fwDataProjectContext.Project = fieldWorksProjectList.GetProject(projectName);
+        if (FwDataProjectProvider is null) throw new InvalidOperationException("FwData Project provider is not available");
+        var project = FwDataProjectProvider.GetProject(projectName) ?? throw new InvalidOperationException($"FwData Project {projectName} not found");
         var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
-            scopedServices.GetRequiredKeyedService<IMiniLcmApi>(FwDataBridgeKernel.FwDataApiKey));
+            FwDataProjectProvider.OpenProject(project), project);
         await SetService(jsRuntime, DotnetService.MiniLcmApi, service);
         return Defer.Async(async () => await SetService(jsRuntime, DotnetService.MiniLcmApi, null));
     }

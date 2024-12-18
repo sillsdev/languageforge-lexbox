@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MiniLcm.Models;
 using SIL.Harmony;
 
 namespace FwLiteShared.Sync;
@@ -42,6 +43,11 @@ public class BackgroundSyncService(
         TriggerSync(crdtProject);
     }
 
+    public void TriggerSync(IProjectIdentifier project)
+    {
+        if (project.DataFormat == ProjectDataFormat.FwData) throw new NotSupportedException("Background sync service does not support fwdata projects");
+        TriggerSync((CrdtProject)project);
+    }
     public void TriggerSync(CrdtProject crdtProject)
     {
         if (!_running) throw new InvalidOperationException("Background sync service is not running");
@@ -61,7 +67,7 @@ public class BackgroundSyncService(
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
         _running = true;
-        var crdtProjects = await crdtProjectsService.ListProjects();
+        var crdtProjects = crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
             await SyncProject(crdtProject);
