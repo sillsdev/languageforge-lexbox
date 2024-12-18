@@ -66,7 +66,7 @@ public class FwLiteProvider(
             logger.LogInformation("Clearing Service {Service}", service);
         }
 
-        await jsRuntime.InvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
+        await jsRuntime.DurableInvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
         return reference;
     }
 
@@ -79,7 +79,7 @@ public class FwLiteProvider(
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
         var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
         {
-            _ = jsRuntime.InvokeVoidAsync("notifyEntryUpdated", projectName, entry);
+            _ = jsRuntime.DurableInvokeVoidAsync("notifyEntryUpdated", projectName, entry);
         });
         var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
         var reference = await SetService(jsRuntime,DotnetService.MiniLcmApi, service);

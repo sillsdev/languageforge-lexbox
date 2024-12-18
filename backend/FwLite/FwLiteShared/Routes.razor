@@ -2,7 +2,7 @@
 @code {
     private async Task OnNavigateAsync(NavigationContext context)
     {
-        await jsRuntime.InvokeVoidAsync("onBlazorNavigate", context.Path);
+        await jsRuntime.DurableInvokeVoidAsync("svelteNavigate", context.Path);
     }
 }
 <Router AppAssembly="typeof(Layout.SvelteLayout).Assembly" OnNavigateAsync="OnNavigateAsync">
