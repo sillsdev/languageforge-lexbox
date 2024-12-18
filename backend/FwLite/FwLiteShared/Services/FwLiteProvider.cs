@@ -1,9 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MiniLcm.Models;
 using MiniLcm.Project;
@@ -17,7 +19,8 @@ public class FwLiteProvider(
     CrdtProjectsService crdtProjectsService,
     LexboxProjectService lexboxProjectService,
     ChangeEventBus changeEventBus,
-    IEnumerable<IProjectProvider> projectProviders
+    IEnumerable<IProjectProvider> projectProviders,
+    ILogger<FwLiteProvider> logger
 ) : IDisposable
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
@@ -51,16 +54,20 @@ public class FwLiteProvider(
         };
     }
 
-    public async Task SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
+    public async Task<IDisposable?> SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
     {
         DotNetObjectReference<object>? reference = null;
         if (serviceInstance is not null)
         {
             reference = DotNetObjectReference.Create(serviceInstance);
-            _disposables.Add(reference);
+        }
+        else
+        {
+            logger.LogInformation("Clearing Service {Service}", service);
         }
 
         await jsRuntime.InvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
+        return reference;
     }
 
     public async Task<IAsyncDisposable> InjectCrdtProject(IJSRuntime jsRuntime,
@@ -75,11 +82,12 @@ public class FwLiteProvider(
             _ = jsRuntime.InvokeVoidAsync("notifyEntryUpdated", projectName, entry);
         });
         var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
-        await SetService(jsRuntime,DotnetService.MiniLcmApi, service);
-        return Defer.Async(async () =>
+        var reference = await SetService(jsRuntime,DotnetService.MiniLcmApi, service);
+        return Defer.Async(() =>
         {
+            reference?.Dispose();
             entryUpdatedSubscription.Dispose();
-            await SetService(jsRuntime, DotnetService.MiniLcmApi, null);
+            return Task.CompletedTask;
         });
     }
 
@@ -89,8 +97,13 @@ public class FwLiteProvider(
         var project = FwDataProjectProvider.GetProject(projectName) ?? throw new InvalidOperationException($"FwData Project {projectName} not found");
         var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
             FwDataProjectProvider.OpenProject(project), project);
-        await SetService(jsRuntime, DotnetService.MiniLcmApi, service);
-        return Defer.Async(async () => await SetService(jsRuntime, DotnetService.MiniLcmApi, null));
+        var reference = await SetService(jsRuntime, DotnetService.MiniLcmApi, service);
+        return Defer.Async(() =>
+        {
+            reference?.Dispose();
+            service.Dispose();
+            return Task.CompletedTask;
+        });
     }
 }
 
