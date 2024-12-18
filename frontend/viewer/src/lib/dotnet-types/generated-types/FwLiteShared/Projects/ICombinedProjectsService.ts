@@ -10,7 +10,7 @@ import type {ILexboxServer} from '../Auth/ILexboxServer';
 export interface ICombinedProjectsService
 {
 	remoteProjects() : Promise<IServerProjects[]>;
-	localProjects() : Promise<IProjectModel[]>;
+	localProjects() : IProjectModel[];
 	downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer) : Promise<void>;
 	createProject(name: string) : Promise<void>;
 }

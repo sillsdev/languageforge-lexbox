@@ -3,11 +3,15 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface ICrdtProject
+import type {IProjectIdentifier} from '../MiniLcm/Models/IProjectIdentifier';
+import type {ProjectDataFormat} from '../MiniLcm/Models/ProjectDataFormat';
+import type {IProjectData} from './IProjectData';
+
+export interface ICrdtProject extends IProjectIdentifier
 {
 	name: string;
-	origin: string;
+	dataFormat: ProjectDataFormat;
 	dbPath: string;
-	data?: any;
+	data?: IProjectData;
 }
 /* eslint-enable */

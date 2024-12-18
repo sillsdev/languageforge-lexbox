@@ -91,6 +91,9 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<ServerProjects>().WithPublicProperties();
         builder.ExportAsInterface<LexboxServer>().WithPublicProperties();
         builder.ExportAsInterface<CrdtProject>().WithPublicProperties();
+        builder.ExportAsInterface<ProjectData>().WithPublicProperties();
+        builder.ExportAsInterface<IProjectIdentifier>().WithPublicProperties();
+        builder.ExportAsEnum<ProjectDataFormat>();
     }
 
     private static void DisableEsLintChecks(ConfigurationBuilder builder)

@@ -57,5 +57,6 @@ export interface IMiniLcmJsInvokable
 	createExampleSentence(entryId: string, senseId: string, exampleSentence: IExampleSentence) : Promise<IExampleSentence>;
 	updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence) : Promise<IExampleSentence>;
 	deleteExampleSentence(entryId: string, senseId: string, exampleSentenceId: string) : Promise<void>;
+	dispose() : Promise<void>;
 }
 /* eslint-enable */

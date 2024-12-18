@@ -3,10 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IProjectIdentifier} from '../../MiniLcm/Models/IProjectIdentifier';
+import type {ProjectDataFormat} from './ProjectDataFormat';
 
-export interface IImportFwdataService
+export interface IProjectIdentifier
 {
-	import(projectName: string) : Promise<IProjectIdentifier>;
+	name: string;
+	dataFormat: ProjectDataFormat;
 }
 /* eslint-enable */
