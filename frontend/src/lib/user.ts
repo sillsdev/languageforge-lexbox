@@ -229,6 +229,7 @@ function stringToUuid(str: string): string {
 }
 
 export function logout(cookies?: Cookies): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   cookies && deleteCookie(AUTH_COOKIE_NAME, cookies);
   if (browser && window.location.pathname !== '/login') {
     redirect(307, '/login');
