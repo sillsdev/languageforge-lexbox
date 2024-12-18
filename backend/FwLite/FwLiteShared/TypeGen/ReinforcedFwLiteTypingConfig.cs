@@ -52,41 +52,19 @@ public static class ReinforcedFwLiteTypingConfig
             ],
             exportBuilder => exportBuilder.WithPublicProperties());
         builder.ExportAsEnum<WritingSystemType>().UseString();
-        builder.ExportAsInterface<MiniLcmJsInvokable>().FlattenHierarchy().WithPublicProperties().WithPublicMethods(
-            exportBuilder =>
-            {
-                var isUpdatePatchMethod = exportBuilder.Member.GetParameters()
-                    .Any(p => p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == (typeof(UpdateObjectInput<>)));
-                if (isUpdatePatchMethod)
-                {
-                    exportBuilder.Ignore();
-                    return;
-                }
-                var isTaskMethod = (exportBuilder.Member.ReturnType.IsGenericType &&
-                                    (exportBuilder.Member.ReturnType.GetGenericTypeDefinition() == typeof(Task<>)
-                                     || exportBuilder.Member.ReturnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
-                    || exportBuilder.Member.ReturnType == typeof(Task)
-                    || exportBuilder.Member.ReturnType == typeof(ValueTask);
-                if (!isTaskMethod)
-                {
-                    if (exportBuilder.Member.ReturnType == typeof(void))
-                    {
-                        exportBuilder.Returns(typeof(Task));
-                    } else
-                    {
-                        exportBuilder.Returns(typeof(Task<>).MakeGenericType(exportBuilder.Member.ReturnType));
-                    }
-                }
-            });
+        builder.ExportAsInterface<MiniLcmJsInvokable>()
+            .FlattenHierarchy()
+            .WithPublicProperties()
+            .WithPublicMethods(b => b.AlwaysReturnPromise());
         builder.ExportAsEnum<SortField>().UseString();
         builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions)],
             exportBuilder => exportBuilder.WithProperties(BindingFlags.Public | BindingFlags.Instance));
 
         builder.ExportAsEnum<DotnetService>().UseString();
-        builder.ExportAsInterface<AuthService>().WithPublicMethods();
-        builder.ExportAsInterface<ImportFwdataService>().WithPublicMethods();
+        builder.ExportAsInterface<AuthService>().WithPublicMethods(b => b.AlwaysReturnPromise());
+        builder.ExportAsInterface<ImportFwdataService>().WithPublicMethods(b => b.AlwaysReturnPromise());
         builder.ExportAsInterface<ServerStatus>().WithPublicProperties();
-        builder.ExportAsInterface<CombinedProjectsService>().WithPublicMethods();
+        builder.ExportAsInterface<CombinedProjectsService>().WithPublicMethods(b => b.AlwaysReturnPromise());
         builder.ExportAsInterface<ProjectModel>().WithPublicProperties();
         builder.ExportAsInterface<ServerProjects>().WithPublicProperties();
         builder.ExportAsInterface<LexboxServer>().WithPublicProperties();
@@ -94,6 +72,35 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<ProjectData>().WithPublicProperties();
         builder.ExportAsInterface<IProjectIdentifier>().WithPublicProperties();
         builder.ExportAsEnum<ProjectDataFormat>();
+    }
+
+    private static void AlwaysReturnPromise(this MethodExportBuilder exportBuilder)
+    {
+        var isUpdatePatchMethod = exportBuilder.Member.GetParameters()
+            .Any(p => p.ParameterType.IsGenericType &&
+                      p.ParameterType.GetGenericTypeDefinition() == (typeof(UpdateObjectInput<>)));
+        if (isUpdatePatchMethod)
+        {
+            exportBuilder.Ignore();
+            return;
+        }
+
+        var isTaskMethod = (exportBuilder.Member.ReturnType.IsGenericType &&
+                            (exportBuilder.Member.ReturnType.GetGenericTypeDefinition() == typeof(Task<>)
+                             || exportBuilder.Member.ReturnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
+                           || exportBuilder.Member.ReturnType == typeof(Task)
+                           || exportBuilder.Member.ReturnType == typeof(ValueTask);
+        if (!isTaskMethod)
+        {
+            if (exportBuilder.Member.ReturnType == typeof(void))
+            {
+                exportBuilder.Returns(typeof(Task));
+            }
+            else
+            {
+                exportBuilder.Returns(typeof(Task<>).MakeGenericType(exportBuilder.Member.ReturnType));
+            }
+        }
     }
 
     private static void DisableEsLintChecks(ConfigurationBuilder builder)

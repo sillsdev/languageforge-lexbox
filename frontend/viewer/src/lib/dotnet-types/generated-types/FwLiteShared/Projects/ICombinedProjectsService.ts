@@ -9,8 +9,9 @@ import type {ILexboxServer} from '../Auth/ILexboxServer';
 
 export interface ICombinedProjectsService
 {
+	supportsFwData() : Promise<boolean>;
 	remoteProjects() : Promise<IServerProjects[]>;
-	localProjects() : IProjectModel[];
+	localProjects() : Promise<IProjectModel[]>;
 	downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer) : Promise<void>;
 	createProject(name: string) : Promise<void>;
 }
