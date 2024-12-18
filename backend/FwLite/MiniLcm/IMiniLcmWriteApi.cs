@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 using SystemTextJsonPatch;
 
 namespace MiniLcm;
@@ -46,9 +47,10 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Sense
-    Task<Sense> CreateSense(Guid entryId, Sense sense);
+    Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after);
+    Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);

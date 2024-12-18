@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using System.Globalization;
-using System.Reflection;
 using System.Text;
 using FluentValidation;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
@@ -649,7 +648,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var entries = GetEntries(e =>
             e.CitationForm.SearchValue(query) ||
             e.LexemeFormOA.Form.SearchValue(query) ||
-            e.SensesOS.Any(s => s.Gloss.SearchValue(query)), options);
+            e.AllSenses.Any(s => s.Gloss.SearchValue(query)), options);
         return entries;
     }
 
@@ -874,9 +873,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
-    internal void CreateSense(ILexEntry lexEntry, Sense sense)
+    internal void CreateSense(ILexEntry lexEntry, Sense sense, BetweenPosition? between = null)
     {
-        var lexSense = LexSenseFactory.Create(sense.Id, lexEntry);
+        var lexSense = LexSenseFactory.Create(sense.Id);
+        InsertSense(lexEntry, lexSense, between);
         var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
         if (sense.PartOfSpeechId.HasValue && PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos))
         {
@@ -884,6 +884,46 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
         lexSense.SandboxMSA = msa;
         ApplySenseToLexSense(sense, lexSense);
+    }
+
+    internal void InsertSense(ILexEntry lexEntry, ILexSense lexSense, BetweenPosition? between = null)
+    {
+        var previousSenseId = between?.Previous;
+        var nextSenseId = between?.Next;
+
+        var previousSense = previousSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == previousSenseId) : null;
+        if (previousSense is not null)
+        {
+            if (previousSense.SensesOS.Count > 0)
+            {
+                // if the sense has sub-senses, our sense will only come directly after it if it is the first sub-sense
+                previousSense.SensesOS.Insert(0, lexSense);
+            }
+            else
+            {
+                // todo the user might have wanted it to be a subsense of previousSense
+                var allSiblings = previousSense.Owner == lexEntry ? lexEntry.SensesOS
+                    : previousSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                    : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
+                var insertI = allSiblings.IndexOf(previousSense) + 1;
+                lexEntry.SensesOS.Insert(insertI, lexSense);
+            }
+            return;
+        }
+
+        var nextSense = nextSenseId.HasValue ? lexEntry.AllSenses.Find(s => s.Guid == nextSenseId) : null;
+        if (nextSense is not null)
+        {
+            // todo the user might have wanted it to be a subsense of whatever is before nextSense
+            var allSiblings = nextSense.Owner == lexEntry ? lexEntry.SensesOS
+                    : nextSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                    : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
+            var insertI = allSiblings.IndexOf(nextSense);
+            lexEntry.SensesOS.Insert(insertI, lexSense);
+            return;
+        }
+
+        lexEntry.SensesOS.Add(lexSense);
     }
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
@@ -917,7 +957,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    public Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
@@ -925,7 +965,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
-            () => CreateSense(lexEntry, sense));
+            () => CreateSense(lexEntry, sense, between));
         return Task.FromResult(FromLexSense(SenseRepository.GetObject(sense.Id)));
     }
 
@@ -953,6 +993,24 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 await SenseSync.Sync(entryId, after, before, this);
             });
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
+    }
+
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
+            throw new InvalidOperationException("Entry not found");
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Sense",
+            "Move Sense back",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                // LibLCM treats an insert as a move if the sense is already in the entry
+                InsertSense(lexEntry, lexSense, between);
+            });
+        return Task.CompletedTask;
     }
 
     public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)

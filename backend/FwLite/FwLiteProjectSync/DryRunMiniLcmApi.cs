@@ -1,5 +1,6 @@
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync;
 
@@ -195,9 +196,9 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetSense(entryId, id);
     }
 
-    public Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss} between {position?.Previous} and {position?.Next}"));
         return Task.FromResult(sense);
     }
 
@@ -216,6 +217,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSense),
             $"Update sense {after.Id}"));
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
+    }
+
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveSense), $"Move sense {senseId} between {between.Previous} and {between.Next}"));
+        return Task.CompletedTask;
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)

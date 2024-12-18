@@ -267,7 +267,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable
-            .LoadWith(e => e.Senses).ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses)
+            .ThenLoad(s => s.ExampleSentences)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
@@ -277,6 +278,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
+            entry.ApplySortOrder();
             yield return entry;
         }
     }
@@ -290,6 +292,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Components)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
+        entry?.ApplySortOrder();
         return entry;
     }
 
@@ -333,6 +336,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         {
             yield return addComplexFormTypeChange;
         }
+        var i = 1;
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
@@ -344,6 +348,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 sense.PartOfSpeechId = partOfSpeech.Id;
                 sense.PartOfSpeech = partOfSpeech.Name["en"] ?? string.Empty;
             }
+            if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
+                throw new InvalidOperationException("Order should not be provided when creating a sense");
+            sense.Order = i++;
             yield return new CreateSenseChange(sense, entry.Id);
             foreach (var exampleSentence in sense.ExampleSentences)
             {
@@ -358,7 +365,13 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         [
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
-                .SelectMany(s => CreateSenseChanges(entry.Id, s))
+                .SelectMany((s, i) =>
+                {
+                    if (s.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
+                        throw new InvalidOperationException("Order should not be provided when creating a sense");
+                    s.Order = i + 1;
+                    return CreateSenseChanges(entry.Id, s);
+                })
                 .ToArrayAsync(),
             ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
@@ -474,8 +487,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return entry?.Senses.FirstOrDefault(s => s.Id == id);
     }
 
-    public async Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
+        if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
+            throw new InvalidOperationException("Order should not be provided when creating a sense");
+
+        sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
@@ -494,6 +511,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         await SenseSync.Sync(entryId, after, before, this);
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
+    }
+
+    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<Sense>(senseId, order));
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
@@ -551,5 +574,4 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         await dataModel.AddChange(ClientId, new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
-
 }

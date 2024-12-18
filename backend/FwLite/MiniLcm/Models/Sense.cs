@@ -1,8 +1,12 @@
-﻿namespace MiniLcm.Models;
+﻿using MiniLcm.Attributes;
 
-public class Sense : IObjectWithId
+namespace MiniLcm.Models;
+
+public class Sense : IObjectWithId, IOrderable
 {
     public virtual Guid Id { get; set; }
+    [MiniLcmInternal]
+    public double Order { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid EntryId { get; set; }
     public virtual MultiString Definition { get; set; } = new();
@@ -33,6 +37,7 @@ public class Sense : IObjectWithId
         {
             Id = Id,
             EntryId = EntryId,
+            Order = Order,
             DeletedAt = DeletedAt,
             Definition = Definition.Copy(),
             Gloss = Gloss.Copy(),

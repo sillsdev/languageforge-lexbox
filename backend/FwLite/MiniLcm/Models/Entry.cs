@@ -10,7 +10,7 @@ public record Entry : IObjectWithId<Entry>
     public virtual MultiString CitationForm { get; set; } = new();
 
     public virtual MultiString LiteralMeaning { get; set; } = new();
-    public virtual IList<Sense> Senses { get; set; } = [];
+    public virtual List<Sense> Senses { get; set; } = [];
 
     public virtual MultiString Note { get; set; } = new();
 
