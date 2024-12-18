@@ -10,6 +10,7 @@ using Testing.Fixtures;
 namespace Testing.LexCore;
 
 [Collection(nameof(TestingServicesFixture))]
+[Trait("Category", "RequiresDb")]
 public class CrdtServerCommitTests
 {
     private readonly LexBoxDbContext _dbContext;

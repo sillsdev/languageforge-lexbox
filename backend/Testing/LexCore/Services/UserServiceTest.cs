@@ -12,6 +12,7 @@ using FluentAssertions;
 namespace Testing.LexCore.Services;
 
 [Collection(nameof(TestingServicesFixture))]
+[Trait("Category", "RequiresDb")]
 public class UserServiceTest : IAsyncLifetime
 {
     private readonly UserService _userService;

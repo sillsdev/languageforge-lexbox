@@ -2,6 +2,7 @@
 
 namespace Testing.Fixtures.Tests;
 
+[Trait("Category", "RequiresDb")]
 public class ServicesFixtureTests
 {
     [Fact]

@@ -10,6 +10,13 @@ tasks:
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
+      - dotnet test --filter="Category!=RequiresDb&Category!=Integration&Category!=FlakyIntegration&{{.FILTER}}"
+
+  unit-with-db:
+    interactive: true
+    vars:
+      FILTER: '{{default "." .CLI_ARGS}}'
+    cmds:
       - dotnet test --filter="Category!=Integration&Category!=FlakyIntegration&{{.FILTER}}"
 
   integration:
