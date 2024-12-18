@@ -22,6 +22,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
+    public bool SupportsFwData() => FwDataProjectProvider is not null;
+    [JSInvokable]
     public async Task<ServerProjects[]> RemoteProjects()
     {
         var lexboxServers = lexboxProjectService.Servers();

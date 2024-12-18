@@ -96,7 +96,11 @@
 
 
   let serversStatus: IServerStatus[] = [];
-  onMount(async () => serversStatus = await authService.servers());
+  onMount(async () => {
+    supportsFwData = await projectsService.supportsFwData();
+    serversStatus = await authService.servers();
+  });
+  let supportsFwData = false;
 
   $: columns = [
     {
@@ -106,6 +110,7 @@
     {
       name: 'fwdata',
       header: 'FieldWorks',
+      hidden: !supportsFwData,
     },
     {
       name: 'crdt',
