@@ -22,16 +22,12 @@ public class ProjectLoaderFixture : IDisposable
         _config = provider.GetRequiredService<IOptions<FwDataBridgeConfig>>();
     }
 
-    public FwDataMiniLcmApi CreateApi(string projectName)
-    {
-        return _fwDataFactory.GetFwDataMiniLcmApi(projectName, false);
-    }
-
     public FwDataMiniLcmApi NewProjectApi(string projectName, string analysisWs, string vernacularWs)
     {
         projectName = $"{projectName}_{Guid.NewGuid()}";
-        MockFwProjectLoader.NewProject(new FwDataProject(projectName, _config.Value.ProjectsFolder), analysisWs, vernacularWs);
-        return CreateApi(projectName);
+        var fwDataProject = new FwDataProject(projectName, _config.Value.ProjectsFolder);
+        MockFwProjectLoader.NewProject(fwDataProject, analysisWs, vernacularWs);
+        return _fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
     }
 
     public void Dispose()

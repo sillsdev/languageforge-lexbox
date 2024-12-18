@@ -34,11 +34,12 @@ public static class FwLiteDesktopKernel
         services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
         services.AddSingleton<IMauiInitializeService, HostedServiceAdapter>();
-
-#if WINDOWS
-        //need to call them like this since they're only available in the windows project
+#if INCLUDE_FWDATA_BRIDGE
+        //need to call them like this otherwise we need a using statement at the top of the file
         FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
         FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
+#endif
+#if WINDOWS
         services.AddFwLiteWindows();
 #endif
 #if ANDROID

@@ -23,6 +23,9 @@
 		<Nullable>enable</Nullable>
         <SelfContained>true</SelfContained>
         <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>
+        <IncludeFwDataBridge>false</IncludeFwDataBridge>
+        <IncludeFwDataBridge Condition="$([MSBuild]::IsOSPlatform('windows'))">true</IncludeFwDataBridge>
+        <DefineConstants Condition="$(IncludeFwDataBridge)">$(DefineConstants);INCLUDE_FWDATA_BRIDGE</DefineConstants>
 
 		<!-- controls display name in Package.appxmanifest -->
 		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
@@ -89,7 +92,7 @@
         <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
 	</ItemGroup>
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <ItemGroup Condition="$(IncludeFwDataBridge)">
         <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj"/>
         <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj"/>
     </ItemGroup>
