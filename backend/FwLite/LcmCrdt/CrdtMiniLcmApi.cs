@@ -552,4 +552,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await dataModel.AddChange(ClientId, new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
+    public void Dispose()
+    {
+    }
 }

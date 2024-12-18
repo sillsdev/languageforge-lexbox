@@ -5,6 +5,10 @@ namespace FwLiteProjectSync;
 
 public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
+    public void Dispose()
+    {
+    }
+
     public List<DryRunRecord> DryRunRecords { get; } = [];
 
     public record DryRunRecord(string Method, string Description);
