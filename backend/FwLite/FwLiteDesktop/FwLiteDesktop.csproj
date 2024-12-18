@@ -89,5 +89,9 @@
         <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
 	</ItemGroup>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+        <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj"/>
+        <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj"/>
+    </ItemGroup>
 
 </Project>

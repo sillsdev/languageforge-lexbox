@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using FwLiteShared;
 using FwLiteShared.Auth;
 using LcmCrdt;
@@ -6,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
-using NReco.Logging.File;
 
 namespace FwLiteDesktop;
 
@@ -38,6 +36,9 @@ public static class FwLiteDesktopKernel
         services.AddSingleton<IMauiInitializeService, HostedServiceAdapter>();
 
 #if WINDOWS
+        //need to call them like this since they're only available in the windows project
+        FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
+        FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
         services.AddFwLiteWindows();
 #endif
 #if ANDROID

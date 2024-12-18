@@ -1,6 +1,4 @@
-﻿using FwDataMiniLcmBridge;
-using FwLiteProjectSync;
-using FwLiteShared.Auth;
+﻿using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -17,8 +15,6 @@ public static class FwLiteSharedKernel
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
-        services.AddFwDataBridge();
-        services.AddFwLiteProjectSync();
 
         services.AddSingleton<ImportFwdataService>();
         services.AddScoped<SyncService>();
