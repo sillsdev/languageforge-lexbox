@@ -14,7 +14,6 @@ import type {
   IWritingSystems,
 } from 'viewer/lexbox-api';
 
-import type {Readable} from 'svelte/store';
 import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
 
 function prepareEntriesForUi(entries: IEntry[]): void {

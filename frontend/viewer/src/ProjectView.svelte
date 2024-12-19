@@ -41,7 +41,7 @@
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 
   export let loading = false;
-  export let about: string | undefined;
+  export let about: string | undefined = undefined;
 
   const changeEventBus = useEventBus();
   onDestroy(changeEventBus.onEntryUpdated(updatedEntry => {
