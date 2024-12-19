@@ -12,7 +12,7 @@ public static class LcmCrdtTestsKernel
         services.AddLcmCrdtClient();
         if (project is not null)
         {
-            services.AddSingleton<CurrentProjectService>(provider =>
+            services.AddScoped<CurrentProjectService>(provider =>
             {
                 var currentProjectService = ActivatorUtilities.CreateInstance<CurrentProjectService>(provider);
                 currentProjectService.SetupProjectContextForNewDb(project);
