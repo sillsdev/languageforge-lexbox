@@ -152,11 +152,11 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Setup Maui
-        run: dotnet workload install maui-android
+        run: dotnet workload install maui
 
       - name: Publish Android
         working-directory: backend/FwLite/FwLiteDesktop
-        run: dotnet publish -f net9.0-android --os android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+        run: dotnet publish -f net9.0-android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Upload FWLite App artifacts
         uses: actions/upload-artifact@v4
