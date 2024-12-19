@@ -63,10 +63,10 @@ jobs:
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet build --configuration Release
+          dotnet build
 
       - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --configuration Release  --logger GitHubActions
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions
 
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@v4
@@ -164,7 +164,7 @@ jobs:
 
       - name: Publish Android
         working-directory: backend/FwLite/FwLiteDesktop
-        run: dotnet publish -f net9.0-android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+        run: dotnet publish -f net9.0-android --os android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Upload FWLite App artifacts
         uses: actions/upload-artifact@v4
