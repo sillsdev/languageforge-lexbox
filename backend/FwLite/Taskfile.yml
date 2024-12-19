@@ -34,6 +34,12 @@ tasks:
 #      - dotnet publish -r win-x64 --artifacts-path ../artifacts
 #      - dotnet publish -r win-arm64 --artifacts-path ../artifacts
 
+  build-maui-android:
+    deps: [ ui:build-viewer-app ]
+    label: Build Maui Android
+    dir: ./FwLiteDesktop
+    cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
+
   publish-local-all:
     cmds:
       - task: publish-local-win
