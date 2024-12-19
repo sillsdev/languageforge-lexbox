@@ -25,7 +25,7 @@ jobs:
   build-and-test:
     name: Build FW Lite and run tests
     timeout-minutes: 40
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
@@ -59,11 +59,6 @@ jobs:
           corepack enable
           pnpm install
           pnpm run build-app
-
-      - name: Dotnet build
-        working-directory: backend/FwLite/FwLiteDesktop
-        run: |
-          dotnet build
 
       - name: Dotnet test
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions
@@ -145,7 +140,7 @@ jobs:
     name: Publish FW Lite app for Android
     needs: build-and-test
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -197,14 +192,14 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
 
