@@ -6,16 +6,16 @@ namespace MiniLcm.SyncHelpers;
 public static class SenseSync
 {
     public static async Task<int> Sync(Guid entryId,
-        Sense afterSense,
         Sense beforeSense,
+        Sense afterSense,
         IMiniLcmApi api)
     {
-        var updateObjectInput = await SenseDiffToUpdate(beforeSense, afterSense);
+        var updateObjectInput = SenseDiffToUpdate(beforeSense, afterSense);
         if (updateObjectInput is not null) await api.UpdateSense(entryId, beforeSense.Id, updateObjectInput);
         var changes = await ExampleSentenceSync.Sync(entryId,
             beforeSense.Id,
-            afterSense.ExampleSentences,
             beforeSense.ExampleSentences,
+            afterSense.ExampleSentences,
             api);
         changes += await DiffCollection.Diff(
             beforeSense.SemanticDomains,
@@ -24,7 +24,7 @@ public static class SenseSync
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 
-    public static async Task<UpdateObjectInput<Sense>?> SenseDiffToUpdate(Sense beforeSense, Sense afterSense)
+    public static UpdateObjectInput<Sense>? SenseDiffToUpdate(Sense beforeSense, Sense afterSense)
     {
         JsonPatchDocument<Sense> patchDocument = new();
         patchDocument.Operations.AddRange(

@@ -7,8 +7,8 @@ public static class ExampleSentenceSync
 {
     public static async Task<int> Sync(Guid entryId,
         Guid senseId,
-        IList<ExampleSentence> afterExampleSentences,
         IList<ExampleSentence> beforeExampleSentences,
+        IList<ExampleSentence> afterExampleSentences,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(
@@ -19,8 +19,8 @@ public static class ExampleSentenceSync
 
     public static async Task<int> Sync(Guid entryId,
         Guid senseId,
-        ExampleSentence afterExampleSentence,
         ExampleSentence beforeExampleSentence,
+        ExampleSentence afterExampleSentence,
         IMiniLcmApi api)
     {
         var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
@@ -66,7 +66,7 @@ public static class ExampleSentenceSync
 
         public override Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
         {
-            return Sync(entryId, senseId, afterExampleSentence, beforeExampleSentence, api);
+            return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api);
         }
     }
 }

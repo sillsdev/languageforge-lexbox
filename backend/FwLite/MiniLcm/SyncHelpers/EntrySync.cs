@@ -6,24 +6,24 @@ namespace MiniLcm.SyncHelpers;
 
 public static class EntrySync
 {
-    public static async Task<int> Sync(Entry[] afterEntries,
-        Entry[] beforeEntries,
+    public static async Task<int> Sync(Entry[] beforeEntries,
+        Entry[] afterEntries,
         IMiniLcmApi api)
     {
         return await DiffCollection.DiffAddThenUpdate(beforeEntries, afterEntries, new EntriesDiffApi(api));
     }
 
-    public static async Task<int> Sync(Entry afterEntry, Entry beforeEntry, IMiniLcmApi api)
+    public static async Task<int> Sync(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
         try
         {
             var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
             if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
-            var changes = await SensesSync(afterEntry.Id, afterEntry.Senses, beforeEntry.Senses, api);
+            var changes = await SensesSync(afterEntry.Id, beforeEntry.Senses, afterEntry.Senses, api);
 
-            changes += await Sync(afterEntry.Components, beforeEntry.Components, api);
-            changes += await Sync(afterEntry.ComplexForms, beforeEntry.ComplexForms, api);
-            changes += await Sync(afterEntry.Id, afterEntry.ComplexFormTypes, beforeEntry.ComplexFormTypes, api);
+            changes += await Sync(beforeEntry.Components, afterEntry.Components, api);
+            changes += await Sync(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
+            changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
             return changes + (updateObjectInput is null ? 0 : 1);
         }
         catch (Exception e)
@@ -33,8 +33,8 @@ public static class EntrySync
     }
 
     private static async Task<int> Sync(Guid entryId,
-        IList<ComplexFormType> afterComplexFormTypes,
         IList<ComplexFormType> beforeComplexFormTypes,
+        IList<ComplexFormType> afterComplexFormTypes,
         IMiniLcmApi api)
     {
         return await DiffCollection.Diff(
@@ -43,7 +43,7 @@ public static class EntrySync
             new ComplexFormTypesDiffApi(api, entryId));
     }
 
-    private static async Task<int> Sync(IList<ComplexFormComponent> afterComponents, IList<ComplexFormComponent> beforeComponents, IMiniLcmApi api)
+    private static async Task<int> Sync(IList<ComplexFormComponent> beforeComponents, IList<ComplexFormComponent> afterComponents, IMiniLcmApi api)
     {
         return await DiffCollection.Diff(
             beforeComponents,
@@ -53,8 +53,8 @@ public static class EntrySync
     }
 
     private static async Task<int> SensesSync(Guid entryId,
-        IList<Sense> afterSenses,
         IList<Sense> beforeSenses,
+        IList<Sense> afterSenses,
         IMiniLcmApi api)
     {
         return await DiffCollection.DiffOrderable(beforeSenses, afterSenses, new SensesDiffApi(api, entryId));
@@ -96,7 +96,7 @@ public static class EntrySync
 
         public override Task<int> Replace(Entry before, Entry after)
         {
-            return Sync(after, before, api);
+            return Sync(before, after, api);
         }
     }
 
@@ -184,7 +184,7 @@ public static class EntrySync
 
         public Task<int> Replace(Sense before, Sense after)
         {
-            return SenseSync.Sync(entryId, after, before, api);
+            return SenseSync.Sync(entryId, before, after, api);
         }
     }
 }
