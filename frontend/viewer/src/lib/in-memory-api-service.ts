@@ -1,19 +1,20 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
-import type { IComplexFormComponent } from './dotnet-types';
 import {entries, projectName, writingSystems} from './entry-data';
 import type {
   IEntry,
   IExampleSentence,
   ISense,
-  LexboxApiClient,
   IPartOfSpeech,
   IQueryOptions,
   ISemanticDomain,
   WritingSystemType,
   IWritingSystems,
-  IComplexFormType, IWritingSystem
-} from './services/lexbox-api';
+  IComplexFormType,
+  IWritingSystem,
+  IComplexFormComponent,
+  IMiniLcmJsInvokable
+} from '$lib/dotnet-types';
 
 import {headword} from './utils';
 
@@ -36,7 +37,7 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
 
-export class InMemoryApiService implements LexboxApiClient {
+export class InMemoryApiService implements IMiniLcmJsInvokable {
   getComplexFormTypes(): Promise<IComplexFormType[]> {
     return Promise.resolve(
       //*

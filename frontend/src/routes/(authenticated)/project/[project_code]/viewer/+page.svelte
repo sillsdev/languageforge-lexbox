@@ -1,8 +1,10 @@
 <script lang="ts">
   import 'viewer/component';
   import {LfClassicLexboxApi} from './lfClassicLexboxApi';
+  import 'viewer/service-declaration';
   import type {PageData} from './$types';
   import t from '$lib/i18n';
+  import {DotnetService} from '$lib/dotnet-types';
 
   export let data: PageData;
   $: project = data.project;
@@ -12,7 +14,7 @@
   $: {
     if (serviceProvider) {
       let localService = new LfClassicLexboxApi($project.code);
-      serviceProvider.setService('MiniLcmApi', localService);
+      serviceProvider.setService(DotnetService.MiniLcmApi, localService);
       service = localService;
     }
   }

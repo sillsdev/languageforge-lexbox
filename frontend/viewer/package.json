@@ -11,8 +11,8 @@
   "main": "dist-web-component/web-component.js",
   "exports": {
     "./component": "./dist-web-component/web-component.js",
-    "./lexbox-api": "./src/lib/services/lexbox-api.ts",
-    "./service-provider": "./src/lib/services/service-provider.ts"
+    "./mini-lcm-api": "./src/lib/dotnet-types/index.ts",
+    "./service-declaration": "./src/lib/services/service-declaration.ts"
   },
   "scripts": {
     "dev-app": "vite",

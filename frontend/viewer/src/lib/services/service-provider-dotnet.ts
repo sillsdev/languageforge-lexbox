@@ -1,13 +1,7 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/naming-convention */
+import './service-declaration';
 import  { type DotNet } from '@microsoft/dotnet-js-interop';
-import {LexboxService, type LexboxServiceRegistry, SERVICE_KEYS, type ServiceKey} from './service-provider';
-
-declare global {
-  interface Lexbox {
-    DotNetServiceProvider?: DotNetServiceProvider;
-    FwLiteProvider?: LexboxServiceRegistry;
-  }
-}
+import {type LexboxServiceRegistry, SERVICE_KEYS, type ServiceKey} from './service-provider';
 export class DotNetServiceProvider {
   private services: LexboxServiceRegistry;
 
@@ -25,7 +19,7 @@ export class DotNetServiceProvider {
 
   public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
     this.validateAllServices();
-    let service = this.services[key] as unknown as DotNet.DotNetObject;
+    const service = this.services[key] as unknown as DotNet.DotNetObject;
     //todo maybe don't return undefined
     if (!service) return undefined;
     return wrapInProxy(service) as LexboxServiceRegistry[K];
@@ -41,11 +35,11 @@ export class DotNetServiceProvider {
   }
 }
 
-function wrapInProxy(dotnetObject: DotNet.DotNetObject): any {
+function wrapInProxy(dotnetObject: DotNet.DotNetObject): unknown {
   return new Proxy(dotnetObject, {
     get(target: DotNet.DotNetObject, prop: string) {
-      let dotnetMethodName = uppercaseFirstLetter(prop);
-      return function (...args: any[]) {
+      const dotnetMethodName = uppercaseFirstLetter(prop);
+      return function (...args: unknown[]) {
         return target.invokeMethodAsync(dotnetMethodName, ...args);
       };
     },
@@ -61,7 +55,7 @@ export function setupDotnetServiceProvider() {
   if (globalThis.window.lexbox) {
     globalThis.window.lexbox = {...globalThis.window.lexbox, ...lexbox};
   } else {
-    // @ts-ignore
+    // @ts-expect-error this is only partially what's required here
     globalThis.window.lexbox = lexbox;
   }
 }
