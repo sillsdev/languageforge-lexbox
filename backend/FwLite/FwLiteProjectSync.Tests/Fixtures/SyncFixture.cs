@@ -17,13 +17,17 @@ public class SyncFixture : IAsyncLifetime
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
     public IServiceProvider Services => _services.ServiceProvider;
     private readonly string _projectName;
+    private readonly string _projectFolder;
     private readonly IDisposable _cleanup;
+    private static readonly Lock _preCleanupLock = new();
+    private static readonly HashSet<string> _preCleanupDone = [];
 
     public static SyncFixture Create([CallerMemberName] string projectName = "", [CallerMemberName] string projectFolder = "") => new(projectName, projectFolder);
 
     private SyncFixture(string projectName, string projectFolder)
     {
         _projectName = projectName;
+        _projectFolder = projectFolder;
         var crdtServices = new ServiceCollection()
             .AddSyncServices(projectFolder);
         var rootServiceProvider = crdtServices.BuildServiceProvider();
@@ -31,15 +35,26 @@ public class SyncFixture : IAsyncLifetime
         _services = rootServiceProvider.CreateAsyncScope();
     }
 
-    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"), "FwLiteSyncFixture")
+    public SyncFixture() : this("sena-3_" + Guid.NewGuid().ToString().Split("-")[0], "FwLiteSyncFixture")
     {
     }
 
     public async Task InitializeAsync()
     {
+        lock (_preCleanupLock)
+        {
+            if (!_preCleanupDone.Contains(_projectFolder))
+            {
+                _preCleanupDone.Add(_projectFolder);
+                if (Path.Exists(_projectFolder))
+                {
+                    Directory.Delete(_projectFolder, true);
+                }
+            }
+        }
+
         var projectsFolder = _services.ServiceProvider.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value
             .ProjectsFolder;
-        if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
         Directory.CreateDirectory(projectsFolder);
         var fwDataProject = new FwDataProject(_projectName, projectsFolder);
         _services.ServiceProvider.GetRequiredService<IProjectLoader>()
@@ -48,7 +63,6 @@ public class SyncFixture : IAsyncLifetime
 
         var crdtProjectsFolder =
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
-        if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
             .CreateProject(new(_projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));

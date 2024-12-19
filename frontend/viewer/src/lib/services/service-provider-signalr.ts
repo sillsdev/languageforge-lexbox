@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { getHubProxyFactory, getReceiverRegister } from '../generated-signalr-client/TypedSignalR.Client';
+import {getHubProxyFactory, getReceiverRegister} from '../generated-signalr-client/TypedSignalR.Client';
 
 import {
   type HubConnection,
@@ -7,7 +7,7 @@ import {
   HubConnectionState,
   type IHttpConnectionOptions
 } from '@microsoft/signalr';
-import type { LexboxApiClient, LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
+import type {LexboxApiClient, LexboxApiFeatures, LexboxApiMetadata} from './lexbox-api';
 import {LexboxService} from './service-provider';
 import {onDestroy} from 'svelte';
 import {type Readable, type Writable, writable} from 'svelte/store';
@@ -67,6 +67,10 @@ function setupConnection(url: string, options: IHttpConnectionOptions, onError: 
     .withUrl(url, options)
     .withAutomaticReconnect()
     .build();
+
+  if (import.meta.env.DEV) connection.serverTimeoutInMilliseconds = 60_000 * 10;
+  console.debug('SignalR connection timeout', connection.serverTimeoutInMilliseconds);
+
   onDestroy(() => connection.stop());
   connection.onclose((error) => {
     connected.set(false);

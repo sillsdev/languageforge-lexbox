@@ -9,4 +9,6 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
     {
         return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("update-entry-test", "en", "en"));
     }
+
+    protected override bool ApiUsesImplicitOrdering => true;
 }

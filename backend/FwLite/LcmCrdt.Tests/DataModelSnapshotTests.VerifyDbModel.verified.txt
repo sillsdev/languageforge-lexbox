@@ -98,7 +98,7 @@
     Navigations: 
       ComplexForms (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
       Components (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
-      Senses (IList<Sense>) Collection ToDependent Sense
+      Senses (List<Sense>) Collection ToDependent Sense
     Keys: 
       Id PK
     Foreign keys: 
@@ -200,6 +200,7 @@
       Gloss (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
+      Order (double) Required
       PartOfSpeech (string) Required
       PartOfSpeechId (Guid?)
       SemanticDomains (IList<SemanticDomain>) Required

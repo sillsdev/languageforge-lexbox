@@ -1,15 +1,25 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
-using MiniLcm.Tests;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
+using Soenneker.Utils.AutoBogus.Config;
 
 namespace FwLiteProjectSync.Tests;
 
 public class EntrySyncTests : IClassFixture<SyncFixture>
 {
-    private static readonly AutoFaker AutoFaker = new(builder => builder.WithOverride(new MultiStringOverride()).WithOverride(new ObjectWithIdOverride()));
+    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
+    {
+        RepeatCount = 5,
+        Overrides =
+        [
+            new MultiStringOverride(),
+            new ObjectWithIdOverride(),
+            new OrderableOverride(),
+        ]
+    });
+
     public EntrySyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
@@ -22,10 +32,18 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     {
         var createdEntry = await _fixture.CrdtApi.CreateEntry(await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi));
         var after = await AutoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
-        await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
+
+        after.Senses = [.. AutoFaker.Faker.Random.Shuffle([
+                // copy some senses over, so moves happen
+                ..AutoFaker.Faker.Random.ListItems(createdEntry.Senses),
+                ..after.Senses
+            ])];
+
+        await EntrySync.Sync(createdEntry, after, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after, options => options);
+        actual.Should().BeEquivalentTo(after, options => options
+            .For(e => e.Senses).Exclude(s => s.Order));
     }
 
     [Fact]
@@ -53,7 +71,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         after.Components[0].ComponentEntryId = component2.Id;
         after.Components[0].ComponentHeadword = component2.Headword();
 
-        await EntrySync.Sync(after, complexForm, _fixture.CrdtApi);
+        await EntrySync.Sync(complexForm, after, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
@@ -85,7 +103,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         after.ComplexForms[0].ComplexFormEntryId = complexForm2.Id;
         after.ComplexForms[0].ComplexFormHeadword = complexForm2.Headword();
 
-        await EntrySync.Sync(after, component, _fixture.CrdtApi);
+        await EntrySync.Sync(component, after, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
@@ -99,7 +117,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         var entry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm1" } } });
         var after = (Entry) entry.Copy();
         after.ComplexFormTypes = [complexFormType];
-        await EntrySync.Sync(after, entry, _fixture.CrdtApi);
+        await EntrySync.Sync(entry, after, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();

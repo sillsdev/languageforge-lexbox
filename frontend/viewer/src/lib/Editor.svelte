@@ -48,6 +48,7 @@
 
   async function updateEntry(updatedEntry: IEntry) {
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
+    console.debug('Updating entry', updatedEntry);
     await saveHandler(() => lexboxApi.UpdateEntry(initialEntry, updatedEntry));
   }
 </script>

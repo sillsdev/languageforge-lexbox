@@ -1,16 +1,11 @@
-﻿using System.Text.Json;
-using SIL.Harmony;
-using FwLiteProjectSync;
-using FwDataMiniLcmBridge;
+﻿using SIL.Harmony;
 using FwLiteShared;
 using FwLiteShared.Auth;
-using FwLiteShared.Sync;
 using LcmCrdt;
 using LocalWebApp.Services;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using Refit;
 
 namespace LocalWebApp;
 
@@ -27,13 +22,13 @@ public static class LocalAppKernel
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
         {
-            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
+            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
         });
 
         services.AddOptions<JsonHubProtocolOptions>().PostConfigure<IOptions<CrdtConfig>>(
             (jsonOptions, crdtConfig) =>
             {
-                jsonOptions.PayloadSerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
+                jsonOptions.PayloadSerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
             });
         return services;
     }

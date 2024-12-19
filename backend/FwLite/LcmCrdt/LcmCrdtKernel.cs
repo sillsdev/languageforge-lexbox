@@ -1,4 +1,3 @@
-﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -22,7 +21,6 @@ using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
-using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -47,12 +45,12 @@ public static class LcmCrdtKernel
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
         services.AddHttpClient();
-        services.AddSingleton<RefitSettings>(provider => new RefitSettings
+        services.AddSingleton(provider => new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
                 TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeJsonTypeResolver()
+                    .MakeLcmCrdtExternalJsonTypeResolver()
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
@@ -192,7 +190,8 @@ public static class LcmCrdtKernel
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()
             .Add<SetComplexFormComponentChange>()
-            .Add<CreateComplexFormType>();
+            .Add<CreateComplexFormType>()
+            .Add<Changes.SetOrderChange<Sense>>();
     }
 
     public static Type[] AllChangeTypes()

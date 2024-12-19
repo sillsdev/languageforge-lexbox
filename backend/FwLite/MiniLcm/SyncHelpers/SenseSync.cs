@@ -6,39 +6,25 @@ namespace MiniLcm.SyncHelpers;
 public static class SenseSync
 {
     public static async Task<int> Sync(Guid entryId,
-        Sense afterSense,
         Sense beforeSense,
+        Sense afterSense,
         IMiniLcmApi api)
     {
-        var updateObjectInput = await SenseDiffToUpdate(beforeSense, afterSense);
+        var updateObjectInput = SenseDiffToUpdate(beforeSense, afterSense);
         if (updateObjectInput is not null) await api.UpdateSense(entryId, beforeSense.Id, updateObjectInput);
         var changes = await ExampleSentenceSync.Sync(entryId,
             beforeSense.Id,
-            afterSense.ExampleSentences,
             beforeSense.ExampleSentences,
+            afterSense.ExampleSentences,
             api);
-        changes += await DiffCollection.Diff(api,
+        changes += await DiffCollection.Diff(
             beforeSense.SemanticDomains,
             afterSense.SemanticDomains,
-            async (api, domain) =>
-            {
-                await api.AddSemanticDomainToSense(beforeSense.Id, domain);
-                return 1;
-            },
-            async (api, beforeDomain) =>
-            {
-                await api.RemoveSemanticDomainFromSense(beforeSense.Id, beforeDomain.Id);
-                return 1;
-            },
-            (_, beforeDomain, afterDomain) =>
-            {
-                //do nothing, semantic domains are not editable here
-                return Task.FromResult(0);
-            });
+            new SenseSemanticDomainsDiffApi(api, beforeSense.Id));
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 
-    public static async Task<UpdateObjectInput<Sense>?> SenseDiffToUpdate(Sense beforeSense, Sense afterSense)
+    public static UpdateObjectInput<Sense>? SenseDiffToUpdate(Sense beforeSense, Sense afterSense)
     {
         JsonPatchDocument<Sense> patchDocument = new();
         patchDocument.Operations.AddRange(
@@ -58,5 +44,25 @@ public static class SenseSync
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Sense>(patchDocument);
+    }
+
+    private class SenseSemanticDomainsDiffApi(IMiniLcmApi api, Guid senseId) : ObjectWithIdCollectionDiffApi<SemanticDomain>
+    {
+        public override async Task<int> Add(SemanticDomain domain)
+        {
+            await api.AddSemanticDomainToSense(senseId, domain);
+            return 1;
+        }
+
+        public override async Task<int> Remove(SemanticDomain beforeDomain)
+        {
+            await api.RemoveSemanticDomainFromSense(senseId, beforeDomain.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(SemanticDomain previousSemDom, SemanticDomain currentSemDom)
+        {
+            return Task.FromResult(0);
+        }
     }
 }
