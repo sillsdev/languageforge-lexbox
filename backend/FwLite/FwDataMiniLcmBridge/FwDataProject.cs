@@ -20,5 +20,5 @@ public class FwDataProject(string name, string projectsPath) : IProjectIdentifie
     /// eg: Project name : "MyProject", path: "/data/projects/" is the value of this property, then the fwdata file must be in /data/projects/MyProject/MyProject.fwdata
     /// </summary>
     public string ProjectsPath { get; } = projectsPath;
-    public string Origin { get; } = "FieldWorks";
+    public ProjectDataFormat DataFormat => ProjectDataFormat.FwData;
 }

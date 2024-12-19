@@ -1,7 +1,5 @@
-﻿using System.Data.SQLite;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using LinqToDB;
-using SIL.WritingSystems;
 
 namespace LcmCrdt.Data;
 

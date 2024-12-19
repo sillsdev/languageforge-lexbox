@@ -3,7 +3,8 @@ using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
-public class MockFwProjectList(IOptions<FwDataBridgeConfig> config, MockFwProjectLoader loader) : FieldWorksProjectList(config)
+public class MockFwProjectList(IOptions<FwDataBridgeConfig> config, MockFwProjectLoader loader,
+    FwDataFactory fwDataFactory) : FieldWorksProjectList(config, fwDataFactory)
 {
     public override IEnumerable<IProjectIdentifier> EnumerateProjects()
     {

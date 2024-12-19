@@ -1,0 +1,29 @@
+﻿@page "/fwdata/{projectName}"
+@using FwLiteShared.Layout
+@using FwLiteShared.Services
+@using Microsoft.Extensions.DependencyInjection
+@inherits OwningComponentBaseAsync
+@layout SvelteLayout;
+@inject IJSRuntime JS;
+
+@code {
+
+    [Parameter]
+    public required string ProjectName { get; set; }
+
+    private IAsyncDisposable? _disposable;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var fwLiteProvider = ScopedServices.GetRequiredService<FwLiteProvider>();
+        _disposable = await fwLiteProvider.InjectFwDataProject(JS, ScopedServices, ProjectName);
+    }
+
+    protected override async ValueTask DisposeAsyncCore()
+    {
+        await base.DisposeAsyncCore();
+        if (_disposable is not null)
+            await _disposable.DisposeAsync();
+    }
+
+}

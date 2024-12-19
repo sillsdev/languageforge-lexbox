@@ -2,14 +2,14 @@
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import { createEventDispatcher } from 'svelte';
-  import type { MultiString } from '../../mini-lcm';
+  import type { IMultiString } from '$lib/dotnet-types';
   import type {WritingSystemSelection} from '../../config-types';
   import { pickWritingSystems } from '../../utils';
   import {useCurrentView} from '../../services/view-service';
   import {useWritingSystems} from '../../writing-systems';
 
   const dispatch = createEventDispatcher<{
-    change: { value: MultiString };
+    change: { value: IMultiString };
   }>();
 
   const allWritingSystems = useWritingSystems();
@@ -17,7 +17,7 @@
   export let id: string;
   export let name: string | undefined = undefined;
   export let wsType: WritingSystemSelection;
-  export let value: MultiString;
+  export let value: IMultiString;
   export let readonly: boolean = false;
 
   let unsavedChanges: Record<string, boolean> = {};

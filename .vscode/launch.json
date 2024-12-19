@@ -11,6 +11,15 @@
       "projectPath": "${workspaceFolder}/backend/FwLite/LocalWebApp/LocalWebApp.csproj"
     },
     {
+      "name": "FwLite Blazor",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build FwLite Blazor (Windows)",
+      "program": "${workspaceFolder}/backend/FwLite/FwLiteDesktop/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/FwLiteDesktop.exe",
+      "cwd": "${workspaceFolder}/backend/FwLite/FwLiteDesktop",
+      "stopAtEntry": false,
+    },
+    {
       "name": ".NET Core Launch (web)",
       "type": "coreclr",
       "request": "launch",
@@ -21,7 +30,7 @@
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
-        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        "pattern": "/\bNow listening on:\\s+(https?://\\S+)"
       },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"

@@ -79,11 +79,11 @@ tasks:
 
   staging-db-forward:
     cmds:
-      - kubectl port-forward service/db 5434:5432 -n languagedepot --context dallas-rke
+      - kubectl port-forward service/db 5434:5432 -n languagedepot --context dallas-stage
 
   develop-db-forward:
     cmds:
-      - kubectl port-forward service/db 5436:5432 -n languagedepot-dev --context dallas-rke
+      - kubectl port-forward service/db 5436:5432 -n languagedepot-dev --context dallas-stage
 
   prod-db-forward:
     cmds:
@@ -93,7 +93,7 @@ tasks:
   diff-staging:
     dir: ./staging
     cmds:
-      - kubectl diff -k . --context dallas-rke
+      - kubectl diff -k . --context dallas-stage
 
   print-staging:
     dir: ./staging

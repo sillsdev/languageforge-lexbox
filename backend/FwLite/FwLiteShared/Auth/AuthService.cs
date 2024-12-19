@@ -1,23 +1,26 @@
 ﻿using FwLiteShared.Projects;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 
 namespace FwLiteShared.Auth;
 
-public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, string? Authority);
+public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, LexboxServer Server);
 public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientFactory clientFactory, IOptions<AuthConfig> options)
 {
-    public IAsyncEnumerable<ServerStatus> Servers()
+    [JSInvokable]
+    public async Task<ServerStatus[]> Servers()
     {
-        return lexboxProjectService.Servers().ToAsyncEnumerable().SelectAwait(async s =>
+        return await lexboxProjectService.Servers().ToAsyncEnumerable().SelectAwait(async s =>
         {
             var currentName = await clientFactory.GetClient(s).GetCurrentName();
             return new ServerStatus(s.DisplayName,
                 !string.IsNullOrEmpty(currentName),
                 currentName,
-                s.Authority.Authority);
-        });
+                s);
+        }).ToArrayAsync();
     }
 
+    [JSInvokable]
     public async Task SignInWebView(LexboxServer server)
     {
         var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
@@ -32,6 +35,7 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
         return result.AuthUri.ToString();
     }
 
+    [JSInvokable]
     public async Task Logout(LexboxServer server)
     {
         await clientFactory.GetClient(server).Logout();

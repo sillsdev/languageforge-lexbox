@@ -104,6 +104,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
         //syncing requires querying entries, which fails if there are no writing systems, so we import those first
@@ -134,6 +135,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public async Task SyncWithoutImport_CrdtShouldMatchFwdata()
     {
         await BypassImport();

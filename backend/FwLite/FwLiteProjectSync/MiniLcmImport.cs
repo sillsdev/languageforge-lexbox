@@ -1,12 +1,49 @@
-﻿using LcmCrdt;
+﻿using System.Diagnostics;
+using FwDataMiniLcmBridge;
+using Humanizer;
+using LcmCrdt;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Project;
 
 namespace FwLiteProjectSync;
 
-public class MiniLcmImport(ILogger<MiniLcmImport> logger)
+public class MiniLcmImport(
+    ILogger<MiniLcmImport> logger,
+    FwDataFactory fwDataFactory,
+    CrdtProjectsService crdtProjectsService
+    ) : IProjectImport
 {
+    public async Task<IProjectIdentifier> Import(IProjectIdentifier project)
+    {
+        if (project is not FwDataProject fwDataProject) throw new ArgumentException("Project is not a fwdata project");
+        var startTime = Stopwatch.GetTimestamp();
+        try
+        {
+            using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
+            var harmonyProject = await crdtProjectsService.CreateProject(new(fwDataProject.Name,
+                SeedNewProjectData: false,
+                FwProjectId: fwDataApi.ProjectId,
+                AfterCreate: async (provider, _) =>
+                {
+                    var crdtApi = provider.GetRequiredService<IMiniLcmApi>();
+                    await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
+                }));
+            var timeSpent = Stopwatch.GetElapsedTime(startTime);
+            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}",
+                fwDataProject.Name,
+                timeSpent.Humanize(2));
+            return harmonyProject;
+        }
+        catch
+        {
+            logger.LogError("Import of {ProjectName} failed, deleting project", fwDataProject.Name);
+            throw;
+        }
+    }
+
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
         await ImportWritingSystems(importTo, importFrom);

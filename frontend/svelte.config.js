@@ -7,6 +7,10 @@ const config = {
     enableSourcemap: true
   },
   kit: {
+    alias: {
+      '$lib/dotnet-types': 'viewer/src/lib/dotnet-types',
+      '$lib/dotnet-types/*': 'viewer/src/lib/dotnet-types/*',
+    },
     version: {
       pollInterval: 0,
     },

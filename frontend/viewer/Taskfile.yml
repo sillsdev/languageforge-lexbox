@@ -19,6 +19,9 @@ tasks:
   build-app:
     deps: [ install ]
     cmd: pnpm run build-app
+  watch-app:
+    deps: [ install ]
+    cmd: pnpm run build-app --watch
 
   install:
     method: checksum

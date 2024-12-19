@@ -12,12 +12,12 @@ public class OpenProjectTests
         var sqliteConnectionString = "OpeningAProjectWorks.sqlite";
         if (File.Exists(sqliteConnectionString)) File.Delete(sqliteConnectionString);
         var builder = Host.CreateEmptyApplicationBuilder(null);
-        builder.Services.AddLcmCrdtClient();
+        builder.Services.AddTestLcmCrdtClient();
         using var host = builder.Build();
         var services = host.Services;
         var asyncScope = services.CreateAsyncScope();
-        await asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
-            .CreateProject(new(Name: "OpeningAProjectWorks", Path: "", SeedNewProjectData: true));
+        var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+        await crdtProjectsService.CreateProject(new(Name: "OpeningAProjectWorks", Path: "", SeedNewProjectData: true));
 
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(new CrdtProject("OpeningAProjectWorks", sqliteConnectionString));
         miniLcmApi.ProjectData.Name.Should().Be("OpeningAProjectWorks");

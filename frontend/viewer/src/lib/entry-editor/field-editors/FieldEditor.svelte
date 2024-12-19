@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MultiString } from '../../mini-lcm';
+  import type { IMultiString } from '$lib/dotnet-types';
   import type {FieldConfig, OptionFieldConfig} from '../../config-types';
   import SingleFieldEditor from './SingleFieldEditor.svelte';
   import MultiFieldEditor from './MultiFieldEditor.svelte';
@@ -20,7 +20,7 @@
     if (state.value !== value) value = state.value;
   }
 
-  function isMultiString(value: unknown): value is MultiString {
+  function isMultiString(value: unknown): value is IMultiString {
     return field.type === 'multi';
   }
   function isSingleString(value: unknown): value is string {

@@ -130,7 +130,7 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
 }
 
 static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
-    ProjectContext projectContext,
+    CurrentProjectService projectContext,
     ProjectLookupService projectLookupService,
     SyncJobStatusService syncJobStatusService,
     IServiceProvider services,
@@ -139,7 +139,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
 {
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
     if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
-    var project = projectContext.Project;
+    var project = projectContext.MaybeProject;
     if (project is null)
     {
         // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync

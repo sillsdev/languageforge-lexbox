@@ -8,18 +8,18 @@
   },
   "version": "1.0.0",
   "type": "module",
-  "main": "dist-web-component/viewer.js",
+  "main": "dist-web-component/web-component.js",
   "exports": {
-    "./component": "./dist-web-component/viewer.js",
-    "./lexbox-api": "./src/lib/services/lexbox-api.ts",
-    "./service-provider": "./src/lib/services/service-provider.ts"
+    "./component": "./dist-web-component/web-component.js",
+    "./mini-lcm-api": "./src/lib/dotnet-types/index.ts",
+    "./service-declaration": "./src/lib/services/service-declaration.ts"
   },
   "scripts": {
     "dev-app": "vite",
     "dev": "vite build -m web-component --watch",
     "lexbox-dev": "vite build -m web-component",
     "build": "vite build -m web-component",
-    "build-app": "vite build",
+    "build-app": "vite build --emptyOutDir",
     "preview": "vite preview",
     "test": "vitest run",
     "test:ui": "vitest --ui",

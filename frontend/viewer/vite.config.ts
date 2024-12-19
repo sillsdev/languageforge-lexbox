@@ -6,6 +6,7 @@ import {svelteTesting} from '@testing-library/svelte/vite';
 export default defineConfig(({ mode }) => {
   const webComponent = mode === 'web-component';
   return {
+    base: '/_content/FwLiteShared/viewer',
     build: {
       ...(webComponent ? {
         lib: {
@@ -13,13 +14,20 @@ export default defineConfig(({ mode }) => {
           formats: ['es'],
         },
         outDir: 'dist-web-component',
-      } : {}),
+      } : {
+        outDir: '../../backend/FwLite/FwLiteShared/wwwroot/viewer',
+      }),
+      minify: false,
+      sourcemap: true,
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          manualChunks: {
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
+          assetFileNames: '[name][extname]',
+          manualChunks: webComponent ? {} : {
             'svelte-ux': ['svelte-ux'],
-          }
+          },
         },
         onwarn: (warning, handler) => {
           // we don't have control over these warnings
@@ -27,6 +35,9 @@ export default defineConfig(({ mode }) => {
           handler(warning);
         }
       },
+    },
+    resolve: {
+      alias: [{find: "$lib", replacement: "/src/lib"}]
     },
     plugins: [svelte({
       onwarn: (warning, handler) => {

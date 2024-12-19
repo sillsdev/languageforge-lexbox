@@ -18,8 +18,7 @@ public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, Crdt
                 if (File.Exists(crdtFile))
                 {
                     var project = new CrdtProject("crdt", crdtFile);
-                    projectsService.SetProjectScope(project);
-                    await context.RequestServices.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+                    await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
                 }
             }
         }

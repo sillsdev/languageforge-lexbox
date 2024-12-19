@@ -16,7 +16,7 @@ module.exports = {
       // Search showing aliases and version (of root source) icons were introduced: https://pictogrammers.com/library/mdi/
       collections: getIconCollections(['mdi']),
     }),
-    svelteUx({ colorSpace: 'oklch' }),
+    svelteUx({ colorSpace: 'hsl' }),
     require('@tailwindcss/typography'),
   ],
   ux: {
@@ -29,7 +29,7 @@ module.exports = {
         "secondary": "#D6E6FF",
         "accent": "#75d7ce",
         "neutral": "#70acc7",
-        "surface-100": "oklch(100% 0 0)",
+        "surface-100": "#ffffff",
         "surface-200": "#f4f5f6",
         "surface-300": "#d1d5db",
         "surface-content": "#394E6A",

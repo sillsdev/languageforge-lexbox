@@ -4,18 +4,20 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MiniLcm.Models;
 using SIL.Harmony;
 
 namespace FwLiteShared.Sync;
 
 public class BackgroundSyncService(
     CrdtProjectsService crdtProjectsService,
-    IHostApplicationLifetime applicationLifetime,
-    ProjectContext projectContext,
     ILogger<BackgroundSyncService> logger,
-    IMemoryCache memoryCache) : BackgroundService
+    IMemoryCache memoryCache,
+    IServiceProvider serviceProvider,
+    IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
+    private bool _running = false;
 
     public void TriggerSync(Guid projectId, Guid? ignoredClientId = null)
     {
@@ -40,18 +42,21 @@ public class BackgroundSyncService(
 
         TriggerSync(crdtProject);
     }
-    public void TriggerSync()
-    {
-        TriggerSync(projectContext.Project ?? throw new InvalidOperationException("No project selected"));
-    }
 
+    public void TriggerSync(IProjectIdentifier project)
+    {
+        if (project.DataFormat == ProjectDataFormat.FwData) throw new NotSupportedException("Background sync service does not support fwdata projects");
+        TriggerSync((CrdtProject)project);
+    }
     public void TriggerSync(CrdtProject crdtProject)
     {
+        if (!_running) throw new InvalidOperationException("Background sync service is not running");
         _syncResultsChannel.Writer.TryWrite(crdtProject);
     }
 
     private Task StartedAsync()
     {
+        if (applicationLifetime is null) return Task.CompletedTask;
         var tcs = new TaskCompletionSource();
         applicationLifetime.ApplicationStarted.Register(() => tcs.SetResult());
         return tcs.Task;
@@ -61,7 +66,8 @@ public class BackgroundSyncService(
     {
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
-        var crdtProjects = await crdtProjectsService.ListProjects();
+        _running = true;
+        var crdtProjects = crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
             await SyncProject(crdtProject);
@@ -79,8 +85,8 @@ public class BackgroundSyncService(
     {
         try
         {
-            await using var serviceScope = crdtProjectsService.CreateProjectScope(crdtProject);
-            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            await using var serviceScope = serviceProvider.CreateAsyncScope();
+            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
             var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }

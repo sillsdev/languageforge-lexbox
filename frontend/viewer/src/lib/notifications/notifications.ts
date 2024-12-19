@@ -11,10 +11,10 @@ export class AppNotification {
     return this._notifications;
   }
 
-  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout: 'short' | 'long' | number = 'short') {
+  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout?: 'short' | 'long' | number) {
     const notification = new AppNotification(message, type);
     this._notifications.update(notifications => [...notifications, notification]);
-    if (timeout === -1) return;
+    if (!timeout || typeof timeout === 'number' && timeout <= 0) return;
     if (typeof timeout === 'string') {
       timeout = timeout === 'short' ? 5000 : 30000;
     }

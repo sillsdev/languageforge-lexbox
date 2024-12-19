@@ -1,12 +1,25 @@
-﻿<script lang="ts">
-  import {Router, Route, navigate} from 'svelte-routing';
-  import CrdtProjectView from './CrdtProjectView.svelte';
+﻿<script lang="ts" context="module">
+  import {navigate} from 'svelte-routing';
+  declare global {
+    interface Window {
+      svelteNavigate: (to: string) => void;
+    }
+  }
+  window.svelteNavigate =  (to: string) => {
+   console.log('svelteNavigate', to);
+   navigate(to, {replace: true});
+  };
+</script>
+<script lang="ts">
+  import {Router, Route} from 'svelte-routing';
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import Sandbox from './lib/sandbox/Sandbox.svelte';
-  import { settings } from 'svelte-ux';
+  import {settings} from 'svelte-ux';
+  import DotnetProjectView from './DotnetProjectView.svelte';
+  import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
 
   export let url = '';
 
@@ -38,6 +51,8 @@
     },
   });
   /* eslint-enable @typescript-eslint/naming-convention */
+
+  setupGlobalErrorHandlers();
 </script>
 
 <Router {url}>
@@ -47,14 +62,14 @@
     <Route path="/project/:name" let:params>
       <Router {url} basepath="/project/{params.name}">
         {#key params.name}
-          <CrdtProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name}/>
         {/key}
       </Router>
     </Route>
     <Route path="/fwdata/:name" let:params>
       <Router {url} basepath="/fwdata/{params.name}">
         {#key params.name}
-          <FwDataProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name}/>
         {/key}
       </Router>
     </Route>
@@ -67,10 +82,10 @@
       <HomeView/>
     </Route>
     <Route path="/sandbox">
-      <Sandbox />
+      <Sandbox/>
     </Route>
     <Route path="/*">
-      {setTimeout(() => navigate('/', { replace: true }))}
+      {setTimeout(() => navigate('/', {replace: true}))}
     </Route>
   </div>
 </Router>

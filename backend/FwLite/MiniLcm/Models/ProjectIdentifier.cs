@@ -3,5 +3,11 @@
 public interface IProjectIdentifier
 {
     string Name { get; }
-    string Origin { get; }
+    ProjectDataFormat DataFormat { get; }
+}
+
+public enum ProjectDataFormat
+{
+    Harmony,
+    FwData
 }

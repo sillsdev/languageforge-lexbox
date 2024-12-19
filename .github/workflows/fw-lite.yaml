@@ -19,11 +19,12 @@ on:
     branches:
       - develop
       - main
-
+env:
+  VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
-    timeout-minutes: 30
+    timeout-minutes: 40
     runs-on: windows-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
@@ -39,9 +40,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
-
-      - name: Setup Maui
-        run: dotnet workload install maui-windows
 
       - name: Set Version
         id: setVersion
@@ -59,20 +57,15 @@ jobs:
           pnpm install
           pnpm run build-app
 
-      - name: Dotnet build
-        working-directory: backend/FwLite/FwLiteDesktop
-        run: |
-          dotnet build --configuration Release
-
       - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --configuration Release  --logger GitHubActions
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions
 
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite-viewer-app
+          name: fw-lite-viewer-js
           if-no-files-found: error
-          path: frontend/viewer/dist
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
   publish-mac:
     name: Publish FW Lite app for Mac
@@ -86,8 +79,8 @@ jobs:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: fw-lite-viewer-app
-          path: frontend/viewer/dist
+          name: fw-lite-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
@@ -123,15 +116,11 @@ jobs:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: fw-lite-viewer-app
-          path: frontend/viewer/dist
+          name: fw-lite-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-
-      - name: Dotnet build
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet build --configuration Release
 
       - name: Publish Linux
         working-directory: backend/FwLite/LocalWebApp
@@ -143,6 +132,38 @@ jobs:
           name: fw-lite-local-web-app-linux
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
+
+  publish-android:
+    name: Publish FW Lite app for Android
+    needs: build-and-test
+    timeout-minutes: 30
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Setup Maui
+        run: dotnet workload install maui
+
+      - name: Publish Android
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: dotnet publish -f net9.0-android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+
+      - name: Upload FWLite App artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-android
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -156,8 +177,8 @@ jobs:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: fw-lite-viewer-app
-          path: frontend/viewer/dist
+          name: fw-lite-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
@@ -165,21 +186,17 @@ jobs:
       - name: Setup Maui
         run: dotnet workload install maui-windows
 
-      - name: Dotnet build
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet build --configuration Release
-
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -223,7 +240,7 @@ jobs:
   create-release:
     if: ${{ github.ref_name == 'main' }}
     name: Create Release
-    needs: [ build-and-test, publish-win, publish-linux, publish-mac]
+    needs: [ build-and-test, publish-win, publish-linux, publish-mac, publish-android]
     runs-on: ubuntu-latest
 
     steps:
@@ -239,6 +256,10 @@ jobs:
         with:
           name: fw-lite-local-web-app-linux
           path: fw-lite-local-web-app-linux
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-android
+          path: fw-lite-android
 
       - name: Zip artifacts
         run: |
@@ -256,6 +277,9 @@ jobs:
             fw-lite-msix/*
             fw-lite-portable.zip
             fw-lite-local-web-app-linux.zip
+            fw-lite-android/*.apk
+            fw-lite-android/*.aab
+
       - name: Invalidate Lexbox Release endpoint
         continue-on-error: true
         run: |

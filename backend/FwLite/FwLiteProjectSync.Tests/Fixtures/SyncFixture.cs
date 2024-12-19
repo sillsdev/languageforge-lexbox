@@ -56,9 +56,10 @@ public class SyncFixture : IAsyncLifetime
         var projectsFolder = _services.ServiceProvider.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value
             .ProjectsFolder;
         Directory.CreateDirectory(projectsFolder);
+        var fwDataProject = new FwDataProject(_projectName, projectsFolder);
         _services.ServiceProvider.GetRequiredService<IProjectLoader>()
-            .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "en");
-        FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
+            .NewProject(fwDataProject, "en", "en");
+        FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProjectsFolder =
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;

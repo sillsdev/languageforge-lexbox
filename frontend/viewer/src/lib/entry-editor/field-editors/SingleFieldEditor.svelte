@@ -9,7 +9,7 @@
   export let id: string;
   export let name: string | undefined = undefined;
   export let wsType: WritingSystemSelection;
-  export let value: string;
+  export let value: string | undefined;
   export let readonly: boolean;
   let currentView = useCurrentView();
 

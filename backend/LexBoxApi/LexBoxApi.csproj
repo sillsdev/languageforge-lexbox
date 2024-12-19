@@ -51,7 +51,7 @@
         <PackageReference Include="Polly.Extensions" Version="8.4.2" />
         <PackageReference Include="Quartz.AspNetCore" Version="3.13.0" />
         <PackageReference Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
         <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
         <PackageReference Include="tusdotnet" Version="2.8.0" />
         <PackageReference Include="zxcvbn-core" Version="7.0.92" />

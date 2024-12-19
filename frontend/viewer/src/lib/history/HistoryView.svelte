@@ -1,51 +1,28 @@
 ﻿<script lang="ts">
   import {mdiHistory} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem, Toggle} from 'svelte-ux';
-  import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
-  import {getContext} from 'svelte';
   import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
   import ExampleEditor from '../entry-editor/object-editors/ExampleEditor.svelte';
+  import {type HistoryItem, useHistoryService} from '../services/history-service';
 
-  type EntityType = { entity: IEntry, entityName: 'Entry' } | { entity: ISense, entityName: 'Sense' } | {
-    entity: IExampleSentence,
-    entityName: 'ExampleSentence'
-  } | { entity: undefined, entityName: undefined };
   export let id: string;
   export let small: boolean = false;
   let loading = false;
-  let record: typeof history[number] | undefined;
-  let projectName = getContext<string>('project-name');
-  let history: Array<{
-    commitId: string,
-    timestamp: string,
-    previousTimestamp?: string,
-    snapshotId: string,
-    changeName: string | undefined,
-  } & EntityType>;
+  let record: HistoryItem | undefined;
+  const historyService = useHistoryService();
+  let history: HistoryItem[];
 
   async function load() {
     loading = true;
-    const data = await fetch(`/api/history/${projectName}/${id}`).then(res => res.json());
-    if (!Array.isArray(data)) {
-      console.error('Invalid history data', data);
-      history = [];
-      return;
-    }
-    for (let i = 0; i < data.length; i++) {
-      let historyElement = data[i];
-      historyElement.previousTimestamp = data[i + 1]?.timestamp;
-    }
-    // Reverse the history so that the most recent changes are at the top
-    history = data.toReversed();
+    history = await historyService.load(id);
     record = history[0];
     loading = false;
   }
 
-  async function showEntry(row: typeof history[number]) {
+  async function showEntry(row: HistoryItem) {
     if (!row.entity || !row.snapshotId) {
-      const data = await fetch(`/api/history/${projectName}/snapshot/at/${row.timestamp}?entityId=${id}`).then(res => res.json());
-      record = {...row, entity: data.entity, entityName: data.typeName};
+      record = await historyService.fetchSnapshot(row, id);
     } else {
       record = row;
     }

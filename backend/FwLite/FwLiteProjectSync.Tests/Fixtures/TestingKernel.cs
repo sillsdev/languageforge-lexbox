@@ -13,15 +13,8 @@ public static class TestingKernel
         return services.AddLcmCrdtClient()
             .AddTestFwDataBridge(mockFwProjectLoader)
             .AddFwLiteProjectSync()
-            .AddSingleton<ProjectContext>(new MockProjectContext(null))
             .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", projectName, "FwData"))
             .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", projectName, "LcmCrdt"))
             .AddLogging(builder => builder.AddDebug());
     }
-
-    public class MockProjectContext(CrdtProject? project) : ProjectContext
-    {
-        public override CrdtProject? Project { get; set; } = project;
-    }
-
 }

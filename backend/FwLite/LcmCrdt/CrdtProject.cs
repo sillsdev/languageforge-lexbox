@@ -3,7 +3,7 @@
 public class CrdtProject(string name, string dbPath) : IProjectIdentifier
 {
     public string Name { get; } = name;
-    public string Origin { get; } = "CRDT";
+    public ProjectDataFormat DataFormat => ProjectDataFormat.Harmony;
     public string DbPath { get; } = dbPath;
     public ProjectData? Data { get; set; }
 }

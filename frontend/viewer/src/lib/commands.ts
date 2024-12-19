@@ -1,6 +1,6 @@
 ﻿import {getContext, setContext} from 'svelte';
 
-import type { IEntry } from './mini-lcm';
+import type { IEntry } from '$lib/dotnet-types';
 
 export type NewEntryDialogOptions = {
   dontNavigate?: true;

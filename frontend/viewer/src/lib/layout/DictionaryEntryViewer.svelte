@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IEntry } from '../mini-lcm';
+  import type { IEntry } from '$lib/dotnet-types';
   import DictionaryEntry from '../DictionaryEntry.svelte';
   import { Button } from 'svelte-ux';
   import { mdiChevronDown, mdiChevronUp } from '@mdi/js';
@@ -30,6 +30,6 @@
 <style lang="postcss">
   .fancy-border {
     border: 1px solid;
-    border-image: radial-gradient(circle, oklch(var(--color-surface-content) / var(--tw-text-opacity)) 0%, oklch(var(--color-surface-content) / 20%) 100%) 1 0 1 0;
+    border-image: radial-gradient(circle, hsl(var(--color-surface-content) / var(--tw-text-opacity)) 0%, hsl(var(--color-surface-content) / 20%) 100%) 1 0 1 0;
   }
 </style>

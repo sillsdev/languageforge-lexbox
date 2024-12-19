@@ -1,0 +1,15 @@
+﻿@page "/"
+@using FwLiteShared.Layout
+@using FwLiteShared.Services
+@layout SvelteLayout;
+@inject FwLiteProvider FwLiteProvider;
+@inject IJSRuntime JS;
+
+@*this looks empty because it is, but it's required to declare the route which is then used by the svelte router*@
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await FwLiteProvider.SetService(JS, DotnetService.MiniLcmApi, null);
+    }
+}

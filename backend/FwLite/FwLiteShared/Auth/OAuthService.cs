@@ -10,25 +10,32 @@ namespace FwLiteShared.Auth;
 
 //this class is commented with a number of step comments, these are the steps in the OAuth flow
 //if a step comes before a method that means it awaits that call, if it comes after that means it resumes after the above await
-public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime applicationLifetime, IOptions<AuthConfig> options) : BackgroundService
+public class OAuthService(
+    ILogger<OAuthService> logger,
+    IOptions<AuthConfig> options,
+    IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     public record SignInResult(Uri? AuthUri, bool HandledBySystemWebView);
+
     public async Task<SignInResult> SubmitLoginRequest(IPublicClientApplication application,
         string returnUrl,
         CancellationToken cancellation)
     {
         if (options.Value.SystemWebViewLogin)
         {
-           await HandleSystemWebViewLogin(application, cancellation);
-           return new(null, true);
+            await HandleSystemWebViewLogin(application, cancellation);
+            return new(null, true);
         }
+
         var request = new OAuthLoginRequest(application, returnUrl);
         if (!_requestChannel.Writer.TryWrite(request))
         {
             throw new InvalidOperationException("Only one request at a time");
         }
+
         //step 1
-        var uri = await request.GetAuthUri(applicationLifetime.ApplicationStopping.Merge(cancellation));
+        var uri = await request.GetAuthUri(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
+                                           cancellation);
         //step 4
         if (request.State is null) throw new InvalidOperationException("State is null");
         _oAuthLoginRequests[request.State] = request;
@@ -39,11 +46,13 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
     {
         var result = await application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
             .WithUseEmbeddedWebView(false)
+            .WithParentActivityOrWindow(options.Value.ParentActivityOrWindow)
             .WithSystemWebViewOptions(new() { })
             .ExecuteAsync(cancellation);
     }
 
-    public async Task<(AuthenticationResult, string ClientReturnUrl)> FinishLoginRequest(Uri uri, CancellationToken cancellation = default)
+    public async Task<(AuthenticationResult, string ClientReturnUrl)> FinishLoginRequest(Uri uri,
+        CancellationToken cancellation = default)
     {
         var queryString = HttpUtility.ParseQueryString(uri.Query);
         var state = queryString.Get("state") ?? throw new InvalidOperationException("State is null");
@@ -51,12 +60,17 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
             throw new InvalidOperationException("Invalid state");
         //step 5
         request.SetReturnUri(uri);
-        return (await request.GetAuthenticationResult(applicationLifetime.ApplicationStopping.Merge(cancellation)), request.ClientReturnUrl);
+        return (
+            await request.GetAuthenticationResult(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
+                                                  cancellation),
+            request.ClientReturnUrl);
         //step 8
     }
 
     private readonly Dictionary<string, OAuthLoginRequest> _oAuthLoginRequests = new();
-    private readonly Channel<OAuthLoginRequest> _requestChannel = Channel.CreateBounded<OAuthLoginRequest>(1);//only one request at a time
+
+    private readonly Channel<OAuthLoginRequest>
+        _requestChannel = Channel.CreateBounded<OAuthLoginRequest>(1); //only one request at a time
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -118,6 +132,7 @@ public class OAuthLoginRequest(IPublicClientApplication app, string clientReturn
     public Task<Uri> GetAuthUri(CancellationToken cancellation) => _authUriTcs.Task.WaitAsync(cancellation);
     public void SetReturnUri(Uri uri) => _returnUriTcs.SetResult(uri);
     public void SetAuthenticationResult(AuthenticationResult result) => _resultTcs.SetResult(result);
+
     public void SetException(Exception e)
     {
         if (_authUriTcs.Task.IsCompleted)
@@ -126,7 +141,9 @@ public class OAuthLoginRequest(IPublicClientApplication app, string clientReturn
             _authUriTcs.SetException(e);
     }
 
-    public Task<AuthenticationResult> GetAuthenticationResult(CancellationToken cancellation) => _resultTcs.Task.WaitAsync(cancellation);
+    public Task<AuthenticationResult> GetAuthenticationResult(CancellationToken cancellation) =>
+        _resultTcs.Task.WaitAsync(cancellation);
+
     /// <summary>
     /// url to return the client to once the login is finished
     /// </summary>

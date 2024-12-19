@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IEntry } from '../mini-lcm';
+  import type { IEntry } from '$lib/dotnet-types';
   import { firstDefOrGlossVal, firstSentenceOrTranslationVal, headword } from '../utils';
 
   export let entry: IEntry | undefined;

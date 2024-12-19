@@ -3,7 +3,7 @@ import type {
   CustomFieldConfig,
   FieldConfig,
 } from './config-types';
-import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
+import type { IEntry, IExampleSentence, ISense } from '$lib/dotnet-types';
 
 import type { I18nType } from './i18n';
 import type { ConditionalPickDeep, ValueOf } from 'type-fest';

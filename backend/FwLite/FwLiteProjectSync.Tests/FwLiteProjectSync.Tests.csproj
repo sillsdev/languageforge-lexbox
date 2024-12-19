@@ -44,8 +44,8 @@
         <!-- json files get imported by default in web projects, so exclude those here so they aren't imported again below -->
         <!-- TODO: Determine if this step is actually necessary -->
         <Content Remove="Mercurial\contrib\asv.conf.json"/>
-        <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
-        <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
+        <Content Include="Mercurial\**" CopyToOutputDirectory="PreserveNewest" Watch="false" />
+        <Content Include="MercurialExtensions\**" CopyToOutputDirectory="PreserveNewest" Watch="false" />
     </ItemGroup>
 
 </Project>

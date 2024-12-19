@@ -8,8 +8,9 @@ namespace FwLiteShared.Auth;
 
 public class OAuthClientFactory(IServiceProvider provider,
     IOptions<AuthConfig> options,
-    IRedirectUrlProvider? redirectUrlProvider,
-    ILogger<OAuthClientFactory> logger)
+    ILogger<OAuthClientFactory> logger,
+    IRedirectUrlProvider? redirectUrlProvider = null
+    )
 {
     private readonly ConcurrentDictionary<string, OAuthClient> _helpers = new();
 

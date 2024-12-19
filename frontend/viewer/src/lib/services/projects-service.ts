@@ -1,31 +1,32 @@
 ﻿import {AppNotification} from '../notifications/notifications';
+import type {IServerStatus, ICombinedProjectsService, IProjectModel, ILexboxServer, IServerProjects} from '$lib/dotnet-types';
 
-export type Project = {
-  name: string;
-  crdt: boolean;
-  fwdata: boolean;
-  lexbox: boolean,
-  serverAuthority: string | null,
-  id: string | null
-};
-export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null, authority: string };
-export function useProjectsService(): ProjectService {
-  return projectService;
-}
-export class ProjectService {
-  async createProject(newProjectName: string): Promise<{error: string|undefined}> {
+export type Project = IProjectModel;
+export type ServerStatus = IServerStatus;
+
+export class ProjectService implements ICombinedProjectsService {
+  supportsFwData(): Promise<boolean> {
+      throw new Error('Method not implemented.');
+  }
+  remoteProjects(): Promise<IServerProjects[]> {
+      throw new Error('Method not implemented.');
+  }
+  downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer): Promise<void> {
+      throw new Error('Method not implemented.');
+  }
+  async createProject(newProjectName: string): Promise<void> {
 
     if (!newProjectName) {
-      return {error: 'Project name is required'};
+      throw new Error('Project name is required');
     }
     const response = await fetch(`/api/project?name=${newProjectName}`, {
       method: 'POST',
     });
 
     if (!response.ok) {
-      return {error: await response.text()};
+      throw new Error(await response.text());
     }
-    return {error: undefined};
+    return;
   }
 
   async importFwDataProject(name: string): Promise<boolean> {
@@ -58,12 +59,12 @@ export class ProjectService {
   }
 
   async getProjectServer(projectName: string): Promise<string|null> {
-    const projects = await this.fetchProjects();
+    const projects = await this.localProjects();
     //todo project server is always null from local projects`
     return projects.find(p => p.name === projectName)?.serverAuthority ?? null;
   }
 
-  async fetchProjects(): Promise<Project[]> {
+  async localProjects(): Promise<Project[]> {
     const r = await fetch('/api/localProjects');
     return (await r.json()) as Project[];
   }
@@ -78,4 +79,3 @@ export class ProjectService {
     return (await r.json()) as ServerStatus[];
   }
 }
-const projectService = new ProjectService();

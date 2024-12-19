@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <link rel="icon" type="image/png" href="_content/FwLiteShared/favicon.png"/>
+    <HeadOutlet @rendermode="InteractiveServer"/>
+    <script>
+        window.invokeOnWindow = function (methodName, args) {
+            if (!(methodName in window)) {
+                //todo not sure how to handle this for now, maybe we wait until the app is ready?
+                console.error(`Method ${methodName} not found`);
+                return;
+            }
+            window[methodName](...args);
+        };
+    </script>
+</head>
+
+<body>
+<Routes @rendermode="InteractiveServer"/>
+<script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>

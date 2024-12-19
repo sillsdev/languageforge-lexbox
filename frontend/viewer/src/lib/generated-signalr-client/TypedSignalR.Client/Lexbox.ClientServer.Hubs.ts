@@ -2,17 +2,17 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import type { Entry } from '../../mini-lcm';
-import type {LexboxApi} from '../../services/lexbox-api';
 
-export type ILexboxApiHub = LexboxApi;
+import type {IEntry, IMiniLcmJsInvokable} from '$lib/dotnet-types';
+
+export type ILexboxApiHub = IMiniLcmJsInvokable;
 
 export type ILexboxClient = {
     /**
     * @param entry Transpiled from lexboxClientContracts.Entry
     * @returns Transpiled from System.Threading.Tasks.Task
     */
-    OnEntryUpdated(entry: Entry): Promise<void>;
+    OnEntryUpdated(entry: IEntry): Promise<void>;
     OnProjectClosed(reason: CloseReason): Promise<void>;
 }
 

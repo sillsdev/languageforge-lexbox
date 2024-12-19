@@ -5,10 +5,10 @@
              x:Class="FwLiteDesktop.App">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+
+            <Color x:Key="PageBackgroundColor">#152747</Color>
+            <Color x:Key="PrimaryTextColor">White</Color>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

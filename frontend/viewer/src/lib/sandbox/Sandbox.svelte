@@ -7,6 +7,7 @@
   import {type View} from '../entry-editor/view-data';
   import MapBind from '../utils/MapBind.svelte';
   import {initWritingSystems} from '../writing-systems';
+  import {WritingSystemType} from '$lib/dotnet-types';
 
   initWritingSystems(readable({
     analysis: [{
@@ -16,6 +17,8 @@
       abbreviation: 'test',
       font: 'test',
       exemplars: [],
+      type: WritingSystemType.Analysis,
+      order: 0,
     }],
     vernacular: [],
   }));

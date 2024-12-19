@@ -302,7 +302,8 @@ public class SeedingData(
             RedirectUris = {
                 new Uri("http://localhost/api/auth/oauth-callback"),
                 new Uri("http://127.0.0.1/api/auth/oauth-callback"),
-                new Uri("http://localhost")//handles system web view case
+                new Uri("http://localhost"),//handles system web view case
+                new Uri("msalbecf2856-0690-434b-b192-a4032b72067f://auth")//handles android web view callback
             }
         }
     ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));

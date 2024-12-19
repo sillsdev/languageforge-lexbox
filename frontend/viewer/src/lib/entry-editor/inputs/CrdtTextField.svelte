@@ -3,7 +3,7 @@
   import CrdtField from './CrdtField.svelte';
   import { TextField } from 'svelte-ux';
 
-  export let value: string | number | null;
+  export let value: string | number | null | undefined;
   export let unsavedChanges = false;
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;

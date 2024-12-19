@@ -1,6 +1,6 @@
-﻿using LcmCrdt.Tests.Mocks;
-using Meziantou.Extensions.Logging.Xunit;
+﻿using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -26,14 +26,13 @@ public class MiniLcmApiFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        var crdtProject = new CrdtProject("sena-3", ":memory:");
         var services = new ServiceCollection()
-            .AddLcmCrdtClient()
+            .AddTestLcmCrdtClient(crdtProject)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
                 .SetMinimumLevel(LogLevel.Error))
-            .RemoveAll(typeof(ProjectContext))
-            .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
@@ -41,7 +40,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
-        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().RefreshProjectData();
 
         await Api.CreateWritingSystem(WritingSystemType.Vernacular,
             new WritingSystem()
