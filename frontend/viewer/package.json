@@ -8,9 +8,9 @@
   },
   "version": "1.0.0",
   "type": "module",
-  "main": "dist-web-component/viewer.js",
+  "main": "dist-web-component/web-component.js",
   "exports": {
-    "./component": "./dist-web-component/viewer.js",
+    "./component": "./dist-web-component/web-component.js",
     "./lexbox-api": "./src/lib/services/lexbox-api.ts",
     "./service-provider": "./src/lib/services/service-provider.ts"
   },

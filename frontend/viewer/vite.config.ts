@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
           assetFileNames: '[name][extname]',
-          manualChunks: {
+          manualChunks: webComponent ? {} : {
             'svelte-ux': ['svelte-ux'],
           },
         },
