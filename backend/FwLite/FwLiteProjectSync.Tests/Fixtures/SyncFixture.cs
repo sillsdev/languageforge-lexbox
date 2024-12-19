@@ -41,9 +41,10 @@ public class SyncFixture : IAsyncLifetime
             .ProjectsFolder;
         if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
         Directory.CreateDirectory(projectsFolder);
+        var fwDataProject = new FwDataProject(_projectName, projectsFolder);
         _services.ServiceProvider.GetRequiredService<IProjectLoader>()
-            .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "en");
-        FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
+            .NewProject(fwDataProject, "en", "en");
+        FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProjectsFolder =
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
