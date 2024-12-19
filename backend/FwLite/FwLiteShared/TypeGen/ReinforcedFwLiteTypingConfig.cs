@@ -37,9 +37,15 @@ public static class ReinforcedFwLiteTypingConfig
             From = "$lib/dotnet-types/i-multi-string",
             Target = "type {IMultiString}"
         }]);
+        builder.ExportAsInterface<Sense>().WithPublicNonStaticProperties(exportBuilder =>
+        {
+            if (exportBuilder.Member.Name == nameof(Sense.Order))
+            {
+                exportBuilder.Ignore();
+            }
+        });
         builder.ExportAsInterfaces([
                 typeof(Entry),
-                typeof(Sense),
                 typeof(ExampleSentence),
                 typeof(WritingSystem),
                 typeof(WritingSystems),
@@ -50,7 +56,7 @@ public static class ReinforcedFwLiteTypingConfig
 
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
             ],
-            exportBuilder => exportBuilder.WithPublicProperties());
+            exportBuilder => exportBuilder.WithPublicNonStaticProperties());
         builder.ExportAsEnum<WritingSystemType>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
@@ -58,7 +64,7 @@ public static class ReinforcedFwLiteTypingConfig
             .WithPublicMethods(b => b.AlwaysReturnPromise());
         builder.ExportAsEnum<SortField>().UseString();
         builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions)],
-            exportBuilder => exportBuilder.WithProperties(BindingFlags.Public | BindingFlags.Instance));
+            exportBuilder => exportBuilder.WithPublicNonStaticProperties());
 
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsInterface<AuthService>().WithPublicMethods(b => b.AlwaysReturnPromise());
@@ -101,6 +107,12 @@ public static class ReinforcedFwLiteTypingConfig
                 exportBuilder.Returns(typeof(Task<>).MakeGenericType(exportBuilder.Member.ReturnType));
             }
         }
+    }
+
+    private static T WithPublicNonStaticProperties<T>(this T tc, Action<PropertyExportBuilder>? configuration = null)
+        where T : ClassOrInterfaceExportBuilder
+    {
+        return tc.WithProperties(BindingFlags.Public | BindingFlags.Instance, configuration);
     }
 
     private static void DisableEsLintChecks(ConfigurationBuilder builder)

@@ -1,8 +1,8 @@
-import type { IEntry, WritingSystems } from './mini-lcm';
+import {type IEntry, type IWritingSystems, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
-export const writingSystems: WritingSystems = {
+export const writingSystems: IWritingSystems = {
   'analysis': [
     {
       'id': 'en',
@@ -10,7 +10,9 @@ export const writingSystems: WritingSystems = {
       'name': 'English',
       'abbreviation': 'Eng',
       'font': '???',
-      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+      'type': WritingSystemType.Analysis,
+      'order': 0
     },
     {
       'id': 'pt',
@@ -18,7 +20,9 @@ export const writingSystems: WritingSystems = {
       'name': 'Portuguese',
       'abbreviation': 'Por',
       'font': '???',
-      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+      'type': WritingSystemType.Vernacular,
+      'order': 1
     }
   ],
   'vernacular': [
@@ -28,7 +32,9 @@ export const writingSystems: WritingSystems = {
       'name': 'Sena',
       'abbreviation': 'Sen',
       'font': '???',
-      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+      'type': WritingSystemType.Vernacular,
+      'order': 0
     },
     {
       'id': 'seh-fonipa-x-etic',
@@ -36,7 +42,9 @@ export const writingSystems: WritingSystems = {
       'name': 'Sena',
       'abbreviation': 'seh',
       'font': '???',
-      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+      'type': WritingSystemType.Vernacular,
+      'order': 1
     }
   ]
 };
@@ -51,40 +59,50 @@ export const _entries: IEntry[] = [
     'senses': [
       {
         'id': 'f53f0f28-3ec1-4051-b9a3-fafdca6209ce',
+        'entryId': '',
         'definition': { 'en': 'they', 'pt': 'eles' },
         'gloss': { 'en': '3P+2', 'pt': '3P+2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': 'e73d5de2-b5ec-4cc8-a679-7f7ca8f673f9',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': '04f6ebb2-31c2-4089-a9e8-68cc32b6d5d1',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': 'b2565e07-2e43-43cb-b533-247f100ac548',
+        'entryId': '',
         'definition': {}, 'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': '3360f2c7-1026-4558-a0fb-e9574aae16ee',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       }
@@ -99,40 +117,50 @@ export const _entries: IEntry[] = [
     'senses': [
       {
         'id': 'f53f0f29-3ec1-4051-b9a3-fafdca6209ce',
+        'entryId': '',
         'definition': { 'en': 'they', 'pt': 'eles' },
         'gloss': { 'en': '3P+2', 'pt': '3P+2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': 'e73d5de2-b5ec-4cc8-a679-8f7ca8f673f9',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': '04f6ebb2-31c2-4089-b9e8-68cc32b6d5d1',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       },
       {
         'id': 'b2565e07-2e43-43cb-c533-247f100ac548',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [], 'exampleSentences': []
       },
       {
         'id': '3360f2c7-1026-c558-a0fb-e9574aae16ee',
+        'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
         'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
+        'partOfSpeech': '',
         'semanticDomains': [],
         'exampleSentences': []
       }

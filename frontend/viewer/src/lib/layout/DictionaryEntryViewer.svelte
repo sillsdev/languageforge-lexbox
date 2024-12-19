@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IEntry } from '../mini-lcm';
+  import type { IEntry } from '$lib/dotnet-types';
   import DictionaryEntry from '../DictionaryEntry.svelte';
   import { Button } from 'svelte-ux';
   import { mdiChevronDown, mdiChevronUp } from '@mdi/js';

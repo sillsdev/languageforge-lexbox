@@ -12,7 +12,7 @@ internal class MiniLcmJsInvokable(
     IProjectIdentifier project) : IDisposable
 {
 
-    public record MiniLcmFeatures(bool History, bool Write, bool OpenWithFlex, bool Feedback, bool Sync);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()

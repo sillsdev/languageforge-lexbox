@@ -1,4 +1,4 @@
-﻿import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
+﻿import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 import {getContext} from 'svelte';
 
 export function useHistoryService() {

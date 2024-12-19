@@ -1,22 +1,32 @@
 ﻿import {AppNotification} from '../notifications/notifications';
-import type {IServerStatus, ICombinedProjectsService, IProjectModel} from '$lib/dotnet-types';
+import type {IServerStatus, ICombinedProjectsService, IProjectModel, ILexboxServer, IServerProjects} from '$lib/dotnet-types';
 
 export type Project = IProjectModel;
 export type ServerStatus = IServerStatus;
+
 export class ProjectService implements ICombinedProjectsService {
-  async createProject(newProjectName: string): Promise<{error: string|undefined}> {
+  supportsFwData(): Promise<boolean> {
+      throw new Error('Method not implemented.');
+  }
+  remoteProjects(): Promise<IServerProjects[]> {
+      throw new Error('Method not implemented.');
+  }
+  downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer): Promise<void> {
+      throw new Error('Method not implemented.');
+  }
+  async createProject(newProjectName: string): Promise<void> {
 
     if (!newProjectName) {
-      return {error: 'Project name is required'};
+      throw new Error('Project name is required');
     }
     const response = await fetch(`/api/project?name=${newProjectName}`, {
       method: 'POST',
     });
 
     if (!response.ok) {
-      return {error: await response.text()};
+      throw new Error(await response.text());
     }
-    return {error: undefined};
+    return;
   }
 
   async importFwDataProject(name: string): Promise<boolean> {

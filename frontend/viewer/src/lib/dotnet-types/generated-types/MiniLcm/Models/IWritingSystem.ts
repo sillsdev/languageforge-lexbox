@@ -15,7 +15,6 @@ export interface IWritingSystem
 	deletedAt?: string;
 	type: WritingSystemType;
 	exemplars: string[];
-	latinExemplars: string[];
 	order: number;
 }
 /* eslint-enable */

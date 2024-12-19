@@ -1,4 +1,4 @@
-import type { IEntry, IExampleSentence, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
+import type { IEntry, IExampleSentence, IMultiString, ISense, IWritingSystem, IWritingSystems } from '$lib/dotnet-types';
 
 import type { WritingSystemSelection } from './config-types';
 
@@ -14,11 +14,11 @@ export function headword(entry: IEntry, ws?: string): string {
   }
 }
 
-export function pickBestAlternative(value: IMultiString, wss: 'vernacular' | 'analysis', allWs: WritingSystems): string
-export function pickBestAlternative(value: IMultiString, firstChoice: WritingSystem): string
+export function pickBestAlternative(value: IMultiString, wss: 'vernacular' | 'analysis', allWs: IWritingSystems): string
+export function pickBestAlternative(value: IMultiString, firstChoice: IWritingSystem): string
 export function pickBestAlternative(value: IMultiString): string
-export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSystem | 'vernacular' | 'analysis', allWs?: WritingSystems): string {
-  let ws: WritingSystem | undefined;
+export function pickBestAlternative(value: IMultiString, firstChoice?: IWritingSystem | 'vernacular' | 'analysis', allWs?: IWritingSystems): string {
+  let ws: IWritingSystem | undefined;
   if (firstChoice && allWs) {
     switch (firstChoice) {
       case 'vernacular':
@@ -62,8 +62,8 @@ export function firstSentenceOrTranslationVal(example: IExampleSentence | undefi
 
 export function pickWritingSystems(
   ws: WritingSystemSelection,
-  allWs: WritingSystems,
-): WritingSystem[] {
+  allWs: IWritingSystems,
+): IWritingSystem[] {
   switch (ws) {
     case 'vernacular-analysis':
       return [...new Set([...allWs.vernacular, ...allWs.analysis].sort())];
@@ -111,9 +111,11 @@ export function defaultEntry(): IEntry {
 export function defaultSense(id?: string): ISense {
   return {
     id: id ?? emptyId(),
+    entryId: '',
     definition: {},
     gloss: {},
     partOfSpeechId: undefined,
+    partOfSpeech: '',
     semanticDomains: [],
     exampleSentences: []
   };
@@ -122,6 +124,7 @@ export function defaultSense(id?: string): ISense {
 export function defaultExampleSentence(): IExampleSentence {
   return {
     id: emptyId(),
+    senseId: '',
     sentence: {},
     translation: {},
     reference: '',

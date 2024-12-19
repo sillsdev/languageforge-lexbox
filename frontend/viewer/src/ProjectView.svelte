@@ -12,7 +12,7 @@
   import {navigate, useLocation} from 'svelte-routing';
   import {headword} from './lib/utils';
   import {useLexboxApi} from './lib/services/service-provider';
-  import type {IEntry} from './lib/mini-lcm';
+  import type {IEntry} from './lib/dotnet-types';
   import {onDestroy, onMount, setContext} from 'svelte';
   import {derived, type Readable, writable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
@@ -41,6 +41,7 @@
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
 
   export let loading = false;
+  export let about: string | undefined;
 
   const changeEventBus = useEventBus();
   onDestroy(changeEventBus.onEntryUpdated(updatedEntry => {
@@ -328,8 +329,8 @@
       {#if $features.history}
         <ActivityView {projectName}/>
       {/if}
-      {#if $features.about}
-        <AboutDialog text={$features.about} />
+      {#if about}
+        <AboutDialog text={about} />
       {/if}
       {#if $features.feedback}
         <Button

@@ -1,19 +1,17 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
 import type {
-  ComplexFormType,
+  IComplexFormType,
   IEntry,
   IExampleSentence,
   ISense,
-  JsonPatch,
   LexboxApiClient,
-  LexboxApiFeatures,
-  PartOfSpeech,
-  QueryOptions,
-  SemanticDomain,
-  WritingSystem,
+  IPartOfSpeech,
+  IQueryOptions,
+  ISemanticDomain,
+  IWritingSystem,
   WritingSystemType,
-  WritingSystems,
+  IWritingSystems,
 } from 'viewer/lexbox-api';
 
 import type {Readable} from 'svelte/store';
@@ -31,29 +29,22 @@ function prepareEntriesForUi(entries: IEntry[]): void {
   });
 }
 
-function preparePartsOfSpeedForUi(partsOfSpeech: PartOfSpeech[]): void {
+function preparePartsOfSpeedForUi(partsOfSpeech: IPartOfSpeech[]): void {
   partsOfSpeech.forEach(pos => {
     pos.id = pos.name['__key'];
   });
 }
 
 export class LfClassicLexboxApi implements LexboxApiClient {
-  constructor(private projectCode: string, private aboutMarkdown: Readable<string>) {
+  constructor(private projectCode: string) {
   }
 
-  SupportedFeatures(): LexboxApiFeatures {
-    return {
-      feedback: true,
-      about: this.aboutMarkdown,
-    };
-  }
-
-  async GetWritingSystems(): Promise<WritingSystems> {
+  async getWritingSystems(): Promise<IWritingSystems> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/writingSystems`);
-    return (await result.json()) as WritingSystems;
+    return (await result.json()) as IWritingSystems;
   }
 
-  async GetEntries(_options: QueryOptions | undefined): Promise<IEntry[]> {
+  async getEntries(_options: IQueryOptions | undefined): Promise<IEntry[]> {
     //todo pass query options into query
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries${this.toQueryParams(_options)}`);
     const entries = (await result.json()) as IEntry[];
@@ -61,7 +52,7 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     return entries;
   }
 
-  async SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
+  async searchEntries(_query: string, _options: IQueryOptions | undefined): Promise<IEntry[]> {
     //todo pass query options into query
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries/${encodeURIComponent(_query)}${this.toQueryParams(_options)}`);
     const entries = (await result.json()) as IEntry[];
@@ -69,7 +60,7 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     return entries;
   }
 
-  private toQueryParams(options: QueryOptions | undefined): string {
+  private toQueryParams(options: IQueryOptions | undefined): string {
 
     if (!options) return '';
     /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -89,70 +80,54 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     return '?' + params.toString();
   }
 
-  async GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
+  async getPartsOfSpeech(): Promise<IPartOfSpeech[]> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/parts-of-speech`);
-    const partsOfSpeech = (await result.json()) as PartOfSpeech[];
+    const partsOfSpeech = (await result.json()) as IPartOfSpeech[];
     preparePartsOfSpeedForUi(partsOfSpeech);
     return partsOfSpeech;
   }
 
-  GetSemanticDomains(): Promise<SemanticDomain[]> {
+  getSemanticDomains(): Promise<ISemanticDomain[]> {
     return Promise.resolve(SEMANTIC_DOMAINS_EN);
   }
 
-  GetComplexFormTypes(): Promise<ComplexFormType[]> {
+  getComplexFormTypes(): Promise<IComplexFormType[]> {
     return Promise.resolve([]);
   }
 
-  CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {
+  createWritingSystem(_type: WritingSystemType, _writingSystem: IWritingSystem): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateWritingSystem(_wsId: string, _type: WritingSystemType, _update: JsonPatch): Promise<WritingSystem> {
+  getEntry(_guid: string): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 
-  GetEntry(_guid: string): Promise<IEntry> {
+  createEntry(_entry: IEntry): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 
-  CreateEntry(_entry: IEntry): Promise<IEntry> {
+  updateEntry(_before: IEntry, _after: IEntry): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateEntry(_before: IEntry, _after: IEntry): Promise<IEntry> {
+  createSense(_entryGuid: string, _sense: ISense): Promise<ISense> {
     throw new Error('Method not implemented.');
   }
 
-  CreateSense(_entryGuid: string, _sense: ISense): Promise<ISense> {
+  createExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentence: IExampleSentence): Promise<IExampleSentence> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateSense(_entryGuid: string, _senseGuid: string, _update: JsonPatch): Promise<ISense> {
+  deleteEntry(_guid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  CreateExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentence: IExampleSentence): Promise<IExampleSentence> {
+  deleteSense(_entryGuid: string, _senseGuid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentenceGuid: string, _update: JsonPatch): Promise<IExampleSentence> {
-    throw new Error('Method not implemented.');
-  }
-
-  GetExemplars(): Promise<string[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  DeleteEntry(_guid: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  DeleteSense(_entryGuid: string, _senseGuid: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  DeleteExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentenceGuid: string): Promise<void> {
+  deleteExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentenceGuid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

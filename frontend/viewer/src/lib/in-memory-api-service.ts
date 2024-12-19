@@ -1,23 +1,25 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
+import type { IComplexFormComponent } from './dotnet-types';
 import {entries, projectName, writingSystems} from './entry-data';
 import type {
   IEntry,
   IExampleSentence,
   ISense,
-  JsonPatch,
   LexboxApiClient,
-  LexboxApiFeatures,
-  PartOfSpeech,
-  QueryOptions,
-  SemanticDomain,
+  IPartOfSpeech,
+  IQueryOptions,
+  ISemanticDomain,
   WritingSystemType,
-  WritingSystems
+  IWritingSystems,
+  IComplexFormType, IWritingSystem
 } from './services/lexbox-api';
 
-import {applyPatch} from 'fast-json-patch';
-import {pickWs, type ComplexFormType, type WritingSystem} from './mini-lcm';
 import {headword} from './utils';
+
+function pickWs(ws: string, defaultWs: string): string {
+  return ws === 'default' ? defaultWs : ws;
+}
 
 const complexFormTypes = entries
   .flatMap(entry => entry.complexFormTypes)
@@ -35,7 +37,7 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
 }
 
 export class InMemoryApiService implements LexboxApiClient {
-  GetComplexFormTypes(): Promise<ComplexFormType[]> {
+  getComplexFormTypes(): Promise<IComplexFormType[]> {
     return Promise.resolve(
       //*
       complexFormTypes
@@ -48,26 +50,26 @@ export class InMemoryApiService implements LexboxApiClient {
     );
   }
 
-  GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
+  getPartsOfSpeech(): Promise<IPartOfSpeech[]> {
     return Promise.resolve(
       [
-        {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'},},
-        {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'},}
+        {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'}, predefined: false},
+        {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: false}
       ]
     );
   }
 
-  GetSemanticDomains(): Promise<SemanticDomain[]> {
+  getSemanticDomains(): Promise<ISemanticDomain[]> {
     return Promise.resolve([
-      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1'},
-      {id: 'Animal', name: {en: 'Animal'}, code: '2'},
+      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1', predefined: false},
+      {id: 'Animal', name: {en: 'Animal'}, code: '2', predefined: false},
     ]);
   }
 
-  SupportedFeatures(): LexboxApiFeatures {
-    return {
+  supportedFeatures() {
+    return Promise.resolve({
       write: true,
-    };
+    });
   }
 
   readonly projectName = projectName;
@@ -78,19 +80,19 @@ export class InMemoryApiService implements LexboxApiClient {
     return JSON.parse(JSON.stringify(this._entries)) as IEntry[];
   }
 
-  GetEntries(options: QueryOptions | undefined): Promise<IEntry[]> {
+  getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
     return Promise.resolve(this.ApplyQueryOptions(this._Entries(), options));
   }
 
-  GetWritingSystems(): Promise<WritingSystems> {
+  getWritingSystems(): Promise<IWritingSystems> {
     return Promise.resolve(writingSystems);
   }
 
-  SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]> {
+  searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
     return Promise.resolve(this.ApplyQueryOptions(filterEntries(this._Entries(), query), options));
   }
 
-  private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
+  private ApplyQueryOptions(entries: IEntry[], options: IQueryOptions | undefined): IEntry[] {
     if (!options) return entries;
     const defaultWs = writingSystems.vernacular[0].wsId;
     if (options.exemplar?.value) {
@@ -116,68 +118,148 @@ export class InMemoryApiService implements LexboxApiClient {
       .slice(options.offset, options.offset + options.count);
   }
 
-  GetEntry(guid: string): Promise<IEntry> {
-    return Promise.resolve(entries.find(e => e.id === guid)!);
+  getEntry(guid: string) {
+    const entry = entries.find(e => e.id === guid);
+    if (!entry) throw new Error(`Entry ${guid} not found`);
+    return Promise.resolve(entry);
   }
 
-  CreateEntry(entry: IEntry): Promise<IEntry> {
+  createEntry(entry: IEntry): Promise<IEntry> {
     this._entries.push(entry);
     return Promise.resolve(entry);
   }
 
-  UpdateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
+  updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
     entries.splice(entries.findIndex(e => e.id === after.id), 1, after);
     return Promise.resolve(after);
   }
 
-  CreateSense(entryGuid: string, sense: ISense): Promise<ISense> {
+  createSense(entryGuid: string, sense: ISense): Promise<ISense> {
     this._entries.find(e => e.id === entryGuid)?.senses.push(sense);
     return Promise.resolve(sense);
   }
 
-  UpdateSense(entryGuid: string, senseGuid: string, update: JsonPatch): Promise<ISense> {
-    const entry = entries.find(e => e.id === entryGuid)!;
-    const sense = entry.senses.find(s => s.id === senseGuid)!;
-    applyPatch(sense, update);
-    return Promise.resolve(sense);
-  }
-
-  CreateExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
+  createExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
     this._entries.find(e => e.id === entryGuid)?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
     return Promise.resolve(exampleSentence);
   }
 
-  UpdateExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string, update: JsonPatch): Promise<IExampleSentence> {
-    const entry = entries.find(e => e.id === entryGuid)!;
-    const sense = entry.senses.find(s => s.id === senseGuid)!;
-    const exampleSentence = sense.exampleSentences.find(es => es.id === exampleSentenceGuid)!;
-    applyPatch(exampleSentence, update);
-    return Promise.resolve(exampleSentence);
-  }
-
-  DeleteEntry(guid: string): Promise<void> {
+  deleteEntry(guid: string): Promise<void> {
     entries.slice(entries.findIndex(e => e.id === guid), 1);
     return Promise.resolve();
   }
 
-  DeleteSense(entryGuid: string, senseGuid: string): Promise<void> {
+  deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     entry.senses.slice(entry.senses.findIndex(s => s.id === senseGuid), 1);
     return Promise.resolve();
   }
 
-  DeleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void> {
+  deleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
     sense.exampleSentences.slice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
     return Promise.resolve();
   }
 
-  CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {
+  createWritingSystem(_type: WritingSystemType, _writingSystem: IWritingSystem): Promise<IWritingSystem> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateWritingSystem(_wsId: string, _type: WritingSystemType, _update: JsonPatch): Promise<WritingSystem> {
+  getComplexFormType(_id: string): Promise<IComplexFormType> {
     throw new Error('Method not implemented.');
   }
+
+  getSense(_entryId: string, _id: string): Promise<ISense> {
+    throw new Error('Method not implemented.');
+  }
+
+  getPartOfSpeech(_id: string): Promise<IPartOfSpeech> {
+    throw new Error('Method not implemented.');
+  }
+
+  getSemanticDomain(_id: string): Promise<ISemanticDomain> {
+    throw new Error('Method not implemented.');
+  }
+
+  getExampleSentence(_entryId: string, _senseId: string, _id: string): Promise<IExampleSentence> {
+    throw new Error('Method not implemented.');
+  }
+
+  updateWritingSystem(_before: IWritingSystem, _after: IWritingSystem): Promise<IWritingSystem> {
+    throw new Error('Method not implemented.');
+  }
+
+  createPartOfSpeech(_partOfSpeech: IPartOfSpeech): Promise<IPartOfSpeech> {
+    throw new Error('Method not implemented.');
+  }
+
+  updatePartOfSpeech(_before: IPartOfSpeech, _after: IPartOfSpeech): Promise<IPartOfSpeech> {
+    throw new Error('Method not implemented.');
+  }
+
+  deletePartOfSpeech(_id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  createSemanticDomain(_semanticDomain: ISemanticDomain): Promise<ISemanticDomain> {
+    throw new Error('Method not implemented.');
+  }
+
+  updateSemanticDomain(_before: ISemanticDomain, _after: ISemanticDomain): Promise<ISemanticDomain> {
+    throw new Error('Method not implemented.');
+  }
+
+  deleteSemanticDomain(_id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  createComplexFormType(_complexFormType: IComplexFormType): Promise<IComplexFormType> {
+    throw new Error('Method not implemented.');
+  }
+
+  updateComplexFormType(_before: IComplexFormType, _after: IComplexFormType): Promise<IComplexFormType> {
+    throw new Error('Method not implemented.');
+  }
+
+  deleteComplexFormType(_id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {
+    throw new Error('Method not implemented.');
+  }
+
+  deleteComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  addComplexFormType(_entryId: string, _complexFormTypeId: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  removeComplexFormType(_entryId: string, _complexFormTypeId: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  updateSense(_entryId: string, _before: ISense, _after: ISense): Promise<ISense> {
+    throw new Error('Method not implemented.');
+  }
+
+  addSemanticDomainToSense(_senseId: string, _semanticDomain: ISemanticDomain): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  removeSemanticDomainFromSense(_senseId: string, _semanticDomainId: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  updateExampleSentence(_entryId: string, _senseId: string, _before: IExampleSentence, _after: IExampleSentence): Promise<IExampleSentence> {
+    throw new Error('Method not implemented.');
+  }
+
+  dispose(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
 }

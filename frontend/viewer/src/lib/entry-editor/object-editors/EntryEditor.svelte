@@ -1,18 +1,18 @@
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from '../../mini-lcm';
+  import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntityEditor from './EntityEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures } from '../../config-types';
+  import type { LexboxFeatures } from '$lib/config-types';
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
+  import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '$lib/utils';
   import HistoryView from '../../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
-  import {objectTemplateAreas, useCurrentView} from '../../services/view-service';
+  import {objectTemplateAreas, useCurrentView} from '$lib/services/view-service';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';

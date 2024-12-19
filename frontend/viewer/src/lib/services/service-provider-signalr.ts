@@ -7,8 +7,7 @@ import {
   HubConnectionState,
   type IHttpConnectionOptions
 } from '@microsoft/signalr';
-import type {LexboxApiClient, LexboxApiFeatures, LexboxApiMetadata} from './lexbox-api';
-import {LexboxService} from './service-provider';
+import type {LexboxApiClient} from './lexbox-api';
 import {onDestroy} from 'svelte';
 import {type Readable, type Writable, writable} from 'svelte/store';
 import {AppNotification} from '../notifications/notifications';
@@ -16,14 +15,14 @@ import type {
   CloseReason,
 } from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
 import {useEventBus} from './event-bus';
-import type {Entry} from '../mini-lcm';
+import {DotnetService, type IMiniLcmFeatures, type IEntry, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type ErrorContext = {error: Error|unknown, methodName?: string, origin: 'method'|'connection'};
 type ErrorHandler = (errorContext: ErrorContext) => {handled: boolean};
 export function SetupSignalR(
   url: string,
-  features: LexboxApiFeatures,
+  features: IMiniLcmFeatures,
   onError?: ErrorHandler,
   options: IHttpConnectionOptions = {}) : { connected: Readable<boolean>, lexboxApi: LexboxApiClient } {
   const {connection, connected} = setupConnection(url, options, errorContext => {
@@ -42,22 +41,22 @@ export function SetupSignalR(
   const hubProxy = hubFactory.createHubProxy(connection);
 
   const lexboxApiHubProxy = Object.assign(hubProxy, {
-    SupportedFeatures(): LexboxApiFeatures {
-      return features;
+    supportedFeatures(): Promise<IMiniLcmFeatures> {
+      return Promise.resolve(features);
     }
-  } satisfies LexboxApiMetadata);
+  } satisfies Partial<IMiniLcmJsInvokable>);
   const changeEventBus = useEventBus();
   getReceiverRegister('ILexboxClient').register(connection, {
     OnProjectClosed(reason: CloseReason): Promise<void> {
       changeEventBus.notifyProjectClosed(reason);
       return Promise.resolve();
     },
-    OnEntryUpdated(entry: Entry): Promise<void> {
+    OnEntryUpdated(entry: IEntry): Promise<void> {
       changeEventBus.notifyEntryUpdated(entry);
       return Promise.resolve();
     }
   });
-  window.lexbox.ServiceProvider.setService(LexboxService.LexboxApi, lexboxApiHubProxy);
+  window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, lexboxApiHubProxy);
   return {connected, lexboxApi: lexboxApiHubProxy};
 }
 

@@ -1,12 +1,12 @@
 <script lang="ts">
   import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
-  import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
-  import { firstDefOrGlossVal, headword } from '../utils';
-  import { useLexboxApi } from '../services/service-provider';
-  import { derived, type Writable } from 'svelte/store';
-  import { deriveAsync } from '../utils/time';
+  import {Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
+  import {firstDefOrGlossVal, headword} from '../utils';
+  import {useLexboxApi} from '../services/service-provider';
+  import {derived, type Writable} from 'svelte/store';
+  import {deriveAsync} from '../utils/time';
   import {createEventDispatcher, getContext, onDestroy} from 'svelte';
-  import type { IEntry } from '../mini-lcm';
+  import {type IEntry, SortField} from '$lib/dotnet-types';
   import {useSearch} from './search';
 
   const {search, showSearchDialog} = useSearch();
@@ -42,10 +42,10 @@
   const fetchCount = 105;
   const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
-    const entries = await lexboxApi.SearchEntries(s ?? '', {
+    const entries = await lexboxApi.searchEntries(s ?? '', {
       offset: 0,
       count: fetchCount,
-      order: {field: 'headword', writingSystem: 'default'},
+      order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
     return { entries, search: s};
   }, {entries: [], search: undefined}, 200);

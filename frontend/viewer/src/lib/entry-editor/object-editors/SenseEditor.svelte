@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import EntityEditor from './EntityEditor.svelte';
-  import type {ISense} from '../../mini-lcm';
+  import type {ISense} from '$lib/dotnet-types';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';

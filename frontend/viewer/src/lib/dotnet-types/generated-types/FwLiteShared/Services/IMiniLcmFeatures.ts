@@ -5,10 +5,10 @@
 
 export interface IMiniLcmFeatures
 {
-	history: boolean;
-	write: boolean;
-	openWithFlex: boolean;
-	feedback: boolean;
-	sync: boolean;
+	history?: boolean;
+	write?: boolean;
+	openWithFlex?: boolean;
+	feedback?: boolean;
+	sync?: boolean;
 }
 /* eslint-enable */

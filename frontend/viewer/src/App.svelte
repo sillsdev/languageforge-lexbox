@@ -1,5 +1,10 @@
 ﻿<script lang="ts" context="module">
   import {navigate} from 'svelte-routing';
+  declare global {
+    interface Window {
+      svelteNavigate: (to: string) => void;
+    }
+  }
   window.svelteNavigate =  (to: string) => {
    console.log('svelteNavigate', to);
    navigate(to, {replace: true});
