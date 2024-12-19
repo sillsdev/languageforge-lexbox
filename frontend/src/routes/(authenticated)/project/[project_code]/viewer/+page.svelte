@@ -4,7 +4,6 @@
   import 'viewer/service-declaration';
   import type {PageData} from './$types';
   import t from '$lib/i18n';
-  import {DotnetService} from '$lib/dotnet-types';
 
   export let data: PageData;
   $: project = data.project;
@@ -14,7 +13,8 @@
   $: {
     if (serviceProvider) {
       let localService = new LfClassicLexboxApi($project.code);
-      serviceProvider.setService(DotnetService.MiniLcmApi, localService);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      serviceProvider.setService('MiniLcmApi' as any, localService);
       service = localService;
     }
   }
