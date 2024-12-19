@@ -24,8 +24,8 @@ env:
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    runs-on: windows-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
