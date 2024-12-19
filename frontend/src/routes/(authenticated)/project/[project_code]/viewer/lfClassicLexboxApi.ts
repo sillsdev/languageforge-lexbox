@@ -25,7 +25,7 @@ function prepareEntriesForUi(entries: IEntry[]): void {
         sd.id = sd.code;
       }
       //partOfSpeech is only included on the server for the viewer.
-      sense.partOfSpeechId = sense.partOfSpeech as string;
+      sense.partOfSpeechId = sense.partOfSpeech;
     }
   }
 }
@@ -68,14 +68,14 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
     const asc = options.order.ascending ?? true;
     const params = new URLSearchParams({
       SortField: options.order.field,
-      SortWritingSystem: options.order.writingSystem as string,
+      SortWritingSystem: options.order.writingSystem,
       Ascending: asc ? 'true' : 'false',
       Count: options.count.toString(),
       Offset: options.offset.toString()
     });
     if (options.exemplar) {
       params.set('ExemplarValue', options.exemplar.value);
-      params.set('ExemplarWritingSystem', options.exemplar.writingSystem as string);
+      params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
     }
     /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
