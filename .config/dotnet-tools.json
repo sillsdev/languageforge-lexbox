@@ -8,13 +8,6 @@
         "dotnet-ef"
       ],
       "rollForward": false
-    },
-    "dotnet-typegen": {
-      "version": "6.0.2",
-      "commands": [
-        "dotnet-typegen"
-      ],
-      "rollForward": false
     }
   }
 }
