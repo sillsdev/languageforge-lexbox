@@ -86,23 +86,23 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Dotnet build
-        working-directory: backend/FwLite/LocalWebApp
+        working-directory: backend/FwLite/FwLiteWeb
         run: dotnet build --configuration Release
 
       - name: Publish OSX
-        working-directory: backend/FwLite/LocalWebApp
+        working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r osx-x64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
       - name: Publish OSX ARM
-        working-directory: backend/FwLite/LocalWebApp
+        working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 #todo sign the app
       - name: Upload local web app artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite-local-web-app-mac
+          name: fw-lite-web-mac
           if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/LocalWebApp/*
+          path: backend/FwLite/artifacts/publish/FwLiteWeb/*
 
   publish-linux:
     name: Publish FW Lite app for Linux
@@ -123,15 +123,15 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Publish Linux
-        working-directory: backend/FwLite/LocalWebApp
+        working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite-local-web-app-linux
+          name: fw-lite-web-linux
           if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/LocalWebApp/*
+          path: backend/FwLite/artifacts/publish/FwLiteWeb/*
 
   publish-android:
     name: Publish FW Lite app for Android
@@ -254,8 +254,8 @@ jobs:
           path: fw-lite-portable
       - uses: actions/download-artifact@v4
         with:
-          name: fw-lite-local-web-app-linux
-          path: fw-lite-local-web-app-linux
+          name: fw-lite-web-linux
+          path: fw-lite-web-linux
       - uses: actions/download-artifact@v4
         with:
           name: fw-lite-android
@@ -264,8 +264,8 @@ jobs:
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
-          chmod +x fw-lite-local-web-app-linux/*/LocalWebApp
-          zip -r fw-lite-local-web-app-linux.zip fw-lite-local-web-app-linux
+          chmod +x fw-lite-web-linux/*/FwLiteWeb
+          zip -r fw-lite-web-linux.zip fw-lite-web-linux
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -276,7 +276,7 @@ jobs:
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip
-            fw-lite-local-web-app-linux.zip
+            fw-lite-web-linux.zip
             fw-lite-android/*.apk
             fw-lite-android/*.aab
 

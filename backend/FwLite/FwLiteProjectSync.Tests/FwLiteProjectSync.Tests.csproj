@@ -37,7 +37,7 @@
     <ItemGroup>
       <ProjectReference Include="..\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj" />
       <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
-      <ProjectReference Include="..\LocalWebApp\LocalWebApp.csproj" />
+      <ProjectReference Include="..\FwLiteWeb\FwLiteWeb.csproj" />
     </ItemGroup>
 
     <ItemGroup>

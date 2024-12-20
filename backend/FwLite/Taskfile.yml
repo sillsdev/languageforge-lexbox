@@ -7,15 +7,15 @@ includes:
 
 tasks:
 
-  local-web-app-for-develop:
+  web-for-develop:
     label: dotnet
-    dir: ./LocalWebApp
+    dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
-  local-web-app:
-    label: Run LocalWebApp with Local LexBox
+  web:
+    label: Run FwLiteWeb with Local LexBox
     env:
       Auth__DefaultAuthority: "https://localhost:3050"
-    dir: ./LocalWebApp
+    dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
 
   maui-windows:
@@ -37,25 +37,25 @@ tasks:
     dir: ./FwLiteMaui
     cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
 
-  publish-local-all:
+  publish-web-all:
     cmds:
-      - task: publish-local-win
-      - task: publish-local-linux
-      - task: publish-local-osx
-      - task: publish-local-osx-arm
-  publish-local-win:
-    dir: ./LocalWebApp
+      - task: publish-web-win
+      - task: publish-web-linux
+      - task: publish-web-osx
+      - task: publish-web-osx-arm
+  publish-web-win:
+    dir: ./FwLiteWeb
     deps: [ ui:build-viewer-app ]
     cmd: dotnet publish -r win-x64
-  publish-local-win-arm:
-    dir: ./LocalWebApp
+  publish-web-win-arm:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r win-arm64
-  publish-local-linux:
-    dir: ./LocalWebApp
+  publish-web-linux:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r linux-x64
-  publish-local-osx:
-    dir: ./LocalWebApp
+  publish-web-osx:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r osx-x64
-  publish-local-osx-arm:
-    dir: ./LocalWebApp
+  publish-web-osx-arm:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r osx-arm64

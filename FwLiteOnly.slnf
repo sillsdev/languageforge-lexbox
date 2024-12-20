@@ -7,7 +7,7 @@
       "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj",
       "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
       "backend\\FwLite\\LcmCrdt.Tests\\LcmCrdt.Tests.csproj",
-      "backend\\FWLite\\LocalWebApp\\LocalWebApp.csproj",
+      "backend\\FWLite\\FwLiteWeb\\FwLiteWeb.csproj",
       "backend\\FwLite\\FwLiteMaui\\FwLiteMaui.csproj",
       "backend\\FwLite\\FwLiteShared\\FwLiteShared.csproj",
       "backend\\FWLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",

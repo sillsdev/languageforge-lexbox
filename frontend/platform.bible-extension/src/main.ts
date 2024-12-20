@@ -49,7 +49,7 @@ export async function activate(context: ExecutionActivationContext) {
     'fwLiteExtension.launchServer',
   );
   let baseUrlHolder = {baseUrl: ''};
-  launchFwLiteLocalWebApp(context).then(baseUrl => {
+  launchFwLiteFwLiteWeb(context).then(baseUrl => {
     baseUrlHolder.baseUrl = baseUrl;
     onLaunchServerEmitter.emit({baseUrl});
   });
@@ -106,8 +106,8 @@ export async function deactivate() {
   return true;
 }
 
-async function launchFwLiteLocalWebApp(context: ExecutionActivationContext) {
-  let binaryPath = 'fw-lite/LocalWebApp.exe';
+async function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
+  let binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FwLite requires createProcess elevated privileges');
   }
@@ -121,9 +121,9 @@ async function launchFwLiteLocalWebApp(context: ExecutionActivationContext) {
     binaryPath,
     [
       '--urls', baseUrl,
-      '--LocalWebApp:OpenBrowser=false',
-      '--LocalWebApp:CorsAllowAny=true',
-      '--LocalWebApp:LogFileName=fw-lite-local-web-app.log',
+      '--FwLiteWeb:OpenBrowser=false',
+      '--FwLiteWeb:CorsAllowAny=true',
+      '--FwLiteWeb:LogFileName=fw-lite-web.log',
     ],
     {stdio: [null, null, null]}
   );

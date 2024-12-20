@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LfClassicData", "backend\Lf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "backend\FwLite\MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalWebApp", "backend\FwLite\LocalWebApp\LocalWebApp.csproj", "{2CDF7126-733B-46E8-9B93-7DC31DE39682}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteWeb", "backend\FwLite\FwLiteWeb\FwLiteWeb.csproj", "{2CDF7126-733B-46E8-9B93-7DC31DE39682}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmCrdt", "backend\FwLite\LcmCrdt\LcmCrdt.csproj", "{6B857F83-72E3-43E6-91C3-A946F3F988D8}"
 EndProject
