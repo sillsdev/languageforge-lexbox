@@ -14,6 +14,7 @@ using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,6 +29,7 @@ public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
     {
+        AvoidTrimming();
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
         services.AddSingleton<SetupCollationInterceptor>();
@@ -55,6 +57,12 @@ public static class LcmCrdtKernel
         });
         services.AddSingleton<CrdtHttpSyncService>();
         return services;
+    }
+
+    private static void AvoidTrimming()
+    {
+        //this is only here so that the compiler doesn't trim this method as Linq2Db uses it via reflection
+        SqliteConnection.ClearAllPools();
     }
 
     private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
