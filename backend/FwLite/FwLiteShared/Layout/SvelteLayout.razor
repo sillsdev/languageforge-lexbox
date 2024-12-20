@@ -10,13 +10,10 @@
 <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
 <script>
     window['setOverrideService'] = (key, service) => {
-        if (!window.lexbox || !window.lexbox.FwLiteProvider) {
-            if (window.lexbox && window.lexbox.DotNetServiceProvider) {
-                window.lexbox.FwLiteProvider = {};
-                window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
-            } else {
-                window.lexbox = {FwLiteProvider: {}};
-            }
+        window.lexbox ??= {};
+        window.lexbox.FwLiteProvider ??= {};
+        if (window.lexbox.DotNetServiceProvider) {
+          window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
         }
         const services = window.lexbox.FwLiteProvider;
         services[key] = service;
