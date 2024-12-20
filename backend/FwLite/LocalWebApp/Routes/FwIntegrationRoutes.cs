@@ -1,5 +1,6 @@
 ﻿using FwDataMiniLcmBridge;
 using LocalWebApp.Hubs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.OpenApi.Models;
 
@@ -19,7 +20,10 @@ public static class FwIntegrationRoutes
                 return operation;
             });
         group.MapGet("/open/entry/{id}",
-            async (FwDataProjectContext context, IHubContext<FwDataMiniLcmHub, ILexboxHubClient> hubContext, FwDataFactory factory, Guid id) =>
+            async ([FromServices] FwDataProjectContext context,
+                [FromServices] IHubContext<FwDataMiniLcmHub, ILexboxHubClient> hubContext,
+                [FromServices] FwDataFactory factory,
+                Guid id) =>
             {
                 if (context.Project is null) return Results.BadRequest("No project is set in the context");
                 await hubContext.Clients.Group(context.Project.Name).OnProjectClosed(CloseReason.Locked);
