@@ -9,7 +9,7 @@ public class WindowsShortcutService(IVersionTracking versionTracking) : IMauiIni
 {
     public void Initialize(IServiceProvider services)
     {
-        if (!FwLiteDesktopKernel.IsPackagedApp || !versionTracking.IsFirstLaunchEver || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+        if (FwLiteDesktopKernel.IsPortableApp || !versionTracking.IsFirstLaunchEver || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
         var package = Package.Current;
         IShellLink link = (IShellLink)new ShellLink();
         link.SetPath($@"shell:AppsFolder\{package.Id.FamilyName}!App");

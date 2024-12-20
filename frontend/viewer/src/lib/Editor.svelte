@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from './mini-lcm';
+  import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
@@ -35,11 +35,11 @@
   async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     if (readonly) return;
     if (e.example !== undefined && e.sense !== undefined) {
-      await saveHandler(() => lexboxApi.DeleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
+      await saveHandler(() => lexboxApi.deleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
     } else if (e.sense !== undefined) {
-      await saveHandler(() => lexboxApi.DeleteSense(e.entry.id, e.sense!.id));
+      await saveHandler(() => lexboxApi.deleteSense(e.entry.id, e.sense!.id));
     } else {
-      await saveHandler(() => lexboxApi.DeleteEntry(e.entry.id));
+      await saveHandler(() => lexboxApi.deleteEntry(e.entry.id));
       dispatch('delete', {entry: e.entry});
       return;
     }
@@ -49,7 +49,7 @@
   async function updateEntry(updatedEntry: IEntry) {
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
     console.debug('Updating entry', updatedEntry);
-    await saveHandler(() => lexboxApi.UpdateEntry(initialEntry, updatedEntry));
+    await saveHandler(() => lexboxApi.updateEntry(initialEntry, updatedEntry));
   }
 </script>
 

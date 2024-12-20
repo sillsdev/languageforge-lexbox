@@ -37,10 +37,15 @@ public class CrdtMiniLcmApiHub(
         await syncService.ExecuteSync();
         Cleanup =
         [
-            changeEventBus.OnEntryUpdated.Subscribe(e => OnEntryChangedExternal(e, hubContext, memoryCache, Context.ConnectionId))
+            changeEventBus.OnProjectEntryUpdated(projectContext.Project).Subscribe(e => OnEntryChangedExternal(e, hubContext, memoryCache, Context.ConnectionId))
         ];
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
+    }
+
+    private void TriggerSync()
+    {
+        backgroundSyncService.TriggerSync(projectContext.Project);
     }
 
     private static void OnEntryChangedExternal(Entry entry,
@@ -94,7 +99,7 @@ public class CrdtMiniLcmApiHub(
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
         var newWritingSystem = await base.CreateWritingSystem(type, writingSystem);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
         return newWritingSystem;
     }
 
@@ -103,21 +108,21 @@ public class CrdtMiniLcmApiHub(
         JsonPatchDocument<WritingSystem> update)
     {
         var writingSystem = await base.UpdateWritingSystem(id, type, update);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
         return writingSystem;
     }
 
     public override async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         var createdSense = await base.CreateSense(entryId, sense);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
         return createdSense;
     }
 
     public override async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonPatchDocument<Sense> update)
     {
         var sense = await base.UpdateSense(entryId, senseId, update);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
         return sense;
     }
 
@@ -126,7 +131,7 @@ public class CrdtMiniLcmApiHub(
         ExampleSentence exampleSentence)
     {
         var createdSentence = await base.CreateExampleSentence(entryId, senseId, exampleSentence);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
         return createdSentence;
     }
 
@@ -136,13 +141,13 @@ public class CrdtMiniLcmApiHub(
         JsonPatchDocument<ExampleSentence> update)
     {
         var sentence = await base.UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
         return sentence;
     }
 
     protected override async Task NotifyEntryUpdated(Entry entry)
     {
         await base.NotifyEntryUpdated(entry);
-        backgroundSyncService.TriggerSync();
+        TriggerSync();
     }
 }

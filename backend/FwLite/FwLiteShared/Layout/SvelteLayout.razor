@@ -1,0 +1,57 @@
+﻿@inherits LayoutComponentBase
+@using FwLiteShared.Services
+@using Microsoft.Extensions.Logging
+@inject IJSRuntime JS
+@inject ILogger<SvelteLayout> Logger
+@inject FwLiteProvider FwLiteProvider
+@implements IAsyncDisposable
+
+<link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
+<link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
+<script>
+    window['setOverrideService'] = (key, service) => {
+        window.lexbox ??= {};
+        window.lexbox.FwLiteProvider ??= {};
+        if (window.lexbox.DotNetServiceProvider) {
+          window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
+        }
+        const services = window.lexbox.FwLiteProvider;
+        services[key] = service;
+    };
+    //called from FwLiteProvider.InjectCrdtProject
+    window['notifyEntryUpdated'] = (projectName, entry) => {
+        if (window.lexbox?.EventBus) {
+            window.lexbox.EventBus.notifyEntryUpdated(entry);
+        }
+    }
+
+</script>
+<div id="svelte-app" class="contents">
+</div>
+
+@Body
+
+@code {
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync SvelteLayout");
+        if (firstRender)
+        {
+            foreach (var (serviceKey, service) in FwLiteProvider.GetServices())
+            {
+                await FwLiteProvider.SetService(JS, serviceKey, service);
+            }
+
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "/" + Assets["_content/FwLiteShared/viewer/index.js"]);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await (module?.DisposeAsync() ?? ValueTask.CompletedTask);
+    }
+
+}

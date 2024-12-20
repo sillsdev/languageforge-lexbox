@@ -18,7 +18,7 @@
   export let preserveOrder = false;
   let append: HTMLElement;
 
-  $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
+  $: sortedOptions = [...options].sort((a, b) => a.label.localeCompare(b.label));
 
   function preserveSortOrder(unsortedValue: string[] | undefined): void {
     unsortedValue?.sort((a, b) => {

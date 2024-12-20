@@ -1,12 +1,12 @@
 <script lang="ts">
-  import {useComplexFormTypes} from '../../complex-form-types';
-  import type {ComplexFormType} from '../../mini-lcm';
+  import {useComplexFormTypes} from '$lib/complex-form-types';
+  import type {IComplexFormType} from '$lib/dotnet-types';
   import {pickBestAlternative} from '../../utils';
   import {useWritingSystems} from '../../writing-systems';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
 
   export let id: string;
-  export let value: ComplexFormType[];
+  export let value: IComplexFormType[];
   export let readonly: boolean;
 
   const complexFormTypes = useComplexFormTypes();

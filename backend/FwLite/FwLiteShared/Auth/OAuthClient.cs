@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using FwLiteShared.Projects;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,12 +30,13 @@ public class OAuthClient
     public OAuthClient(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         IOptions<AuthConfig> options,
-        IRedirectUrlProvider? redirectUrlProvider,
         OAuthService oAuthService,
         LexboxServer lexboxServer,
         LexboxProjectService lexboxProjectService,
         ILogger<OAuthClient> logger,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment? hostEnvironment = null,
+        IRedirectUrlProvider? redirectUrlProvider = null
+            )
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;
         _oAuthService = oAuthService;
@@ -46,20 +48,31 @@ public class OAuthClient
             :  redirectUrlProvider?.GetRedirectUrl() ?? throw new InvalidOperationException("No IRedirectUrlProvider configured, required for non-system web view login");
         //todo configure token cache as seen here
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
-        _application = PublicClientApplicationBuilder.Create(options.Value.ClientId)
+        var builder = PublicClientApplicationBuilder.Create(options.Value.ClientId)
             .WithExperimentalFeatures()
-            .WithLogging(loggerAdapter, hostEnvironment.IsDevelopment())
+            .WithLogging(loggerAdapter, hostEnvironment?.IsDevelopment() ?? false)
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
-            .WithRedirectUri(RedirectUrl)
-            .WithOidcAuthority(lexboxServer.Authority.ToString())
-            .Build();
-        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
-            task =>
-            {
-                var msalCacheHelper = task.Result;
-                msalCacheHelper.RegisterCache(_application.UserTokenCache);
-            },
-            scheduler: TaskScheduler.Default);
+            .WithParentActivityOrWindow(() => options.Value.ParentActivityOrWindow)
+            .WithOidcAuthority(lexboxServer.Authority.ToString());
+        if (!options.Value.SystemWebViewLogin)
+        {
+            builder.WithRedirectUri(RedirectUrl);
+        }
+        else
+        {
+            builder.WithDefaultRedirectUri();
+        }
+        _application = builder.Build();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
+                task =>
+                {
+                    var msalCacheHelper = task.Result;
+                    msalCacheHelper.RegisterCache(_application.UserTokenCache);
+                },
+                scheduler: TaskScheduler.Default);
+        }
     }
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");

@@ -1,50 +1,29 @@
-using System.Diagnostics;
-using FwDataMiniLcmBridge;
-using FwLiteProjectSync;
-using Humanizer;
-using LcmCrdt;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MiniLcm;
+using Microsoft.JSInterop;
+using MiniLcm.Models;
+using MiniLcm.Project;
 
 namespace FwLiteShared.Projects;
 
-public class ImportFwdataService(
-    CrdtProjectsService crdtProjectsService,
-    ILogger<ImportFwdataService> logger,
-    FwDataFactory fwDataFactory,
-    FieldWorksProjectList fieldWorksProjectList,
-    MiniLcmImport miniLcmImport
-)
+public class ImportFwdataService(IEnumerable<IProjectProvider> projectProviders, IProjectImport? miniLcmImport = null)
 {
-    public async Task<CrdtProject> Import(string projectName)
+    private IProjectProvider? FwDataProjectProvider =>
+        projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
+
+    [JSInvokable]
+    public async Task<IProjectIdentifier> Import(string projectName)
     {
-        var startTime = Stopwatch.GetTimestamp();
-        var fwDataProject = fieldWorksProjectList.GetProject(projectName);
+        if (miniLcmImport is null) throw new InvalidOperationException("MiniLcmImport is not available and import is not supported in this version");
+        if (FwDataProjectProvider is null)
+        {
+            throw new InvalidOperationException("FwData Project provider is not available");
+        }
+
+        var fwDataProject = FwDataProjectProvider.GetProject(projectName);
         if (fwDataProject is null)
         {
             throw new InvalidOperationException($"Project {projectName} not found.");
         }
-        try
-        {
-            using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
-            var project = await crdtProjectsService.CreateProject(new(fwDataProject.Name,
-                SeedNewProjectData: false,
-                FwProjectId: fwDataApi.ProjectId,
-                AfterCreate: async (provider, project) =>
-                {
-                    var crdtApi = provider.GetRequiredService<IMiniLcmApi>();
-                    await miniLcmImport.ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
-                }));
-            var timeSpent = Stopwatch.GetElapsedTime(startTime);
-            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataProject.Name, timeSpent.Humanize(2));
-            return project;
-        }
-        catch
-        {
-            logger.LogError("Import of {ProjectName} failed, deleting project", fwDataProject.Name);
-            throw;
-        }
-    }
 
+        return await miniLcmImport.Import(fwDataProject);
+    }
 }

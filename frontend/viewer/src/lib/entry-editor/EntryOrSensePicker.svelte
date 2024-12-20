@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { IEntry, ISense } from '../mini-lcm';
+  import type {IEntry, ISense} from '$lib/dotnet-types';
 
   export type EntrySenseSelection = {
     entry: IEntry;
@@ -17,6 +17,7 @@
   import { defaultSense, firstDef, firstGloss, glosses, headword, randomId } from '../utils';
   import { useProjectCommands } from '../commands';
   import type { SaveHandler } from '../services/save-event-service';
+  import {SortField} from '$lib/dotnet-types';
 
   const dispatch = createEventDispatcher<{
     pick: EntrySenseSelection;
@@ -46,10 +47,10 @@
   let addedEntries: IEntry[] = [];
   const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
-    let entries = await lexboxApi.SearchEntries(s ?? '', {
+    let entries = await lexboxApi.searchEntries(s ?? '', {
       offset: 0,
       count: fetchCount,
-      order: {field: 'headword', writingSystem: 'default'},
+      order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
     return { entries, search: s};
   }, {entries: [], search: undefined}, 200);
@@ -76,7 +77,7 @@
 
   async function onClickAddSense(entry: IEntry): Promise<void> {
     const newSense = defaultSense(randomId());
-    const savedSense = await saveHandler(() => lexboxApi.CreateSense(entry.id, newSense));
+    const savedSense = await saveHandler(() => lexboxApi.createSense(entry.id, newSense));
     entry.senses = [...entry.senses, savedSense];
     selectedSense = savedSense;
     onPick();

@@ -21,6 +21,10 @@ test-results/
 msal.json
 msal.cache
 artifacts/
+.vs/
 
 #Verify
 *.received.*
+backend/FwLite/FwLiteShared/wwwroot/viewer
+
+*.csproj.user

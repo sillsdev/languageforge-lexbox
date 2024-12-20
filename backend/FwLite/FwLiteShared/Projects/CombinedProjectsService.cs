@@ -1,8 +1,10 @@
-﻿using FwDataMiniLcmBridge;
-using FwLiteShared.Auth;
+﻿using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
+using MiniLcm.Models;
+using MiniLcm.Project;
 
 namespace FwLiteShared.Projects;
 
@@ -16,8 +18,12 @@ public record ProjectModel(
 
 public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService, CrdtProjectsService crdtProjectsService,
-    FieldWorksProjectList fieldWorksProjectList)
+    IEnumerable<IProjectProvider> projectProviders)
 {
+    private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
+    [JSInvokable]
+    public bool SupportsFwData() => FwDataProjectProvider is not null;
+    [JSInvokable]
     public async Task<ServerProjects[]> RemoteProjects()
     {
         var lexboxServers = lexboxProjectService.Servers();
@@ -39,9 +45,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
         return serverProjects;
     }
 
-    public async Task<IReadOnlyCollection<ProjectModel>> LocalProjects()
+    [JSInvokable]
+    public IReadOnlyCollection<ProjectModel> LocalProjects()
     {
-        var crdtProjects = await crdtProjectsService.ListProjects();
+        var crdtProjects = crdtProjectsService.ListProjects();
         //todo get project Id and use that to specify the Id in the model. Also pull out server
         var projects = crdtProjects.ToDictionary(p => p.Name,
             p =>
@@ -55,21 +62,26 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
                     p.Data?.Id);
             });
         //basically populate projects and indicate if they are lexbox or fwdata
-        foreach (var p in fieldWorksProjectList.EnumerateProjects())
+        if (FwDataProjectProvider is not null)
         {
-            if (projects.TryGetValue(p.Name, out var project))
+            foreach (var p in FwDataProjectProvider.ListProjects())
             {
-                projects[p.Name] = project with { Fwdata = true };
-            }
-            else
-            {
-                projects.Add(p.Name, new ProjectModel(p.Name, false, true));
+                if (projects.TryGetValue(p.Name, out var project))
+                {
+                    projects[p.Name] = project with { Fwdata = true };
+                }
+                else
+                {
+                    projects.Add(p.Name, new ProjectModel(p.Name, false, true));
+                }
             }
         }
+
 
         return projects.Values;
     }
 
+    [JSInvokable]
     public async Task DownloadProject(Guid lexboxProjectId, string projectName, LexboxServer server)
     {
         await crdtProjectsService.CreateProject(new(projectName,
@@ -80,5 +92,11 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
                 await provider.GetRequiredService<SyncService>().ExecuteSync();
             },
             SeedNewProjectData: false));
+    }
+
+    [JSInvokable]
+    public async Task CreateProject(string name)
+    {
+        await crdtProjectsService.CreateExampleProject(name);
     }
 }

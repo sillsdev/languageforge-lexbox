@@ -7,6 +7,7 @@
   let loading = true;
 
   export let projectName: string;
+  export let about: string | undefined;
 
   onMount(() => {
     const shadowRoot = document.querySelector('lexbox-svelte')?.shadowRoot;
@@ -43,5 +44,5 @@
 </svelte:element>
 
 <div class="app contents" class:dark={$currentTheme.dark}>
-  <ProjectView {projectName} isConnected {loading} showHomeButton={false} />
+  <ProjectView {projectName} isConnected {loading} showHomeButton={false} {about} />
 </div>

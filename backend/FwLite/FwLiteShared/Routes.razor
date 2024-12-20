@@ -1,0 +1,13 @@
+﻿@inject IJSRuntime jsRuntime
+@code {
+    private async Task OnNavigateAsync(NavigationContext context)
+    {
+        await jsRuntime.DurableInvokeVoidAsync("svelteNavigate", context.Path);
+    }
+}
+<Router AppAssembly="typeof(Layout.SvelteLayout).Assembly" OnNavigateAsync="OnNavigateAsync">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.SvelteLayout)"/>
+        <FocusOnNavigate RouteData="routeData" Selector="h1"/>
+    </Found>
+</Router>

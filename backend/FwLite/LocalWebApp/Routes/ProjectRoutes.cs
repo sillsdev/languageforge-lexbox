@@ -25,7 +25,7 @@ public static class ProjectRoutes
                 return (await combinedProjectsService.RemoteProjects()).ToDictionary(p => p.Server.Authority.Authority, p => p.Projects);
             });
         group.MapGet("/localProjects",
-            async (CombinedProjectsService combinedProjectsService) => await combinedProjectsService.LocalProjects());
+            (CombinedProjectsService combinedProjectsService) => combinedProjectsService.LocalProjects());
         group.MapPost("/project",
             async (CrdtProjectsService projectService, string name) =>
             {

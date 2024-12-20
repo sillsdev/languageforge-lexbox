@@ -14,10 +14,12 @@ using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
 
@@ -27,6 +29,7 @@ public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
     {
+        AvoidTrimming();
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
         services.AddSingleton<SetupCollationInterceptor>();
@@ -40,8 +43,8 @@ public static class LcmCrdtKernel
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
-        services.AddSingleton<ProjectContext>();
         services.AddSingleton<CrdtProjectsService>();
+        services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
         services.AddHttpClient();
         services.AddSingleton(provider => new RefitSettings
@@ -56,10 +59,16 @@ public static class LcmCrdtKernel
         return services;
     }
 
+    private static void AvoidTrimming()
+    {
+        //this is only here so that the compiler doesn't trim this method as Linq2Db uses it via reflection
+        SqliteConnection.ClearAllPools();
+    }
+
     private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
     {
-        var projectContext = provider.GetRequiredService<ProjectContext>();
-        if (projectContext.Project is null) throw new NullReferenceException("Project is null");
+        var projectContext = provider.GetRequiredService<CurrentProjectService>();
+        projectContext.ValidateProjectScope();
 #if DEBUG
         builder.EnableSensitiveDataLogging();
 #endif
@@ -76,6 +85,7 @@ public static class LcmCrdtKernel
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
+                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
                 var loggerFactory = provider.GetService<ILoggerFactory>();
                 if (loggerFactory is not null)
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
@@ -210,13 +220,12 @@ public static class LcmCrdtKernel
         //the project is stored in the async scope, if a new scope is created in this method then it will be gone once the method returns
         //making the lcm api unusable
         var projectsService = services.GetRequiredService<CrdtProjectsService>();
-        projectsService.SetProjectScope(project);
-        return LoadMiniLcmApi(services);
+        return LoadMiniLcmApi(services, project);
     }
 
-    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services)
+    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services, CrdtProject project)
     {
-        await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         return services.GetRequiredService<IMiniLcmApi>();
     }
 }

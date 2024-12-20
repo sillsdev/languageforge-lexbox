@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from 'svelte-ux';
-  import type { IEntry } from '../mini-lcm';
+  import type { IEntry } from '$lib/dotnet-types';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
   import IndexCharacters from './IndexCharacters.svelte';

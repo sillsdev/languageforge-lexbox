@@ -11,11 +11,10 @@
     'text-rose-500 dark:text-rose-400',
   ] as const;
 </script>
-
 <script lang="ts">
   import { derived } from 'svelte/store';
 
-  import type { IEntry } from './mini-lcm';
+  import type { IEntry } from '$lib/dotnet-types';
   import { headword } from './utils';
   import {useWritingSystems} from './writing-systems';
   import { usePartsOfSpeech } from './parts-of-speech';

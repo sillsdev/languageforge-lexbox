@@ -23,13 +23,13 @@ public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        //todo if multiple clients are connected, this will close the project for all of them.
-        fwDataFactory.CloseCurrentProject();
         var project = context.Project;
         if (project is null)
         {
             throw new InvalidOperationException("No project is set in the context.");
         }
+        //todo if multiple clients are connected, this will close the project for all of them.
+        fwDataFactory.CloseProject(project);
 
         if (exception is LcmFileLockedException)
         {

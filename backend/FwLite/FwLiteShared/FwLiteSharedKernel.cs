@@ -1,7 +1,6 @@
-﻿using FwDataMiniLcmBridge;
-using FwLiteProjectSync;
-using FwLiteShared.Auth;
+﻿using FwLiteShared.Auth;
 using FwLiteShared.Projects;
+using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,13 +15,13 @@ public static class FwLiteSharedKernel
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
-        services.AddFwDataBridge();
-        services.AddFwLiteProjectSync();
 
         services.AddSingleton<ImportFwdataService>();
         services.AddScoped<SyncService>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
+        services.AddSingleton<FwLiteProvider>();
+
         services.AddSingleton<ChangeEventBus>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());

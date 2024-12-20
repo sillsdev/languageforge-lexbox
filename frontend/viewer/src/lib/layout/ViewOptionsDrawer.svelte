@@ -5,7 +5,6 @@
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
   import {generateExternalChanges} from '../debug';
-  import SyncConfig from '../SyncConfig.svelte';
 
   export let activeView: View;
   export let viewSettings: ViewSettings;
@@ -32,9 +31,6 @@
               color="neutral"/>
       Hide empty fields
     </label>
-    {#if features.sync}
-      <SyncConfig />
-    {/if}
 
     <div class="grow"></div>
     <DevContent>

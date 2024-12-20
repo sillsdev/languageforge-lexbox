@@ -5,21 +5,39 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using MiniLcm.Project;
 
 namespace LcmCrdt;
 
-public partial class CrdtProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
+public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache): IProjectProvider
 {
-    public Task<CrdtProject[]> ListProjects()
+    public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
+    IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
     {
-        return Task.FromResult(Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
+        return ListProjects();
+    }
+
+    IProjectIdentifier? IProjectProvider.GetProject(string name)
+    {
+        return GetProject(name);
+    }
+
+    IMiniLcmApi IProjectProvider.OpenProject(IProjectIdentifier project, bool saveChangesOnDispose = true)
+    {
+        //todo not sure if we should implement this, it's mostly there for the FwData version
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<CrdtProject> ListProjects()
+    {
+        return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var name = Path.GetFileNameWithoutExtension(file);
             return new CrdtProject(name, file)
             {
                 Data = CurrentProjectService.LookupProjectData(memoryCache, name)
             };
-        }).ToArray());
+        });
     }
 
     public CrdtProject? GetProject(string name)
@@ -56,7 +74,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
         var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
-        await using var serviceScope = CreateProjectScope(crdtProject);
+        await using var serviceScope = provider.CreateAsyncScope();
+        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        currentProjectService.SetupProjectContextForNewDb(crdtProject);
         var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
         try
         {
@@ -65,7 +85,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
                 ProjectData.GetOriginDomain(request.Domain),
                 Guid.NewGuid(), request.FwProjectId);
             await InitProjectDb(db, projectData);
-            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            await currentProjectService.RefreshProjectData();
             if (request.SeedNewProjectData)
                 await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
@@ -91,25 +111,6 @@ public partial class CrdtProjectsService(IServiceProvider provider, ProjectConte
         await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
         await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
         await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
-    }
-
-    public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)
-    {
-        //todo make this helper method call `CurrentProjectService.PopulateProjectDataCache`
-        var serviceScope = provider.CreateAsyncScope();
-        SetProjectScope(crdtProject);
-        return serviceScope;
-    }
-
-    public void SetProjectScope(CrdtProject crdtProject)
-    {
-        projectContext.Project = crdtProject;
-    }
-
-    public void SetActiveProject(string name)
-    {
-        var project = GetProject(name) ?? throw new InvalidOperationException($"Crdt Project {name} not found");
-        SetProjectScope(project);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]

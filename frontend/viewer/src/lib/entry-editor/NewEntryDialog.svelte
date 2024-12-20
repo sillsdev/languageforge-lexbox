@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
   import {Toggle, Button, Dialog} from 'svelte-ux';
   import EntryEditor from './object-editors/EntryEditor.svelte';
-  import type {IEntry} from '../mini-lcm';
+  import type {IEntry} from '$lib/dotnet-types';
   import {useLexboxApi} from '../services/service-provider';
   import { mdiBookPlusOutline } from '@mdi/js';
   import { defaultEntry } from '../utils';
@@ -24,7 +24,7 @@
   async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
-    await saveHandler(() => lexboxApi.CreateEntry(entry));
+    await saveHandler(() => lexboxApi.createEntry(entry));
     dispatch('created', {entry});
     if (requester) {
       requester.resolve(entry);

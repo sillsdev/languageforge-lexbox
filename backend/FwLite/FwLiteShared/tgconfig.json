@@ -1,0 +1,6 @@
+﻿{
+  "generationSpecs": [
+    "FwLiteTypeGenSpec"
+  ],
+  "outputPath": "../../../frontend/viewer/src/lib/generated-types"
+}

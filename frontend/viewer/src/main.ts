@@ -3,9 +3,11 @@
 import './app.postcss';
 
 import App from './App.svelte';
+import {setupDotnetServiceProvider} from './lib/services/service-provider-dotnet';
 
+setupDotnetServiceProvider();
 new App({
-  target: document.getElementById('app')!,
+  target: document.getElementById('svelte-app')!,
 });
 
 /*/// v2 Run with web-component in shadow dom
