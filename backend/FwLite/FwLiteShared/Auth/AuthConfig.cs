@@ -14,6 +14,7 @@ public class AuthConfig
     public bool SystemWebViewLogin { get; set; } = false;
     public object? ParentActivityOrWindow { get; set; }
     public LexboxServer DefaultServer => LexboxServers.First();
+    public Action? AfterLoginWebView { get; set; }
 
     public LexboxServer GetServerByAuthority(string authority)
     {

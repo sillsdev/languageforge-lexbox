@@ -45,6 +45,11 @@ public static class FwLiteDesktopKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
+        services.Configure<AuthConfig>(config => config.AfterLoginWebView = () =>
+        {
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window is not null) Application.Current?.ActivateWindow(window);
+        });
 
         var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteDesktop").GetValue<string>("BaseDataDir") ??

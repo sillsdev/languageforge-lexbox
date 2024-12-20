@@ -25,6 +25,7 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
     {
         var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
         if (!result.HandledBySystemWebView) throw new InvalidOperationException("Sign in not handled by system web view");
+        options.Value.AfterLoginWebView?.Invoke();
     }
 
     public async Task<string> SignInWebApp(LexboxServer server, string returnUrl)
