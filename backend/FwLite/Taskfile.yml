@@ -18,15 +18,15 @@ tasks:
     dir: ./LocalWebApp
     cmd: dotnet watch --no-hot-reload
 
-  maui-desktop:
+  maui-windows:
     deps: [ ui:build-viewer-app ]
-    label: Run Maui Desktop
-    dir: ./FwLiteDesktop
+    label: Run Maui Windows
+    dir: ./FwLiteMaui
     cmd: dotnet run -f net9.0-windows10.0.19041.0
 
-  publish-maui-desktop:
-    label: Publish Maui Desktop
-    dir: ./FwLiteDesktop
+  publish-maui-windows:
+    label: Publish Maui Windows
+    dir: ./FwLiteMaui
     cmds:
       - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None
       - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts
@@ -34,7 +34,7 @@ tasks:
   build-maui-android:
     deps: [ ui:build-viewer-app ]
     label: Build Maui Android
-    dir: ./FwLiteDesktop
+    dir: ./FwLiteMaui
     cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
 
   publish-local-all:

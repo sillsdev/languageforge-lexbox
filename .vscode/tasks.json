@@ -7,7 +7,7 @@
           "type": "process",
           "args": [
             "build",
-            "${workspaceFolder}/backend/FwLite/FwLiteDesktop/FwLiteDesktop.csproj",
+            "${workspaceFolder}/backend/FwLite/FwLiteMaui/FwLiteMaui.csproj",
             "--framework",
             "net9.0-windows10.0.19041.0",
           ],

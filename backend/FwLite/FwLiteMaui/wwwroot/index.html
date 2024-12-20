@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>FwLiteMaui</title>
+    <base href="/" />
+    <link rel="icon" type="image/png" href="_content/FwLiteShared/favicon.png"/>
+    <script>
+        window.invokeOnWindow = function (methodName, args) {
+            if (!(methodName in window)) {
+                //todo not sure how to handle this for now, maybe we wait until the app is ready?
+                console.error(`Method ${methodName} not found`);
+                return;
+            }
+            window[methodName](...args);
+        };
+    </script>
+</head>
+
+<body>
+
+    <div class="status-bar-safe-area"></div>
+
+    <div id="app">Loading...</div>
+
+    <script src="_framework/blazor.webview.js" autostart="false"></script>
+
+</body>
+
+</html>

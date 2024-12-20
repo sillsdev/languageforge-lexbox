@@ -15,8 +15,8 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build FwLite Blazor (Windows)",
-      "program": "${workspaceFolder}/backend/FwLite/FwLiteDesktop/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/FwLiteDesktop.exe",
-      "cwd": "${workspaceFolder}/backend/FwLite/FwLiteDesktop",
+      "program": "${workspaceFolder}/backend/FwLite/FwLiteMaui/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/FwLiteMaui.exe",
+      "cwd": "${workspaceFolder}/backend/FwLite/FwLiteMaui",
       "stopAtEntry": false,
     },
     {

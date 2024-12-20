@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwDataMiniLcmBridge", "back
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwDataMiniLcmBridge.Tests", "backend\FwLite\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj", "{B0299A49-C0B2-4553-A72E-1670D4CB5138}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteDesktop", "backend\FwLite\FwLiteDesktop\FwLiteDesktop.csproj", "{9001FE0F-DBBF-4A78-9EB9-9B5042CF8A78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteMaui", "backend\FwLite\FwLiteMaui\FwLiteMaui.csproj", "{9001FE0F-DBBF-4A78-9EB9-9B5042CF8A78}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteProjectSync", "backend\FwLite\FwLiteProjectSync\FwLiteProjectSync.csproj", "{2245BAB6-753A-48AE-B929-6D8C35CB9804}"
 EndProject

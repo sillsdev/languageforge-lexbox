@@ -126,7 +126,7 @@ jobs:
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
-      - name: Upload FWLite Desktop artifacts
+      - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: fw-lite-local-web-app-linux
@@ -155,7 +155,7 @@ jobs:
         run: dotnet workload install maui
 
       - name: Publish Android
-        working-directory: backend/FwLite/FwLiteDesktop
+        working-directory: backend/FwLite/FwLiteMaui
         run: dotnet publish -f net9.0-android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Upload FWLite App artifacts
@@ -163,7 +163,7 @@ jobs:
         with:
           name: fw-lite-android
           if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*/*
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/*/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -187,18 +187,18 @@ jobs:
         run: dotnet workload install maui-windows
 
       - name: Publish Windows MAUI portable app
-        working-directory: backend/FwLite/FwLiteDesktop
+        working-directory: backend/FwLite/FwLiteMaui
         run: |
           dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
-          cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable/
+          cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
-        working-directory: backend/FwLite/FwLiteDesktop
+        working-directory: backend/FwLite/FwLiteMaui
         run: |
           dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
-          cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
+          cp ../artifacts/bin/FwLiteMaui/*/AppPackages/*/*.msix ../artifacts/msix/
 
       - name: Bundle MSIX
         working-directory: backend/FwLite/artifacts/msix
@@ -209,7 +209,7 @@ jobs:
           $sdkToolsPath = Join-Path -Path 'C:\Program Files (x86)\Windows Kits\10\bin' -ChildPath $SdkVersion -AdditionalChildPath $Architecture
           $env:Path += ";$sdkToolsPath"
 
-          MakeAppx.exe bundle /v /bv ${{ needs.build-and-test.outputs.semver-version }}.1 /d . /p ../sign/FwLiteDesktop.msixbundle
+          MakeAppx.exe bundle /v /bv ${{ needs.build-and-test.outputs.semver-version }}.1 /d . /p ../sign/FwLiteMaui.msixbundle
 
       - name: Sign with Trusted Signing
         if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
