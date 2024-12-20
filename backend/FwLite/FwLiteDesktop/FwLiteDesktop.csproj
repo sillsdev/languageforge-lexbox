@@ -51,9 +51,9 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
         <!--        single file disabled as it's less efficient for updates-->
         <PublishSingleFile>false</PublishSingleFile>
-        <PublishTrimmed>false</PublishTrimmed>
-<!--        only trim assemblies that explicitly support it-->
-        <TrimMode>partial</TrimMode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' And $(WindowsPackageType) == 'None'">
+        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
 
