@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
+using NReco.Logging.File;
 
 namespace FwLiteDesktop;
 
@@ -67,7 +68,7 @@ public static class FwLiteDesktopKernel
             config.SystemWebViewLogin = true;
         });
 
-        // logging.AddFile(Path.Combine(baseDataPath, "app.log"));
+        logging.AddFile(Path.Combine(baseDataPath, "app.log"));
         services.AddSingleton<IPreferences>(Preferences.Default);
         services.AddSingleton<IVersionTracking>(VersionTracking.Default);
         services.AddSingleton<IConnectivity>(Connectivity.Current);
