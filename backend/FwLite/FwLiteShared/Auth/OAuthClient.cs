@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using FwLiteShared.Projects;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -62,13 +63,16 @@ public class OAuthClient
             builder.WithDefaultRedirectUri();
         }
         _application = builder.Build();
-        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
-            task =>
-            {
-                var msalCacheHelper = task.Result;
-                msalCacheHelper.RegisterCache(_application.UserTokenCache);
-            },
-            scheduler: TaskScheduler.Default);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
+                task =>
+                {
+                    var msalCacheHelper = task.Result;
+                    msalCacheHelper.RegisterCache(_application.UserTokenCache);
+                },
+                scheduler: TaskScheduler.Default);
+        }
     }
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
