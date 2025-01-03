@@ -16,7 +16,8 @@
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
-
+  import {useDialogService} from '$lib/entry-editor/dialog-service';
+  const dialogService = useDialogService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
     delete: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -36,11 +37,13 @@
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this
   }
-  function deleteEntry() {
+  async function deleteEntry() {
+    if (!await dialogService.promptDelete('Entry')) return;
     dispatch('delete', {entry});
   }
 
-  function deleteSense(sense: ISense) {
+  async function deleteSense(sense: ISense) {
+    if (!await dialogService.promptDelete('Sense')) return;
     entry.senses = entry.senses.filter(s => s !== sense);
     dispatch('delete', {entry, sense});
   }
@@ -50,7 +53,8 @@
     dispatch('change', {entry, sense});
     highlightedEntity = sense;
   }
-  function deleteExample(sense: ISense, example: IExampleSentence) {
+  async function deleteExample(sense: ISense, example: IExampleSentence) {
+    if (!await dialogService.promptDelete('Example sentence')) return;
     sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
     dispatch('delete', {entry, sense, example});
     entry = entry; // examples are not updated without this
