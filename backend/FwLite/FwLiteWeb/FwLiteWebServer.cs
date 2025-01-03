@@ -38,7 +38,7 @@ public static class FwLiteWebServer
             config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
         builder.Logging.AddDebug();
-        builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+        builder.Services.AddRazorComponents().AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true);
         if (builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
         {
             builder.Logging.AddFile(logFileName);
