@@ -76,37 +76,49 @@ public class EntryValidatorTests
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", ""}} };
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor("LexemeForm");
     }
-//
 
-    [Fact]
-    public void Succeeds_WhenCitationFormIsPresent()
-    {
-        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}}, CitationForm = new MultiString(){{"en", "citation"}} };
-        _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
-    }
-
-    [Fact]
-    public void Succeeds_WhenCitationFormIsMissing()
+    [Theory]
+    [InlineData("CitationForm")]
+    [InlineData("LiteralMeaning")]
+    [InlineData("Note")]
+    public void Succeeds_WhenNonEmptyFieldIsPresent(string fieldName)
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };
+        SetProperty(entry, fieldName, "content");
         _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
-    [Fact]
-    public void Succeeds_WhenCitationFormHasNoContent()
+    [Theory]
+    [InlineData("CitationForm")]
+    [InlineData("LiteralMeaning")]
+    [InlineData("Note")]
+    public void Succeeds_WhenNonEmptyFieldHasNoContent(string fieldName)
     {
-        // Technically the same as Succeeds_WhenCitationFormIsMissing -- should we combine them?
-        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}}, CitationForm = new MultiString() };
+        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };
+        MakePropertyEmpty(entry, fieldName);
         _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
-    [Fact]
-    public void Fails_WhenCitationFormHasWsWithEmptyContent()
+    [Theory]
+    [InlineData("CitationForm")]
+    [InlineData("LiteralMeaning")]
+    [InlineData("Note")]
+    public void Failss_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
     {
-        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}}, CitationForm = new MultiString(){{"en", ""}} };
-        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("CitationForm");
+        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };
+        SetProperty(entry, fieldName, "");
+        _validator.TestValidate(entry).ShouldHaveValidationErrorFor(fieldName);
     }
 
-    // TODO: That's extremely similar to the LexemeForm tests except for the missing/no content tests.
-    // And we'll need to write similar tests for LiteralMeaning and Note. A test helper method is clearly needed here.
+    private void SetProperty(Entry entry, string propName, string content)
+    {
+        var propInfo = typeof(Entry).GetProperty(propName);
+        propInfo?.SetValue(entry, new MultiString(){{"en", content}});
+    }
+
+    private void MakePropertyEmpty(Entry entry, string propName)
+    {
+        var propInfo = typeof(Entry).GetProperty(propName);
+        propInfo?.SetValue(entry, new MultiString());
+    }
 }
