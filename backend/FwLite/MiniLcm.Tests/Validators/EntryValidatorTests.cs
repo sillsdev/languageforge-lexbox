@@ -103,7 +103,7 @@ public class EntryValidatorTests
     [InlineData("CitationForm")]
     [InlineData("LiteralMeaning")]
     [InlineData("Note")]
-    public void Failss_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
+    public void Fails_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };
         SetProperty(entry, fieldName, "");

@@ -10,7 +10,6 @@ public class SenseValidator : AbstractValidator<Sense>
         RuleFor(s => s.DeletedAt).Null();
         RuleFor(s => s.Definition).NoEmptyValues();
         RuleFor(s => s.Gloss).NoEmptyValues();
-        RuleFor(s => s.Gloss).NoEmptyValues();
         // RuleFor(s => s.PartOfSpeech).Empty(); // TODO: Comment out if we're not yet ready to move away from strings
         RuleFor(s => s.PartOfSpeechId).SetValidator(new PartOfSpeechIdValidator());
         RuleForEach(s => s.SemanticDomains).SetValidator(new SemanticDomainValidator());
