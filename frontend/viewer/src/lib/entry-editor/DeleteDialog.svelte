@@ -1,5 +1,6 @@
 ﻿<script lang="ts">
   import {Button, Dialog} from 'svelte-ux';
+  import {mdiTrashCanOutline} from '@mdi/js';
   let subject: string;
   let open = false;
   let loading = false;
@@ -32,13 +33,13 @@
     });
   }
 </script>
-<Dialog {open} on:close={onClose} {loading} persistent={loading}>
+<Dialog {open} on:close={onClose} {loading} persistent={loading} style="height: auto">
   <div slot="title">Delete {subject}</div>
   <div class="m-6">
     <p>Are you sure you want to delete {subject}?</p>
   </div>
   <div slot="actions">
     <Button on:click={() => cancel()}>Don't delete</Button>
-    <Button variant="fill-light" color="success" on:click={_ => confirm()}>Delete {subject}</Button>
+    <Button variant="fill-light" color="danger" icon={mdiTrashCanOutline} on:click={_ => confirm()}>Delete {subject}</Button>
   </div>
 </Dialog>
