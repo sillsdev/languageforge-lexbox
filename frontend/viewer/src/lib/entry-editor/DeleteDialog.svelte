@@ -7,20 +7,17 @@
   let requester: {
     resolve: (result: boolean) => void
   } | undefined = undefined;
-  function onClose() {
-    requester?.resolve(false);
-    requester = undefined;
-    open = false;
-  }
 
   function confirm() {
-    requester?.resolve(true);
-    requester = undefined;
-    open = false;
+    resolve(true);
   }
 
   function cancel() {
-    requester?.resolve(false);
+    resolve(false);
+  }
+
+  function resolve(shouldDelete: boolean) {
+    requester?.resolve(shouldDelete);
     requester = undefined;
     open = false;
   }
@@ -34,7 +31,7 @@
     });
   }
 </script>
-<Dialog {open} on:close={onClose} {loading} persistent={loading} style="height: auto">
+<Dialog {open} on:close={cancel} {loading} persistent={loading} style="height: auto">
   <div slot="title">Delete {subject}</div>
   <div class="m-6">
     <p>Are you sure you want to delete {subject}?</p>
