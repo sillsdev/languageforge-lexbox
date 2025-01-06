@@ -39,6 +39,8 @@
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {initDialogService} from '$lib/entry-editor/dialog-service';
 
   export let loading = false;
   export let about: string | undefined = undefined;
@@ -268,6 +270,10 @@
     if (entry) onEntryCreated(entry, options);
     return entry;
   }
+  let deleteDialog: DeleteDialog;
+  $: dialogHolder.dialog = deleteDialog;
+  const dialogHolder: {dialog?: DeleteDialog} = {};
+  initDialogService(() => dialogHolder.dialog);
 
   initProjectCommands({
     createNewEntry: openNewEntryDialog,
@@ -427,3 +433,4 @@
   <ViewOptionsDrawer bind:open={showOptionsDialog} bind:activeView={$currentView} bind:viewSettings={$viewSettings} bind:features={$features} />
 </div>
 {/if}
+<DeleteDialog bind:this={deleteDialog} />
