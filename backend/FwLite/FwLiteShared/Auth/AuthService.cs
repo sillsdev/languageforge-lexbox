@@ -28,6 +28,12 @@ public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientF
         options.Value.AfterLoginWebView?.Invoke();
     }
 
+    [JSInvokable]
+    public bool UseSystemWebView()
+    {
+        return options.Value.SystemWebViewLogin;
+    }
+
     public async Task<string> SignInWebApp(LexboxServer server, string returnUrl)
     {
         var result = await clientFactory.GetClient(server).SignIn(returnUrl);
