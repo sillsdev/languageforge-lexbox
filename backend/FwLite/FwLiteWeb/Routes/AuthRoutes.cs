@@ -18,16 +18,12 @@ public static class AuthRoutes
             async (AuthService authService, string authority, IOptions<AuthConfig> options, [FromHeader] string referer) =>
             {
                 var returnUrl = new Uri(referer).PathAndQuery;
-                //todo blazor, once we're using blazor this endpoint will only be used for non webview logins
                 if (options.Value.SystemWebViewLogin)
                 {
-                    await authService.SignInWebView(options.Value.GetServerByAuthority(authority));
-                    return Results.Redirect(returnUrl);
+                    throw new NotSupportedException("System web view login is not supported for this endpoint");
                 }
-                else
-                {
-                    return Results.Redirect(await authService.SignInWebApp(options.Value.GetServerByAuthority(authority), returnUrl));
-                }
+
+                return Results.Redirect(await authService.SignInWebApp(options.Value.GetServerByAuthority(authority), returnUrl));
             });
         group.MapGet("/oauth-callback",
             async (OAuthService oAuthService, HttpContext context) =>

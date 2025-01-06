@@ -17,6 +17,7 @@
   import {onMount} from 'svelte';
   import {useAuthService, useImportFwdataService, useProjectsService} from './lib/services/service-provider';
   import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
+  import LoginButton from '$lib/auth/LoginButton.svelte';
 
   const projectsService = useProjectsService();
   const authService = useAuthService();
@@ -86,27 +87,9 @@
     throw error;
   });
 
-  let loadingServer: string = '';
-  async function login(server: ILexboxServer) {
-    loadingServer = server.authority;
-    try {
-      await authService.signInWebView(server);
-      await fetchRemoteProjects();
-      serversStatus = await authService.servers();
-    } finally {
-      loadingServer = '';
-    }
-  }
-
-  async function logout(server: ILexboxServer) {
-    loadingServer = server.authority;
-    try {
-      await authService.logout(server);
-      await fetchRemoteProjects();
-      serversStatus = await authService.servers();
-    } finally {
-      loadingServer = '';
-    }
+  async function refreshProjectsAndServers() {
+    await fetchRemoteProjects();
+    serversStatus = await authService.servers();
   }
 
 
@@ -268,11 +251,7 @@
                 {#if status.loggedInAs}
                   <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
                 {/if}
-                {#if status.loggedIn}
-                  <Button loading={loadingServer === server.authority} variant="fill" color="primary" on:click={() => logout(server)} icon={mdiLogout}>Logout</Button>
-                {:else}
-                  <Button loading={loadingServer === server.authority} variant="fill-light" color="primary" on:click={() => login(server)} icon={mdiLogin}>Login</Button>
-                {/if}
+                <LoginButton {server} isLoggedIn={status.loggedIn} on:status={() => refreshProjectsAndServers()} />
               </div>
               {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
               {#each serverProjects as project}

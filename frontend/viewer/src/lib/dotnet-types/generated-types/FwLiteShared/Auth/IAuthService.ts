@@ -10,6 +10,7 @@ export interface IAuthService
 {
 	servers() : Promise<IServerStatus[]>;
 	signInWebView(server: ILexboxServer) : Promise<void>;
+	useSystemWebView() : Promise<boolean>;
 	signInWebApp(server: ILexboxServer, returnUrl: string) : Promise<string>;
 	logout(server: ILexboxServer) : Promise<void>;
 	getLoggedInName(server: ILexboxServer) : Promise<string>;

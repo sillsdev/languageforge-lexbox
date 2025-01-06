@@ -76,29 +76,34 @@ public class OAuthService(
     {
         await foreach (var loginRequest in _requestChannel.Reader.ReadAllAsync(stoppingToken))
         {
-            //this sits here and waits for AcquireAuthorizationCodeAsync to finish, meanwhile the uri passed in to that method is sent back to the caller of SubmitLoginRequest
-            //which then redirects the browser to that uri, once it's done it's sent back and calls FinishLoginRequest, which sends it's uri to OAuthLoginRequest
-            //which causes AcquireAuthorizationCodeAsync to return
-
-            try
-            {
-                //todo we can get stuck here if the user doesn't complete the login, this basically bricks the login at the moment. We need a timeout or something
-                //step 2
-                var result = await loginRequest.Application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
-                    .WithCustomWebUi(loginRequest)
-                    .ExecuteAsync(stoppingToken);
-                //step 7, causes step 8 to resume
-                loginRequest.SetAuthenticationResult(result);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "Error getting token");
-                loginRequest.SetException(e);
-            }
-
-            if (loginRequest.State is not null)
-                _oAuthLoginRequests.Remove(loginRequest.State);
+            //don't await, otherwise we'll block the channel reader and only 1 login will be processed at a time
+            //cancel the login after 5 minutes, otherwise it'll probably hang forever and abandoned requests will never be cleaned up
+            _ = Task.Run(() => StartLogin(loginRequest, stoppingToken.Merge(new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token)), stoppingToken);
         }
+    }
+
+    private async Task StartLogin(OAuthLoginRequest loginRequest, CancellationToken stoppingToken)
+    {
+        //this sits here and waits for AcquireAuthorizationCodeAsync to finish, meanwhile the uri passed in to that method is sent back to the caller of SubmitLoginRequest
+        //which then redirects the browser to that uri, once it's done it's sent back and calls FinishLoginRequest, which sends it's uri to OAuthLoginRequest
+        //which causes AcquireAuthorizationCodeAsync to return
+        try
+        {
+            //step 2
+            var result = await loginRequest.Application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
+                .WithCustomWebUi(loginRequest)
+                .ExecuteAsync(stoppingToken);
+            //step 7, causes step 8 to resume
+            loginRequest.SetAuthenticationResult(result);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting token");
+            loginRequest.SetException(e);
+        }
+
+        if (loginRequest.State is not null)
+            _oAuthLoginRequests.Remove(loginRequest.State);
     }
 }
 
