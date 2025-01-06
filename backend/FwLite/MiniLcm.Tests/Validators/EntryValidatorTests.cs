@@ -11,7 +11,7 @@ public class EntryValidatorTests
     public void Succeeds_WhenSenseEntryIdIsGuidEmpty()
     {
         var entryId = Guid.NewGuid();
-        var entry = new Entry() { Id = entryId, Senses = [new Sense() { EntryId = Guid.Empty, }] };
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Senses = [new Sense() { EntryId = Guid.Empty, }] };
         _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
@@ -20,7 +20,7 @@ public class EntryValidatorTests
     {
 
         var entryId = Guid.NewGuid();
-        var entry = new Entry() { Id = entryId, Senses = [new Sense() { EntryId = entryId, }] };
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Senses = [new Sense() { EntryId = entryId, }] };
         _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
@@ -28,7 +28,7 @@ public class EntryValidatorTests
     public void Fails_WhenSenseEntryIdDoesNotMatchEntry()
     {
         var entryId = Guid.NewGuid();
-        var entry = new Entry() { Id = entryId, Senses = [new Sense() { EntryId = Guid.NewGuid(), }] };
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Senses = [new Sense() { EntryId = Guid.NewGuid(), }] };
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor("Senses[0].EntryId");
     }
 }
