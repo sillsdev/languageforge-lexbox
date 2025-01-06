@@ -19,7 +19,7 @@
     "dev": "vite build -m web-component --watch",
     "lexbox-dev": "vite build -m web-component",
     "build": "vite build -m web-component",
-    "build-app": "vite build --emptyOutDir",
+    "build-app": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:ui": "vitest --ui",
