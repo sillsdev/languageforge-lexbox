@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <base href="/"/>
     <link rel="icon" type="image/png" href="_content/FwLiteShared/favicon.png"/>
-    <HeadOutlet @rendermode="InteractiveServer"/>
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)"/>
     <script>
         window.invokeOnWindow = function (methodName, args) {
             if (!(methodName in window)) {
@@ -20,7 +20,7 @@
 </head>
 
 <body>
-<Routes @rendermode="InteractiveServer"/>
+<Routes @rendermode="new InteractiveServerRenderMode(prerender: false)"/>
 <script src="_framework/blazor.web.js"></script>
 </body>
 
