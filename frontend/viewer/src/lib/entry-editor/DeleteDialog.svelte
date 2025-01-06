@@ -10,6 +10,7 @@
   function onClose() {
     requester?.resolve(false);
     requester = undefined;
+    open = false;
   }
 
   function confirm() {
