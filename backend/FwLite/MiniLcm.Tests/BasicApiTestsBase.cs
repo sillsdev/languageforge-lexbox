@@ -418,7 +418,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 .Set(e => e.PartOfSpeech, new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{"en","updated"}} }) // should be ignored
                 .Set(e => e.PartOfSpeechId, partOfSpeechId));
         updatedSense.PartOfSpeech.Should().NotBeNull();
-        updatedSense.PartOfSpeech.Name.Should().Be("Adverb");
+        updatedSense.PartOfSpeech.Name.Should().BeEquivalentTo(new MultiString() {{"en","Adverb"}});
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 

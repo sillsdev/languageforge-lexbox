@@ -63,6 +63,6 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         updatedSense.PartOfSpeechId.Should().Be(newPartOfSpeech.Id);
         updatedSense.PartOfSpeech.Should()
         //the part of speech here is whatever the default is for the project, not english.
-            .Be(newPartOfSpeech.Name["en"]);
+            .BeEquivalentTo(newPartOfSpeech);
     }
 }
