@@ -36,14 +36,6 @@ public class ExampleSentenceValidatorTests
     }
 
     [Fact]
-    public void Fails_WhenSentenceHasNoContent()
-    {
-        // Technically the same as Fails_WhenSentenceIsMissing -- should we combine them?
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString() };
-        _validator.TestValidate(example).ShouldHaveValidationErrorFor("Sentence");
-    }
-
-    [Fact]
     public void Fails_WhenSentenceHasWsWithEmptyContent()
     {
         var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", ""}} };

@@ -25,21 +25,21 @@ public class EntryValidator : AbstractValidator<Entry>
 
     private bool NotBeComponentSelfReference(Entry entry, ComplexFormComponent component)
     {
-        return component.ComponentEntryId != entry.Id;
+        return component.ComponentEntryId != entry.Id || component.ComponentEntryId == Guid.Empty;
     }
 
     private bool HaveCorrectComponentEntryReference(Entry entry, ComplexFormComponent component)
     {
-        return component.ComplexFormEntryId == entry.Id;
+        return component.ComplexFormEntryId == entry.Id || component.ComplexFormEntryId == Guid.Empty;
     }
 
     private bool NotBeComplexFormSelfReference(Entry entry, ComplexFormComponent component)
     {
-        return component.ComplexFormEntryId != entry.Id;
+        return component.ComplexFormEntryId != entry.Id || component.ComplexFormEntryId == Guid.Empty;
     }
 
     private bool HaveCorrectComplexFormEntryReference(Entry entry, ComplexFormComponent component)
     {
-        return component.ComponentEntryId == entry.Id;
+        return component.ComponentEntryId == entry.Id || component.ComponentEntryId == Guid.Empty;
     }
 }

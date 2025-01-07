@@ -63,14 +63,6 @@ public class EntryValidatorTests
     }
 
     [Fact]
-    public void Fails_WhenLexemeFormHasNoContent()
-    {
-        // Technically the same as Fails_WhenLexemeFormIsMissing -- should we combine them?
-        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString() };
-        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("LexemeForm");
-    }
-
-    [Fact]
     public void Fails_WhenLexemeFormHasWsWithEmptyContent()
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", ""}} };
@@ -78,9 +70,9 @@ public class EntryValidatorTests
     }
 
     [Theory]
-    [InlineData("CitationForm")]
-    [InlineData("LiteralMeaning")]
-    [InlineData("Note")]
+    [InlineData(nameof(Entry.CitationForm))]
+    [InlineData(nameof(Entry.LiteralMeaning))]
+    [InlineData(nameof(Entry.Note))]
     public void Succeeds_WhenNonEmptyFieldIsPresent(string fieldName)
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };
@@ -89,9 +81,9 @@ public class EntryValidatorTests
     }
 
     [Theory]
-    [InlineData("CitationForm")]
-    [InlineData("LiteralMeaning")]
-    [InlineData("Note")]
+    [InlineData(nameof(Entry.CitationForm))]
+    [InlineData(nameof(Entry.LiteralMeaning))]
+    [InlineData(nameof(Entry.Note))]
     public void Succeeds_WhenNonEmptyFieldHasNoContent(string fieldName)
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };
@@ -100,9 +92,9 @@ public class EntryValidatorTests
     }
 
     [Theory]
-    [InlineData("CitationForm")]
-    [InlineData("LiteralMeaning")]
-    [InlineData("Note")]
+    [InlineData(nameof(Entry.CitationForm))]
+    [InlineData(nameof(Entry.LiteralMeaning))]
+    [InlineData(nameof(Entry.Note))]
     public void Fails_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", "lexeme"}} };

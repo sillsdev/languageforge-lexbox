@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using MiniLcm.Models;
 
 namespace MiniLcm.Validators;
 
