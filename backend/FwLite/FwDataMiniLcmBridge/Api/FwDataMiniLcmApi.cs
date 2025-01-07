@@ -305,7 +305,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
             Code = semanticDomain.Abbreviation.UiString ?? "",
-            Predefined = true, // TODO: Look up in a GUID list of predefined data
+            Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
 
