@@ -16,7 +16,11 @@
           window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
         }
         const services = window.lexbox.FwLiteProvider;
-        services[key] = service;
+        if (service) {
+            services[key] = service;
+        } else {
+            delete services[key];
+        }
     };
     //called from FwLiteProvider.InjectCrdtProject
     window['notifyEntryUpdated'] = (projectName, entry) => {
