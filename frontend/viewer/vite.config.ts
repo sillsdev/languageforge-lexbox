@@ -3,10 +3,11 @@ import {svelte} from '@sveltejs/vite-plugin-svelte';
 import {svelteTesting} from '@testing-library/svelte/vite';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const webComponent = mode === 'web-component';
   return {
-    base: '/_content/FwLiteShared/viewer',
+    base: !webComponent && command == "build" ? '/_content/FwLiteShared/viewer' : '/',
+
     build: {
       ...(webComponent ? {
         lib: {
@@ -16,11 +17,13 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist-web-component',
       } : {
         outDir: '../../backend/FwLite/FwLiteShared/wwwroot/viewer',
+        manifest: true,
       }),
       minify: false,
       sourcemap: true,
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
+        input: ['src/main.ts', 'src/app.postcss'],
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
@@ -46,18 +49,9 @@ export default defineConfig(({ mode }) => {
         handler(warning);
       },
     }), svelteTesting()],
-    ...(!webComponent ? {
-      server: {
-        open: 'http://localhost:5173/testing/project-view',
-        proxy: {
-          '/api': {
-            target: 'http://localhost:5137',
-            secure: false,
-            ws: true
-          }
-        }
-      }
-    } : {}),
+    server: {
+      origin: 'http://localhost:5173',
+    },
     test: {
       environment: 'happy-dom',
       setupFiles: ['./vitest-setup.js'],

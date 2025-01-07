@@ -1,13 +1,21 @@
 ﻿@inherits LayoutComponentBase
 @using FwLiteShared.Services
+@using Microsoft.Extensions.Hosting
 @using Microsoft.Extensions.Logging
 @inject IJSRuntime JS
 @inject ILogger<SvelteLayout> Logger
 @inject FwLiteProvider FwLiteProvider
+@inject IHostEnvironment Environment;
 @implements IAsyncDisposable
-
-<link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
-<link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/index.css"]"/>
+@if (useDevAssets)
+{
+    <script type="module" src="http://localhost:5173/@@vite/client"></script>
+}
+else
+{
+    <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
+    <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/main.css"]"/>
+}
 <script>
     window['setOverrideService'] = (key, service) => {
         window.lexbox ??= {};
@@ -36,6 +44,8 @@
 @Body
 
 @code {
+    private bool useDevAssets => Environment.IsDevelopment();
+    // private bool useDevAssets => false;
     private IJSObjectReference? module;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -48,8 +58,14 @@
                 await FwLiteProvider.SetService(JS, serviceKey, service);
             }
 
-            module = await JS.InvokeAsync<IJSObjectReference>("import",
-                "/" + Assets["_content/FwLiteShared/viewer/index.js"]);
+            if (useDevAssets)
+            {
+                module = await JS.InvokeAsync<IJSObjectReference>("import", "http://localhost:5173/src/main.ts");
+            } else
+            {
+                module = await JS.InvokeAsync<IJSObjectReference>("import",
+                    "/" + Assets["_content/FwLiteShared/viewer/main.js"]);
+            }
         }
     }
 
