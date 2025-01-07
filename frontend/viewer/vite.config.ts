@@ -5,8 +5,9 @@ import {svelteTesting} from '@testing-library/svelte/vite';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const webComponent = mode === 'web-component';
+  const standaloneApp = mode === 'app';
   return {
-    base: '/_content/FwLiteShared/viewer',
+    base: standaloneApp ? undefined : '/_content/FwLiteShared/viewer',
     build: {
       ...(webComponent ? {
         lib: {
@@ -14,7 +15,9 @@ export default defineConfig(({ mode }) => {
           formats: ['es'],
         },
         outDir: 'dist-web-component',
-      } : {
+      }
+        : standaloneApp ? {}
+        : {
         outDir: '../../backend/FwLite/FwLiteShared/wwwroot/viewer',
       }),
       minify: false,
