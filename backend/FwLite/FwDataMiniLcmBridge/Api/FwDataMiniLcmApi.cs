@@ -162,6 +162,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
+        validators.ValidateAndThrow(writingSystem);
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {
@@ -220,6 +221,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
+        await validators.ValidateAndThrowAsync(after);
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
             async () =>
@@ -248,6 +250,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
+        validators.ValidateAndThrow(partOfSpeech);
         IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
@@ -278,6 +281,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
     {
+        await validators.ValidateAndThrowAsync(after);
         await PartOfSpeechSync.Sync(before, after, this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
@@ -323,6 +327,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
+        await validators.ValidateAndThrowAsync(semanticDomain);
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
             "Remove semantic domain",
@@ -355,6 +360,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
     {
+        await validators.ValidateAndThrowAsync(after);
         await SemanticDomainSync.Sync(before, after, this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
@@ -396,7 +402,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        await validators.ValidateAndThrow(complexFormType);
+        await validators.ValidateAndThrowAsync(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
@@ -429,7 +435,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
-        await validators.ValidateAndThrow(after);
+        await validators.ValidateAndThrowAsync(after);
         await ComplexFormTypeSync.Sync(before, after, this);
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
     }
@@ -661,6 +667,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
+        await validators.ValidateAndThrowAsync(entry);
         try
         {
             UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
@@ -853,6 +860,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
+        await validators.ValidateAndThrowAsync(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
@@ -963,6 +971,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
+        validators.ValidateAndThrow(sense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
@@ -987,6 +996,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
+        await validators.ValidateAndThrowAsync(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
@@ -1073,6 +1083,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        validators.ValidateAndThrow(exampleSentence);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
@@ -1103,6 +1114,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         ExampleSentence before,
         ExampleSentence after)
     {
+        await validators.ValidateAndThrowAsync(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert Example Sentence",
             async () =>
