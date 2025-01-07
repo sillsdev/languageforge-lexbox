@@ -7,10 +7,10 @@ RUN corepack enable
 FROM builder-base AS builder-viewer
 COPY pnpm-lock.yaml pnpm-workspace.yaml /app/
 WORKDIR /app/viewer
-COPY viewer/package.json viewer/.npmrc /app/viewer/
+COPY ./package.json ./.npmrc /app/viewer/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
-COPY ./viewer /app/viewer
+COPY . /app/viewer
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 
 FROM builder-base AS builder
