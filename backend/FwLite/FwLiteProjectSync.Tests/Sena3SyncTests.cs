@@ -76,6 +76,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task DryRunImport_MakesNoChanges()
     {
         await WorkaroundMissingWritingSystems();
@@ -86,6 +87,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task DryRunImport_MakesTheSameChangesAsImport()
     {
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi);
@@ -94,6 +96,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesNoChanges()
     {
         await BypassImport();
@@ -106,6 +109,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Slow")]
+    [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
         //syncing requires querying entries, which fails if there are no writing systems, so we import those first
@@ -120,6 +124,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task FirstSena3SyncJustDoesAnSync()
     {
         _fwDataApi.EntryCount.Should().BeGreaterThan(1000,
@@ -137,6 +142,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Slow")]
+    [Trait("Category", "Integration")]
     public async Task SyncWithoutImport_CrdtShouldMatchFwdata()
     {
         await BypassImport();
@@ -152,6 +158,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SecondSena3SyncDoesNothing()
     {
         await _syncService.Sync(_crdtApi, _fwDataApi);
