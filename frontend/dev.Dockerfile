@@ -14,4 +14,5 @@ COPY . /app/
 COPY src /app/src
 COPY static /app/static
 ENV DockerDev=true
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 CMD [ "pnpm", "run", "-r", "--include-workspace-root", "lexbox-dev" ]
