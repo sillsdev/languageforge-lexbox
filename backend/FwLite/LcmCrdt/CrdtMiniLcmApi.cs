@@ -192,6 +192,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
+        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, this);
         return await GetComplexFormType(after.Id) ?? throw new NullReferenceException($"unable to find complex form type with id {after.Id}");
     }

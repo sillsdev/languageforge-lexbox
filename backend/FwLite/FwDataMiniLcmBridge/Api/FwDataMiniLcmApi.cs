@@ -429,6 +429,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
+        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, this);
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
     }
