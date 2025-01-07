@@ -15,7 +15,6 @@ public class SemanticDomainValidator : AbstractValidator<SemanticDomain>
 
     private bool BeCanonicalGuid(Guid id)
     {
-        // TODO: Load SemDom.xml into app as a resource and add singleton providing access to it, then look up GUIDs there
-        return true;
+        return CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(id);
     }
 }
