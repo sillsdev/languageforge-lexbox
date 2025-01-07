@@ -239,7 +239,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     private async Task<Entry> ToEntry(Entities.Entry entry)
     {
-        List<Sense> senses;
+        Sense[] senses;
         if (entry.Senses is null)
         {
             senses = [];
@@ -247,8 +247,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         else
         {
             var senseTasks = entry.Senses.OfType<Entities.Sense>().Select(sense => ToSense(entry.Guid, sense));
-            await Task.WhenAll(senseTasks);
-            senses = senseTasks.Select(task => task.Result).ToList();
+            senses = await Task.WhenAll(senseTasks);
         }
         return new Entry
         {
@@ -257,7 +256,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             LexemeForm = ToMultiString(entry.Lexeme),
             Note = ToMultiString(entry.Note),
             LiteralMeaning = ToMultiString(entry.LiteralMeaning),
-            Senses = senses,
+            Senses = new List<Sense>(senses),
         };
     }
 
