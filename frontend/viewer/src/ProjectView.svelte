@@ -1,8 +1,8 @@
 <script lang="ts">
   import {AppBar, Button, ProgressCircle} from 'svelte-ux';
   import {
-    mdiArrowCollapseLeft,
     mdiArrowCollapseRight,
+    mdiArrowExpandLeft,
     mdiArrowLeft,
     mdiChatQuestion,
     mdiEyeSettingsOutline,
@@ -384,7 +384,7 @@
       <div class="side-scroller pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:sm-view:border-l-2={pickedEntry && !readonly} class:sm-view:hidden={!pickedEntry || readonly} class:lg-view:hidden={expandList}>
         {#if $selectedEntry}
           <div class="sm-form:hidden" class:sm:hidden={expandList}>
-            <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+            <Button icon={collapseActionBar ? mdiArrowExpandLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
           </div>
         {/if}
         <div class="sm-form:w-auto w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
