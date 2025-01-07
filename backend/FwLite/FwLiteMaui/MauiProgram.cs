@@ -55,7 +55,12 @@ public static class MauiProgram
         {
 #if ANDROID
             events.AddAndroid(android => android
-                .OnDestroy((activity) => holder.Shutdown()));
+                .OnDestroy((activity) =>
+                {
+                    // This doesn't work, because OnDestroy gets called e.g. when logging in via OAuth. (and maybe whenever the app is backgrounded?)
+                    // It seems like there is no appropriate hook. Maybe we're just supposed to let the OS kill the app?
+                    //holder.Shutdown();
+                }));
 #endif
 #if IOS || MACCATALYST
             events.AddiOS(ios => ios
