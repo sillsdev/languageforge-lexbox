@@ -8,8 +8,9 @@
 @*this looks empty because it is, but it's required to declare the route which is then used by the svelte router*@
 @code
 {
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await FwLiteProvider.SetService(JS, DotnetService.MiniLcmApi, null);
+        if (firstRender)
+            await FwLiteProvider.SetService(JS, DotnetService.MiniLcmApi, null);
     }
 }
