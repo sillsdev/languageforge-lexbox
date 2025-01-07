@@ -102,6 +102,41 @@ public class EntryValidatorTests
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor(fieldName);
     }
 
+    [Fact]
+    public void Fails_WhenComplexFormsContainCircularReference()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, ComplexForms = [new ComplexFormComponent(){ ComplexFormEntryId = entryId, ComponentEntryId = Guid.Empty }] };
+        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("ComplexForms[0]");
+        // _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Fails_WhenComponentsContainCircularReference()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Components = [new ComplexFormComponent(){ ComplexFormEntryId = Guid.Empty, ComponentEntryId = entryId }] };
+        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("Components[0]");
+        // _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+    }
+
+
+    [Fact]
+    public void Succeeds_WhenComplexFormsContainEmptyGuid()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, ComplexForms = [new ComplexFormComponent(){ ComplexFormEntryId = Guid.Empty, ComponentEntryId = entryId }] };
+        _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Succeeds_WhenComponentsContainEmptyGuid()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Components = [new ComplexFormComponent(){ ComplexFormEntryId = entryId, ComponentEntryId = Guid.Empty }] };
+        _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+    }
+
     private void SetProperty(Entry entry, string propName, string content)
     {
         var propInfo = typeof(Entry).GetProperty(propName);
