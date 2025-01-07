@@ -153,6 +153,22 @@
   let showOptionsDialog = false;
   let pickedEntry = false;
   let navigateToEntryId = getSearchParam(ViewerSearchParam.EntryId);
+
+  // Makes the back button work for going back to the list view
+  // todo use a lib for this?
+  window.addEventListener('popstate', () => {
+    const currEntryId = getSearchParam(ViewerSearchParam.EntryId);
+    if (!currEntryId) {
+      pickedEntry = false;
+      $selectedEntry = undefined;
+    } else {
+      if (currEntryId !== $selectedEntry?.id) {
+        navigateToEntryId = currEntryId;
+        refreshSelection();
+      }
+    }
+  });
+
   const selectedEntry = writable<IEntry | undefined>(undefined);
   setContext('selectedEntry', selectedEntry);
   // For some reason reactive syntax doesn't pick up every change, so we need to manually subscribe
@@ -160,7 +176,7 @@
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
   $: { pickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
-    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
+    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined));
   }
 
   $: {
@@ -176,6 +192,7 @@
       const entry = $entries.find(e => e.id === navigateToEntryId);
       if (entry) {
         $selectedEntry = entry;
+        pickedEntry = true;
       }
     } else if ($selectedEntry !== undefined) {
       const entry = $entries.find(e => e.id === $selectedEntry!.id);
@@ -184,9 +201,7 @@
       }
     }
 
-    if ($selectedEntry) {
-      pickedEntry = true;
-    } else {
+    if (!$selectedEntry) {
       pickedEntry = false;
       if ($entries?.length > 0)
         $selectedEntry = $entries[0];
