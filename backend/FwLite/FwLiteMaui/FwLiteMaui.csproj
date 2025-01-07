@@ -60,8 +60,7 @@
 	<ItemGroup>
 		<!-- App Icon -->
         <!--        background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
-        <MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
-		<MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'ios'" Include="Resources\AppIcon\logo_light.svg" />
+        <MauiIcon Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#152747" BaseSize="512,512" />
