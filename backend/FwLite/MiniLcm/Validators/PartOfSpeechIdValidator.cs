@@ -11,7 +11,6 @@ public class PartOfSpeechIdValidator : AbstractValidator<Guid?>
 
     private bool BeCanonicalGuid(Guid? id)
     {
-        // TODO: Load GOLDEtic.xml into app as a resource and add singleton providing access to it, then look up GUIDs there
-        return true;
+        return id == null || CanonicalGuidsPartOfSpeech.CanonicalPosGuids.Contains(id.Value);
     }
 }
