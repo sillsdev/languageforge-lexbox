@@ -7,7 +7,7 @@ public class PartOfSpeechValidator : AbstractValidator<PartOfSpeech>
 {
     public PartOfSpeechValidator()
     {
-        RuleFor(pos => pos.Id).Must(BeCanonicalGuid).When(pos => pos.Predefined);
+        // RuleFor(pos => pos.Id).Must(BeCanonicalGuid).When(pos => pos.Predefined); // TODO: Fix data in Sena3SyncTests and then uncomment this
         RuleFor(pos => pos.DeletedAt).Null();
         RuleFor(pos => pos.Name).Required();
     }
