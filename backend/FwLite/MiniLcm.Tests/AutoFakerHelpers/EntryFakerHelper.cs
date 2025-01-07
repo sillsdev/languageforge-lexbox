@@ -25,6 +25,7 @@ public static class EntryFakerHelper
                 await api.CreatePartOfSpeech(new PartOfSpeech()
                 {
                     Id = sense.PartOfSpeechId.Value,
+                    Predefined = false,
                     Name = { { "en", sense.PartOfSpeech } }
                 });
             }
