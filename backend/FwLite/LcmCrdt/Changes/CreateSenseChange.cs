@@ -29,7 +29,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public double Order { get; set; }
     public MultiString? Definition { get; set; }
     public MultiString? Gloss { get; set; }
-    public string? PartOfSpeech { get; set; }
+    public PartOfSpeech? PartOfSpeech { get; set; }
     public Guid? PartOfSpeechId { get; set; }
     public IList<SemanticDomain>? SemanticDomains { get; set; }
 
@@ -42,7 +42,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Order = Order,
             Definition = Definition ?? new MultiString(),
             Gloss = Gloss ?? new MultiString(),
-            PartOfSpeech = PartOfSpeech ?? string.Empty,
+            PartOfSpeech = PartOfSpeech,
             PartOfSpeechId = PartOfSpeechId,
             SemanticDomains = SemanticDomains ?? [],
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null

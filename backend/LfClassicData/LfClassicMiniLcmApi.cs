@@ -89,7 +89,14 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return await GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Id == id);
+        var item = await dbContext.GetOptionListItemByGuid(projectCode, "grammatical-info", id);
+        return item is null ? null : ToPartOfSpeech(item);
+    }
+
+    public async Task<PartOfSpeech?> GetPartOfSpeech(string key)
+    {
+        var item = await dbContext.GetOptionListItemByKey(projectCode, "grammatical-info", key);
+        return item is null ? null : ToPartOfSpeech(item);
     }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
@@ -157,7 +164,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
         await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
         {
-            yield return ToEntry(entry);
+            yield return await ToEntry(entry); // TODO: Is there a way to turn this into a .Select()? Because "yield return await" looks a little unwieldy
         }
     }
 
@@ -230,8 +237,19 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             })));
     }
 
-    private static Entry ToEntry(Entities.Entry entry)
+    private async Task<Entry> ToEntry(Entities.Entry entry)
     {
+        List<Sense> senses;
+        if (entry.Senses is null)
+        {
+            senses = [];
+        }
+        else
+        {
+            var senseTasks = entry.Senses.OfType<Entities.Sense>().Select(sense => ToSense(entry.Guid, sense));
+            await Task.WhenAll(senseTasks);
+            senses = senseTasks.Select(task => task.Result).ToList();
+        }
         return new Entry
         {
             Id = entry.Guid,
@@ -239,11 +257,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             LexemeForm = ToMultiString(entry.Lexeme),
             Note = ToMultiString(entry.Note),
             LiteralMeaning = ToMultiString(entry.LiteralMeaning),
-            Senses = entry.Senses?.OfType<Entities.Sense>().Select(sense => ToSense(entry.Guid,sense)).ToList() ?? [],
+            Senses = senses,
         };
     }
 
-    private static Sense ToSense(Guid entryId, Entities.Sense sense)
+    private async Task<Sense> ToSense(Guid entryId, Entities.Sense sense)
     {
         return new Sense
         {
@@ -251,7 +269,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             EntryId = entryId,
             Gloss = ToMultiString(sense.Gloss),
             Definition = ToMultiString(sense.Definition),
-            PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
+            PartOfSpeech = sense.PartOfSpeech is null ? null : await GetPartOfSpeech(sense.PartOfSpeech.Value),
             SemanticDomains = (sense.SemanticDomain?.Values ?? [])
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
@@ -317,7 +335,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
     {
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
-        return ToEntry(entry);
+        return await ToEntry(entry);
     }
 
     public async Task<Sense?> GetSense(Guid entryId, Guid id)
@@ -326,7 +344,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (entry is null) return null;
         var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == id);
         if (sense is null) return null;
-        return ToSense(entryId, sense);
+        return await ToSense(entryId, sense);
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)

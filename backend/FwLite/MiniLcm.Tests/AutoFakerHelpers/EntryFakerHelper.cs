@@ -20,14 +20,15 @@ public static class EntryFakerHelper
         foreach (var sense in entry.Senses)
         {
             sense.EntryId = entry.Id;
-            if (sense.PartOfSpeechId.HasValue)
+            if (sense.PartOfSpeechId.HasValue && sense.PartOfSpeech is null)
             {
-                await api.CreatePartOfSpeech(new PartOfSpeech()
+                var pos = new PartOfSpeech()
                 {
                     Id = sense.PartOfSpeechId.Value,
-                    Predefined = false,
-                    Name = { { "en", sense.PartOfSpeech } }
-                });
+                    Name = { { "en", "generated pos" } }
+                };
+                await api.CreatePartOfSpeech(pos);
+                sense.PartOfSpeech = pos;
             }
             foreach (var senseSemanticDomain in sense.SemanticDomains)
             {

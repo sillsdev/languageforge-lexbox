@@ -353,7 +353,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             if (sense.PartOfSpeechId is not null && partsOfSpeech.TryGetValue(sense.PartOfSpeechId.Value, out var partOfSpeech))
             {
                 sense.PartOfSpeechId = partOfSpeech.Id;
-                sense.PartOfSpeech = partOfSpeech.Name["en"] ?? string.Empty;
+                sense.PartOfSpeech = partOfSpeech;
             }
             if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
                 throw new InvalidOperationException("Order should not be provided when creating a sense");
@@ -475,7 +475,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         {
             var partOfSpeech = await PartsOfSpeech.FirstOrDefaultAsync(p => p.Id == sense.PartOfSpeechId);
             sense.PartOfSpeechId = partOfSpeech?.Id;
-            sense.PartOfSpeech = partOfSpeech?.Name["en"] ?? string.Empty;
+            sense.PartOfSpeech = partOfSpeech;
         }
 
         yield return new CreateSenseChange(sense, entryId);

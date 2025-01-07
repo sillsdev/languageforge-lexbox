@@ -568,14 +568,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private Sense FromLexSense(ILexSense sense)
     {
         var enWs = GetWritingSystemHandle("en");
+        var pos = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech();
         var s =  new Sense
         {
             Id = sense.Guid,
             EntryId = sense.Entry.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
-            PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
+            PartOfSpeech = pos is null ? null : FromLcmPartOfSpeech(pos),
+            PartOfSpeechId = pos?.Guid,
             SemanticDomains = sense.SemanticDomainsRC.Select(FromLcmSemanticDomain).ToList(),
             ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
         };

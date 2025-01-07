@@ -12,7 +12,7 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
         if (PartOfSpeechId is null)
         {
             entity.PartOfSpeechId = null;
-            entity.PartOfSpeech = string.Empty;
+            entity.PartOfSpeech = null;
             return;
         }
 
@@ -20,10 +20,10 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
         if (partOfSpeech is null or { DeletedAt: not null })
         {
             entity.PartOfSpeechId = null;
-            entity.PartOfSpeech = string.Empty;
+            entity.PartOfSpeech = null;
             return;
         }
         entity.PartOfSpeechId = partOfSpeech.Id;
-        entity.PartOfSpeech = partOfSpeech.Name["en"];
+        entity.PartOfSpeech = partOfSpeech;
     }
 }

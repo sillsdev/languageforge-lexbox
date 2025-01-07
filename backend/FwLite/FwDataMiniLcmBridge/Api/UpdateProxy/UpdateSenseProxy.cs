@@ -25,7 +25,7 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         set => throw new NotImplementedException();
     }
 
-    public override string PartOfSpeech
+    public override PartOfSpeech? PartOfSpeech
     {
         get => throw new NotImplementedException();
         set { }

@@ -362,8 +362,9 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     public async Task CreateSense_WontCreateMissingPartOfSpeech()
     {
         var senseId = Guid.NewGuid();
+        var partOfSpeechId = Guid.NewGuid();
         var createdSense = await Api.CreateSense(Entry1Id,
-            new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = Guid.NewGuid(), });
+            new Sense() { Id = senseId, PartOfSpeech = null, PartOfSpeechId = partOfSpeechId, });
         createdSense.Id.Should().Be(senseId);
         createdSense.PartOfSpeechId.Should().BeNull("because the part of speech does not exist (or was deleted)");
     }
@@ -377,7 +378,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var partOfSpeech = await Api.GetPartsOfSpeech().SingleOrDefaultAsync(pos => pos.Id == partOfSpeechId);
         ArgumentNullException.ThrowIfNull(partOfSpeech);
         var createdSense = await Api.CreateSense(Entry1Id,
-            new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = partOfSpeechId, });
+            new Sense() { Id = senseId, PartOfSpeech = partOfSpeech, PartOfSpeechId = partOfSpeechId, });
         createdSense.Id.Should().Be(senseId);
         createdSense.PartOfSpeechId.Should().Be(partOfSpeechId, "because the part of speech does exist");
     }
@@ -386,7 +387,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     public async Task UpdateSensePartOfSpeech()
     {
         var partOfSpeechId = Guid.NewGuid();
-        await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "Adverb" } } });
+        var partOfSpeech = await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "Adverb" } } });
         var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
@@ -400,7 +401,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    PartOfSpeech = "test",
+                    PartOfSpeech = new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{"en", "test"}} },
                     Definition = new MultiString
                     {
                         Values =
@@ -414,9 +415,10 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
-                .Set(e => e.PartOfSpeech, "updated")//should be ignored
+                .Set(e => e.PartOfSpeech, new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{"en","updated"}} }) // should be ignored
                 .Set(e => e.PartOfSpeechId, partOfSpeechId));
-        updatedSense.PartOfSpeech.Should().Be("Adverb");
+        updatedSense.PartOfSpeech.Should().NotBeNull();
+        updatedSense.PartOfSpeech.Name.Should().Be("Adverb");
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 
