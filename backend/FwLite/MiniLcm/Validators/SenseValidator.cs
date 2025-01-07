@@ -11,7 +11,7 @@ public class SenseValidator : AbstractValidator<Sense>
         RuleFor(s => s.Definition).NoEmptyValues();
         RuleFor(s => s.Gloss).NoEmptyValues();
         // RuleFor(s => s.PartOfSpeech).Empty(); // TODO: Comment out if we're not yet ready to move away from strings
-        RuleFor(s => s.PartOfSpeechId).SetValidator(new PartOfSpeechIdValidator());
+        // RuleFor(s => s.PartOfSpeechId).SetValidator(new PartOfSpeechIdValidator()); // Can't do this statelessly, as we'd need a full PartOfSpeech object to check if it's predefined or not
         RuleForEach(s => s.SemanticDomains).SetValidator(new SemanticDomainValidator());
         RuleForEach(s => s.ExampleSentences).SetValidator(sense => new ExampleSentenceValidator(sense));
     }
