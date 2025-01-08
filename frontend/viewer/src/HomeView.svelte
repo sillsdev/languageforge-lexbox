@@ -19,6 +19,7 @@
   import {useAuthService, useImportFwdataService, useProjectsService} from './lib/services/service-provider';
   import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
   import LoginButton from '$lib/auth/LoginButton.svelte';
+  import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
 
   const projectsService = useProjectsService();
   const authService = useAuthService();
@@ -121,85 +122,96 @@
 </script>
 <AppBar title="FieldWorks Lite" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
 </AppBar>
-<div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:my-4 md:min-h-full">
+<div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:py-4 md:min-h-full">
   <div class="flex-grow hidden md:block"></div>
   <div class="project-list md:border md:rounded md:p-4">
     {#await projectsPromise}
       <p>loading...</p>
     {:then projects}
       <div>
-        {#each projects.filter(p => p.crdt) as project (project.id)}
-          {@const server = syncedServer(remoteProjects, project, serversStatus)}
-          <a href={`/project/${project.name}`} class="contents">
-            <ListItem title={project.name}
-                      icon={mdiBookEditOutline}
-                      subheading={!server ? 'Local only' : ('Sync with ' + server.displayName)} }>
+        <div>
+          {#each projects.filter(p => p.crdt) as project (project.id)}
+            {@const server = syncedServer(remoteProjects, project, serversStatus)}
+            <AnchorListItem href={`/project/${project.name}`}>
+              <ListItem title={project.name}
+                        icon={mdiBookEditOutline}
+                        subheading={!server ? 'Local only' : ('Syncing with ' + server.displayName)}>
+                <div slot="actions">
+                  <Button icon={mdiChevronRight} class="p-2"/>
+                </div>
+              </ListItem>
+            </AnchorListItem>
+          {/each}
+          <AnchorListItem href={`/testing/project-view`}>
+            <ListItem title="Test Project" icon={mdiTestTube}>
               <div slot="actions">
                 <Button icon={mdiChevronRight} class="p-2"/>
               </div>
             </ListItem>
-          </a>
-        {/each}
-        <a href={`/testing/project-view`} class="contents">
-          <ListItem title="Test Project" icon={mdiTestTube}>
-            <div slot="actions">
-              <Button icon={mdiChevronRight} class="p-2"/>
-            </div>
-          </ListItem>
-        </a>
-        {#if !projects.some(p => p.name === exampleProjectName)}
-          <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)}>
-            <div slot="actions">
-              <Button icon={mdiBookPlusOutline} class="p-2"/>
-            </div>
-          </ListItem>
-        {/if}
+          </AnchorListItem>
+          {#if !projects.some(p => p.name === exampleProjectName)}
+            <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)}>
+              <div slot="actions">
+                <Button icon={mdiBookPlusOutline} class="p-2"/>
+              </div>
+            </ListItem>
+          {/if}
+        </div>
         {#each serversStatus as status}
           {@const server = status.server}
-          <div class="flex flex-row items-center py-1 mr-2 mt-2">
-            <p class="pl-2">{server.displayName}</p>
+          {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
+          <div class="flex flex-row items-center py-1 mr-2 mt-2" class:mb-2={serverProjects.length}>
+            <p class="pl-2">Projects on {server.displayName}</p>
             <div class="flex-grow"></div>
             {#if status.loggedInAs}
               <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
             {/if}
             <LoginButton {server} isLoggedIn={status.loggedIn} on:status={() => refreshProjectsAndServers()}/>
           </div>
-          {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
-          {#each serverProjects as project}
-            {@const localProject = matchesProject(projects, project)}
-            <ListItem icon={mdiCloud}
-                      title={project.name}
-                      on:click={() =>{ if (!localProject?.crdt) {void downloadCrdtProject(project, server);} }}
-                      loading={downloading === project.name}>
-              <div slot="actions">
-                <Button icon={localProject?.crdt ? mdiBookSyncOutline : mdiBookArrowDownOutline} class="p-2">
-                  {localProject?.crdt ? 'Synced' : 'Download'}
-                </Button>
-              </div>
-            </ListItem>
-          {/each}
+          <div>
+            {#if status.loggedIn && !serverProjects.length}
+            <p class="pl-2 text-surface-content/50">No projects</p>
+            {/if}
+            {#each serverProjects as project}
+              {@const localProject = matchesProject(projects, project)}
+              <ListItem icon={mdiCloud}
+                        class={localProject?.crdt ? 'pointer-events-none' : ''}
+                        title={project.name}
+                        on:click={() =>{ if (!localProject?.crdt) {void downloadCrdtProject(project, server);} }}
+                        loading={downloading === project.name}>
+                <div slot="actions">
+                  <Button disabled={localProject?.crdt} icon={localProject?.crdt ? mdiBookSyncOutline : mdiBookArrowDownOutline} class="p-2">
+                    {localProject?.crdt ? 'Synced' : 'Download'}
+                  </Button>
+                </div>
+              </ListItem>
+            {/each}
+
+          </div>
         {/each}
 
         {#if projects.some(p => p.fwdata)}
-          <p class="mt-2 pl-2">FieldWorks projects</p>
-          {#each projects.filter(p => p.fwdata) as project (project.id ?? project.name)}
-            <a href={`/fwdata/${project.name}`} class="contents">
-              <ListItem title={project.name}>
-                <img slot="avatar" src={flexLogo} alt="FieldWorks logo" class="h-6"/>
-                <div slot="actions">
-                  <DevContent>
-                    <Button
-                      loading={importing === project.name}
-                      icon={mdiBookArrowLeftOutline}
-                      title="Import"
-                      disabled={!!importing}
-                      on:click={() => importFwDataProject(project.name)}>
-                    </Button>
-                  </DevContent>
-                </div>
-              </ListItem>
-            </a>
-          {/each}
+          <p class="mt-4 mb-2 pl-2">FieldWorks Projects</p>
+          <div>
+            {#each projects.filter(p => p.fwdata) as project (project.id ?? project.name)}
+              <AnchorListItem href={`/fwdata/${project.name}`}>
+                <ListItem title={project.name}>
+                  <img slot="avatar" src={flexLogo} alt="FieldWorks logo" class="h-6"/>
+                  <div slot="actions">
+                    <DevContent>
+                      <Button
+                        loading={importing === project.name}
+                        icon={mdiBookArrowLeftOutline}
+                        title="Import"
+                        disabled={!!importing}
+                        on:click={() => importFwDataProject(project.name)}>
+                      </Button>
+                    </DevContent>
+                  </div>
+                </ListItem>
+              </AnchorListItem>
+            {/each}
+          </div>
         {/if}
       </div>
     {:catch error}
