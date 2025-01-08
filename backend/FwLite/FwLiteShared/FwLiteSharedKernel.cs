@@ -25,6 +25,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<ChangeEventBus>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
+        services.AddOptions<FwLiteConfig>();
         return services;
     }
 

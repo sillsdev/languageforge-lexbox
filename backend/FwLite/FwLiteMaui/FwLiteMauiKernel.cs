@@ -41,7 +41,7 @@ public static class FwLiteMauiKernel
         FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
 #endif
 #if WINDOWS
-        services.AddFwLiteWindows();
+        services.AddFwLiteWindows(env);
 #endif
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);

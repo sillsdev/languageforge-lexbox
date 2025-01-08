@@ -21,6 +21,10 @@ public static class FwLiteWebKernel
         services.AddFwDataBridge();
         services.AddFwLiteProjectSync();
         services.AddFwLiteShared(environment);
+        if (environment.IsDevelopment())
+        {
+            services.Configure<FwLiteConfig>(config => config.UseDevAssets = true);
+        }
 
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
