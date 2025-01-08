@@ -8,7 +8,7 @@ public class ExampleSentenceValidator : AbstractValidator<ExampleSentence>
     public ExampleSentenceValidator()
     {
         RuleFor(es => es.DeletedAt).Null();
-        RuleFor(es => es.Sentence).Required();
+        RuleFor(es => es.Sentence).NoEmptyValues();
         RuleFor(es => es.Translation).NoEmptyValues();
     }
 

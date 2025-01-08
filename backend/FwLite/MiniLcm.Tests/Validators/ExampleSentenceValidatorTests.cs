@@ -17,54 +17,36 @@ public class ExampleSentenceValidatorTests
     [Fact]
     public void Fails_WhenDeletedAtIsNotNull()
     {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", "sentence"}}, DeletedAt = DateTimeOffset.UtcNow };
+        var example = new ExampleSentence() { Id = Guid.NewGuid(), DeletedAt = DateTimeOffset.UtcNow };
         _validator.TestValidate(example).ShouldHaveValidationErrorFor("DeletedAt");
     }
 
-    [Fact]
-    public void Succeeds_WhenSentenceIsPresent()
-    {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", "sentence"}} };
-        _validator.TestValidate(example).ShouldNotHaveAnyValidationErrors();
-    }
-
-    [Fact]
-    public void Fails_WhenSentenceIsMissing()
-    {
-        var example = new ExampleSentence() { Id = Guid.NewGuid() };
-        _validator.TestValidate(example).ShouldHaveValidationErrorFor("Sentence");
-    }
-
-    [Fact]
-    public void Fails_WhenSentenceHasWsWithEmptyContent()
-    {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", ""}} };
-        _validator.TestValidate(example).ShouldHaveValidationErrorFor("Sentence");
-    }
-
     [Theory]
+    [InlineData("Sentence")]
     [InlineData("Translation")]
     public void Succeeds_WhenNonEmptyFieldIsPresent(string fieldName)
     {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", "sentence"}} };
+        var example = new ExampleSentence() { Id = Guid.NewGuid() };
         SetProperty(example, fieldName, "content");
         _validator.TestValidate(example).ShouldNotHaveAnyValidationErrors();
     }
 
     [Theory]
+    [InlineData("Sentence")]
     [InlineData("Translation")]
     public void Succeeds_WhenNonEmptyFieldHasNoContent(string fieldName)
     {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", "sentence"}} };
+        var example = new ExampleSentence() { Id = Guid.NewGuid() };
         MakePropertyEmpty(example, fieldName);
         _validator.TestValidate(example).ShouldNotHaveAnyValidationErrors();
     }
 
     [Theory]
+    [InlineData("Sentence")]
     [InlineData("Translation")]
     public void Fails_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
     {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", "sentence"}} };
+        var example = new ExampleSentence() { Id = Guid.NewGuid() };
         SetProperty(example, fieldName, "");
         _validator.TestValidate(example).ShouldHaveValidationErrorFor(fieldName);
     }
