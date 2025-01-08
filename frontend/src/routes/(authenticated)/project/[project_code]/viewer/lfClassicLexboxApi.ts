@@ -25,7 +25,7 @@ function prepareEntriesForUi(entries: IEntry[]): void {
         sd.id = sd.code;
       }
       //partOfSpeech is only included on the server for the viewer.
-      sense.partOfSpeechId = sense.partOfSpeech;
+      sense.partOfSpeechId = sense.partOfSpeech?.id;
     }
   }
 }
