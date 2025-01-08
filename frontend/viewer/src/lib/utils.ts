@@ -115,7 +115,7 @@ export function defaultSense(id?: string): ISense {
     definition: {},
     gloss: {},
     partOfSpeechId: undefined,
-    partOfSpeech: '',
+    partOfSpeech: undefined,
     semanticDomains: [],
     exampleSentences: []
   };

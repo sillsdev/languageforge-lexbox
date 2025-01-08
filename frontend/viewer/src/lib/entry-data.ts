@@ -2,6 +2,11 @@ import {type IEntry, type IWritingSystems, WritingSystemType} from '$lib/dotnet-
 
 export const projectName = 'Sena 3';
 
+export const partsOfSpeech = [
+  {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'}, predefined: true},
+  {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: true}
+];
+
 export const writingSystems: IWritingSystems = {
   'analysis': [
     {
@@ -62,8 +67,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': { 'en': 'they', 'pt': 'eles' },
         'gloss': { 'en': '3P+2', 'pt': '3P+2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -72,8 +77,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -82,8 +87,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -91,8 +96,8 @@ export const _entries: IEntry[] = [
         'id': 'b2565e07-2e43-43cb-b533-247f100ac548',
         'entryId': '',
         'definition': {}, 'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -101,8 +106,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       }
@@ -120,8 +125,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': { 'en': 'they', 'pt': 'eles' },
         'gloss': { 'en': '3P+2', 'pt': '3P+2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -130,8 +135,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -140,8 +145,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       },
@@ -150,8 +155,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [], 'exampleSentences': []
       },
       {
@@ -159,8 +164,8 @@ export const _entries: IEntry[] = [
         'entryId': '',
         'definition': {},
         'gloss': { 'en': '2', 'pt': '2' },
-        'partOfSpeechId': 'e73d5de2-b5ec-4cc8-a679-af7ca8f673f9',
-        'partOfSpeech': '',
+        'partOfSpeech': partsOfSpeech[1], // noun
+        'partOfSpeechId': partsOfSpeech[1].id,
         'semanticDomains': [],
         'exampleSentences': []
       }
@@ -171,6 +176,8 @@ export const _entries: IEntry[] = [
     components: []
   },
 ];
+
+// TODO: Update partOfSpeech everywhere in sena-3 JSON data below to be an object. Replace with { "id":"(guid from nearby partOfSpeechId)", "name": {"en": "(current value)"}, "predefined": true }
 
 // Sena 3 for thorough testing - currently broken, because it doesn't have components, complex forms etc.
 //using json parse here otherwise all the code will tank the build and editor performance, when updating replace \" with \\" in the string
