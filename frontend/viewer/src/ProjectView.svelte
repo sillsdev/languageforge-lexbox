@@ -161,11 +161,10 @@
     if (!currEntryId) {
       pickedEntry = false;
       $selectedEntry = undefined;
-    } else {
-      if (currEntryId !== $selectedEntry?.id) {
-        navigateToEntryId = currEntryId;
-        refreshSelection();
-      }
+    } else if (currEntryId !== $selectedEntry?.id) {
+      pickedEntry = true;
+      navigateToEntryId = currEntryId;
+      refreshSelection();
     }
   });
 
@@ -176,7 +175,7 @@
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
   $: { pickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
-    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined));
+    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), false);
   }
 
   $: {
