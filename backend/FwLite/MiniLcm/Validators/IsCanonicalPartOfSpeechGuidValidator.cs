@@ -2,9 +2,9 @@
 
 namespace MiniLcm.Validators;
 
-public class PartOfSpeechIdValidator : AbstractValidator<Guid?>
+public class IsCanonicalPartOfSpeechGuidValidator : AbstractValidator<Guid?>
 {
-    public PartOfSpeechIdValidator()
+    public IsCanonicalPartOfSpeechGuidValidator()
     {
         RuleFor(id => id).Must(BeCanonicalGuid);
     }
