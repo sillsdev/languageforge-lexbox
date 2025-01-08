@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+﻿using System.Collections.Frozen;
 
 namespace MiniLcm.Validators;
 
@@ -6,7 +6,7 @@ public static class CanonicalGuidsPartOfSpeech
 {
     // GUID list taken from src/SIL.LCModel/Templates/GOLDEtic.xml in liblcm
     // TODO: Consider loading GOLDEtic.xml into app as a resource and add singleton providing access to it, then look up GUIDs there rather than using this hardcoded list
-    public static HashSet<Guid> CanonicalPosGuids = [
+    public static readonly FrozenSet<Guid> CanonicalPosGuids = [
         new Guid("30d07580-5052-4d91-bc24-469b8b2d7df9"),
         new Guid("ae115ea8-2cd7-4501-8ae7-dc638e4f17c5"),
         new Guid("18f1b2b8-0ce3-4889-90e9-003fed6a969f"),

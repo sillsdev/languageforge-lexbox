@@ -45,7 +45,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        await validators.ValidateAndThrowAsync(writingSystem);
+        await validators.ValidateAndThrow(writingSystem);
         var entityId = Guid.NewGuid();
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
         try
@@ -70,7 +70,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await WritingSystemSync.Sync(before, after, this);
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
@@ -103,7 +103,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        await validators.ValidateAndThrowAsync(partOfSpeech);
+        await validators.ValidateAndThrow(partOfSpeech);
         await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
     }
@@ -119,7 +119,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await PartOfSpeechSync.Sync(before, after, this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
@@ -184,7 +184,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        await validators.ValidateAndThrowAsync(complexFormType);
+        await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
@@ -198,7 +198,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, this);
         return await GetComplexFormType(after.Id) ?? throw new NullReferenceException($"unable to find complex form type with id {after.Id}");
     }
@@ -368,7 +368,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        await validators.ValidateAndThrowAsync(entry);
+        await validators.ValidateAndThrow(entry);
         await dataModel.AddChanges(ClientId,
         [
             new CreateEntryChange(entry),
@@ -456,7 +456,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await EntrySync.Sync(before, after, this);
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
@@ -502,7 +502,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             throw new InvalidOperationException("Order should not be provided when creating a sense");
 
         sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await validators.ValidateAndThrowAsync(sense);
+        await validators.ValidateAndThrow(sense);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
@@ -519,7 +519,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await SenseSync.Sync(entryId, before, after, this);
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
@@ -549,7 +549,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         Guid senseId,
         ExampleSentence exampleSentence)
     {
-        await validators.ValidateAndThrowAsync(exampleSentence);
+        await validators.ValidateAndThrow(exampleSentence);
         await dataModel.AddChange(ClientId, new CreateExampleSentenceChange(exampleSentence, senseId));
         return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
     }
@@ -578,7 +578,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         ExampleSentence before,
         ExampleSentence after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException();
     }

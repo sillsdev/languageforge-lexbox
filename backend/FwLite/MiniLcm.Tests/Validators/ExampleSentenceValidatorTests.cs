@@ -22,8 +22,8 @@ public class ExampleSentenceValidatorTests
     }
 
     [Theory]
-    [InlineData("Sentence")]
-    [InlineData("Translation")]
+    [InlineData(nameof(ExampleSentence.Sentence))]
+    [InlineData(nameof(ExampleSentence.Translation))]
     public void Succeeds_WhenNonEmptyFieldIsPresent(string fieldName)
     {
         var example = new ExampleSentence() { Id = Guid.NewGuid() };
@@ -32,8 +32,8 @@ public class ExampleSentenceValidatorTests
     }
 
     [Theory]
-    [InlineData("Sentence")]
-    [InlineData("Translation")]
+    [InlineData(nameof(ExampleSentence.Sentence))]
+    [InlineData(nameof(ExampleSentence.Translation))]
     public void Succeeds_WhenNonEmptyFieldHasNoContent(string fieldName)
     {
         var example = new ExampleSentence() { Id = Guid.NewGuid() };
@@ -42,8 +42,8 @@ public class ExampleSentenceValidatorTests
     }
 
     [Theory]
-    [InlineData("Sentence")]
-    [InlineData("Translation")]
+    [InlineData(nameof(ExampleSentence.Sentence))]
+    [InlineData(nameof(ExampleSentence.Translation))]
     public void Fails_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
     {
         var example = new ExampleSentence() { Id = Guid.NewGuid() };

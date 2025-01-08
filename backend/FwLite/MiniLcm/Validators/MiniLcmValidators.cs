@@ -13,32 +13,32 @@ public record MiniLcmValidators(
     IValidator<PartOfSpeech> PartOfSpeechValidator,
     IValidator<SemanticDomain> SemanticDomainValidator)
 {
-    public async Task ValidateAndThrowAsync(ComplexFormType value)
+    public async Task ValidateAndThrow(ComplexFormType value)
     {
         await ComplexFormTypeValidator.ValidateAndThrowAsync(value);
     }
 
-    public async Task ValidateAndThrowAsync(Entry value)
+    public async Task ValidateAndThrow(Entry value)
     {
         await EntryValidator.ValidateAndThrowAsync(value);
     }
 
-    public async Task ValidateAndThrowAsync(Sense value)
+    public async Task ValidateAndThrow(Sense value)
     {
         await SenseValidator.ValidateAndThrowAsync(value);
     }
 
-    public async Task ValidateAndThrowAsync(ExampleSentence value)
+    public async Task ValidateAndThrow(ExampleSentence value)
     {
         await ExampleSentenceValidator.ValidateAndThrowAsync(value);
     }
 
-    public async Task ValidateAndThrowAsync(WritingSystem value)
+    public async Task ValidateAndThrow(WritingSystem value)
     {
         await WritingSystemValidator.ValidateAndThrowAsync(value);
     }
 
-    public async Task ValidateAndThrowAsync(PartOfSpeech value)
+    public async Task ValidateAndThrow(PartOfSpeech value)
     {
         await PartOfSpeechValidator.ValidateAndThrowAsync(value);
     }
@@ -47,42 +47,6 @@ public record MiniLcmValidators(
     {
         await SemanticDomainValidator.ValidateAndThrowAsync(value);
     }
-
-    public void ValidateAndThrow(ComplexFormType value)
-    {
-        ComplexFormTypeValidator.ValidateAndThrow(value);
-    }
-
-    public void ValidateAndThrow(Entry value)
-    {
-        EntryValidator.ValidateAndThrow(value);
-    }
-
-    public void ValidateAndThrow(Sense value)
-    {
-        SenseValidator.ValidateAndThrow(value);
-    }
-
-    public void ValidateAndThrow(ExampleSentence value)
-    {
-        ExampleSentenceValidator.ValidateAndThrow(value);
-    }
-
-    public void ValidateAndThrow(WritingSystem value)
-    {
-        WritingSystemValidator.ValidateAndThrow(value);
-    }
-
-    public void ValidateAndThrow(PartOfSpeech value)
-    {
-        PartOfSpeechValidator.ValidateAndThrow(value);
-    }
-
-    public void ValidateAndThrow(SemanticDomain value)
-    {
-        SemanticDomainValidator.ValidateAndThrow(value);
-    }
-
 }
 
 public static class MiniLcmValidatorsExtensions

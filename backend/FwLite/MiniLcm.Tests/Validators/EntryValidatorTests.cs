@@ -108,7 +108,6 @@ public class EntryValidatorTests
         var entryId = Guid.NewGuid();
         var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, ComplexForms = [new ComplexFormComponent(){ ComplexFormEntryId = entryId, ComponentEntryId = Guid.Empty }] };
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor("ComplexForms[0]");
-        // _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -117,7 +116,6 @@ public class EntryValidatorTests
         var entryId = Guid.NewGuid();
         var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Components = [new ComplexFormComponent(){ ComplexFormEntryId = Guid.Empty, ComponentEntryId = entryId }] };
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor("Components[0]");
-        // _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
 

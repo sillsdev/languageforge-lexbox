@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+﻿using System.Collections.Frozen;
 
 namespace MiniLcm.Validators;
 
@@ -6,7 +6,8 @@ public static class CanonicalGuidsSemanticDomain
 {
     // GUID list taken from src/SIL.LCModel/Templates/SemDom.xml in liblcm
     // TODO: Consider loading SemDom.xml into app as a resource and add singleton providing access to it, then look up GUIDs there rather than using this hardcoded list
-    public static HashSet<Guid> CanonicalSemDomGuids = [
+    public static readonly FrozenSet<Guid> CanonicalSemDomGuids = [
+        // TODO: convert to Guid constructor that won't have to parse all these strings. Obviously do something automated to get the result. Then do same for CanonicalGuidsPartOfSpeech because why not.
         new Guid("63403699-07C1-43F3-A47C-069D6E4316E5"),
         new Guid("999581C4-1611-4ACB-AE1B-5E6C1DFE6F0C"),
         new Guid("DC1A2C6F-1B32-4631-8823-36DACC8CB7BB"),
