@@ -23,7 +23,7 @@ export default defineConfig(({ mode, command }) => {
       sourcemap: true,
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        input: ['src/main.ts', 'src/app.postcss'],
+        input: webComponent ? undefined : ['src/main.ts'],
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
