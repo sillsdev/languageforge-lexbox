@@ -24,7 +24,7 @@ public static class EntryFakerHelper
             {
                 sense.PartOfSpeechId = sense.PartOfSpeech.Id;
             }
-            else if (sense.PartOfSpeechId.HasValue)
+            if (sense.PartOfSpeechId.HasValue)
             {
                 var pos = new PartOfSpeech()
                 {
