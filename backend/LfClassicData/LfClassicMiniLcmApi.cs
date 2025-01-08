@@ -25,6 +25,9 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<ComplexFormType?>(null);
     }
 
+    private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
+    private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
+
     public async Task<WritingSystems> GetWritingSystems()
     {
         var inputSystems = await systemDbContext.Projects.AsQueryable()
@@ -89,14 +92,20 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        var item = await dbContext.GetOptionListItemByGuid(projectCode, "grammatical-info", id);
-        return item is null ? null : ToPartOfSpeech(item);
+        if (_partsOfSpeechCacheByGuid is null)
+        {
+            _partsOfSpeechCacheByGuid = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Id);
+        }
+        return _partsOfSpeechCacheByGuid.GetValueOrDefault(id);
     }
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(string key)
     {
-        var item = await dbContext.GetOptionListItemByKey(projectCode, "grammatical-info", key);
-        return item is null ? null : ToPartOfSpeech(item);
+        if (_partsOfSpeechCacheByStringKey is null)
+        {
+            _partsOfSpeechCacheByStringKey = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Name["__key"]);
+        }
+        return _partsOfSpeechCacheByStringKey.GetValueOrDefault(key);
     }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
