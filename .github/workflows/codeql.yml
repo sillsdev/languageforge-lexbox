@@ -10,6 +10,7 @@ on:
       - "**/*.csproj"
       - "**/*.ts"
       - "**/*.js"
+      - '.github/workflows/codeql.yml'
   schedule:
     - cron: '34 21 * * 2'
 
