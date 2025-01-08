@@ -321,16 +321,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
         await dataModel.AddChanges(ClientId,
             entries.ToBlockingEnumerable()
-                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech))
+                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
                 //force entries to be created first, this avoids issues where references are created before the entry is created
                 .OrderBy(c => c is CreateEntryChange ? 0 : 1)
         );
     }
 
-    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, PartOfSpeech> partsOfSpeech)
+    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
     {
         yield return new CreateEntryChange(entry);
 
@@ -350,11 +349,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
                 .OfType<MiniLcm.Models.SemanticDomain>()
                 .ToList();
-            if (sense.PartOfSpeechId is not null && partsOfSpeech.TryGetValue(sense.PartOfSpeechId.Value, out var partOfSpeech))
-            {
-                sense.PartOfSpeechId = partOfSpeech.Id;
-                sense.PartOfSpeech = partOfSpeech;
-            }
             if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
                 throw new InvalidOperationException("Order should not be provided when creating a sense");
             sense.Order = i++;
@@ -471,12 +465,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         sense.SemanticDomains = await SemanticDomains
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
             .ToListAsync();
-        if (sense.PartOfSpeechId is not null)
-        {
-            var partOfSpeech = await PartsOfSpeech.FirstOrDefaultAsync(p => p.Id == sense.PartOfSpeechId);
-            sense.PartOfSpeechId = partOfSpeech?.Id;
-            sense.PartOfSpeech = partOfSpeech;
-        }
 
         yield return new CreateSenseChange(sense, entryId);
         foreach (var change in sense.ExampleSentences.Select(sentence =>
