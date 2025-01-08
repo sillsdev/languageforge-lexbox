@@ -173,7 +173,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
         await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
         {
-            yield return await ToEntry(entry); // TODO: Is there a way to turn this into a .Select()? Because "yield return await" looks a little unwieldy
+            yield return await ToEntry(entry);
         }
     }
 

@@ -37,14 +37,4 @@ public class JsonPatchChangeTests
         var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(), patch);
         act.Should().Throw<NotSupportedException>();
     }
-
-    // TODO: Doesn't work now that Sense.PartOfSpeech is an object. Rewrite or toss?
-    // [Fact]
-    // public void NewPatchDoc_ThrowsForIndexBasedPath()
-    // {
-    //     var patch = new JsonPatchDocument<Entry>();
-    //     patch.Replace(entry => entry.Senses[0].PartOfSpeech, "noun");
-    //     var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(), patch);
-    //     act.Should().Throw<NotSupportedException>();
-    // }
 }

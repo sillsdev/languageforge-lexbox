@@ -12,7 +12,6 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
         if (PartOfSpeechId is null)
         {
             entity.PartOfSpeechId = null;
-            entity.PartOfSpeech = null;
             return;
         }
 

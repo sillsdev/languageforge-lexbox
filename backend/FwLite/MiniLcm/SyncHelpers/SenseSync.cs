@@ -35,7 +35,6 @@ public static class SenseSync
 
         if (beforeSense.PartOfSpeechId != afterSense.PartOfSpeechId)
         {
-            patchDocument.Replace(sense => sense.PartOfSpeech, afterSense.PartOfSpeech);
             patchDocument.Replace(sense => sense.PartOfSpeechId, afterSense.PartOfSpeechId);
         }
 
