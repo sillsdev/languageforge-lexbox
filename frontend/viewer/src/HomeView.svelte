@@ -4,13 +4,21 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiBookSyncOutline, mdiCloudSync,
-    mdiLogin,
-    mdiLogout,
+    mdiBookSyncOutline, mdiChevronRight, mdiCloud, mdiCloudSync,
     mdiTestTube,
   } from '@mdi/js';
-  import {links} from 'svelte-routing';
-  import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
+  import {
+    Button,
+    Card,
+    type ColumnDef,
+    Table,
+    TextField,
+    tableCell,
+    Icon,
+    ProgressCircle,
+    ListItem,
+    cls
+  } from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
   import {type Project} from './lib/services/projects-service';
@@ -22,14 +30,10 @@
   const projectsService = useProjectsService();
   const authService = useAuthService();
   const importFwdataService = useImportFwdataService();
+  const exampleProjectName = 'Example-Project';
 
-  let newProjectName = '';
-
-  let createError: string;
-
-  async function createProject() {
-    await projectsService.createProject(newProjectName);
-    newProjectName = '';
+  async function createProject(projectName: string) {
+    await projectsService.createProject(projectName);
     await refreshProjects();
   }
 
@@ -59,11 +63,11 @@
     }
   }
 
-  let projectsPromise = projectsService.localProjects().then(p => projects = p);
+  let projectsPromise = projectsService.localProjects().then(p => projects = p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
   let projects: Project[] = [];
 
   async function refreshProjects() {
-    let promise = projectsService.localProjects();
+    let promise = projectsService.localProjects().then(p => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
     projects = await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;
   }
@@ -77,6 +81,7 @@
       for (let serverProjects of result) {
         remoteProjects[serverProjects.server.authority] = serverProjects.projects;
       }
+      remoteProjects = remoteProjects;
     } finally {
       loadingRemoteProjects = false;
     }
@@ -95,34 +100,9 @@
 
   let serversStatus: IServerStatus[] = [];
   onMount(async () => {
-    supportsFwData = await projectsService.supportsFwData();
     serversStatus = await authService.servers();
   });
-  let supportsFwData = false;
 
-  $: columns = [
-    {
-      name: 'name',
-      header: 'Name',
-    },
-    {
-      name: 'fwdata',
-      header: 'FieldWorks',
-      hidden: !supportsFwData,
-    },
-    {
-      name: 'crdt',
-      header: 'CRDT',
-    },
-    ...(serversStatus.find(s => s.loggedIn)
-      ? [
-        {
-          name: 'lexbox',
-          header: 'Lexbox',
-        },
-      ]
-      : []),
-  ] satisfies ColumnDef<Project>[];
 
   function matchesProject(projects: Project[], project: Project): Project | undefined {
     let matches: Project | undefined = undefined;
@@ -132,7 +112,7 @@
     return matches;
   }
 
-  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): ILexboxServer | undefined {
+  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project, serversStatus: IServerStatus[]): ILexboxServer | undefined {
     //this may be null, even if the project is synced, when the project info isn't cached on the server yet.
     if (project.serverAuthority) {
       return serversStatus.find(s => s.server.id == project.serverAuthority)?.server ?? {
@@ -146,150 +126,98 @@
     return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
   }
 </script>
-
-<div class="home">
-  <DevContent>
-    <div>
-      <Card title="Create Project" class="w-fit m-4">
-        <TextField
-          label="New Project Name"
-          class="m-4"
-          placeholder="Project Name"
-          bind:value={newProjectName}
-          error={createError}
-        />
-        <Button slot="actions" variant="fill" icon={mdiBookPlusOutline} on:click={createProject}>Create Project</Button>
-      </Card>
-    </div>
-  </DevContent>
-  <div class="col-start-2 p-6 flex flex-col">
-    <div class="flex-grow"></div>
-    <div>
-      <div class="text-center text-3xl mb-8">My projects</div>
-      <Card class="p-6 shadow-2xl">
-        <div slot="contents">
-          {#await projectsPromise}
-            <p>loading...</p>
-          {:then projects}
-            <Table {columns}
-                   data={projects.filter((p) => p.fwdata || p.crdt).sort((p1, p2) => p1.name.localeCompare(p2.name))}
-                   classes={{ th: 'p-4' }}>
-              <tbody slot="data" let:columns let:data let:getCellContent>
-              {#each data ?? [] as project, rowIndex}
-                <tr class="tabular-nums">
-                  {#each columns as column (column.name)}
-                    <td use:tableCell={{ column, rowData:project, rowIndex, tableData: data }}>
-                      {#if column.name === 'fwdata'}
-                        {#if project.fwdata}
-                          <Button size="md" href={`/fwdata/${project.name}`}>
-                            <img src={flexLogo} alt="FieldWorks logo" class="h-6"/>
-                            Open
-                          </Button>
-                        {/if}
-                      {:else if column.name === 'lexbox'}
-                        {@const server = syncedServer(remoteProjects, project)}
-                        {#if project.crdt && server}
-                          <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server.displayName}</Button>
-                        {/if}
-                      {:else if column.name === 'crdt'}
-                        {#if project.crdt}
-                          <Button
-                            icon={mdiBookEditOutline}
-                            size="md"
-                            href={`/project/${project.name}`}
-                          >
-                            Open
-                          </Button>
-                        {:else if project.fwdata}
-                          <Button
-                            size="md"
-                            loading={importing === project.name}
-                            icon={mdiBookArrowLeftOutline}
-                            disabled={!!importing}
-                            on:click={() => importFwDataProject(project.name)}
-                          >
-                            Import
-                          </Button>
-                        {/if}
-                      {:else}
-                        {getCellContent(column, project, rowIndex)}
-                      {/if}
-                    </td>
-                  {/each}
-                </tr>
-              {/each}
-
-              <DevContent>
-                <tr class="tabular-nums">
-                  <td>
-                    Test project
-                  </td>
-                  <td>
-                    <Button size="md" icon={mdiTestTube} href="/testing/project-view">
-                      Open
-                    </Button>
-                  </td>
-                </tr>
-              </DevContent>
-              </tbody>
-            </Table>
-          {:catch error}
-            <p>Error: {error.message}</p>
-          {/await}
-          <div class="mt-4">
-            <div class="text-lg font-bold"><Icon path={mdiCloudSync}/> Remote projects
-              {#if loadingRemoteProjects}
-                  <ProgressCircle class="text-surface-content" indeterminate={true}/>
-              {/if}
-            </div>
-            {#each serversStatus as status}
-              {@const server = status.server}
-              <div class="border my-1"/>
-              <div class="flex flex-row items-center py-1">
-                <p>{server.displayName}</p>
-                <div class="flex-grow"></div>
-                {#if status.loggedInAs}
-                  <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
-                {/if}
-                <LoginButton {server} isLoggedIn={status.loggedIn} on:status={() => refreshProjectsAndServers()} />
+<div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:my-4 md:min-h-full">
+  <div class="flex-grow hidden md:block"></div>
+  <div class="project-list md:border md:rounded md:p-4">
+    {#await projectsPromise}
+      <p>loading...</p>
+    {:then projects}
+      <div>
+        {#each projects.filter(p => p.crdt) as project (project.id)}
+          {@const server = syncedServer(remoteProjects, project, serversStatus)}
+          <a href={`/project/${project.name}`} class="contents">
+            <ListItem title={project.name}
+                      icon={mdiBookEditOutline}
+                      subheading={!server ? 'Local only' : ('Sync with ' + server.displayName)} }>
+              <div slot="actions">
+                <Button icon={mdiChevronRight} class="p-2"/>
               </div>
-              {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
-              {#each serverProjects as project}
-                {@const localProject = matchesProject(projects, project)}
-                <div class="flex flex-row items-center px-10">
-                  <p>{project.name}</p>
-                  <div class="flex-grow"></div>
-                  {#if localProject?.crdt}
-                    <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
-                  {:else}
-                    <Button
-                      icon={mdiBookArrowDownOutline}
-                      size="md"
-                      loading={downloading === project.name}
-                      on:click={() => downloadCrdtProject(project, server)}
-                    >
-                      Download
-                    </Button>
-                  {/if}
-                </div>
-              {/each}
-            {/each}
+            </ListItem>
+          </a>
+        {/each}
+        <a href={`/testing/project-view`} class="contents">
+          <ListItem title="Test Project" icon={mdiTestTube}>
+            <div slot="actions">
+              <Button icon={mdiChevronRight} class="p-2"/>
+            </div>
+          </ListItem>
+        </a>
+        {#if !projects.some(p => p.name === exampleProjectName)}
+          <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)}>
+            <div slot="actions">
+              <Button icon={mdiBookPlusOutline} class="p-2"/>
+            </div>
+          </ListItem>
+        {/if}
+        {#each serversStatus as status}
+          {@const server = status.server}
+          <div class="flex flex-row items-center py-1 mr-2 mt-2">
+            <p class="pl-2">{server.displayName}</p>
+            <div class="flex-grow"></div>
+            {#if status.loggedInAs}
+              <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
+            {/if}
+            <LoginButton {server} isLoggedIn={status.loggedIn} on:status={() => refreshProjectsAndServers()}/>
           </div>
-        </div>
-      </Card>
-    </div>
-    <div class="flex-grow-[2]"></div>
+          {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
+          {#each serverProjects as project}
+            {@const localProject = matchesProject(projects, project)}
+            <ListItem icon={mdiCloud}
+                      title={project.name}
+                      on:click={() =>{ if (!localProject?.crdt) {void downloadCrdtProject(project, server);} }}
+                      loading={downloading === project.name}>
+              <div slot="actions">
+                <Button icon={localProject?.crdt ? mdiBookSyncOutline : mdiBookArrowDownOutline} class="p-2">
+                  {localProject?.crdt ? 'Synced' : 'Download'}
+                </Button>
+              </div>
+            </ListItem>
+          {/each}
+        {/each}
+
+        {#if projects.some(p => p.fwdata)}
+          <p class="mt-2 pl-2">FieldWorks projects</p>
+          {#each projects.filter(p => p.fwdata) as project (project.id ?? project.name)}
+            <a href={`/fwdata/${project.name}`} class="contents">
+              <ListItem title={project.name}>
+                <img slot="avatar" src={flexLogo} alt="FieldWorks logo" class="h-6"/>
+                <div slot="actions">
+                  <DevContent>
+                    <Button
+                      loading={importing === project.name}
+                      icon={mdiBookArrowLeftOutline}
+                      title="Import"
+                      disabled={!!importing}
+                      on:click={() => importFwDataProject(project.name)}>
+                    </Button>
+                  </DevContent>
+                </div>
+              </ListItem>
+            </a>
+          {/each}
+        {/if}
+      </div>
+    {:catch error}
+      <p>Error: {error.message}</p>
+    {/await}
   </div>
+
+  <div class="md:flex-grow-[2]"></div>
 </div>
 
 <style lang="postcss">
-  .home {
-    min-height: 100%;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-  }
-
-  .home :global(*:is(td, th)) {
-    @apply px-10;
+  .project-list {
+    display: flex;
+    flex-direction: column;
   }
 </style>
