@@ -9,15 +9,8 @@
   } from '@mdi/js';
   import {
     Button,
-    Card,
-    type ColumnDef,
-    Table,
-    TextField,
-    tableCell,
-    Icon,
-    ProgressCircle,
     ListItem,
-    cls
+    AppBar
   } from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
@@ -126,6 +119,8 @@
     return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
   }
 </script>
+<AppBar title="FieldWorks Lite" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
+</AppBar>
 <div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:my-4 md:min-h-full">
   <div class="flex-grow hidden md:block"></div>
   <div class="project-list md:border md:rounded md:p-4">
