@@ -359,14 +359,14 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task CreateSense_WontCreateMissingPartOfSpeech()
+    public async Task CreateSense_WillThrowExceptionWithMissingPartOfSpeech()
     {
         var senseId = Guid.NewGuid();
         var partOfSpeechId = Guid.NewGuid();
-        var createdSense = await Api.CreateSense(Entry1Id,
-            new Sense() { Id = senseId, PartOfSpeech = null, PartOfSpeechId = partOfSpeechId, });
-        createdSense.Id.Should().Be(senseId);
-        createdSense.PartOfSpeechId.Should().BeNull("because the part of speech does not exist (or was deleted)");
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Api.CreateSense(Entry1Id, new Sense() { Id = senseId, PartOfSpeech = null, PartOfSpeechId = partOfSpeechId, })
+        );
+        exception.Should().NotBeNull("because the part of speech does not exist (or was deleted)");
     }
 
     [Fact]

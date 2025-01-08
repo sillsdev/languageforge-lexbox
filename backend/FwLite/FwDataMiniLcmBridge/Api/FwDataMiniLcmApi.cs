@@ -888,8 +888,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var lexSense = LexSenseFactory.Create(sense.Id);
         InsertSense(lexEntry, lexSense, between);
         var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
-        if (sense.PartOfSpeechId.HasValue && PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos))
+        if (sense.PartOfSpeechId.HasValue)
         {
+            var found = PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos);
+            if (!found) throw new ArgumentException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
             msa.MainPOS = pos;
         }
         lexSense.SandboxMSA = msa;

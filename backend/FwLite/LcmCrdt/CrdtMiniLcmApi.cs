@@ -492,6 +492,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
             throw new InvalidOperationException("Order should not be provided when creating a sense");
 
+        if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
+            throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
+
         sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await validators.ValidateAndThrow(sense);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
