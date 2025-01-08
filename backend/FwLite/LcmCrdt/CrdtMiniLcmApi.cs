@@ -276,6 +276,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         queryable = queryable
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
@@ -295,6 +296,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entry = await Entries.AsTracking(false)
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
@@ -479,6 +481,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entry = await Entries.AsTracking(false)
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == entryId);
         return entry?.Senses.FirstOrDefault(s => s.Id == id);

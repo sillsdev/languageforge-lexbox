@@ -41,7 +41,6 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         var sense = entry.Senses.First(s => s.PartOfSpeech is not null);
         sense.PartOfSpeech.Should().NotBeNull();
         sense.PartOfSpeechId.Should().NotBeNull();
-        // TODO: This test becomes meaningless now that PartOfSpeech is an object. Rewrite, or toss?
     }
 
     [Fact]
