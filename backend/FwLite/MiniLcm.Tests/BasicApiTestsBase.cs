@@ -387,7 +387,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     public async Task UpdateSensePartOfSpeech()
     {
         var partOfSpeechId = Guid.NewGuid();
-        var partOfSpeech = await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "Adverb" } } });
+        await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "Adverb" } } });
         var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
@@ -401,7 +401,6 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    PartOfSpeech = new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{"en", "test"}} },
                     Definition = new MultiString
                     {
                         Values =
