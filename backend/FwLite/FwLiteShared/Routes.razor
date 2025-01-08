@@ -1,8 +1,15 @@
 ﻿@inject IJSRuntime jsRuntime
 @code {
+    bool firstNavigation = true;
     private async Task OnNavigateAsync(NavigationContext context)
     {
-        await jsRuntime.DurableInvokeVoidAsync("svelteNavigate", context.Path);
+        if (firstNavigation)
+        {
+            firstNavigation = false;
+            return;
+        }
+        if (RendererInfo.IsInteractive)
+            await jsRuntime.DurableInvokeVoidAsync("svelteNavigate", context.Path);
     }
 }
 <Router AppAssembly="typeof(Layout.SvelteLayout).Assembly" OnNavigateAsync="OnNavigateAsync">

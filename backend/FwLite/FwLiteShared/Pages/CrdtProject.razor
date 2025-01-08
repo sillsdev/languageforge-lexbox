@@ -13,8 +13,9 @@
 
     private IAsyncDisposable? _disposable;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
         var fwLiteProvider = ScopedServices.GetRequiredService<FwLiteProvider>();
         _disposable = await fwLiteProvider.InjectCrdtProject(JS, ScopedServices, ProjectName);
     }

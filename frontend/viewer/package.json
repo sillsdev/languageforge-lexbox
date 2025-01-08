@@ -15,7 +15,7 @@
     "./service-declaration": "./src/lib/services/service-declaration.ts"
   },
   "scripts": {
-    "dev-app": "vite -m app",
+    "dev-app": "vite",
     "dev": "vite build -m web-component --watch",
     "lexbox-dev": "vite build -m web-component",
     "build": "vite build -m web-component",
