@@ -20,7 +20,11 @@ public static class EntryFakerHelper
         foreach (var sense in entry.Senses)
         {
             sense.EntryId = entry.Id;
-            if (sense.PartOfSpeechId.HasValue && sense.PartOfSpeech is null)
+            if (sense.PartOfSpeech is not null)
+            {
+                sense.PartOfSpeechId = sense.PartOfSpeech.Id;
+            }
+            else if (sense.PartOfSpeechId.HasValue)
             {
                 var pos = new PartOfSpeech()
                 {
