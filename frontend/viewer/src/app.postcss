@@ -45,9 +45,19 @@
 }
 
 @layer components {
+  .sm-form {
+    grid-template-columns: fit-content(70px) 1fr 1fr;
+  }
+
+  .xs-form {
+    grid-template-columns: fit-content(70px) 1fr;
+  }
+
   .editor-grid {
     display: grid;
     grid-template-columns: 170px fit-content(80px) 1fr;
+    @apply sm-form:sm-form;
+    @apply xs-form:xs-form;
   }
 
   .collapsible-col {
@@ -67,6 +77,7 @@
     width: 0 !important;
     max-width: 0 !important;
     opacity: 0 !important;
+    transition: 0s;
   }
 
   .text-field-sibling-button {
@@ -95,4 +106,8 @@
 .ListItem > * {
   max-width: 100%;
   overflow: hidden;
+}
+
+.AppBar :has(> [slot="actions"]) {
+  flex-grow: 0;
 }

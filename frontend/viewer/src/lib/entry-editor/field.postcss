@@ -1,5 +1,5 @@
 .field {
-    @apply grid grid-cols-subgrid col-span-3 items-center mb-4;
+    @apply grid grid-cols-subgrid items-center mb-4;
 
     &.multi-field {
       @apply items-baseline;
@@ -41,6 +41,26 @@
         .append {
           display: none;
         }
+      }
+    }
+
+    .field-title, .fields, .ws-field-wrapper, .ws-field, .item-list-field {
+      @apply sm-form:!col-span-full;
+
+      & :has(> .field-container) {
+        @apply sm-form:col-span-2;
+      }
+
+      &.field-title {
+        @apply sm-form:mb-2;
+      }
+
+      &.item-list-field {
+        @apply sm-form:pl-0;
+      }
+
+      &.ws-field > .label {
+        @apply xs-form:text-left;
       }
     }
   }
