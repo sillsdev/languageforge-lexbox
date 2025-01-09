@@ -134,7 +134,7 @@
     return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
   }
 </script>
-<AppBar title="Projects" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
+<AppBar title="Projects" class="bg-secondary min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
     <picture>
       <source srcset={logoLight} media="(prefers-color-scheme: dark)">
