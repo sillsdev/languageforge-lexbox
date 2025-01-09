@@ -13,6 +13,8 @@
     AppBar
   } from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
+  import logoLight from './lib/assets/logo-light.svg';
+  import logoDark from './lib/assets/logo-dark.svg';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
   import {type Project} from './lib/services/projects-service';
   import {onMount} from 'svelte';
@@ -126,6 +128,14 @@
   }
 </script>
 <AppBar title="Projects" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
+  <div slot="title" class="text-lg flex gap-2 items-center">
+    <picture>
+      <source srcset={logoLight} media="(prefers-color-scheme: dark)">
+      <source srcset={logoDark} media="(prefers-color-scheme: light)">
+      <img src={logoDark} alt="Lexbox logo" class="h-6">
+    </picture>
+    <h3>Projects</h3>
+  </div>
   <div slot="actions">
     <Button
       href={fwLiteConfig.feedbackUrl}

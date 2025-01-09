@@ -13,7 +13,6 @@
 <script lang="ts">
   import {Router, Route} from 'svelte-routing';
   import TestProjectView from './TestProjectView.svelte';
-  import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import Sandbox from './lib/sandbox/Sandbox.svelte';
@@ -26,6 +25,11 @@
   /* eslint-disable @typescript-eslint/naming-convention */
   settings({
     components: {
+      AppBar: {
+        classes: {
+          root: 'max-sm:px-2',
+        },
+      },
       MenuItem: {
         classes: {
           root: 'justify-end',
