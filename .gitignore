@@ -28,3 +28,4 @@ artifacts/
 backend/FwLite/FwLiteShared/wwwroot/viewer
 
 *.csproj.user
+*.log
