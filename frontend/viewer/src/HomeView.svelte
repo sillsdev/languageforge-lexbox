@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
@@ -63,12 +63,11 @@
     }
   }
 
-  let projectsPromise = projectsService.localProjects().then(p => projects = p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
-  let projects: Project[] = [];
+  let projectsPromise = projectsService.localProjects().then(projects => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then(p => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
-    projects = await promise;//avoids clearing out the list until the new list is fetched
+    await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;
   }
 
