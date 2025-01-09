@@ -3,13 +3,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {FwLitePlatform} from './FwLitePlatform';
-
-export interface IFwLiteConfig
-{
-	useDevAssets: boolean;
-	appVersion: string;
-	os: FwLitePlatform;
-	feedbackUrl: string;
+export enum FwLitePlatform {
+	Windows = "Windows",
+	Linux = "Linux",
+	Mac = "Mac",
+	Other = "Other",
+	Android = "Android",
+	iOS = "iOS",
+	Web = "Web"
 }
 /* eslint-enable */

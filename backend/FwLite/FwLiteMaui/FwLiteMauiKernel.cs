@@ -51,6 +51,30 @@ public static class FwLiteMauiKernel
             var window = Application.Current?.Windows.FirstOrDefault();
             if (window is not null) Application.Current?.ActivateWindow(window);
         });
+        services.Configure<FwLiteConfig>(config =>
+        {
+            config.AppVersion = AppVersion.Version;
+            if (DeviceInfo.Current.Platform == DevicePlatform.Android)
+            {
+                config.Os = FwLitePlatform.Android;
+            }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
+            {
+                config.Os = FwLitePlatform.iOS;
+            }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS)
+            {
+                config.Os = FwLitePlatform.Mac;
+            }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
+            {
+                config.Os = FwLitePlatform.Windows;
+            }
+            else
+            {
+                config.Os = FwLitePlatform.Other;
+            }
+        });
 
         var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteMaui").GetValue<string>("BaseDataDir") ??

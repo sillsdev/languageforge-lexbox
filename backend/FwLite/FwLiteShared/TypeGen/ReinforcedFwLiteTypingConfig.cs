@@ -78,6 +78,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<ProjectData>().WithPublicProperties();
         builder.ExportAsInterface<IProjectIdentifier>().WithPublicProperties();
         builder.ExportAsInterface<FwLiteConfig>().WithPublicProperties();
+        builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
     }
 

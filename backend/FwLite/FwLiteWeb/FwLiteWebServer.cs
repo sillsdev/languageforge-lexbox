@@ -1,6 +1,8 @@
 ﻿using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
+using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using LcmCrdt;
 using FwLiteWeb;
 using FwLiteWeb.Components;
@@ -36,7 +38,11 @@ public static class FwLiteWebServer
             ]);
         builder.ConfigureProd<AuthConfig>(config =>
             config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
-        builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
+        builder.Services.Configure<FwLiteConfig>(config =>
+        {
+            config.AppVersion = VersionHelper.DisplayVersion(typeof(FwLiteWebServer).Assembly);
+            //todo os should be web, when the server is running remotely to the client, but linux runs the server locally so we will default using the OS to determine the platform (the default value)
+        });
         builder.Logging.AddDebug();
         builder.Services.AddRazorComponents().AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true);
         if (builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
