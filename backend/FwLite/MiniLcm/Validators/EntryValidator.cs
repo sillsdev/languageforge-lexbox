@@ -13,6 +13,7 @@ public class EntryValidator : AbstractValidator<Entry>
         RuleFor(e => e.LiteralMeaning).NoEmptyValues();
         RuleFor(e => e.Note).NoEmptyValues();
         RuleForEach(e => e.Senses).SetValidator(entry => new SenseValidator(entry));
+        RuleForEach(e => e.Components).Must(NotBeEmptyComponentReference);
         RuleForEach(e => e.Components).Must(NotBeComponentSelfReference);
         RuleForEach(e => e.Components).Must(HaveCorrectComponentEntryReference);
         RuleForEach(e => e.ComplexForms).Must(NotBeComplexFormSelfReference);
@@ -23,13 +24,19 @@ public class EntryValidator : AbstractValidator<Entry>
         RuleForEach(e => e.ComplexFormTypes).SetValidator(new ComplexFormTypeValidator());
     }
 
+    private bool NotBeEmptyComponentReference(Entry entry, ComplexFormComponent component)
+    {
+        return component.ComponentEntryId != Guid.Empty;
+    }
+
     private bool NotBeComponentSelfReference(Entry entry, ComplexFormComponent component)
     {
-        return component.ComponentEntryId != entry.Id || component.ComponentEntryId == Guid.Empty;
+        return component.ComponentEntryId != entry.Id;
     }
 
     private bool HaveCorrectComponentEntryReference(Entry entry, ComplexFormComponent component)
     {
+        // Empty GUID is okay here because it can be guessed from the parent object
         return component.ComplexFormEntryId == entry.Id || component.ComplexFormEntryId == Guid.Empty;
     }
 
@@ -40,6 +47,7 @@ public class EntryValidator : AbstractValidator<Entry>
 
     private bool HaveCorrectComplexFormEntryReference(Entry entry, ComplexFormComponent component)
     {
+        // Empty GUID is okay here because it can be guessed from the parent object
         return component.ComponentEntryId == entry.Id || component.ComponentEntryId == Guid.Empty;
     }
 }

@@ -128,11 +128,11 @@ public class EntryValidatorTests
     }
 
     [Fact]
-    public void Succeeds_WhenComponentsContainEmptyGuid()
+    public void Fails_WhenComponentsContainEmptyGuid()
     {
         var entryId = Guid.NewGuid();
         var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Components = [new ComplexFormComponent(){ ComplexFormEntryId = entryId, ComponentEntryId = Guid.Empty }] };
-        _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("Components[0]");
     }
 
     private void SetProperty(Entry entry, string propName, string content)
