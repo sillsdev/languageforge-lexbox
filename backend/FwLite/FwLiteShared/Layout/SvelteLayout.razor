@@ -2,10 +2,11 @@
 @using FwLiteShared.Services
 @using Microsoft.Extensions.Hosting
 @using Microsoft.Extensions.Logging
+@using Microsoft.Extensions.Options
 @inject IJSRuntime JS
 @inject ILogger<SvelteLayout> Logger
 @inject FwLiteProvider FwLiteProvider
-@inject IHostEnvironment Environment;
+@inject IOptions<FwLiteConfig> Config;
 @implements IAsyncDisposable
 @if (useDevAssets)
 {
@@ -44,7 +45,7 @@ else
 @Body
 
 @code {
-    private bool useDevAssets => Environment.IsDevelopment();
+    private bool useDevAssets => Config.Value.UseDevAssets;
     // private bool useDevAssets => false;
     private IJSObjectReference? module;
 

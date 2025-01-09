@@ -11,7 +11,7 @@
   import Editor from './lib/Editor.svelte';
   import {navigate, useLocation} from 'svelte-routing';
   import {headword} from './lib/utils';
-  import {useLexboxApi} from './lib/services/service-provider';
+  import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/dotnet-types';
   import {onDestroy, onMount, setContext} from 'svelte';
   import {derived, type Readable, writable} from 'svelte/store';
@@ -65,6 +65,7 @@
     });
   }));
 
+  const fwLiteConfig = useFwLiteConfig();
   const lexboxApi = useLexboxApi();
   void lexboxApi.supportedFeatures().then(f => {
     features.set(f);
@@ -345,7 +346,7 @@
       {/if}
       {#if $features.feedback}
         <Button
-          href="/api/feedback/fw-lite"
+          href={fwLiteConfig.feedbackUrl}
           target="_blank"
           size="sm"
           variant="outline"

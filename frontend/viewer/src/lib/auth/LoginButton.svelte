@@ -1,5 +1,5 @@
 ﻿<script context="module" lang="ts">
-    import type {IAuthService} from '$lib/dotnet-types';
+    import type {IAuthService, IServerStatus} from '$lib/dotnet-types';
     import {type Readable, writable, type Writable} from 'svelte/store';
 
     let shouldUseSystemWebViewStore: Writable<boolean> | undefined = undefined;
@@ -13,8 +13,8 @@
 </script>
 
 <script lang="ts">
-    import {mdiLogin, mdiLogout} from '@mdi/js';
-    import {Button} from 'svelte-ux';
+    import {mdiAccountCircle, mdiLogin, mdiLogout} from '@mdi/js';
+    import {Button, Menu, MenuItem, Toggle} from 'svelte-ux';
     import type {ILexboxServer} from '$lib/dotnet-types';
     import {useAuthService} from '$lib/services/service-provider';
     import {createEventDispatcher} from 'svelte';
@@ -24,8 +24,8 @@
     const dispatch = createEventDispatcher<{
         status: 'logged-in' | 'logged-out'
     }>();
-    export let isLoggedIn: boolean;
-    export let server: ILexboxServer;
+    export let status: IServerStatus;
+    $: server = status.server;
     let loading = false;
 
 
@@ -50,14 +50,15 @@
     }
 </script>
 
-{#if isLoggedIn}
-    <Button {loading}
-            variant="fill"
-            color="primary"
-            on:click={() => logout(server)}
-            icon={mdiLogout}>
-        Logout
-    </Button>
+{#if status.loggedIn}
+    <Toggle let:on={open} let:toggle let:toggleOff>
+      <Button on:click={toggle} {loading} variant="fill" color="primary" icon={mdiAccountCircle}>
+        {status.loggedInAs}
+        <Menu {open} on:close={toggleOff} placement="bottom-end">
+          <MenuItem icon={mdiLogout} on:click={() => logout(server)}>Logout</MenuItem>
+        </Menu>
+      </Button>
+    </Toggle>
 {:else}
     {#if $shouldUseSystemWebView}
         <Button {loading}
@@ -65,7 +66,7 @@
                 color="primary"
                 on:click={() => login(server)}
                 icon={mdiLogin}>
-            Login
+            Login to see projects
         </Button>
     {:else}
         <Button {loading}
@@ -73,7 +74,7 @@
                 color="primary"
                 href="/api/auth/login/{server.id}"
                 icon={mdiLogin}>
-            Login
+              Login to see projects
         </Button>
     {/if}
 {/if}

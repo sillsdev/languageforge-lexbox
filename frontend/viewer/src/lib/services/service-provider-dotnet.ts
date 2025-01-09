@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import './service-declaration';
-import  { type DotNet } from '@microsoft/dotnet-js-interop';
+import  { DotNet } from '@microsoft/dotnet-js-interop';
 import {type LexboxServiceRegistry, SERVICE_KEYS, type ServiceKey} from './service-provider';
 export class DotNetServiceProvider {
   private services: LexboxServiceRegistry;
@@ -19,11 +19,17 @@ export class DotNetServiceProvider {
 
   public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
     this.validateAllServices();
-    const service = this.services[key] as unknown as DotNet.DotNetObject;
+    const service = this.services[key] as LexboxServiceRegistry[K] | DotNet.DotNetObject | undefined;
     //todo maybe don't return undefined
     if (!service) return undefined;
-    return wrapInProxy(service) as LexboxServiceRegistry[K];
+    if (this.isDotnetObject(service)) return wrapInProxy(service) as LexboxServiceRegistry[K];
+    return service;
   }
+
+  private isDotnetObject(service: object): service is DotNet.DotNetObject {
+    return service instanceof DotNet.DotNetObject || 'invokeMethodAsync' in service;
+  }
+
   private validateAllServices() {
     const validServiceKeys = SERVICE_KEYS;
     for (const [key, value] of Object.entries(this.services)) {

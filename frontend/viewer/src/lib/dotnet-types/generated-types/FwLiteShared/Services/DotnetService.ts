@@ -7,6 +7,7 @@ export enum DotnetService {
 	MiniLcmApi = "MiniLcmApi",
 	CombinedProjectsService = "CombinedProjectsService",
 	AuthService = "AuthService",
-	ImportFwdataService = "ImportFwdataService"
+	ImportFwdataService = "ImportFwdataService",
+	FwLiteConfig = "FwLiteConfig"
 }
 /* eslint-enable */

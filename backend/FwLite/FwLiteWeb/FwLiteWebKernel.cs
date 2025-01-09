@@ -1,4 +1,6 @@
-﻿using SIL.Harmony;
+﻿using FwDataMiniLcmBridge;
+using FwLiteProjectSync;
+using SIL.Harmony;
 using FwLiteShared;
 using FwLiteShared.Auth;
 using LcmCrdt;
@@ -16,7 +18,13 @@ public static class FwLiteWebKernel
         services.AddHttpContextAccessor();
         services.AddSingleton<UrlContext>();
         services.AddSingleton<IRedirectUrlProvider, ServerRedirectUrlProvider>();
+        services.AddFwDataBridge();
+        services.AddFwLiteProjectSync();
         services.AddFwLiteShared(environment);
+        if (environment.IsDevelopment())
+        {
+            services.Configure<FwLiteConfig>(config => config.UseDevAssets = true);
+        }
 
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
