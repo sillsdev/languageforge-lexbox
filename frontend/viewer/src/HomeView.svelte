@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
@@ -154,7 +154,7 @@
     </Button>
   </div>
 </AppBar>
-<div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:py-4 md:min-h-full">
+<div class="mx-auto md:w-3/4 lg:w-2/4 md:py-4">
   <div class="flex-grow hidden md:block"></div>
   <div class="project-list">
     {#await projectsPromise}
@@ -196,18 +196,20 @@
           {@const server = status.server}
           {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
           <div>
-            <div class="flex flex-row items-center mr-2 mb-2">
-              <p class="sub-title">{server.displayName} Server</p>
+            <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
+              <p class="sub-title !my-0">{server.displayName} Server</p>
               <div class="flex-grow"></div>
-              <LoginButton {status} on:status={() => refreshProjectsAndServers()}/>
+              {#if status.loggedIn}
+                <LoginButton {status} on:status={() => refreshProjectsAndServers()}/>
+              {/if}
             </div>
             <div>
               {#if !serverProjects.length}
-                <p class="pl-2 text-surface-content/50 text-center">
+                <p class="text-surface-content/50 text-center border border-surface-300 elevation-1 rounded p-4 max-sm:mx-2">
                   {#if status.loggedIn}
                     No projects
                   {:else}
-                    Login to see projects
+                    <LoginButton {status} on:status={() => refreshProjectsAndServers()}/>
                   {/if}
                 </p>
               {/if}

@@ -66,7 +66,7 @@
                 color="primary"
                 on:click={() => login(server)}
                 icon={mdiLogin}>
-            Login
+            Login to see projects
         </Button>
     {:else}
         <Button {loading}
@@ -74,7 +74,7 @@
                 color="primary"
                 href="/api/auth/login/{server.id}"
                 icon={mdiLogin}>
-            Login
+              Login to see projects
         </Button>
     {/if}
 {/if}
