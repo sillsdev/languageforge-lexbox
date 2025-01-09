@@ -177,7 +177,7 @@
         {#each serversStatus as status}
           {@const server = status.server}
           {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
-          <div class="flex flex-row items-center py-1 mr-2 mt-2" class:mb-2={serverProjects.length}>
+          <div class="flex flex-row items-center py-1 mr-2 mt-2">
             <p class="pl-2 sub-title">{server.displayName} Server</p>
             <div class="flex-grow"></div>
             {#if status.loggedInAs}
@@ -186,8 +186,14 @@
             <LoginButton {server} isLoggedIn={status.loggedIn} on:status={() => refreshProjectsAndServers()}/>
           </div>
           <div>
-            {#if status.loggedIn && !serverProjects.length}
-            <p class="pl-2 text-surface-content/50 text-center">No projects</p>
+            {#if !serverProjects.length}
+              <p class="pl-2 text-surface-content/50 text-center">
+                {#if status.loggedIn}
+                  No projects
+                {:else}
+                  Login to see projects
+                {/if}
+              </p>
             {/if}
             {#each serverProjects as project}
               {@const localProject = matchesProject(projects, project)}
@@ -203,7 +209,6 @@
                 </div>
               </ListItem>
             {/each}
-
           </div>
         {/each}
 
