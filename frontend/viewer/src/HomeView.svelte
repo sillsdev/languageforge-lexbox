@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
@@ -268,8 +268,9 @@
     display: flex;
     flex-direction: column;
 
-    :global(:is(.ListItem, .anchor-list-item)) {
+    :global(:is(.ListItem)) {
       @apply max-sm:!rounded-none;
+      @apply contrast-[0.95];
     }
   }
   .sub-title {
