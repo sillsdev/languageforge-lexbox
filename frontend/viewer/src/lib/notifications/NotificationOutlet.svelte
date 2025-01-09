@@ -13,7 +13,7 @@
 {#if $notifications.length}
 <div class="fixed bottom-0 z-50 flex flex-col gap-2 p-4 w-full overflow-y-auto">
   {#each $notifications as notification}
-    <div class="min-w-[400px] mx-auto">
+    <div class="max-w-full min-w-[min(400px, 100%)] mx-auto">
       <Notification open closeIcon actionsPlacement="inline" classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces'}}>
         <div slot="icon">
           {#if notification.type === 'success'}
