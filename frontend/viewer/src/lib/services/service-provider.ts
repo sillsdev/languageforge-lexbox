@@ -4,6 +4,7 @@ import {DotnetService, type ICombinedProjectsService, type IAuthService} from '.
 import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IImportFwdataService';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {useEventBus} from './event-bus';
+import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 
 export enum LexboxService {
   LexboxApi = 'LexboxApi'
@@ -14,6 +15,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
+  [DotnetService.FwLiteConfig]: IFwLiteConfig
 };
 
 export const SERVICE_KEYS = [...Object.values(LexboxService), ...Object.values(DotnetService)];
@@ -62,4 +64,8 @@ export function useAuthService(): IAuthService {
 }
 export function useImportFwdataService(): IImportFwdataService {
   return window.lexbox.ServiceProvider.getService(DotnetService.ImportFwdataService);
+}
+
+export function useFwLiteConfig(): IFwLiteConfig {
+  return window.lexbox.ServiceProvider.getService(DotnetService.FwLiteConfig);
 }

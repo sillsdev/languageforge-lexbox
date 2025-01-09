@@ -6,6 +6,7 @@ using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using MiniLcm.Models;
 using MiniLcm.Project;
@@ -20,7 +21,8 @@ public class FwLiteProvider(
     LexboxProjectService lexboxProjectService,
     ChangeEventBus changeEventBus,
     IEnumerable<IProjectProvider> projectProviders,
-    ILogger<FwLiteProvider> logger
+    ILogger<FwLiteProvider> logger,
+    IOptions<FwLiteConfig> config
 ) : IDisposable
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
@@ -50,6 +52,7 @@ public class FwLiteProvider(
             DotnetService.CombinedProjectsService => projectService,
             DotnetService.AuthService => authService,
             DotnetService.ImportFwdataService => importFwdataService,
+            DotnetService.FwLiteConfig => config.Value,
             _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
         };
     }
@@ -57,17 +60,28 @@ public class FwLiteProvider(
     public async Task<IDisposable?> SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
     {
         DotNetObjectReference<object>? reference = null;
-        if (serviceInstance is not null)
-        {
-            reference = DotNetObjectReference.Create(serviceInstance);
-        }
-        else
+        if (serviceInstance is null)
         {
             logger.LogInformation("Clearing Service {Service}", service);
         }
+        if (ShouldConvertToDotnetObject(service, serviceInstance))
+        {
+            reference = DotNetObjectReference.Create(serviceInstance);
+            serviceInstance = reference;
+        }
 
-        await jsRuntime.DurableInvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), reference);
+        await jsRuntime.DurableInvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), serviceInstance);
         return reference;
+    }
+
+
+    private bool ShouldConvertToDotnetObject(DotnetService service, [NotNullWhen(true)] object? serviceInstance)
+    {
+        return serviceInstance is not null && service switch
+        {
+            DotnetService.FwLiteConfig => false,
+            _ => true
+        };
     }
 
     public async Task<IAsyncDisposable> InjectCrdtProject(IJSRuntime jsRuntime,
@@ -114,4 +128,5 @@ public enum DotnetService
     CombinedProjectsService,
     AuthService,
     ImportFwdataService,
+    FwLiteConfig,
 }
