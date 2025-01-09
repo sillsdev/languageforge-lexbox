@@ -141,7 +141,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
     {
-        await validators.ValidateAndThrowAsync(semanticDomain);
+        await validators.ValidateAndThrow(semanticDomain);
         await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new NullReferenceException();
     }
@@ -157,7 +157,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
     {
-        await validators.ValidateAndThrowAsync(after);
+        await validators.ValidateAndThrow(after);
         await SemanticDomainSync.Sync(before, after, this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
