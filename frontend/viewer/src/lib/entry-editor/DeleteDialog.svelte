@@ -33,7 +33,7 @@
 </script>
 <Dialog {open} on:close={cancel} {loading} persistent={loading} style="height: auto">
   <div slot="title">Delete {subject}</div>
-  <div class="m-6">
+  <div class="m-6 mt-3">
     <p>Are you sure you want to delete {subject}?</p>
   </div>
   <div slot="actions">
