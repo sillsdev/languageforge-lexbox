@@ -68,6 +68,7 @@ k8s_yaml(kustomize('./deployment/local-dev'))
 allow_k8s_contexts('docker-desktop')
 
 lexbox_ports = [
+    port_forward(3000, name='ui'),
     port_forward(1080, name='maildev'),
     port_forward(18888, name='aspire'),
     port_forward(4318, name='otel'),
