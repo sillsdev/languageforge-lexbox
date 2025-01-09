@@ -2,7 +2,7 @@
   import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from 'svelte-ux';
   import type { IEntry } from '$lib/dotnet-types';
   import { firstDefOrGlossVal, headword } from '../utils';
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
+  import { mdiArrowCollapseLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
   import IndexCharacters from './IndexCharacters.svelte';
   import type { Writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
@@ -76,8 +76,8 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-    <div class="hidden lg:contents">
-      <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
+    <div class="hidden lg-view:contents">
+      <Button icon={expand ? mdiArrowCollapseLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded
         on:click={() => expand = !expand}>

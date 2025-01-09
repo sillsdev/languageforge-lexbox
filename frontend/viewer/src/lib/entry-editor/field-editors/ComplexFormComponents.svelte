@@ -61,7 +61,7 @@
     <EntryOrSenseItemList bind:value {readonly} on:change={() => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
       <svelte:fragment slot="actions">
         <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-          <div class="max-sm:hidden">Add Component</div>
+          Add Component
         </Button>
         <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} on:pick={(e) => addComponent(e.detail)}
           {disableEntry} {disableSense} />

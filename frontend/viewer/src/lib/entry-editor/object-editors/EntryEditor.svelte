@@ -222,12 +222,12 @@
   <div class="hidden">
     <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
+        <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
           Add Sense
         </div>
       </Button>
       <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
-        <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
+        <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
           Delete Entry
         </div>
       </Button>

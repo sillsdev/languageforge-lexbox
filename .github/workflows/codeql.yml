@@ -10,6 +10,7 @@ on:
       - "**/*.csproj"
       - "**/*.ts"
       - "**/*.js"
+      - '.github/workflows/codeql.yml'
   schedule:
     - cron: '34 21 * * 2'
 
@@ -37,6 +38,8 @@ jobs:
         - language: csharp
           build-mode: none
         - language: javascript-typescript
+          build-mode: none
+        - language: actions
           build-mode: none
     steps:
     - name: Checkout repository

@@ -7,7 +7,6 @@ export default defineConfig(({ mode, command }) => {
   const webComponent = mode === 'web-component';
   return {
     base: !webComponent && command == "build" ? '/_content/FwLiteShared/viewer' : '/',
-
     build: {
       ...(webComponent ? {
         lib: {
@@ -15,7 +14,8 @@ export default defineConfig(({ mode, command }) => {
           formats: ['es'],
         },
         outDir: 'dist-web-component',
-      } : {
+      }
+        : {
         outDir: '../../backend/FwLite/FwLiteShared/wwwroot/viewer',
         manifest: true,
       }),
