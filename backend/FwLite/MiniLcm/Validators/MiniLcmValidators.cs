@@ -43,7 +43,7 @@ public record MiniLcmValidators(
         await PartOfSpeechValidator.ValidateAndThrowAsync(value);
     }
 
-    public async Task ValidateAndThrowAsync(SemanticDomain value)
+    public async Task ValidateAndThrow(SemanticDomain value)
     {
         await SemanticDomainValidator.ValidateAndThrowAsync(value);
     }
