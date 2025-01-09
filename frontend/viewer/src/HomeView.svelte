@@ -4,7 +4,7 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiBookSyncOutline, mdiChevronRight, mdiCloud, mdiCloudSync,
+    mdiBookSyncOutline, mdiChatQuestion, mdiChevronRight, mdiCloud, mdiCloudSync,
     mdiTestTube,
   } from '@mdi/js';
   import {
@@ -16,7 +16,12 @@
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
   import {type Project} from './lib/services/projects-service';
   import {onMount} from 'svelte';
-  import {useAuthService, useImportFwdataService, useProjectsService} from './lib/services/service-provider';
+  import {
+    useAuthService,
+    useFwLiteConfig,
+    useImportFwdataService,
+    useProjectsService
+  } from './lib/services/service-provider';
   import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
@@ -24,6 +29,7 @@
   const projectsService = useProjectsService();
   const authService = useAuthService();
   const importFwdataService = useImportFwdataService();
+  const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
 
   async function createProject(projectName: string) {
@@ -120,8 +126,17 @@
     return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
   }
 </script>
-<AppBar title="FieldWorks Lite" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
 <AppBar title="Projects" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
+  <div slot="actions">
+    <Button
+      href={fwLiteConfig.feedbackUrl}
+      target="_blank"
+      size="sm"
+      variant="outline"
+      icon={mdiChatQuestion}>
+        Feedback
+    </Button>
+  </div>
 </AppBar>
 <div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:py-4 md:min-h-full">
   <div class="flex-grow hidden md:block"></div>
