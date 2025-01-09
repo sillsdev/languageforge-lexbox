@@ -121,14 +121,16 @@
   }
 </script>
 <AppBar title="FieldWorks Lite" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
+<AppBar title="Projects" class="bg-secondary min-h-12 shadow-md" menuIcon={null}>
 </AppBar>
 <div class="contents md:flex md:flex-col md:w-3/4 lg:w-2/4 md:mx-auto md:py-4 md:min-h-full">
   <div class="flex-grow hidden md:block"></div>
-  <div class="project-list md:border md:rounded md:p-4">
+  <div class="project-list md:border md:rounded md:p-4 md:pt-0">
     {#await projectsPromise}
       <p>loading...</p>
     {:then projects}
       <div>
+        <p class="sub-title">Local</p>
         <div>
           {#each projects.filter(p => p.crdt) as project (project.id)}
             {@const server = syncedServer(remoteProjects, project, serversStatus)}
@@ -161,7 +163,7 @@
           {@const server = status.server}
           {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
           <div class="flex flex-row items-center py-1 mr-2 mt-2" class:mb-2={serverProjects.length}>
-            <p class="pl-2">Projects on {server.displayName}</p>
+            <p class="pl-2 sub-title">{server.displayName} Server</p>
             <div class="flex-grow"></div>
             {#if status.loggedInAs}
               <p class="mr-2 px-2 py-1 text-sm border rounded-full">{status.loggedInAs}</p>
@@ -170,7 +172,7 @@
           </div>
           <div>
             {#if status.loggedIn && !serverProjects.length}
-            <p class="pl-2 text-surface-content/50">No projects</p>
+            <p class="pl-2 text-surface-content/50 text-center">No projects</p>
             {/if}
             {#each serverProjects as project}
               {@const localProject = matchesProject(projects, project)}
@@ -191,7 +193,7 @@
         {/each}
 
         {#if projects.some(p => p.fwdata)}
-          <p class="mt-4 mb-2 pl-2">FieldWorks Projects</p>
+          <p class="mt-4 mb-2 sub-title">Legacy FieldWorks Projects</p>
           <div>
             {#each projects.filter(p => p.fwdata) as project (project.id ?? project.name)}
               <AnchorListItem href={`/fwdata/${project.name}`}>
@@ -226,5 +228,9 @@
   .project-list {
     display: flex;
     flex-direction: column;
+  }
+  .sub-title {
+    @apply pl-2 mt-5 mb-4;
+    @apply text-surface-content/50 text-sm;
   }
 </style>
