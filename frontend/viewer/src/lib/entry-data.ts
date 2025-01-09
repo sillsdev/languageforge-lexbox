@@ -4,7 +4,30 @@ export const projectName = 'Sena 3';
 
 export const partsOfSpeech = [
   {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'}, predefined: true},
-  {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: true}
+  {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: true},
+  // From Sena-3 test data
+  {id: '24f4134f-0530-449c-b809-8a633ced440d', name: {en: 'Preposition'}, predefined: true},
+  {id: '3a3b7275-3bbd-4f24-b584-2c9b2a068b62', name: {en: 'Demonstrative4'}, predefined: true},
+  {id: '40b0ad55-5b3e-4e4f-acf8-e3a060dc21b1', name: {en: 'Demonstrative1'}, predefined: true},
+  {id: '44caec78-e079-4329-ab85-9e9fb96af30a', name: {en: 'Numeral'}, predefined: true},
+  {id: '46e4fe08-ffa0-4c8b-bf98-2c56f38904d9', name: {en: 'Adverb'}, predefined: true},
+  {id: '4b013c5c-12a5-4bfe-aec3-248b8e3847f0', name: {en: 'Demonstrative6'}, predefined: true},
+  {id: '54dfc4de-7b9f-4840-89bc-b9fd4d8a5a19', name: {en: 'Interjection'}, predefined: true},
+  {id: '61b871bd-293d-4144-9c36-4ffe3d3d078f', name: {en: 'Possessive'}, predefined: true},
+  {id: '6e0682a7-efd4-43c9-b083-22c4ce245419', name: {en: 'Conjunction'}, predefined: true},
+  {id: '730528ca-6a9b-4424-9839-a58bf66db779', name: {en: 'Demonstrative2'}, predefined: true},
+  {id: '748af620-8cd0-4364-a951-c234306f5b9f', name: {en: 'Copula Verb'}, predefined: true},
+  {id: '8d0461bd-2b2e-4d65-9f17-0ab5b99d0736', name: {en: 'Associative'}, predefined: true},
+  {id: '92b78ed5-a9d0-440a-bf0c-b6168c6b4d4e', name: {en: 'Irregular Verb - Kukhala'}, predefined: true},
+  {id: 'a3274cfd-225f-45fd-8851-a7b1a1e1037a', name: {en: 'Independent Pronoun'}, predefined: true},
+  {id: 'b460265b-9132-4e52-bb51-64b5a2aa7f69', name: {en: 'Adjective'}, predefined: true},
+  {id: 'b6ad792c-1067-4e8c-bc84-207a26784bb7', name: {en: 'Demonstrative5'}, predefined: true},
+  {id: 'c4a797ae-3129-457a-9a5c-8c1c62eb4474', name: {en: 'Interrogative'}, predefined: true},
+  {id: 'c99beb3a-995d-4156-a66c-9b7d0860c332', name: {en: 'Nominalizer'}, predefined: true},
+  {id: 'cf4b95e5-2362-412d-92a1-24846a4bab59', name: {en: 'Irregular Verb - li'}, predefined: true},
+  {id: 'd35c60bd-e436-4769-a6c6-96770a849831', name: {en: 'Personal Pronoun'}, predefined: true},
+  {id: 'dbf8cf00-ef63-466a-bfb1-472e1fdae57d', name: {en: 'Irregular Verb - na'}, predefined: true},
+
 ];
 
 export const writingSystems: IWritingSystems = {
