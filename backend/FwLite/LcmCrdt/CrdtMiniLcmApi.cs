@@ -323,10 +323,18 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
         var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
         await dataModel.AddChanges(ClientId,
-            entries.ToBlockingEnumerable()
-                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech))
-                //force entries to be created first, this avoids issues where references are created before the entry is created
-                .OrderBy(c => c is CreateEntryChange ? 0 : 1)
+            await entries.SelectAwait(async entry =>
+            {
+                await validators.ValidateAndThrow(entry);
+                return entry;
+            })
+            .SelectMany(entry =>
+            {
+                return CreateEntryChanges(entry, semanticDomains, partsOfSpeech).ToAsyncEnumerable();
+            })
+            //force entries to be created first, this avoids issues where references are created before the entry is created
+            .OrderBy(c => c is CreateEntryChange ? 0 : 1)
+            .ToArrayAsync()
         );
     }
 
