@@ -9,12 +9,16 @@ export class DotNetServiceProvider {
     this.services = globalThis.window.lexbox.FwLiteProvider ?? ({} as LexboxServiceRegistry);
   }
 
-  public async setOverrideServices(fwLiteProvider: LexboxServiceRegistry) {
+  public setOverrideServices(fwLiteProvider: LexboxServiceRegistry) {
     this.services = fwLiteProvider;
   }
 
   public hasService(key: ServiceKey): boolean {
     return !!this.services[key];
+  }
+
+  public removeService(key: ServiceKey): void {
+    delete this.services[key];
   }
 
   public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
@@ -41,7 +45,7 @@ export class DotNetServiceProvider {
   }
 }
 
-function wrapInProxy(dotnetObject: DotNet.DotNetObject): unknown {
+export function wrapInProxy(dotnetObject: DotNet.DotNetObject): unknown {
   return new Proxy(dotnetObject, {
     get(target: DotNet.DotNetObject, prop: string) {
       const dotnetMethodName = uppercaseFirstLetter(prop);
