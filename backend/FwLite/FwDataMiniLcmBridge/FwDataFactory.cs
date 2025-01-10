@@ -14,7 +14,7 @@ public class FwDataFactory(
     IMemoryCache cache,
     ILogger<FwDataFactory> logger,
     IProjectLoader projectLoader,
-    MiniLcmValidators validators) : IDisposable
+    MiniLcmValidators validators) : IDisposable, IHostedService
 {
     private bool _shuttingDown = false;
     public FwDataFactory(ILogger<FwDataMiniLcmApi> fwdataLogger,
@@ -87,13 +87,16 @@ public class FwDataFactory(
     public void Dispose()
     {
         logger.LogInformation("Closing all projects");
-        foreach (var project in _projects)
+        //ensure a race condition doesn't cause us to dispose of a project that's already been disposed
+        var projects = Interlocked.Exchange(ref _projects, []);
+        foreach (var project in projects)
         {
             var lcmCache = cache.Get<LcmCache>(project);
             if (lcmCache is null || lcmCache.IsDisposed) continue;
             var name = lcmCache.ProjectId.Name;
             lcmCache.Dispose(); //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
             logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
+            cache.Remove(project);
         }
     }
 
@@ -111,5 +114,17 @@ public class FwDataFactory(
     public IDisposable DeferClose(FwDataProject project)
     {
         return Defer.Action(() => CloseProject(project));
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    //Services in MAUI apps aren't disposed when the app is shut down, we have a workaround to shutdown HostedServices on shutdown, so we made this IHostedService to close projects on shutdown
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _shuttingDown = true;
+        return Task.Run(Dispose, cancellationToken);
     }
 }

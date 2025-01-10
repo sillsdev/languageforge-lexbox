@@ -1,5 +1,6 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MiniLcm;
 using MiniLcm.Project;
 using MiniLcm.Validators;
@@ -15,6 +16,7 @@ public static class FwDataBridgeKernel
         services.AddLogging();
         services.AddOptions<FwDataBridgeConfig>().BindConfiguration("FwDataBridge");
         services.AddSingleton<FwDataFactory>();
+        services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<FwDataFactory>());
         services.AddSingleton<FieldWorksProjectList>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<FieldWorksProjectList>());
         services.AddSingleton<IProjectLoader, ProjectLoader>();
