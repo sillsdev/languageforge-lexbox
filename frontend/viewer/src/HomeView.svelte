@@ -176,13 +176,15 @@
                 </ListItem>
               </AnchorListItem>
             {/each}
-            <AnchorListItem href={`/testing/project-view`}>
-              <ListItem title="Test Project" icon={mdiTestTube}>
-                <div slot="actions" class="pointer-events-none">
-                  <Button icon={mdiChevronRight} class="p-2"/>
-                </div>
-              </ListItem>
-            </AnchorListItem>
+            <DevContent>
+              <AnchorListItem href={`/testing/project-view`}>
+                <ListItem title="Test Project" icon={mdiTestTube}>
+                  <div slot="actions" class="pointer-events-none">
+                    <Button icon={mdiChevronRight} class="p-2"/>
+                  </div>
+                </ListItem>
+              </AnchorListItem>
+            </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
               <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)}>
                 <div slot="actions" class="pointer-events-none">

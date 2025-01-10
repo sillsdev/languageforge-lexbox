@@ -158,4 +158,67 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
             actualOrderValues.Should().Be(expectedOrderValues);
         }
     }
+
+    [Theory]
+    [InlineData("a,b", "a,b,c,d", "1,2,3,4")] // append
+    [InlineData("a,2", "c,a,b", "0,1,2")] // single prepend
+    [InlineData("a,b", "d,c,a,b", "0,0.5,1,2")] // multi prepend
+    [InlineData("a,b,c,d", "d,a,b,c", "0,1,2,3")] // move to back
+    [InlineData("a,b,c,d", "b,c,d,a", "2,3,4,5")] // move to front
+    [InlineData("a,b,c,d,e", "a,b,e,c,d", "1,2,2.5,3,4")] // move to middle
+    [InlineData("a,b,c", "c,b,a", "3,4,5")] // reverse
+    [InlineData("a,b,c,d", "d,b,c,a", "1,2,3,4")] // swap
+    public async Task UpdateEntry_CanReorderExampleSentence(string before, string after, string expectedOrderValues)
+    {
+        // arrange
+        var entryId = Guid.NewGuid();
+        var senseId = Guid.NewGuid();
+        var exampleIds = before.Split(',').Concat(after.Split(',')).Distinct()
+            .ToDictionary(i => i, _ => Guid.NewGuid());
+        var beforeExamples = before.Split(',').Select(i => new ExampleSentence() { Id = exampleIds[i], SenseId = senseId, Sentence = { { "en", i } } }).ToList();
+        var afterExamples = after.Split(',').Select(i => new ExampleSentence() { Id = exampleIds[i], SenseId = senseId, Sentence = { { "en", i } } }).ToList();
+
+        var beforeEntry = await Api.CreateEntry(new()
+        {
+            Id = entryId,
+            LexemeForm = { { "en", "order" } },
+            Senses = [
+                new Sense
+                {
+                    Id = senseId,
+                    EntryId = entryId,
+                    ExampleSentences = beforeExamples,
+                }
+            ]
+        });
+        var beforeSense = beforeEntry!.Senses[0];
+
+        var afterEntry = beforeEntry!.Copy();
+        var afterSense = afterEntry.Senses[0];
+        afterSense.ExampleSentences = afterExamples;
+
+        // sanity checks
+        beforeSense.ExampleSentences.Should().BeEquivalentTo(beforeExamples, options => options.WithStrictOrdering());
+        if (!ApiUsesImplicitOrdering)
+        {
+            beforeSense.ExampleSentences.Select(s => s.Order).Should()
+                .BeEquivalentTo(Enumerable.Range(1, beforeExamples.Count), options => options.WithStrictOrdering());
+        }
+
+        // act
+        await Api.UpdateEntry(beforeEntry, afterEntry);
+        var actualEntry = await Api.GetEntry(afterEntry.Id);
+        var actual = actualEntry!.Senses[0];
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.ExampleSentences.Should().BeEquivalentTo(afterSense.ExampleSentences,
+            options => options.WithStrictOrdering().Excluding(s => s.Order));
+
+        if (!ApiUsesImplicitOrdering)
+        {
+            var actualOrderValues = string.Join(',', actual.ExampleSentences.Select(s => s.Order.ToString(CultureInfo.GetCultureInfo("en-US"))));
+            actualOrderValues.Should().Be(expectedOrderValues);
+        }
+    }
 }

@@ -11,7 +11,7 @@ public static class ExampleSentenceSync
         IList<ExampleSentence> afterExampleSentences,
         IMiniLcmApi api)
     {
-        return await DiffCollection.Diff(
+        return await DiffCollection.DiffOrderable(
             beforeExampleSentences,
             afterExampleSentences,
             new ExampleSentencesDiffApi(api, entryId, senseId));
@@ -50,21 +50,27 @@ public static class ExampleSentenceSync
         return new UpdateObjectInput<ExampleSentence>(patchDocument);
     }
 
-    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : ObjectWithIdCollectionDiffApi<ExampleSentence>
+    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence>
     {
-        public override async Task<int> Add(ExampleSentence afterExampleSentence)
+        public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition between)
         {
-            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence);
+            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence, between);
             return 1;
         }
 
-        public override async Task<int> Remove(ExampleSentence beforeExampleSentence)
+        public async Task<int> Move(ExampleSentence example, BetweenPosition between)
+        {
+            await api.MoveExampleSentence(entryId, senseId, example.Id, between);
+            return 1;
+        }
+
+        public async Task<int> Remove(ExampleSentence beforeExampleSentence)
         {
             await api.DeleteExampleSentence(entryId, senseId, beforeExampleSentence.Id);
             return 1;
         }
 
-        public override Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
+        public Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
         {
             return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api);
         }

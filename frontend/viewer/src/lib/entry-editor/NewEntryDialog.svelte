@@ -24,6 +24,7 @@
   async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
+    console.debug('Creating entry', entry);
     await saveHandler(() => lexboxApi.createEntry(entry));
     dispatch('created', {entry});
     if (requester) {

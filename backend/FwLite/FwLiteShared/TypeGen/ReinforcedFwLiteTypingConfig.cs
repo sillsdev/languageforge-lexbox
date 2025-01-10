@@ -5,6 +5,7 @@ using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
+using MiniLcm.Attributes;
 using MiniLcm.Models;
 using Reinforced.Typings;
 using Reinforced.Typings.Ast.Dependency;
@@ -45,15 +46,9 @@ public static class ReinforcedFwLiteTypingConfig
             From = "@microsoft/dotnet-js-interop",
             Target = "type {DotNet}"
         }]));
-        builder.ExportAsInterface<Sense>().WithPublicNonStaticProperties(exportBuilder =>
-        {
-            if (exportBuilder.Member.Name == nameof(Sense.Order))
-            {
-                exportBuilder.Ignore();
-            }
-        });
         builder.ExportAsInterfaces([
                 typeof(Entry),
+                typeof(Sense),
                 typeof(ExampleSentence),
                 typeof(WritingSystem),
                 typeof(WritingSystems),
@@ -61,10 +56,15 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(SemanticDomain),
                 typeof(ComplexFormType),
                 typeof(ComplexFormComponent),
-
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
             ],
-            exportBuilder => exportBuilder.WithPublicNonStaticProperties());
+            exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
+        {
+            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null)
+            {
+                exportBuilder.Ignore();
+            }
+        }));
         builder.ExportAsEnum<WritingSystemType>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()

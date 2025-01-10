@@ -14,7 +14,7 @@
   import { createEventDispatcher, getContext } from 'svelte';
   import { useLexboxApi } from '../services/service-provider';
   import { deriveAsync } from '../utils/time';
-  import { defaultSense, firstDef, firstGloss, glosses, headword, randomId } from '../utils';
+  import { defaultSense, firstDef, firstGloss, glosses, headword } from '../utils';
   import { useProjectCommands } from '../commands';
   import type { SaveHandler } from '../services/save-event-service';
   import {SortField} from '$lib/dotnet-types';
@@ -76,7 +76,7 @@
   }
 
   async function onClickAddSense(entry: IEntry): Promise<void> {
-    const newSense = defaultSense(randomId());
+    const newSense = defaultSense(entry.id);
     const savedSense = await saveHandler(() => lexboxApi.createSense(entry.id, newSense));
     entry.senses = [...entry.senses, savedSense];
     selectedSense = savedSense;

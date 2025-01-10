@@ -57,7 +57,7 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region ExampleSentence
-    Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence);
+    Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null);
     Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
@@ -66,6 +66,7 @@ public interface IMiniLcmWriteApi
         Guid senseId,
         ExampleSentence before,
         ExampleSentence after);
+    Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
     #endregion

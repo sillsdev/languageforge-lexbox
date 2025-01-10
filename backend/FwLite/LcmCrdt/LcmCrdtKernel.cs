@@ -199,7 +199,9 @@ public static class LcmCrdtKernel
             .Add<RemoveComplexFormTypeChange>()
             .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
-            .Add<Changes.SetOrderChange<Sense>>();
+            .Add<Changes.SetOrderChange<Sense>>()
+            .Add<Changes.SetOrderChange<ExampleSentence>>()
+            ;
     }
 
     public static Type[] AllChangeTypes()
