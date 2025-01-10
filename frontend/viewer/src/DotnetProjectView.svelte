@@ -17,6 +17,7 @@
   onDestroy(() => {
     if (serviceLoaded) {
       window.lexbox.ServiceProvider.removeService(DotnetService.MiniLcmApi);
+      void miniLcmApiProvider.clearMiniLcmApi();
     }
   });
 </script>

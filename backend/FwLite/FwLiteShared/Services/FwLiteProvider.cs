@@ -146,7 +146,9 @@ internal class MiniLcmApiProvider(ILogger<MiniLcmApiProvider> logger)
     [JSInvokable]
     public async Task<DotNetObjectReference<MiniLcmJsInvokable>> GetMiniLcmApi()
     {
+#pragma warning disable VSTHRD003
         return await _tcs.Task;
+#pragma warning restore VSTHRD003
     }
 
     public void SetMiniLcmApi(DotNetObjectReference<MiniLcmJsInvokable> miniLcmApi)
@@ -164,6 +166,12 @@ internal class MiniLcmApiProvider(ILogger<MiniLcmApiProvider> logger)
         {
             //we need to tell any clients awaiting the tcs it's canceled. otherwise they will hang
             _tcs.SetCanceled();
+        }
+        else if (_tcs.Task.IsCompletedSuccessfully)
+        {
+#pragma warning disable VSTHRD002
+            _tcs.Task.Result.Value.Dispose();
+#pragma warning restore VSTHRD002
         }
 
         //create a new tcs so any new clients will await the new api.
