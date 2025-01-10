@@ -93,8 +93,11 @@ tasks:
     deps: [ infra-up, api:only, k8s:infra-forward ]
     interactive: true
 
-  web-for-develop:
-    deps: [ ui:viewer-dev, fw-lite:lweb-for-develop, ui:https-oauth-authority ]
-
-  web:
+  fw-lite-web:
+    aliases:
+      - web
+      - web-for-develop
     deps: [ ui:viewer-dev, fw-lite:web, ui:https-oauth-authority ]
+
+  fw-lite-win:
+    deps: [fw-lite:maui-windows, ui:viewer-dev, ui:https-oauth-authority]
