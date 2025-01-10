@@ -16,14 +16,16 @@ public static class MauiProgram
                 if (App == null) return;
 
                 var logger = App.Services.GetRequiredService<ILogger<MauiApp>>();
+                var adapter = App.Services.GetRequiredService<FwLiteMauiKernel.HostedServiceAdapter>();
                 try
                 {
-                    logger.LogInformation("Disposing app");
-                    App.DisposeAsync().GetAwaiter().GetResult();
+                    logger.LogInformation("Disposing hosted services");
+                    //I tried to dispose of the app, but that caused other issues on shutdown, so we're just going to dispose of the hosted services
+                    adapter.DisposeAsync().GetAwaiter().GetResult();
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Failed to dispose app");
+                    logger.LogError(e, "Failed to dispose hosted services");
                     throw;
                 }
             })

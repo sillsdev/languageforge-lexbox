@@ -34,7 +34,8 @@ public static class FwLiteMauiKernel
         services.AddSingleton<IHostEnvironment>(env);
         services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
-        services.AddSingleton<IMauiInitializeService, HostedServiceAdapter>();
+        services.AddSingleton<HostedServiceAdapter>();
+        services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
 #if INCLUDE_FWDATA_BRIDGE
         //need to call them like this otherwise we need a using statement at the top of the file
         FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
@@ -127,7 +128,7 @@ public static class FwLiteMauiKernel
     public static bool IsPortableApp => false;
 #endif
 
-    private class HostedServiceAdapter(IEnumerable<IHostedService> hostedServices, ILogger<HostedServiceAdapter> logger) : IMauiInitializeService, IAsyncDisposable
+    internal class HostedServiceAdapter(IEnumerable<IHostedService> hostedServices, ILogger<HostedServiceAdapter> logger) : IMauiInitializeService, IAsyncDisposable
     {
         private CancellationTokenSource _cts = new();
         public void Initialize(IServiceProvider services)
@@ -141,8 +142,8 @@ public static class FwLiteMauiKernel
 
         public async ValueTask DisposeAsync()
         {
-            //todo this is never called because the service provider is not disposed
             logger.LogInformation("Disposing hosted services");
+            //todo this should probably have a timeout so we don't hang forever
             foreach (var hostedService in hostedServices)
             {
                 await hostedService.StopAsync(_cts.Token);
