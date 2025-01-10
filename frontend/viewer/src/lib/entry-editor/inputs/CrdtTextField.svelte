@@ -9,6 +9,7 @@
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
   export let readonly: boolean | undefined = undefined;
+  export let autofocus: boolean = false;
   let append: HTMLElement;
 
   // Labels don't always fit (beause WS's can be long and ugly), so a title might be important sometimes
@@ -25,6 +26,7 @@
     actions={(el) => { addTitleToLabel(el); return []; }}
     value={editorValue}
     disabled={readonly}
+    autofocus={autofocus}
     class="ws-field gap-2 text-right"
     classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container' }}
     {label}
