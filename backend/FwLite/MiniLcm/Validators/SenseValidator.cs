@@ -11,6 +11,7 @@ public class SenseValidator : AbstractValidator<Sense>
         RuleFor(s => s.Definition).NoEmptyValues();
         RuleFor(s => s.Gloss).NoEmptyValues();
         RuleFor(s => s.PartOfSpeech!).SetValidator(new PartOfSpeechValidator()).When(s => s.PartOfSpeech is not null);
+        RuleFor(s => s.PartOfSpeechId).Equal(s => s.PartOfSpeech!.Id).When(s => s.PartOfSpeech is not null && s.PartOfSpeechId is not null);
         RuleForEach(s => s.SemanticDomains).SetValidator(new SemanticDomainValidator());
         RuleForEach(s => s.ExampleSentences).SetValidator(sense => new ExampleSentenceValidator(sense));
     }
