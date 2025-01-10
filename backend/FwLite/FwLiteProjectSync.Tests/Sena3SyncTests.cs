@@ -11,6 +11,7 @@ using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;
 
+[Trait("Category", "Integration")]
 public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 {
     private readonly Sena3Fixture _fixture;

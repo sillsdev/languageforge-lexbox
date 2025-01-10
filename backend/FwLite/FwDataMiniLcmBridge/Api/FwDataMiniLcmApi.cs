@@ -160,8 +160,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
     }
 
-    public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
+        await validators.ValidateAndThrow(writingSystem);
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {
@@ -194,7 +195,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         } - 1;
-        return Task.FromResult(FromLcmWritingSystem(ws, index, type));
+        return FromLcmWritingSystem(ws, index, type);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -220,6 +221,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
+        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
             async () =>
@@ -246,8 +248,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             ? FromLcmPartOfSpeech(partOfSpeech) : null);
     }
 
-    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
+        await validators.ValidateAndThrow(partOfSpeech);
         IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
@@ -259,7 +262,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
             });
-        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created")));
+        return FromLcmPartOfSpeech(lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created"));
     }
 
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
@@ -278,6 +281,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
     {
+        await validators.ValidateAndThrow(after);
         await PartOfSpeechSync.Sync(before, after, this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
@@ -301,7 +305,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
             Code = semanticDomain.Abbreviation.UiString ?? "",
-            Predefined = true, // TODO: Look up in a GUID list of predefined data
+            Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
 
@@ -323,6 +327,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
+        await validators.ValidateAndThrow(semanticDomain);
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
             "Remove semantic domain",
@@ -355,6 +360,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
     {
+        await validators.ValidateAndThrow(after);
         await SemanticDomainSync.Sync(before, after, this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
@@ -429,6 +435,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
+        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, this);
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
     }
@@ -460,7 +467,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Id = lcmPos.Guid,
             Name = FromLcmMultiString(lcmPos.Name),
             // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
-            Predefined = true, // NOTE: the !string.IsNullOrEmpty(lcmPos.CatalogSourceId) check doesn't work if the PoS originated in CRDT
+            Predefined = CanonicalGuidsPartOfSpeech.CanonicalPosGuids.Contains(lcmPos.Guid),
         };
     }
 
@@ -660,6 +667,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
+        await validators.ValidateAndThrow(entry);
         try
         {
             UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
@@ -852,6 +860,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
+        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
@@ -957,16 +966,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
+        await validators.ValidateAndThrow(sense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
             () => CreateSense(lexEntry, sense, between));
-        return Task.FromResult(FromLexSense(SenseRepository.GetObject(sense.Id)));
+        return FromLexSense(SenseRepository.GetObject(sense.Id));
     }
 
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
@@ -986,6 +996,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
+        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
@@ -1067,16 +1078,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             lexExampleSentence.Reference.get_WritingSystem(0));
     }
 
-    public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
+    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        await validators.ValidateAndThrow(exampleSentence);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence));
-        return Task.FromResult(FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id)));
+        return FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id));
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -1102,6 +1114,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         ExampleSentence before,
         ExampleSentence after)
     {
+        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert Example Sentence",
             async () =>
