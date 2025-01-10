@@ -3,6 +3,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
+using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Models;
 using Reinforced.Typings;
@@ -31,12 +32,19 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
+        var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
+        builder.SubstituteGeneric(typeof(DotNetObjectReference<>), (type, resolver) => resolver.ResolveTypeName(dotnetObjectRefInterface));
         //todo generate a multistring type rather than just substituting it everywhere
         builder.ExportAsThirdParty<MultiString>().WithName("IMultiString").Imports([new ()
         {
             From = "$lib/dotnet-types/i-multi-string",
             Target = "type {IMultiString}"
         }]);
+        builder.ExportAsThirdParty([dotnetObjectRefInterface], exportBuilder => exportBuilder.WithName("DotNet.DotNetObject").Imports([new ()
+        {
+            From = "@microsoft/dotnet-js-interop",
+            Target = "type {DotNet}"
+        }]));
         builder.ExportAsInterface<Sense>().WithPublicNonStaticProperties(exportBuilder =>
         {
             if (exportBuilder.Member.Name == nameof(Sense.Order))
@@ -80,6 +88,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterface<FwLiteConfig>().WithPublicProperties();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
+        builder.ExportAsInterface<MiniLcmApiProvider>().WithPublicMethods(b => b.AlwaysReturnPromise());
     }
 
     private static void AlwaysReturnPromise(this MethodExportBuilder exportBuilder)

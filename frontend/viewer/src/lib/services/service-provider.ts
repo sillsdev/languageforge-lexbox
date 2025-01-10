@@ -5,6 +5,7 @@ import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLit
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {useEventBus} from './event-bus';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
+import type {IMiniLcmApiProvider} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmApiProvider';
 
 export enum LexboxService {
   LexboxApi = 'LexboxApi'
@@ -12,6 +13,7 @@ export enum LexboxService {
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
   [DotnetService.MiniLcmApi]: IMiniLcmJsInvokable,
+  [DotnetService.MiniLcmApiProvider]: IMiniLcmApiProvider,
   [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
@@ -26,6 +28,11 @@ export class LexboxServiceProvider {
   public setService<K extends ServiceKey>(key: K, service: LexboxServiceRegistry[K]): void {
     this.validateServiceKey(key);
     this.services[key] = service;
+  }
+
+  public removeService<K extends ServiceKey>(key: K): void {
+    this.validateServiceKey(key);
+    delete this.services[key];
   }
 
   public getService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
@@ -68,4 +75,8 @@ export function useImportFwdataService(): IImportFwdataService {
 
 export function useFwLiteConfig(): IFwLiteConfig {
   return window.lexbox.ServiceProvider.getService(DotnetService.FwLiteConfig);
+}
+
+export function useMiniLcmApiProvider(): IMiniLcmApiProvider {
+  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApiProvider);
 }

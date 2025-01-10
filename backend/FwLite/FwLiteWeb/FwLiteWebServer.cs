@@ -33,7 +33,7 @@ public static class FwLiteWebServer
         builder.ConfigureDev<AuthConfig>(config =>
             config.LexboxServers = [
                 new (new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
-                new (new("https://localhost:3000"), "Lexbox Local"),
+                new (new("https://localhost:3050"), "Lexbox Local"),
                 new (new("https://staging.languagedepot.org"), "Lexbox Staging")
             ]);
         builder.ConfigureProd<AuthConfig>(config =>

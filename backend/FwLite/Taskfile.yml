@@ -7,20 +7,16 @@ includes:
 
 tasks:
 
-  web-for-develop:
-    label: dotnet
-    dir: ./FwLiteWeb
-    cmd: dotnet watch --no-hot-reload
   web:
-    label: Run FwLiteWeb with Local LexBox
-    env:
-      Auth__DefaultAuthority: "https://localhost:3050"
+    aliases:
+      - web-for-develop
+    label: Run FwLiteWeb with Local LexBox, requires vite dev server to be running, use task fw-lite-web in root
     dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
 
+
   maui-windows:
-    deps: [ ui:build-viewer-app ]
-    label: Run Maui Windows
+    label: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
     dir: ./FwLiteMaui
     cmd: dotnet run -f net9.0-windows10.0.19041.0
 

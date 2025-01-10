@@ -15,6 +15,7 @@ public static class FwLiteSharedKernel
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
+        services.AddLogging();
 
         services.AddSingleton<ImportFwdataService>();
         services.AddScoped<SyncService>();

@@ -72,6 +72,14 @@ public interface IMiniLcmWriteApi
 }
 
 /// <summary>
+/// API for saving the project, really only used by FwData
+/// </summary>
+public interface IMiniLcmSaveApi
+{
+    void Save();
+}
+
+/// <summary>
 /// wrapper around JsonPatchDocument that allows for fluent updates
 /// </summary>
 /// <param name="patchDocument"></param>

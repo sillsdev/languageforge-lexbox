@@ -1,22 +1,24 @@
 ﻿<script lang="ts">
   import ProjectView from './ProjectView.svelte';
-  import {onMount} from 'svelte';
-  import {DotnetService} from './lib/dotnet-types';
+  import {onDestroy, onMount} from 'svelte';
+  import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+  import {useMiniLcmApiProvider} from '$lib/services/service-provider';
+  import {wrapInProxy} from '$lib/services/service-provider-dotnet';
+
+  const miniLcmApiProvider = useMiniLcmApiProvider();
 
   export let projectName: string;
   let serviceLoaded = false;
-  onMount(() => {
-    console.log('checking for minilcm');
-    //check for minilcm in on a timeout
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let timer: any;
-    timer = setInterval(() => {
-      if (window.lexbox.DotNetServiceProvider?.hasService(DotnetService.MiniLcmApi)) {
-        clearInterval(timer);
-        serviceLoaded = true;
-      }
-      console.warn('minilcm not loaded');
-    }, 200);
+  onMount(async () => {
+    const miniLcmApi = await miniLcmApiProvider.getMiniLcmApi();
+    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, wrapInProxy(miniLcmApi) as IMiniLcmJsInvokable);
+    serviceLoaded = true;
+  });
+  onDestroy(() => {
+    if (serviceLoaded) {
+      window.lexbox.ServiceProvider.removeService(DotnetService.MiniLcmApi);
+      void miniLcmApiProvider.clearMiniLcmApi();
+    }
   });
 </script>
 {#if serviceLoaded}

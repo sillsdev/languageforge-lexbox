@@ -22,8 +22,12 @@ internal class MiniLcmJsInvokable(
         return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
     }
 
-    private void TriggerSync()
+    private void OnDataChanged()
     {
+        if (api is IMiniLcmSaveApi saveApi)
+        {
+            saveApi.Save();
+        }
         if (SupportsSync)
         {
             backgroundSyncService.TriggerSync(project);
@@ -109,69 +113,88 @@ internal class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
-        return api.UpdateWritingSystem(before, after);
+        var updatedWritingSystem = await api.UpdateWritingSystem(before, after);
+        OnDataChanged();
+        return updatedWritingSystem;
     }
 
     [JSInvokable]
-    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        return api.CreatePartOfSpeech(partOfSpeech);
+        var createdPartOfSpeech = await api.CreatePartOfSpeech(partOfSpeech);
+        OnDataChanged();
+        return createdPartOfSpeech;
     }
 
     [JSInvokable]
-    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
     {
-        return api.UpdatePartOfSpeech(before, after);
+        var updatedPartOfSpeech = await api.UpdatePartOfSpeech(before, after);
+        OnDataChanged();
+        return updatedPartOfSpeech;
     }
 
     [JSInvokable]
-    public Task DeletePartOfSpeech(Guid id)
+    public async Task DeletePartOfSpeech(Guid id)
     {
-        return api.DeletePartOfSpeech(id);
+        await api.DeletePartOfSpeech(id);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
+    public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        return api.CreateSemanticDomain(semanticDomain);
+        var createdSemanticDomain = await api.CreateSemanticDomain(semanticDomain);
+        OnDataChanged();
+        return createdSemanticDomain;
     }
 
     [JSInvokable]
-    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
     {
-        return api.UpdateSemanticDomain(before, after);
+        var updatedSemanticDomain = await api.UpdateSemanticDomain(before, after);
+        OnDataChanged();
+        return updatedSemanticDomain;
     }
 
     [JSInvokable]
-    public Task DeleteSemanticDomain(Guid id)
+    public async Task DeleteSemanticDomain(Guid id)
     {
-        return api.DeleteSemanticDomain(id);
+        await api.DeleteSemanticDomain(id);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        return api.CreateComplexFormType(complexFormType);
+        var createdComplexFormType = await api.CreateComplexFormType(complexFormType);
+        OnDataChanged();
+        return createdComplexFormType;
     }
 
     [JSInvokable]
-    public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
-        return api.UpdateComplexFormType(before, after);
+        var updatedComplexFormType = await api.UpdateComplexFormType(before, after);
+        OnDataChanged();
+        return updatedComplexFormType;
     }
 
     [JSInvokable]
-    public Task DeleteComplexFormType(Guid id)
+    public async Task DeleteComplexFormType(Guid id)
     {
-        return api.DeleteComplexFormType(id);
+        await api.DeleteComplexFormType(id);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task<Entry> CreateEntry(Entry entry)
+    public async Task<Entry> CreateEntry(Entry entry)
     {
-        return api.CreateEntry(entry);
+        var createdEntry = await api.CreateEntry(entry);
+        OnDataChanged();
+        return createdEntry;
     }
 
     [JSInvokable]
@@ -179,86 +202,104 @@ internal class MiniLcmJsInvokable(
     {
         //todo trigger sync on the test
         var result = await api.UpdateEntry(before, after);
-        TriggerSync();
+        OnDataChanged();
         return result;
     }
 
     [JSInvokable]
-    public Task DeleteEntry(Guid id)
+    public async Task DeleteEntry(Guid id)
     {
-        return api.DeleteEntry(id);
+        await api.DeleteEntry(id);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        return api.CreateComplexFormComponent(complexFormComponent);
+        var createdComplexFormComponent = await api.CreateComplexFormComponent(complexFormComponent);
+        OnDataChanged();
+        return createdComplexFormComponent;
     }
 
     [JSInvokable]
-    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        return api.DeleteComplexFormComponent(complexFormComponent);
+        await api.DeleteComplexFormComponent(complexFormComponent);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        return api.AddComplexFormType(entryId, complexFormTypeId);
+        await api.AddComplexFormType(entryId, complexFormTypeId);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        return api.RemoveComplexFormType(entryId, complexFormTypeId);
+        await api.RemoveComplexFormType(entryId, complexFormTypeId);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
-        return api.CreateSense(entryId, sense);
+        var createdSense = await api.CreateSense(entryId, sense);
+        OnDataChanged();
+        return createdSense;
     }
 
     [JSInvokable]
-    public Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
-        return api.UpdateSense(entryId, before, after);
+        var updatedSense = await api.UpdateSense(entryId, before, after);
+        OnDataChanged();
+        return updatedSense;
     }
 
     [JSInvokable]
-    public Task DeleteSense(Guid entryId, Guid senseId)
+    public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        return api.DeleteSense(entryId, senseId);
+        await api.DeleteSense(entryId, senseId);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
-        return api.AddSemanticDomainToSense(senseId, semanticDomain);
+        await api.AddSemanticDomainToSense(senseId, semanticDomain);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
-        return api.RemoveSemanticDomainFromSense(senseId, semanticDomainId);
+        await api.RemoveSemanticDomainFromSense(senseId, semanticDomainId);
+        OnDataChanged();
     }
 
     [JSInvokable]
-    public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
+    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
-        return api.CreateExampleSentence(entryId, senseId, exampleSentence);
+        var createdExampleSentence = await api.CreateExampleSentence(entryId, senseId, exampleSentence);
+        OnDataChanged();
+        return createdExampleSentence;
     }
 
     [JSInvokable]
-    public Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after)
+    public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after)
     {
-        return api.UpdateExampleSentence(entryId, senseId, before, after);
+        var updatedExampleSentence = await api.UpdateExampleSentence(entryId, senseId, before, after);
+        OnDataChanged();
+        return updatedExampleSentence;
     }
 
     [JSInvokable]
-    public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
+    public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        return api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        await api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        OnDataChanged();
     }
 
     public void Dispose()

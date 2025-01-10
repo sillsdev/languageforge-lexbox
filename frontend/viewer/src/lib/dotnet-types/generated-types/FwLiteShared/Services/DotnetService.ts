@@ -5,6 +5,7 @@
 
 export enum DotnetService {
 	MiniLcmApi = "MiniLcmApi",
+	MiniLcmApiProvider = "MiniLcmApiProvider",
 	CombinedProjectsService = "CombinedProjectsService",
 	AuthService = "AuthService",
 	ImportFwdataService = "ImportFwdataService",
