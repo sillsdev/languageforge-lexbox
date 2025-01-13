@@ -47,6 +47,13 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Sense
+    /// <summary>
+    /// Creates the provided sense and adds it to the specified entry
+    /// </summary>
+    /// <param name="entryId">The ID of the sense's parent entry</param>
+    /// <param name="sesnse">The sense to create</param>
+    /// <param name="position">Where the sense should be inserted in the entry's list of senses. If null it will be appended to the end of the list.</param>
+    /// <returns></returns>
     Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after);
@@ -57,6 +64,14 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region ExampleSentence
+    /// <summary>
+    /// Creates the provided example sentence and adds it to the specified sense
+    /// </summary>
+    /// <param name="entryId">The ID of the sense's parent entry</param>
+    /// <param name="senseId">The ID of example sentence's parent sense</param>
+    /// <param name="exampleSentence">The example sentence to create</param>
+    /// <param name="position">Where the example sentence should be inserted in the sense's list of example sentences. If null it will be appended to the end of the list.</param>
+    /// <returns></returns>
     Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null);
     Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
