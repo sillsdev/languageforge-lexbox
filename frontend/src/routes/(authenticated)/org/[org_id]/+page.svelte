@@ -25,6 +25,10 @@
   import BulkAddOrgMembers from './BulkAddOrgMembers.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import AddMyProjectsToOrgModal from './AddMyProjectsToOrgModal.svelte';
+  import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
+  import {createGuestUserByAdmin, type LexAuthUser} from '$lib/user';
+  import {Duration} from '$lib/util/time';
+  import {browser} from '$app/environment';
 
   export let data: PageData;
   $: user = data.user;
@@ -113,6 +117,11 @@
       await goto('/');
     }
   }
+
+  let createUserModal: CreateUserModal;
+  function onUserCreated(user: LexAuthUser): void {
+    notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
+  }
 </script>
 
 <PageBreadcrumb href="/org/list">{$t('org.table.title')}</PageBreadcrumb>
@@ -130,6 +139,14 @@
       </Button>
       <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
       <BulkAddOrgMembers orgId={org.id} />
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
+        on:click={() => createUserModal.open()}>
+        <span class="admin-tabs:hidden">
+          {$t('admin_dashboard.create_user_modal.create_user')}
+        </span>
+        <span class="i-mdi-plus text-2xl" />
+      </svelte:element>
     {/if}
   </svelte:fragment>
   <div slot="title" class="max-w-full flex items-baseline flex-wrap">
@@ -223,3 +240,4 @@
 <ConfirmDeleteModal bind:this={deleteOrgModal} i18nScope="delete_org_modal" />
 <ChangeOrgMemberRoleModal orgId={org.id} bind:this={changeMemberRoleModal} />
 <UserModal bind:this={userModal} />
+<CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
