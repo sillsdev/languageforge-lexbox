@@ -121,9 +121,9 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         // arrange
         var entryId = Guid.NewGuid();
         var senseIds = before.Split(',').Concat(after.Split(',')).Distinct()
-            .ToDictionary(i => i, _ => Guid.NewGuid());
-        var beforeSenses = before.Split(',').Select(i => new Sense() { Id = senseIds[i], EntryId = entryId, Gloss = { { "en", i } } }).ToList();
-        var afterSenses = after.Split(',').Select(i => new Sense() { Id = senseIds[i], EntryId = entryId, Gloss = { { "en", i } } }).ToList();
+            .ToDictionary(@char => @char, _ => Guid.NewGuid());
+        var beforeSenses = before.Split(',').Select(@char => new Sense() { Id = senseIds[@char], EntryId = entryId, Gloss = { { "en", @char } } }).ToList();
+        var afterSenses = after.Split(',').Select(@char => new Sense() { Id = senseIds[@char], EntryId = entryId, Gloss = { { "en", @char } } }).ToList();
 
         var beforeEntry = await Api.CreateEntry(new()
         {
@@ -174,9 +174,9 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var entryId = Guid.NewGuid();
         var senseId = Guid.NewGuid();
         var exampleIds = before.Split(',').Concat(after.Split(',')).Distinct()
-            .ToDictionary(i => i, _ => Guid.NewGuid());
-        var beforeExamples = before.Split(',').Select(i => new ExampleSentence() { Id = exampleIds[i], SenseId = senseId, Sentence = { { "en", i } } }).ToList();
-        var afterExamples = after.Split(',').Select(i => new ExampleSentence() { Id = exampleIds[i], SenseId = senseId, Sentence = { { "en", i } } }).ToList();
+            .ToDictionary(@char => @char, _ => Guid.NewGuid());
+        var beforeExamples = before.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", @char } } }).ToList();
+        var afterExamples = after.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", @char } } }).ToList();
 
         var beforeEntry = await Api.CreateEntry(new()
         {
