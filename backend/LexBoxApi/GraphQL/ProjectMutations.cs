@@ -134,9 +134,9 @@ public class ProjectMutations
     [Error<NotFoundException>]
     [Error<InvalidEmailException>]
     [Error<DbError>]
-    [AdminRequired]
     [UseMutationConvention]
     public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
+        IPermissionService permissionService,
         LoggedInContext loggedInContext,
         BulkAddProjectMembersInput input,
         LexBoxDbContext dbContext)
@@ -145,6 +145,11 @@ public class ProjectMutations
         {
             var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId.Value);
             if (!projectExists) throw new NotFoundException("Project not found", "project");
+            await permissionService.AssertCanCreateGuestUserInProject(input.ProjectId.Value);
+        }
+        else
+        {
+            permissionService.AssertCanCreateGuestUserInAnyProject();
         }
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];

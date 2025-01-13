@@ -141,6 +141,30 @@ public class PermissionService(
             throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }
 
+    public async ValueTask<bool> CanCreateGuestUserInProject(Guid projectId)
+    {
+        if (User is null) return false;
+        if (User.Role == UserRole.admin) return true;
+        return await ManagesOrgThatOwnsProject(projectId);
+    }
+
+    public async ValueTask AssertCanCreateGuestUserInProject(Guid projectId)
+    {
+        if (!await CanCreateGuestUserInProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public bool CanCreateGuestUserInAnyProject()
+    {
+        if (User is null) return false;
+        if (User.Role == UserRole.admin) return true;
+        return User.Orgs.Any(o => o.Role == OrgRole.Admin);
+    }
+
+    public void AssertCanCreateGuestUserInAnyProject()
+    {
+        if (!CanCreateGuestUserInAnyProject()) throw new UnauthorizedAccessException();
+    }
+
     public async ValueTask<bool> CanAskToJoinProject(Guid projectId)
     {
         if (User is null) return false;

@@ -96,8 +96,8 @@ public class UserMutations
     [Error<DbError>]
     [Error<UniqueValueException>]
     [Error<RequiredException>]
-    [AdminRequired]
     public async Task<LexAuthUser> CreateGuestUserByAdmin(
+        IPermissionService permissionService,
         LoggedInContext loggedInContext,
         CreateGuestUserByAdminInput input,
         LexBoxDbContext dbContext,
@@ -105,6 +105,7 @@ public class UserMutations
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
+        permissionService.AssertCanCreateGuestUserInAnyProject();
 
         var hasExistingUser = input.Email is null && input.Username is null
             ? throw new RequiredException("Guest users must have either an email or a username")
