@@ -1,0 +1,65 @@
+﻿using FluentValidation.TestHelper;
+using MiniLcm.Validators;
+
+namespace MiniLcm.Tests.Validators;
+
+public class SenseValidatorTests
+{
+    private readonly SenseValidator _validator = new();
+
+    [Fact]
+    public void Succeeds_WhenDeletedAtIsNull()
+    {
+        var sense = new Sense() { Id = Guid.NewGuid(), DeletedAt = null };
+        _validator.TestValidate(sense).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Fails_WhenDeletedAtIsNotNull()
+    {
+        var sense = new Sense() { Id = Guid.NewGuid(), DeletedAt = DateTimeOffset.UtcNow };
+        _validator.TestValidate(sense).ShouldHaveValidationErrorFor("DeletedAt");
+    }
+
+    [Theory]
+    [InlineData("Definition")]
+    [InlineData("Gloss")]
+    public void Succeeds_WhenNonEmptyFieldIsPresent(string fieldName)
+    {
+        var sense = new Sense() { Id = Guid.NewGuid() };
+        SetProperty(sense, fieldName, "content");
+        _validator.TestValidate(sense).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Theory]
+    [InlineData("Definition")]
+    [InlineData("Gloss")]
+    public void Succeeds_WhenNonEmptyFieldHasNoContent(string fieldName)
+    {
+        var sense = new Sense() { Id = Guid.NewGuid() };
+        MakePropertyEmpty(sense, fieldName);
+        _validator.TestValidate(sense).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Theory]
+    [InlineData("Definition")]
+    [InlineData("Gloss")]
+    public void Fails_WhenNonEmptyFieldHasWsWithEmptyContent(string fieldName)
+    {
+        var sense = new Sense() { Id = Guid.NewGuid() };
+        SetProperty(sense, fieldName, "");
+        _validator.TestValidate(sense).ShouldHaveValidationErrorFor(fieldName);
+    }
+
+    private void SetProperty(Sense sense, string propName, string content)
+    {
+        var propInfo = typeof(Sense).GetProperty(propName);
+        propInfo?.SetValue(sense, new MultiString(){{"en", content}});
+    }
+
+    private void MakePropertyEmpty(Sense sense, string propName)
+    {
+        var propInfo = typeof(Sense).GetProperty(propName);
+        propInfo?.SetValue(sense, new MultiString());
+    }
+}

@@ -74,6 +74,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task FirstSyncJustDoesAnImport()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -91,6 +92,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SecondSyncDoesNothing()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -102,6 +104,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public static async Task SyncFailsWithMismatchedProjectIds()
     {
         var fixture = SyncFixture.Create();
@@ -121,6 +124,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CreatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -156,6 +160,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SyncDryRun_NoChangesAreSynced()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -191,6 +196,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CreatingAComplexEntryInFwDataSyncsWithoutIssue()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -243,6 +249,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task PartsOfSpeechSyncBothWays()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -278,6 +285,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task PartsOfSpeechSyncInEntries()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -322,6 +330,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SemanticDomainsSyncBothWays()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -359,6 +368,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SemanticDomainsSyncInEntries()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -404,6 +414,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -433,6 +444,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CanSyncAnyEntryWithDeletedComplexForm()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -470,6 +482,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task AddingASenseToAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -500,6 +513,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CanCreateAComplexFormAndItsComponentInOneSync()
     {
         //ensure they are synced so a real sync will happen when we want it to
@@ -520,6 +534,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CanCreateAComplexFormTypeAndSyncsIt()
     {
         //ensure they are synced so a real sync will happen when we want it to

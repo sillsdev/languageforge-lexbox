@@ -1,8 +1,11 @@
 ﻿using System.Buffers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Windows.Management.Deployment;
+using Windows.Networking.Connectivity;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace FwLiteMaui;
 
@@ -16,6 +19,10 @@ public class AppUpdateService(
     private const string FwliteUpdateUrlEnvVar = "FWLITE_UPDATE_URL";
     private const string ForceUpdateCheckEnvVar = "FWLITE_FORCE_UPDATE_CHECK";
     private const string PreventUpdateCheckEnvVar = "FWLITE_PREVENT_UPDATE";
+    private  const string NotificationIdKey = "notificationId";
+    private const string ActionKey = "action";
+    private const string ResultRefKey = "resultRef";
+    private static readonly Dictionary<string, TaskCompletionSource<string?>> NotificationCompletionSources = new();
 
     private static readonly SearchValues<string> ValidPositiveEnvVarValues =
         SearchValues.Create(["1", "true", "yes"], StringComparison.OrdinalIgnoreCase);
@@ -25,6 +32,16 @@ public class AppUpdateService(
 
     public void Initialize(IServiceProvider services)
     {
+        ToastNotificationManagerCompat.OnActivated += toastArgs =>
+        {
+            ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
+            HandleNotificationAction(args.Get(ActionKey), args.Get(NotificationIdKey), args);
+        };
+        if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
+        {
+            //don't check for updates if the user already clicked on a notification
+            return;
+        }
         _ = Task.Run(TryUpdate);
     }
 
@@ -39,19 +56,90 @@ public class AppUpdateService(
         if (!ShouldCheckForUpdate()) return;
         var response = await ShouldUpdate();
         if (!response.Update) return;
-
+        if (ShouldPromptBeforeUpdate() && !await RequestPermissionToUpdate(response.Release))
+        {
+            return;
+        }
         await ApplyUpdate(response.Release);
     }
 
-    private async Task ApplyUpdate(FwLiteRelease latestRelease)
+    private async Task Test()
     {
-        logger.LogInformation("New version available: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
+        logger.LogInformation("Testing update notifications");
+        var fwLiteRelease = new FwLiteRelease("1.0.0.0", "https://test.com");
+        if (!await RequestPermissionToUpdate(fwLiteRelease))
+        {
+            logger.LogInformation("User declined update");
+            return;
+        }
+
+        await ApplyUpdate(fwLiteRelease);
+    }
+
+    private void ShowUpdateAvailableNotification(FwLiteRelease latestRelease)
+    {
+        new ToastContentBuilder().AddText("FieldWorks Lite Update Available").AddText($"Version {latestRelease.Version} will be installed after FieldWorks Lite is closed").Show();
+    }
+
+    private async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
+    {
+        var notificationId = $"update-{Guid.NewGuid()}";
+        var tcs = new TaskCompletionSource<string?>();
+        NotificationCompletionSources.Add(notificationId, tcs);
+        new ToastContentBuilder()
+            .AddText("FieldWorks Lite Update")
+            .AddText("A new version of FieldWorks Lite is available")
+            .AddText($"Version {latestRelease.Version} would you like to download and install this update?")
+            .AddArgument(NotificationIdKey, notificationId)
+            .AddButton(new ToastButton()
+                .SetContent("Download & Install")
+                .AddArgument(ActionKey, "download")
+                .AddArgument("release", JsonSerializer.Serialize(latestRelease)))
+                .AddArgument(ResultRefKey, "release")
+            .Show(toast =>
+            {
+                toast.Tag = "update";
+            });
+        var taskResult = await tcs.Task;
+        return taskResult != null;
+    }
+
+    private void HandleNotificationAction(string action, string notificationId, ToastArguments args)
+    {
+        var result = args.Get(args.Get(ResultRefKey));
+        if (!NotificationCompletionSources.TryGetValue(notificationId, out var tcs))
+        {
+            if (action == "download")
+            {
+                var release = JsonSerializer.Deserialize<FwLiteRelease>(result);
+                if (release == null)
+                {
+                    logger.LogError("Invalid release {Release} for notification {NotificationId}", result, notificationId);
+                    return;
+                }
+                _ = Task.Run(() => ApplyUpdate(release, true));
+            }
+            else
+            {
+                logger.LogError("Unknown action {Action} for notification {NotificationId}", action, notificationId);
+            }
+            return;
+        }
+
+        tcs.SetResult(result);
+        NotificationCompletionSources.Remove(notificationId);
+    }
+
+    private async Task ApplyUpdate(FwLiteRelease latestRelease, bool quitOnUpdate = false)
+    {
+        logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
         var packageManager = new PackageManager();
         var asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
             new AddPackageOptions()
             {
                 DeferRegistrationWhenPackagesAreInUse = true,
-                ForceUpdateFromAnyVersion = true
+                ForceUpdateFromAnyVersion = true,
+                ForceAppShutdown = quitOnUpdate
             });
         asyncOperation.Progress = (info, progressInfo) =>
         {
@@ -70,6 +158,7 @@ public class AppUpdateService(
         }
 
         logger.LogInformation("Update downloaded, will install on next restart");
+        ShowUpdateAvailableNotification(latestRelease);
     }
 
     private async Task<ShouldUpdateResponse> ShouldUpdate()
@@ -123,5 +212,19 @@ public class AppUpdateService(
         if (timeSinceLastCheck.Hours < 20) return false;
         preferences.Set(LastUpdateCheck, DateTime.UtcNow);
         return true;
+    }
+
+    private bool ShouldPromptBeforeUpdate()
+    {
+        return IsOnMeteredConnection();
+    }
+
+    private bool IsOnMeteredConnection()
+    {
+        var profile = NetworkInformation.GetInternetConnectionProfile();
+        if (profile == null) return false;
+        var cost = profile.GetConnectionCost();
+        return cost.NetworkCostType != NetworkCostType.Unrestricted;
+
     }
 }

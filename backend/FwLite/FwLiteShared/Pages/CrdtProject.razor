@@ -5,6 +5,8 @@
 @inherits OwningComponentBaseAsync
 @layout SvelteLayout;
 @inject IJSRuntime JS;
+@* injecting here means we get a provider scoped to the current circuit *@
+@inject FwLiteProvider FwLiteProvider;
 
 @code {
 
@@ -16,8 +18,8 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-        var fwLiteProvider = ScopedServices.GetRequiredService<FwLiteProvider>();
-        _disposable = await fwLiteProvider.InjectCrdtProject(JS, ScopedServices, ProjectName);
+        //scoped services here are per page render, meaning they will get cleaned up when the page is disposed
+        _disposable = await FwLiteProvider.InjectCrdtProject(JS, ScopedServices, ProjectName);
     }
 
     protected override async ValueTask DisposeAsyncCore()

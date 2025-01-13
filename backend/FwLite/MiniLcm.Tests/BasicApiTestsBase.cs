@@ -334,7 +334,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var createdSense = await Api.CreateSense(Entry1Id, new Sense()
         {
             Id = senseId,
-            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString() }],
+            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
         });
         createdSense.Id.Should().Be(senseId);
         createdSense.SemanticDomains.Should().BeEmpty("because the domain does not exist (or was deleted)");
@@ -438,7 +438,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 new Sense()
                 {
                     SemanticDomains =
-                        [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString() }],
+                        [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
                     Definition = new MultiString { Values = { { "en", "test" } } }
                 }
             ]
