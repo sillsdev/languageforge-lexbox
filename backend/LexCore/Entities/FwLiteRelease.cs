@@ -10,6 +10,10 @@ public enum FwLitePlatform
 {
     Windows,
     Linux,
+    Android,
+    // ReSharper disable once InconsistentNaming
+    iOS,
+    Mac
 }
 
 public record ShouldUpdateResponse(FwLiteRelease? Release)
