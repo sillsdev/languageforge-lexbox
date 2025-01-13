@@ -5,6 +5,7 @@
 @inherits OwningComponentBaseAsync
 @layout SvelteLayout;
 @inject IJSRuntime JS;
+@inject FwLiteProvider FwLiteProvider;
 
 @code {
 
@@ -16,8 +17,7 @@
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return Task.CompletedTask;
-        var fwLiteProvider = ScopedServices.GetRequiredService<FwLiteProvider>();
-        _disposable = fwLiteProvider.InjectFwDataProject(ScopedServices, ProjectName);
+        _disposable = FwLiteProvider.InjectFwDataProject(ScopedServices, ProjectName);
         return Task.CompletedTask;
     }
 
