@@ -217,6 +217,8 @@
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
     if (!options?.dontNavigate) {
       navigateToEntry(entry, headword(entry));
+    } else {
+      refreshEntries();
     }
   }
 
@@ -336,7 +338,7 @@
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 lg-view:gap-4 whitespace-nowrap">
       {#if !readonly}
-        <NewEntryDialog bind:this={newEntryDialog} />
+        <NewEntryDialog bind:this={newEntryDialog} on:created={(e) => onEntryCreated(e.detail.entry, {dontNavigate: true})} />
       {/if}
       {#if $features.history}
         <ActivityView {projectName}/>
