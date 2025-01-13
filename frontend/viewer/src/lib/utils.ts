@@ -1,6 +1,6 @@
-import type { IEntry, IExampleSentence, IMultiString, ISense, IWritingSystem, IWritingSystems } from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, IMultiString, ISense, IWritingSystem, IWritingSystems} from '$lib/dotnet-types';
 
-import type { WritingSystemSelection } from './config-types';
+import type {WritingSystemSelection} from './config-types';
 
 export function firstVal(multi: IMultiString): string | undefined {
   return Object.values(multi).find(value => !!value);
@@ -82,14 +82,6 @@ export function pickWritingSystems(
   return [];
 }
 
-const emptyIdPrefix = '00000000-0000-0000-0000-';
-export function emptyId(): string {
-  return emptyIdPrefix + crypto.randomUUID().slice(emptyIdPrefix.length);
-}
-export function isEmptyId(id: string): boolean {
-  return id.startsWith(emptyIdPrefix);
-}
-
 export function randomId(): string {
   return crypto.randomUUID();
 }
@@ -108,10 +100,10 @@ export function defaultEntry(): IEntry {
   };
 }
 
-export function defaultSense(id?: string): ISense {
+export function defaultSense(entryId: string): ISense {
   return {
-    id: id ?? emptyId(),
-    entryId: '',
+    id: randomId(),
+    entryId,
     definition: {},
     gloss: {},
     partOfSpeechId: undefined,
@@ -121,10 +113,10 @@ export function defaultSense(id?: string): ISense {
   };
 }
 
-export function defaultExampleSentence(): IExampleSentence {
+export function defaultExampleSentence(senseId: string): IExampleSentence {
   return {
-    id: emptyId(),
-    senseId: '',
+    id: randomId(),
+    senseId,
     sentence: {},
     translation: {},
     reference: '',

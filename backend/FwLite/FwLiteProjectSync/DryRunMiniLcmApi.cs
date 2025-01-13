@@ -252,9 +252,9 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetExampleSentence(entryId, senseId, id);
     }
 
-    public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
+    public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence} between {position?.Previous} and {position?.Next}"));
         return Task.FromResult(exampleSentence);
     }
 
@@ -276,6 +276,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence), $"Update example sentence {after.Id}"));
         return Task.FromResult(after);
+    }
+
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveExampleSentence), $"Move example sentence {exampleId} between {between.Previous} and {between.Next}"));
+        return Task.CompletedTask;
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
