@@ -24,15 +24,30 @@
       @apply col-span-2 pl-4;
     }
 
-    .readonly {
-      &.TextField, .TextField {
-        opacity: 1;
+    &.TextField, .TextField {
+      [class~="border"] {
+        filter: contrast(0.95);
+        border-radius: 0;
+        border-style: none;
+        border-bottom-style: solid;
+        @apply !shadow-none;
+        border-color: hsl(var(--color-surface-content) / 30%);
+      }
+    }
 
-        input {
-          /* enable standard text selection */
-          pointer-events: auto;
-          cursor: text;
-        }
+    &.readonly.TextField, .readonly.TextField, .readonly .TextField {
+      /* prevent other "disabled-state styles" from impacting readability */
+      opacity: 1;
+
+      [class~="border"] {
+        border-color: hsl(var(--color-surface-content) / 20%);
+        background: transparent;
+      }
+
+      input {
+        /* enable standard text selection */
+        pointer-events: auto;
+      }
 
       .append, .prepend {
         display: none;

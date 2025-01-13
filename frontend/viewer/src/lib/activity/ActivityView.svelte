@@ -88,7 +88,7 @@
                    value={JSON.stringify(selectedRow.changes, null, 4)}
                    disabled
                    multiline
-                   class="input-readonly"
+                   class="readonly field"
                    classes={{input: 'h-80'}}/>
       {/if}
     </div>
