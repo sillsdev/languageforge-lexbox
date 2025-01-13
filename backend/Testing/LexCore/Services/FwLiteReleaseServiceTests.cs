@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using LexBoxApi;
+using LexBoxApi.Config;
 using LexBoxApi.Services.FwLiteReleases;
+using LexCore.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Testing.Fixtures;
 
@@ -14,17 +16,27 @@ public class FwLiteReleaseServiceTests
     {
         //disable warning about hybrid cache being experimental
 #pragma warning disable EXTEXP0018
-        var services = new ServiceCollection().AddSingleton<FwLiteReleaseService>().AddHttpClient()
-                .AddHybridCache()
-                .Services.BuildServiceProvider();
+        var services = new ServiceCollection()
+            .AddSingleton<FwLiteReleaseService>()
+            .AddHttpClient()
+            .AddOptions<FwLiteReleaseConfig>().Configure(config =>
+            {
+                config.Platforms.Add(FwLitePlatform.Windows, new FwLitePlatformConfig() { FileNameRegex = "(?i)\\.msixbundle$" });
+                config.Platforms.Add(FwLitePlatform.Linux, new FwLitePlatformConfig() { FileNameRegex = "(?i)linux\\.zip$" });
+            })
+            .Services
+            .AddHybridCache()
+            .Services.BuildServiceProvider();
 #pragma warning restore EXTEXP0018
         _fwLiteReleaseService = services.GetRequiredService<FwLiteReleaseService>();
     }
 
-    [Fact]
-    public async Task CanGetLatestRelease()
+    [Theory]
+    [InlineData(FwLitePlatform.Windows)]
+    [InlineData(FwLitePlatform.Linux)]
+    public async Task CanGetLatestRelease(FwLitePlatform platform)
     {
-        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(default);
+        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(platform);
         latestRelease.Should().NotBeNull();
         latestRelease.Version.Should().NotBeNullOrEmpty();
         latestRelease.Url.Should().NotBeNullOrEmpty();
@@ -34,7 +46,7 @@ public class FwLiteReleaseServiceTests
     [InlineData("v2024-11-20-d04e9b96")]
     public async Task IsConsideredAnOldVersion(string appVersion)
     {
-        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(appVersion);
+        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(FwLitePlatform.Windows, appVersion);
         shouldUpdate.Should().NotBeNull();
         shouldUpdate.Release.Should().NotBeNull();
         shouldUpdate.Update.Should().BeTrue();
@@ -43,9 +55,9 @@ public class FwLiteReleaseServiceTests
     [Fact]
     public async Task ShouldUpdateWithLatestVersionShouldReturnFalse()
     {
-        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(default);
+        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(FwLitePlatform.Windows);
         latestRelease.Should().NotBeNull();
-        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(latestRelease.Version);
+        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(FwLitePlatform.Windows, latestRelease.Version);
         shouldUpdate.Should().NotBeNull();
         shouldUpdate.Release.Should().BeNull();
         shouldUpdate.Update.Should().BeFalse();

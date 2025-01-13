@@ -49,6 +49,10 @@ public static class LexBoxKernel
             .BindConfiguration("HealthChecks")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<FwLiteReleaseConfig>()
+            .BindConfiguration("FwLiteRelease")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddHttpClient();
         services.AddServiceDiscovery();
         services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))
