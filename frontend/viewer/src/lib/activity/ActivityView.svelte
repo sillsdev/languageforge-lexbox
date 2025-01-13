@@ -86,8 +86,9 @@
       {#if selectedRow}
         <TextField label="Changes"
                    value={JSON.stringify(selectedRow.changes, null, 4)}
+                   disabled
                    multiline
-                   class="readonly"
+                   class="input-readonly"
                    classes={{input: 'h-80'}}/>
       {/if}
     </div>
