@@ -109,7 +109,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
 
     [Theory]
     [InlineData("a,b", "a,b,c,d", "1,2,3,4")] // append
-    [InlineData("a,2", "c,a,b", "0,1,2")] // single prepend
+    [InlineData("a,b", "c,a,b", "0,1,2")] // single prepend
     [InlineData("a,b", "d,c,a,b", "0,0.5,1,2")] // multi prepend
     [InlineData("a,b,c,d", "d,a,b,c", "0,1,2,3")] // move to back
     [InlineData("a,b,c,d", "b,c,d,a", "2,3,4,5")] // move to front
@@ -161,7 +161,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
 
     [Theory]
     [InlineData("a,b", "a,b,c,d", "1,2,3,4")] // append
-    [InlineData("a,2", "c,a,b", "0,1,2")] // single prepend
+    [InlineData("a,b", "c,a,b", "0,1,2")] // single prepend
     [InlineData("a,b", "d,c,a,b", "0,0.5,1,2")] // multi prepend
     [InlineData("a,b,c,d", "d,a,b,c", "0,1,2,3")] // move to back
     [InlineData("a,b,c,d", "b,c,d,a", "2,3,4,5")] // move to front
