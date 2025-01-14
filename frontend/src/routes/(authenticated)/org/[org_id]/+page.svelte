@@ -144,13 +144,13 @@
         <IconButton icon="i-mdi-menu-down" variant="btn-success" join outline={false} />
         <ul slot="content" class="menu">
           <li>
-            <button class="whitespace-nowrap text-success" on:click={() => bulkAddMembersModal.open()}>
+            <button class="whitespace-nowrap" on:click={() => bulkAddMembersModal.open()}>
               {$t('org_page.bulk_add_members.add_button')}
               <Icon icon="i-mdi-account-multiple-plus-outline" />
             </button>
           </li>
           <li>
-            <button class="whitespace-nowrap text-success" on:click={() => createUserModal.open()}>
+            <button class="whitespace-nowrap" on:click={() => createUserModal.open()}>
               {$t('admin_dashboard.create_user_modal.create_user')}
               <Icon icon="i-mdi-plus" />
             </button>
