@@ -260,7 +260,16 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
-    "awaiting_approval": "Awaiting approval"
+    "awaiting_approval": "Awaiting approval",
+    "crdt": {
+      "try_fw_lite": "Try FieldWorks Lite",
+      "try_info": "This will make your project available in [FieldWorks Lite](https://software.sil.org/fieldworks/download/fieldworks-lite/). \
+This is still experimental and it will effect your FieldWorks project data. \
+However, **all your data is safe and backed up** here on Lexbox. \
+If you run into problems with your project please tell support that you are using FieldWorks Lite.",
+      "submit": "Yes, please!",
+      "cancel": "Not yet",
+    },
   },
   "org_page": {
     "organization": "Organization",

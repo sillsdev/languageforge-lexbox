@@ -1,8 +1,11 @@
 <script lang="ts">
+  import {NewTabLinkRenderer} from '$lib/components/Markdown';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import { Button } from '$lib/forms';
+  import t from '$lib/i18n';
   import { Icon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
+  import Markdown from 'svelte-exmarkdown';
 
   export let projectId: string;
   export let hasHarmonyCommits: boolean;
@@ -48,12 +51,10 @@
     CRDT
   </Button>
 {:else}
-  <Button variant="btn-primary" class="gap-1" loading={syncing} on:click={useInFwLite}>Use in FieldWorks Lite</Button>
-  <ConfirmModal bind:this={confirmModal} title="Use in FieldWorks Lite" submitText="Confirm" cancelText="Don't use">
-    <p>
-      This will make your project available to FieldWorks Lite. This is still experimental and it will effect your
-      FieldWorks project data. However all your data is safe and backed up on Lexbox.
-      If you run into problems with your project please tell support that you are using FieldWorks Lite.
-    </p>
+  <Button variant="btn-primary" on:click={useInFwLite}>{$t('project.crdt.try_fw_lite')}</Button>
+  <ConfirmModal bind:this={confirmModal} title={$t('project.crdt.try_fw_lite')} submitText={$t('project.crdt.submit')} cancelText={$t('project.crdt.cancel')}>
+    <div class="prose max-w-none underline-links">
+      <Markdown md={$t('project.crdt.try_info')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+    </div>
   </ConfirmModal>
 {/if}
