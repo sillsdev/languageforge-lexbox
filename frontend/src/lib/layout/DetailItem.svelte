@@ -8,7 +8,7 @@
   export let loading = false;
 </script>
 
-<div class="text-lg flex items-center gap-2">
+<div class="text-lg flex items-center gap-2 detail-item">
   {title}:
   {#if loading}
     <Loader loading size="loading-xs" />
