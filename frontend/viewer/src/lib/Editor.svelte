@@ -12,6 +12,7 @@
   const dispatch = createEventDispatcher<{
     delete: { entry: IEntry };
     change: { entry: IEntry };
+    refresh: { entryId: IEntry['id'] };
   }>();
 
   export let entry: IEntry;
@@ -29,6 +30,18 @@
     if (readonly) return;
     await updateEntry(e.entry);
     dispatch('change', {entry: e.entry});
+    if (e.entry.complexForms && e.entry.complexForms.length) {
+      // TODO: Compare to initialEntry to save refreshes?
+      e.entry.complexForms.forEach(component => {
+        dispatch('refresh', { entryId: component.complexFormEntryId });
+      });
+    }
+    if (e.entry.components && e.entry.components.length) {
+      // TODO: Compare to initialEntry to save refreshes?
+      e.entry.components.forEach(component => {
+        dispatch('refresh', { entryId: component.componentEntryId });
+      });
+    }
     updateInitialEntry();
   }
 
