@@ -61,6 +61,15 @@ public class Project : EntityBase
         }
         return Task.FromResult(false);
     }
+
+    public Task<bool> GetHasHarmonyCommits(IIsHarmonyProjectDataLoader loader)
+    {
+        if (Type is ProjectType.Unknown or ProjectType.FLEx)
+        {
+            return loader.LoadAsync(Id);
+        }
+        return Task.FromResult(false);
+    }
 }
 
 public enum ProjectMigrationStatus

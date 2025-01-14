@@ -16,8 +16,8 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
         builder.ToTable("CrdtCommits");
         builder.HasKey(c => c.Id);
         builder.ComplexProperty(c => c.HybridDateTime);
-        builder.HasOne<FlexProjectMetadata>().WithMany()
-            .HasPrincipalKey(f => f.ProjectId)
+        builder.HasOne<Project>().WithMany()
+            .HasPrincipalKey(project => project.Id)
             .HasForeignKey(c => c.ProjectId);
         builder.Property(c => c.Metadata).HasConversion(
             m => JsonSerializer.Serialize(m, (JsonSerializerOptions?)null),
