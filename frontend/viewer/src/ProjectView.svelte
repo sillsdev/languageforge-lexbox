@@ -132,11 +132,6 @@
     setTimeout(flushLoadingEntries);
   }
 
-  function refreshEntry({ entryId }: { entryId: string }): void {
-    console.log('TODO: Find way to refresh just one entry, the one with ID', entryId);
-    refreshEntries(); // Killing a fly with a sledgehammer, but it does refresh the entry we want :-)
-  }
-
   function refreshSpecificEntries({ entryIds }: { entryIds: string[] }): void {
     console.log('TODO: Find way to refresh just the following entry IDs', entryIds);
     refreshEntries(); // Killing a fly with a sledgehammer, but it does refresh the entries we want
@@ -394,7 +389,6 @@
               $selectedEntry = $selectedEntry;
               $entries = $entries;
             }}
-            on:refreshEntry={e => refreshEntry(e.detail)}
             on:refreshEntries={e => refreshSpecificEntries(e.detail)}
             on:delete={onEntryDeleted} />
         {:else}

@@ -12,7 +12,6 @@
   const dispatch = createEventDispatcher<{
     delete: { entry: IEntry };
     change: { entry: IEntry };
-    refreshEntry: { entryId: IEntry['id'] };
     refreshEntries: { entryIds: IEntry['id'][] };
   }>();
 
