@@ -70,14 +70,14 @@
       <div>
         {#if record?.entity}
           {#if record.entityName === 'Entry'}
-            <EntryEditor entry={record.entity} modalMode/>
+            <EntryEditor entry={record.entity} modalMode readonly/>
           {:else if record.entityName === 'Sense'}
             <div class="editor-grid">
-              <SenseEditor sense={record.entity}/>
+              <SenseEditor sense={record.entity} readonly/>
             </div>
           {:else if record.entityName === 'ExampleSentence'}
             <div class="editor-grid">
-              <ExampleEditor example={record.entity} readonly={false}/>
+              <ExampleEditor example={record.entity} readonly/>
             </div>
           {/if}
         {/if}

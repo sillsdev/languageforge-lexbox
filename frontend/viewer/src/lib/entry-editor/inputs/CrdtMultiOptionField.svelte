@@ -43,7 +43,7 @@
     value={editorValue}
     disabled={readonly}
     options={sortedOptions}
-    icon={readonly ? undefined : mdiMagnify}
+    icon={mdiMagnify}
     formatSelected={({ value, options }) => {
       return (preserveOrder
       // sorted by order of selection
