@@ -17,11 +17,31 @@ There are some exceptions:
 
 ## Development
 
-See the appropriate file for your operating system:
+Summary of setup steps below. See the appropriate file for your operating system for more details:
 
 * [Windows](docs/DEVELOPER-win.md)
 * [Linux](docs/DEVELOPER-linux.md)
 * [Mac](docs/DEVELOPER-osx.md)
+
+### Prerequisites
+ * docker and compose
+   * enable Kubernetes in the Docker Desktop settings
+
+### Setup
+ * install [Taskfile](https://taskfile.dev/installation/)
+ * install [Tilt](https://docs.tilt.dev/) and add it to your path (don't forget to read the script before running it)
+ * run `tilt version` to check that Tilt is installed correctly
+ * clone the repo
+ * run `git push` to make sure your GitHub credentials are set up
+   * on Windows, allow the Git Credential Manager to log in to GitHub via your browser
+   * on Linux, upload your SSH key to your GitHub account if you haven't done so already, then run `git remote set-url --push origin git@github.com:sillsdev/languageforge-lexbox`
+ * on Windows, open PowerShell and run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
+   * this is necessary before running `task setup` below, which uses a PowerShell script to download seed data
+ * run `task setup`, which:
+   * initializes a local.env file
+   * tells Git to use our ignore revs file
+   * checks out Git submodules
+   * downloads the FLEx repo for the project seed data
 
 ### Kubernetes workflow
 
