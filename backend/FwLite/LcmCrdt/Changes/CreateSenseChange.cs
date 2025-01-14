@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using LcmCrdt.Utils;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
@@ -40,8 +41,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Order = Order,
             Definition = Definition ?? new MultiString(),
             Gloss = Gloss ?? new MultiString(),
-            PartOfSpeechId = PartOfSpeechId,
-            SemanticDomains = SemanticDomains ?? [],
+            PartOfSpeechId = await context.DeletedAsNull(PartOfSpeechId),
+            SemanticDomains = await context.FilterDeleted(SemanticDomains ?? []).ToArrayAsync(),
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null
         };
     }
