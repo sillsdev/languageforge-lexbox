@@ -6,14 +6,15 @@
   export let text: string | null | undefined = undefined;
   export let copyToClipboard = false;
   export let loading = false;
+  export let wrap = false;
 </script>
 
-<div class="text-lg flex items-center gap-2 detail-item">
+<div class="text-lg flex items-center gap-2 detail-item whitespace-nowrap" class:flex-wrap={wrap}>
   {title}:
   {#if loading}
     <Loader loading size="loading-xs" />
   {:else if text}
-    <span class="text-secondary">{text}</span>
+    <span class="text-secondary x-ellipsis">{text}</span>
   {:else}
     <slot/>
   {/if}

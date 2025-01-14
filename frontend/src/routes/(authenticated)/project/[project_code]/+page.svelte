@@ -447,22 +447,21 @@
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
-        <div>
-          <DetailItem title={$t('project_page.vernacular_langs')}>
+        <div class="space-y-2">
+          <DetailItem title={$t('project_page.vernacular_langs')} wrap>
+            <AdminContent>
+              <IconButton
+                loading={loadingLanguageList}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateLanguageList}
+              />
+            </AdminContent>
             <WritingSystemList writingSystems={vernacularLangTags} />
-            <AdminContent>
-              <IconButton
-                loading={loadingLanguageList}
-                icon="i-mdi-refresh"
-                size="btn-sm"
-                variant="btn-ghost"
-                outline={false}
-                on:click={updateLanguageList}
-              />
-            </AdminContent>
           </DetailItem>
-          <DetailItem title={$t('project_page.analysis_langs')}>
-            <WritingSystemList writingSystems={analysisLangTags} />
+          <DetailItem title={$t('project_page.analysis_langs')} wrap>
             <AdminContent>
               <IconButton
                 loading={loadingLanguageList}
@@ -473,6 +472,7 @@
                 on:click={updateLanguageList}
               />
             </AdminContent>
+            <WritingSystemList writingSystems={analysisLangTags} />
           </DetailItem>
         </div>
       {/if}

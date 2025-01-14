@@ -228,9 +228,10 @@ img[src*="onestory-editor-logo"] {
 
 .details {
     display: grid;
+    column-gap: 2rem;
     grid-template-columns: 1fr;
     @media screen(md) {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) 1fr;
 
         .detail-item {
             grid-column: auto;

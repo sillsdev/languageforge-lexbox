@@ -6,8 +6,12 @@
   export let writingSystems: FlExWsId[] = [];
 </script>
 
-<BadgeList>
-  {#each  writingSystems as ws}
-    <WritingSystemBadge tag={ws.tag} isActive={ws.isActive} isDefault={ws.isDefault} />
-  {/each}
-</BadgeList>
+<div class="w-full">
+  {#if writingSystems.length > 0}
+    <BadgeList>
+      {#each  writingSystems as ws}
+        <WritingSystemBadge tag={ws.tag} isActive={ws.isActive} isDefault={ws.isDefault} />
+      {/each}
+    </BadgeList>
+  {/if}
+</div>
