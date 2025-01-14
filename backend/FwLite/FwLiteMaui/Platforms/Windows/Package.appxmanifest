@@ -7,7 +7,9 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap com desktop">
 
-  <Identity Name="FwLiteMaui"
+<!--    Name is the unique identifier for this app, do not change it, otherwise it will get installed as a different app and not replace the existing one-->
+<!--    We may want to use a different name to let users have multiple release channels, eg prod and beta-->
+  <Identity Name="FwLiteDesktop"
             Publisher="CN=&quot;Summer Institute of Linguistics, Inc.&quot;, O=&quot;Summer Institute of Linguistics, Inc.&quot;, L=Dallas, S=Texas, C=US"
             Version="0.0.0.0" />
   <Properties>
