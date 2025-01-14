@@ -3,6 +3,8 @@
   import ProjectView from './ProjectView.svelte';
   import { getSettings } from 'svelte-ux';
   import css from './app.postcss?inline';
+  import {DotnetService} from '$lib/dotnet-types';
+  import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
   let loading = true;
 
@@ -33,7 +35,12 @@
       abortController.abort();
     }
   });
-
+  window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
+    appVersion: 'lexbox-viewer',
+    feedbackUrl: '',
+    os: FwLitePlatform.Web,
+    useDevAssets: true,//has no effect, but is required
+  });
   const { currentTheme } = getSettings();
 </script>
 

@@ -344,7 +344,7 @@
       {#if about}
         <AboutDialog text={about} />
       {/if}
-      {#if $features.feedback}
+      {#if $features.feedback && fwLiteConfig.feedbackUrl}
         <Button
           href={fwLiteConfig.feedbackUrl}
           target="_blank"
