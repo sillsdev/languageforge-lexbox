@@ -121,7 +121,7 @@
             <slot name="extraActions" />
           </div>
           <div class="flex gap-4">
-            <slot name="actions" {closing} {submitting} />
+            <slot name="actions" {closing} {submitting} {close} />
           </div>
         </div>
       {/if}

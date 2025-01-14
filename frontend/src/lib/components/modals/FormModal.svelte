@@ -58,10 +58,6 @@
     return { response, formState: _formState };
   }
 
-  export function close(): void {
-    modal?.close();
-  }
-
   export function form(): Readable<FormType> {
     return superForm.form;
   }
@@ -93,7 +89,7 @@
   <svelte:fragment slot="extraActions">
     <slot name="extraActions" />
   </svelte:fragment>
-  <svelte:fragment slot="actions" let:submitting>
+  <svelte:fragment slot="actions" let:submitting let:close>
     {#if !done}
       <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
         <slot name="submitText" />
