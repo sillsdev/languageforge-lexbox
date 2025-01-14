@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Button from '$lib/forms/Button.svelte';
   import { DialogResponse, FormModal, type FormSubmitReturn } from '$lib/components/modals';
   import { TextArea, isEmail } from '$lib/forms';
   import { OrgRole, type BulkAddOrgMembersResult } from '$lib/gql/types';
@@ -46,7 +45,7 @@
     }
   }
 
-  async function openModal(): Promise<void> {
+  export async function open(): Promise<void> {
     currentStep = BulkAddSteps.Add;
     const { response } = await formModal.open(undefined, async (state) => {
       const usernames = state.usernamesText.currentValue
