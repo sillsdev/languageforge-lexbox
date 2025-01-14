@@ -28,7 +28,7 @@
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import {createGuestUserByAdmin, type LexAuthUser} from '$lib/user';
   import {Duration} from '$lib/util/time';
-  import {browser} from '$app/environment';
+  import IconButton from '$lib/components/IconButton.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -66,6 +66,8 @@
   async function openAddOrgMemberModal(): Promise<void> {
     await addOrgMemberModal.openModal();
   }
+
+  let bulkAddMembersModal: BulkAddOrgMembers;
 
   let changeMemberRoleModal: ChangeOrgMemberRoleModal;
   async function openChangeMemberRoleModal(member: OrgUser): Promise<void> {
@@ -132,21 +134,33 @@
       <AddMyProjectsToOrgModal {user} {org} />
     {/if}
     {#if canManage}
-      <Button variant="btn-success"
+    <div class="join gap-x-0.5">
+      <Button variant="btn-success" class="join-item"
         on:click={openAddOrgMemberModal}>
         {$t('org_page.add_user.add_button')}
         <span class="i-mdi-account-plus-outline text-2xl" />
       </Button>
-      <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
-      <BulkAddOrgMembers orgId={org.id} />
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
-        on:click={() => createUserModal.open()}>
-        <span class="admin-tabs:hidden">
-          {$t('admin_dashboard.create_user_modal.create_user')}
-        </span>
-        <span class="i-mdi-plus text-2xl" />
-      </svelte:element>
+      <Dropdown>
+        <IconButton icon="i-mdi-menu-down" variant="btn-success" join outline={false} />
+        <ul slot="content" class="menu">
+          <li>
+            <button class="whitespace-nowrap text-success" on:click={() => bulkAddMembersModal.open()}>
+              {$t('org_page.bulk_add_members.add_button')}
+              <Icon icon="i-mdi-account-multiple-plus-outline" />
+            </button>
+          </li>
+          <li>
+            <button class="whitespace-nowrap text-success" on:click={() => createUserModal.open()}>
+              {$t('admin_dashboard.create_user_modal.create_user')}
+              <Icon icon="i-mdi-plus" />
+            </button>
+          </li>
+        </ul>
+      </Dropdown>
+    </div>
+    <CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
+    <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
+    <BulkAddOrgMembers bind:this={bulkAddMembersModal} orgId={org.id} />
     {/if}
   </svelte:fragment>
   <div slot="title" class="max-w-full flex items-baseline flex-wrap">
@@ -240,4 +254,3 @@
 <ConfirmDeleteModal bind:this={deleteOrgModal} i18nScope="delete_org_modal" />
 <ChangeOrgMemberRoleModal orgId={org.id} bind:this={changeMemberRoleModal} />
 <UserModal bind:this={userModal} />
-<CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
