@@ -13,6 +13,7 @@
     delete: { entry: IEntry };
     change: { entry: IEntry };
     refreshEntry: { entryId: IEntry['id'] };
+    refreshEntries: { entryIds: IEntry['id'][] };
   }>();
 
   export let entry: IEntry;
@@ -43,22 +44,20 @@
     await updateEntry(e.entry);
     dispatch('change', {entry: e.entry});
     if (listHasChanged(e.entry.complexForms, initialEntry.complexForms)) {
-      e.entry.complexForms.forEach(component => {
-        dispatch('refreshEntry', { entryId: component.complexFormEntryId });
-      });
-      initialEntry.complexForms.forEach(component => {
-        dispatch('refreshEntry', { entryId: component.complexFormEntryId });
-      });
-      // TODO: Perhaps make a refreshMultiple event that would then refresh all relevant entry IDs in a single API call, because right now we're doing too much work
+      const entryIdsWithDupes = [
+        ...e.entry.complexForms.map(c => c.complexFormEntryId),
+        ...initialEntry.complexForms.map(c => c.complexFormEntryId),
+      ];
+      const entryIds = [...new Set(entryIdsWithDupes)];
+      dispatch('refreshEntries', { entryIds });
     }
     if (listHasChanged(e.entry.components, initialEntry.components)) {
-      e.entry.components.forEach(component => {
-        dispatch('refreshEntry', { entryId: component.componentEntryId });
-      });
-      initialEntry.components.forEach(component => {
-        dispatch('refreshEntry', { entryId: component.componentEntryId });
-      });
-      // TODO: Perhaps make a refreshMultiple event that would then refresh all relevant entry IDs in a single API call, because right now we're doing too much work
+      const entryIdsWithDupes = [
+        ...e.entry.components.map(c => c.componentEntryId),
+        ...initialEntry.components.map(c => c.componentEntryId),
+      ];
+      const entryIds = [...new Set(entryIdsWithDupes)];
+      dispatch('refreshEntries', { entryIds });
     }
     updateInitialEntry();
   }

@@ -137,6 +137,11 @@
     refreshEntries(); // Killing a fly with a sledgehammer, but it does refresh the entry we want :-)
   }
 
+  function refreshSpecificEntries({ entryIds }: { entryIds: string[] }): void {
+    console.log('TODO: Find way to refresh just the following entry IDs', entryIds);
+    refreshEntries(); // Killing a fly with a sledgehammer, but it does refresh the entries we want
+  }
+
   // TODO: replace with either
   // 1 something like setContext('editorEntry') that even includes unsaved changes
   // 2 somehow use selectedEntry in components that need to refresh on changes
@@ -390,6 +395,7 @@
               $entries = $entries;
             }}
             on:refreshEntry={e => refreshEntry(e.detail)}
+            on:refreshEntries={e => refreshSpecificEntries(e.detail)}
             on:delete={onEntryDeleted} />
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
