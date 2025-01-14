@@ -12,7 +12,7 @@
   const dispatch = createEventDispatcher<{
     delete: { entry: IEntry };
     change: { entry: IEntry };
-    refresh: { entryId: IEntry['id'] };
+    refreshEntry: { entryId: IEntry['id'] };
   }>();
 
   export let entry: IEntry;
@@ -44,19 +44,19 @@
     dispatch('change', {entry: e.entry});
     if (listHasChanged(e.entry.complexForms, initialEntry.complexForms)) {
       e.entry.complexForms.forEach(component => {
-        dispatch('refresh', { entryId: component.complexFormEntryId });
+        dispatch('refreshEntry', { entryId: component.complexFormEntryId });
       });
       initialEntry.complexForms.forEach(component => {
-        dispatch('refresh', { entryId: component.complexFormEntryId });
+        dispatch('refreshEntry', { entryId: component.complexFormEntryId });
       });
       // TODO: Perhaps make a refreshMultiple event that would then refresh all relevant entry IDs in a single API call, because right now we're doing too much work
     }
     if (listHasChanged(e.entry.components, initialEntry.components)) {
       e.entry.components.forEach(component => {
-        dispatch('refresh', { entryId: component.componentEntryId });
+        dispatch('refreshEntry', { entryId: component.componentEntryId });
       });
       initialEntry.components.forEach(component => {
-        dispatch('refresh', { entryId: component.componentEntryId });
+        dispatch('refreshEntry', { entryId: component.componentEntryId });
       });
       // TODO: Perhaps make a refreshMultiple event that would then refresh all relevant entry IDs in a single API call, because right now we're doing too much work
     }
