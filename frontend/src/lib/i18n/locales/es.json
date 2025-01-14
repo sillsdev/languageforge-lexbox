@@ -115,7 +115,7 @@
     "password_missing": "Falta la contraseña",
     "link_expired": "El correo electrónico en el que hiciste clic ha caducado. Por favor, solicita uno nuevo.",
     "welcome_header": "Bienvenido a Lexbox",
-    "welcome": "Lexbox es un servicio de alojamiento para proyectos de [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+    "welcome": "Lexbox es un servicio de alojamiento para proyectos de [FieldWorks](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) y [WeSay](https://software.sil.org/wesay/). \
 Se proporciona como un servicio a comunidades lingüísticas por [SIL Language Technology](https://software.sil.org/) y \
 el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chiang Mai, Tailandia."
@@ -234,7 +234,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
       "log_header": "Mensaje"
     },
     "get_project": {
-      "instructions": "### Para cargar el proyecto en{type, select, FL_EX { } other { (por ejemplo) }}FLEx\n\
+      "instructions": "### Para cargar el proyecto en{type, select, FL_EX { } other { (por ejemplo) }}FieldWorks\n\
 1. En el menú \"Enviar/Recibir\" haz clic en \"Obtener Proyecto de un colega...\"\n\
 1. En el cuadro de diálogo \"Recibir proyecto\", haz clic en \"Internet\"\n\
 1. En el cuadro de diálogo \"Obtener Proyecto de Internet\", ingresa tu \"Inicio de Sesión\" y \"Contraseña\" para Lexbox y haz clic en \"Iniciar Sesión\"\n\
@@ -259,7 +259,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
   "project_type": {
     "type": "Tipo de proyecto",
     "any": "Cualquier",
-    "flex": "FLEx",
+    "flex": "FieldWorks",
     "oneStoryEditor": "Editor OneStory",
     "other": "Otro",
     "ourWord": "OurWord",
