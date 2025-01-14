@@ -26,13 +26,13 @@
   export let entry: IEntry;
 
   function addSense() {
-    const sense = defaultSense();
+    const sense = defaultSense(entry.id);
     highlightedEntity = sense;
     entry.senses = [...entry.senses, sense];
   }
 
   function addExample(sense: ISense) {
-    const sentence = defaultExampleSentence();
+    const sentence = defaultExampleSentence(sense.id);
     highlightedEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this

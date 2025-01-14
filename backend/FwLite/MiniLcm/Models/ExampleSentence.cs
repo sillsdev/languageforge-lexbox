@@ -1,8 +1,12 @@
-﻿namespace MiniLcm.Models;
+﻿using MiniLcm.Attributes;
 
-public class ExampleSentence : IObjectWithId
+namespace MiniLcm.Models;
+
+public class ExampleSentence : IObjectWithId, IOrderable
 {
     public virtual Guid Id { get; set; }
+    [MiniLcmInternal]
+    public double Order { get; set; }
     public virtual MultiString Sentence { get; set; } = new();
     public virtual MultiString Translation { get; set; } = new();
     public virtual string? Reference { get; set; } = null;
@@ -26,6 +30,7 @@ public class ExampleSentence : IObjectWithId
         return new ExampleSentence()
         {
             Id = Id,
+            Order = Order,
             DeletedAt = DeletedAt,
             SenseId = SenseId,
             Sentence = Sentence.Copy(),

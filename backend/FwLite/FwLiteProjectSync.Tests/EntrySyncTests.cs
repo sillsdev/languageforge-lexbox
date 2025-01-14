@@ -43,7 +43,9 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(after, options => options
-            .For(e => e.Senses).Exclude(s => s.Order));
+            .For(e => e.Senses).Exclude(s => s.Order)
+            .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
+            );
     }
 
     [Fact]

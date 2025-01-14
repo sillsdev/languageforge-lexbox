@@ -938,6 +938,30 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         lexEntry.SensesOS.Add(lexSense);
     }
 
+    internal void InsertExampleSentence(ILexSense lexSense, ILexExampleSentence lexExample, BetweenPosition? between = null)
+    {
+        var previousExampleId = between?.Previous;
+        var nextExampleId = between?.Next;
+
+        var previousExample = previousExampleId.HasValue ? lexSense.ExamplesOS.FirstOrDefault(s => s.Guid == previousExampleId) : null;
+        if (previousExample is not null)
+        {
+            var insertI = lexSense.ExamplesOS.IndexOf(previousExample) + 1;
+            lexSense.ExamplesOS.Insert(insertI, lexExample);
+            return;
+        }
+
+        var nextExample = nextExampleId.HasValue ? lexSense.ExamplesOS.FirstOrDefault(s => s.Guid == nextExampleId) : null;
+        if (nextExample is not null)
+        {
+            var insertI = lexSense.ExamplesOS.IndexOf(nextExample);
+            lexSense.ExamplesOS.Insert(insertI, lexExample);
+            return;
+        }
+
+        lexSense.ExamplesOS.Add(lexExample);
+    }
+
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
     {
         if (lexSense.MorphoSyntaxAnalysisRA.GetPartOfSpeech()?.Guid != sense.PartOfSpeechId)
@@ -1070,9 +1094,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
     }
 
-    internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence)
+    internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
-        var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id, lexSense);
+        var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
+        InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
         var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
         var translation = CmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
@@ -1081,7 +1106,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             lexExampleSentence.Reference.get_WritingSystem(0));
     }
 
-    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
+    public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
@@ -1090,7 +1115,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
-            () => CreateExampleSentence(lexSense, exampleSentence));
+            () => CreateExampleSentence(lexSense, exampleSentence, between));
         return FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id));
     }
 
@@ -1125,6 +1150,28 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
             });
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
+    }
+
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
+    {
+        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
+            throw new InvalidOperationException("Entry not found");
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+        if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
+            throw new InvalidOperationException("Example sentence not found");
+
+        ValidateOwnership(lexExample, entryId, senseId);
+
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
+            "Move Example sentence back",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                // LibLCM treats an insert as a move if the example sentence is already on the sense
+                InsertExampleSentence(lexSense, lexExample, between);
+            });
+        return Task.CompletedTask;
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

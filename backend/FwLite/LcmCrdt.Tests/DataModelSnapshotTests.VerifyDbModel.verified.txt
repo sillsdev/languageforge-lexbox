@@ -117,6 +117,7 @@
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       DeletedAt (DateTimeOffset?)
+      Order (double) Required
       Reference (string)
       SenseId (Guid) Required FK Index
       Sentence (MultiString) Required
@@ -207,7 +208,7 @@
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
-      ExampleSentences (IList<ExampleSentence>) Collection ToDependent ExampleSentence
+      ExampleSentences (List<ExampleSentence>) Collection ToDependent ExampleSentence
       PartOfSpeech (PartOfSpeech) ToPrincipal PartOfSpeech
     Keys: 
       Id PK

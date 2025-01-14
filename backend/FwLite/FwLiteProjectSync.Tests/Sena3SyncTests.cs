@@ -53,7 +53,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
                     options => options
                         .For(e => e.Components).Exclude(c => c.Id)
                         .For(e => e.ComplexForms).Exclude(c => c.Id)
-                        .For(e => e.Senses).Exclude(s => s.Order),
+                        .For(e => e.Senses).Exclude(s => s.Order)
+                        .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order),
                     $"CRDT entry {crdtEntry.Id} was synced with FwData");
             }
         }

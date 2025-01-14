@@ -9,9 +9,9 @@ public static class WindowsKernel
     public static void AddFwLiteWindows(this IServiceCollection services, IHostEnvironment environment)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+            services.AddSingleton<IMauiInitializeService, AppUpdateService>();
         if (!FwLiteMauiKernel.IsPortableApp)
         {
-            services.AddSingleton<IMauiInitializeService, AppUpdateService>();
             services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();
         }
         services.Configure<FwLiteConfig>(config =>

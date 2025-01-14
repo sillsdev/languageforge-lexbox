@@ -123,6 +123,10 @@
     {
       DerivedType: SetOrderChange<Sense>,
       TypeDiscriminator: SetOrderChange:Sense
+    },
+    {
+      DerivedType: SetOrderChange<ExampleSentence>,
+      TypeDiscriminator: SetOrderChange:ExampleSentence
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,

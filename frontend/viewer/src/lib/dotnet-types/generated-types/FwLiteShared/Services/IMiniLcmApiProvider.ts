@@ -8,7 +8,6 @@ import type {DotNet} from '@microsoft/dotnet-js-interop';
 export interface IMiniLcmApiProvider
 {
 	getMiniLcmApi() : Promise<DotNet.DotNetObject>;
-	setMiniLcmApi(miniLcmApi: DotNet.DotNetObject) : Promise<void>;
 	clearMiniLcmApi() : Promise<void>;
 }
 /* eslint-enable */

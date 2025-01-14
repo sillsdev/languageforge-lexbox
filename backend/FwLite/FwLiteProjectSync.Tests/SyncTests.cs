@@ -86,6 +86,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
@@ -153,6 +154,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
@@ -235,6 +237,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
 
@@ -329,6 +332,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
@@ -412,6 +416,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
@@ -438,6 +443,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 //todo the headword should be changed
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
@@ -509,6 +515,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Senses).Exclude(s => s.Order)
+                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }

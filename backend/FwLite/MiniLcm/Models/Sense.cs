@@ -14,7 +14,7 @@ public class Sense : IObjectWithId, IOrderable
     public virtual PartOfSpeech? PartOfSpeech { get; set; } = null;
     public virtual Guid? PartOfSpeechId { get; set; }
     public virtual IList<SemanticDomain> SemanticDomains { get; set; } = [];
-    public virtual IList<ExampleSentence> ExampleSentences { get; set; } = [];
+    public virtual List<ExampleSentence> ExampleSentences { get; set; } = [];
 
     public Guid[] GetReferences()
     {

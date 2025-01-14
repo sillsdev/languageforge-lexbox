@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Reflection;
 using FwLiteShared;
 using FwLiteShared.Auth;
 using LcmCrdt;
@@ -78,6 +80,9 @@ public static class FwLiteMauiKernel
         });
 
         var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
+        //when launching from a notification, the current directory may be C:\Windows\System32, so we'll use the path of the executable instead
+        if (defaultDataPath.StartsWith("C:\\Windows\\System32", StringComparison.OrdinalIgnoreCase))
+            defaultDataPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName ?? Assembly.GetExecutingAssembly().Location) ?? ".";
         var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteMaui").GetValue<string>("BaseDataDir") ??
                                             defaultDataPath);
         logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);

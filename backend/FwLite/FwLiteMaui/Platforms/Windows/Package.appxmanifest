@@ -2,10 +2,14 @@
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
+  IgnorableNamespaces="uap rescap com desktop">
 
-  <Identity Name="FwLiteMaui"
+<!--    Name is the unique identifier for this app, do not change it, otherwise it will get installed as a different app and not replace the existing one-->
+<!--    We may want to use a different name to let users have multiple release channels, eg prod and beta-->
+  <Identity Name="FwLiteDesktop"
             Publisher="CN=&quot;Summer Institute of Linguistics, Inc.&quot;, O=&quot;Summer Institute of Linguistics, Inc.&quot;, L=Dallas, S=Texas, C=US"
             Version="0.0.0.0" />
   <Properties>
@@ -37,6 +41,23 @@
         <uap:DefaultTile Square71x71Logo="$placeholder$.png" Wide310x150Logo="$placeholder$.png" Square310x310Logo="$placeholder$.png" />
         <uap:SplashScreen Image="$placeholder$.png" />
       </uap:VisualElements>
+      <Extensions>
+
+          <!--Specify which CLSID to activate when toast clicked-->
+          <desktop:Extension Category="windows.toastNotificationActivation">
+              <desktop:ToastNotificationActivation ToastActivatorCLSID="49f2053c-31cc-4eb9-8a65-84491e543d56"/>
+          </desktop:Extension>
+
+          <!--Register COM CLSID LocalServer32 registry key-->
+          <com:Extension Category="windows.comServer">
+              <com:ComServer>
+                  <com:ExeServer Executable="$targetnametoken$.exe" Arguments="-ToastActivated"
+                                 DisplayName="Toast activator">
+                      <com:Class Id="49f2053c-31cc-4eb9-8a65-84491e543d56" DisplayName="Toast activator"/>
+                  </com:ExeServer>
+              </com:ComServer>
+          </com:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

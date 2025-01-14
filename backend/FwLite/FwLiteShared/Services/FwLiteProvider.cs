@@ -127,11 +127,11 @@ public class FwLiteProvider(
     private IDisposable ProvideMiniLcmApi(MiniLcmJsInvokable miniLcmApi)
     {
         var reference = DotNetObjectReference.Create(miniLcmApi);
-        _miniLcmApiProvider.SetMiniLcmApi(reference);
+        var cleanup = _miniLcmApiProvider.SetMiniLcmApi(reference);
         return Defer.Action(() =>
         {
-            reference?.Dispose();
-            _miniLcmApiProvider.ClearMiniLcmApi();
+            reference.Dispose();
+            cleanup.Dispose();
         });
     }
 }
@@ -151,10 +151,19 @@ internal class MiniLcmApiProvider(ILogger<MiniLcmApiProvider> logger)
 #pragma warning restore VSTHRD003
     }
 
-    public void SetMiniLcmApi(DotNetObjectReference<MiniLcmJsInvokable> miniLcmApi)
+    public IDisposable SetMiniLcmApi(DotNetObjectReference<MiniLcmJsInvokable> miniLcmApi)
     {
         logger.LogInformation("Setting MiniLcmApi");
         _tcs.SetResult(miniLcmApi);
+        var currentTask = _tcs.Task;
+        return Defer.Action(() =>
+        {
+            //if the tcs has been reset, then we don't want to clear it again
+            if (_tcs.Task == currentTask)
+            {
+                ClearMiniLcmApi();
+            }
+        });
     }
 
     [JSInvokable]
