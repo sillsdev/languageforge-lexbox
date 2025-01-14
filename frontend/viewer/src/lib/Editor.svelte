@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+  import type {IComplexFormComponent, IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
@@ -26,21 +26,39 @@
 
   const viewSettings = useViewSettings();
 
+  function listHasChanged(entryList: IComplexFormComponent[], initialList: IComplexFormComponent[]): boolean {
+    if (entryList && !initialList) return true;
+    if (!entryList && initialList) return true;
+    if (!entryList && !initialList) return false;
+    // By this point we know that both lists exist
+    if (entryList.length != initialList.length) return true;
+    for (var i = 0; i < entryList.length; i++) {
+      if (entryList[i] != initialList[i]) return true;
+    }
+    return false;
+  }
+
   async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     if (readonly) return;
     await updateEntry(e.entry);
     dispatch('change', {entry: e.entry});
-    if (e.entry.complexForms && e.entry.complexForms.length) {
-      // TODO: Compare to initialEntry to save refreshes, and also to catch situations where complex form link was *removed*
+    if (listHasChanged(e.entry.complexForms, initialEntry.complexForms)) {
       e.entry.complexForms.forEach(component => {
         dispatch('refresh', { entryId: component.complexFormEntryId });
       });
+      initialEntry.complexForms.forEach(component => {
+        dispatch('refresh', { entryId: component.complexFormEntryId });
+      });
+      // TODO: Perhaps make a refreshMultiple event that would then refresh all relevant entry IDs in a single API call, because right now we're doing too much work
     }
-    if (e.entry.components && e.entry.components.length) {
-      // TODO: Compare to initialEntry to save refreshes, and also to catch situations where component link was *removed*
+    if (listHasChanged(e.entry.components, initialEntry.components)) {
       e.entry.components.forEach(component => {
         dispatch('refresh', { entryId: component.componentEntryId });
       });
+      initialEntry.components.forEach(component => {
+        dispatch('refresh', { entryId: component.componentEntryId });
+      });
+      // TODO: Perhaps make a refreshMultiple event that would then refresh all relevant entry IDs in a single API call, because right now we're doing too much work
     }
     updateInitialEntry();
   }
