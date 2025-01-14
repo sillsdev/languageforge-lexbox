@@ -80,7 +80,7 @@
       createdMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdMembers ?? [];
       existingMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.existingMembers ?? [];
       return error?.message;
-    }, { keepOpenOnSubmit: true });
+    });
 
     if (response === DialogResponse.Submit) {
       currentStep = BulkAddSteps.Results;
@@ -93,7 +93,7 @@
     {$t('project_page.bulk_add_members.add_button')}
   </BadgeButton>
 
-  <FormModal bind:this={formModal} {schema} let:errors>
+  <FormModal bind:this={formModal} {schema} let:errors showDoneState>
     <span slot="title">
       {$t('project_page.bulk_add_members.modal_title')}
       <SupHelp helpLink={helpLinks.bulkAddCreate} />
@@ -171,7 +171,7 @@
       <p>Internal error: unknown step {currentStep}</p>
     {/if}
     <span slot="submitText">{$t('project_page.bulk_add_members.submit_button')}</span>
-    <span slot="closeText">{$t('project_page.bulk_add_members.finish_button')}</span>
+    <span slot="doneText">{$t('project_page.bulk_add_members.finish_button')}</span>
   </FormModal>
 </AdminContent>
 
