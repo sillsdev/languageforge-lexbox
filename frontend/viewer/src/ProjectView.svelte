@@ -132,6 +132,11 @@
     setTimeout(flushLoadingEntries);
   }
 
+  function refreshEntry({ entryId }: { entryId: string }): void {
+    console.log('TODO: Find way to refresh just one entry, the one with ID', entryId);
+    refreshEntries(); // Killing a fly with a sledgehammer, but it does refresh the entry we want :-)
+  }
+
   // TODO: replace with either
   // 1 something like setContext('editorEntry') that even includes unsaved changes
   // 2 somehow use selectedEntry in components that need to refresh on changes
@@ -384,9 +389,7 @@
               $selectedEntry = $selectedEntry;
               $entries = $entries;
             }}
-            on:refresh={e => {
-              console.log('TODO: Figure out how to refresh entry', e);
-            }}
+            on:refresh={e => refreshEntry(e.detail)}
             on:delete={onEntryDeleted} />
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">

@@ -31,13 +31,13 @@
     await updateEntry(e.entry);
     dispatch('change', {entry: e.entry});
     if (e.entry.complexForms && e.entry.complexForms.length) {
-      // TODO: Compare to initialEntry to save refreshes?
+      // TODO: Compare to initialEntry to save refreshes, and also to catch situations where complex form link was *removed*
       e.entry.complexForms.forEach(component => {
         dispatch('refresh', { entryId: component.complexFormEntryId });
       });
     }
     if (e.entry.components && e.entry.components.length) {
-      // TODO: Compare to initialEntry to save refreshes?
+      // TODO: Compare to initialEntry to save refreshes, and also to catch situations where component link was *removed*
       e.entry.components.forEach(component => {
         dispatch('refresh', { entryId: component.componentEntryId });
       });
