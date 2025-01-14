@@ -269,6 +269,13 @@ However, **all your data is safe and backed up** here on Lexbox. \
 If you run into problems with your project please tell support that you are using FieldWorks Lite.",
       "submit": "Yes, please!",
       "cancel": "Not yet",
+      "finish": "Close",
+      "now_available": "Your project is now available in [FieldWorks Lite](https://software.sil.org/fieldworks/download/fieldworks-lite/)!",
+      "making_available": "We're making your project available in FieldWorks Lite...",
+      "reach_out_for_help": "Please reach out to us at \
+[lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org?subject={subject}), \
+so we can get this fixed!",
+      "email_subject": "FieldWorks Lite setup error ({projectCode})",
     },
   },
   "org_page": {
@@ -763,6 +770,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "did_you_know": "Did you know?",
+    "close": "Close",
   },
   "viewer": {
     "about": "## What is this?\n\

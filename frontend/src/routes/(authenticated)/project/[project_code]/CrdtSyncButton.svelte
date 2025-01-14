@@ -1,13 +1,17 @@
 <script lang="ts">
   import {NewTabLinkRenderer} from '$lib/components/Markdown';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
-  import { Button } from '$lib/forms';
+  import {tryGetErrorMessage} from '$lib/error/utils';
+  import {Button} from '$lib/forms';
   import t from '$lib/i18n';
-  import { Icon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
+  import {Icon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
   import Markdown from 'svelte-exmarkdown';
+  import {bounceIn} from 'svelte/easing';
+  import {scale} from 'svelte/transition';
+  import type {Project} from './+page';
 
-  export let projectId: string;
+  export let project: Project;
   export let hasHarmonyCommits: boolean;
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -17,7 +21,7 @@
   async function triggerSync(): Promise<string | undefined> {
     syncing = true;
     try {
-      const response = await fetch(`/api/crdt/sync/${projectId}`, {
+      const response = await fetch(`/api/crdt/sync/${project.id}`, {
         method: 'POST',
       });
 
@@ -30,10 +34,11 @@
         console.error(error, await response.text());
         return error;
       }
+    } catch (error) {
+      return tryGetErrorMessage(error);
     } finally {
       syncing = false;
     }
-    return;
   }
 
   async function useInFwLite(): Promise<void> {
@@ -52,9 +57,37 @@
   </Button>
 {:else}
   <Button variant="btn-primary" on:click={useInFwLite}>{$t('project.crdt.try_fw_lite')}</Button>
-  <ConfirmModal bind:this={confirmModal} title={$t('project.crdt.try_fw_lite')} submitText={$t('project.crdt.submit')} cancelText={$t('project.crdt.cancel')}>
-    <div class="prose max-w-none underline-links">
-      <Markdown md={$t('project.crdt.try_info')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
-    </div>
+  <ConfirmModal bind:this={confirmModal} hideActions={syncing} showDoneState let:done let:error
+    title={$t('project.crdt.try_fw_lite')}
+    submitText={$t('project.crdt.submit')}
+    cancelText={$t('project.crdt.cancel')}
+    >
+    {#if syncing}
+      <div class="text-center">
+        <p class="mb-2 label justify-center">
+          {$t('project.crdt.making_available')}
+        </p>
+        <span class="loading loading-lg" />
+      </div>
+    {:else if done && !error}
+      <div class="text-center">
+        <p class="mb-2 label justify-center underline-links">
+          <Markdown md={$t('project.crdt.now_available')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        </p>
+        <span
+          class="i-mdi-check-circle-outline text-7xl text-success"
+          transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
+        />
+      </div>
+    {:else}
+      <div class="prose max-w-none underline-links">
+        <Markdown md={$t('project.crdt.try_info')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        {#if error}
+          <Markdown
+            md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code }))})}`}
+            plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        {/if}
+      </div>
+    {/if}
   </ConfirmModal>
 {/if}

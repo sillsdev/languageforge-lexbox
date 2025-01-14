@@ -313,7 +313,7 @@
         </a>
       {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        <CrdtSyncButton projectId={project.id} hasHarmonyCommits={project.hasHarmonyCommits} />
+        <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}
