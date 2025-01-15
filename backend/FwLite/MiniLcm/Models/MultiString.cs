@@ -168,6 +168,7 @@ public class MultiStringConverter : JsonConverter<MultiString>
         var ms = new MultiString();
         foreach (var (key, value) in dict)
         {
+            if (string.IsNullOrEmpty(value)) continue;
             ms.Values[key] = value;
         }
 

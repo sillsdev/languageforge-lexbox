@@ -24,25 +24,41 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
     [JSInvokable]
     public bool SupportsFwData() => FwDataProjectProvider is not null;
     [JSInvokable]
-    public async Task<ServerProjects[]> RemoteProjects()
+    public async Task<ServerProjects[]> RemoteProjects(bool forceRefresh)
     {
         var lexboxServers = lexboxProjectService.Servers();
         ServerProjects[] serverProjects = new ServerProjects[lexboxServers.Length];
         for (var i = 0; i < lexboxServers.Length; i++)
         {
             var server = lexboxServers[i];
-            var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
+            var projectModels = await ServerProjects(server, forceRefresh);
             serverProjects[i] = new ServerProjects(server,
-                lexboxProjects.Select(p => new ProjectModel(p.Name,
-                        Crdt: p.IsCrdtProject,
-                        Fwdata: false,
-                        Lexbox: true,
-                        server.Authority.Authority,
-                        p.Id))
-                    .ToArray());
+                projectModels);
         }
 
         return serverProjects;
+    }
+
+    private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh)
+    {
+        if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
+        var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
+        var projectModels = lexboxProjects.Select(p => new ProjectModel(p.Name,
+                Crdt: p.IsCrdtProject,
+                Fwdata: false,
+                Lexbox: true,
+                server.Authority.Authority,
+                p.Id))
+            .ToArray();
+        return projectModels;
+    }
+
+    [JSInvokable]
+    public async Task<ProjectModel[]> ServerProjects(string serverId, bool forceRefresh)
+    {
+        var server = lexboxProjectService.Servers().FirstOrDefault(s => s.Id == serverId);
+        if (server is null) return [];
+        return await ServerProjects(server, forceRefresh);
     }
 
     [JSInvokable]

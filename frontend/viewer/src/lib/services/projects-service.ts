@@ -5,6 +5,9 @@ export type Project = IProjectModel;
 export type ServerStatus = IServerStatus;
 
 export class ProjectService implements ICombinedProjectsService {
+  serverProjects(serverId: string, forceRefresh: boolean): Promise<IProjectModel[]> {
+      throw new Error('Method not implemented.');
+  }
   supportsFwData(): Promise<boolean> {
       throw new Error('Method not implemented.');
   }

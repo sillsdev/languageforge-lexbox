@@ -351,15 +351,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
                 .OfType<MiniLcm.Models.SemanticDomain>()
                 .ToList();
-            if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
-                throw new InvalidOperationException("Order should not be provided when creating a sense");
             sense.Order = senseOrder++;
             yield return new CreateSenseChange(sense, entry.Id);
             var exampleOrder = 1;
             foreach (var exampleSentence in sense.ExampleSentences)
             {
-                if (exampleSentence.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
-                    throw new InvalidOperationException("Order should not be provided when creating an example sentence");
                 exampleSentence.Order = exampleOrder++;
                 yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
             }
@@ -375,8 +371,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany((s, i) =>
                 {
-                    if (s.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
-                        throw new InvalidOperationException("Order should not be provided when creating a sense");
                     s.Order = i + 1;
                     return CreateSenseChanges(entry.Id, s);
                 })
@@ -476,8 +470,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var exampleOrder = 1;
         foreach (var exampleSentence in sense.ExampleSentences)
         {
-            if (exampleSentence.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
-                throw new InvalidOperationException("Order should not be provided when creating an example sentence");
             exampleSentence.Order = exampleOrder++;
             yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
         }
@@ -491,19 +483,18 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == entryId);
-        return entry?.Senses.FirstOrDefault(s => s.Id == id);
+        var sense = entry?.Senses.FirstOrDefault(s => s.Id == id);
+        sense?.ApplySortOrder();
+        return sense;
     }
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
-        if (sense.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
-            throw new InvalidOperationException("Order should not be provided when creating a sense");
-
+        await validators.ValidateAndThrow(sense);
         if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
 
         sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await validators.ValidateAndThrow(sense);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
@@ -552,9 +543,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         BetweenPosition? between = null)
     {
         await validators.ValidateAndThrow(exampleSentence);
-        if (exampleSentence.Order != default) // we don't anticipate this being necessary, so we'll be strict for now
-            throw new InvalidOperationException("Order should not be provided when creating an example sentence");
-
         exampleSentence.Order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
         await dataModel.AddChange(ClientId, new CreateExampleSentenceChange(exampleSentence, senseId));
         return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
