@@ -1,4 +1,6 @@
 using System.Data.Common;
+using System.IO.Compression;
+using LexBoxApi.Jobs;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services.Email;
 using LexCore.Auth;
@@ -13,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService)
+public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService, Quartz.ISchedulerFactory schedulerFactory)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -267,6 +269,31 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             project.FlexProjectMetadata.LexEntryCount = null;
             await dbContext.SaveChangesAsync();
         }
+    }
+
+    public async Task<DirectoryInfo?> ExtractLdmlZip(Project project, string destRoot, CancellationToken token = default)
+    {
+        if (project.Type != ProjectType.FLEx) return null;
+        var zip = await hgService.GetLdmlZip(project.Code, token);
+        if (zip is null) return null;
+        var path = System.IO.Path.Join(destRoot, project.Id.ToString());
+        if (Directory.Exists(path)) Directory.Delete(path, true);
+        var dirInfo = Directory.CreateDirectory(path);
+        zip.ExtractToDirectory(dirInfo.FullName, true);
+        return dirInfo;
+    }
+
+    public async Task PrepareLdmlZip(Stream outStream, CancellationToken token = default)
+    {
+        var path = System.IO.Path.Join(System.IO.Path.GetTempPath(), "ldml-zip"); // TODO: pick random name, rather than predictable one
+        if (Directory.Exists(path)) Directory.Delete(path, true);
+        Directory.CreateDirectory(path);
+        await DeleteTempDirectoryJob.Queue(schedulerFactory, path, TimeSpan.FromHours(4));
+        await foreach (var project in dbContext.Projects.Where(p => p.Type == ProjectType.FLEx).AsAsyncEnumerable())
+        {
+            await ExtractLdmlZip(project, path, token);
+        }
+        ZipFile.CreateFromDirectory(path, outStream, CompressionLevel.Fastest, includeBaseDirectory: false);
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
