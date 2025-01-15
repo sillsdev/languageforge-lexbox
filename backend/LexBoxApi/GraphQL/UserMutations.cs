@@ -34,7 +34,8 @@ public class UserMutations
         string? Username,
         string Locale,
         string PasswordHash,
-        int PasswordStrength);
+        int PasswordStrength,
+        Guid? ProjectId);
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -105,7 +106,7 @@ public class UserMutations
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
-        permissionService.AssertCanCreateGuestUserInAnyProject();
+        permissionService.AssertCanCreateGuestUserInProject(input.ProjectId);
 
         var hasExistingUser = input.Email is null && input.Username is null
             ? throw new RequiredException("Guest users must have either an email or a username")

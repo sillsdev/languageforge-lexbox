@@ -141,16 +141,10 @@ public class ProjectMutations
         BulkAddProjectMembersInput input,
         LexBoxDbContext dbContext)
     {
-        if (input.ProjectId.HasValue)
-        {
-            var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId.Value);
-            if (!projectExists) throw new NotFoundException("Project not found", "project");
-            await permissionService.AssertCanCreateGuestUserInProject(input.ProjectId.Value);
-        }
-        else
-        {
-            permissionService.AssertCanCreateGuestUserInAnyProject();
-        }
+        await permissionService.AssertCanCreateGuestUserInProject(input.ProjectId);
+        if (input.ProjectId == null) throw new NotFoundException("Project not found", "project");
+        var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId.Value);
+        if (!projectExists) throw new NotFoundException("Project not found", "project");
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
         List<UserProjectRole> ExistingMembers = [];
