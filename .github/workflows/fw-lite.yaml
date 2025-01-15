@@ -55,7 +55,7 @@ jobs:
           echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
 
       - name: Check for pending EF model changes
-        run: task api:has-pending-model-changes
+        run: task fw-lite:has-pending-model-changes
 
       - name: Build viewer
         working-directory: frontend/viewer
