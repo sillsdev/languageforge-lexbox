@@ -3,7 +3,7 @@ const plugin = require('tailwindcss/plugin');
 // const { createThemes } = require('tw-colors');
 const svelteUx = require('svelte-ux/plugins/tailwind.cjs')
 const { iconsPlugin, getIconCollections } = require('@egoist/tailwindcss-icons');
-
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/!(WebComponent).{html,svelte,ts}', './node_modules/svelte-ux/**/*.{svelte,js}'],
   variants: {
@@ -69,6 +69,8 @@ module.exports = {
         // Breakpoints for the project view layout
         'sm-view': { 'max': '800px' },
         'lg-view': '801px',
+        //only active when the user has a mouse (eg they can hover over an element)
+        'pointer': {'raw': '(hover: hover)'}
       },
     },
   },

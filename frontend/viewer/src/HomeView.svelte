@@ -4,14 +4,14 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiBookSyncOutline, mdiChatQuestion, mdiChevronRight, mdiCloud,
+    mdiBookSyncOutline,
+    mdiChatQuestion,
+    mdiChevronRight,
+    mdiCloud,
+    mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
-  import {
-    Button,
-    ListItem,
-    AppBar
-  } from 'svelte-ux';
+  import {AppBar, Button, Icon, ListItem} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import logoLight from './lib/assets/logo-light.svg';
   import logoDark from './lib/assets/logo-dark.svg';
@@ -82,10 +82,10 @@
 
   let remoteProjects: { [server: string]: Project[] } = {};
   let loadingRemoteProjects = false;
-  async function fetchRemoteProjects(): Promise<void> {
+  async function fetchRemoteProjects(force: boolean = false): Promise<void> {
     loadingRemoteProjects = true;
     try {
-      let result = await projectsService.remoteProjects();
+      let result = await projectsService.remoteProjects(force);
       for (let serverProjects of result) {
         remoteProjects[serverProjects.server.authority] = serverProjects.projects;
       }
@@ -93,6 +93,14 @@
     } finally {
       loadingRemoteProjects = false;
     }
+  }
+
+  let loadingServerProjects: undefined | string = undefined;
+  async function refreshServerProjects(server: ILexboxServer, force: boolean = false) {
+    loadingServerProjects = server.id;
+    remoteProjects[server.authority] = await projectsService.serverProjects(server.id, force);
+    remoteProjects = remoteProjects;
+    loadingServerProjects = undefined;
   }
 
   fetchRemoteProjects().catch((error) => {
@@ -199,9 +207,15 @@
           {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
           <div>
             <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
-              <p class="sub-title !my-0">{server.displayName} Server</p>
+              <p class="sub-title !my-0">
+                {server.displayName} Server
+              </p>
               <div class="flex-grow"></div>
               {#if status.loggedIn}
+                <Button icon={mdiRefresh}
+                        title="Refresh Projects"
+                        disabled={loadingServerProjects === server.id}
+                        on:click={() => refreshServerProjects(server, true)}/>
                 <LoginButton {status} on:status={() => refreshProjectsAndServers()}/>
               {/if}
             </div>
@@ -215,20 +229,27 @@
                   {/if}
                 </p>
               {/if}
-              {#each serverProjects as project}
-                {@const localProject = matchesProject(projects, project)}
-                <ListItem icon={mdiCloud}
-                          class={localProject?.crdt ? 'pointer-events-none' : ''}
-                          title={project.name}
-                          on:click={() =>{ if (!localProject?.crdt) {void downloadCrdtProject(project, server);} }}
-                          loading={downloading === project.name}>
-                  <div slot="actions" class="pointer-events-none">
-                    <Button disabled={localProject?.crdt} icon={localProject?.crdt ? mdiBookSyncOutline : mdiBookArrowDownOutline} class="p-2">
-                      {localProject?.crdt ? 'Synced' : 'Download'}
-                    </Button>
-                  </div>
-                </ListItem>
-              {/each}
+              {#if loadingServerProjects === server.id}
+                <p class="text-surface-content/50 text-center border border-surface-300 elevation-1 rounded p-4 max-sm:mx-2">
+                  <Icon data={mdiRefresh} class="animate-spin"/>
+                  Loading...
+                </p>
+              {:else}
+                {#each serverProjects as project}
+                  {@const localProject = matchesProject(projects, project)}
+                  <ListItem icon={mdiCloud}
+                            class={localProject?.crdt ? 'pointer-events-none' : ''}
+                            title={project.name}
+                            on:click={() =>{ if (!localProject?.crdt) {void downloadCrdtProject(project, server);} }}
+                            loading={downloading === project.name}>
+                    <div slot="actions" class="pointer-events-none">
+                      <Button disabled={localProject?.crdt} icon={localProject?.crdt ? mdiBookSyncOutline : mdiBookArrowDownOutline} class="p-2">
+                        {localProject?.crdt ? 'Synced' : 'Download'}
+                      </Button>
+                    </div>
+                  </ListItem>
+                {/each}
+              {/if}
             </div>
           </div>
         {/each}
