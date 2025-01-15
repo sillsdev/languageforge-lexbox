@@ -22,6 +22,8 @@ public interface IPermissionService
     ValueTask AssertCanManageProjectMemberRole(Guid projectId, Guid userId);
     ValueTask<bool> CanCreateGuestUserInProject(Guid? projectId);
     ValueTask AssertCanCreateGuestUserInProject(Guid? projectId);
+    bool CanCreateGuestUserInOrg(Guid? orgId);
+    void AssertCanCreateGuestUserInOrg(Guid? orgId);
     ValueTask<bool> CanAskToJoinProject(Guid projectId);
     ValueTask<bool> CanAskToJoinProject(string projectCode);
     ValueTask AssertCanAskToJoinProject(Guid projectId);

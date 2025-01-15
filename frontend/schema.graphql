@@ -727,7 +727,7 @@ input CreateGuestUserByAdminInput {
   locale: String!
   passwordHash: String!
   passwordStrength: Int!
-  projectId: UUID
+  orgId: UUID
 }
 
 input CreateOrganizationInput {

@@ -155,6 +155,20 @@ public class PermissionService(
         if (!await CanCreateGuestUserInProject(projectId)) throw new UnauthorizedAccessException();
     }
 
+    public bool CanCreateGuestUserInOrg(Guid? orgId)
+    {
+        if (User is null) return false;
+        if (User.Role == UserRole.admin) return true;
+        // Site admins can create guest users even with no org, anyone else (like org admins) must specify an org ID
+        if (orgId is null) return false;
+        return CanEditOrg(orgId.Value);
+    }
+
+    public void AssertCanCreateGuestUserInOrg(Guid? orgId)
+    {
+        if (!CanCreateGuestUserInOrg(orgId)) throw new UnauthorizedAccessException();
+    }
+
     public async ValueTask<bool> CanAskToJoinProject(Guid projectId)
     {
         if (User is null) return false;

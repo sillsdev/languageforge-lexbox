@@ -120,6 +120,10 @@
     }
   }
 
+  function createGuestUser(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string): ReturnType<typeof createGuestUserByAdmin> {
+    return createGuestUserByAdmin(password, passwordStrength, name, email, locale, _turnstileToken, org.id);
+  }
+
   let createUserModal: CreateUserModal;
   function onUserCreated(user: LexAuthUser): void {
     notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
@@ -158,7 +162,7 @@
         </ul>
       </Dropdown>
     </div>
-    <CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
+    <CreateUserModal handleSubmit={createGuestUser} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
     <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
     <BulkAddOrgMembers bind:this={bulkAddMembersModal} orgId={org.id} />
     {/if}

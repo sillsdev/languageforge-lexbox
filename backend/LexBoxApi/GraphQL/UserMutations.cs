@@ -35,7 +35,7 @@ public class UserMutations
         string Locale,
         string PasswordHash,
         int PasswordStrength,
-        Guid? ProjectId);
+        Guid? OrgId);
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -106,7 +106,7 @@ public class UserMutations
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
-        permissionService.AssertCanCreateGuestUserInProject(input.ProjectId);
+        permissionService.AssertCanCreateGuestUserInOrg(input.OrgId);
 
         var hasExistingUser = input.Email is null && input.Username is null
             ? throw new RequiredException("Guest users must have either an email or a username")
@@ -134,6 +134,10 @@ public class UserMutations
             CanCreateProjects = false
         };
         createGuestUserActivity?.AddTag("app.user.id", userEntity.Id);
+        if (input.OrgId is not null)
+        {
+            userEntity.Organizations.Add(new OrgMember() { OrgId = input.OrgId.Value, Role = OrgRole.User });
+        }
         dbContext.Users.Add(userEntity);
         await dbContext.SaveChangesAsync();
         if (!string.IsNullOrEmpty(input.Email))

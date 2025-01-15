@@ -120,13 +120,14 @@ export function register(password: string, passwordStrength: number, name: strin
 export function acceptInvitation(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
   return createUser('/api/User/acceptInvitation', password, passwordStrength, name, email, locale, turnstileToken);
 }
-export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string): Promise<RegisterResponse> {
+export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string, orgId?: string): Promise<RegisterResponse> {
   const passwordHash = await hash(password);
   const gqlInput: CreateGuestUserByAdminInput = {
     passwordHash,
     passwordStrength,
     name,
     locale,
+    orgId,
   };
   if (email.includes('@')) {
     gqlInput.email = email;
