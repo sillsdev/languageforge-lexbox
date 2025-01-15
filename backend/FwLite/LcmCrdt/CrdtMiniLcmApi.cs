@@ -492,7 +492,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .ThenLoad(s => s.ExampleSentences)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == entryId);
-        return entry?.Senses.FirstOrDefault(s => s.Id == id);
+        var sense = entry?.Senses.FirstOrDefault(s => s.Id == id);
+        sense?.ApplySortOrder();
+        return sense;
     }
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
