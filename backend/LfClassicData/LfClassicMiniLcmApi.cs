@@ -99,7 +99,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return _partsOfSpeechCacheByGuid.GetValueOrDefault(id);
     }
 
-    public async Task<PartOfSpeech?> GetPartOfSpeech(string key)
+    public async ValueTask<PartOfSpeech?> GetPartOfSpeech(string key)
     {
         if (_partsOfSpeechCacheByStringKey is null)
         {
@@ -246,18 +246,20 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             })));
     }
 
-    private async Task<Entry> ToEntry(Entities.Entry entry)
+    private async ValueTask<Entry> ToEntry(Entities.Entry entry)
     {
-        Sense[] senses;
-        if (entry.Senses is null)
+        List<Sense> senses = new(entry.Senses?.Count ?? 0);
+        if (entry.Senses is not (null or []))
         {
-            senses = [];
+            foreach (var sense in entry.Senses)
+            {
+                if (sense is null) continue;
+                //explicitly doing this sequentially
+                //to avoid concurrency issues as ToSense calls GetPartOfSpeech which is cached
+                senses.Add(await ToSense(entry.Guid, sense));
+            }
         }
-        else
-        {
-            var senseTasks = entry.Senses.OfType<Entities.Sense>().Select(sense => ToSense(entry.Guid, sense));
-            senses = await Task.WhenAll(senseTasks);
-        }
+
         return new Entry
         {
             Id = entry.Guid,
@@ -269,15 +271,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         };
     }
 
-    private async Task<Sense> ToSense(Guid entryId, Entities.Sense sense)
+    private async ValueTask<Sense> ToSense(Guid entryId, Entities.Sense sense)
     {
+        var partOfSpeech = sense.PartOfSpeech is null ? null : await GetPartOfSpeech(sense.PartOfSpeech.Value);
         return new Sense
         {
             Id = sense.Guid,
             EntryId = entryId,
             Gloss = ToMultiString(sense.Gloss),
             Definition = ToMultiString(sense.Definition),
-            PartOfSpeech = sense.PartOfSpeech is null ? null : await GetPartOfSpeech(sense.PartOfSpeech.Value),
+            PartOfSpeech = partOfSpeech,
+            PartOfSpeechId = partOfSpeech?.Id,
             SemanticDomains = (sense.SemanticDomain?.Values ?? [])
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
