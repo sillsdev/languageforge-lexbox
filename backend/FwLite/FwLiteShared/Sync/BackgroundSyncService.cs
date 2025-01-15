@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using LcmCrdt;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -70,24 +71,31 @@ public class BackgroundSyncService(
         var crdtProjects = crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
-            await SyncProject(crdtProject);
+            await SyncProject(crdtProject, true, stoppingToken);
         }
 
         await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
         {
             //todo, this might not be required, but I can't remember why I added it
             await Task.Delay(100, stoppingToken);
-            await SyncProject(project);
+            await SyncProject(project, false, stoppingToken);
         }
     }
 
-    private async Task<SyncResults> SyncProject(CrdtProject crdtProject)
+    private async Task<SyncResults> SyncProject(CrdtProject crdtProject,
+        bool applyMigrations = false,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             await using var serviceScope = serviceProvider.CreateAsyncScope();
-            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
-            var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
+            var services = serviceScope.ServiceProvider;
+            await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
+            if (applyMigrations)
+            {
+                await services.GetRequiredService<LcmCrdtDbContext>().Database.MigrateAsync(cancellationToken);
+            }
+            var syncService = services.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }
         catch (Exception e)

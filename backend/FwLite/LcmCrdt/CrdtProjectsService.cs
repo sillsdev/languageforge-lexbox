@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using MiniLcm.Project;
 
 namespace LcmCrdt;
@@ -101,7 +103,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
 
     internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
     {
-        await db.Database.EnsureCreatedAsync();
+        await db.Database.MigrateAsync();
         db.ProjectData.Add(data);
         await db.SaveChangesAsync();
     }
