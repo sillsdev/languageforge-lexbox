@@ -170,7 +170,7 @@
                 {disabledEntry.reason}
               </span>
             {/if}
-            {#if entry.senses.length}
+            {#if entry.senses.length && !onlyEntries}
               <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
                 {entry.senses.length}
               </span>
