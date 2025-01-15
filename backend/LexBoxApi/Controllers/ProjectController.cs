@@ -232,6 +232,17 @@ public class ProjectController(
         await hgResult.CopyToAsync(writer.AsStream());
     }
 
+    [HttpGet("getLdmlZip")] // TODO: Discuss endpoint name, and whether it should be GET or POST, at next opportunity
+    [AdminRequired] // TODO: Decide on permissions, because we don't want everyone triggering this
+    public async Task GetLdmlZip(CancellationToken token)
+    {
+        var path = await projectService.PrepareLdmlZip(token);
+        Response.Headers.ContentDisposition = "attachment;filename=\"ldml.zip\""; // TODO: Put timestamp in filename, or use the filename that PrepareLdmlZip returns once it has a timestamp in it
+        Response.ContentType = "application/zip";
+        Response.StatusCode = 200;
+        await Response.SendFileAsync(path, token);
+    }
+
     [HttpPost("updateMissingLanguageList")]
     public async Task<ActionResult<string[]>> UpdateMissingLanguageList(int limit = 10)
     {

@@ -283,17 +283,22 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return dirInfo;
     }
 
-    public async Task PrepareLdmlZip(Stream outStream, CancellationToken token = default)
+    public async Task<string> PrepareLdmlZip(CancellationToken token = default)
     {
         var path = System.IO.Path.Join(System.IO.Path.GetTempPath(), "ldml-zip"); // TODO: pick random name, rather than predictable one
         if (Directory.Exists(path)) Directory.Delete(path, true);
         Directory.CreateDirectory(path);
         await DeleteTempDirectoryJob.Queue(schedulerFactory, path, TimeSpan.FromHours(4));
+        var zipRoot = System.IO.Path.Join(path, "zipRoot");
+        Directory.CreateDirectory(zipRoot);
         await foreach (var project in dbContext.Projects.Where(p => p.Type == ProjectType.FLEx).AsAsyncEnumerable())
         {
-            await ExtractLdmlZip(project, path, token);
+            await ExtractLdmlZip(project, zipRoot, token);
         }
-        ZipFile.CreateFromDirectory(path, outStream, CompressionLevel.Fastest, includeBaseDirectory: false);
+        var zipFilePath = System.IO.Path.Join(path, "ldml.zip"); // TODO: Put timestamp in there
+        if (File.Exists(zipFilePath)) File.Delete(zipFilePath);
+        ZipFile.CreateFromDirectory(zipRoot, zipFilePath, CompressionLevel.Fastest, includeBaseDirectory: false);
+        return zipFilePath;
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)

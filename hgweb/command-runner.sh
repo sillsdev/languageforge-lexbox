@@ -40,7 +40,8 @@ fi
 
 if [[ $command_name == "ldmlzip" ]]; then
     # Preflight check: ldml zip access is only allowed if LexiconSettings.plsx contains addToSldr="true"
-    if (chg -R /var/hg/repos/$first_char/$project_code cat -r tip CachedSettings/SharedSettings/LexiconSettings.plsx | grep '<WritingSystems' | grep 'addToSldr="true"'); then
+    first_char=$(echo $project_code | cut -c1)
+    if (chg --cwd /var/hg/repos/$first_char/$project_code cat -r tip CachedSettings/SharedSettings/LexiconSettings.plsx | grep '<WritingSystems' | grep 'addToSldr="true"' >/dev/null); then
         CONTENT_TYPE="application/zip"
     else
         echo "Content-type: text/plain"

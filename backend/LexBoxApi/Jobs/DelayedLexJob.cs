@@ -17,7 +17,8 @@ public abstract class DelayedLexJob() : LexJob
         data[nameof(JobTriggerTraceId)] = Activity.Current?.Context.TraceId.ToHexString() ?? string.Empty;
         data[nameof(JobTriggerSpanParentId)] = Activity.Current?.Context.SpanId.ToHexString() ?? string.Empty;
         var trigger = TriggerBuilder.Create()
-            .WithIdentity(key.Name + "_Trigger", key.Group)
+            // TODO: Is there a simpler way of telling Quartz "Hey, enqueue this job after X delay"? Picking a unique trigger name each time seems unnecessarily complicated.
+            .WithIdentity(key.Name + "_Trigger_" + now.Ticks.ToString(), key.Group)
             .StartAt(now.Add(delay))
             .ForJob(key.Name, key.Group)
             .UsingJobData(data)
