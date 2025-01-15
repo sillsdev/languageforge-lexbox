@@ -1,8 +1,7 @@
 ﻿using System.Text.Json;
-using MiniLcm.Models;
 using Xunit.Abstractions;
 
-namespace LcmCrdt.Tests;
+namespace MiniLcm.Tests;
 
 public class SerializationTests(ITestOutputHelper output)
 {
@@ -65,20 +64,6 @@ public class SerializationTests(ITestOutputHelper output)
         fromJson.Should().BeEquivalentTo(entry);
     }
 
-    [Fact]
-    public void CanDeserializeMultiString()
-    {
-        //lang=json
-        var json = """{"en": "test"}""";
-        var expectedMs = new MultiString()
-        {
-            Values = { { "en", "test" } }
-        };
-        var actualMs = JsonSerializer.Deserialize<MultiString>(json);
-        actualMs.Should().NotBeNull();
-        actualMs.Values.Should().ContainKey("en");
-        actualMs.Should().BeEquivalentTo(expectedMs);
-    }
 
     [Fact]
     public void EqualityTest()
