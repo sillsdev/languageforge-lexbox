@@ -14,6 +14,12 @@ tasks:
     dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
 
+  add-migration:
+    label: Add Migration
+    desc: 'Usage: task add-migration "MigrationName"'
+    dir: ./LcmCrdt
+    cmd: dotnet ef migrations add {{.CLI_ARGS}}
+
 
   maui-windows:
     label: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
