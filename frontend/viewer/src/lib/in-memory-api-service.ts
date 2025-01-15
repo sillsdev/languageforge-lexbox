@@ -1,6 +1,6 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
-import {entries, projectName, writingSystems} from './entry-data';
+import {entries, projectName, writingSystems, partsOfSpeech} from './entry-data';
 import type {
   IEntry,
   IExampleSentence,
@@ -53,10 +53,11 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
 
   getPartsOfSpeech(): Promise<IPartOfSpeech[]> {
     return Promise.resolve(
-      [
-        {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'}, predefined: false},
-        {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: false}
-      ]
+      partsOfSpeech
+      // [
+      //   {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'}, predefined: true},
+      //   {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: true}
+      // ]
     );
   }
 

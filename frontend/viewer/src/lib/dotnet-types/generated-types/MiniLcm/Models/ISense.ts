@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
+import type {IPartOfSpeech} from './IPartOfSpeech';
 import type {ISemanticDomain} from './ISemanticDomain';
 import type {IExampleSentence} from './IExampleSentence';
 
@@ -14,7 +15,7 @@ export interface ISense
 	entryId: string;
 	definition: IMultiString;
 	gloss: IMultiString;
-	partOfSpeech: string;
+	partOfSpeech?: IPartOfSpeech;
 	partOfSpeechId?: string;
 	semanticDomains: ISemanticDomain[];
 	exampleSentences: IExampleSentence[];

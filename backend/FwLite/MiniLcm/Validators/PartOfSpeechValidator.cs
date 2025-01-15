@@ -7,7 +7,7 @@ public class PartOfSpeechValidator : AbstractValidator<PartOfSpeech>
 {
     public PartOfSpeechValidator()
     {
-        // RuleFor(pos => pos.Id).Must(BeCanonicalGuid).When(pos => pos.Predefined); // TODO: Uncomment once PR 1350 is merged
+        RuleFor(pos => pos.Id).Must(BeCanonicalGuid).When(pos => pos.Predefined);
         RuleFor(pos => pos.DeletedAt).Null();
         RuleFor(pos => pos.Name).Required();
     }

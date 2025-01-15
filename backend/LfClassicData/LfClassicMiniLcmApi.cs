@@ -25,6 +25,9 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<ComplexFormType?>(null);
     }
 
+    private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
+    private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
+
     public async Task<WritingSystems> GetWritingSystems()
     {
         var inputSystems = await systemDbContext.Projects.AsQueryable()
@@ -89,7 +92,20 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return await GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Id == id);
+        if (_partsOfSpeechCacheByGuid is null)
+        {
+            _partsOfSpeechCacheByGuid = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Id);
+        }
+        return _partsOfSpeechCacheByGuid.GetValueOrDefault(id);
+    }
+
+    public async ValueTask<PartOfSpeech?> GetPartOfSpeech(string key)
+    {
+        if (_partsOfSpeechCacheByStringKey is null)
+        {
+            _partsOfSpeechCacheByStringKey = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Name["__key"]);
+        }
+        return _partsOfSpeechCacheByStringKey.GetValueOrDefault(key);
     }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
@@ -157,7 +173,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
         await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
         {
-            yield return ToEntry(entry);
+            yield return await ToEntry(entry);
         }
     }
 
@@ -230,8 +246,20 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             })));
     }
 
-    private static Entry ToEntry(Entities.Entry entry)
+    private async ValueTask<Entry> ToEntry(Entities.Entry entry)
     {
+        List<Sense> senses = new(entry.Senses?.Count ?? 0);
+        if (entry.Senses is not (null or []))
+        {
+            foreach (var sense in entry.Senses)
+            {
+                if (sense is null) continue;
+                //explicitly doing this sequentially
+                //to avoid concurrency issues as ToSense calls GetPartOfSpeech which is cached
+                senses.Add(await ToSense(entry.Guid, sense));
+            }
+        }
+
         return new Entry
         {
             Id = entry.Guid,
@@ -239,19 +267,21 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             LexemeForm = ToMultiString(entry.Lexeme),
             Note = ToMultiString(entry.Note),
             LiteralMeaning = ToMultiString(entry.LiteralMeaning),
-            Senses = entry.Senses?.OfType<Entities.Sense>().Select(sense => ToSense(entry.Guid,sense)).ToList() ?? [],
+            Senses = new List<Sense>(senses),
         };
     }
 
-    private static Sense ToSense(Guid entryId, Entities.Sense sense)
+    private async ValueTask<Sense> ToSense(Guid entryId, Entities.Sense sense)
     {
+        var partOfSpeech = sense.PartOfSpeech is null ? null : await GetPartOfSpeech(sense.PartOfSpeech.Value);
         return new Sense
         {
             Id = sense.Guid,
             EntryId = entryId,
             Gloss = ToMultiString(sense.Gloss),
             Definition = ToMultiString(sense.Definition),
-            PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
+            PartOfSpeech = partOfSpeech,
+            PartOfSpeechId = partOfSpeech?.Id,
             SemanticDomains = (sense.SemanticDomain?.Values ?? [])
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
@@ -317,7 +347,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
     {
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
-        return ToEntry(entry);
+        return await ToEntry(entry);
     }
 
     public async Task<Sense?> GetSense(Guid entryId, Guid id)
@@ -326,7 +356,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (entry is null) return null;
         var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == id);
         if (sense is null) return null;
-        return ToSense(entryId, sense);
+        return await ToSense(entryId, sense);
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
