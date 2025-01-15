@@ -256,7 +256,7 @@
 
         {#if projects.some(p => p.fwdata)}
           <div>
-            <p class="sub-title">Legacy FieldWorks Projects</p>
+            <p class="sub-title">Classic FieldWorks Projects</p>
             <div>
               {#each projects.filter(p => p.fwdata) as project (project.id ?? project.name)}
                 <AnchorListItem href={`/fwdata/${project.name}`}>
