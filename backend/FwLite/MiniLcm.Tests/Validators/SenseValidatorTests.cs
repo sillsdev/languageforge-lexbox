@@ -51,6 +51,13 @@ public class SenseValidatorTests
         _validator.TestValidate(sense).ShouldHaveValidationErrorFor(fieldName);
     }
 
+    [Fact]
+    public void Fails_WhenOrderIsSet()
+    {
+        var sense = new Sense() { Id = Guid.NewGuid(), Order = 3 };
+        _validator.TestValidate(sense).ShouldHaveValidationErrorFor(nameof(IOrderable.Order));
+    }
+
     private void SetProperty(Sense sense, string propName, string content)
     {
         var propInfo = typeof(Sense).GetProperty(propName);

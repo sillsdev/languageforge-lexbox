@@ -14,6 +14,7 @@ public class SenseValidator : AbstractValidator<Sense>
         // RuleFor(s => s.PartOfSpeechId).SetValidator(new IsCanonicalPartOfSpeechGuidValidator()); // Can't do this statelessly, as we'd need a full PartOfSpeech object to check if it's predefined or not
         RuleForEach(s => s.SemanticDomains).SetValidator(new SemanticDomainValidator());
         RuleForEach(s => s.ExampleSentences).SetValidator(sense => new ExampleSentenceValidator(sense));
+        Include(new OrderableValidator());
     }
 
     public SenseValidator(Entry entry): this()

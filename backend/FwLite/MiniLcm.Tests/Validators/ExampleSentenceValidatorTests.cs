@@ -51,6 +51,13 @@ public class ExampleSentenceValidatorTests
         _validator.TestValidate(example).ShouldHaveValidationErrorFor(fieldName);
     }
 
+    [Fact]
+    public void Fails_WhenOrderIsSet()
+    {
+        var exampleSentence = new ExampleSentence() { Id = Guid.NewGuid(), Order = 3 };
+        _validator.TestValidate(exampleSentence).ShouldHaveValidationErrorFor(nameof(IOrderable.Order));
+    }
+
     private void SetProperty(ExampleSentence example, string propName, string content)
     {
         var propInfo = typeof(ExampleSentence).GetProperty(propName);

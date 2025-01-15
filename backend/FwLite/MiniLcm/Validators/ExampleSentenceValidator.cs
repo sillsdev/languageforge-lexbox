@@ -10,6 +10,7 @@ public class ExampleSentenceValidator : AbstractValidator<ExampleSentence>
         RuleFor(es => es.DeletedAt).Null();
         RuleFor(es => es.Sentence).NoEmptyValues();
         RuleFor(es => es.Translation).NoEmptyValues();
+        Include(new OrderableValidator());
     }
 
     public ExampleSentenceValidator(Sense sense) : this()
