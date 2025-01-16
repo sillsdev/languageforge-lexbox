@@ -148,6 +148,12 @@ public class OAuthClient
         {
             _authResult = await _application.AcquireTokenSilent(DefaultScopes, account).ExecuteAsync();
         }
+        catch (MsalUiRequiredException)
+        {
+            _logger.LogWarning("Ui required, logging out");
+            await _application.RemoveAsync(account);
+            _authResult = null;
+        }
         catch (MsalClientException e) when (e.ErrorCode == "multiple_matching_tokens_detected")
         {
             _logger.LogWarning(e, "Multiple matching tokens detected, logging out");
@@ -159,6 +165,12 @@ public class OAuthClient
             _logger.LogWarning(e, "Failed to acquire token silently");
             await _application
                 .RemoveAsync(account); //todo might not be the best way to handle this, maybe it's a transient error?
+            _authResult = null;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to acquire token silently");
+            await _application.RemoveAsync(account);
             _authResult = null;
         }
 
