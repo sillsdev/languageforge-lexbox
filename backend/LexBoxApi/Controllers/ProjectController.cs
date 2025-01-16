@@ -239,8 +239,9 @@ public class ProjectController(
     {
         var path = await projectService.PrepareLdmlZip(scheduler, token);
         if (path is null) return NotFound("No SLDR files available");
+        var filename = Path.GetFileName(path);
         var stream = System.IO.File.OpenRead(path);
-        return File(stream, "application/zip");
+        return File(stream, "application/zip", filename);
     }
 
     [HttpPost("updateMissingLanguageList")]
