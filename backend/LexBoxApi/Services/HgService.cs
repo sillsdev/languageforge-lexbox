@@ -494,7 +494,7 @@ public partial class HgService : IHgService, IHostedService
 
     public async Task<ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default)
     {
-        var content = await ExecuteHgCommandServerCommand_ErrorsOk(code, "ldmlzip", [HttpStatusCode.Forbidden], token);
+        var content = await MaybeExecuteHgCommandServerCommand(code, "ldmlzip", [HttpStatusCode.Forbidden], token);
         if (content is null) return null;
         return new ZipArchive(await content.ReadAsStreamAsync(token), ZipArchiveMode.Read);
     }
@@ -508,7 +508,7 @@ public partial class HgService : IHgService, IHostedService
         return response.Content;
     }
 
-    private async Task<HttpContent?> ExecuteHgCommandServerCommand_ErrorsOk(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token)
+    private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
