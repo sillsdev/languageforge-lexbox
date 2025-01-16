@@ -40,6 +40,7 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithName("DotNet.DotNetObject").Imports([
                 new() { From = "@microsoft/dotnet-js-interop", Target = "type {DotNet}" }
             ]));
+        builder.ExportAsInterface<IAsyncDisposable>();
 
         ConfigureMiniLcmTypes(builder);
         ConfigureFwLiteSharedTypes(builder);
@@ -92,8 +93,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AuthService),
             typeof(ImportFwdataService),
             typeof(CombinedProjectsService),
-            typeof(MiniLcmApiProvider),
-            typeof(HistoryServiceJsInvokable)
+            typeof(HistoryServiceJsInvokable),
+            typeof(ProjectServicesProvider)
         ], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
 
         builder.ExportAsInterfaces([
@@ -107,7 +108,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
-            typeof(ObjectSnapshot)
+            typeof(ObjectSnapshot),
+            typeof(ProjectScope)
         ], exportBuilder => exportBuilder.WithPublicProperties());
     }
 

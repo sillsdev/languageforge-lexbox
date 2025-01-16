@@ -1,32 +1,8 @@
 ﻿@page "/project/{projectName}"
 @using FwLiteShared.Layout
-@using FwLiteShared.Services
-@using Microsoft.Extensions.DependencyInjection
-@inherits OwningComponentBaseAsync
 @layout SvelteLayout;
-@inject IJSRuntime JS;
-@* injecting here means we get a provider scoped to the current circuit *@
-@inject FwLiteProvider FwLiteProvider;
 
 @code {
-
     [Parameter]
     public required string ProjectName { get; set; }
-
-    private IAsyncDisposable? _disposable;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        //scoped services here are per page render, meaning they will get cleaned up when the page is disposed
-        _disposable = await FwLiteProvider.InjectCrdtProject(JS, ScopedServices, ProjectName);
-    }
-
-    protected override async ValueTask DisposeAsyncCore()
-    {
-        //sadly this is not called when the page is left, not sure how we can fix that yet
-        await base.DisposeAsyncCore();
-        if (_disposable is not null)
-            await _disposable.DisposeAsync();
-    }
 }

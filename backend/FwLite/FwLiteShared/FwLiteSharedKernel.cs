@@ -19,6 +19,7 @@ public static class FwLiteSharedKernel
 
         services.AddSingleton<ImportFwdataService>();
         services.AddScoped<SyncService>();
+        services.AddScoped<ProjectServicesProvider>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
         //this is scoped so that there will be once instance per blazor circuit, this prevents issues where the same instance is used when reloading the page.
