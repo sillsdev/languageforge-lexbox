@@ -3,13 +3,9 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IObjectWithId} from './IObjectWithId';
-import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
-
-export interface IComplexFormType extends IObjectWithId
+export interface IObjectWithId
 {
 	id: string;
-	name: IMultiString;
 	deletedAt?: string;
 }
 /* eslint-enable */

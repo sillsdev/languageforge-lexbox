@@ -76,6 +76,11 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
         return await dbContext.Snapshots.SingleOrDefaultAsync(s => s.Id == snapshotId);
     }
 
+    public async Task<IObjectWithId> GetObject(Guid commitId, Guid entityId)
+    {
+        return await dataModel.GetAtCommit<IObjectWithId>(commitId, entityId);
+    }
+
     public async Task<IObjectWithId> GetObject(DateTime timestamp, Guid entityId)
     {
         //todo requires the timestamp to be exact, otherwise the change made on that timestamp will not be included

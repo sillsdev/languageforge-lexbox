@@ -12,6 +12,7 @@ using Reinforced.Typings.Ast.Dependency;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
 using Reinforced.Typings.Visitors.TypeScript;
+using SIL.Harmony.Db;
 
 namespace FwLiteShared.TypeGen;
 
@@ -22,7 +23,7 @@ public static class ReinforcedFwLiteTypingConfig
     {
         builder.Global(c => c.AutoAsync()
             .UseModules()
-            .UnresolvedToUnknown()
+            .UnresolvedToUnknown(true)
             .CamelCaseForProperties()
             .CamelCaseForMethods()
             .AutoOptionalProperties()
@@ -62,6 +63,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(ComplexFormType),
                 typeof(ComplexFormComponent),
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
+                typeof(IObjectWithId)
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
@@ -90,7 +92,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AuthService),
             typeof(ImportFwdataService),
             typeof(CombinedProjectsService),
-            typeof(MiniLcmApiProvider)
+            typeof(MiniLcmApiProvider),
+            typeof(HistoryServiceJsInvokable)
         ], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
 
         builder.ExportAsInterfaces([
@@ -101,7 +104,10 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(CrdtProject),
             typeof(ProjectData),
             typeof(IProjectIdentifier),
-            typeof(FwLiteConfig)
+            typeof(FwLiteConfig),
+            typeof(HistoryLineItem),
+            typeof(ProjectActivity),
+            typeof(ObjectSnapshot)
         ], exportBuilder => exportBuilder.WithPublicProperties());
     }
 
