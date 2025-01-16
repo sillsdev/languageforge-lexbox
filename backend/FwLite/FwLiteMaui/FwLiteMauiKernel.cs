@@ -20,19 +20,12 @@ public static class FwLiteMauiKernel
         services.AddSingleton<MainPage>();
         configuration.AddJsonFile("appsettings.json", optional: true);
 
-        services.Configure<AuthConfig>(config =>
-            config.LexboxServers =
-            [
-                new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
-                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
-            ]);
-
         string environment = "Production";
 #if DEBUG
         environment = "Development";
         services.AddBlazorWebViewDeveloperTools();
 #endif
-        var env = new HostingEnvironment() { EnvironmentName = environment };
+        IHostEnvironment env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
         services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
@@ -49,10 +42,23 @@ public static class FwLiteMauiKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
-        services.Configure<AuthConfig>(config => config.AfterLoginWebView = () =>
+        services.Configure<AuthConfig>(config =>
         {
-            var window = Application.Current?.Windows.FirstOrDefault();
-            if (window is not null) Application.Current?.ActivateWindow(window);
+            List<LexboxServer> servers =
+            [
+                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
+            ];
+            if (env.IsDevelopment())
+            {
+                servers.Add(new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"));
+            }
+
+            config.LexboxServers = servers.ToArray();
+            config.AfterLoginWebView = () =>
+            {
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window is not null) Application.Current?.ActivateWindow(window);
+            };
         });
         services.Configure<FwLiteConfig>(config =>
         {
