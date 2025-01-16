@@ -96,9 +96,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
             bulkAddProjectMembers: (result, args: MutationBulkAddProjectMembersArgs, cache, _info) => {
-              if (args.input.projectId) {
-                cache.invalidate({__typename: 'Project', id: args.input.projectId});
-              }
+              cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
             createGuestUserByAdmin: (result, args: MutationCreateGuestUserByAdminArgs, cache, _info) => {
               if (args.input.orgId) {

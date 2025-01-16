@@ -142,8 +142,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         await permissionService.AssertCanCreateGuestUserInProject(input.ProjectId);
-        if (input.ProjectId == null) throw new NotFoundException("Project not found", "project");
-        var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId.Value);
+        var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId);
         if (!projectExists) throw new NotFoundException("Project not found", "project");
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
@@ -175,13 +174,10 @@ public class ProjectMutations
                     CanCreateProjects = false
                 };
                 CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
-                if (input.ProjectId.HasValue)
-                {
-                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId.Value, UserId = user.Id });
-                }
+                user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 dbContext.Add(user);
             }
-            else if (input.ProjectId.HasValue)
+            else
             {
                 var userProject = user.Projects.FirstOrDefault(p => p.ProjectId == input.ProjectId);
                 if (userProject is not null)
@@ -192,13 +188,8 @@ public class ProjectMutations
                 {
                     AddedMembers.Add(new UserProjectRole(user.Username ?? user.Email!, input.Role));
                     // Not yet a member, so add a membership. We don't want to touch existing memberships, which might have other roles
-                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId.Value, UserId = user.Id });
+                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 }
-            }
-            else
-            {
-                // No project ID specified, user already exists. This is probably part of bulk-adding through the admin dashboard or org page.
-                ExistingMembers.Add(new UserProjectRole(user.Username ?? user.Email!, ProjectRole.Unknown));
             }
         }
         await dbContext.SaveChangesAsync();

@@ -673,7 +673,7 @@ input BulkAddOrgMembersInput {
 }
 
 input BulkAddProjectMembersInput {
-  projectId: UUID
+  projectId: UUID!
   usernames: [String!]!
   role: ProjectRole!
   passwordHash: String!
