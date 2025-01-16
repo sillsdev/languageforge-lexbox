@@ -275,7 +275,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public async Task<DirectoryInfo?> ExtractLdmlZip(Project project, string destRoot, CancellationToken token = default)
     {
         if (project.Type != ProjectType.FLEx) return null;
-        var zip = await hgService.GetLdmlZip(project.Code, token);
+        using var zip = await hgService.GetLdmlZip(project.Code, token);
         if (zip is null) return null;
         var path = Path.Join(destRoot, project.Id.ToString());
         if (Directory.Exists(path)) Directory.Delete(path, true);
