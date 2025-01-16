@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Globalization;
 using System.IO.Compression;
 using LexBoxApi.Jobs;
 using LexBoxApi.Models.Project;
@@ -284,9 +285,10 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return dirInfo;
     }
 
-    public async Task<string> PrepareLdmlZip(CancellationToken token = default)
+    public async Task<string?> PrepareLdmlZip(CancellationToken token = default)
     {
-        var path = Path.Join(Path.GetTempPath(), "ldml-zip"); // TODO: pick random name, rather than predictable one
+        var nowStr = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+        var path = Path.Join(Path.GetTempPath(), $"sldr-export-{nowStr}");
         if (Directory.Exists(path)) Directory.Delete(path, true);
         Directory.CreateDirectory(path);
         await DeleteTempDirectoryJob.Queue(schedulerFactory, path, TimeSpan.FromHours(4));
@@ -296,8 +298,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         {
             await ExtractLdmlZip(project, zipRoot, token);
         }
-        var zipFilePath = Path.Join(path, "ldml.zip"); // TODO: Put timestamp in there
+        var zipFilename = $"sldr-{nowStr}.zip";
+        var zipFilePath = Path.Join(path, zipFilename);
         if (File.Exists(zipFilePath)) File.Delete(zipFilePath);
+        // If we would create an empty .zip file, just return null instead (will become a 404)
+        using var enumerator = Directory.EnumerateDirectories(zipRoot).GetEnumerator();
+        if (!enumerator.MoveNext()) return null;
         ZipFile.CreateFromDirectory(zipRoot, zipFilePath, CompressionLevel.Fastest, includeBaseDirectory: false);
         return zipFilePath;
     }
