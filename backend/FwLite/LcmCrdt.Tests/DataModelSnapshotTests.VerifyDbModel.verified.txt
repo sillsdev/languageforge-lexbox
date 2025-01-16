@@ -27,6 +27,7 @@
         Annotations: 
           Relational:ColumnName: ComponentSenseId
       DeletedAt (DateTimeOffset?)
+      Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
     Keys: 
       Id PK
@@ -97,7 +98,7 @@
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
       ComplexForms (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
-      Components (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
+      Components (List<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
       Senses (List<Sense>) Collection ToDependent Sense
     Keys: 
       Id PK

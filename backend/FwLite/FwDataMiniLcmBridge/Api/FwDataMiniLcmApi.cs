@@ -715,7 +715,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition? position = null)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Complex Form Component",
             "Remove Complex Form Component",
@@ -723,10 +723,34 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             () =>
             {
                 var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
-                AddComplexFormComponent(lexEntry, complexFormComponent);
+                AddComplexFormComponent(lexEntry, complexFormComponent, position);
             });
         return Task.FromResult(ToComplexFormComponents(EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId))
             .Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId && c.ComponentSenseId == complexFormComponent.ComponentSenseId));
+    }
+
+    public Task MoveComplexFormComponent(Guid complexFormEntryId, Guid complexFormComponentEntityId, BetweenPosition between)
+    {
+        if (!EntriesRepository.TryGetObject(complexFormEntryId, out var lexComplexFormEntry))
+            throw new InvalidOperationException("Entry not found");
+
+        var lexComponent = FindSenseOrEntryComponent(complexFormComponentEntityId);
+
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Complex Form Component",
+            "Move Complex Form Component back",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                InsertComplexFormComponent(lexComplexFormEntry, lexComponent, between);
+            });
+        return Task.CompletedTask;
+    }
+
+    private ICmObject FindSenseOrEntryComponent(Guid id)
+    {
+        if (SenseRepository.TryGetObject(id, out var sense)) return sense;
+        if (EntriesRepository.TryGetObject(id, out var entry)) return entry;
+        throw new InvalidOperationException("Component not found");
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -769,12 +793,58 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>
-    internal void AddComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
+    internal void AddComplexFormComponent(ILexEntry lexComplexForm, ComplexFormComponent component, BetweenPosition? between = null)
     {
         ICmObject lexComponent = component.ComponentSenseId is not null
             ? SenseRepository.GetObject(component.ComponentSenseId.Value)
             : EntriesRepository.GetObject(component.ComponentEntryId);
-        lexEntry.AddComponent(lexComponent);
+        InsertComplexFormComponent(lexComplexForm, lexComponent, between);
+    }
+
+    internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition? between = null)
+    {
+        var previousComponentId = between?.Previous;
+        var nextComponentId = between?.Next;
+
+        var entryRef = lexComplexForm.ComplexFormEntryRefs.SingleOrDefault();
+        if (entryRef is null || entryRef.ComponentLexemesRS.Count == 0)
+        {
+            lexComplexForm.AddComponent(lexComponent);
+            return;
+        }
+
+        // Prevents adding duplicates (which ComponentLexemesRS.Insert is susceptible to)
+        if (entryRef.ComponentLexemesRS.Contains(lexComponent))
+        {
+            if (between is null) return;
+            entryRef.ComponentLexemesRS.Remove(lexComponent);
+        }
+
+        var previousComponent = previousComponentId.HasValue ? entryRef.ComponentLexemesRS.FirstOrDefault(s => s.Guid == previousComponentId) : null;
+        if (previousComponent is not null)
+        {
+            var insertI = entryRef.ComponentLexemesRS.IndexOf(previousComponent) + 1;
+            if (insertI >= entryRef.ComponentLexemesRS.Count)
+            {
+                // Prefer AddComponent as it does some extra magical stuff 🤷
+                lexComplexForm.AddComponent(lexComponent);
+            }
+            else
+            {
+                entryRef.ComponentLexemesRS.Insert(insertI, lexComponent);
+            }
+            return;
+        }
+
+        var nextComponent = nextComponentId.HasValue ? entryRef.ComponentLexemesRS.FirstOrDefault(s => s.Guid == nextComponentId) : null;
+        if (nextComponent is not null)
+        {
+            var insertI = entryRef.ComponentLexemesRS.IndexOf(nextComponent);
+            entryRef.ComponentLexemesRS.Insert(insertI, lexComponent);
+            return;
+        }
+
+        lexComplexForm.AddComponent(lexComponent);
     }
 
     internal void RemoveComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
@@ -909,6 +979,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             if (previousSense.SensesOS.Count > 0)
             {
                 // if the sense has sub-senses, our sense will only come directly after it if it is the first sub-sense
+                // ILcmOwningSequence treats an insert as a move if the item is already in it
                 previousSense.SensesOS.Insert(0, lexSense);
             }
             else
@@ -918,6 +989,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     : previousSense.Owner is ILexSense parentSense ? parentSense.SensesOS
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
                 var insertI = allSiblings.IndexOf(previousSense) + 1;
+                // ILcmOwningSequence treats an insert as a move if the item is already in it
                 lexEntry.SensesOS.Insert(insertI, lexSense);
             }
             return;
@@ -931,6 +1003,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     : nextSense.Owner is ILexSense parentSense ? parentSense.SensesOS
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
             var insertI = allSiblings.IndexOf(nextSense);
+            // ILcmOwningSequence treats an insert as a move if the item is already in it
             lexEntry.SensesOS.Insert(insertI, lexSense);
             return;
         }
@@ -947,6 +1020,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (previousExample is not null)
         {
             var insertI = lexSense.ExamplesOS.IndexOf(previousExample) + 1;
+            // ILcmOwningSequence treats an insert as a move if the item is already in it
             lexSense.ExamplesOS.Insert(insertI, lexExample);
             return;
         }
@@ -955,6 +1029,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (nextExample is not null)
         {
             var insertI = lexSense.ExamplesOS.IndexOf(nextExample);
+            // ILcmOwningSequence treats an insert as a move if the item is already in it
             lexSense.ExamplesOS.Insert(insertI, lexExample);
             return;
         }
@@ -1045,7 +1120,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                // LibLCM treats an insert as a move if the sense is already in the entry
                 InsertSense(lexEntry, lexSense, between);
             });
         return Task.CompletedTask;
@@ -1168,7 +1242,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                // LibLCM treats an insert as a move if the example sentence is already on the sense
                 InsertExampleSentence(lexSense, lexExample, between);
             });
         return Task.CompletedTask;
@@ -1199,5 +1272,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
+    }
+
+    public ProjectDataFormat GetDataFormat()
+    {
+        return ProjectDataFormat.FwData;
     }
 }

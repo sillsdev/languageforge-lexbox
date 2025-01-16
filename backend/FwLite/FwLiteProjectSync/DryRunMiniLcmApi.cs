@@ -290,10 +290,16 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition? position = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword} between {position?.Previous} and {position?.Next}"));
         return Task.FromResult(complexFormComponent);
+    }
+
+    public Task MoveComplexFormComponent(Guid complexFormEntryId, Guid complexFormComponentId, BetweenPosition between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveComplexFormComponent), $"Move complex form component {complexFormComponentId} between {between.Previous} and {between.Next}"));
+        return Task.CompletedTask;
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -306,5 +312,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));
         await Task.CompletedTask;
+    }
+
+    public ProjectDataFormat GetDataFormat()
+    {
+        return api.GetDataFormat();
     }
 }

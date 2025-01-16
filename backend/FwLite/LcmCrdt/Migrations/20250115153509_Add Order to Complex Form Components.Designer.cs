@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    partial class LcmCrdtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250115153509_Add Order to Complex Form Components")]
+    partial class AddOrdertoComplexFormComponents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -68,7 +71,8 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Order")
-                        .HasColumnType("REAL");
+                        .HasColumnType("REAL")
+                        .HasColumnName("Order");
 
                     b.Property<Guid?>("SnapshotId")
                         .HasColumnType("TEXT");
@@ -277,6 +281,10 @@ namespace LcmCrdt.Migrations
                     b.Property<double>("Order")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("PartOfSpeech")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("PartOfSpeechId")
                         .HasColumnType("TEXT");
 
@@ -290,8 +298,6 @@ namespace LcmCrdt.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EntryId");
-
-                    b.HasIndex("PartOfSpeechId");
 
                     b.HasIndex("SnapshotId")
                         .IsUnique();
@@ -523,16 +529,10 @@ namespace LcmCrdt.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MiniLcm.Models.PartOfSpeech", "PartOfSpeech")
-                        .WithMany()
-                        .HasForeignKey("PartOfSpeechId");
-
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
                         .HasForeignKey("MiniLcm.Models.Sense", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("PartOfSpeech");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>

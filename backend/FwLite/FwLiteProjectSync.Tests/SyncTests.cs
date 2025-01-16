@@ -88,7 +88,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                );
     }
 
     [Fact]
@@ -156,7 +159,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                );
     }
 
     [Fact]
@@ -239,7 +245,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                );
 
         // Sync again, ensure no problems or changes
         var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
@@ -334,7 +343,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                );
     }
 
     [Fact]
@@ -418,7 +430,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                );
     }
 
     [Fact]
@@ -445,9 +460,11 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                //todo the headword should be changed
-                .For(e => e.Components).Exclude(c => c.ComponentHeadword)
+                .For(e => e.Components).Exclude(c => c.Order)
                 .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                //todo the headwords should be changed
+                .For(e => e.Components).Exclude(c => c.ComponentHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
     }
 
@@ -517,7 +534,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Senses).Exclude(s => s.Order)
                 .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
                 .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+                .For(e => e.Components).Exclude(c => c.Order)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Order)
+                );
     }
 
     [Fact]
