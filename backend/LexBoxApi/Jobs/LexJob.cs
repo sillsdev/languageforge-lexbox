@@ -14,12 +14,25 @@ public abstract class LexJob : IJob
     protected static async Task QueueJob(ISchedulerFactory schedulerFactory,
         JobKey key,
         JobDataMap data,
+        TimeSpan? delay = null,
         CancellationToken cancellationToken = default)
     {
         var scheduler = await schedulerFactory.GetScheduler(cancellationToken);
         data[nameof(JobTriggerTraceId)] = Activity.Current?.Context.TraceId.ToHexString() ?? string.Empty;
         data[nameof(JobTriggerSpanParentId)] = Activity.Current?.Context.SpanId.ToHexString() ?? string.Empty;
-        await scheduler.TriggerJob(key, data, cancellationToken);
+        if (delay is null)
+        {
+            await scheduler.TriggerJob(key, data, cancellationToken);
+        }
+        else
+        {
+            var trigger = TriggerBuilder.Create()
+                .StartAt(DateTime.UtcNow.Add(delay.Value.Duration()))
+                .ForJob(key)
+                .UsingJobData(data)
+                .Build();
+            await scheduler.ScheduleJob(trigger, cancellationToken);
+        }
     }
 
     async Task IJob.Execute(IJobExecutionContext context)

@@ -2,7 +2,7 @@
 
 namespace LexBoxApi.Jobs;
 
-public class DeleteTempDirectoryJob() : DelayedLexJob
+public class DeleteTempDirectoryJob() : LexJob
 {
     public static async Task Queue(ISchedulerFactory schedulerFactory,
         string path,
