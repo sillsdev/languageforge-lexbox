@@ -9,6 +9,7 @@ public class DeleteTempDirectoryJob() : DelayedLexJob
         TimeSpan delay,
         CancellationToken cancellationToken = default)
     {
+        if (!PathIsInTempDir(path)) return;
         await QueueJob(schedulerFactory,
             Key,
             new JobDataMap { { nameof(Path), path } },
@@ -22,9 +23,29 @@ public class DeleteTempDirectoryJob() : DelayedLexJob
     protected override Task ExecuteJob(IJobExecutionContext context)
     {
         ArgumentException.ThrowIfNullOrEmpty(Path);
-        return Task.Run(() =>
+        if (!PathIsInTempDir(Path)) return Task.CompletedTask;
+        if (Directory.Exists(Path) && PathIsSafeToDelete(Path)) Directory.Delete(Path, true);
+        return Task.CompletedTask;
+    }
+
+    private static bool PathIsInTempDir(string path)
+    {
+        // Only safe to delete files from the system temp directory
+        var prefix = System.IO.Path.GetTempPath();
+        return (!string.IsNullOrEmpty(prefix)) && path.StartsWith(prefix);
+    }
+
+    private static bool PathIsSafeToDelete(string path)
+    {
+        try
         {
-            if (Directory.Exists(Path)) Directory.Delete(Path, true);
-        });
+            var attributes = File.GetAttributes(path);
+            // Must be a directory *and* must not be a symlink
+            return attributes.HasFlag(FileAttributes.Directory) && !attributes.HasFlag(FileAttributes.ReparsePoint);
+        }
+        catch
+        {
+            return false; // If anything at all goes wrong, we want to abort
+        }
     }
 }
