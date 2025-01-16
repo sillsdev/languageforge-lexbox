@@ -22,7 +22,7 @@ public record Entry : IObjectWithId<Entry>
     /// <summary>
     /// This entry is a part of these complex forms
     /// </summary>
-    public virtual IList<ComplexFormComponent> ComplexForms { get; set; } = [];
+    public virtual List<ComplexFormComponent> ComplexForms { get; set; } = [];
 
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
