@@ -235,7 +235,7 @@ public class ProjectController(
     [HttpGet("sldr-export")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<FileResult>> GetLdmlZip(CancellationToken token)
+    public async Task<ActionResult> GetLdmlZip(CancellationToken token)
     {
         var path = await projectService.PrepareLdmlZip(scheduler, token);
         if (path is null) return NotFound("No SLDR files available");
