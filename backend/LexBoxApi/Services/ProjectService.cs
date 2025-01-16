@@ -12,6 +12,7 @@ using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Path = System.IO.Path; // Resolves ambiguous reference with HotChocolate.Path
 
 namespace LexBoxApi.Services;
 
@@ -276,7 +277,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         if (project.Type != ProjectType.FLEx) return null;
         var zip = await hgService.GetLdmlZip(project.Code, token);
         if (zip is null) return null;
-        var path = System.IO.Path.Join(destRoot, project.Id.ToString());
+        var path = Path.Join(destRoot, project.Id.ToString());
         if (Directory.Exists(path)) Directory.Delete(path, true);
         var dirInfo = Directory.CreateDirectory(path);
         zip.ExtractToDirectory(dirInfo.FullName, true);
@@ -285,17 +286,17 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
 
     public async Task<string> PrepareLdmlZip(CancellationToken token = default)
     {
-        var path = System.IO.Path.Join(System.IO.Path.GetTempPath(), "ldml-zip"); // TODO: pick random name, rather than predictable one
+        var path = Path.Join(Path.GetTempPath(), "ldml-zip"); // TODO: pick random name, rather than predictable one
         if (Directory.Exists(path)) Directory.Delete(path, true);
         Directory.CreateDirectory(path);
         await DeleteTempDirectoryJob.Queue(schedulerFactory, path, TimeSpan.FromHours(4));
-        var zipRoot = System.IO.Path.Join(path, "zipRoot");
+        var zipRoot = Path.Join(path, "zipRoot");
         Directory.CreateDirectory(zipRoot);
         await foreach (var project in dbContext.Projects.Where(p => p.Type == ProjectType.FLEx).AsAsyncEnumerable())
         {
             await ExtractLdmlZip(project, zipRoot, token);
         }
-        var zipFilePath = System.IO.Path.Join(path, "ldml.zip"); // TODO: Put timestamp in there
+        var zipFilePath = Path.Join(path, "ldml.zip"); // TODO: Put timestamp in there
         if (File.Exists(zipFilePath)) File.Delete(zipFilePath);
         ZipFile.CreateFromDirectory(zipRoot, zipFilePath, CompressionLevel.Fastest, includeBaseDirectory: false);
         return zipFilePath;

@@ -1,4 +1,5 @@
 ﻿using LexCore.Entities;
+using System.IO.Compression;
 
 namespace LexCore.ServiceInterfaces;
 
@@ -22,7 +23,7 @@ public interface IHgService
     Task<int?> GetRepoSizeInKb(ProjectCode code, CancellationToken token = default);
     Task<int?> GetLexEntryCount(ProjectCode code, ProjectType projectType);
     Task<string?> GetRepositoryIdentifier(Project project);
-    Task<System.IO.Compression.ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default);
+    Task<ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default);
     Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token);
     Task<HttpContent> InvalidateDirCache(ProjectCode code, CancellationToken token = default);
     bool HasAbandonedTransactions(ProjectCode projectCode);
