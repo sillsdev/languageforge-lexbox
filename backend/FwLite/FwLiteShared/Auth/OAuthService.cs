@@ -74,11 +74,18 @@ public class OAuthService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var loginRequest in _requestChannel.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            //don't await, otherwise we'll block the channel reader and only 1 login will be processed at a time
-            //cancel the login after 5 minutes, otherwise it'll probably hang forever and abandoned requests will never be cleaned up
-            _ = Task.Run(() => StartLogin(loginRequest, stoppingToken.Merge(new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token)), stoppingToken);
+            await foreach (var loginRequest in _requestChannel.Reader.ReadAllAsync(stoppingToken))
+            {
+                //don't await, otherwise we'll block the channel reader and only 1 login will be processed at a time
+                //cancel the login after 5 minutes, otherwise it'll probably hang forever and abandoned requests will never be cleaned up
+                _ = Task.Run(() => StartLogin(loginRequest, stoppingToken.Merge(new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token)), stoppingToken);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected during shutdown
         }
     }
 
