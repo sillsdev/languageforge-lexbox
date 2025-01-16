@@ -237,7 +237,7 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<FileResult>> GetLdmlZip(CancellationToken token)
     {
-        var path = await projectService.PrepareLdmlZip(token);
+        var path = await projectService.PrepareLdmlZip(scheduler, token);
         if (path is null) return NotFound("No SLDR files available");
         var stream = System.IO.File.OpenRead(path);
         return File(stream, "application/zip");

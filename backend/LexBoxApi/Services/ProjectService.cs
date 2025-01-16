@@ -17,7 +17,7 @@ using Path = System.IO.Path; // Resolves ambiguous reference with HotChocolate.P
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService, Quartz.ISchedulerFactory schedulerFactory)
+public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -285,7 +285,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return dirInfo;
     }
 
-    public async Task<string?> PrepareLdmlZip(CancellationToken token = default)
+    public async Task<string?> PrepareLdmlZip(Quartz.ISchedulerFactory schedulerFactory, CancellationToken token = default)
     {
         var nowStr = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
         var path = Path.Join(Path.GetTempPath(), $"sldr-export-{nowStr}");
