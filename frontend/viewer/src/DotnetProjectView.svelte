@@ -5,6 +5,9 @@
   import {useProjectServicesProvider} from '$lib/services/service-provider';
   import {wrapInProxy} from '$lib/services/service-provider-dotnet';
   import type {IProjectScope} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectScope';
+  import type {
+    IHistoryServiceJsInvokable
+  } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 
   const projectServicesProvider = useProjectServicesProvider();
   export let projectName: string;
@@ -19,6 +22,9 @@
       projectScope = await projectServicesProvider.openFwDataProject(projectName);
     }
     //todo also history service
+    if (projectScope.historyService) {
+      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, wrapInProxy(projectScope.historyService) as IHistoryServiceJsInvokable);
+    }
     window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, wrapInProxy(projectScope.miniLcm) as IMiniLcmJsInvokable);
     serviceLoaded = true;
   });

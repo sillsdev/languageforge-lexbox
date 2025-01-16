@@ -26,7 +26,7 @@ public class FwLiteProvider(
 
     public Dictionary<DotnetService, object> GetServices()
     {
-        return Enum.GetValues<DotnetService>().Where(s => s != DotnetService.MiniLcmApi && s != DotnetService.ProjectServicesProvider)
+        return Enum.GetValues<DotnetService>().Where(s => s != DotnetService.MiniLcmApi && s != DotnetService.ProjectServicesProvider && s != DotnetService.HistoryService)
             .ToDictionary(s => s, GetService);
     }
 
@@ -80,4 +80,5 @@ public enum DotnetService
     ImportFwdataService,
     FwLiteConfig,
     ProjectServicesProvider,
+    HistoryService
 }

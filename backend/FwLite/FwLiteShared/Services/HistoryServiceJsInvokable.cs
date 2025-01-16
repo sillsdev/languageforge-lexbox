@@ -26,12 +26,6 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     }
 
     [JSInvokable]
-    public Task<IObjectWithId> GetObject(DateTime timestamp, Guid entityId)
-    {
-        return historyService.GetObject(timestamp, entityId);
-    }
-
-    [JSInvokable]
     public async ValueTask<HistoryLineItem[]> GetHistory(Guid entityId)
     {
         return await historyService.GetHistory(entityId).ToArrayAsync();

@@ -1,6 +1,6 @@
 import './service-declaration';
 import {openSearch} from '../search-bar/search';
-import {DotnetService, type ICombinedProjectsService, type IAuthService} from '../dotnet-types';
+import {DotnetService, type IAuthService, type ICombinedProjectsService} from '../dotnet-types';
 import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IImportFwdataService';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {useEventBus} from './event-bus';
@@ -8,6 +8,9 @@ import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared
 import type {
   IProjectServicesProvider
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectServicesProvider';
+import type {
+  IHistoryServiceJsInvokable
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 
 export enum LexboxService {
   LexboxApi = 'LexboxApi'
@@ -19,7 +22,8 @@ export type LexboxServiceRegistry = {
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
   [DotnetService.FwLiteConfig]: IFwLiteConfig,
-  [DotnetService.ProjectServicesProvider]: IProjectServicesProvider
+  [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
+  [DotnetService.HistoryService]: IHistoryServiceJsInvokable
 };
 
 export const SERVICE_KEYS = [...Object.values(LexboxService), ...Object.values(DotnetService)];
@@ -42,6 +46,10 @@ export class LexboxServiceProvider {
     const service = globalThis.window.lexbox.DotNetServiceProvider?.getService(key) ?? this.services[key];
     if (!service) throw new Error(`Lexbox service '${key}' not found`);
     return service;
+  }
+  public tryGetService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
+    this.validateServiceKey(key);
+    return globalThis.window.lexbox.DotNetServiceProvider?.getService(key) ?? this.services[key];
   }
 
   private validateServiceKey(key: ServiceKey): void {

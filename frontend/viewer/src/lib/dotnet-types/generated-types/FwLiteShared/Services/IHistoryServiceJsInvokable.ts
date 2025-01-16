@@ -13,7 +13,6 @@ export interface IHistoryServiceJsInvokable
 	getObject(commitId: string, entityId: string) : Promise<IObjectWithId>;
 	projectActivity() : Promise<IProjectActivity[]>;
 	getSnapshot(snapshotId: string) : Promise<IObjectSnapshot>;
-	getObject(timestamp: unknown, entityId: string) : Promise<IObjectWithId>;
 	getHistory(entityId: string) : Promise<IHistoryLineItem[]>;
 }
 /* eslint-enable */
