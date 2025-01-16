@@ -6,11 +6,11 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+using MiniLcm.Culture;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, ILogger<SetupCollationInterceptor> logger) : IDbConnectionInterceptor, ISaveChangesInterceptor
+public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider) : IDbConnectionInterceptor, ISaveChangesInterceptor
 {
     private WritingSystem[] GetWritingSystems(LcmCrdtDbContext dbContext, DbConnection connection)
     {
@@ -107,17 +107,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, ILogger<SetupCollatio
 
     private void SetupCollation(SqliteConnection connection, WritingSystem writingSystem)
     {
-        CompareInfo compareInfo;
-        try
-        {
-            //todo use ICU/SLDR instead
-            compareInfo = CultureInfo.CreateSpecificCulture(writingSystem.WsId.Code).CompareInfo;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Failed to create compare info for '{WritingSystemId}'", writingSystem.WsId);
-            compareInfo = CultureInfo.InvariantCulture.CompareInfo;
-        }
+        var compareInfo = cultureProvider.GetCompareInfo(writingSystem);
 
         //todo use custom comparison based on the writing system
         CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem),

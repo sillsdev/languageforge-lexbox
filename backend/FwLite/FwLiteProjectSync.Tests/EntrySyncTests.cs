@@ -8,7 +8,7 @@ using Soenneker.Utils.AutoBogus.Config;
 
 namespace FwLiteProjectSync.Tests;
 
-public class EntrySyncTests : IClassFixture<SyncFixture>
+public class EntrySyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 {
     private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
     {
@@ -24,6 +24,16 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     public EntrySyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await _fixture.EnsureDefaultVernacularWritingSystemExistsInCrdt();
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     private readonly SyncFixture _fixture;
