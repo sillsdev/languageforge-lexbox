@@ -53,7 +53,7 @@ public class SyncService(
             await foreach (var entryId in syncResults.MissingFromLocal
                                .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
                                .ToAsyncEnumerable()
-                               .SelectAwait(async e => await GetEntryId(e.DbObject as IObjectWithId))
+                               .SelectMany(e => GetEntryId(e.DbObject as IObjectWithId))
                                .Distinct())
             {
                 if (entryId is null) continue;
@@ -74,15 +74,26 @@ public class SyncService(
         }
     }
 
-    private async ValueTask<Guid?> GetEntryId(IObjectWithId? entity)
+    private async IAsyncEnumerable<Guid?> GetEntryId(IObjectWithId? entity)
     {
-        return entity switch
+        switch (entity)
         {
-            Entry entry => entry.Id,
-            Sense sense => sense.EntryId,
-            ExampleSentence exampleSentence => (await dataModel.GetLatest<Sense>(exampleSentence.SenseId))?.EntryId,
-            _ => null
-        };
+            case Entry entry:
+                yield return entry.Id;
+                break;
+            case Sense sense:
+                yield return sense.EntryId;
+                break;
+            case ExampleSentence exampleSentence:
+                yield return (await dataModel.GetLatest<Sense>(exampleSentence.SenseId))?.EntryId;
+                break;
+            case ComplexFormComponent complexFormComponent:
+                yield return complexFormComponent.ComplexFormEntryId;
+                yield return complexFormComponent.ComponentEntryId;
+                break;
+            default:
+                break;
+        }
     }
 
     public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)
