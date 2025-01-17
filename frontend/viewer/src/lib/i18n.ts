@@ -25,6 +25,9 @@ const defaultI18n: Record<FieldIds, string> = {
   'translation': 'Translation',
   'reference': 'Reference',
   'test': 'Test',
+  'sense': 'Sense',
+  'entry': 'Entry',
+  'entries': 'Entries'
 };
 
 const weSayI18n = {
@@ -33,6 +36,9 @@ const weSayI18n = {
   'partOfSpeechId': 'Part of speech',
   complexForms: 'Part of',
   components: 'Made of',
+  'sense': 'Definition',
+  'entry': 'Word',
+  'entries': 'Words'
 } satisfies Partial<Record<FieldIds, string>>;
 
 const languageForgeI18n = {
@@ -40,6 +46,9 @@ const languageForgeI18n = {
   'partOfSpeechId': 'Part of speech',
   complexForms: 'Part of',
   components: 'Made of',
+  'sense': 'Definition',
+  'entry': 'Word',
+  'entries': 'Words'
 } satisfies Partial<Record<FieldIds, string>>;
 
 const i18nMap: Record<Exclude<I18nType, ''>, Partial<Record<FieldIds, string>>> = {

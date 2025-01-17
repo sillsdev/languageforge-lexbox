@@ -7,6 +7,8 @@
   import { defaultEntry } from '../utils';
   import { createEventDispatcher, getContext } from 'svelte';
   import type { SaveHandler } from '../services/save-event-service';
+  import {useCurrentView} from '$lib/services/view-service';
+  import {fieldName} from '$lib/i18n';
 
   const dispatch = createEventDispatcher<{
     created: { entry: IEntry };
@@ -15,6 +17,7 @@
   let loading = false;
   let entry: IEntry = defaultEntry();
 
+  const currentView = useCurrentView();
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
   let requester: {
@@ -59,18 +62,18 @@
 <Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOff={onClosing}>
   <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
     <div class="hidden sm:contents">
-      New Entry
+      New {fieldName({id: 'entry'}, $currentView.i18nKey)}
     </div>
   </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
-    <div slot="title">New Entry</div>
+    <div slot="title">New {fieldName({id: 'entry'}, $currentView.i18nKey)}</div>
     <div class="m-6">
       <EntryEditor bind:entry={entry} modalMode/>
     </div>
     <div class="flex-grow"></div>
     <div slot="actions">
       <Button>Cancel</Button>
-      <Button variant="fill-light" color="success" on:click={e => createEntry(e, toggleOff)}>Create Entry</Button>
+      <Button variant="fill-light" color="success" on:click={e => createEntry(e, toggleOff)}>Create {fieldName({id: 'entry'}, $currentView.i18nKey)}</Button>
     </div>
   </Dialog>
 </Toggle>

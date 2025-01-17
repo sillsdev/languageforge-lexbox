@@ -8,6 +8,8 @@
   import {createEventDispatcher, getContext, onDestroy} from 'svelte';
   import {type IEntry, SortField} from '$lib/dotnet-types';
   import {useSearch} from './search';
+  import {useCurrentView} from '$lib/services/view-service';
+  import {fieldName} from '$lib/i18n';
 
   const {search, showSearchDialog} = useSearch();
   const dispatch = createEventDispatcher<{
@@ -55,6 +57,7 @@
 
   const listSearch = getContext<Writable<string | undefined>>('listSearch');
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
+  const currentView = useCurrentView();
 
   function selectEntry(entry: IEntry) {
     dispatch('entrySelected', {entry, search: $search});
@@ -80,7 +83,7 @@
     classes={{ input: 'my-1 justify-center opacity-60' }}
     class="cursor-pointer">
     <div class="hidden lg-view:contents whitespace-nowrap">
-      Find entry...
+      Find {fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...
       <span class="ml-2"><Icon data={mdiMagnify} /></span>
       <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
     </div>
@@ -103,7 +106,7 @@
           selectEntry($displayedEntries[0]);
         }
       }}
-      placeholder="Find entry..."
+      placeholder={`Find ${fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...`}
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
       classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
       icon={mdiBookSearchOutline}>

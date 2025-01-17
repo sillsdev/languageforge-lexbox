@@ -17,6 +17,7 @@
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
   import {useDialogService} from '$lib/entry-editor/dialog-service';
+  import {fieldName} from '$lib/i18n';
   const dialogService = useDialogService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -189,7 +190,7 @@
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
       <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
-        <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
+        <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-4">
         {#if !readonly}
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
@@ -239,7 +240,7 @@
   {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="col-span-full flex justify-end">
-      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
+      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
 </div>
@@ -249,12 +250,12 @@
     <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
         <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Add Sense
+          Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
         </div>
       </Button>
       <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
         <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Delete Entry
+          Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
         </div>
       </Button>
       {#if $features.history}
