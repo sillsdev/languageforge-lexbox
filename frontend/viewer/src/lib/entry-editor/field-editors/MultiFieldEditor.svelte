@@ -19,6 +19,7 @@
   export let wsType: WritingSystemSelection;
   export let value: IMultiString;
   export let readonly: boolean = false;
+  export let autofocus: boolean = false;
 
   let unsavedChanges: Record<string, boolean> = {};
   let currentView = useCurrentView();
@@ -31,11 +32,12 @@
 <div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name} />
   <div class="fields">
-    {#each writingSystems as ws (ws.wsId)}
+    {#each writingSystems as ws, idx (ws.wsId)}
       <CrdtTextField
         on:change={() => dispatch('change', { value })}
         bind:value={value[ws.wsId]}
         bind:unsavedChanges={unsavedChanges[ws.wsId]}
+        autofocus={autofocus && (idx == 0)}
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : 'left'}
         placeholder={collapse ? ws.abbreviation : undefined}

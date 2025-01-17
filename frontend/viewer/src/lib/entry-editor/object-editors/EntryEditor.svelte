@@ -116,6 +116,7 @@
     <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                       bind:value={entry.lexemeForm}
                       {readonly}
+                      autofocus={modalMode}
                       id="lexemeForm"
                       wsType="vernacular"/>
 
