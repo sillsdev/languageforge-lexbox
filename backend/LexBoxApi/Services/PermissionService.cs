@@ -141,16 +141,14 @@ public class PermissionService(
             throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }
 
-    public async ValueTask<bool> CanCreateGuestUserInProject(Guid? projectId)
+    public async ValueTask<bool> CanCreateGuestUserInProject(Guid projectId)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        // Site admins can create guest users even with no project, anyone else (like org admins) must specify a project ID
-        if (projectId is null) return false;
-        return await ManagesOrgThatOwnsProject(projectId.Value);
+        return await ManagesOrgThatOwnsProject(projectId);
     }
 
-    public async ValueTask AssertCanCreateGuestUserInProject(Guid? projectId)
+    public async ValueTask AssertCanCreateGuestUserInProject(Guid projectId)
     {
         if (!await CanCreateGuestUserInProject(projectId)) throw new UnauthorizedAccessException();
     }
