@@ -302,8 +302,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         var zipFilePath = Path.Join(path, zipFilename);
         if (File.Exists(zipFilePath)) File.Delete(zipFilePath);
         // If we would create an empty .zip file, just return null instead (will become a 404)
-        using var enumerator = Directory.EnumerateDirectories(zipRoot).GetEnumerator();
-        if (!enumerator.MoveNext()) return null;
+        if (!Directory.EnumerateDirectories(zipRoot).Any()) return null;
         ZipFile.CreateFromDirectory(zipRoot, zipFilePath, CompressionLevel.Fastest, includeBaseDirectory: false);
         return zipFilePath;
     }
