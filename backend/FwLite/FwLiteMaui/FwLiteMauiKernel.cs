@@ -20,28 +20,40 @@ public static class FwLiteMauiKernel
         services.AddSingleton<MainPage>();
         configuration.AddJsonFile("appsettings.json", optional: true);
 
-        services.Configure<AuthConfig>(config =>
-            config.LexboxServers =
-            [
-                new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
-                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
-            ]);
-
         string environment = "Production";
 #if DEBUG
         environment = "Development";
         services.AddBlazorWebViewDeveloperTools();
 #endif
-        var env = new HostingEnvironment() { EnvironmentName = environment };
+        IHostEnvironment env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
         services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
+        services.Configure<AuthConfig>(config =>
+        {
+            List<LexboxServer> servers =
+            [
+                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
+            ];
+            if (env.IsDevelopment())
+            {
+                servers.Add(new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"));
+            }
+
+            config.LexboxServers = servers.ToArray();
+            config.AfterLoginWebView = () =>
+            {
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window is not null) Application.Current?.ActivateWindow(window);
+            };
+        });
 #if INCLUDE_FWDATA_BRIDGE
         //need to call them like this otherwise we need a using statement at the top of the file
         FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
         FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
+        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
 #endif
 #if WINDOWS
         services.AddFwLiteWindows(env);
@@ -49,11 +61,7 @@ public static class FwLiteMauiKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
-        services.Configure<AuthConfig>(config => config.AfterLoginWebView = () =>
-        {
-            var window = Application.Current?.Windows.FirstOrDefault();
-            if (window is not null) Application.Current?.ActivateWindow(window);
-        });
+
         services.Configure<FwLiteConfig>(config =>
         {
             config.AppVersion = AppVersion.Version;

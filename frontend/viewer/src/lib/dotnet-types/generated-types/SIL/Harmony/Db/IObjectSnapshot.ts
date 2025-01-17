@@ -3,11 +3,16 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {DotNet} from '@microsoft/dotnet-js-interop';
-
-export interface IMiniLcmApiProvider
+export interface IObjectSnapshot
 {
-	getMiniLcmApi() : Promise<DotNet.DotNetObject>;
-	clearMiniLcmApi() : Promise<void>;
+	id: string;
+	typeName: string;
+	entity: unknown;
+	references: string[];
+	entityId: string;
+	entityIsDeleted: boolean;
+	commitId: string;
+	commit: unknown;
+	isRoot: boolean;
 }
 /* eslint-enable */

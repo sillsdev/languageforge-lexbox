@@ -5,10 +5,12 @@
 
 export enum DotnetService {
 	MiniLcmApi = "MiniLcmApi",
-	MiniLcmApiProvider = "MiniLcmApiProvider",
 	CombinedProjectsService = "CombinedProjectsService",
 	AuthService = "AuthService",
 	ImportFwdataService = "ImportFwdataService",
-	FwLiteConfig = "FwLiteConfig"
+	FwLiteConfig = "FwLiteConfig",
+	ProjectServicesProvider = "ProjectServicesProvider",
+	HistoryService = "HistoryService",
+	AppLauncher = "AppLauncher"
 }
 /* eslint-enable */

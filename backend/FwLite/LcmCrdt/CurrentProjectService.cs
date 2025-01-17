@@ -61,6 +61,12 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     {
         _project = project;
     }
+
+    public void ClearProjectContext()
+    {
+        _project = null;
+    }
+
     public async ValueTask<ProjectData> SetupProjectContext(CrdtProject project)
     {
         if (_project != null && project != _project) throw new InvalidOperationException("Can't setup project context for a different project");

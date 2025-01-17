@@ -6,7 +6,7 @@ using MiniLcm.Models;
 
 namespace FwLiteShared.Services;
 
-internal class MiniLcmJsInvokable(
+public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
     IProjectIdentifier project) : IDisposable

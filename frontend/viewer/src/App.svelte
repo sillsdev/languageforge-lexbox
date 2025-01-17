@@ -66,14 +66,14 @@
     <Route path="/project/:name" let:params>
       <Router {url} basepath="/project/{params.name}">
         {#key params.name}
-          <DotnetProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name} type="crdt"/>
         {/key}
       </Router>
     </Route>
     <Route path="/fwdata/:name" let:params>
       <Router {url} basepath="/fwdata/{params.name}">
         {#key params.name}
-          <DotnetProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name} type="fwdata"/>
         {/key}
       </Router>
     </Route>

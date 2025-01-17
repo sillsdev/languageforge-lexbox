@@ -7,6 +7,8 @@
   import type { Writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import DictionaryEntry from '../DictionaryEntry.svelte';
+  import {useCurrentView} from '$lib/services/view-service';
+  import {fieldName} from '$lib/i18n';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
@@ -52,6 +54,7 @@
   let dictionaryMode = false;
 
   const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
+  const currentView = useCurrentView();
 </script>
 
 <div class="entry-list flex flex-col gap-4 w-full justify-self-center">
@@ -60,7 +63,7 @@
     <div class="grow">
       <TextField
         bind:value={search}
-        placeholder="Filter entries..."
+        placeholder={`Filter ${fieldName({id: 'entries'}, $currentView.i18nKey).toLowerCase()}...`}
         clearable
         classes={{ append: 'flex-row-reverse' }}
         icon={mdiBookSearchOutline}>

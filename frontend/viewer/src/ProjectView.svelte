@@ -41,6 +41,7 @@
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {initDialogService} from '$lib/entry-editor/dialog-service';
+  import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
 
   export let loading = false;
   export let about: string | undefined = undefined;
@@ -272,12 +273,7 @@
     };
   });
 
-  function openInFlex() {
-    AppNotification.displayAction('The project is open in FieldWorks. Please close it to reopen.', 'warning', {
-      label: 'Open',
-      callback: () => window.location.reload()
-    });
-  }
+
 
   let newEntryDialog: NewEntryDialog;
   async function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
@@ -413,20 +409,10 @@
 
                   </div>
                 {/if}
-                {#if $features.openWithFlex && $selectedEntry}
+                {#if $selectedEntry}
                   <div class="contents">
 <!--                    button must be a link otherwise it won't follow the redirect to a protocol handler-->
-                    <Button
-                      href={`/api/fw/${projectName}/open/entry/${$selectedEntry.id}`}
-                      on:click={openInFlex}
-                      variant="fill-light"
-                      color="info"
-                      size="sm">
-                      <img src={flexLogo} alt="FieldWorks logo" class="h-6 max-w-fit"/>
-                      <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-                        Open in FieldWorks
-                      </div>
-                    </Button>
+                    <OpenInFieldWorksButton entryId={$selectedEntry.id} {projectName} show={$features.openWithFlex}/>
                   </div>
                 {/if}
                 <div class="contents sm-form:hidden" class:hidden={collapseActionBar}>

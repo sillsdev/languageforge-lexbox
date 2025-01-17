@@ -177,7 +177,7 @@
               <AnchorListItem href={`/project/${project.name}`}>
                 <ListItem title={project.name}
                           icon={mdiBookEditOutline}
-                          subheading={!server ? 'Local only' : ('Syncing with ' + server.displayName)}>
+                          subheading={!server ? 'Local only' : ('Synced with ' + server.displayName)}>
                   <div slot="actions" class="pointer-events-none">
                     <Button icon={mdiChevronRight} class="p-2"/>
                   </div>
@@ -237,17 +237,30 @@
               {:else}
                 {#each serverProjects as project}
                   {@const localProject = matchesProject(projects, project)}
-                  <ListItem icon={mdiCloud}
-                            class={localProject?.crdt ? 'pointer-events-none' : ''}
-                            title={project.name}
-                            on:click={() =>{ if (!localProject?.crdt) {void downloadCrdtProject(project, server);} }}
-                            loading={downloading === project.name}>
-                    <div slot="actions" class="pointer-events-none">
-                      <Button disabled={localProject?.crdt} icon={localProject?.crdt ? mdiBookSyncOutline : mdiBookArrowDownOutline} class="p-2">
-                        {localProject?.crdt ? 'Synced' : 'Download'}
-                      </Button>
-                    </div>
-                  </ListItem>
+                  {#if localProject?.crdt}
+                    <AnchorListItem href={`/project/${project.name}`}>
+                      <ListItem icon={mdiCloud}
+                                title={project.name}
+                                loading={downloading === project.name}>
+                        <div slot="actions" class="pointer-events-none">
+                          <Button disabled icon={mdiBookSyncOutline} class="p-2">
+                            Synced
+                          </Button>
+                        </div>
+                      </ListItem>
+                    </AnchorListItem>
+                  {:else}
+                    <ListItem icon={mdiCloud}
+                              title={project.name}
+                              on:click={() => void downloadCrdtProject(project, server)}
+                              loading={downloading === project.name}>
+                      <div slot="actions" class="pointer-events-none">
+                        <Button icon={mdiBookArrowDownOutline} class="p-2">
+                          Download
+                        </Button>
+                      </div>
+                    </ListItem>
+                  {/if}
                 {/each}
               {/if}
             </div>

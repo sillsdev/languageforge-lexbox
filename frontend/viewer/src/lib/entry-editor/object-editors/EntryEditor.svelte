@@ -17,6 +17,7 @@
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
   import {useDialogService} from '$lib/entry-editor/dialog-service';
+  import {fieldName} from '$lib/i18n';
   const dialogService = useDialogService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -24,11 +25,15 @@
   }>();
 
   export let entry: IEntry;
+  //used to not try to delete an object which has not been created yet
+  let newSenses: ISense[] = [];
+  let newExamples: IExampleSentence[] = [];
 
   function addSense() {
     const sense = defaultSense(entry.id);
     highlightedEntity = sense;
     entry.senses = [...entry.senses, sense];
+    newSenses = [...newSenses, sense];
   }
 
   function addExample(sense: ISense) {
@@ -36,6 +41,7 @@
     highlightedEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this
+    newExamples = [...newExamples, sentence];
   }
   async function deleteEntry() {
     if (!await dialogService.promptDelete('Entry')) return;
@@ -43,28 +49,49 @@
   }
 
   async function deleteSense(sense: ISense) {
+    if (newSenses.some(s => s.id === sense.id)) {
+      newSenses = newSenses.filter(s => s.id !== sense.id);
+      entry.senses = entry.senses.filter(s => s.id !== sense.id);
+      return;
+    }
     if (!await dialogService.promptDelete('Sense')) return;
-    entry.senses = entry.senses.filter(s => s !== sense);
+    entry.senses = entry.senses.filter(s => s.id !== sense.id);
     dispatch('delete', {entry, sense});
   }
   function moveSense(sense: ISense, i: number) {
     entry.senses.splice(entry.senses.indexOf(sense), 1);
     entry.senses.splice(i, 0, sense);
-    dispatch('change', {entry, sense});
+    onSenseChange(sense);
     highlightedEntity = sense;
   }
+
   async function deleteExample(sense: ISense, example: IExampleSentence) {
+    if (newExamples.some(e => e.id === example.id)) {
+      newExamples = newExamples.filter(e => e.id !== example.id);
+      sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
+      entry = entry; // examples are not updated without this
+      return;
+    }
     if (!await dialogService.promptDelete('Example sentence')) return;
-    sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
+    sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
     dispatch('delete', {entry, sense, example});
     entry = entry; // examples are not updated without this
   }
   function moveExample(sense: ISense, example: IExampleSentence, i: number) {
     sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
     sense.exampleSentences.splice(i, 0, example);
-    dispatch('change', {entry, sense, example});
+    onExampleChange(sense, example);
     highlightedEntity = example;
     entry = entry; // examples are not updated without this
+  }
+
+  function onSenseChange(sense: ISense) {
+    newSenses = newSenses.filter(s => s.id !== sense.id);
+    dispatch('change', {entry, sense});
+  }
+  function onExampleChange(sense: ISense, example: IExampleSentence) {
+    newExamples = newExamples.filter(e => e.id !== example.id);
+    dispatch('change', {entry, sense, example});
   }
   export let modalMode = false;
   export let readonly = false;
@@ -164,7 +191,7 @@
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
       <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
-        <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
+        <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-4">
         {#if !readonly}
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
@@ -173,7 +200,7 @@
         {/if}
       </div>
 
-      <SenseEditor {sense} {readonly} on:change={() => dispatch('change', {entry, sense})}/>
+      <SenseEditor {sense} {readonly} on:change={() => onSenseChange(sense)}/>
 
       <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
         {#each sense.exampleSentences as example, j (example.id)}
@@ -187,19 +214,19 @@
               -->
               <hr class="grow">
               {#if !readonly}
-              <EntityListItemActions i={j}
-                                     items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
-                  on:move={(e) => moveExample(sense, example, e.detail)}
-                                     on:delete={() => deleteExample(sense, example)}
-                                     id={example.id}
-              />
+                <EntityListItemActions i={j}
+                                       items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                                       on:move={(e) => moveExample(sense, example, e.detail)}
+                                       on:delete={() => deleteExample(sense, example)}
+                                       id={example.id}
+                />
               {/if}
             </div>
 
             <ExampleEditor
               {example}
               {readonly}
-                on:change={() => dispatch('change', {entry, sense, example})}
+              on:change={() => onExampleChange(sense, example)}
               />
           </div>
         {/each}
@@ -214,7 +241,7 @@
   {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="col-span-full flex justify-end">
-      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
+      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
 </div>
@@ -224,12 +251,12 @@
     <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
         <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Add Sense
+          Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
         </div>
       </Button>
       <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
         <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Delete Entry
+          Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
         </div>
       </Button>
       {#if $features.history}
