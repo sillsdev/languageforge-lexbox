@@ -24,11 +24,15 @@
   }>();
 
   export let entry: IEntry;
+  //used to not try to delete an object which has not been created yet
+  let newSenses: ISense[] = [];
+  let newExamples: IExampleSentence[] = [];
 
   function addSense() {
     const sense = defaultSense(entry.id);
     highlightedEntity = sense;
     entry.senses = [...entry.senses, sense];
+    newSenses = [...newSenses, sense];
   }
 
   function addExample(sense: ISense) {
@@ -36,6 +40,7 @@
     highlightedEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this
+    newExamples = [...newExamples, sentence];
   }
   async function deleteEntry() {
     if (!await dialogService.promptDelete('Entry')) return;
@@ -43,28 +48,49 @@
   }
 
   async function deleteSense(sense: ISense) {
+    if (newSenses.some(s => s.id === sense.id)) {
+      newSenses = newSenses.filter(s => s.id !== sense.id);
+      entry.senses = entry.senses.filter(s => s.id !== sense.id);
+      return;
+    }
     if (!await dialogService.promptDelete('Sense')) return;
-    entry.senses = entry.senses.filter(s => s !== sense);
+    entry.senses = entry.senses.filter(s => s.id !== sense.id);
     dispatch('delete', {entry, sense});
   }
   function moveSense(sense: ISense, i: number) {
     entry.senses.splice(entry.senses.indexOf(sense), 1);
     entry.senses.splice(i, 0, sense);
-    dispatch('change', {entry, sense});
+    onSenseChange(sense);
     highlightedEntity = sense;
   }
+
   async function deleteExample(sense: ISense, example: IExampleSentence) {
+    if (newExamples.some(e => e.id === example.id)) {
+      newExamples = newExamples.filter(e => e.id !== example.id);
+      sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
+      entry = entry; // examples are not updated without this
+      return;
+    }
     if (!await dialogService.promptDelete('Example sentence')) return;
-    sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
+    sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
     dispatch('delete', {entry, sense, example});
     entry = entry; // examples are not updated without this
   }
   function moveExample(sense: ISense, example: IExampleSentence, i: number) {
     sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
     sense.exampleSentences.splice(i, 0, example);
-    dispatch('change', {entry, sense, example});
+    onExampleChange(sense, example);
     highlightedEntity = example;
     entry = entry; // examples are not updated without this
+  }
+
+  function onSenseChange(sense: ISense) {
+    newSenses = newSenses.filter(s => s.id !== sense.id);
+    dispatch('change', {entry, sense});
+  }
+  function onExampleChange(sense: ISense, example: IExampleSentence) {
+    newExamples = newExamples.filter(e => e.id !== example.id);
+    dispatch('change', {entry, sense, example});
   }
   export let modalMode = false;
   export let readonly = false;
@@ -172,7 +198,7 @@
         {/if}
       </div>
 
-      <SenseEditor {sense} {readonly} on:change={() => dispatch('change', {entry, sense})}/>
+      <SenseEditor {sense} {readonly} on:change={() => onSenseChange(sense)}/>
 
       <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
         {#each sense.exampleSentences as example, j (example.id)}
@@ -186,19 +212,19 @@
               -->
               <hr class="grow">
               {#if !readonly}
-              <EntityListItemActions i={j}
-                                     items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
-                  on:move={(e) => moveExample(sense, example, e.detail)}
-                                     on:delete={() => deleteExample(sense, example)}
-                                     id={example.id}
-              />
+                <EntityListItemActions i={j}
+                                       items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                                       on:move={(e) => moveExample(sense, example, e.detail)}
+                                       on:delete={() => deleteExample(sense, example)}
+                                       id={example.id}
+                />
               {/if}
             </div>
 
             <ExampleEditor
               {example}
               {readonly}
-                on:change={() => dispatch('change', {entry, sense, example})}
+              on:change={() => onExampleChange(sense, example)}
               />
           </div>
         {/each}
