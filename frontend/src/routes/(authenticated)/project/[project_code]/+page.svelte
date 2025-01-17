@@ -313,7 +313,7 @@
         </a>
       {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        <CrdtSyncButton projectId={project.id} />
+        <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}
@@ -447,32 +447,34 @@
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
-        <DetailItem title={$t('project_page.vernacular_langs')}>
-          <WritingSystemList writingSystems={vernacularLangTags} />
-          <AdminContent>
-            <IconButton
-              loading={loadingLanguageList}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateLanguageList}
-            />
-          </AdminContent>
-        </DetailItem>
-        <DetailItem title={$t('project_page.analysis_langs')}>
-          <WritingSystemList writingSystems={analysisLangTags} />
-          <AdminContent>
-            <IconButton
-              loading={loadingLanguageList}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateLanguageList}
-            />
-          </AdminContent>
-        </DetailItem>
+        <div class="space-y-2">
+          <DetailItem title={$t('project_page.vernacular_langs')} wrap>
+            <AdminContent>
+              <IconButton
+                loading={loadingLanguageList}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateLanguageList}
+              />
+            </AdminContent>
+            <WritingSystemList writingSystems={vernacularLangTags} />
+          </DetailItem>
+          <DetailItem title={$t('project_page.analysis_langs')} wrap>
+            <AdminContent>
+              <IconButton
+                loading={loadingLanguageList}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateLanguageList}
+              />
+            </AdminContent>
+            <WritingSystemList writingSystems={analysisLangTags} />
+          </DetailItem>
+        </div>
       {/if}
       <div>
         <EditableDetailItem

@@ -21,7 +21,7 @@
     <slot name="headerContent" />
   </svelte:fragment>
   {#if $$slots.details}
-    <div class="my-4 space-y-2">
+    <div class="my-4 space-y-2 details">
       <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
       <slot name="details" />
     </div>

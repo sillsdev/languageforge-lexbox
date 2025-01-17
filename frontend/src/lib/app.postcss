@@ -224,3 +224,25 @@ img[src*="onestory-editor-logo"] {
   /* Ensures dangling letters are not clipped (e.g. "g") */
   line-height: 1.3em;
 }
+
+
+.details {
+    display: grid;
+    column-gap: 2rem;
+    grid-template-columns: 1fr;
+    @media screen(md) {
+        grid-template-columns: minmax(0, 1fr) 1fr;
+
+        .detail-item {
+            grid-column: auto;
+        }
+
+        > * {
+            grid-column: span 2;
+        }
+    }
+}
+
+.underline-links a {
+  @apply link hover:contrast-200;
+}

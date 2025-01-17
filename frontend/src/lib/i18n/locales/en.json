@@ -260,7 +260,23 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
-    "awaiting_approval": "Awaiting approval"
+    "awaiting_approval": "Awaiting approval",
+    "crdt": {
+      "try_fw_lite": "Try FieldWorks Lite",
+      "try_info": "This will make your project available in [FieldWorks Lite](https://software.sil.org/fieldworks/download/fieldworks-lite/). \
+This is still experimental and it will effect your FieldWorks project data. \
+However, **all your data is safe and backed up** here on Lexbox. \
+If you run into problems with your project please tell support that you are using FieldWorks Lite.",
+      "submit": "Yes, please!",
+      "cancel": "Not yet",
+      "finish": "Close",
+      "now_available": "Your project is now available in [FieldWorks Lite](https://software.sil.org/fieldworks/download/fieldworks-lite/)!",
+      "making_available": "We're making your project available in FieldWorks Lite...",
+      "reach_out_for_help": "Please reach out to us at \
+[lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org?subject={subject}), \
+so we can get this fixed!",
+      "email_subject": "FieldWorks Lite setup error ({projectCode})",
+    },
   },
   "org_page": {
     "organization": "Organization",
@@ -492,14 +508,14 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "notify_success": "You have successfully added a project purpose."
     },
     "get_project": {
-      "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
+      "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FieldWorks } WE_SAY { WeSay } other { (e.g.) FieldWorks } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Lexbox and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
-      "instructions_flex_empty": "1. [Download FLEx](https://software.sil.org/fieldworks/download/) onto your computer.\n\
-1. Open the FLEx application and select \"Create a new project...\".\n\
+      "instructions_flex_empty": "1. [Download FieldWorks](https://software.sil.org/fieldworks/download/) onto your computer.\n\
+1. Open the FieldWorks application and select \"Create a new project...\".\n\
 1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
 1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
 1. Click on \"OK (I have the master project)\".\n\
@@ -533,7 +549,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     },
     "open_with_viewer": "Browse",
     "open_with_flex": {
-      "button": "Open with FLEx",
+      "button": "Open with FieldWorks",
       "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",
       "instructions": "To open this project click **Open FieldWorks** in the dialog shown by your browser.\n\n\
 If you don't see a dialog or already closed it, click the button below:",
@@ -572,7 +588,7 @@ If you don't see a dialog or already closed it, click the button below:",
   "project_type": {
     "type": "Project type",
     "adaptIt": "Adapt It",
-    "flex": "FLEx",
+    "flex": "FieldWorks",
     "oneStoryEditor": "OneStory Editor",
     "other": "Other",
     "ourWord": "OurWord",
@@ -754,6 +770,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "did_you_know": "Did you know?",
+    "close": "Close",
   },
   "viewer": {
     "about": "## What is this?\n\

@@ -1,8 +1,13 @@
 using DataAnnotatedModelValidations;
 using HotChocolate.Diagnostics;
 using LexBoxApi.GraphQL.CustomFilters;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
+using LexCore.ServiceInterfaces;
 using LexData;
+using LfClassicData;
+using Microsoft.Extensions.Options;
+using Polly;
 
 namespace LexBoxApi.GraphQL;
 
@@ -14,6 +19,18 @@ public static class GraphQlSetupKernel
     {
         if (forceGenerateSchema || env.IsDevelopment())
             services.AddHostedService<DevGqlSchemaWriterService>();
+
+        services.AddScoped<IIsHarmonyProjectDataLoader, IsHarmonyProjectDataLoader>();
+        services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
+        services.AddResiliencePipeline<string, IReadOnlyDictionary<string, bool>>(
+            IsLanguageForgeProjectDataLoader.ResiliencePolicyName,
+            (builder, context) =>
+            {
+                builder.ConfigureTelemetry(context.ServiceProvider.GetRequiredService<ILoggerFactory>());
+                IsLanguageForgeProjectDataLoader.ConfigureResiliencePipeline(builder,
+                    context.ServiceProvider.GetRequiredService<IOptions<LfClassicConfig>>().Value
+                        .IsLfProjectConnectionRetryTimeout);
+            });
 
         services
             .AddGraphQLServer()

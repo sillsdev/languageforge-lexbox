@@ -382,6 +382,7 @@ type Project {
   changesets: [Changeset!]! @cost(weight: "10")
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean! @cost(weight: "10")
+  hasHarmonyCommits: Boolean! @cost(weight: "10")
   parentId: UUID
   name: String!
   description: String
@@ -441,10 +442,8 @@ type Query {
   projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput @cost(weight: "10") orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
   projectById(projectId: UUID!): Project @cost(weight: "10")
   projectByCode(code: String!): Project @cost(weight: "10")
-  draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
-  usersInMyOrg(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersInMyOrgCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   orgById(orgId: UUID!): OrgById @cost(weight: "10")
   users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
@@ -568,15 +567,6 @@ type UsersCollectionSegment {
 
 "A segment of a collection."
 type UsersICanSeeCollectionSegment {
-  "Information to aid in pagination."
-  pageInfo: CollectionSegmentInfo!
-  "A flattened list of the items."
-  items: [User!]
-  totalCount: Int! @cost(weight: "10")
-}
-
-"A segment of a collection."
-type UsersInMyOrgCollectionSegment {
   "Information to aid in pagination."
   pageInfo: CollectionSegmentInfo!
   "A flattened list of the items."

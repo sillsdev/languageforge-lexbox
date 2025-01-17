@@ -1,23 +1,10 @@
-import { redirect } from '@sveltejs/kit';
+import {redirect} from '@sveltejs/kit';
+import {tryGetErrorMessage} from '$lib/error/utils';
 
 const sayWuuuuuuut = 'We\'re not sure what happened.';
 
 export function getErrorMessage(error: unknown): string {
-  if (error === null || error === undefined) {
-    return sayWuuuuuuut;
-  } else if (typeof error === 'string') {
-    return error;
-  }
-
-  const _error = (error ?? {}) as Record<string, string>;
-  return (
-      _error.message ??
-      _error.reason ??
-      _error.cause ??
-      _error.error ??
-      _error.code ??
-      sayWuuuuuuut
-  );
+  return tryGetErrorMessage(error) ?? sayWuuuuuuut;
 }
 
 export function validateFetchResponse(
