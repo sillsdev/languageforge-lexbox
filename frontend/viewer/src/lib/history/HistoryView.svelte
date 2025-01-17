@@ -35,10 +35,8 @@
     </div>
   </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
-    <div slot="title">
-      History
-      <Button on:click={toggleOff} icon={mdiCloseCircle} class="float-end" rounded="full"></Button>
-    </div>
+    <Button on:click={toggleOff} icon={mdiCloseCircle} class="absolute right-2 top-2 z-40" rounded="full"></Button>
+    <div slot="title">History</div>
     <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr;">
 
       <div class="flex flex-col gap-4 overflow-y-auto">
