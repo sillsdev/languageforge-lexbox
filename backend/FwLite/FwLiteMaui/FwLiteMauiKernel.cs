@@ -31,18 +31,6 @@ public static class FwLiteMauiKernel
         services.AddMauiBlazorWebView();
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
-#if INCLUDE_FWDATA_BRIDGE
-        //need to call them like this otherwise we need a using statement at the top of the file
-        FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
-        FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
-        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
-#endif
-#if WINDOWS
-        services.AddFwLiteWindows(env);
-#endif
-#if ANDROID
-        services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
-#endif
         services.Configure<AuthConfig>(config =>
         {
             List<LexboxServer> servers =
@@ -61,6 +49,19 @@ public static class FwLiteMauiKernel
                 if (window is not null) Application.Current?.ActivateWindow(window);
             };
         });
+#if INCLUDE_FWDATA_BRIDGE
+        //need to call them like this otherwise we need a using statement at the top of the file
+        FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
+        FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
+        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
+#endif
+#if WINDOWS
+        services.AddFwLiteWindows(env);
+#endif
+#if ANDROID
+        services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
+#endif
+
         services.Configure<FwLiteConfig>(config =>
         {
             config.AppVersion = AppVersion.Version;
