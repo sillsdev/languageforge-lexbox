@@ -22,7 +22,7 @@ public class RetryEmailJob(IEmailService emailService) : LexJob
                 { nameof(RetryCount), retryCount.ToString() },
                 { nameof(RetryWaitSeconds), retryWaitSeconds.ToString() },
             },
-            cancellationToken);
+            cancellationToken: cancellationToken);
     }
 
     public static JobKey Key { get; } = new("RetryEmailJob", "RetryingJobs");
