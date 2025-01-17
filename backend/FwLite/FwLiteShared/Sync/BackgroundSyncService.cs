@@ -74,11 +74,18 @@ public class BackgroundSyncService(
             await SyncProject(crdtProject, true, stoppingToken);
         }
 
-        await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            //todo, this might not be required, but I can't remember why I added it
-            await Task.Delay(100, stoppingToken);
-            await SyncProject(project, false, stoppingToken);
+            await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
+            {
+                //todo, this might not be required, but I can't remember why I added it
+                await Task.Delay(100, stoppingToken);
+                await SyncProject(project, false, stoppingToken);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected during shutdown
         }
     }
 
