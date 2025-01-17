@@ -94,7 +94,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ImportFwdataService),
             typeof(CombinedProjectsService),
             typeof(HistoryServiceJsInvokable),
-            typeof(ProjectServicesProvider)
+            typeof(ProjectServicesProvider),
+            typeof(IAppLauncher)
         ], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
 
         builder.ExportAsInterfaces([

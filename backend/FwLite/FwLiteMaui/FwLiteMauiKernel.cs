@@ -35,6 +35,7 @@ public static class FwLiteMauiKernel
         //need to call them like this otherwise we need a using statement at the top of the file
         FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
         FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
+        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
 #endif
 #if WINDOWS
         services.AddFwLiteWindows(env);

@@ -11,10 +11,8 @@ import type {
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
+import type {IAppLauncher} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IAppLauncher';
 
-export enum LexboxService {
-  LexboxApi = 'LexboxApi'
-}
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
   [DotnetService.MiniLcmApi]: IMiniLcmJsInvokable,
@@ -23,10 +21,11 @@ export type LexboxServiceRegistry = {
   [DotnetService.ImportFwdataService]: IImportFwdataService,
   [DotnetService.FwLiteConfig]: IFwLiteConfig,
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
-  [DotnetService.HistoryService]: IHistoryServiceJsInvokable
+  [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
+  [DotnetService.AppLauncher]: IAppLauncher
 };
 
-export const SERVICE_KEYS = [...Object.values(LexboxService), ...Object.values(DotnetService)];
+export const SERVICE_KEYS = Object.values(DotnetService);
 
 export class LexboxServiceProvider {
   private services: LexboxServiceRegistry = {} as LexboxServiceRegistry;
@@ -89,4 +88,8 @@ export function useFwLiteConfig(): IFwLiteConfig {
 
 export function useProjectServicesProvider(): IProjectServicesProvider {
   return window.lexbox.ServiceProvider.getService(DotnetService.ProjectServicesProvider);
+}
+
+export function useAppLauncher(): IAppLauncher | undefined {
+  return window.lexbox.ServiceProvider.tryGetService(DotnetService.AppLauncher);
 }

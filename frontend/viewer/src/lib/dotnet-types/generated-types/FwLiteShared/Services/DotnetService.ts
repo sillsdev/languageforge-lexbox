@@ -10,6 +10,7 @@ export enum DotnetService {
 	ImportFwdataService = "ImportFwdataService",
 	FwLiteConfig = "FwLiteConfig",
 	ProjectServicesProvider = "ProjectServicesProvider",
-	HistoryService = "HistoryService"
+	HistoryService = "HistoryService",
+	AppLauncher = "AppLauncher"
 }
 /* eslint-enable */

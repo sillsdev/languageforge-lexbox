@@ -19,27 +19,24 @@ public class FwLiteProvider(
     AuthService authService,
     ImportFwdataService importFwdataService,
     ILogger<FwLiteProvider> logger,
-    IOptions<FwLiteConfig> config
+    IOptions<FwLiteConfig> config,
+    IAppLauncher? appLauncher = null
 )
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
 
     public Dictionary<DotnetService, object> GetServices()
     {
-        return Enum.GetValues<DotnetService>().Where(s => s != DotnetService.MiniLcmApi && s != DotnetService.ProjectServicesProvider && s != DotnetService.HistoryService)
-            .ToDictionary(s => s, GetService);
-    }
-
-    public object GetService(DotnetService service)
-    {
-        return service switch
+        var services = new Dictionary<DotnetService, object>()
         {
-            DotnetService.CombinedProjectsService => projectService,
-            DotnetService.AuthService => authService,
-            DotnetService.ImportFwdataService => importFwdataService,
-            DotnetService.FwLiteConfig => config.Value,
-            _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
+            [DotnetService.CombinedProjectsService] = projectService,
+            [DotnetService.AuthService] = authService,
+            [DotnetService.ImportFwdataService] = importFwdataService,
+            [DotnetService.FwLiteConfig] = config.Value
         };
+        if (appLauncher is not null)
+            services[DotnetService.AppLauncher] = appLauncher;
+        return services;
     }
 
     public async Task<IDisposable?> SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
@@ -80,5 +77,6 @@ public enum DotnetService
     ImportFwdataService,
     FwLiteConfig,
     ProjectServicesProvider,
-    HistoryService
+    HistoryService,
+    AppLauncher
 }
