@@ -11,7 +11,7 @@ public class Sense : IObjectWithId, IOrderable
     public Guid EntryId { get; set; }
     public virtual MultiString Definition { get; set; } = new();
     public virtual MultiString Gloss { get; set; } = new();
-    public virtual string PartOfSpeech { get; set; } = string.Empty;
+    public virtual PartOfSpeech? PartOfSpeech { get; set; } = null;
     public virtual Guid? PartOfSpeechId { get; set; }
     public virtual IList<SemanticDomain> SemanticDomains { get; set; } = [];
     public virtual List<ExampleSentence> ExampleSentences { get; set; } = [];

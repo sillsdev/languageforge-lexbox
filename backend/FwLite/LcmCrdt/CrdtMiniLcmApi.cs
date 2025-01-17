@@ -276,6 +276,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         queryable = queryable
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
@@ -295,6 +296,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entry = await Entries.AsTracking(false)
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
@@ -321,16 +323,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
         await dataModel.AddChanges(ClientId,
             entries.ToBlockingEnumerable()
-                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech))
+                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
                 //force entries to be created first, this avoids issues where references are created before the entry is created
                 .OrderBy(c => c is CreateEntryChange ? 0 : 1)
         );
     }
 
-    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, PartOfSpeech> partsOfSpeech)
+    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
     {
         yield return new CreateEntryChange(entry);
 
@@ -350,11 +351,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
                 .OfType<MiniLcm.Models.SemanticDomain>()
                 .ToList();
-            if (sense.PartOfSpeechId is not null && partsOfSpeech.TryGetValue(sense.PartOfSpeechId.Value, out var partOfSpeech))
-            {
-                sense.PartOfSpeechId = partOfSpeech.Id;
-                sense.PartOfSpeech = partOfSpeech.Name["en"] ?? string.Empty;
-            }
             sense.Order = senseOrder++;
             yield return new CreateSenseChange(sense, entry.Id);
             var exampleOrder = 1;
@@ -469,12 +465,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         sense.SemanticDomains = await SemanticDomains
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
             .ToListAsync();
-        if (sense.PartOfSpeechId is not null)
-        {
-            var partOfSpeech = await PartsOfSpeech.FirstOrDefaultAsync(p => p.Id == sense.PartOfSpeechId);
-            sense.PartOfSpeechId = partOfSpeech?.Id;
-            sense.PartOfSpeech = partOfSpeech?.Name["en"] ?? string.Empty;
-        }
 
         yield return new CreateSenseChange(sense, entryId);
         var exampleOrder = 1;
@@ -490,6 +480,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var entry = await Entries.AsTracking(false)
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == entryId);
         var sense = entry?.Senses.FirstOrDefault(s => s.Id == id);
@@ -500,6 +491,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
         await validators.ValidateAndThrow(sense);
+        if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
+            throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
+
         sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();

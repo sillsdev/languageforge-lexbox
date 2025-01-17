@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using LcmCrdt.Utils;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
@@ -15,8 +16,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
         Definition = sense.Definition;
         SemanticDomains = sense.SemanticDomains;
         Gloss = sense.Gloss;
-        PartOfSpeech = sense.PartOfSpeech;
-        PartOfSpeechId = sense.PartOfSpeechId;
+        PartOfSpeechId = sense.PartOfSpeech?.Id ?? sense.PartOfSpeechId;
     }
 
     [JsonConstructor]
@@ -29,7 +29,6 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public double Order { get; set; }
     public MultiString? Definition { get; set; }
     public MultiString? Gloss { get; set; }
-    public string? PartOfSpeech { get; set; }
     public Guid? PartOfSpeechId { get; set; }
     public IList<SemanticDomain>? SemanticDomains { get; set; }
 
@@ -42,9 +41,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Order = Order,
             Definition = Definition ?? new MultiString(),
             Gloss = Gloss ?? new MultiString(),
-            PartOfSpeech = PartOfSpeech ?? string.Empty,
-            PartOfSpeechId = PartOfSpeechId,
-            SemanticDomains = SemanticDomains ?? [],
+            PartOfSpeechId = await context.DeletedAsNull(PartOfSpeechId),
+            SemanticDomains = await context.FilterDeleted(SemanticDomains ?? []).ToArrayAsync(),
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null
         };
     }

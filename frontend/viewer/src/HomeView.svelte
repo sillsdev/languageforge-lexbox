@@ -282,7 +282,11 @@
                           icon={mdiBookArrowLeftOutline}
                           title="Import"
                           disabled={!!importing}
-                          on:click={() => importFwDataProject(project.name)}>
+                          on:click={async (e) =>
+                          {
+                            e.preventDefault();
+                            await importFwDataProject(project.name);
+                          }}>
                         </Button>
                       </DevContent>
                     </div>

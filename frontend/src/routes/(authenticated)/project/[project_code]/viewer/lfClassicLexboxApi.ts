@@ -25,12 +25,12 @@ function prepareEntriesForUi(entries: IEntry[]): void {
         sd.id = sd.code;
       }
       //partOfSpeech is only included on the server for the viewer.
-      sense.partOfSpeechId = sense.partOfSpeech;
+      sense.partOfSpeechId = sense.partOfSpeech?.id;
     }
   }
 }
 
-function preparePartsOfSpeedForUi(partsOfSpeech: IPartOfSpeech[]): void {
+function preparePartsOfSpeechForUi(partsOfSpeech: IPartOfSpeech[]): void {
   partsOfSpeech.forEach(pos => {
     pos.id = pos.name['__key'];
   });
@@ -84,7 +84,7 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
   async getPartsOfSpeech(): Promise<IPartOfSpeech[]> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/parts-of-speech`);
     const partsOfSpeech = (await result.json()) as IPartOfSpeech[];
-    preparePartsOfSpeedForUi(partsOfSpeech);
+    preparePartsOfSpeechForUi(partsOfSpeech);
     return partsOfSpeech;
   }
 

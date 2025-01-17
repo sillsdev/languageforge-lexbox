@@ -301,6 +301,14 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreatePartOfSpeech(noun);
         // Note we do *not* call crdtApi.CreatePartOfSpeech(noun);
 
+        var verb = new PartOfSpeech()
+        {
+            Id = new Guid("86ff66f6-0774-407a-a0dc-3eeaf873daf7"),
+            Name = { { "en", "verb" } },
+            Predefined = true,
+        };
+        await crdtApi.CreatePartOfSpeech(verb);
+
         await fwdataApi.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", "Pear" } },
@@ -311,10 +319,10 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await crdtApi.CreateEntry(new Entry()
         {
-            LexemeForm = { { "en", "Banana" } },
+            LexemeForm = { { "en", "Eat" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = noun.Id }
+                new Sense() { Gloss = { { "en", "Eat" } }, PartOfSpeechId = verb.Id }
             ]
         });
         await _syncService.Sync(crdtApi, fwdataApi);

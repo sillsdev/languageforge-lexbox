@@ -32,10 +32,6 @@ public static class SenseSync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Sense>(nameof(Sense.Definition),
             beforeSense.Definition,
             afterSense.Definition));
-        if (beforeSense.PartOfSpeech != afterSense.PartOfSpeech)
-        {
-            patchDocument.Replace(sense => sense.PartOfSpeech, afterSense.PartOfSpeech);
-        }
 
         if (beforeSense.PartOfSpeechId != afterSense.PartOfSpeechId)
         {
