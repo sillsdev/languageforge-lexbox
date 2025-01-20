@@ -12,6 +12,7 @@ using Microsoft.Data.Sqlite;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
+using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 
 namespace LcmCrdt;
@@ -30,6 +31,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>().AsTracking(false);
     private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>().AsTracking(false);
     private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>().AsTracking(false);
+
+    private CommitMetadata NewMetadata()
+    {
+        var metadata = new CommitMetadata
+        {
+            ClientVersion = AppVersion.Version,
+            //todo, if a user logs out and in with another account, this will be out of date until the next sync
+            AuthorName = ProjectData.LastUserName,
+            AuthorId = ProjectData.LastUserId
+        };
+        return metadata;
+    }
+    private async Task<Commit> AddChange(IChange change)
+    {
+        var commit = await dataModel.AddChange(ClientId, change, commitMetadata: NewMetadata());
+        return commit;
+    }
+
+    private async Task<Commit> AddChanges(IEnumerable<IChange> changes)
+    {
+        var commit = await dataModel.AddChanges(ClientId, changes, commitMetadata: NewMetadata());
+        return commit;
+    }
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -50,7 +74,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
         try
         {
-            await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+            await AddChange(new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
         }
         catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.InnerException is SqliteException { SqliteErrorCode: 19 }) //19 is a unique constraint violation
         {
@@ -64,7 +88,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var ws = await GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
-        await dataModel.AddChange(ClientId, patchChange);
+        await AddChange(patchChange);
         return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
     }
 
@@ -104,7 +128,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         await validators.ValidateAndThrow(partOfSpeech);
-        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        await AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
     }
 
@@ -113,7 +137,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var pos = await GetPartOfSpeech(id);
         if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..pos.ToChanges(update.Patch)]);
+        await AddChanges(pos.ToChanges(update.Patch));
         return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
     }
 
@@ -126,7 +150,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task DeletePartOfSpeech(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<PartOfSpeech>(id));
+        await AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
@@ -142,7 +166,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
     {
         await validators.ValidateAndThrow(semanticDomain);
-        await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
+        await AddChange(new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new NullReferenceException();
     }
 
@@ -151,7 +175,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var semDom = await GetSemanticDomain(id);
         if (semDom is null) throw new NullReferenceException($"unable to find semantic domain with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..semDom.ToChanges(update.Patch)]);
+        await AddChanges(semDom.ToChanges(update.Patch));
         return await GetSemanticDomain(id) ?? throw new NullReferenceException();
     }
 
@@ -164,12 +188,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<SemanticDomain>(id));
+        await AddChange( new DeleteChange<SemanticDomain>(id));
     }
 
     public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
     {
-        await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)));
+        await AddChanges(semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)));
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -186,13 +210,13 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
-        await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
+        await AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        await dataModel.AddChange(ClientId, new JsonPatchChange<ComplexFormType>(id, update.Patch));
+        await AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
         return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
     }
 
@@ -205,7 +229,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task DeleteComplexFormType(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormType>(id));
+        await AddChange(new DeleteChange<ComplexFormType>(id));
     }
 
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -216,23 +240,23 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
         if (existing is not null) return existing;
         var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
-        await dataModel.AddChange(ClientId, addEntryComponentChange);
+        await AddChange(addEntryComponentChange);
         return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
+        await AddChange(new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
     }
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await dataModel.AddChange(ClientId, new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+        await AddChange(new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
     }
 
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await dataModel.AddChange(ClientId, new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+        await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -305,25 +329,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return entry;
     }
 
-    /// <summary>
-    /// does not return the newly created entry, used for importing a large amount of data
-    /// </summary>
-    /// <param name="entry"></param>
-    public async Task CreateEntryLite(Entry entry)
-    {
-        await dataModel.AddChanges(ClientId,
-        [
-            new CreateEntryChange(entry),
-            ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
-            ..entry.Senses.SelectMany(s => s.ExampleSentences,
-                (sense, sentence) => new CreateExampleSentenceChange(sentence, sense.Id))
-        ], deferCommit: true);
-    }
-
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        await dataModel.AddChanges(ClientId,
+        await AddChanges(
             entries.ToBlockingEnumerable()
                 .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
                 //force entries to be created first, this avoids issues where references are created before the entry is created
@@ -365,8 +374,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<Entry> CreateEntry(Entry entry)
     {
         await validators.ValidateAndThrow(entry);
-        await dataModel.AddChanges(ClientId,
-        [
+        await AddChanges([
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany((s, i) =>
@@ -436,15 +444,13 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return !await Entries.AnyAsyncEF(e => e.Id == id);
     }
 
-
-
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
     {
         var entry = await GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
+        await AddChanges(entry.ToChanges(update.Patch));
         return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
     }
 
@@ -457,7 +463,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task DeleteEntry(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<Entry>(id));
+        await AddChange(new DeleteChange<Entry>(id));
     }
 
     private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId, Sense sense)
@@ -519,22 +525,22 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
         var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<Sense>(senseId, order));
+        await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
+        await AddChange(new DeleteChange<Sense>(senseId));
     }
 
     public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
-        await dataModel.AddChange(ClientId, new AddSemanticDomainChange(semanticDomain, senseId));
+        await AddChange(new AddSemanticDomainChange(semanticDomain, senseId));
     }
 
     public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
-        await dataModel.AddChange(ClientId, new RemoveSemanticDomainChange(semanticDomainId, senseId));
+        await AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
@@ -544,7 +550,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         await validators.ValidateAndThrow(exampleSentence);
         exampleSentence.Order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
-        await dataModel.AddChange(ClientId, new CreateExampleSentenceChange(exampleSentence, senseId));
+        await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
         return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
     }
 
@@ -563,7 +569,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var jsonPatch = update.Patch;
         var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch);
-        await dataModel.AddChange(ClientId, patchChange);
+        await AddChange(patchChange);
         return await dataModel.GetLatest<ExampleSentence>(exampleSentenceId) ?? throw new NullReferenceException();
     }
 
@@ -580,12 +586,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
     {
         var order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
-        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
+        await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<ExampleSentence>(exampleSentenceId));
+        await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
     public void Dispose()

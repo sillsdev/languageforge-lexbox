@@ -12,6 +12,7 @@ using Reinforced.Typings.Ast.Dependency;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
 using Reinforced.Typings.Visitors.TypeScript;
+using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 
 namespace FwLiteShared.TypeGen;
@@ -109,6 +110,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(CommitMetadata),
             typeof(ObjectSnapshot),
             typeof(ProjectScope)
         ], exportBuilder => exportBuilder.WithPublicProperties());

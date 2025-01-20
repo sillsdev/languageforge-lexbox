@@ -14,5 +14,6 @@ export interface IHistoryLineItem
 	changeName?: string;
 	entity?: IObjectWithId;
 	entityName?: string;
+	authorName?: string;
 }
 /* eslint-enable */

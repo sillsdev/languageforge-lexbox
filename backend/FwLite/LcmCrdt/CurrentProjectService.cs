@@ -108,4 +108,16 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
 
         await RefreshProjectData();
     }
+
+    public async Task UpdateLastUser(string? userName, string? userId)
+    {
+        if (userName is null && userId is null) return;
+        if (userName != ProjectData.LastUserName || userId != ProjectData.LastUserId)
+        {
+            await DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+                .SetProperty(p => p.LastUserName, userName)
+                .SetProperty(p => p.LastUserId, userId));
+            await RefreshProjectData();
+        }
+    }
 }

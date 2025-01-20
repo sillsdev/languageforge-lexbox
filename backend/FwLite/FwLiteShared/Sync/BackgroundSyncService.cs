@@ -97,11 +97,15 @@ public class BackgroundSyncService(
         {
             await using var serviceScope = serviceProvider.CreateAsyncScope();
             var services = serviceScope.ServiceProvider;
-            await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
+            var currentProjectService = services.GetRequiredService<CurrentProjectService>();
+            //not using SetupProjectContext because it will try to fetch project data, which might fail due to missing migrations
+            //we fetch the project data after the migrations
+            currentProjectService.SetupProjectContextForNewDb(crdtProject);
             if (applyMigrations)
             {
                 await services.GetRequiredService<LcmCrdtDbContext>().Database.MigrateAsync(cancellationToken);
             }
+            await currentProjectService.RefreshProjectData();
             var syncService = services.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }

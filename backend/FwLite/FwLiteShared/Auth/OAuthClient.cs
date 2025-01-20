@@ -183,6 +183,12 @@ public class OAuthClient
         return auth?.Account.Username;
     }
 
+    public async Task<LexboxUser?> GetCurrentUser()
+    {
+        var auth = await GetAuth();
+        return auth?.Account.Username is null ? null : new LexboxUser(auth.Account.Username, auth.Account.HomeAccountId.ObjectId);
+    }
+
     public async ValueTask<string?> GetCurrentToken()
     {
         var auth = await GetAuth();

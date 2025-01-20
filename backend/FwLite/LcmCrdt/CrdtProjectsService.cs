@@ -61,7 +61,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
         bool SeedNewProjectData = false,
         string? Path = null,
-        Guid? FwProjectId = null);
+        Guid? FwProjectId = null,
+        string? AuthenticatedUser = null,
+        string? AuthenticatedUserId = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
@@ -85,7 +87,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             var projectData = new ProjectData(name,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid(), request.FwProjectId);
+                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             if (request.SeedNewProjectData)

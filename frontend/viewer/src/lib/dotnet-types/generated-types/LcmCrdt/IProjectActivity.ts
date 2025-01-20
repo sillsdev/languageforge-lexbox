@@ -3,11 +3,14 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ICommitMetadata} from '../SIL/Harmony/Core/ICommitMetadata';
+
 export interface IProjectActivity
 {
 	commitId: string;
 	timestamp: string;
 	changes: unknown[];
+	metadata: ICommitMetadata;
 	changeName: string;
 }
 /* eslint-enable */
