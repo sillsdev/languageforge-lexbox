@@ -221,7 +221,7 @@
             </div>
             <div>
               {#if !serverProjects.length}
-                <p class="text-surface-content/50 text-center border border-surface-300 elevation-1 rounded p-4 max-sm:mx-2">
+                <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
                   {#if status.loggedIn}
                     No projects
                   {:else}
@@ -230,7 +230,7 @@
                 </p>
               {/if}
               {#if loadingServerProjects === server.id}
-                <p class="text-surface-content/50 text-center border border-surface-300 elevation-1 rounded p-4 max-sm:mx-2">
+                <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
                   <Icon data={mdiRefresh} class="animate-spin"/>
                   Loading...
                 </p>
@@ -311,7 +311,7 @@
     flex-direction: column;
 
     :global(:is(.ListItem)) {
-      @apply max-sm:!rounded-none;
+      @apply max-md:!rounded-none;
       @apply contrast-[0.95];
     }
   }
