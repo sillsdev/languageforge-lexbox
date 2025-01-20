@@ -135,7 +135,7 @@
     cursor: pointer;
 
     &.selected-entry > :global(*) {
-      @apply bg-surface-200;
+      @apply lg-view:bg-surface-200;
     }
 
     &:hover > :global(*) {
