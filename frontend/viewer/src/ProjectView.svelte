@@ -301,7 +301,7 @@
 
 {#if projectLoaded}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
-  <AppBar class="bg-secondary min-h-12 shadow-md" head={false}>
+  <AppBar class="bg-secondary min-h-12 shadow-md sm-view:sticky sm-view:top-0" head={false}>
     <div slot="title" class="prose whitespace-nowrap min-w-20">
       <h3 class="text-ellipsis overflow-hidden">{projectName}</h3>
     </div>
@@ -359,12 +359,12 @@
       </Button>
     </div>
   </AppBar>
-  <main bind:this={editorElem} class="p-4 flex grow">
+  <main bind:this={editorElem} class="lg-view:p-4 flex grow" class:sm-view:p-2={pickedEntry}>
     <div
       class="grid flex-grow items-start justify-stretch lg-view:justify-center"
       style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
     >
-      <div class="w-screen max-w-full lg-view:w-[500px] lg-view:min-w-[300px] collapsible-col side-scroller flex" class:lg-view:!w-[1024px]={expandList} class:lg-view:max-w-[25vw]={!expandList} class:sm-view:collapse-col={pickedEntry}>
+      <div class="w-screen max-w-full lg-view:w-[500px] lg-view:min-w-[300px] collapsible-col lg-view:side-scroller flex" class:lg-view:!w-[1024px]={expandList} class:lg-view:max-w-[25vw]={!expandList} class:sm-view:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
       <div class="max-w-full w-screen lg-view:w-screen collapsible-col overflow-x-visible" class:lg-view:px-6={!expandList} class:sm-view:pr-6={pickedEntry && !readonly} class:lg-view:collapse-col={expandList} class:sm-view:collapse-col={!pickedEntry}>

@@ -9,7 +9,8 @@
 }
 
 :host, :root, html, body, .app, .project-view {
-  @apply block min-h-full h-full;
+  @apply block min-h-full;
+  height: max(auto, 100%);
   scroll-behavior: smooth;
   @apply bg-surface-100;
   color: var(--base-text);
