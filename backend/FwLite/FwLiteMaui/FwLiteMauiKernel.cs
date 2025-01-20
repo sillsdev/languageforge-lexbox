@@ -27,8 +27,9 @@ public static class FwLiteMauiKernel
 #endif
         IHostEnvironment env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
-        services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
+        //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
+        services.AddFwLiteShared(env);
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
         services.Configure<AuthConfig>(config =>
