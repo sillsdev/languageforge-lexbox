@@ -162,7 +162,7 @@
     </Button>
   </div>
 </AppBar>
-<div class="mx-auto md:w-3/4 lg:w-2/4 md:py-4">
+<div class="mx-auto md:w-full md:py-4 max-w-2xl">
   <div class="flex-grow hidden md:block"></div>
   <div class="project-list">
     {#await projectsPromise}
