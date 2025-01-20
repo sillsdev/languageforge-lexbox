@@ -24,14 +24,16 @@
     });
   }
 </script>
-<Button
-  href={`/api/fw/${projectName}/open/entry/${entryId}`}
-  on:click={openInFlex}
-  variant="fill-light"
-  color="info"
-  size="sm">
-  <img src={flexLogo} alt="FieldWorks logo" class="h-6 max-w-fit"/>
-  <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-    Open in FieldWorks
-  </div>
-</Button>
+{#if show}
+  <Button
+    href={`/api/fw/${projectName}/open/entry/${entryId}`}
+    on:click={openInFlex}
+    variant="fill-light"
+    color="info"
+    size="sm">
+    <img src={flexLogo} alt="FieldWorks logo" class="h-6 max-w-fit"/>
+    <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
+      Open in FieldWorks
+    </div>
+  </Button>
+{/if}
