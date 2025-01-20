@@ -5,6 +5,7 @@
   import css from './app.postcss?inline';
   import {DotnetService} from '$lib/dotnet-types';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
+  import ProjectLoader from './ProjectLoader.svelte';
 
   let loading = true;
 
@@ -51,5 +52,7 @@
 </svelte:element>
 
 <div class="app contents" class:dark={$currentTheme.dark}>
-  <ProjectView {projectName} isConnected {loading} showHomeButton={false} {about} />
+  <ProjectLoader readyToLoadProject={!loading} {projectName} let:onProjectLoaded>
+    <ProjectView {projectName} isConnected showHomeButton={false} {about}  on:loaded={e => onProjectLoaded(e.detail)} />
+  </ProjectLoader>
 </div>
