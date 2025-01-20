@@ -10,7 +10,6 @@
   } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {navigate, useLocation} from 'svelte-routing';
-  import {headword} from './lib/utils';
   import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/dotnet-types';
   import {createEventDispatcher, onDestroy, onMount, setContext} from 'svelte';
@@ -28,11 +27,9 @@
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
-  import {AppNotification} from './lib/notifications/notifications';
-  import flexLogo from './lib/assets/flex-logo.png';
   import {initView, initViewSettings} from './lib/services/view-service';
   import {views} from './lib/entry-editor/view-data';
-  import {initWritingSystems} from './lib/writing-systems';
+  import {initWritingSystemService} from './lib/writing-system-service';
   import {useEventBus} from './lib/services/event-bus';
   import AboutDialog from './lib/about/AboutDialog.svelte';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
@@ -113,14 +110,11 @@
   setContext('selectedIndexExamplar', selectedIndexExemplar);
   $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar, false);
 
-  const writingSystems = initWritingSystems(deriveAsync(connected, isConnected => {
+  const writingSystemService = initWritingSystemService(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.getWritingSystems();
   }).value);
-  const indexExamplars = derived(writingSystems, wsList => {
-    return wsList?.vernacular[0].exemplars;
-  });
-  setContext('indexExamplars', indexExamplars);
+
   const trigger = writable(0);
 
 
@@ -214,13 +208,13 @@
     navigateToEntryId = null;
   }
 
-  $: projectLoaded = !!($entries && $writingSystems);
+  $: projectLoaded = !!($entries && $writingSystemService);
   $: dispatch('loaded', projectLoaded);
 
   function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
     if (!options?.dontNavigate) {
-      navigateToEntry(entry, headword(entry));
+      navigateToEntry(entry, $writingSystemService!.headword(entry));
     } else {
       refreshEntries();
     }
@@ -280,9 +274,9 @@
 
   let newEntryDialog: NewEntryDialog;
   async function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
-    const defaultWs = $writingSystems?.vernacular[0].wsId;
+    const defaultWs = $writingSystemService!.defaultVernacular();
     if (defaultWs === undefined) return undefined;
-    const entry = await newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+    const entry = await newEntryDialog.openWithValue({lexemeForm: {[defaultWs.wsId]: text}});
     if (entry) onEntryCreated(entry, options);
     return entry;
   }

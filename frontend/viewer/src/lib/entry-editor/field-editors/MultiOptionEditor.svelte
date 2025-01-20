@@ -3,9 +3,8 @@
   import {createEventDispatcher} from 'svelte';
   import type {WritingSystemSelection} from '../../config-types';
   import {useCurrentView} from '../../services/view-service';
-  import {pickWritingSystems} from '../../utils';
   import MapBind from '../../utils/MapBind.svelte';
-  import {useWritingSystems} from '../../writing-systems';
+  import {useWritingSystemService} from '../../writing-system-service';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtMultiOptionField from '../inputs/CrdtMultiOptionField.svelte';
 
@@ -99,9 +98,9 @@
   }
 
   let currentView = useCurrentView();
-  const allWritingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 
-  $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
+  $: [ws] = writingSystemService.pickWritingSystems(wsType);
   $: empty = !value?.length;
 </script>
 

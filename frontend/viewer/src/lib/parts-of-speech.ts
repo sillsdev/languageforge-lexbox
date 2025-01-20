@@ -1,13 +1,13 @@
 ﻿import {derived, type Readable, type Writable, writable} from 'svelte/store';
-import type {IPartOfSpeech, IWritingSystems} from '$lib/dotnet-types';
+import type {IPartOfSpeech} from '$lib/dotnet-types';
 import {useLexboxApi} from './services/service-provider';
-import {pickBestAlternative} from './utils';
+import type {WritingSystemService} from './writing-system-service';
 
 type LabeledPartOfSpeech = IPartOfSpeech & {label: string};
 
 let partsOfSpeechStore: Writable<IPartOfSpeech[] | null> | null = null;
 
-export function usePartsOfSpeech(writingSystemsStore: Readable<IWritingSystems>): Readable<LabeledPartOfSpeech[]> {
+export function usePartsOfSpeech(writingSystemService: WritingSystemService): Readable<LabeledPartOfSpeech[]> {
   if (partsOfSpeechStore === null) {
     partsOfSpeechStore = writable<IPartOfSpeech[] | null>([], (set) => {
       useLexboxApi().getPartsOfSpeech().then(partsOfSpeech => {
@@ -18,10 +18,10 @@ export function usePartsOfSpeech(writingSystemsStore: Readable<IWritingSystems>)
       });
     });
   }
-  return derived([partsOfSpeechStore, writingSystemsStore], ([partsOfSpeech, writingSystems]) => {
+  return derived([partsOfSpeechStore], ([partsOfSpeech]) => {
     return (partsOfSpeech ?? []).map(partOfSpeech => ({
       ...partOfSpeech,
-      label: pickBestAlternative(partOfSpeech.name, 'analysis', writingSystems),
+      label: writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis'),
     }));
   });
 }
