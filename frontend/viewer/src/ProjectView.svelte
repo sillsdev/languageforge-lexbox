@@ -6,10 +6,9 @@
     mdiArrowLeft,
     mdiChatQuestion,
     mdiEyeSettingsOutline,
-    mdiHome
   } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {navigate, useLocation} from 'svelte-routing';
+  import {useLocation} from 'svelte-routing';
   import {headword} from './lib/utils';
   import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/dotnet-types';
@@ -28,8 +27,6 @@
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
-  import {AppNotification} from './lib/notifications/notifications';
-  import flexLogo from './lib/assets/flex-logo.png';
   import {initView, initViewSettings} from './lib/services/view-service';
   import {views} from './lib/entry-editor/view-data';
   import {initWritingSystems} from './lib/writing-systems';
@@ -41,6 +38,7 @@
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {initDialogService} from '$lib/entry-editor/dialog-service';
   import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
+  import HomeButton from '$lib/HomeButton.svelte';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -307,14 +305,13 @@
     <div slot="title" class="prose whitespace-nowrap min-w-20">
       <h3 class="text-ellipsis overflow-hidden">{projectName}</h3>
     </div>
-    <Button
-      classes={{root: showHomeButton ? '' : 'hidden'}}
-      slot="menuIcon"
-      icon={mdiHome}
-      on:click={() => navigate('/')}
-    />
-    <div class="flex-grow-0 flex-shrink-0 lg-view:hidden ml-2" class:invisible={!pickedEntry}>
-      <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
+    <div slot="menuIcon" class="contents" class:hidden={!showHomeButton}>
+      <div class="contents" class:sm-view:hidden={pickedEntry}>
+        <HomeButton />
+      </div>
+      <div class="hidden" class:sm-view:contents={pickedEntry}>
+        <Button icon={mdiArrowLeft} on:click={() => pickedEntry = false} />
+      </div>
     </div>
     {#if $features.write}
       <div class="inline-flex flex-grow-0 basis-40 max-sm:hidden mx-2 sm-view:basis-10">
