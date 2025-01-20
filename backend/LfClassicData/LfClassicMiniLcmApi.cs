@@ -369,4 +369,9 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (exampleSentence is null) return null;
         return ToExampleSentence(sense.Guid, exampleSentence);
     }
+
+    public ProjectDataFormat GetDataFormat()
+    {
+        throw new NotImplementedException();
+    }
 }

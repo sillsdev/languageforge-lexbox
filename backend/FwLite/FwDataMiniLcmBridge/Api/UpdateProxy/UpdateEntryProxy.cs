@@ -51,17 +51,9 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override IList<ComplexFormComponent> Components
+    public override List<ComplexFormComponent> Components
     {
-        get =>
-            new UpdateListProxy<ComplexFormComponent>(
-                component => _lexboxLcmApi.AddComplexFormComponent(_lcmEntry, component),
-                component => _lexboxLcmApi.RemoveComplexFormComponent(_lcmEntry, component),
-                i => new UpdateComplexFormComponentProxy(_lcmEntry,
-                    _lcmEntry.ComplexFormEntryRefs.Single().ComponentLexemesRS[i],
-                    _lexboxLcmApi),
-                _lcmEntry.ComplexFormEntryRefs.SingleOrDefault()?.ComponentLexemesRS.Count ?? 0
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 

@@ -17,7 +17,7 @@ public record Entry : IObjectWithId<Entry>
     /// <summary>
     /// Components making up this complex entry
     /// </summary>
-    public virtual IList<ComplexFormComponent> Components { get; set; } = [];
+    public virtual List<ComplexFormComponent> Components { get; set; } = [];
 
     /// <summary>
     /// This entry is a part of these complex forms

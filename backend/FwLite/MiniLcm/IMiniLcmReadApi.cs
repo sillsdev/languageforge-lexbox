@@ -17,6 +17,7 @@ public interface IMiniLcmReadApi
     Task<PartOfSpeech?> GetPartOfSpeech(Guid id);
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
+    ProjectDataFormat GetDataFormat();
 }
 
 public record QueryOptions(

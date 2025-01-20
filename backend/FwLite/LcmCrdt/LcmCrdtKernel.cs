@@ -201,6 +201,7 @@ public static class LcmCrdtKernel
             .Add<CreateComplexFormType>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<Changes.SetOrderChange<ComplexFormComponent>>()
             ;
     }
 

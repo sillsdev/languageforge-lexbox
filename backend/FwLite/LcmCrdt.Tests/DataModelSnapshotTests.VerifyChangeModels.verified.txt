@@ -127,6 +127,10 @@
     {
       DerivedType: SetOrderChange<ExampleSentence>,
       TypeDiscriminator: SetOrderChange:ExampleSentence
+    },
+    {
+      DerivedType: SetOrderChange<ComplexFormComponent>,
+      TypeDiscriminator: SetOrderChange:ComplexFormComponent
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,

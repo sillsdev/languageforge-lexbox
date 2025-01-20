@@ -13,11 +13,11 @@ public class EntryValidator : AbstractValidator<Entry>
         RuleFor(e => e.LiteralMeaning).NoEmptyValues();
         RuleFor(e => e.Note).NoEmptyValues();
         RuleForEach(e => e.Senses).SetValidator(entry => new SenseValidator(entry));
-        RuleForEach(e => e.Components).Must(NotBeEmptyComponentReference);
-        RuleForEach(e => e.Components).Must(NotBeComponentSelfReference);
-        RuleForEach(e => e.Components).Must(HaveCorrectComponentEntryReference);
-        RuleForEach(e => e.ComplexForms).Must(NotBeComplexFormSelfReference);
-        RuleForEach(e => e.ComplexForms).Must(HaveCorrectComplexFormEntryReference);
+        RuleForEach(e => e.Components).Must(NotBeEmptyComponentReference).WithMessage("Component reference must not be empty.");
+        RuleForEach(e => e.Components).Must(NotBeComponentSelfReference).WithMessage("Component reference must not be the same as the entry.");
+        RuleForEach(e => e.Components).Must(HaveCorrectComplexFormEntryReference).WithMessage("Complex form reference must be correct.");
+        RuleForEach(e => e.ComplexForms).Must(NotBeComplexFormSelfReference).WithMessage("Complex form reference must not be the same as the entry.");
+        RuleForEach(e => e.ComplexForms).Must(HaveCorrectComponentEntryReference).WithMessage("Component reference must be correct.");
         // RuleForEach(e => e.Components).SetValidator(entry => new ComplexFormComponentValidator(entry)); // TODO: Not implemented yet
         // RuleForEach(e => e.ComplexForms).SetValidator(entry => new ComplexFormComponentValidator(entry)); // TODO: Not implemented yet
         // TODO: ComplexFormComponentValidator(entry) might need to know the "direction" of the entry it's validating, i.e. one class for "I'm a component" and another for "I'm the complex entry"
@@ -34,7 +34,7 @@ public class EntryValidator : AbstractValidator<Entry>
         return component.ComponentEntryId != entry.Id;
     }
 
-    private bool HaveCorrectComponentEntryReference(Entry entry, ComplexFormComponent component)
+    private bool HaveCorrectComplexFormEntryReference(Entry entry, ComplexFormComponent component)
     {
         // Empty GUID is okay here because it can be guessed from the parent object
         return component.ComplexFormEntryId == entry.Id || component.ComplexFormEntryId == Guid.Empty;
@@ -45,7 +45,7 @@ public class EntryValidator : AbstractValidator<Entry>
         return component.ComplexFormEntryId != entry.Id || component.ComplexFormEntryId == Guid.Empty;
     }
 
-    private bool HaveCorrectComplexFormEntryReference(Entry entry, ComplexFormComponent component)
+    private bool HaveCorrectComponentEntryReference(Entry entry, ComplexFormComponent component)
     {
         // Empty GUID is okay here because it can be guessed from the parent object
         return component.ComponentEntryId == entry.Id || component.ComponentEntryId == Guid.Empty;

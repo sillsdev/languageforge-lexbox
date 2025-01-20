@@ -205,19 +205,38 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task DeleteComplexFormType(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormType>(id));
+        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormType>(entityId: id));
     }
 
-    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    private async Task<AddEntryComponentChange> CreateComplexFormComponentChange(ComplexFormComponent complexFormComponent, BetweenPosition? between = null)
+    {
+        complexFormComponent.Order = await OrderPicker.PickOrder(ComplexFormComponents.Where(c => c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId), between);
+        return new AddEntryComponentChange(complexFormComponent);
+    }
+
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition? between = null)
     {
         var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
             c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
             && c.ComponentEntryId == complexFormComponent.ComponentEntryId
             && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
-        if (existing is not null) return existing;
-        var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
-        await dataModel.AddChange(ClientId, addEntryComponentChange);
-        return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
+        if (existing is null)
+        {
+            var addEntryComponentChange = await CreateComplexFormComponentChange(complexFormComponent, between);
+            await dataModel.AddChange(ClientId, addEntryComponentChange);
+            return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
+        }
+        else if (between is not null)
+        {
+            await MoveComplexFormComponent(complexFormComponent.ComplexFormEntryId, existing.Id, between);
+        }
+        return existing;
+    }
+
+    public async Task MoveComplexFormComponent(Guid complexFormEntryId, Guid complexFormComponentId, BetweenPosition between)
+    {
+        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == complexFormEntryId), between);
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(complexFormComponentId, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -336,9 +355,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         yield return new CreateEntryChange(entry);
 
         //only add components, if we add both components and complex forms we'll get duplicates when importing data
-        foreach (var addEntryComponentChange in entry.Components.Select(c => new AddEntryComponentChange(c)))
+        var componentOrder = 1;
+        foreach (var component in entry.Components)
         {
-            yield return addEntryComponentChange;
+            component.Order = componentOrder++;
+            yield return new AddEntryComponentChange(component);
         }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {
@@ -383,6 +404,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
         {
+            var currOrder = 1;
             foreach (var complexFormComponent in complexFormComponents)
             {
                 if (complexFormComponent.ComponentEntryId == default) complexFormComponent.ComponentEntryId = entry.Id;
@@ -409,7 +431,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 // {
                 //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
                 // }
-                yield return new AddEntryComponentChange(complexFormComponent);
+                if (complexFormComponent.ComplexFormEntryId == entry.Id)
+                {
+                    // the entry is the complex-form and picks what order its components are in
+                    complexFormComponent.Order = currOrder++;
+                    yield return new AddEntryComponentChange(complexFormComponent);
+                }
+                else
+                {
+                    // the entry is a component, so we let its complex-form pick the order
+                    yield return await CreateComplexFormComponentChange(complexFormComponent);
+                }
             }
         }
 
@@ -590,5 +622,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public void Dispose()
     {
+    }
+
+    public ProjectDataFormat GetDataFormat()
+    {
+        return ProjectDataFormat.Harmony;
     }
 }

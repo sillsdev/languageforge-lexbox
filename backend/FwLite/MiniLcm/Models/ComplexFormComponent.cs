@@ -1,6 +1,8 @@
-﻿namespace MiniLcm.Models;
+﻿using MiniLcm.Attributes;
 
-public record ComplexFormComponent : IObjectWithId
+namespace MiniLcm.Models;
+
+public record ComplexFormComponent : IObjectWithId, IOrderable
 {
     public static ComplexFormComponent FromEntries(Entry complexFormEntry,
         Entry componentEntry,
@@ -20,6 +22,9 @@ public record ComplexFormComponent : IObjectWithId
     }
 
     public Guid Id { get; set; }
+    // The order property applies to the component NOT the complex form. Complex forms are sorted alphabetically in FieldWorks.
+    [MiniLcmInternal]
+    public double Order { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public virtual required Guid ComplexFormEntryId { get; set; }
     public string? ComplexFormHeadword { get; set; }
@@ -50,6 +55,7 @@ public record ComplexFormComponent : IObjectWithId
         return new ComplexFormComponent
         {
             Id = Id,
+            Order = Order,
             ComplexFormEntryId = ComplexFormEntryId,
             ComplexFormHeadword = ComplexFormHeadword,
             ComponentEntryId = ComponentEntryId,
