@@ -31,7 +31,7 @@
 		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.sil.FwLiteMaui</ApplicationId>
+		<ApplicationId>org.sil.FwLiteMaui</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
