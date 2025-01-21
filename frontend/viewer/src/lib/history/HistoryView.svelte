@@ -1,10 +1,11 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {mdiClose, mdiHistory} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem, Toggle} from 'svelte-ux';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
   import ExampleEditor from '../entry-editor/object-editors/ExampleEditor.svelte';
   import {type HistoryItem, useHistoryService} from '../services/history-service';
+  import ShowEmptyFieldsSwitch from '$lib/layout/ShowEmptyFieldsSwitch.svelte';
 
   export let id: string;
   export let small: boolean = false;
@@ -12,6 +13,8 @@
   let record: HistoryItem | undefined;
   const historyService = useHistoryService();
   let history: HistoryItem[];
+
+  let showEmptyFields = false;
 
   async function load() {
     loading = true;
@@ -31,16 +34,15 @@
 <Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={load}>
   <Button on:click={toggleOn} icon={mdiHistory} variant="fill-light" color="info" size="sm">
     <div class="sm-form:hidden" class:hidden={small}>
-      View History
+      History
     </div>
   </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading}>
     <Button on:click={toggleOff} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
     <div slot="title">History</div>
-    <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr;">
-
-      <div class="flex flex-col gap-4 overflow-y-auto">
-        <div class="border rounded-md">
+    <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-columns: 250px 1fr; grid-template-rows: auto minmax(0,100%)">
+      <div class="flex flex-col gap-4 overflow-hidden row-start-2">
+        <div class="border rounded-md overflow-y-auto">
           {#if !history || history.length === 0}
             <div class="p-4 text-center opacity-75">No history found</div>
           {:else}
@@ -68,9 +70,18 @@
           {/if}
         </div>
       </div>
-      <div>
-        <span>Author: {record?.authorName ?? 'Unknown'}</span>
-        {#if record?.entity}
+      {#if record?.entity && record?.entityName}
+        <div class="col-start-2 row-start-1 text-sm flex justify-between items-center px-2 pb-0.5">
+          <span>Author:
+            {#if record.authorName}
+              <span class="font-semibold">{record.authorName}</span>
+            {:else}
+              <span class="opacity-75 italic">Unknown</span>
+            {/if}
+          </span>
+          <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
+        </div>
+        <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded" class:hide-empty={!showEmptyFields}>
           {#if record.entityName === 'Entry'}
             <EntryEditor entry={record.entity} modalMode readonly/>
           {:else if record.entityName === 'Sense'}
@@ -82,8 +93,8 @@
               <ExampleEditor example={record.entity} readonly/>
             </div>
           {/if}
-        {/if}
-      </div>
+        </div>
+      {/if}
     </div>
     <div class="flex-grow"></div>
   </Dialog>

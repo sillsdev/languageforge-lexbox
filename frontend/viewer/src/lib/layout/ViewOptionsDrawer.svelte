@@ -6,6 +6,7 @@
   import type {ViewSettings} from '../services/view-service';
   import {generateExternalChanges} from '../debug';
   import {mdiClose} from '@mdi/js';
+  import ShowEmptyFieldsSwitch from './ShowEmptyFieldsSwitch.svelte';
 
   export let activeView: View;
   export let viewSettings: ViewSettings;
@@ -29,12 +30,10 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="flex gap-2 items-center text-sm h-10">
-      <Switch bind:checked={viewSettings.showEmptyFields}
-              color="neutral"/>
-      Show empty fields
-    </label>
+
+    <div class="h-10">
+      <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
+    </div>
 
     <div class="grow"></div>
     <DevContent>

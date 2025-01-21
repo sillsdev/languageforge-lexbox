@@ -1,5 +1,5 @@
-<script lang="ts">
-  import {mdiCloseCircle, mdiHistory} from '@mdi/js';
+﻿<script lang="ts">
+  import {mdiClose, mdiHistory} from '@mdi/js';
   import {
     cls,
     DurationUnits,
@@ -9,7 +9,6 @@
     InfiniteScroll,
     ListItem,
     Duration,
-    TextField
   } from 'svelte-ux';
   import {useHistoryService} from '$lib/services/history-service';
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
@@ -49,6 +48,14 @@
     activity = data.toReversed();
     selectedRow = activity[0];
   }
+
+  function formatJsonForUi(json: object) {
+    return JSON.stringify(json, null, 2)
+      .split('\n') // Split into lines
+      .slice(1, -1) // Remove the first and last line
+      .map(line => line.slice(2)) // Remove one level of indentation
+      .join('\n'); // Join the lines back together;
+  }
 </script>
 
 <Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={load}>
@@ -60,9 +67,9 @@
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading}>
     <Button on:click={toggleOff} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
     <div slot="title">Activity</div>
-    <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr">
-      <div class="flex flex-col gap-4 overflow-y-auto">
-        <div class="border rounded-md">
+    <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-columns: 250px 1fr; grid-template-rows: auto minmax(0,100%)">
+      <div class="flex flex-col gap-4 overflow-hidden row-start-2">
+        <div class="border rounded-md overflow-y-auto">
           {#if !activity || activity.length === 0}
             <div class="p-4 text-center opacity-75">No activity found</div>
           {:else}
@@ -92,14 +99,24 @@
       </div>
 
       {#if selectedRow}
-        <div>
-          <span>Author: {selectedRow.metadata.authorName ?? 'Unknown'}</span>
-          <TextField label="Changes"
-                     value={JSON.stringify(selectedRow.changes, null, 4)}
-                     disabled
-                     multiline
-                     class="readonly field"
-                     classes={{input: 'h-80'}}/>
+        <div class="col-start-2 row-start-1 text-sm">
+          <span>Author:
+            {#if selectedRow.metadata.authorName}
+              <span class="font-semibold">{selectedRow.metadata.authorName}</span>
+            {:else}
+              <span class="opacity-75 italic">Unknown</span>
+            {/if}
+          </span>
+          {#if selectedRow.changes.length > 1}
+            <span>– ({selectedRow.changes.length} changes)</span>
+          {/if}
+        </div>
+        <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded">
+          {#each selectedRow.changes as change}
+            <div class="whitespace-pre-wrap font-mono text-sm [&:not(:last-child)]:border-b [&:not(:last-child)]:pb-4">
+              {formatJsonForUi(change)}
+            </div>
+          {/each}
         </div>
       {/if}
     </div>
