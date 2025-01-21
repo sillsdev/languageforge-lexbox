@@ -192,7 +192,7 @@
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
       <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
         <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
-        <hr class="grow border-t-4">
+        <hr class="grow border-t-2">
         {#if !readonly}
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
             on:move={(e) => moveSense(sense, e.detail)}
@@ -202,35 +202,37 @@
 
       <SenseEditor {sense} {readonly} on:change={() => onSenseChange(sense)}/>
 
-      <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
-        {#each sense.exampleSentences as example, j (example.id)}
-          <div class="grid-layer" class:highlight={example === highlightedEntity}>
-            <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-            <div class="col-span-full flex items-center gap-4 mb-4">
-              <h3 class="text-surface-content">Example {j + 1}</h3>
-              <!--
+      {#if sense.exampleSentences.length}
+        <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+          {#each sense.exampleSentences as example, j (example.id)}
+            <div class="grid-layer" class:highlight={example === highlightedEntity}>
+              <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
+              <div class="col-span-full flex items-center gap-4 mb-4">
+                <h3 class="text-surface-content">Example {j + 1}</h3>
+                <!--
+                  <hr class="grow">
+                  collapse/expand toggle
+                -->
                 <hr class="grow">
-                collapse/expand toggle
-              -->
-              <hr class="grow">
-              {#if !readonly}
-                <EntityListItemActions i={j}
-                                       items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
-                                       on:move={(e) => moveExample(sense, example, e.detail)}
-                                       on:delete={() => deleteExample(sense, example)}
-                                       id={example.id}
-                />
-              {/if}
-            </div>
+                {#if !readonly}
+                  <EntityListItemActions i={j}
+                                        items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                                        on:move={(e) => moveExample(sense, example, e.detail)}
+                                        on:delete={() => deleteExample(sense, example)}
+                                        id={example.id}
+                  />
+                {/if}
+              </div>
 
-            <ExampleEditor
-              {example}
-              {readonly}
-              on:change={() => onExampleChange(sense, example)}
-              />
-          </div>
-        {/each}
-      </div>
+              <ExampleEditor
+                {example}
+                {readonly}
+                on:change={() => onExampleChange(sense, example)}
+                />
+            </div>
+          {/each}
+        </div>
+      {/if}
       {#if !readonly}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
