@@ -286,6 +286,9 @@
     if (!joinResult.error) {
       notifySuccess($t('project.create.join_request_sent', { projectName }), Duration.Persistent);
     }
+    if (joinResult.error?.byType('ProjectHasNoManagers')) {
+      notifyWarning($t('project.create.join_request_error_no_managers', { projectName }), Duration.Persistent);
+    }
   }
 
   let projectConfidentialityModal: ProjectConfidentialityModal;
