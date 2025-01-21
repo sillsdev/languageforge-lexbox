@@ -14,10 +14,10 @@
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
-  <div class="flex flex-col h-full gap-4 px-6 py-4 w-full font-semibold">
-    <div>
-      <Button icon={mdiClose} size="sm" on:click={() => open = false} class="float-right"/>
-    </div>
+  <div class="absolute right-2 top-2">
+    <Button icon={mdiClose} on:click={() => open = false} class="float-right"/>
+  </div>
+  <div class="flex flex-col min-h-full gap-4 px-6 pt-8 pb-4 w-full font-semibold">
     <SelectField
       label="Fields"
       options={views.map((view) => ({ value: view, label: view.label, group: view.label }))}

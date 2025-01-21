@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-  import {mdiCloseCircle, mdiHistory} from '@mdi/js';
+<script lang="ts">
+  import {mdiClose, mdiHistory} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem, Toggle} from 'svelte-ux';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
@@ -34,8 +34,8 @@
       View History
     </div>
   </Button>
-  <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
-    <Button on:click={toggleOff} icon={mdiCloseCircle} class="absolute right-2 top-2 z-40" rounded="full"></Button>
+  <Dialog {open} on:close={toggleOff} {loading} persistent={loading}>
+    <Button on:click={toggleOff} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
     <div slot="title">History</div>
     <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr;">
 

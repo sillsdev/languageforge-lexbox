@@ -98,7 +98,7 @@
   </Field>
 </button>
 
-<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0'}}>
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0'}}>
   <div slot="title" class="flex items-center h-12">
     <div class="hidden max-md:contents">
       <Button on:click={() => $showSearchDialog = false} icon={mdiArrowLeft} rounded="full"></Button>

@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {Toggle, Button, Dialog} from 'svelte-ux';
   import EntryEditor from './object-editors/EntryEditor.svelte';
   import type {IEntry} from '$lib/dotnet-types';
@@ -65,7 +65,7 @@
       New {fieldName({id: 'entry'}, $currentView.i18nKey)}
     </div>
   </Button>
-  <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
+  <Dialog {open} on:close={toggleOff} {loading} persistent={loading}>
     <div slot="title">New {fieldName({id: 'entry'}, $currentView.i18nKey)}</div>
     <div class="m-6">
       <EntryEditor bind:entry={entry} modalMode/>

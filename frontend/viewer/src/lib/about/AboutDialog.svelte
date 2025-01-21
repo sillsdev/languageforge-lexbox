@@ -23,7 +23,7 @@
       About
     </div>
   </Button>
-  <Dialog {open} on:close={toggleOff} class="w-[700px]">
+  <Dialog {open} on:close={toggleOff}>
     <div class="m-6 prose">
       <Markdown md={text} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
     </div>
