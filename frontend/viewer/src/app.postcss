@@ -16,7 +16,8 @@
 }
 
 .dialog {
-  height: 100vh;
+    /*using 100vh or dvh still caused the action items to get clipped*/
+  height: 100%;
   width: 700px;
   @apply md:max-h-[50rem];
   @apply flex flex-col;
