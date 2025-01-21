@@ -6,7 +6,7 @@ const currentViewContextName = 'currentView';
 const viewSettingsContextName = 'viewSettings';
 
 export interface ViewSettings {
-  hideEmptyFields: boolean;
+  showEmptyFields: boolean;
 }
 
 export function initViewSettings(defaultSettings: ViewSettings): Writable<ViewSettings> {

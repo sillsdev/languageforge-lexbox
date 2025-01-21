@@ -85,7 +85,7 @@
   $: readonly = !$permissions.write || !$features.write;
 
   const currentView = initView(views[0]);
-  const viewSettings = initViewSettings({hideEmptyFields: !$permissions.write || !$features.write});
+  const viewSettings = initViewSettings({showEmptyFields: !!($permissions.write && $features.write)});
 
   export let projectName: string;
   setContext('project-name', projectName);

@@ -31,9 +31,9 @@
     </SelectField>
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="flex gap-2 items-center text-sm h-10">
-      <Switch bind:checked={viewSettings.hideEmptyFields}
+      <Switch bind:checked={viewSettings.showEmptyFields}
               color="neutral"/>
-      Hide empty fields
+      Show empty fields
     </label>
 
     <div class="grow"></div>

@@ -53,7 +53,7 @@
   }
 </script>
 
-<div id="entry" class:hide-empty={$viewSettings.hideEmptyFields}>
+<div id="entry" class:hide-empty={!$viewSettings.showEmptyFields}>
   <EntryEditor
     on:change={e => onChange(e.detail)}
     on:delete={e => onDelete(e.detail)}
