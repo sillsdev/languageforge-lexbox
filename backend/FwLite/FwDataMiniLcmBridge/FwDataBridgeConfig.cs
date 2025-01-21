@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace FwDataMiniLcmBridge;
 
@@ -9,7 +10,7 @@ public class FwDataBridgeConfig
         Path.Join(Environment.GetEnvironmentVariable("HOME") ?? "", ".local", "share");
 
     private static string WindowsDataFolder =>
-        (string?)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\SIL\FieldWorks\9", "ProjectsDir", null)
+        (string?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\SIL\FieldWorks\9", "ProjectsDir", null)
         ?? @"C:\ProgramData\SIL\FieldWorks";
 
     private static readonly string DataFolder =
