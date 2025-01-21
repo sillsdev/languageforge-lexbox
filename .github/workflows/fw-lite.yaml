@@ -170,7 +170,7 @@ jobs:
         with:
           name: fw-lite-android
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/com.sil.fwlitemaui-signed.apk
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/org.sil.fwlitemaui-signed.apk
           path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/*
 
   publish-win:
