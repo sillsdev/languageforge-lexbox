@@ -69,6 +69,7 @@
         </div>
       </div>
       <div>
+        <span>Author: {record?.authorName ?? 'Unknown'}</span>
         {#if record?.entity}
           {#if record.entityName === 'Entry'}
             <EntryEditor entry={record.entity} modalMode readonly/>

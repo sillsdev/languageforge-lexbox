@@ -11,29 +11,36 @@
     Duration,
     TextField
   } from 'svelte-ux';
+  import {useHistoryService} from '$lib/services/history-service';
+  import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
+
+  const historyService = useHistoryService();
 
   let loading = false;
   export let projectName: string;
-  let activity: Array<{
+  type Activity = {
     commitId: string,
     changeName: string,
     timestamp: string,
     previousTimestamp?: string,
-    changes: object[]
-  }>;
-  let selectedRow: typeof activity[number] | undefined;
+    changes: object[],
+    metadata: ICommitMetadata
+  };
+  let activity: Array<Activity>;
+  let selectedRow: Activity | undefined;
 
   async function load() {
     activity = [];
     loading = true;
-    const data = await fetch(`/api/activity/${projectName}`).then(res => res.json());
-    data.reverse();
+    const data = await historyService.activity(projectName) as Activity[];
+    console.debug('Activity data', data);
     loading = false;
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
       activity = [];
       return;
     }
+    data.reverse();
     for (let i = 0; i < data.length; i++) {
       let row = data[i];
       row.previousTimestamp = data[i + 1]?.timestamp;
@@ -85,12 +92,15 @@
       </div>
 
       {#if selectedRow}
-        <TextField label="Changes"
-                   value={JSON.stringify(selectedRow.changes, null, 4)}
-                   disabled
-                   multiline
-                   class="readonly field"
-                   classes={{input: 'h-80'}}/>
+        <div>
+          <span>Author: {selectedRow.metadata.authorName ?? 'Unknown'}</span>
+          <TextField label="Changes"
+                     value={JSON.stringify(selectedRow.changes, null, 4)}
+                     disabled
+                     multiline
+                     class="readonly field"
+                     classes={{input: 'h-80'}}/>
+        </div>
       {/if}
     </div>
     <div class="flex-grow"></div>

@@ -29,7 +29,8 @@ public class SyncService(
             return new SyncResults([], [], false);
         }
 
-        var httpClient = await oAuthClientFactory.GetClient(project).CreateHttpClient();
+        var oAuthClient = oAuthClientFactory.GetClient(project);
+        var httpClient = await oAuthClient.CreateHttpClient();
         if (httpClient is null)
         {
             logger.LogWarning(
@@ -38,6 +39,8 @@ public class SyncService(
                 project.OriginDomain);
             return new SyncResults([], [], false);
         }
+        var currentUser = await oAuthClient.GetCurrentUser();
+        await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
 
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
         var syncResults = await dataModel.SyncWith(remoteModel);

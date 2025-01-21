@@ -3,6 +3,7 @@ import {getContext} from 'svelte';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
+import type {IProjectActivity} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectActivity';
 
 export function useHistoryService() {
   const projectName = getContext<string>('project-name');
@@ -20,13 +21,16 @@ export type HistoryItem = {
   previousTimestamp?: string,
   snapshotId: string,
   changeName: string | undefined,
+  authorName: string | undefined,
 } & EntityType;
 
 export class HistoryService {
   get historyApi(): IHistoryServiceJsInvokable | undefined {
-    //randomly return undefined to test fallback
-    if (Math.random() < 0.5) {
-      return undefined;
+    if (import.meta.env.DEV) {
+      //randomly return undefined to test fallback
+      if (Math.random() < 0.5) {
+        return undefined;
+      }
     }
     return window.lexbox.ServiceProvider.tryGetService(DotnetService.HistoryService);
   }
@@ -72,5 +76,9 @@ export class HistoryService {
   private isExample(data: EntityType['entity']): data is IExampleSentence {
     if (data === undefined) return false;
     return 'senseId' in data;
+  }
+
+  async activity(projectName: string): Promise<IProjectActivity[]> {
+    return await (this.historyApi?.projectActivity() ?? fetch(`/api/activity/${projectName}`).then(res => res.json())) as IProjectActivity[];
   }
 }

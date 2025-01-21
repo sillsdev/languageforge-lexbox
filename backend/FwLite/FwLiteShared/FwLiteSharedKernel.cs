@@ -5,6 +5,9 @@ using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
+using SIL.Harmony;
 
 namespace FwLiteShared;
 
@@ -16,7 +19,6 @@ public static class FwLiteSharedKernel
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
         services.AddLogging();
-
         services.AddSingleton<ImportFwdataService>();
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
@@ -30,6 +32,11 @@ public static class FwLiteSharedKernel
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddOptions<FwLiteConfig>();
+        services.DecorateConstructor<IJSRuntime>((provider, runtime) =>
+        {
+            var crdtConfig = provider.GetRequiredService<IOptions<CrdtConfig>>().Value;
+            runtime.ConfigureJsonSerializerOptions(crdtConfig);
+        });
         return services;
     }
 
@@ -62,5 +69,24 @@ public static class FwLiteSharedKernel
         var authHelpersFactory = serviceProvider.GetRequiredService<OAuthClientFactory>();
         var currentProjectService = serviceProvider.GetRequiredService<CurrentProjectService>();
         return authHelpersFactory.GetClient(currentProjectService.ProjectData);
+    }
+
+    private static void DecorateConstructor<TService>(this IServiceCollection services,
+        Action<IServiceProvider, TService> constructor)
+    {
+        for (var i = 0; i < services.Count; i++)
+        {
+            var descriptor = services[i];
+            if (descriptor.ServiceType != typeof(TService)) continue;
+            services[i] = new ServiceDescriptor(descriptor.ServiceType,
+                sp =>
+                {
+                    if (descriptor.ImplementationType is null) throw new InvalidOperationException("Decorated constructor must have a non-null ImplementationType");
+                    TService service = (TService)ActivatorUtilities.CreateInstance(sp, descriptor.ImplementationType);
+                    if (service is null) throw new InvalidOperationException("Decorated constructor must return a non-null instance");
+                    constructor(sp, service);
+                    return service;
+                }, descriptor.Lifetime);
+        }
     }
 }

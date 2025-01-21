@@ -3,14 +3,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface IProjectData
+export interface ICommitMetadata
 {
-	name: string;
-	id: string;
-	originDomain?: string;
-	clientId: string;
-	fwProjectId?: string;
-	lastUserName?: string;
-	lastUserId?: string;
+	authorName?: string;
+	authorId?: string;
+	clientVersion?: string;
+	extraMetadata: { [key:string]: string };
+	item?: string;
 }
 /* eslint-enable */

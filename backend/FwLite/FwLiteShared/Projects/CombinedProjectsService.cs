@@ -17,8 +17,10 @@ public record ProjectModel(
     Guid? Id = null);
 
 public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
-public class CombinedProjectsService(LexboxProjectService lexboxProjectService, CrdtProjectsService crdtProjectsService,
-    IEnumerable<IProjectProvider> projectProviders)
+public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
+    CrdtProjectsService crdtProjectsService,
+    IEnumerable<IProjectProvider> projectProviders,
+    OAuthClientFactory oAuthClientFactory)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
@@ -100,6 +102,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
     [JSInvokable]
     public async Task DownloadProject(Guid lexboxProjectId, string projectName, LexboxServer server)
     {
+        var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         await crdtProjectsService.CreateProject(new(projectName,
             lexboxProjectId,
             server.Authority,
@@ -107,7 +110,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService, 
             {
                 await provider.GetRequiredService<SyncService>().ExecuteSync();
             },
-            SeedNewProjectData: false));
+            SeedNewProjectData: false,
+            AuthenticatedUser: currentUser?.Name,
+            AuthenticatedUserId: currentUser?.Id));
     }
 
     [JSInvokable]

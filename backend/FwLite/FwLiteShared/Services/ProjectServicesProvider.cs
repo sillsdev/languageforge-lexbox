@@ -52,7 +52,6 @@ public class ProjectServicesProvider(
             _ = jsRuntime.DurableInvokeVoidAsync("notifyEntryUpdated", projectName, entry);
         });
         var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
-        var historyService = scopedServices.GetRequiredService<HistoryService>();
         var scope = new ProjectScope(Defer.Async(() =>
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
@@ -60,7 +59,7 @@ public class ProjectServicesProvider(
             entryUpdatedSubscription.Dispose();
             _projectScopes.Remove(projectName);
             return Task.CompletedTask;
-        }), projectName, miniLcm, new HistoryServiceJsInvokable(historyService));
+        }), projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
         await TrackScope(scope);
         return scope;
     }

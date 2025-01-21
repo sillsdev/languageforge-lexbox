@@ -11,7 +11,8 @@ namespace LcmCrdt;
 public record ProjectActivity(
     Guid CommitId,
     DateTimeOffset Timestamp,
-    List<ChangeEntity<IChange>> Changes)
+    List<ChangeEntity<IChange>> Changes,
+    CommitMetadata Metadata)
 {
     public string ChangeName => ChangeNameHelper(Changes);
 
@@ -39,7 +40,8 @@ public record HistoryLineItem(
     Guid? SnapshotId,
     string? ChangeName,
     IObjectWithId? Entity,
-    string? EntityName)
+    string? EntityName,
+    string? AuthorName)
 {
     public HistoryLineItem(
         Guid commitId,
@@ -48,14 +50,16 @@ public record HistoryLineItem(
         Guid? snapshotId,
         IChange? change,
         IObjectBase? entity,
-        string typeName) : this(commitId,
+        string typeName,
+        string? authorName) : this(commitId,
         entityId,
         new DateTimeOffset(timestamp.Ticks,
             TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
         snapshotId,
         change?.GetType().Name,
         (IObjectWithId?) entity?.DbObject,
-        typeName)
+        typeName,
+        authorName)
     {
     }
 }
@@ -67,7 +71,7 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
         return dbContext.Commits
                 .DefaultOrderDescending()
                 .Take(20)
-                .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities))
+                .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities, c.Metadata))
                 .AsAsyncEnumerable();
     }
 
@@ -103,7 +107,8 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
                 snapshot.Id,
                 change.Change,
                 snapshot.Entity,
-                snapshot.TypeName);
+                snapshot.TypeName,
+                commit.Metadata.AuthorName);
         return query.ToLinqToDB().AsAsyncEnumerable();
     }
 }
