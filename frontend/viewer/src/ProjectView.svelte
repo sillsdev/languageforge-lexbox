@@ -367,7 +367,7 @@
       <div class="w-screen max-w-full lg-view:w-[500px] lg-view:min-w-[300px] collapsible-col lg-view:side-scroller flex" class:lg-view:!w-[1024px]={expandList} class:lg-view:max-w-[25vw]={!expandList} class:sm-view:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg-view:w-screen collapsible-col overflow-x-visible" class:lg-view:px-6={!expandList} class:sm-view:pr-6={pickedEntry && !readonly} class:lg-view:collapse-col={expandList} class:sm-view:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg-view:w-screen collapsible-col overflow-x-visible" class:lg-view:px-6={!expandList} class:lg-view:collapse-col={expandList} class:sm-view:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
           <div class="sm-form:mb-4 mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
@@ -388,13 +388,13 @@
           </div>
         {/if}
       </div>
-      <div class="side-scroller pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:sm-view:border-l-2={pickedEntry && !readonly} class:sm-view:hidden={!pickedEntry || readonly} class:lg-view:hidden={expandList}>
+      <div class="side-scroller pl-6 border-l-2 gap-4 flex-col col-start-3 hidden" class:border-l-2={$selectedEntry && !expandList} class:lg-view:flex={!expandList}>
         {#if $selectedEntry}
           <div class="sm-form:hidden" class:sm:hidden={expandList}>
             <Button icon={collapseActionBar ? mdiArrowExpandLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
           </div>
         {/if}
-        <div class="sm-form:w-auto w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
+        <div class="w-[15vw] collapsible-col" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
           {#if $selectedEntry}
             <div class="contents" class:lg-view:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
