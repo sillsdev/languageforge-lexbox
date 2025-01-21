@@ -53,7 +53,9 @@ export class HistoryService {
   }
 
   async fetchSnapshot(history: HistoryItem, objectId: string): Promise<HistoryItem> {
-    const data = (await this.historyApi?.getObject(history.commitId, objectId) ?? fetch(`/api/history/${this.projectName}/snapshot/commit/${history.commitId}?entityId=${objectId}`).then(res => res.json())) as EntityType['entity'];
+    const data = (await this.historyApi?.getObject(history.commitId, objectId)
+      ?? await fetch(`/api/history/${this.projectName}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
+          .then(res => res.json())) as EntityType['entity'];
     if (this.isEntry(data)) {
       return {...history, entity: data, entityName: 'Entry'};
     }
