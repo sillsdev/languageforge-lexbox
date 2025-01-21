@@ -307,8 +307,8 @@
 {:else}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
   <AppBar class="bg-secondary min-h-12 shadow-md" head={false}>
-    <div slot="title" class="prose whitespace-nowrap">
-      <h3>{projectName}</h3>
+    <div slot="title" class="prose whitespace-nowrap min-w-20">
+      <h3 class="text-ellipsis overflow-hidden">{projectName}</h3>
     </div>
     <Button
       classes={{root: showHomeButton ? '' : 'hidden'}}
