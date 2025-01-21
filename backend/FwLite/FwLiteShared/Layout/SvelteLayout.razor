@@ -8,10 +8,11 @@
 @inject FwLiteProvider FwLiteProvider
 @inject IOptions<FwLiteConfig> Config;
 @inject ProjectServicesProvider ProjectServicesProvider;
+@inject NavigationManager NavigationManager;
 @implements IAsyncDisposable
 @if (useDevAssets)
 {
-    <script type="module" src="http://localhost:5173/@@vite/client"></script>
+    <script type="module" src="@scheme://@hostname:5173/@@vite/client"></script>
 }
 else
 {
@@ -48,6 +49,8 @@ else
 @code {
     private bool useDevAssets => Config.Value.UseDevAssets;
     // private bool useDevAssets => false;
+    private string hostname => new Uri(NavigationManager.Uri).Host;
+    private string scheme => new Uri(NavigationManager.Uri).Scheme;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -63,7 +66,7 @@ else
 
             if (useDevAssets)
             {
-                await JS.InvokeAsync<IJSObjectReference>("import", "http://localhost:5173/src/main.ts");
+                await JS.InvokeAsync<IJSObjectReference>("import", $"{scheme}://{hostname}:5173/src/main.ts");
             } else
             {
                 await JS.InvokeAsync<IJSObjectReference>("import",

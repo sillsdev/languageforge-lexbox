@@ -51,6 +51,7 @@ export default defineConfig(({ mode, command }) => {
     }), svelteTesting()],
     server: {
       origin: 'http://localhost:5173',
+      host: true,
     },
     test: {
       environment: 'happy-dom',
