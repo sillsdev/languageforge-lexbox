@@ -76,9 +76,9 @@ public class AppUpdateService(
         await ApplyUpdate(fwLiteRelease);
     }
 
-    private void ShowUpdateAvailableNotification(FwLiteRelease latestRelease)
+    private void ShowUpdateInstallingNotification(FwLiteRelease latestRelease)
     {
-        new ToastContentBuilder().AddText("FieldWorks Lite Update Available").AddText($"Version {latestRelease.Version} will be installed after FieldWorks Lite is closed").Show();
+        new ToastContentBuilder().AddText("FieldWorks Lite Installing update").AddText($"Version {latestRelease.Version} will be installed after FieldWorks Lite is closed").Show();
     }
 
     private async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
@@ -150,6 +150,9 @@ public class AppUpdateService(
             }
             logger.LogInformation("Downloading update: {ProgressPercentage}%", progressInfo.percentage);
         };
+        ShowUpdateInstallingNotification(latestRelease);
+
+        //note this asyncOperation is not reliable, it's possible the update will install and this will never resolve, so don't do anything important after this
         var result = await asyncOperation;
         if (!string.IsNullOrEmpty(result.ErrorText))
         {
@@ -158,7 +161,6 @@ public class AppUpdateService(
         }
 
         logger.LogInformation("Update downloaded, will install on next restart");
-        ShowUpdateAvailableNotification(latestRelease);
     }
 
     private async Task<ShouldUpdateResponse> ShouldUpdate()
