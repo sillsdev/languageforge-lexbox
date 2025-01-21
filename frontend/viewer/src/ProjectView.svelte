@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {AppBar, Button, ProgressCircle} from 'svelte-ux';
+  import {AppBar, Button} from 'svelte-ux';
   import {
     mdiArrowCollapseRight,
     mdiArrowExpandLeft,
@@ -13,14 +13,13 @@
   import {headword} from './lib/utils';
   import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/dotnet-types';
-  import {onDestroy, onMount, setContext} from 'svelte';
+  import {createEventDispatcher, onDestroy, onMount, setContext} from 'svelte';
   import {derived, type Readable, writable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
   import {type LexboxFeatures, type LexboxPermissions} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
-  import {fade} from 'svelte/transition';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
@@ -43,7 +42,10 @@
   import {initDialogService} from '$lib/entry-editor/dialog-service';
   import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
 
-  export let loading = false;
+  const dispatch = createEventDispatcher<{
+    loaded: boolean;
+  }>();
+
   export let about: string | undefined = undefined;
 
   const changeEventBus = useEventBus();
@@ -212,7 +214,8 @@
     navigateToEntryId = null;
   }
 
-  $: _loading = !$entries || !$writingSystems || loading;
+  $: projectLoaded = !!($entries && $writingSystems);
+  $: dispatch('loaded', projectLoaded);
 
   function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
@@ -298,13 +301,7 @@
 </svelte:head>
 
 
-{#if _loading || !$entries}
-<div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
-  <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
-    <span>Loading <span class="text-primary-500">{projectName}</span>...</span><ProgressCircle class="text-surface-content" />
-  </div>
-</div>
-{:else}
+{#if projectLoaded}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
   <AppBar class="bg-secondary min-h-12 shadow-md" head={false}>
     <div slot="title" class="prose whitespace-nowrap">

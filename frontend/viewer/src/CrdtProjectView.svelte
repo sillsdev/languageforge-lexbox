@@ -1,6 +1,10 @@
 ﻿<script lang="ts">
+  import ProjectLoader from './ProjectLoader.svelte';
   import ProjectView from './ProjectView.svelte';
 
   export let projectName: string;
 </script>
-<ProjectView {projectName} isConnected></ProjectView>
+
+<ProjectLoader {projectName} let:onProjectLoaded>
+  <ProjectView {projectName} isConnected on:loaded={e => onProjectLoaded(e.detail)}></ProjectView>
+</ProjectLoader>

@@ -8,6 +8,7 @@
   import type {
     IHistoryServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
+  import ProjectLoader from './ProjectLoader.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
   export let projectName: string;
@@ -36,6 +37,7 @@
     }
   });
 </script>
-{#if serviceLoaded}
-  <ProjectView {projectName} isConnected></ProjectView>
-{/if}
+
+<ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
+  <ProjectView {projectName} isConnected on:loaded={e => onProjectLoaded(e.detail)}></ProjectView>
+</ProjectLoader>
