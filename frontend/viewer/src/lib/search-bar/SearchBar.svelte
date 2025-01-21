@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
+  import {mdiArrowLeft, mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
   import {Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
   import {firstDefOrGlossVal, headword} from '../utils';
   import {useLexboxApi} from '../services/service-provider';
@@ -98,8 +98,11 @@
   </Field>
 </button>
 
-<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
-  <div slot="title">
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0'}}>
+  <div slot="title" class="flex items-center h-12">
+    <div class="hidden max-md:contents">
+      <Button on:click={() => $showSearchDialog = false} icon={mdiArrowLeft} rounded="full"></Button>
+    </div>
     <TextField
       bind:inputEl={searchElement}
       autofocus
