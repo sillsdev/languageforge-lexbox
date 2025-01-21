@@ -132,7 +132,8 @@
 
   function isTopInView(element: Element): boolean {
     const elementRect = element.getBoundingClientRect();
-    return elementRect.top >= 0;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    return elementRect.top <= viewportHeight;
   }
 
   const features = useFeatures();
@@ -192,7 +193,7 @@
   {#each entry.senses as sense, i (sense.id)}
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-      <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
+      <div class="col-span-full flex items-center gap-4 py-4 lg-view:sticky top-[-1px] bg-surface-100 z-[1]">
         <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-2">
         {#if !readonly}

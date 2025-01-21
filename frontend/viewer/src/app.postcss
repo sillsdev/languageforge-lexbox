@@ -38,12 +38,12 @@
   cursor: pointer;
 }
 
-[id^=entry], [id^=sense] {
+[id^=entry], [id^=sense], .grid-layer:has(> [id^=sense]) {
   scroll-margin-top: 1rem;
   scroll-margin-bottom: 4rem;
 }
 
-[id^=example] {
+[id^=example], .grid-layer:has(> [id^=example]) {
   /* under the sticky sense header */
   scroll-margin-top: 4rem;
   scroll-margin-bottom: 4rem;
