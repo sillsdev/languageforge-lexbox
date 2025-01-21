@@ -1,12 +1,12 @@
 <script lang="ts">
   import {Button, Drawer, SelectField, Switch} from 'svelte-ux';
-  import type {LexboxFeatures} from '../config-types';
   import DevContent from './DevContent.svelte';
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
   import {generateExternalChanges} from '../debug';
   import {mdiClose} from '@mdi/js';
   import ShowEmptyFieldsSwitch from './ShowEmptyFieldsSwitch.svelte';
+  import type {LexboxFeatures} from '$lib/services/feature-service';
 
   export let activeView: View;
   export let viewSettings: ViewSettings;

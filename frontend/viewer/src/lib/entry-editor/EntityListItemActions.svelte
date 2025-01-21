@@ -1,18 +1,17 @@
 <script lang="ts">
   /* eslint-disable svelte/no-reactive-reassign */
   import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiTrashCanOutline } from '@mdi/js';
-  import { createEventDispatcher, getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { Button, ButtonGroup, Icon, Popover, Toggle } from 'svelte-ux';
   import HistoryView from '../history/HistoryView.svelte';
-  import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures } from '../config-types';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const dispatch = createEventDispatcher<{
     move: number;
     delete: void;
   }>();
 
-  const features = getContext<Readable<LexboxFeatures>>('features');
+  const features = useFeatures();
 
   export let i: number;
   export let items: string[];

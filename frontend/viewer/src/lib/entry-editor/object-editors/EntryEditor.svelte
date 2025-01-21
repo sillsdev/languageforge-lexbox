@@ -3,7 +3,6 @@
   import EntityEditor from './EntityEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures } from '$lib/config-types';
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
@@ -19,6 +18,7 @@
   import {useDialogService} from '$lib/entry-editor/dialog-service';
   import {fieldName} from '$lib/i18n';
   import AddSenseFab from './AddSenseFab.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const dialogService = useDialogService();
   const dispatch = createEventDispatcher<{
@@ -135,7 +135,7 @@
     return elementRect.top >= 0;
   }
 
-  const features = getContext<Readable<LexboxFeatures>>('features');
+  const features = useFeatures();
   const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
   const currentView = useCurrentView();
 </script>

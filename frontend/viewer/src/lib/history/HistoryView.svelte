@@ -79,7 +79,9 @@
               <span class="opacity-75 italic">Unknown</span>
             {/if}
           </span>
-          <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
+          <div class="hidden sm:contents">
+            <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
+          </div>
         </div>
         <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded" class:hide-empty={!showEmptyFields}>
           {#if record.entityName === 'Entry'}

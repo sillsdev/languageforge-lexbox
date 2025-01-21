@@ -13,16 +13,15 @@
   import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/dotnet-types';
   import {createEventDispatcher, onDestroy, onMount, setContext} from 'svelte';
-  import {derived, type Readable, writable} from 'svelte/store';
+  import {derived, writable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
-  import {type LexboxFeatures, type LexboxPermissions} from './lib/config-types';
+  import type {LexboxPermissions} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
-  import ActivityView from './lib/activity/ActivityView.svelte';
   import {getAvailableHeightForElement} from './lib/utils/size';
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
@@ -31,7 +30,6 @@
   import {views} from './lib/entry-editor/view-data';
   import {initWritingSystems} from './lib/writing-systems';
   import {useEventBus} from './lib/services/event-bus';
-  import AboutDialog from './lib/about/AboutDialog.svelte';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
@@ -39,6 +37,8 @@
   import {initDialogService} from '$lib/entry-editor/dialog-service';
   import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
   import HomeButton from '$lib/HomeButton.svelte';
+  import AppBarMenu from '$lib/layout/AppBarMenu.svelte';
+  import {initFeatures} from '$lib/services/feature-service';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -72,8 +72,7 @@
     features.set(f);
   });
   //not having write enabled at the start fixes an issue where the default viewSetting.hideEmptyFields would be incorrect
-  const features = writable<LexboxFeatures>({write: true});
-  setContext<Readable<LexboxFeatures>>('features', features);
+  const features = initFeatures({write: true});
   setContext('saveEvents', saveEventDispatcher);
   setContext('saveHandler', saveHandler);
 
@@ -326,37 +325,27 @@
                  on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
-    <div slot="actions" class="flex items-center gap-2 lg-view:gap-4 whitespace-nowrap">
-      {#if !readonly}
-        <NewEntryDialog bind:this={newEntryDialog} on:created={(e) => onEntryCreated(e.detail.entry, {dontNavigate: true})} />
-      {/if}
-      {#if $features.history}
-        <ActivityView {projectName}/>
-      {/if}
-      {#if about}
-        <AboutDialog text={about} />
-      {/if}
-      {#if $features.feedback && fwLiteConfig.feedbackUrl}
-        <Button
-          href={fwLiteConfig.feedbackUrl}
-          target="_blank"
-          size="sm"
-          variant="outline"
-          icon={mdiChatQuestion}>
-          <div class="hidden sm:contents">
-            Feedback
-          </div>
-        </Button>
-      {/if}
-      <Button
-        on:click={() => (showOptionsDialog = true)}
-        size="sm"
-        variant="outline"
-        icon={mdiEyeSettingsOutline}>
-        <div class="hidden lg-view:contents">
-          Configure
-        </div>
-      </Button>
+    <div slot="actions" class="flex items-center whitespace-nowrap">
+      <div class="space-x-2">
+        {#if !readonly}
+          <NewEntryDialog bind:this={newEntryDialog} on:created={(e) => onEntryCreated(e.detail.entry, {dontNavigate: true})} />
+        {/if}
+        {#if $features.feedback && fwLiteConfig.feedbackUrl}
+          <Button
+            href={fwLiteConfig.feedbackUrl}
+            target="_blank"
+            size="sm"
+            variant="outline"
+            icon={mdiChatQuestion}>
+            <div class="hidden sm:contents">
+              Feedback
+            </div>
+          </Button>
+        {/if}
+      </div>
+      <div class="ml-2">
+        <AppBarMenu on:showOptionsDialog={() => showOptionsDialog = true} {about} {projectName} />
+      </div>
     </div>
   </AppBar>
   <main bind:this={editorElem} class="lg-view:p-4 flex grow" class:sm-view:p-2={pickedEntry}>
