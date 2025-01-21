@@ -98,7 +98,8 @@
   </Field>
 </button>
 
-<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0'}}>
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''}
+  classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0', dialog: 'md:h-auto md:max-h-[min(50rem, 100%)]'}}>
   <div slot="title" class="flex items-center h-12">
     <div class="hidden max-md:contents">
       <Button on:click={() => $showSearchDialog = false} icon={mdiArrowLeft} rounded="full"></Button>
@@ -125,7 +126,7 @@
       </div>
     </TextField>
   </div>
-  <div>
+  <div class="overflow-auto">
     <div class="p-0.5">
       {#each $displayedEntries as entry}
         <ListItem

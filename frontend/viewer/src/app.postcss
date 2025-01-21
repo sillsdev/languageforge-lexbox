@@ -16,11 +16,12 @@
   color: var(--base-text);
 }
 
+/* The search bar dialog is somewhat unique. It should be considered when making global changes here. */
 .dialog {
     /*using 100vh or dvh still caused the action items to get clipped*/
   height: 100%;
   width: 767px; /* matches md/max-md */
-  @apply md:max-h-[50rem];
+  @apply md:max-h-[calc(100vh-16px)];
   @apply flex flex-col;
   @apply max-md:rounded-none;
 
