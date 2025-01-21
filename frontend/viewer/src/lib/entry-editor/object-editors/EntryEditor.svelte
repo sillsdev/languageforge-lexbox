@@ -18,6 +18,8 @@
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
   import {useDialogService} from '$lib/entry-editor/dialog-service';
   import {fieldName} from '$lib/i18n';
+  import AddSenseFab from './AddSenseFab.svelte';
+
   const dialogService = useDialogService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -242,7 +244,10 @@
   {/each}
   {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
-    <div class="col-span-full flex justify-end">
+    <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]">
+      <AddSenseFab on:click={addSense} />
+    </div>
+    <div class="sm-view:hidden col-span-full flex justify-end">
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
