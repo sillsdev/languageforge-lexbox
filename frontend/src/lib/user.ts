@@ -36,6 +36,7 @@ type JwtTokenUser = {
   unver?: boolean | undefined,
   mkproj?: boolean | undefined,
   creat?: boolean | undefined,
+  aud: string,
   loc: string,
 }
 
@@ -53,6 +54,7 @@ export type LexAuthUser = {
   emailVerified: boolean
   canCreateProjects: boolean
   createdByAdmin: boolean
+  audience: string
   locale: string
 }
 
@@ -177,7 +179,7 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 }
 
 export function jwtToUser(user: JwtTokenUser): LexAuthUser {
-  const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
+  const { sub: id, aud: audience, name, email, user: username, proj: projectsString, role: jwtRole } = user;
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
   if (user.orgs) {
@@ -199,6 +201,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,
     createdByAdmin: user.creat ?? false,
     locale: user.loc,
+    audience,
     emailOrUsername: (email ?? username) as string,
   }
 }
