@@ -383,21 +383,23 @@
             <Button icon={collapseActionBar ? mdiArrowExpandLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
           </div>
         {/if}
-        <div class="w-[15vw] collapsible-col" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
+        <div class="w-[15vw] collapsible-col sm-form:w-min" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
           {#if $selectedEntry}
             <div class="contents" class:lg-view:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
-                {#if !readonly}
-                  <div class="contents" bind:this={entryActionsElem}>
+                <div class="grid gap-4 auto-rows-fr">
+                  {#if !readonly}
+                    <div class="contents" bind:this={entryActionsElem}>
 
-                  </div>
-                {/if}
-                {#if $selectedEntry}
-                  <div class="contents">
-<!--                    button must be a link otherwise it won't follow the redirect to a protocol handler-->
-                    <OpenInFieldWorksButton entryId={$selectedEntry.id} {projectName} show={$features.openWithFlex}/>
-                  </div>
-                {/if}
+                    </div>
+                  {/if}
+                  {#if $selectedEntry}
+                    <div class="contents">
+  <!--                    button must be a link otherwise it won't follow the redirect to a protocol handler-->
+                      <OpenInFieldWorksButton entryId={$selectedEntry.id} {projectName} show={$features.openWithFlex}/>
+                    </div>
+                  {/if}
+                </div>
                 <div class="contents sm-form:hidden" class:hidden={collapseActionBar}>
                   <Toc entry={$selectedEntry} />
                 </div>
