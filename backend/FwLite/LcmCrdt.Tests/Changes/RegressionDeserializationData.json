@@ -1,3 +1,4 @@
+//this file represents changes which are stored in projects and are immutable, we need to ensure these can be deserialized
 [
   {
     "$type": "jsonPatch:Entry",

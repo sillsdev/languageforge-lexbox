@@ -18,6 +18,7 @@ public class ChangeSerializationTests
     {
         var config = new CrdtConfig();
         LcmCrdtKernel.ConfigureCrdt(config);
+        config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
         return config.JsonSerializerOptions;
     });
     private static readonly JsonSerializerOptions Options = LazyOptions.Value;
@@ -105,12 +106,12 @@ public class ChangeSerializationTests
     }
 
     [Fact]
-    public void CanDeserializeJson()
+    public void CanDeserializeRegressionData()
     {
         //this file represents projects which already have changes applied, we want to ensure that we don't break anything.
         //nothing should ever be removed from this file
         //if a new property is added then a new json object should be added with that property
-        using var jsonFile = File.OpenRead(GetJsonFilePath("ExistingJson.json"));
+        using var jsonFile = File.OpenRead(GetJsonFilePath("RegressionDeserializationData.json"));
         var changes = JsonSerializer.Deserialize<List<IChange>>(jsonFile, Options);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
 
