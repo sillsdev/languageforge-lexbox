@@ -7,7 +7,7 @@
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '$lib/utils';
+  import {defaultExampleSentence, defaultSense} from '$lib/utils';
   import HistoryView from '../../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
@@ -18,7 +18,9 @@
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
   import {useDialogService} from '$lib/entry-editor/dialog-service';
   import {fieldName} from '$lib/i18n';
+  import {useWritingSystemService} from '$lib/writing-system-service';
   const dialogService = useDialogService();
+  const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
     delete: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -194,7 +196,7 @@
         <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-4">
         {#if !readonly}
-          <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
+          <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
             on:move={(e) => moveSense(sense, e.detail)}
             on:delete={() => deleteSense(sense)} id={sense.id} />
         {/if}
@@ -215,7 +217,7 @@
               <hr class="grow">
               {#if !readonly}
                 <EntityListItemActions i={j}
-                                       items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                                       items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
                                        on:move={(e) => moveExample(sense, example, e.detail)}
                                        on:delete={() => deleteExample(sense, example)}
                                        id={example.id}

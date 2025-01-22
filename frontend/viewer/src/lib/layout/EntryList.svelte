@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from 'svelte-ux';
   import type { IEntry } from '$lib/dotnet-types';
-  import { firstDefOrGlossVal, headword } from '../utils';
   import { mdiArrowCollapseLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
   import IndexCharacters from './IndexCharacters.svelte';
   import type { Writable } from 'svelte/store';
@@ -9,6 +8,7 @@
   import DictionaryEntry from '../DictionaryEntry.svelte';
   import {useCurrentView} from '$lib/services/view-service';
   import {fieldName} from '$lib/i18n';
+  import {useWritingSystemService} from '$lib/writing-system-service';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
@@ -18,6 +18,8 @@
   export let loading: boolean;
   export let search: string;
   export let expand: boolean;
+
+  const writingSystemService = useWritingSystemService();
 
   const selectedEntry = getContext<Writable<IEntry | undefined>>('selectedEntry');
   let lastScrolledTo: string | undefined = undefined;
@@ -115,8 +117,8 @@
                 </button>
               {:else}
                   <ListItem
-                    title={headword(entry).padStart(1, '–')}
-                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '–')}
+                    title={writingSystemService.headword(entry).padStart(1, '–')}
+                    subheading={writingSystemService.firstDefOrGlossVal(entry.senses[0]).padStart(1, '–')}
                     on:click={() => selectEntry(entry)}
                     noShadow
                     class="!rounded-none"

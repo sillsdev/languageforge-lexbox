@@ -1,8 +1,7 @@
 <script lang="ts">
   import {useComplexFormTypes} from '$lib/complex-form-types';
   import type {IComplexFormType} from '$lib/dotnet-types';
-  import {pickBestAlternative} from '../../utils';
-  import {useWritingSystems} from '../../writing-systems';
+  import {useWritingSystemService} from '../../writing-system-service';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
 
   export let id: string;
@@ -10,7 +9,7 @@
   export let readonly: boolean;
 
   const complexFormTypes = useComplexFormTypes();
-  const writingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 </script>
 
 <MultiOptionEditor
@@ -18,7 +17,7 @@
   bind:value
   preserveOrder
   options={$complexFormTypes}
-  getOptionLabel={(cft) => pickBestAlternative(cft.name, 'analysis', $writingSystems)}
+  getOptionLabel={(cft) => writingSystemService.pickBestAlternative(cft.name, 'analysis')}
   {readonly}
   {id}
   wsType="first-analysis" />

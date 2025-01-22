@@ -5,8 +5,7 @@
 
   import type { WritingSystemSelection } from '../../config-types';
   import { useCurrentView } from '../../services/view-service';
-  import { pickWritingSystems } from '../../utils';
-  import { useWritingSystems } from '../../writing-systems';
+  import { useWritingSystemService } from '../../writing-system-service';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
 
@@ -88,9 +87,9 @@
   }
 
   let currentView = useCurrentView();
-  const allWritingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 
-  $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
+  $: [ws] = writingSystemService.pickWritingSystems(wsType);
   $: empty = !value;
 </script>
 

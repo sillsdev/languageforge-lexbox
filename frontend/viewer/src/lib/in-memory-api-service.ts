@@ -1,22 +1,22 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
-import {entries, projectName, writingSystems, partsOfSpeech} from './entry-data';
 import type {
+  IComplexFormComponent,
+  IComplexFormType,
   IEntry,
   IExampleSentence,
-  ISense,
+  IMiniLcmJsInvokable,
   IPartOfSpeech,
   IQueryOptions,
   ISemanticDomain,
-  WritingSystemType,
-  IWritingSystems,
-  IComplexFormType,
+  ISense,
   IWritingSystem,
-  IComplexFormComponent,
-  IMiniLcmJsInvokable
+  IWritingSystems,
+  WritingSystemType
 } from '$lib/dotnet-types';
+import {entries, partsOfSpeech, projectName, writingSystems} from './entry-data';
 
-import {headword} from './utils';
+import {WritingSystemService} from './writing-system-service';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -36,6 +36,8 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
       ]),
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
+
+const writingSystemService = new WritingSystemService(writingSystems);
 
 export class InMemoryApiService implements IMiniLcmJsInvokable {
   getComplexFormTypes(): Promise<IComplexFormType[]> {
@@ -109,8 +111,8 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
-        const v1 = headword(e1, sortWs);
-        const v2 = headword(e2, sortWs);
+        const v1 = writingSystemService.headword(e1, sortWs);
+        const v2 = writingSystemService.headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
         const compare = v1.localeCompare(v2, sortWs);

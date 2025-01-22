@@ -1,7 +1,6 @@
 <script lang="ts">
   import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
   import {Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
-  import {firstDefOrGlossVal, headword} from '../utils';
   import {useLexboxApi} from '../services/service-provider';
   import {derived, type Writable} from 'svelte/store';
   import {deriveAsync} from '../utils/time';
@@ -10,8 +9,10 @@
   import {useSearch} from './search';
   import {useCurrentView} from '$lib/services/view-service';
   import {fieldName} from '$lib/i18n';
+  import {useWritingSystemService} from '$lib/writing-system-service';
 
   const {search, showSearchDialog} = useSearch();
+  const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
     entrySelected: {entry: IEntry, search: string};
     createNew: string
@@ -126,8 +127,8 @@
     <div class="p-0.5">
       {#each $displayedEntries as entry}
         <ListItem
-          title={headword(entry).padStart(1, '–')}
-          subheading={firstDefOrGlossVal(entry.senses[0])}
+          title={writingSystemService.headword(entry).padStart(1, '–')}
+          subheading={writingSystemService.firstDefOrGlossVal(entry.senses[0])}
           noShadow
           on:click={() => selectEntry(entry)}
         />
