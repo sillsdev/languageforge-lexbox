@@ -1,6 +1,7 @@
 <script lang="ts">
   export let href: string;
   import t from '$lib/i18n';
+  export let text: 'sign_in_with_google' | 'register_with_google' = 'sign_in_with_google';
 </script>
 
 <!--
@@ -42,8 +43,8 @@
         <path fill="none" d="M0 0h48v48H0z"></path>
       </svg>
     </div>
-    <span class="gsi-material-button-contents">{$t('login.sign_in_with_google')}</span>
-    <span style="display: none;">{$t('login.sign_in_with_google')}</span>
+    <span class="gsi-material-button-contents">{$t(`login.${text}`)}</span>
+    <span style="display: none;">{$t(`login.${text}`)}</span>
   </div>
 </a>
 
