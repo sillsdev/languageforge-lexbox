@@ -1,10 +1,9 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntityEditor from './EntityEditor.svelte';
-  import {createEventDispatcher, getContext} from 'svelte';
-  import type { Readable } from 'svelte/store';
-  import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
-  import { Button, portal } from 'svelte-ux';
+  import {createEventDispatcher} from 'svelte';
+  import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
+  import { Button, MenuItem } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '$lib/utils';
   import HistoryView from '../../history/HistoryView.svelte';
@@ -19,6 +18,7 @@
   import {fieldName} from '$lib/i18n';
   import AddSenseFab from './AddSenseFab.svelte';
   import {useFeatures} from '$lib/services/feature-service';
+  import Scotty from '$lib/layout/Scotty.svelte';
 
   const dialogService = useDialogService();
   const dispatch = createEventDispatcher<{
@@ -137,8 +137,9 @@
   }
 
   const features = useFeatures();
-  const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
   const currentView = useCurrentView();
+
+  let showHistoryView = false;
 </script>
 
 <div bind:this={editorElem} class="editor-grid">
@@ -257,22 +258,44 @@
 
 {#if !modalMode && !readonly}
   <div class="hidden">
-    <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
-      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
+    <Scotty beamMeTo="right-toolbar" let:projectViewState>
+        <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+            Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
+          </div>
+        </Button>
+        <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
+          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+            Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
+          </div>
+        </Button>
+        {#if $features.history}
+          <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info" size="sm">
+            <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+              History
+            </div>
+          </Button>
+        {/if}
+    </Scotty>
+    <Scotty beamMeTo="app-bar-menu" let:projectViewState>
+      {#if projectViewState.userPickedEntry}
+        <div class="lg-view:hidden">
+          <MenuItem on:click={deleteEntry} icon={mdiTrashCanOutline}>
+            Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
+          </MenuItem>
+          {#if $features.history}
+            <MenuItem on:click={() => showHistoryView = true} icon={mdiHistory}>
+              History
+            </MenuItem>
+          {/if}
         </div>
-      </Button>
-      <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
-        <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
-        </div>
-      </Button>
-      {#if $features.history}
-        <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
       {/if}
-    </div>
+    </Scotty>
   </div>
+
+  {#if $features.history}
+    <HistoryView id={entry.id} bind:open={showHistoryView} />
+  {/if}
 {/if}
 
 <style lang="postcss">

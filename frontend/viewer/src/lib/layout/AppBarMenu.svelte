@@ -4,7 +4,9 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {mdiDotsVertical, mdiEyeSettingsOutline, mdiHistory, mdiInformationVariantCircle} from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
-  import { Button, Menu, MenuItem, Toggle } from 'svelte-ux';
+  import {Button, Menu, MenuItem, Toggle} from 'svelte-ux';
+  import {asScottyPortal} from './Scotty.svelte';
+  import {useProjectViewState} from '$lib/services/project-view-state-service';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
@@ -14,26 +16,32 @@
   export let about: string | undefined = undefined;
 
   const features = useFeatures();
-
-  $: console.log(1, $features);
+  const projectViewState = useProjectViewState();
 
   let activityViewOpen = false;
   let aboutDialogOpen = false;
 </script>
 
+<!-- #key prevents rendering ugly delayed state updates -->
+{#key $projectViewState.userPickedEntry}
 <Toggle let:on={open} let:toggle let:toggleOff>
   <Button on:click={toggle} icon={mdiDotsVertical} iconOnly>
-    <Menu {open} on:close={toggleOff}>
-      {#if $features.history}
-        <MenuItem icon={mdiHistory} on:click={() => activityViewOpen = true} class="justify-start">Activity</MenuItem>
-      {/if}
-      <MenuItem icon={mdiEyeSettingsOutline} on:click={() => dispatch('showOptionsDialog')} class="justify-start">Configure</MenuItem>
-      {#if about}
-        <MenuItem icon={mdiInformationVariantCircle} on:click={() => aboutDialogOpen = true} class="justify-start">About</MenuItem>
-      {/if}
+    <!-- the menu transition doesn't play well with our portal, so it's just turned off -->
+    <Menu {open} on:close={toggleOff} class="app-bar-menu whitespace-nowrap" disableTransition>
+      <div class="contents" class:sm-view:hidden={$projectViewState.userPickedEntry}>
+        {#if $features.history}
+          <MenuItem icon={mdiHistory} on:click={() => activityViewOpen = true}>Activity</MenuItem>
+        {/if}
+        <MenuItem icon={mdiEyeSettingsOutline} on:click={() => dispatch('showOptionsDialog')}>Configure</MenuItem>
+        {#if about}
+          <MenuItem icon={mdiInformationVariantCircle} on:click={() => aboutDialogOpen = true}>About</MenuItem>
+        {/if}
+      </div>
+      <div class="contents" use:asScottyPortal={'app-bar-menu'}></div>
     </Menu>
   </Button>
 </Toggle>
+{/key}
 
 {#if $features.history}
   <ActivityView bind:open={activityViewOpen} {projectName} />
@@ -42,3 +50,9 @@
 {#if about}
   <AboutDialog bind:open={aboutDialogOpen} text={about} />
 {/if}
+
+<style lang="postcss" global>
+  .app-bar-menu .MenuItem {
+    @apply justify-start;
+  }
+</style>

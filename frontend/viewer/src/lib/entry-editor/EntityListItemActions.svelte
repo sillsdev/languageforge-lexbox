@@ -1,6 +1,6 @@
 <script lang="ts">
   /* eslint-disable svelte/no-reactive-reassign */
-  import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiTrashCanOutline } from '@mdi/js';
+  import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiHistory, mdiTrashCanOutline } from '@mdi/js';
   import { createEventDispatcher } from 'svelte';
   import { Button, ButtonGroup, Icon, Popover, Toggle } from 'svelte-ux';
   import HistoryView from '../history/HistoryView.svelte';
@@ -30,12 +30,14 @@
     newDisplayItems.splice(newIndex, 0, items[i]);
     displayItems = newDisplayItems;
   }
+
+  let showHistoryView = false;
 </script>
 
 <ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded-md">
   {#if !only}
     <Toggle let:on={open} let:toggle let:toggleOff>
-      <Popover {open} let:close on:close={toggleOff} placement={last ? 'top' : 'bottom'} offset={4}>
+      <Popover {open} let:close on:close={toggleOff} placement={last ? 'left-end' : 'left-start'} resize offset={4}>
         <menu class="grid gap-2 p-2 rounded-lg bg-surface-100 border shadow-lg max-h-[50vh] overflow-auto"
           style="grid-template-columns: max-content 1fr max-content;"
           on:mouseleave={() => newIndex = i}>
@@ -76,7 +78,8 @@
     </Toggle>
   {/if}
   {#if $features.history && id}
-    <HistoryView small {id}/>
+    <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info"></Button>
+    <HistoryView bind:open={showHistoryView} {id}/>
   {/if}
   <Button on:click={() => dispatch('delete')} variant="fill-light" rounded icon={mdiTrashCanOutline} color="danger" size="sm"></Button>
 </ButtonGroup>

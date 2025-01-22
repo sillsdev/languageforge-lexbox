@@ -72,7 +72,7 @@
               {#if !only}
                 <MenuItem>
                   <Toggle let:on={open} let:toggle let:toggleOff>
-                    <Popover {open} let:close on:close={toggleOff} placement="right-start" offset={4}>
+                    <Popover {open} let:close on:close={toggleOff} placement="right-start" resize offset={4}>
                       <menu class="grid gap-2 p-2 rounded-lg bg-surface-100 border shadow-lg max-h-[50vh] overflow-auto"
                         style="grid-template-columns: max-content 1fr max-content;"
                         on:mouseleave={() => newIndex = currIndex}>

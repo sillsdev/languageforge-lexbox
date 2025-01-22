@@ -39,6 +39,8 @@
   import HomeButton from '$lib/HomeButton.svelte';
   import AppBarMenu from '$lib/layout/AppBarMenu.svelte';
   import {initFeatures} from '$lib/services/feature-service';
+  import {asScottyPortal, initScottyPortalContext} from '$lib/layout/Scotty.svelte';
+  import {initProjectViewState} from '$lib/services/project-view-state-service';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -85,6 +87,11 @@
 
   const currentView = initView(views[0]);
   const viewSettings = initViewSettings({showEmptyFields: !!($permissions.write && $features.write)});
+
+  const state = initProjectViewState({
+    rightToolbarCollapsed: false,
+    userPickedEntry: false,
+  });
 
   export let projectName: string;
   setContext('project-name', projectName);
@@ -152,7 +159,6 @@
   }
 
   let showOptionsDialog = false;
-  let pickedEntry = false;
   let navigateToEntryId = getSearchParam(ViewerSearchParam.EntryId);
 
   // Makes the back button work for going back to the list view
@@ -160,10 +166,10 @@
   window.addEventListener('popstate', () => {
     const currEntryId = getSearchParam(ViewerSearchParam.EntryId);
     if (!currEntryId) {
-      pickedEntry = false;
+      $state.userPickedEntry = false;
       $selectedEntry = undefined;
     } else if (currEntryId !== $selectedEntry?.id) {
-      pickedEntry = true;
+      $state.userPickedEntry = true;
       navigateToEntryId = currEntryId;
       refreshSelection();
     }
@@ -174,9 +180,9 @@
   // For some reason reactive syntax doesn't pick up every change, so we need to manually subscribe
   // and we need the extra call to updateEntryIdSearchParam in refreshSelection
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
-  $: { pickedEntry; updateEntryIdSearchParam(); }
+  $: { $state.userPickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
-    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), false);
+    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? ($state.userPickedEntry ? $selectedEntry?.id : undefined), false);
   }
 
   $: {
@@ -192,7 +198,7 @@
       const entry = $entries.find(e => e.id === navigateToEntryId);
       if (entry) {
         $selectedEntry = entry;
-        pickedEntry = true;
+        $state.userPickedEntry = true;
       }
     } else if ($selectedEntry !== undefined) {
       const entry = $entries.find(e => e.id === $selectedEntry!.id);
@@ -202,7 +208,7 @@
     }
 
     if (!$selectedEntry) {
-      pickedEntry = false;
+      $state.userPickedEntry = false;
       if ($entries?.length > 0)
         $selectedEntry = $entries[0];
     }
@@ -243,16 +249,12 @@
     // This just forces and flushes a refresh.
     // todo: The refresh should only be necessary if $search or $selectedIndexExemplar were actually changed
     refreshEntries();
-    pickedEntry = true;
+    $state.userPickedEntry = true;
   }
 
   let expandList = false;
-  let collapseActionBar = false;
 
-  let entryActionsElem: HTMLDivElement;
-  const entryActionsPortal = writable<{target: HTMLDivElement, collapsed: boolean}>();
-  setContext('entryActionsPortal', entryActionsPortal);
-  $: entryActionsPortal.set({target: entryActionsElem, collapsed: collapseActionBar});
+  initScottyPortalContext();
 
   let editorElem: HTMLElement | undefined;
   let spaceForEditorStyle: string = '';
@@ -305,11 +307,11 @@
       <h3 class="text-ellipsis overflow-hidden">{projectName}</h3>
     </div>
     <div slot="menuIcon" class="contents" class:hidden={!showHomeButton}>
-      <div class="contents" class:sm-view:hidden={pickedEntry}>
+      <div class="contents" class:sm-view:hidden={$state.userPickedEntry}>
         <HomeButton />
       </div>
-      <div class="hidden" class:sm-view:contents={pickedEntry}>
-        <Button icon={mdiArrowLeft} on:click={() => pickedEntry = false} />
+      <div class="hidden" class:sm-view:contents={$state.userPickedEntry}>
+        <Button icon={mdiArrowLeft} on:click={() => $state.userPickedEntry = false} />
       </div>
     </div>
     {#if $features.write}
@@ -348,15 +350,15 @@
       </div>
     </div>
   </AppBar>
-  <main bind:this={editorElem} class="lg-view:p-4 flex grow" class:sm-view:p-2={pickedEntry}>
+  <main bind:this={editorElem} class="lg-view:p-4 flex grow" class:sm-view:p-2={$state.userPickedEntry}>
     <div
       class="grid flex-grow items-start justify-stretch lg-view:justify-center"
       style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
     >
-      <div class="w-screen max-w-full lg-view:w-[500px] lg-view:min-w-[300px] collapsible-col lg-view:side-scroller flex" class:lg-view:!w-[1024px]={expandList} class:lg-view:max-w-[25vw]={!expandList} class:sm-view:collapse-col={pickedEntry}>
-        <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
+      <div class="w-screen max-w-full lg-view:w-[500px] lg-view:min-w-[300px] collapsible-col lg-view:side-scroller flex" class:lg-view:!w-[1024px]={expandList} class:lg-view:max-w-[25vw]={!expandList} class:sm-view:collapse-col={$state.userPickedEntry}>
+        <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => $state.userPickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg-view:w-screen collapsible-col overflow-x-visible" class:lg-view:px-6={!expandList} class:lg-view:collapse-col={expandList} class:sm-view:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg-view:w-screen collapsible-col overflow-x-visible" class:lg-view:px-6={!expandList} class:lg-view:collapse-col={expandList} class:sm-view:collapse-col={!$state.userPickedEntry}>
         {#if $selectedEntry}
           <div class="sm-form:mb-4 mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
@@ -380,18 +382,17 @@
       <div class="side-scroller pl-6 border-l-2 gap-4 flex-col col-start-3 hidden" class:border-l-2={$selectedEntry && !expandList} class:lg-view:flex={!expandList}>
         {#if $selectedEntry}
           <div class="sm-form:hidden" class:sm:hidden={expandList}>
-            <Button icon={collapseActionBar ? mdiArrowExpandLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+            <Button icon={$state.rightToolbarCollapsed ? mdiArrowExpandLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline"
+              on:click={() => $state.rightToolbarCollapsed = !$state.rightToolbarCollapsed} />
           </div>
         {/if}
-        <div class="w-[15vw] collapsible-col sm-form:w-min" class:self-center={collapseActionBar} class:lg-view:collapse-col={expandList} class:!w-min={collapseActionBar}>
+        <div class="w-[15vw] collapsible-col sm-form:w-min" class:self-center={$state.rightToolbarCollapsed} class:lg-view:collapse-col={expandList} class:!w-min={$state.rightToolbarCollapsed}>
           {#if $selectedEntry}
             <div class="contents" class:lg-view:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 <div class="grid gap-4 auto-rows-fr">
                   {#if !readonly}
-                    <div class="contents" bind:this={entryActionsElem}>
-
-                    </div>
+                    <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
                   {/if}
                   {#if $selectedEntry}
                     <div class="contents">
@@ -400,7 +401,7 @@
                     </div>
                   {/if}
                 </div>
-                <div class="contents sm-form:hidden" class:hidden={collapseActionBar}>
+                <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
