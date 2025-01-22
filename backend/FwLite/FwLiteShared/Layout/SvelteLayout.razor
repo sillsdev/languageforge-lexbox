@@ -8,10 +8,11 @@
 @inject FwLiteProvider FwLiteProvider
 @inject IOptions<FwLiteConfig> Config;
 @inject ProjectServicesProvider ProjectServicesProvider;
+@inject NavigationManager NavigationManager;
 @implements IAsyncDisposable
 @if (useDevAssets)
 {
-    <script type="module" src="http://localhost:5173/@@vite/client"></script>
+    <script type="module" src="@DevScheme://@DevHostname:5173/@@vite/client"></script>
 }
 else
 {
@@ -48,6 +49,20 @@ else
 @code {
     private bool useDevAssets => Config.Value.UseDevAssets;
     // private bool useDevAssets => false;
+    private Uri DevUri
+    {
+        get
+        {
+            //this lets us use the host from the request, this enables us to open the web page on a phone where the host will not be localhost
+            var uri = new Uri(NavigationManager.Uri);
+            //check if we're running in maui, then use localhost instead.
+            if (uri.Host == "0.0.0.1") uri = new Uri("http://localhost:" + uri.Port);
+            return uri;
+        }
+    }
+
+    private string DevHostname => DevUri.Host;
+    private string DevScheme => DevUri.Scheme;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -63,7 +78,7 @@ else
 
             if (useDevAssets)
             {
-                await JS.InvokeAsync<IJSObjectReference>("import", "http://localhost:5173/src/main.ts");
+                await JS.InvokeAsync<IJSObjectReference>("import", $"{DevScheme}://{DevHostname}:5173/src/main.ts");
             } else
             {
                 await JS.InvokeAsync<IJSObjectReference>("import",

@@ -23,11 +23,11 @@ public static class FwLiteMauiKernel
         string environment = "Production";
 #if DEBUG
         environment = "Development";
-        services.AddBlazorWebViewDeveloperTools();
 #endif
         IHostEnvironment env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
         services.AddMauiBlazorWebView();
+        services.AddBlazorWebViewDeveloperTools();
         //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
         services.AddFwLiteShared(env);
         services.AddSingleton<HostedServiceAdapter>();
