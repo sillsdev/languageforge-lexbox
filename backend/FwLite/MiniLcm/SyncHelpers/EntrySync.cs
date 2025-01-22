@@ -232,27 +232,27 @@ public static class EntrySync
         }
     }
 
-    private class SensesDiffApi(IMiniLcmApi api, Guid entryId) : OrderableObjectWithIdCollectionDiffApi<Sense>
+    private class SensesDiffApi(IMiniLcmApi api, Guid entryId) : IOrderableCollectionDiffApi<Sense>
     {
-        public override async Task<int> Add(Sense sense, BetweenPosition between)
+        public async Task<int> Add(Sense sense, BetweenPosition between)
         {
             await api.CreateSense(entryId, sense, between);
             return 1;
         }
 
-        public override async Task<int> Move(Sense sense, BetweenPosition between)
+        public async Task<int> Move(Sense sense, BetweenPosition between)
         {
             await api.MoveSense(entryId, sense.Id, between);
             return 1;
         }
 
-        public override async Task<int> Remove(Sense sense)
+        public async Task<int> Remove(Sense sense)
         {
             await api.DeleteSense(entryId, sense.Id);
             return 1;
         }
 
-        public override Task<int> Replace(Sense before, Sense after)
+        public Task<int> Replace(Sense before, Sense after)
         {
             return SenseSync.Sync(entryId, before, after, api);
         }

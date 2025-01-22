@@ -28,22 +28,14 @@ public abstract class ObjectWithIdCollectionDiffApi<T> : CollectionDiffApi<T, Gu
     }
 }
 
-public interface IOrderableCollectionDiffApi<T>
+public interface IOrderableCollectionDiffApi<T> where T : IOrderable
 {
     Task<int> Add(T value, BetweenPosition between);
     Task<int> Remove(T value);
     Task<int> Move(T value, BetweenPosition between);
     Task<int> Replace(T before, T after);
-    Guid GetId(T value);
-}
 
-public abstract class OrderableObjectWithIdCollectionDiffApi<T> : IOrderableCollectionDiffApi<T> where T : IOrderable
-{
-    public abstract Task<int> Add(T value, BetweenPosition between);
-    public abstract Task<int> Remove(T value);
-    public abstract Task<int> Move(T value, BetweenPosition between);
-    public abstract Task<int> Replace(T before, T after);
-    public Guid GetId(T value)
+    Guid GetId(T value)
     {
         return value.Id;
     }
@@ -124,7 +116,7 @@ public static class DiffCollection
     public static async Task<int> DiffOrderable<T>(
         IList<T> before,
         IList<T> after,
-        IOrderableCollectionDiffApi<T> diffApi)
+        IOrderableCollectionDiffApi<T> diffApi) where T : IOrderable
     {
         var changes = 0;
 
