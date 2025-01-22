@@ -100,4 +100,43 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         activity?.AddTag(FwLiteReleaseVersionTag, null);
         return null;
     }
+
+    public async ValueTask<string> GenerateAppInstaller(CancellationToken token = default)
+    {
+        var windowsRelease = await GetLatestRelease(FwLiteEdition.Windows, token);
+        if (windowsRelease is null) throw new InvalidOperationException("Windows release not found");
+        var version = ConvertVersionToAppInstallerVersion(windowsRelease.Version);
+        //lang=xml
+        return $"""
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+ Uri="https://lexbox.org/api/fwlite-release/download-latest?edition=windowsAppInstaller"
+ Version="{version}"
+ xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
+ <MainBundle
+   Name="FwLiteDesktop"
+   Publisher="CN=&quot;Summer Institute of Linguistics, Inc.&quot;, O=&quot;Summer Institute of Linguistics, Inc.&quot;, L=Dallas, S=Texas, C=US"
+   Version="{version}"
+   Uri="{windowsRelease.Url}" />
+ <UpdateSettings>
+   <OnLaunch
+     HoursBetweenUpdateChecks="8"
+     ShowPrompt="true"
+     UpdateBlocksActivation="false" />
+   <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
+   <AutomaticBackgroundTask />
+ </UpdateSettings>
+</AppInstaller>
+""";
+    }
+
+    private static string ConvertVersionToAppInstallerVersion(string version)
+    {
+        //version is something like v2025-01-17-a62c709c which should be converted to 2025.1.17.1 always adding .1 on the end and trimming zeros
+        return version.Split('-') switch
+        {
+            [var year, var month, var day, ..] => $"{year.TrimStart('v')}.{month.TrimStart('0')}.{day.TrimStart('0')}.1",
+            _ => throw new ArgumentException($"Invalid version {version}")
+        };
+    }
 }

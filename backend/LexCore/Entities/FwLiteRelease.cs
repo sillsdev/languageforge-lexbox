@@ -13,7 +13,9 @@ public enum FwLiteEdition
     Android,
     // ReSharper disable once InconsistentNaming
     iOS,
-    Mac
+    Mac,
+    //not supported for now, see note in FwLiteReleaseController.DownloadLatest
+    WindowsAppInstaller
 }
 
 public record ShouldUpdateResponse(FwLiteRelease? Release)

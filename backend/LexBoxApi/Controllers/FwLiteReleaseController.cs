@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using LexBoxApi.Config;
+using System.Text;
 using LexBoxApi.Otel;
 using LexBoxApi.Services.FwLiteReleases;
 using LexCore.Entities;
@@ -13,7 +13,6 @@ namespace LexBoxApi.Controllers;
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class FwLiteReleaseController(FwLiteReleaseService releaseService) : ControllerBase
 {
-
     [HttpGet("download-latest")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -21,6 +20,15 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag(FwLiteReleaseService.FwLiteEditionTag, edition.ToString());
+        if (edition == FwLiteEdition.WindowsAppInstaller)
+        {
+            //note this doesn't really work because the github server doesn't return the correct content-type of application/msixbundle
+            //in order for this to work we would need to proxy the request to github
+            //but then we would need to support range requests https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
+            //which is too complicated for now
+            var appInstallerContent = await releaseService.GenerateAppInstaller();
+            return File(Encoding.UTF8.GetBytes(appInstallerContent), "application/appinstaller", "FieldWorksLite.appinstaller");
+        }
         var latestRelease = await releaseService.GetLatestRelease(edition);
         if (latestRelease is null)
         {
