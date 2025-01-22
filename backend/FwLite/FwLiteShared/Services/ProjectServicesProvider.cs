@@ -12,7 +12,7 @@ namespace FwLiteShared.Services;
 //this service is special, it is scoped, but it should not inject any scoped project services
 public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
-    IServiceProvider scopedServices,
+    IServiceProvider unscopedServices,
     LexboxProjectService lexboxProjectService,
     ChangeEventBus changeEventBus,
     IEnumerable<IProjectProvider> projectProviders,
@@ -42,6 +42,8 @@ public class ProjectServicesProvider(
     [JSInvokable]
     public async Task<ProjectScope> OpenCrdtProject(string projectName)
     {
+        var serviceScope = unscopedServices.CreateAsyncScope();
+        var scopedServices = serviceScope.ServiceProvider;
         var project = crdtProjectsService.GetProject(projectName) ??
                       throw new InvalidOperationException($"Crdt Project {projectName} not found");
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
@@ -52,13 +54,13 @@ public class ProjectServicesProvider(
             _ = jsRuntime.DurableInvokeVoidAsync("notifyEntryUpdated", projectName, entry);
         });
         var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
-        var scope = new ProjectScope(Defer.Async(() =>
+        var scope = new ProjectScope(Defer.Async(async () =>
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
             currentProjectService.ClearProjectContext();
             entryUpdatedSubscription.Dispose();
             _projectScopes.Remove(projectName);
-            return Task.CompletedTask;
+            await serviceScope.DisposeAsync();
         }), projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
         await TrackScope(scope);
         return scope;
@@ -67,6 +69,8 @@ public class ProjectServicesProvider(
     [JSInvokable]
     public async Task<ProjectScope> OpenFwDataProject(string projectName)
     {
+        var serviceScope = unscopedServices.CreateAsyncScope();
+        var scopedServices = serviceScope.ServiceProvider;
         if (FwDataProjectProvider is null)
             throw new InvalidOperationException("FwData Project provider is not available");
         var project = FwDataProjectProvider.GetProject(projectName) ??
@@ -74,11 +78,11 @@ public class ProjectServicesProvider(
         var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
             FwDataProjectProvider.OpenProject(project),
             project);
-        var scope = new ProjectScope(Defer.Async(() =>
+        var scope = new ProjectScope(Defer.Async(async () =>
         {
             logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
             _projectScopes.Remove(projectName);
-            return Task.CompletedTask;
+            await serviceScope.DisposeAsync();
         }), projectName, miniLcm, null);
         await TrackScope(scope);
         return scope;
