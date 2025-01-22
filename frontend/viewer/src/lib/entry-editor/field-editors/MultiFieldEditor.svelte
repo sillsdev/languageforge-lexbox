@@ -4,15 +4,14 @@
   import { createEventDispatcher } from 'svelte';
   import type { IMultiString } from '$lib/dotnet-types';
   import type {WritingSystemSelection} from '../../config-types';
-  import { pickWritingSystems } from '../../utils';
   import {useCurrentView} from '../../services/view-service';
-  import {useWritingSystems} from '../../writing-systems';
+  import {useWritingSystemService} from '../../writing-system-service';
 
   const dispatch = createEventDispatcher<{
     change: { value: IMultiString };
   }>();
 
-  const allWritingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 
   export let id: string;
   export let name: string | undefined = undefined;
@@ -24,7 +23,7 @@
   let unsavedChanges: Record<string, boolean> = {};
   let currentView = useCurrentView();
 
-  $: writingSystems = pickWritingSystems(wsType, $allWritingSystems);
+  $: writingSystems = writingSystemService.pickWritingSystems(wsType);
   $: empty = !writingSystems.some((ws) => value[ws.wsId] || unsavedChanges[ws.wsId]);
   $: collapse = empty && writingSystems.length > 1;
 </script>

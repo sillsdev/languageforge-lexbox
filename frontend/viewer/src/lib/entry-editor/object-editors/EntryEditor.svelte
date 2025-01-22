@@ -1,26 +1,28 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
-  import EntityEditor from './EntityEditor.svelte';
-  import {createEventDispatcher} from 'svelte';
-  import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
-  import { Button, MenuItem } from 'svelte-ux';
-  import EntityListItemActions from '../EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '$lib/utils';
-  import HistoryView from '../../history/HistoryView.svelte';
-  import SenseEditor from './SenseEditor.svelte';
-  import ExampleEditor from './ExampleEditor.svelte';
-  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
+  import {useDialogService} from '$lib/entry-editor/dialog-service';
+  import {fieldName} from '$lib/i18n';
+  import Scotty from '$lib/layout/Scotty.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
   import {objectTemplateAreas, useCurrentView} from '$lib/services/view-service';
+  import {defaultExampleSentence, defaultSense} from '$lib/utils';
+  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
+  import {createEventDispatcher} from 'svelte';
+  import {Button, MenuItem} from 'svelte-ux';
+  import HistoryView from '../../history/HistoryView.svelte';
+  import EntityListItemActions from '../EntityListItemActions.svelte';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
-  import {useDialogService} from '$lib/entry-editor/dialog-service';
-  import {fieldName} from '$lib/i18n';
+  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
-  import {useFeatures} from '$lib/services/feature-service';
-  import Scotty from '$lib/layout/Scotty.svelte';
+  import EntityEditor from './EntityEditor.svelte';
+  import ExampleEditor from './ExampleEditor.svelte';
+  import SenseEditor from './SenseEditor.svelte';
 
   const dialogService = useDialogService();
+  const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
     delete: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -198,7 +200,7 @@
         <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-2">
         <div class="bg-surface-100">
-          <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
+          <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
               {readonly}
               on:move={(e) => moveSense(sense, e.detail)}
               on:delete={() => deleteSense(sense)} id={sense.id} />
@@ -220,7 +222,7 @@
                 -->
                 <hr class="grow">
                 <EntityListItemActions i={j} {readonly}
-                                      items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                                      items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
                                       on:move={(e) => moveExample(sense, example, e.detail)}
                                       on:delete={() => deleteExample(sense, example)}
                                       id={example.id}

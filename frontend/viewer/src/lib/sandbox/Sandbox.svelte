@@ -6,10 +6,10 @@
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
   import {type View} from '../entry-editor/view-data';
   import MapBind from '../utils/MapBind.svelte';
-  import {initWritingSystems} from '../writing-systems';
+  import {initWritingSystemService} from '../writing-system-service';
   import {WritingSystemType} from '$lib/dotnet-types';
 
-  initWritingSystems(readable({
+  initWritingSystemService(readable({
     analysis: [{
       id: 'test',
       wsId: 'test',

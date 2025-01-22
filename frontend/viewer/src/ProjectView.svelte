@@ -27,7 +27,7 @@
   import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
   import {initView, initViewSettings} from './lib/services/view-service';
   import {views} from './lib/entry-editor/view-data';
-  import {initWritingSystems} from './lib/writing-systems';
+  import {initWritingSystemService} from './lib/writing-system-service';
   import {useEventBus} from './lib/services/event-bus';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
@@ -119,14 +119,11 @@
   setContext('selectedIndexExamplar', selectedIndexExemplar);
   $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar, false);
 
-  const writingSystems = initWritingSystems(deriveAsync(connected, isConnected => {
+  const writingSystemService = initWritingSystemService(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.getWritingSystems();
   }).value);
-  const indexExamplars = derived(writingSystems, wsList => {
-    return wsList?.vernacular[0].exemplars;
-  });
-  setContext('indexExamplars', indexExamplars);
+
   const trigger = writable(0);
 
 
@@ -219,7 +216,7 @@
     navigateToEntryId = null;
   }
 
-  $: projectLoaded = !!($entries && $writingSystems);
+  $: projectLoaded = !!($entries && $writingSystemService);
   $: dispatch('loaded', projectLoaded);
 
   function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
@@ -282,7 +279,7 @@
   async function openNewEntryDialog(lexemeForm?: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
     const partialEntry: Partial<IEntry> = {};
     if (lexemeForm) {
-      const defaultWs = $writingSystems?.vernacular[0].wsId;
+      const defaultWs = $writingSystemService!.defaultVernacular()?.wsId;
       if (defaultWs === undefined) return undefined;
       partialEntry.lexemeForm = {[defaultWs]: lexemeForm};
     }

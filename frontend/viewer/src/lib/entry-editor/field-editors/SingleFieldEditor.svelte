@@ -1,10 +1,9 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
-  import { pickWritingSystems } from '../../utils';
   import type {WritingSystemSelection} from '../../config-types';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import {useCurrentView} from '../../services/view-service';
-  import {useWritingSystems} from '../../writing-systems';
+  import {useWritingSystemService} from '../../writing-system-service';
 
   export let id: string;
   export let name: string | undefined = undefined;
@@ -13,9 +12,9 @@
   export let readonly: boolean;
   let currentView = useCurrentView();
 
-  const allWritingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 
-  $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
+  $: [ws] = writingSystemService.pickWritingSystems(wsType);
   $: empty = !value;
 </script>
 
