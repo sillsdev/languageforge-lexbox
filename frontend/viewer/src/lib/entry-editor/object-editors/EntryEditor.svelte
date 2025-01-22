@@ -245,10 +245,11 @@
   {/each}
   {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
-    <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]">
+    <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
+      <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
       <AddSenseFab on:click={addSense} />
     </div>
-    <div class="sm-view:hidden col-span-full flex justify-end">
+    <div class="col-span-full flex justify-end" class:sm-view:hidden={!modalMode}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}

@@ -9,6 +9,7 @@
   const currentView = useCurrentView();
 
   let shrinkFab = false;
+  let atBottom = false;
 
   const handleScroll = throttle((element: Element | null) => {
     if (!element) return;
@@ -17,7 +18,8 @@
       return;
     }
     const atEndOfScroll = element.clientHeight + element.scrollTop >= element.scrollHeight - 10;
-    shrinkFab = !atEndOfScroll;
+    atBottom = atEndOfScroll;
+    shrinkFab = !atBottom;
   }, 20, {leading: false});
 
   onMount(() => {
@@ -32,8 +34,8 @@
   });
 </script>
 
-<Button on:click icon={mdiPlus} variant="fill" color="success" size="md" iconOnly rounded="full"
-  class="gap-0 transition-all drop-shadow-md {shrinkFab ? '' : 'px-4'}">
+<Button on:click icon={mdiPlus} variant={atBottom ? 'fill-light' : 'fill'} color="success" size="md" iconOnly rounded="full"
+  class="gap-0 transition-all drop-shadow-md leading-none {shrinkFab ? '' : 'px-4'}">
   <div class="overflow-hidden ease-linear max-w-max transition-all" class:!max-w-0={shrinkFab}>
     {fieldName({id: 'sense'}, $currentView.i18nKey)}
   </div>
