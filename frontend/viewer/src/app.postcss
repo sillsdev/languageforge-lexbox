@@ -38,15 +38,18 @@
   cursor: pointer;
 }
 
-[id^=entry], [id^=sense], .grid-layer:has(> [id^=sense]) {
+[id^=entry] {
   scroll-margin-top: 1rem;
+}
+
+[id^=entry], [id^=sense], .grid-layer:has(> [id^=sense]) {
   scroll-margin-bottom: 4rem;
 }
 
 [id^=example], .grid-layer:has(> [id^=example]) {
   /* under the sticky sense header */
-  scroll-margin-top: 4rem;
-  scroll-margin-bottom: 4rem;
+  scroll-margin-top: 3.5rem;
+  scroll-margin-bottom: 3.5rem;
 }
 
 @layer components {
