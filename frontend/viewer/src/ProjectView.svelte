@@ -49,7 +49,9 @@
   export let about: string | undefined = undefined;
 
   const changeEventBus = useEventBus();
-  onDestroy(changeEventBus.onEntryUpdated(updatedEntry => {
+  onDestroy(changeEventBus.onEntryUpdated(updateEntryInList));
+
+  function updateEntryInList(updatedEntry: IEntry) {
     entries.update(list => {
       let updated = false;
       let updatedList = list?.map(e => {
@@ -66,7 +68,7 @@
 
       return updatedList;
     });
-  }));
+  }
 
   const fwLiteConfig = useFwLiteConfig();
   const lexboxApi = useLexboxApi();
@@ -371,8 +373,8 @@
           </div>
           <Editor entry={$selectedEntry}
                   {readonly}
-            on:change={_ => {
-              $selectedEntry = $selectedEntry;
+            on:change={(e) => {
+              updateEntryInList($selectedEntry = e.detail.entry);
               $entries = $entries;
             }}
             on:delete={onEntryDeleted} />
