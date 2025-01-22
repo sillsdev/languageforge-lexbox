@@ -6,7 +6,7 @@ namespace LexCore.Entities;
 public record FwLiteRelease(string Version, string Url);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum FwLitePlatform
+public enum FwLiteEdition
 {
     Windows,
     Linux,

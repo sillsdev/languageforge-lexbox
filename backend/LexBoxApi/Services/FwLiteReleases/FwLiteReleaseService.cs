@@ -11,21 +11,25 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 {
     private const string GithubLatestRelease = "GithubLatestRelease";
     public const string FwLiteClientVersionTag = "app.fw-lite.client.version";
-    public const string FwLitePlatformTag = "app.fw-lite.platform";
+    public const string FwLiteEditionTag = "app.fw-lite.edition";
     public const string FwLiteReleaseVersionTag = "app.fw-lite.release.version";
 
-    public async ValueTask<FwLiteRelease?> GetLatestRelease(FwLitePlatform platform, CancellationToken token = default)
+    public async ValueTask<FwLiteRelease?> GetLatestRelease(FwLiteEdition edition, CancellationToken token = default)
     {
-        return await cache.GetOrCreateAsync($"{GithubLatestRelease}|{platform}",
-            platform,
+        if (edition == FwLiteEdition.WindowsAppInstaller)
+        {
+            throw new ArgumentException("WindowsAppInstaller edition is not supported");
+        }
+        return await cache.GetOrCreateAsync($"{GithubLatestRelease}|{edition}",
+            edition,
             FetchLatestReleaseFromGithub,
             new HybridCacheEntryOptions() { Expiration = TimeSpan.FromDays(1) },
             cancellationToken: token, tags: [GithubLatestRelease]);
     }
 
-    public async ValueTask<ShouldUpdateResponse> ShouldUpdate(FwLitePlatform platform, string appVersion)
+    public async ValueTask<ShouldUpdateResponse> ShouldUpdate(FwLiteEdition edition, string appVersion)
     {
-        var latestRelease = await GetLatestRelease(platform);
+        var latestRelease = await GetLatestRelease(edition);
         if (latestRelease is null) return new ShouldUpdateResponse(null);
 
         var shouldUpdateToRelease = ShouldUpdateToRelease(appVersion, latestRelease.Version);
@@ -42,15 +46,15 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         await cache.RemoveByTagAsync(GithubLatestRelease);
     }
 
-    private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(FwLitePlatform platform, CancellationToken token)
+    private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(FwLiteEdition edition, CancellationToken token)
     {
-        var platformConfig = config.Value.Platforms.GetValueOrDefault(platform);
+        var platformConfig = config.Value.Editions.GetValueOrDefault(edition);
         if (platformConfig is null)
         {
-            throw new ArgumentException($"No config for platform {platform}");
+            throw new ArgumentException($"No config for platform {edition}");
         }
         using var activity = LexBoxActivitySource.Get().StartActivity();
-        activity?.AddTag(FwLitePlatformTag, platform.ToString());
+        activity?.AddTag(FwLiteEditionTag, edition.ToString());
         var response = await factory.CreateClient("Github")
             .SendAsync(new HttpRequestMessage(HttpMethod.Get,
                     "https://api.github.com/repos/sillsdev/languageforge-lexbox/releases")
