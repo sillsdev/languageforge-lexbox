@@ -18,6 +18,7 @@
   }>();
 
   export let createNew: boolean;
+  export let projectName: string;
 
   let waitingForSecondShift = false;
   let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
@@ -85,15 +86,16 @@
 
 <button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => ($showSearchDialog = true)}>
   <Field
-    classes={{ input: 'my-1 justify-center opacity-60' }}
+    classes={{ input: 'my-1 justify-center opacity-60 sm-view:overflow-hidden' }}
     class="cursor-pointer">
     <div class="hidden lg-view:contents whitespace-nowrap">
       Find {fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...
       <span class="ml-2"><Icon data={mdiMagnify} /></span>
       <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
     </div>
-    <div class="contents lg-view:hidden">
-      <Icon data={mdiBookSearchOutline} />
+    <div class="flex gap-2 lg-view:hidden overflow-hidden">
+      <span class="whitespace-nowrap overflow-hidden text-ellipsis grow-0 shrink max-w-[200px]">{projectName}</span>
+      <Icon class="shrink-0" data={mdiBookSearchOutline} />
     </div>
   </Field>
 </button>

@@ -310,8 +310,8 @@
   <NewEntryDialog bind:this={newEntryDialog} />
 {/if}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
-  <AppBar class="bg-secondary min-h-12 shadow-md sm-view:sticky sm-view:top-0 max-md:pl-0" head={false}>
-    <div slot="title" class="prose whitespace-nowrap min-w-20">
+  <AppBar class="bg-secondary min-h-12 shadow-md sm-view:sticky sm-view:top-0 max-md:pl-0 overflow-hidden" head={false}>
+    <div slot="title" class="prose whitespace-nowrap max-w-[20%] sm-view:hidden">
       <h3 class="text-ellipsis overflow-hidden">{projectName}</h3>
     </div>
     <div slot="menuIcon" class="contents" class:hidden={!showHomeButton}>
@@ -329,8 +329,9 @@
     {/if}
 
     <div class="sm:flex-grow"></div>
-    <div class="flex-grow-[2] mx-2">
+    <div class="flex-grow-[2] mx-2 sm-view:overflow-hidden">
       <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
+                 {projectName}
                  createNew={newEntryDialog !== undefined}
                  on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
