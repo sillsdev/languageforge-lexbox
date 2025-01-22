@@ -44,7 +44,6 @@ public static class FwLiteSharedKernel
     {
         services.AddSingleton<AuthService>();
         services.AddSingleton<OAuthClientFactory>();
-        services.AddScoped(CurrentAuthHelperFactory);
         services.AddSingleton<OAuthService>();
         services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<OAuthService>());
         services.AddOptionsWithValidateOnStart<AuthConfig>().BindConfiguration("Auth").ValidateDataAnnotations();
@@ -62,13 +61,6 @@ public static class FwLiteSharedKernel
                 };
             });
         }
-    }
-
-    private static OAuthClient CurrentAuthHelperFactory(this IServiceProvider serviceProvider)
-    {
-        var authHelpersFactory = serviceProvider.GetRequiredService<OAuthClientFactory>();
-        var currentProjectService = serviceProvider.GetRequiredService<CurrentProjectService>();
-        return authHelpersFactory.GetClient(currentProjectService.ProjectData);
     }
 
     private static void DecorateConstructor<TService>(this IServiceCollection services,
