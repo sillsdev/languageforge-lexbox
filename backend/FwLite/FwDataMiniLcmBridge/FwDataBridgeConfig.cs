@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Microsoft.Win32;
 
 namespace FwDataMiniLcmBridge;
@@ -9,6 +10,7 @@ public class FwDataBridgeConfig
         Environment.GetEnvironmentVariable("XDG_DATA_HOME") ??
         Path.Join(Environment.GetEnvironmentVariable("HOME") ?? "", ".local", "share");
 
+    [SupportedOSPlatform("windows")]
     private static string WindowsDataFolder =>
         (string?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\SIL\FieldWorks\9", "ProjectsDir", null)
         ?? @"C:\ProgramData\SIL\FieldWorks";
