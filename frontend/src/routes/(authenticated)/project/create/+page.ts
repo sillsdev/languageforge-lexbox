@@ -135,6 +135,7 @@ export async function _askToJoinProject(projectId: string): $OpResult<AskToJoinP
             id
           }
           errors {
+            __typename
             ... on DbError {
               code
             }
