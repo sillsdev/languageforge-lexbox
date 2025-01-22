@@ -405,7 +405,7 @@
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
-              <span class="sm-view:hidden text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
+              <span class="sm-view:hidden text-surface-content whitespace-nowrap bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
                 {$currentView.label}
                 <Button
                   on:click={() => (showOptionsDialog = true)}

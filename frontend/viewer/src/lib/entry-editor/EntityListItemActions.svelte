@@ -34,7 +34,7 @@
   let showHistoryView = false;
 </script>
 
-<ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded-md">
+<ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded-sm entity-list-item-actions">
   {#if !only}
     <Toggle let:on={open} let:toggle let:toggleOff>
       <Popover {open} let:close on:close={toggleOff} placement={last ? 'left-end' : 'left-start'} resize offset={4}>
@@ -69,11 +69,11 @@
         </menu>
       </Popover>
       {#if first}
-        <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 1)}} variant="fill-light" color="info" rounded icon={mdiArrowDownBold} size="sm"></Button>
+        <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 1)}} variant="fill-light" color="info" icon={mdiArrowDownBold}></Button>
       {:else if last}
-        <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 0)}} variant="fill-light" color="info" rounded icon={mdiArrowUpBold} size="sm"></Button>
+        <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 0)}} variant="fill-light" color="info" icon={mdiArrowUpBold}></Button>
       {:else}
-        <Button on:click={toggle} variant="fill-light" color="info" rounded icon={mdiArrowUpDownBold} size="sm"></Button>
+        <Button on:click={toggle} variant="fill-light" color="info" icon={mdiArrowUpDownBold}></Button>
       {/if}
     </Toggle>
   {/if}
@@ -81,5 +81,12 @@
     <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info"></Button>
     <HistoryView bind:open={showHistoryView} {id}/>
   {/if}
-  <Button on:click={() => dispatch('delete')} variant="fill-light" rounded icon={mdiTrashCanOutline} color="danger" size="sm"></Button>
+  <Button on:click={() => dispatch('delete')} variant="fill-light" icon={mdiTrashCanOutline} color="danger"></Button>
 </ButtonGroup>
+
+<style lang="postcss" global>
+  .entity-list-item-actions .Button {
+    border-radius: 0;
+    padding: 6px;
+  }
+</style>

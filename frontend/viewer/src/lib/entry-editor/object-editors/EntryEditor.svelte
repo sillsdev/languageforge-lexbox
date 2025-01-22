@@ -194,13 +194,15 @@
   {#each entry.senses as sense, i (sense.id)}
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-      <div class="col-span-full flex items-center gap-4 py-4 lg-view:sticky top-[-1px] bg-surface-100 z-[1]">
-        <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
+      <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
+        <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-2">
         {#if !readonly}
+        <div class="bg-surface-100">
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
-            on:move={(e) => moveSense(sense, e.detail)}
-            on:delete={() => deleteSense(sense)} id={sense.id} />
+              on:move={(e) => moveSense(sense, e.detail)}
+              on:delete={() => deleteSense(sense)} id={sense.id} />
+          </div>
         {/if}
       </div>
 
@@ -211,8 +213,8 @@
           {#each sense.exampleSentences as example, j (example.id)}
             <div class="grid-layer" class:highlight={example === highlightedEntity}>
               <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-              <div class="col-span-full flex items-center gap-4 mb-4">
-                <h3 class="text-surface-content">Example {j + 1}</h3>
+              <div class="col-span-full flex items-center mb-4">
+                <h3 class="text-surface-content mr-4">Example {j + 1}</h3>
                 <!--
                   <hr class="grow">
                   collapse/expand toggle
