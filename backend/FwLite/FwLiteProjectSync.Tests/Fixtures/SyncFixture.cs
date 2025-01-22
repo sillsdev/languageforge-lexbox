@@ -6,6 +6,7 @@ using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests.Fixtures;
 
@@ -82,5 +83,28 @@ public class SyncFixture : IAsyncLifetime
     {
         var snapshotPath = CrdtFwdataProjectSyncService.SnapshotPath(FwDataApi.Project);
         if (File.Exists(snapshotPath)) File.Delete(snapshotPath);
+    }
+
+    private static readonly SemaphoreSlim _vernacularSemaphore = new(1, 1);
+
+    // a vernacular writing system is required in order to query for entries
+    // this is optional setup, because our core sync integration tests benefit from having a CRDT project that's as empty as possible
+    public async Task EnsureDefaultVernacularWritingSystemExistsInCrdt()
+    {
+        // This is optionally called from tests that consume this fixture, so it could get called multiple times in parallel
+        await _vernacularSemaphore.WaitAsync(100);
+
+        if ((await CrdtApi.GetWritingSystems()).Vernacular.Length == 0)
+        {
+            try
+            {
+                var firstVernacularWs = (await FwDataApi.GetWritingSystems()).Vernacular.First();
+                await CrdtApi.CreateWritingSystem(WritingSystemType.Vernacular, firstVernacularWs);
+            }
+            finally
+            {
+                _vernacularSemaphore.Release();
+            }
+        }
     }
 }
