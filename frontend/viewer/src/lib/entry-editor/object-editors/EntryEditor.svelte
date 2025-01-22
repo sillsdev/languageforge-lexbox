@@ -197,13 +197,12 @@
       <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
         <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
         <hr class="grow border-t-2">
-        {#if !readonly}
         <div class="bg-surface-100">
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
+              {readonly}
               on:move={(e) => moveSense(sense, e.detail)}
               on:delete={() => deleteSense(sense)} id={sense.id} />
-          </div>
-        {/if}
+        </div>
       </div>
 
       <SenseEditor {sense} {readonly} on:change={() => onSenseChange(sense)}/>
@@ -220,14 +219,12 @@
                   collapse/expand toggle
                 -->
                 <hr class="grow">
-                {#if !readonly}
-                  <EntityListItemActions i={j}
-                                        items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
-                                        on:move={(e) => moveExample(sense, example, e.detail)}
-                                        on:delete={() => deleteExample(sense, example)}
-                                        id={example.id}
-                  />
-                {/if}
+                <EntityListItemActions i={j} {readonly}
+                                      items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                                      on:move={(e) => moveExample(sense, example, e.detail)}
+                                      on:delete={() => deleteExample(sense, example)}
+                                      id={example.id}
+                />
               </div>
 
               <ExampleEditor

@@ -16,6 +16,7 @@
   export let i: number;
   export let items: string[];
   export let id: string | undefined = undefined;
+  export let readonly: boolean;
 
   $: displayItems = items;
   $: count = items.length;
@@ -34,8 +35,9 @@
   let showHistoryView = false;
 </script>
 
+{#if !readonly || $features.history}
 <ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded-sm entity-list-item-actions">
-  {#if !only}
+  {#if !only && !readonly}
     <Toggle let:on={open} let:toggle let:toggleOff>
       <Popover {open} let:close on:close={toggleOff} placement={last ? 'left-end' : 'left-start'} resize offset={4}>
         <menu class="grid gap-2 p-2 rounded-lg bg-surface-100 border shadow-lg max-h-[50vh] overflow-auto"
@@ -81,8 +83,11 @@
     <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info"></Button>
     <HistoryView bind:open={showHistoryView} {id}/>
   {/if}
-  <Button on:click={() => dispatch('delete')} variant="fill-light" icon={mdiTrashCanOutline} color="danger"></Button>
+  {#if !readonly}
+    <Button on:click={() => dispatch('delete')} variant="fill-light" icon={mdiTrashCanOutline} color="danger"></Button>
+  {/if}
 </ButtonGroup>
+{/if}
 
 <style lang="postcss" global>
   .entity-list-item-actions .Button {
