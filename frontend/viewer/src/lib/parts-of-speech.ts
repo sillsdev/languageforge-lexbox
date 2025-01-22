@@ -1,13 +1,14 @@
 ﻿import {derived, type Readable, type Writable, writable} from 'svelte/store';
 import type {IPartOfSpeech} from '$lib/dotnet-types';
 import {useLexboxApi} from './services/service-provider';
-import type {WritingSystemService} from './writing-system-service';
+import {useWritingSystemService} from './writing-system-service';
 
 type LabeledPartOfSpeech = IPartOfSpeech & {label: string};
 
 let partsOfSpeechStore: Writable<IPartOfSpeech[] | null> | null = null;
 
-export function usePartsOfSpeech(writingSystemService: WritingSystemService): Readable<LabeledPartOfSpeech[]> {
+export function usePartsOfSpeech(): Readable<LabeledPartOfSpeech[]> {
+  const writingSystemService = useWritingSystemService();
   if (partsOfSpeechStore === null) {
     partsOfSpeechStore = writable<IPartOfSpeech[] | null>([], (set) => {
       useLexboxApi().getPartsOfSpeech().then(partsOfSpeech => {

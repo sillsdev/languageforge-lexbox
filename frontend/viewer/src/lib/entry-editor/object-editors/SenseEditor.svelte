@@ -12,7 +12,7 @@
   export let sense: ISense;
   export let readonly: boolean = false;
   const writingSystemService = useWritingSystemService();
-  const partsOfSpeech = usePartsOfSpeech(writingSystemService);
+  const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
   const currentView = useCurrentView();
 </script>

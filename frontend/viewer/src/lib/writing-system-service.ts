@@ -1,5 +1,5 @@
 ﻿import type {IEntry, IExampleSentence, IMultiString, ISense, IWritingSystem, IWritingSystems} from '$lib/dotnet-types';
-import {getContext, setContext} from 'svelte';
+import {getContext, onDestroy, setContext} from 'svelte';
 import {derived, get, type Readable} from 'svelte/store';
 import type {WritingSystemSelection} from './config-types';
 import {firstTruthy} from './utils';
@@ -14,12 +14,20 @@ export function useWritingSystemService(): WritingSystemService {
   if (!writingSystemServiceContext) throw new Error('Writing system context is not initialized. Are you in the context of a project?');
   const writingSystemService = get(writingSystemServiceContext);
   if (!writingSystemService) throw new Error('Writing system service is not initialized.');
+  const unsub = writingSystemServiceContext.subscribe((service) => {
+    if (service !== writingSystemService) console.warn('Writing system service changed unexpectedly.');
+  });
+  onDestroy(unsub);
   return writingSystemService;
 }
 
 export class WritingSystemService {
 
-  constructor(private readonly writingSystems: IWritingSystems) { }
+  private readonly wsColors: WritingSystemColors;
+
+  constructor(private readonly writingSystems: IWritingSystems) {
+    this.wsColors = calcWritingSystemColors(writingSystems);
+  }
 
   allWritingSystems(selection: Extract<WritingSystemSelection, 'vernacular-analysis' | 'analysis-vernacular'> = 'vernacular-analysis'): IWritingSystem[] {
     return this.pickWritingSystems(selection);
@@ -47,9 +55,9 @@ export class WritingSystemService {
     ws = ws ?? 'vernacular-analysis';
     switch (ws) {
       case 'vernacular-analysis':
-        return [...new Set([...this.writingSystems.vernacular, ...this.writingSystems.analysis].sort())];
+        return [...this.writingSystems.vernacular, ...this.writingSystems.analysis];
       case 'analysis-vernacular':
-        return [...new Set([...this.writingSystems.analysis, ...this.writingSystems.vernacular].sort())];
+        return [...this.writingSystems.analysis, ...this.writingSystems.vernacular];
       case 'first-analysis':
         return [this.writingSystems.analysis[0]];
       case 'first-vernacular':
@@ -129,7 +137,43 @@ export class WritingSystemService {
     return this.first(example.sentence, this.vernacular) || this.first(example.translation, this.analysis) || '';
   }
 
+  wsColor(ws: string, type: 'vernacular' | 'analysis'): string {
+    const colors = this.wsColors[type];
+    return colors[ws];
+  }
+
   private first(value: IMultiString, writingSystems: IWritingSystem[]): string | undefined {
     return firstTruthy(writingSystems, ws => value[ws.wsId]);
   }
 }
+
+type WritingSystemColors = {
+  vernacular: Record<string, typeof vernacularColors[number]>;
+  analysis: Record<string, typeof analysisColors[number]>;
+}
+
+function calcWritingSystemColors(writingSystems: IWritingSystems): WritingSystemColors {
+  const wsColors = {
+    vernacular: {} as Record<string, typeof vernacularColors[number]>,
+    analysis: {} as Record<string, typeof analysisColors[number]>,
+  };
+  writingSystems.vernacular.forEach((ws, i) => {
+    wsColors.vernacular[ws.wsId] = vernacularColors[i % vernacularColors.length];
+  });
+  writingSystems.analysis.forEach((ws, i) => {
+    wsColors.analysis[ws.wsId] = analysisColors[i % analysisColors.length];
+  });
+  return wsColors;
+}
+
+const vernacularColors = [
+  'text-emerald-400 dark:text-emerald-300',
+  'text-fuchsia-600 dark:text-fuchsia-300',
+  'text-lime-600 dark:text-lime-200',
+] as const;
+
+const analysisColors = [
+  'text-blue-500 dark:text-blue-300',
+  'text-yellow-500 dark:text-yellow-200',
+  'text-rose-500 dark:text-rose-400',
+] as const;
