@@ -86,7 +86,7 @@
 
 
   async function onClickCreateNewEntry(search: string): Promise<void> {
-    const entry = await projectCommands.createNewEntry(search, { dontNavigate: true });
+    const entry = await projectCommands.createNewEntry(search, { dontSelect: true });
     selectedEntry = entry;
     selectedEntryId = entry?.id;
     if (entry) {

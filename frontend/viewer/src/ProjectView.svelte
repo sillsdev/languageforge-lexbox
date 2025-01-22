@@ -9,7 +9,6 @@
   } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {useLocation} from 'svelte-routing';
-  import {headword} from './lib/utils';
   import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/dotnet-types';
   import {createEventDispatcher, onDestroy, onMount, setContext} from 'svelte';
@@ -41,6 +40,7 @@
   import {initFeatures} from '$lib/services/feature-service';
   import {asScottyPortal, initScottyPortalContext} from '$lib/layout/Scotty.svelte';
   import {initProjectViewState} from '$lib/services/project-view-state-service';
+  import NewEntryButton from '$lib/entry-editor/NewEntryButton.svelte';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -221,12 +221,11 @@
   $: dispatch('loaded', projectLoaded);
 
   function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
-    $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
-    if (!options?.dontNavigate) {
-      navigateToEntry(entry, headword(entry));
-    } else {
-      refreshEntries();
-    }
+    if (options?.dontSelect) return;
+
+    $selectedEntry = entry;
+    // todo the new entry might not be in the list and will be deselected
+    refreshEntries();
   }
 
   function onEntryDeleted(event: CustomEvent<{entry: IEntry}>) {
@@ -278,10 +277,14 @@
 
 
   let newEntryDialog: NewEntryDialog;
-  async function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
-    const defaultWs = $writingSystems?.vernacular[0].wsId;
-    if (defaultWs === undefined) return undefined;
-    const entry = await newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+  async function openNewEntryDialog(lexemeForm?: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
+    const partialEntry: Partial<IEntry> = {};
+    if (lexemeForm) {
+      const defaultWs = $writingSystems?.vernacular[0].wsId;
+      if (defaultWs === undefined) return undefined;
+      partialEntry.lexemeForm = {[defaultWs]: lexemeForm};
+    }
+    const entry = await newEntryDialog.openWithValue(partialEntry);
     if (entry) onEntryCreated(entry, options);
     return entry;
   }
@@ -301,6 +304,9 @@
 
 
 {#if projectLoaded}
+{#if !readonly}
+  <NewEntryDialog bind:this={newEntryDialog} />
+{/if}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
   <AppBar class="bg-secondary min-h-12 shadow-md sm-view:sticky sm-view:top-0 max-md:pl-0" head={false}>
     <div slot="title" class="prose whitespace-nowrap min-w-20">
@@ -330,7 +336,7 @@
     <div slot="actions" class="flex items-center whitespace-nowrap">
       <div class="space-x-2">
         {#if !readonly}
-          <NewEntryDialog bind:this={newEntryDialog} on:created={(e) => onEntryCreated(e.detail.entry, {dontNavigate: true})} />
+          <NewEntryButton on:click={() => openNewEntryDialog()} />
         {/if}
         {#if $features.feedback && fwLiteConfig.feedbackUrl}
           <Button
@@ -374,7 +380,7 @@
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !readonly}
-              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
+              <NewEntryButton on:click={() => openNewEntryDialog()} />
             {/if}
           </div>
         {/if}
