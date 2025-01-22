@@ -22,11 +22,14 @@ public class OAuthClient
     public const string AuthHttpClientName = "AuthHttpClient";
     public string? RedirectUrl { get; }
     private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
+    private readonly AuthConfig _options;
     private readonly OAuthService _oAuthService;
     private readonly LexboxServer _lexboxServer;
     private readonly LexboxProjectService _lexboxProjectService;
     private readonly ILogger<OAuthClient> _logger;
     private readonly IPublicClientApplication _application;
+    private bool _cacheConfigured;
+    private readonly SemaphoreSlim _cacheConfiguredSemaphore = new(1, 1);
     AuthenticationResult? _authResult;
 
     public OAuthClient(LoggerAdapter loggerAdapter,
@@ -41,6 +44,7 @@ public class OAuthClient
             )
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;
+        _options = options.Value;
         _oAuthService = oAuthService;
         _lexboxServer = lexboxServer;
         _lexboxProjectService = lexboxProjectService;
@@ -65,16 +69,6 @@ public class OAuthClient
             builder.WithDefaultRedirectUri();
         }
         _application = builder.Build();
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
-                task =>
-                {
-                    var msalCacheHelper = task.Result;
-                    msalCacheHelper.RegisterCache(_application.UserTokenCache);
-                },
-                scheduler: TaskScheduler.Default);
-        }
     }
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
@@ -105,6 +99,27 @@ public class OAuthClient
         return propertiesBuilder.Build();
     }
 
+    private async ValueTask ConfigureCache()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+            !RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+            !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return;
+        if (_cacheConfigured) return;
+        try
+        {
+            await _cacheConfiguredSemaphore.WaitAsync();
+            if (_cacheConfigured) return;
+            var cacheHelper = await MsalCacheHelper.CreateAsync(BuildCacheProperties(_options.CacheFileName));
+            cacheHelper.RegisterCache(_application.UserTokenCache);
+            _cacheConfigured = true;
+        }
+        finally
+        {
+            _cacheConfiguredSemaphore.Release();
+        }
+
+    }
+
     private class HttpClientFactoryAdapter(IHttpMessageHandlerFactory httpMessageHandlerFactory)
         : IMsalHttpClientFactory
     {
@@ -117,12 +132,14 @@ public class OAuthClient
     public async Task<OAuthService.SignInResult> SignIn(string returnUrl, CancellationToken cancellation = default)
     {
         InvalidateProjectCache();
+        await ConfigureCache();
         return await _oAuthService.SubmitLoginRequest(_application, returnUrl, cancellation);
     }
 
     public async Task Logout()
     {
         _authResult = null;
+        await ConfigureCache();
         var accounts = await _application.GetAccountsAsync();
         foreach (var account in accounts)
         {
@@ -143,6 +160,7 @@ public class OAuthClient
             return _authResult;
         }
 
+        await ConfigureCache();
         var accounts = await _application.GetAccountsAsync();
         var account = accounts.FirstOrDefault();
         if (account is null) return null;
