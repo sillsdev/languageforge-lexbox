@@ -14,9 +14,10 @@ export class MaildevMailbox extends Mailbox {
     super(email);
   }
 
-  async fetchEmails(subject: EmailSubjects): Promise<Email[]> {
+  async fetchEmails(subject: EmailSubjects, extraText?: string): Promise<Email[]> {
+    const searchText = subject.toString() + (extraText ?? '');
     const emails = await this.fetchMyEmails();
-    return emails.filter(email => email.subject.includes(subject))
+    return emails.filter(email => email.subject.includes(searchText))
       .map(email => ({body: email.html}));
   }
 

@@ -11,6 +11,8 @@ import {UserDashboardPage} from './pages/userDashboardPage';
 import {expect} from '@playwright/test';
 import {randomUUID} from 'crypto';
 import {test} from './fixtures';
+import {MaildevMailbox} from './email/maildev-mailbox';
+import {ProjectPage} from './pages/projectPage';
 
 const userIdsToDelete: string[] = [];
 
@@ -151,4 +153,47 @@ test('register via new-user invitation email', async ({ page, mailboxFactory }) 
 
   // Should be able to open sena-3 project from user dashboard as we are now a member
   await userDashboardPage.openProject('Sena 3', 'sena-3');
+});
+
+test('ask to join project via new-project page', async ({ page, tempUserInTestOrg }) => { // , mailboxFactory   -- TODO: not necessary? If not, delete comment
+    test.setTimeout(TEST_TIMEOUT_2X);
+
+    const { name, email, password } = tempUserInTestOrg;
+
+    await loginAs(page.request, email, password); // Might not be necessary, as I believe the tempUserInTestOrg fixture auto-logs in. But perhaps we shouldn't assume that.
+    let dashboardPage = await new UserDashboardPage(page).goto();
+  
+    // Must verify email before being allowed to request project creation
+    await dashboardPage.emailVerificationAlert.assertPleaseVerify();
+    let emailPage = await tempUserInTestOrg.mailbox.openEmail(page, EmailSubjects.VerifyEmail);
+    let pagePromise = emailPage.page.context().waitForEvent('page');
+    await emailPage.clickVerifyEmail();
+    let newPage = await pagePromise;
+    dashboardPage = await new UserDashboardPage(newPage).goto();
+
+    // Create project with similar name to Sena-3
+    const newProjectPage = await dashboardPage.clickCreateProject();
+    await newProjectPage.fillForm({name: 'Sena', code: 'xyz', purpose: 'Testing', organization: 'Test Org'});
+    await expect(newProjectPage.extraProjectsDiv).toBeVisible();
+    await expect(newProjectPage.askToJoinBtn).toBeDisabled();
+    await newProjectPage.extraProjectsDiv.locator('#extra-projects-sena-3').check();
+    await expect(newProjectPage.askToJoinBtn).toBeEnabled();
+    await newProjectPage.askToJoinBtn.click();
+    await expect(newProjectPage.toast('has been sent to the project manager(s)')).toBeVisible();
+
+    // Log in as manager, approve join request.
+    await loginAs(page.request, 'manager');
+    const managerMailbox = new MaildevMailbox('manager@test.com', page.request);
+    emailPage = await managerMailbox.openEmail(page, EmailSubjects.ProjectJoinRequest, `: ${name}`);
+    pagePromise = emailPage.page.context().waitForEvent('page');
+    await emailPage.clickApproveRequest();
+    newPage = await pagePromise;
+    let sena3ProjectPage = await new ProjectPage(newPage, 'Sena 3', 'sena-3').waitFor();
+    await sena3ProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
+    await sena3ProjectPage.goto();
+
+    // Log in as temp user, should see Sena-3 project
+    await loginAs(page.request, email, password);
+    dashboardPage = await new UserDashboardPage(page).goto();
+    await dashboardPage.openProject('Sena 3', 'sena-3');
 });

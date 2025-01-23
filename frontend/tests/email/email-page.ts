@@ -7,6 +7,7 @@ export enum EmailSubjects {
   ForgotPassword = 'Forgot your password?',
   PasswordChanged = 'Your password was changed',
   ProjectInvitation = 'Project invitation:',
+  ProjectJoinRequest = 'Project join request',
 }
 
 export class EmailPage extends BasePage {
@@ -20,6 +21,10 @@ export class EmailPage extends BasePage {
 
   clickVerifyEmail(): Promise<void> {
     return this.bodyLocator.getByRole('link', {name: 'Verify e-mail'}).click();
+  }
+
+  clickApproveRequest(): Promise<void> {
+    return this.bodyLocator.getByRole('link', {name: 'Approve request'}).click();
   }
 
   clickResetPassword(): Promise<void> {

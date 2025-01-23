@@ -13,6 +13,7 @@ export class ProjectPage extends BasePage {
   get verifyRepoButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Verify repository'}); }
   get addMemberButton(): Locator { return this.page.getByRole('button', {name: 'Add/Invite Member'}); }
   get browseButton(): Locator { return this.page.getByRole('link', {name: 'Browse'}); }
+  get modal(): Locator { return this.page.locator('.modal-box'); }
 
   constructor(page: Page, private name: string, private code: string) {
     super(page, page.getByRole('heading', {name: `Project: ${name}`}), `/project/${code}`);

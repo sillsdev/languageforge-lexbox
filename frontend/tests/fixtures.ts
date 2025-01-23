@@ -1,7 +1,7 @@
 import {test as base, expect, type BrowserContext, type BrowserContextOptions} from '@playwright/test';
 import * as testEnv from './envVars';
 import {type UUID, randomUUID} from 'crypto';
-import {deleteUser, loginAs, registerUser} from './utils/authHelpers';
+import {addUserToOrg, deleteUser, loginAs, registerUser} from './utils/authHelpers';
 import {executeGql, type GqlResult} from './utils/gqlHelpers';
 import {mkdtemp, rm} from 'fs/promises';
 import {join} from 'path';
@@ -11,6 +11,7 @@ import {isDev} from './envVars';
 import {E2EMailboxApi} from './email/e2e-mailbox-module-patched';
 import {MaildevMailbox} from './email/maildev-mailbox';
 import {E2EMailbox} from './email/e2e-mailbox';
+import {OrgRole} from '$lib/gql/types';
 
 export interface TempUser {
   id: UUID
@@ -32,6 +33,7 @@ type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   uniqueTestId: string,
   tempUser: Readonly<TempUser>,
+  tempUserInTestOrg: Readonly<TempUser>,
   tempProject: TempProject,
   tempDir: string,
   mailboxFactory: () => Promise<Mailbox>,
@@ -96,9 +98,32 @@ export const test = base.extend<Fixtures>({
   tempUser: async ({browser, page, mailboxFactory}, use, testInfo) => {
     const mailbox = await mailboxFactory();
     const email = mailbox.email;
-    const name = `Test: ${testInfo.title} - ${email}`;
+    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', "(at)")}`;
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
+    const tempUser = Object.freeze({
+      id: tempUserId,
+      name,
+      email,
+      password,
+      mailbox,
+    });
+    await use(tempUser);
+    const context = await browser.newContext();
+    await loginAs(context.request, 'admin');
+    await deleteUser(context.request, tempUser.id);
+    await context.close();
+  },
+  tempUserInTestOrg: async ({browser, page, mailboxFactory}, use, testInfo) => {
+    const mailbox = await mailboxFactory();
+    const email = mailbox.email;
+    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', "(at)")}`;
+    console.log(name);
+    const password = email;
+    const tempUserId = await registerUser(page, name, email, password);
+    await loginAs(page.request, 'admin');
+    await addUserToOrg(page.request, tempUserId, testEnv.testOrgId, OrgRole.User);
+    await loginAs(page.request, email, password);
     const tempUser = Object.freeze({
       id: tempUserId,
       name,

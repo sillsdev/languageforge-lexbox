@@ -9,13 +9,13 @@ export interface Email {
 export abstract class Mailbox {
   constructor(readonly email: string) { }
 
-  abstract fetchEmails(subject: EmailSubjects): Promise<Email[]>;
+  abstract fetchEmails(subject: EmailSubjects, extraText?: string): Promise<Email[]>;
 
-  async openEmail(page: Page, subject: EmailSubjects, index: number = 0): Promise<EmailPage> {
+  async openEmail(page: Page, subject: EmailSubjects, extraText?: string, index: number = 0): Promise<EmailPage> {
     let email: Email | undefined = undefined;
 
     await expect.poll(async () => {
-      const emails = await this.fetchEmails(subject);
+      const emails = await this.fetchEmails(subject, extraText);
       email = emails[index];
       return email;
     }, {

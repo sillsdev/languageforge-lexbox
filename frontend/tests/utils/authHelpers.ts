@@ -1,10 +1,11 @@
 import {expect, type APIRequestContext, type Page} from '@playwright/test';
-import {defaultPassword, serverBaseUrl} from '../envVars';
+import {defaultPassword, testOrgId, serverBaseUrl} from '../envVars';
 import {RegisterPage} from '../pages/registerPage';
 import {UserDashboardPage} from '../pages/userDashboardPage';
 import type {UUID} from 'crypto';
 import {executeGql} from './gqlHelpers';
 import {LoginPage} from '../pages/loginPage';
+import type {OrgRole} from '$lib/gql/types';
 
 export async function loginAs(api: APIRequestContext, emailOrUsername: string, password: string = defaultPassword): Promise<void> {
   const loginData = {
@@ -35,6 +36,23 @@ export async function registerUser(page: Page, name: string, email: string, pass
   await new UserDashboardPage(page).waitFor();
   const userId = await getCurrentUserId(page.request);
   return userId;
+}
+
+export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: OrgRole): Promise<UUID> {
+  return executeGql(api, `
+    mutation {
+        changeOrgMemberRole(input: { userId: "${userId}", orgId: "${orgId}", role: ${role} }) {
+            organization {
+                id
+            }
+            errors {
+                ... on Error {
+                    message
+                }
+            }
+        }
+    }
+  `);
 }
 
 export async function deleteUser(api: APIRequestContext, userId: string): Promise<unknown> {

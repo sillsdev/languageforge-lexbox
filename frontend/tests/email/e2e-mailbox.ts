@@ -12,9 +12,10 @@ export class E2EMailbox extends Mailbox {
     super(email);
   }
 
-  async fetchEmails(subject: EmailSubjects): Promise<Email[]> {
+  async fetchEmails(subject: EmailSubjects, extraText?: string): Promise<Email[]> {
+    const searchText = subject.toString() + (extraText ?? '');
     const emails = await this.e2eMailboxApi.fetchEmailList()
-    return emails.filter(email => email.mail_subject.includes(subject))
+    return emails.filter(email => email.mail_subject.includes(searchText))
       .map(email => ({body: email.mail_body}));
   }
 }
