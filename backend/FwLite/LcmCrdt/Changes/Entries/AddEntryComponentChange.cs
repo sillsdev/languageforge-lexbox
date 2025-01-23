@@ -53,7 +53,11 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
                 ? commit.DateTime
                 : (DateTime?)null,
         };
-        if (component.DeletedAt is null && await HasReferenceCycle(component, context)) component.DeletedAt = commit.DateTime;
+        if (component.DeletedAt is null && await HasReferenceCycle(component, context))
+        {
+            component.DeletedAt = commit.DateTime;
+        }
+
         return component;
     }
 
@@ -71,7 +75,9 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
             await foreach (var o in context.GetObjectsReferencing(current.ComplexFormEntryId))
             {
                 if (o is not ComplexFormComponent cfc) continue;
+                if (cfc.DeletedAt is not null) continue;
                 if (visited.Contains(cfc.Id)) continue;
+
                 if (cfc.ComplexFormEntryId == parent.ComponentEntryId) return true;
                 queue.Enqueue(cfc);
                 visited.Add(cfc.Id);
