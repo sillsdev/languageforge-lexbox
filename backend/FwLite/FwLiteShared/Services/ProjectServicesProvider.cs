@@ -1,4 +1,5 @@
-﻿using FwLiteShared.Projects;
+﻿using System.Collections.Concurrent;
+using FwLiteShared.Projects;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,10 +19,19 @@ public class ProjectServicesProvider(
     IEnumerable<IProjectProvider> projectProviders,
     IJSRuntime jsRuntime,
     ILogger<ProjectServicesProvider> logger
-)
+): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
         projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
+    internal readonly ConcurrentDictionary<ProjectScope, ProjectScope> _projectScopes = new();
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var projectScope in _projectScopes.Values)
+        {
+            await (projectScope.Cleanup?.Value.DisposeAsync() ?? ValueTask.CompletedTask);
+        }
+    }
+
     [JSInvokable]
     public async Task DisposeService(DotNetObjectReference<IAsyncDisposable> service)
     {
@@ -46,10 +56,10 @@ public class ProjectServicesProvider(
         var scope = new ProjectScope(Defer.Async(() =>
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
-            currentProjectService.ClearProjectContext();
             entryUpdatedSubscription.Dispose();
             return Task.CompletedTask;
-        }), serviceScope, projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
+        }), serviceScope, this, projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
+        _projectScopes.TryAdd(scope, scope);
         return scope;
     }
 
@@ -69,7 +79,8 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
             return Task.CompletedTask;
-        }), serviceScope, projectName, miniLcm, null);
+        }), serviceScope, this, projectName, miniLcm, null);
+        _projectScopes.TryAdd(scope, scope);
         return Task.FromResult(scope);
     }
 }
@@ -78,6 +89,7 @@ public class ProjectScope
 {
     public ProjectScope(IAsyncDisposable cleanup,
         AsyncServiceScope serviceScope,
+        ProjectServicesProvider projectServicesProvider,
         string projectName,
         MiniLcmJsInvokable miniLcm,
         HistoryServiceJsInvokable? historyService)
@@ -87,6 +99,7 @@ public class ProjectScope
         HistoryService = historyService is null ? null : DotNetObjectReference.Create(historyService);
         Cleanup = DotNetObjectReference.Create(Defer.Async(async () =>
         {
+            projectServicesProvider._projectScopes.TryRemove(this, out _);
             await cleanup.DisposeAsync();
             if (HistoryService is not null)
             {
