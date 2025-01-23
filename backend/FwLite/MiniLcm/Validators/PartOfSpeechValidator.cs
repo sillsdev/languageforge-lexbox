@@ -9,7 +9,7 @@ public class PartOfSpeechValidator : AbstractValidator<PartOfSpeech>
     {
         RuleFor(pos => pos.Id).Must(BeCanonicalGuid).When(pos => pos.Predefined);
         RuleFor(pos => pos.DeletedAt).Null();
-        RuleFor(pos => pos.Name).Required();
+        RuleFor(pos => pos.Name).Required(pos => pos.Id.ToString("D"));
     }
 
     private bool BeCanonicalGuid(Guid id)

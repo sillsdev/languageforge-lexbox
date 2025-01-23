@@ -5,13 +5,15 @@ namespace MiniLcm.Validators;
 
 internal static class MultiStringValidator
 {
-    public static IRuleBuilderOptions<T, MultiString> Required<T>(this IRuleBuilder<T, MultiString> ruleBuilder)
+    public static IRuleBuilderOptions<T, MultiString> Required<T>(this IRuleBuilder<T, MultiString> ruleBuilder, Func<T, string> getParentId)
     {
-        return ruleBuilder.NotEmpty().NoEmptyValues();
+        return ruleBuilder.NotEmpty()
+            .WithMessage((parent, ms) => $"MultiString must not be empty ({getParentId(parent)})")
+            .NoEmptyValues(getParentId);
     }
-    public static IRuleBuilderOptions<T, MultiString> NoEmptyValues<T>(this IRuleBuilder<T, MultiString> ruleBuilder)
+    public static IRuleBuilderOptions<T, MultiString> NoEmptyValues<T>(this IRuleBuilder<T, MultiString> ruleBuilder, Func<T, string> getParentId)
     {
         return ruleBuilder.Must(ms => ms.Values.All(v => !string.IsNullOrEmpty(v.Value))).WithMessage((parent, ms) =>
-            $"MultiString must not contain empty values, but [{string.Join(", ", ms.Values.Where(v => string.IsNullOrWhiteSpace(v.Value)).Select(v => v.Key))}] was empty");
+            $"MultiString must not contain empty values, but [{string.Join(", ", ms.Values.Where(v => string.IsNullOrWhiteSpace(v.Value)).Select(v => v.Key))}] was empty ({getParentId(parent)})");
     }
 }
