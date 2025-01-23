@@ -1,4 +1,5 @@
-﻿using FwLiteShared.Projects;
+﻿using System.Collections.Concurrent;
+using FwLiteShared.Projects;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,24 +13,22 @@ namespace FwLiteShared.Services;
 //this service is special, it is scoped, but it should not inject any scoped project services
 public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
-    IServiceProvider scopedServices,
+    IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
     ChangeEventBus changeEventBus,
     IEnumerable<IProjectProvider> projectProviders,
     IJSRuntime jsRuntime,
     ILogger<ProjectServicesProvider> logger
-) : IAsyncDisposable
+): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
         projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
-    private readonly ConcurrentWeakDictionary<string, ProjectScope> _projectScopes = new();
-    //handles cleanup of project scopes which didn't get cleaned up by the js code, maybe because the user closed the tab
-    //this will get executed when the blazor circuit is disposed
+    internal readonly ConcurrentDictionary<ProjectScope, ProjectScope> _projectScopes = new();
     public async ValueTask DisposeAsync()
     {
-        foreach (var scope in _projectScopes.Values)
+        foreach (var projectScope in _projectScopes.Values)
         {
-            await (scope.Cleanup?.Value.DisposeAsync() ?? ValueTask.CompletedTask);
+            await (projectScope.Cleanup?.Value.DisposeAsync() ?? ValueTask.CompletedTask);
         }
     }
 
@@ -42,6 +41,8 @@ public class ProjectServicesProvider(
     [JSInvokable]
     public async Task<ProjectScope> OpenCrdtProject(string projectName)
     {
+        var serviceScope = serviceProvider.CreateAsyncScope();
+        var scopedServices = serviceScope.ServiceProvider;
         var project = crdtProjectsService.GetProject(projectName) ??
                       throw new InvalidOperationException($"Crdt Project {projectName} not found");
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
@@ -55,18 +56,18 @@ public class ProjectServicesProvider(
         var scope = new ProjectScope(Defer.Async(() =>
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
-            currentProjectService.ClearProjectContext();
             entryUpdatedSubscription.Dispose();
-            _projectScopes.Remove(projectName);
             return Task.CompletedTask;
-        }), projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
-        await TrackScope(scope);
+        }), serviceScope, this, projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
+        _projectScopes.TryAdd(scope, scope);
         return scope;
     }
 
     [JSInvokable]
-    public async Task<ProjectScope> OpenFwDataProject(string projectName)
+    public Task<ProjectScope> OpenFwDataProject(string projectName)
     {
+        var serviceScope = serviceProvider.CreateAsyncScope();
+        var scopedServices = serviceScope.ServiceProvider;
         if (FwDataProjectProvider is null)
             throw new InvalidOperationException("FwData Project provider is not available");
         var project = FwDataProjectProvider.GetProject(projectName) ??
@@ -77,24 +78,18 @@ public class ProjectServicesProvider(
         var scope = new ProjectScope(Defer.Async(() =>
         {
             logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
-            _projectScopes.Remove(projectName);
             return Task.CompletedTask;
-        }), projectName, miniLcm, null);
-        await TrackScope(scope);
-        return scope;
-    }
-
-    private async ValueTask TrackScope(ProjectScope scope)
-    {
-        var oldScope = _projectScopes.Remove(scope.ProjectName);
-        _projectScopes.Add(scope.ProjectName, scope);
-        await (oldScope?.Cleanup?.Value.DisposeAsync() ?? ValueTask.CompletedTask);
+        }), serviceScope, this, projectName, miniLcm, null);
+        _projectScopes.TryAdd(scope, scope);
+        return Task.FromResult(scope);
     }
 }
 
 public class ProjectScope
 {
     public ProjectScope(IAsyncDisposable cleanup,
+        AsyncServiceScope serviceScope,
+        ProjectServicesProvider projectServicesProvider,
         string projectName,
         MiniLcmJsInvokable miniLcm,
         HistoryServiceJsInvokable? historyService)
@@ -104,6 +99,7 @@ public class ProjectScope
         HistoryService = historyService is null ? null : DotNetObjectReference.Create(historyService);
         Cleanup = DotNetObjectReference.Create(Defer.Async(async () =>
         {
+            projectServicesProvider._projectScopes.TryRemove(this, out _);
             await cleanup.DisposeAsync();
             if (HistoryService is not null)
             {
@@ -112,6 +108,8 @@ public class ProjectScope
 
             MiniLcm.Value.Dispose();
             MiniLcm.Dispose();
+            await serviceScope.DisposeAsync();
+            //cleanup the dotnet object reference, this will not trigger this callback again
             Cleanup?.Dispose();
             Cleanup = null;
         }));

@@ -38,7 +38,10 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
         Sense? componentSense = null;
         if (ComponentSenseId is not null)
             componentSense = await context.GetCurrent<Sense>(ComponentSenseId.Value);
-        return new ComplexFormComponent
+        var shouldBeDeleted = (complexFormEntry?.DeletedAt is not null ||
+                               componentEntry?.DeletedAt is not null ||
+                               (ComponentSenseId.HasValue && componentSense?.DeletedAt is not null));
+        var component = new ComplexFormComponent
         {
             Id = EntityId,
             ComplexFormEntryId = ComplexFormEntryId,
@@ -46,11 +49,40 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
             ComponentEntryId = ComponentEntryId,
             ComponentHeadword = componentEntry?.Headword(),
             ComponentSenseId = ComponentSenseId,
-            DeletedAt = (complexFormEntry?.DeletedAt is not null ||
-                         componentEntry?.DeletedAt is not null ||
-                         (ComponentSenseId.HasValue && componentSense?.DeletedAt is not null))
+            DeletedAt = shouldBeDeleted
                 ? commit.DateTime
                 : (DateTime?)null,
         };
+        if (component.DeletedAt is null && await HasReferenceCycle(component, context))
+        {
+            component.DeletedAt = commit.DateTime;
+        }
+
+        return component;
+    }
+
+    private static async ValueTask<bool> HasReferenceCycle(ComplexFormComponent parent, ChangeContext context)
+    {
+        if (parent.ComplexFormEntryId == parent.ComponentEntryId) return true;
+        //used to avoid checking the same ComplexFormComponent multiple times
+        HashSet<Guid> visited = [parent.Id];
+        Queue<ComplexFormComponent> queue = new Queue<ComplexFormComponent>();
+        queue.Enqueue(parent);
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            if (current.ComplexFormEntryId == parent.ComponentEntryId) return true;
+            await foreach (var o in context.GetObjectsReferencing(current.ComplexFormEntryId))
+            {
+                if (o is not ComplexFormComponent cfc) continue;
+                if (cfc.DeletedAt is not null) continue;
+                if (visited.Contains(cfc.Id)) continue;
+
+                if (cfc.ComplexFormEntryId == parent.ComponentEntryId) return true;
+                queue.Enqueue(cfc);
+                visited.Add(cfc.Id);
+            }
+        }
+        return false;
     }
 }

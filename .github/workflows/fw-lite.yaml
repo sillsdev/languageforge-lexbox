@@ -160,10 +160,30 @@ jobs:
 
       - name: Setup Maui
         run: dotnet workload install maui
+      - name: Decode Android Keystore
+        id: decodeKeystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.FW_LITE_KEYSTORE_BASE64 }}
+        run: |
+          echo "KEYSTORE_PATH=${RUNNER_TEMP}/keystore.jks" >> ${GITHUB_OUTPUT}
+          base64 -d <<< "$KEYSTORE_BASE64" > ${RUNNER_TEMP}/keystore.jks
 
       - name: Publish Android
         working-directory: backend/FwLite/FwLiteMaui
-        run: dotnet publish -f net9.0-android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+        env:
+          KEYSTORE_PATH: ${{ steps.decodeKeystore.outputs.KEYSTORE_PATH }}
+          KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
+          KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
+        run: |
+          dotnet publish -f net9.0-android --artifacts-path ../artifacts \
+            -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
+            -p:AndroidSigningKeyPass=env:KEYSTORE_PASS \
+            -p:AndroidSigningStorePass=env:KEYSTORE_PASS \
+            -p:AndroidSigningKeyAlias=${KEYSTORE_ALIAS}
+          rm ${KEYSTORE_PATH}
 
       - name: Upload FWLite App artifacts
         uses: actions/upload-artifact@v4
