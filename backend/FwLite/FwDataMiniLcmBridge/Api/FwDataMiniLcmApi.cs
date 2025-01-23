@@ -304,7 +304,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
-            Code = semanticDomain.Abbreviation.UiString ?? "",
+            Code = GetSemanticDomainCode(semanticDomain),
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -314,7 +314,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return
             SemanticDomainRepository
             .AllInstances()
-            .OrderBy(p => p.Abbreviation.UiString)
+            .OrderBy(GetSemanticDomainCode)
             .ToAsyncEnumerable()
             .Select(FromLcmSemanticDomain);
     }
@@ -323,6 +323,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var semDom = GetLcmSemanticDomain(id);
         return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
+    }
+
+    private string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
+    {
+        var abbr = semanticDomain.Abbreviation;
+        // UiString can be null even though there is an abbreviation available
+        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
