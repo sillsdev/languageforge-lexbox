@@ -28,16 +28,18 @@
   <Button on:click={toggle} icon={mdiDotsVertical} iconOnly>
     <!-- the menu transition doesn't play well with our portal, so it's just turned off -->
     <Menu {open} on:close={toggleOff} class="app-bar-menu whitespace-nowrap" transitionParams={{ duration: 0 }}>
+      <div class="contents" use:asScottyPortal={'app-bar-menu'}></div>
       <div class="contents" class:sm-view:hidden={$projectViewState.userPickedEntry}>
         {#if $features.history}
           <MenuItem icon={mdiHistory} on:click={() => activityViewOpen = true}>Activity</MenuItem>
         {/if}
-        <MenuItem icon={mdiEyeSettingsOutline} on:click={() => dispatch('showOptionsDialog')}>Configure</MenuItem>
-        {#if about}
-          <MenuItem icon={mdiInformationVariantCircle} on:click={() => aboutDialogOpen = true}>About</MenuItem>
-        {/if}
       </div>
-      <div class="contents" use:asScottyPortal={'app-bar-menu'}></div>
+      <MenuItem icon={mdiEyeSettingsOutline} on:click={() => dispatch('showOptionsDialog')}>Configure</MenuItem>
+      {#if about}
+        <div class="contents" class:sm-view:hidden={$projectViewState.userPickedEntry}>
+          <MenuItem icon={mdiInformationVariantCircle} on:click={() => aboutDialogOpen = true}>About</MenuItem>
+        </div>
+      {/if}
     </Menu>
   </Button>
 </Toggle>
