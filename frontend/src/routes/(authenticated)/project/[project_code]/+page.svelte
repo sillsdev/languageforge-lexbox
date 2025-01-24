@@ -342,7 +342,9 @@
           loading={askLoading}
           on:click={() => askToJoinProject(project.id, project.name)}
         >
-          <span class="i-mdi-email text-2xl"></span>
+          {#if !askLoading}
+            <span class="i-mdi-email text-2xl"></span>
+          {/if}
           {$t('project_page.join_project.label')}
         </Button>
       {:else}
