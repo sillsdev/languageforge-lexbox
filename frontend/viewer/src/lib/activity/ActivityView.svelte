@@ -113,14 +113,22 @@
           <span>– ({selectedRow.changes.length} changes)</span>
         {/if}
       </div>
-      <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded">
-        {#each selectedRow.changes as change}
-          <div class="whitespace-pre-wrap font-mono text-sm [&:not(:last-child)]:border-b [&:not(:last-child)]:pb-4">
-            {formatJsonForUi(change)}
-          </div>
-        {/each}
+      <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded change-list">
+        <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
+          {#each visibleItems as change}
+            <div class="whitespace-pre-wrap font-mono text-sm [&:not(> :last-child)]:border-b [&:not(> :last-child)]:pb-4">
+              {formatJsonForUi(change)}
+            </div>
+          {/each}
+        </InfiniteScroll>
       </div>
     {/if}
   </div>
   <div class="flex-grow"></div>
 </Dialog>
+
+<style lang="postcss" global>
+  .change-list .sentinel {
+    @apply -mt-4; /* make gap-4 not apply to the infinite-scroll end detector */
+  }
+</style>
