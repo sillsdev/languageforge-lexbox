@@ -13,7 +13,9 @@
 </script>
 
 <TitlePage title={$t('register.title')}>
-  <RegisterWithGoogleButton href={`/api/login/google?redirectTo=${$page.url.pathname}`}/>
+  <div class="flex flex-col pb-2">
+    <RegisterWithGoogleButton href={`/api/login/google?redirectTo=${$page.url.pathname}`}/>
+  </div>
   <div class="divider lowercase">{$t('common.or')}</div>
   <CreateUser handleSubmit={register} on:submitted={onSubmit} />
 </TitlePage>
