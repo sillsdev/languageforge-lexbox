@@ -1,12 +1,12 @@
-import { browser } from '$app/environment'
-import { redirect, type Cookies } from '@sveltejs/kit'
-import { jwtDecode } from 'jwt-decode'
-import { deleteCookie, getCookie } from './util/cookies'
+import {browser} from '$app/environment';
+import {redirect, type Cookies} from '@sveltejs/kit';
+import {jwtDecode} from 'jwt-decode';
+import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
-import { ensureErrorIsTraced, errorSourceTag } from './otel'
+import {ensureErrorIsTraced, errorSourceTag} from './otel';
 import zxcvbn from 'zxcvbn';
-import { type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole } from './gql/types';
-import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
+import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience} from './gql/types';
+import {_createGuestUserByAdmin} from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -24,6 +24,8 @@ type RegisterResponseErrors = {
   }
 }
 
+type ApiLexboxAudience = 'LexboxApi' | 'Unknown';
+
 type JwtTokenUser = {
   sub: string
   name: string
@@ -36,6 +38,7 @@ type JwtTokenUser = {
   unver?: boolean | undefined,
   mkproj?: boolean | undefined,
   creat?: boolean | undefined,
+  aud: ApiLexboxAudience,
   loc: string,
 }
 
@@ -53,6 +56,7 @@ export type LexAuthUser = {
   emailVerified: boolean
   canCreateProjects: boolean
   createdByAdmin: boolean
+  audience: ApiLexboxAudience
   locale: string
 }
 
@@ -154,6 +158,7 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     canCreateProjects: responseUser.canCreateProjects ?? false,
     createdByAdmin: responseUser.createdByAdmin ?? false,
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
+    audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
   }
   return { user }
 }
@@ -177,7 +182,7 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 }
 
 export function jwtToUser(user: JwtTokenUser): LexAuthUser {
-  const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
+  const { sub: id, aud: audience, name, email, user: username, proj: projectsString, role: jwtRole } = user;
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
   if (user.orgs) {
@@ -199,6 +204,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,
     createdByAdmin: user.creat ?? false,
     locale: user.loc,
+    audience,
     emailOrUsername: (email ?? username) as string,
   }
 }

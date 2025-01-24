@@ -260,6 +260,7 @@ export async function _createGuestUserByAdmin(input: CreateGuestUserByAdminInput
                 orgId
                 role
               }
+              audience
             }
             errors {
                 __typename
