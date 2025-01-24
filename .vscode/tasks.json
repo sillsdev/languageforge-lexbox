@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-          "label": "Build FwLite Blazor (Windows)",
+          "label": "Build FwLite Windows (Maui)",
           "command": "dotnet",
           "type": "process",
           "args": [
