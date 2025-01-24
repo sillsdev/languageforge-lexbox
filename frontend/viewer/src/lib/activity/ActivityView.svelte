@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import {useHistoryService} from '$lib/services/history-service';
   import {mdiClose} from '@mdi/js';
@@ -30,7 +30,13 @@
   let activity: Array<Activity>;
   let selectedRow: Activity | undefined;
 
+  // loaded makes hot-reload work
+  let loaded = false;
+  $: loaded = !open;
+  if (!loaded) void load();
+
   async function load() {
+    loaded = true;
     activity = [];
     loading = true;
     const data = await historyService.activity(projectName) as Activity[];
@@ -60,7 +66,7 @@
   }
 </script>
 
-<Dialog bind:open on:open={load} {loading} persistent={loading}>
+<Dialog bind:open {loading} persistent={loading}>
   <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
   <div slot="title">Activity</div>
   <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-columns: 250px 1fr; grid-template-rows: auto minmax(0,100%)">

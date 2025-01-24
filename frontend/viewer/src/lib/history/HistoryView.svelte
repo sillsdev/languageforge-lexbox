@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import ShowEmptyFieldsSwitch from '$lib/layout/ShowEmptyFieldsSwitch.svelte';
   import {mdiClose} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem} from 'svelte-ux';
@@ -17,7 +17,13 @@
 
   let showEmptyFields = false;
 
+  // loaded makes hot-reload work
+  let loaded = false;
+  $: loaded = !open;
+  if (!loaded) void load();
+
   async function load() {
+    loaded = true;
     loading = true;
     history = await historyService.load(id);
     record = history[0];
@@ -33,7 +39,7 @@
   }
 </script>
 
-<Dialog bind:open on:open={load} {loading} persistent={loading}>
+<Dialog bind:open {loading} persistent={loading}>
   <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
   <div slot="title">History</div>
   <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-columns: 250px 1fr; grid-template-rows: auto minmax(0,100%)">
