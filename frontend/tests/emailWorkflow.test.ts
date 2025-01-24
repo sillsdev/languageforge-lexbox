@@ -1,4 +1,4 @@
-import {TEST_TIMEOUT_2X, defaultPassword} from './envVars';
+import {TEST_TIMEOUT_2X, defaultPassword, testOrgId} from './envVars';
 import {deleteUser, getCurrentUserId, loginAs, logout} from './utils/authHelpers';
 
 import {AcceptInvitationPage} from './pages/acceptInvitationPage';
@@ -13,6 +13,7 @@ import {randomUUID} from 'crypto';
 import {test} from './fixtures';
 import {MaildevMailbox} from './email/maildev-mailbox';
 import {ProjectPage} from './pages/projectPage';
+import {OrgPage} from './pages/orgPage';
 
 const userIdsToDelete: string[] = [];
 
@@ -155,12 +156,12 @@ test('register via new-user invitation email', async ({ page, mailboxFactory }) 
   await userDashboardPage.openProject('Sena 3', 'sena-3');
 });
 
-test('ask to join project via new-project page', async ({ page, tempUserInTestOrg }) => { // , mailboxFactory   -- TODO: not necessary? If not, delete comment
+test('ask to join project via craete-project page', async ({ page, tempUserInTestOrg }) => {
     test.setTimeout(TEST_TIMEOUT_2X);
 
     const { name, email, password } = tempUserInTestOrg;
 
-    await loginAs(page.request, email, password); // Might not be necessary, as I believe the tempUserInTestOrg fixture auto-logs in. But perhaps we shouldn't assume that.
+    await loginAs(page.request, email, password);
     let dashboardPage = await new UserDashboardPage(page).goto();
   
     // Must verify email before being allowed to request project creation
@@ -180,6 +181,46 @@ test('ask to join project via new-project page', async ({ page, tempUserInTestOr
     await expect(newProjectPage.askToJoinBtn).toBeEnabled();
     await newProjectPage.askToJoinBtn.click();
     await expect(newProjectPage.toast('has been sent to the project manager(s)')).toBeVisible();
+
+    // Log in as manager, approve join request.
+    await loginAs(page.request, 'manager');
+    const managerMailbox = new MaildevMailbox('manager@test.com', page.request);
+    emailPage = await managerMailbox.openEmail(page, EmailSubjects.ProjectJoinRequest, `: ${name}`);
+    pagePromise = emailPage.page.context().waitForEvent('page');
+    await emailPage.clickApproveRequest();
+    newPage = await pagePromise;
+    let sena3ProjectPage = await new ProjectPage(newPage, 'Sena 3', 'sena-3').waitFor();
+    await sena3ProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
+    await sena3ProjectPage.goto();
+
+    // Log in as temp user, should see Sena-3 project
+    await loginAs(page.request, email, password);
+    dashboardPage = await new UserDashboardPage(page).goto();
+    await dashboardPage.openProject('Sena 3', 'sena-3');
+});
+
+test.only('ask to join project via project page', async ({ page, tempUserInTestOrg }) => {
+    test.setTimeout(TEST_TIMEOUT_2X);
+
+    const { name, email, password } = tempUserInTestOrg;
+
+    await loginAs(page.request, email, password);
+    let dashboardPage = await new UserDashboardPage(page).goto();
+
+    // Must verify email before being allowed to request project creation
+    await dashboardPage.emailVerificationAlert.assertPleaseVerify();
+    let emailPage = await tempUserInTestOrg.mailbox.openEmail(page, EmailSubjects.VerifyEmail);
+    let pagePromise = emailPage.page.context().waitForEvent('page');
+    await emailPage.clickVerifyEmail();
+    let newPage = await pagePromise;
+    dashboardPage = await new UserDashboardPage(newPage).goto();
+
+    // Get to Sena-3 project page via org page, then ask to join
+    const testOrgPage = await new OrgPage(page, 'Test Org', testOrgId).goto();
+    await testOrgPage.membersTab.click();
+    await testOrgPage.projectsTab.click();
+    const projectPage = await testOrgPage.openProject('Sena 3', 'sena-3');
+    await projectPage.askToJoinButton.click();
 
     // Log in as manager, approve join request.
     await loginAs(page.request, 'manager');
