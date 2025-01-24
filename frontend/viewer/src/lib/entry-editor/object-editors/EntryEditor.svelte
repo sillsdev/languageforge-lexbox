@@ -257,9 +257,12 @@
   {/if}
 </div>
 
-{#if !modalMode && !readonly}
+{#if !modalMode}
+{@const willRenderAnyButtons = $features.history || !readonly}
+  {#if willRenderAnyButtons}
   <div class="hidden">
     <Scotty beamMeTo="right-toolbar" let:projectViewState>
+      {#if !readonly}
         <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
           <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
             Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
@@ -270,20 +273,23 @@
             Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
           </div>
         </Button>
-        {#if $features.history}
-          <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info" size="sm">
-            <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
-              History
-            </div>
-          </Button>
-        {/if}
+      {/if}
+      {#if $features.history}
+        <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info" size="sm">
+          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+            History
+          </div>
+        </Button>
+      {/if}
     </Scotty>
     <Scotty beamMeTo="app-bar-menu" let:projectViewState>
       {#if projectViewState.userPickedEntry}
         <div class="lg-view:hidden">
-          <MenuItem on:click={deleteEntry} icon={mdiTrashCanOutline}>
-            Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
-          </MenuItem>
+          {#if !readonly}
+            <MenuItem on:click={deleteEntry} icon={mdiTrashCanOutline}>
+              Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
+            </MenuItem>
+          {/if}
           {#if $features.history}
             <MenuItem on:click={() => showHistoryView = true} icon={mdiHistory}>
               History
@@ -294,6 +300,7 @@
     </Scotty>
   </div>
 
+  {/if}
   {#if $features.history}
     <HistoryView id={entry.id} bind:open={showHistoryView} />
   {/if}

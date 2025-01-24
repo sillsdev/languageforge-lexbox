@@ -397,9 +397,7 @@
             <div class="contents" class:lg-view:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 <div class="grid gap-4 auto-rows-fr">
-                  {#if !readonly}
-                    <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
-                  {/if}
+                  <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
                   {#if $selectedEntry}
                     <div class="contents">
   <!--                    button must be a link otherwise it won't follow the redirect to a protocol handler-->
