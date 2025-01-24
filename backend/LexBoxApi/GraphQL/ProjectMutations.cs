@@ -230,6 +230,7 @@ public class ProjectMutations
     [Error<DbError>]
     [Error<ProjectMembersMustBeVerified>]
     [Error<ProjectMembersMustBeVerifiedForRole>]
+    [Error<ProjectHasNoManagers>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -254,11 +255,14 @@ public class ProjectMutations
         NotFoundException.ThrowIfNull(project);
 
         var managers = project.Users.Where(u => u.Role == ProjectRole.Manager);
+        var emailsSent = 0;
         foreach (var manager in managers)
         {
             if (manager.User is null) continue;
             await emailService.SendJoinProjectRequestEmail(manager.User, user, project);
+            emailsSent++;
         }
+        if (emailsSent == 0) throw new ProjectHasNoManagers(project.Code);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 

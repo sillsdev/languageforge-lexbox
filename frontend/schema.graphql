@@ -404,6 +404,10 @@ type ProjectCreatorsMustHaveEmail implements Error {
   message: String!
 }
 
+type ProjectHasNoManagers implements Error {
+  message: String!
+}
+
 type ProjectMemberInvitedByEmail implements Error {
   message: String!
 }
@@ -579,7 +583,7 @@ union AddProjectToOrgError = DbError | NotFoundError
 
 union AddProjectsToOrgError = DbError | NotFoundError
 
-union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
+union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectHasNoManagers
 
 union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
 
