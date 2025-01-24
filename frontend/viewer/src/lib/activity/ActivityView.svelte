@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import {useHistoryService} from '$lib/services/history-service';
   import {mdiClose} from '@mdi/js';
@@ -69,7 +69,7 @@
 <Dialog bind:open {loading} persistent={loading}>
   <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
   <div slot="title">Activity</div>
-  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-columns: 250px 1fr; grid-template-rows: auto minmax(0,100%)">
+  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%)">
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if !activity || activity.length === 0}
@@ -113,7 +113,7 @@
           <span>– ({selectedRow.changes.length} changes)</span>
         {/if}
       </div>
-      <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded change-list">
+      <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full change-list">
         <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
           {#each visibleItems as change}
             <div class="whitespace-pre-wrap font-mono text-sm [&:not(> :last-child)]:border-b [&:not(> :last-child)]:pb-4">

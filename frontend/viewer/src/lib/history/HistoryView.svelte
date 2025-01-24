@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import ShowEmptyFieldsSwitch from '$lib/layout/ShowEmptyFieldsSwitch.svelte';
   import {mdiClose} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem} from 'svelte-ux';
@@ -42,7 +42,7 @@
 <Dialog bind:open {loading} persistent={loading}>
   <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
   <div slot="title">History</div>
-  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-columns: 250px 1fr; grid-template-rows: auto minmax(0,100%)">
+  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%)">
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if !history || history.length === 0}
@@ -85,7 +85,7 @@
           <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
         </div>
       </div>
-      <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded" class:hide-empty={!showEmptyFields}>
+      <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full" class:hide-empty={!showEmptyFields}>
         {#if record.entityName === 'Entry'}
           <EntryEditor entry={record.entity} modalMode readonly/>
         {:else if record.entityName === 'Sense'}
