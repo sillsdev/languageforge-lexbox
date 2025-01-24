@@ -20,6 +20,7 @@ export type HistoryItem = {
   timestamp: string,
   previousTimestamp?: string,
   snapshotId: string,
+  changeIndex: number,
   changeName: string | undefined,
   authorName: string | undefined,
 } & EntityType;
@@ -38,7 +39,7 @@ export class HistoryService {
   }
 
   async load(objectId: string) {
-    const data = await  (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectName}/${objectId}`)
+    const data = await (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectName}/${objectId}`)
       .then(res => res.json())) as HistoryItem[];
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);

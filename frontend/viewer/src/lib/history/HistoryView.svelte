@@ -49,7 +49,7 @@
           <div class="p-4 text-center opacity-75">No history found</div>
         {:else}
           <InfiniteScroll perPage={10} items={history} let:visibleItems>
-            {#each visibleItems as row (row.timestamp)}
+            {#each visibleItems as row (`${row.commitId}_${row.changeIndex}`)}
               <ListItem
                 title={row.changeName ?? 'No change name'}
                 on:click={() => showEntry(row)}
