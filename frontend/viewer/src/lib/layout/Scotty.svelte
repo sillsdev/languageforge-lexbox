@@ -1,36 +1,41 @@
 <script lang="ts" context="module">
+  import {getContext, setContext} from 'svelte';
+  import {type Writable, writable, type Readable} from 'svelte/store';
+
+  const name = 'scotty-portal-context' as const;
   const portals = ['right-toolbar', 'app-bar-menu'] as const;
   type ScottyPortalTarget = typeof portals[number];
+  type ScottyPortalContext = Record<ScottyPortalTarget, Readable<HTMLElement>>;
 
   export function initScottyPortalContext(): void {
-    portals.forEach((name) => {
-      setContext(name, writable<HTMLElement>());
-    });
+    const portalStoreMap: ScottyPortalContext = {
+      'right-toolbar': writable<HTMLElement>(),
+      'app-bar-menu': writable<HTMLElement>(),
+    };
+    setContext(name, portalStoreMap);
   }
 
   export function asScottyPortal(elem: HTMLElement, name: ScottyPortalTarget): void {
-    const scottyPortal = useScottyPortal(name) as Writable<HTMLElement>;
-    scottyPortal.set(elem);
+    const portalStoreMap = useScottyPortals();
+    const portalStore = portalStoreMap[name] as Writable<HTMLElement>;
+    portalStore.set(elem);
   }
 
-  export function useScottyPortal(name: ScottyPortalTarget): Readable<HTMLElement> {
-    const portalStore = getContext<Readable<HTMLElement>>(name);
+  export function useScottyPortals(): ScottyPortalContext {
+    const portalStoreMap = getContext<ScottyPortalContext>(name);
     // eslint-disable-next-line svelte/require-store-reactive-access
-    if (!portalStore) throw new Error(`Portal context not found: ${name as unknown as string}`);
-    return portalStore;
+    if (!portalStoreMap) throw new Error(`Portal context not found: ${name as unknown as string}`);
+    return portalStoreMap;
   }
 </script>
 
 <script lang="ts">
   import {useProjectViewState} from '$lib/services/project-view-state-service';
-
-  import {getContext, setContext} from 'svelte';
   import {portal} from 'svelte-ux';
-  import {type Writable, writable, type Readable} from 'svelte/store';
 
   export let beamMeTo: ScottyPortalTarget;
-
-  $: portalTarget = useScottyPortal(beamMeTo);
+  const scottyPortals = useScottyPortals();
+  $: portalTarget = scottyPortals[beamMeTo];
 
   const projectViewState = useProjectViewState();
 </script>
