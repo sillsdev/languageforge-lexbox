@@ -1,6 +1,8 @@
 ﻿import {describe, expect, it} from 'vitest';
-import {jwtToUser} from '$lib/user';
+
 import type {AuthUserOrg} from '$lib/gql/generated/graphql';
+import {jwtToUser} from '$lib/user';
+
 describe('jwtToUser', () => {
   it('should convert a jwt token to a LexAuthUser', () => {
     const jwtUser = {
@@ -27,7 +29,7 @@ describe('jwtToUser', () => {
       'exp': 1722673515,
       'iat': 1721377515,
       'iss': 'LexboxApi',
-      'aud': 'LexboxApi'
+      'aud': 'LexboxApi' as const,
     };
     const user = jwtToUser(jwtUser);
     expect(user).toEqual({
@@ -66,7 +68,8 @@ describe('jwtToUser', () => {
       'canCreateProjects': true,
       'createdByAdmin': false,
       'locale': 'en',
-      'emailOrUsername': 'editor@test.com'
+      'emailOrUsername': 'editor@test.com',
+      'audience': 'LexboxApi',
     });
   });
 });

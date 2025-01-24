@@ -35,7 +35,7 @@
 
 <svelte:window on:keydown={closeOnEscape} />
 
-{#if user && user.audience == 'LexboxApi'}
+{#if user?.audience === 'LexboxApi'}
   <div class="drawer drawer-end grow">
     <input id="drawer-toggle" type="checkbox" bind:checked={menuToggle} class="drawer-toggle" />
 
@@ -94,7 +94,9 @@
     </div>
   </div>
 {:else}
-  <AppBar user={undefined} />
+  <!-- If the user is authenticated (i.e. not null), but not authorized to use the API, we
+  still want to pass them in here, so we show their name rather than Login and Register buttons. -->
+  <AppBar {user} />
 
   <Content>
     <slot />
