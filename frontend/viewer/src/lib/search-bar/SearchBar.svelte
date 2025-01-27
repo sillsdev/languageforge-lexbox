@@ -95,8 +95,8 @@
       <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
     </div>
     <div class="flex gap-2 lg-view:hidden overflow-hidden">
-      <span class="whitespace-nowrap overflow-hidden text-ellipsis grow-0 shrink max-w-[200px]">{projectName}</span>
       <Icon class="shrink-0" data={mdiBookSearchOutline} />
+      <span class="whitespace-nowrap overflow-hidden text-ellipsis grow-0 shrink max-w-[200px]">{projectName}</span>
     </div>
   </Field>
 </button>
