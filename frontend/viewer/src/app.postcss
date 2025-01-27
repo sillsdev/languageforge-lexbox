@@ -9,18 +9,22 @@
 }
 
 :host, :root, html, body, .app, .project-view {
-  @apply block min-h-full h-full;
+  @apply block min-h-full;
+  height: max(auto, 100%);
   scroll-behavior: smooth;
   @apply bg-surface-100;
   color: var(--base-text);
+  interpolate-size: allow-keywords;
 }
 
+/* The search bar dialog is somewhat unique. It should be considered when making global changes here. */
 .dialog {
     /*using 100vh or dvh still caused the action items to get clipped*/
   height: 100%;
-  width: 700px;
-  @apply md:max-h-[50rem];
+  width: 767px; /* matches md/max-md */
+  @apply md:max-h-[calc(100vh-16px)];
   @apply flex flex-col;
+  @apply max-md:rounded-none;
 
   .actions {
     @apply bg-surface-200;
@@ -34,15 +38,18 @@
   cursor: pointer;
 }
 
-[id^=entry], [id^=sense] {
+[id^=entry] {
   scroll-margin-top: 1rem;
+}
+
+[id^=entry], [id^=sense], .grid-layer:has(> [id^=sense]) {
   scroll-margin-bottom: 4rem;
 }
 
-[id^=example] {
+[id^=example], .grid-layer:has(> [id^=example]) {
   /* under the sticky sense header */
-  scroll-margin-top: 4rem;
-  scroll-margin-bottom: 4rem;
+  scroll-margin-top: 3.5rem;
+  scroll-margin-bottom: 3.5rem;
 }
 
 @layer components {
@@ -93,10 +100,12 @@
     font-size: 0.8em;
     @apply border border-surface-content rounded-md shadow-md;
   }
-}
 
-.Popover .menu-items {
-  max-height: 40vh;
+  .icon-button-group-container {
+    .Button {
+      @apply p-1.5 text-sm min-w-9 min-h-9;
+    }
+  }
 }
 
 .grid-layer {

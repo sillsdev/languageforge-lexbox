@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -38,6 +38,7 @@ public record HistoryLineItem(
     Guid EntityId,
     DateTimeOffset Timestamp,
     Guid? SnapshotId,
+    int changeIndex,
     string? ChangeName,
     IObjectWithId? Entity,
     string? EntityName,
@@ -48,6 +49,7 @@ public record HistoryLineItem(
         Guid entityId,
         DateTimeOffset timestamp,
         Guid? snapshotId,
+        int changeIndex,
         IChange? change,
         IObjectBase? entity,
         string typeName,
@@ -56,6 +58,7 @@ public record HistoryLineItem(
         new DateTimeOffset(timestamp.Ticks,
             TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
         snapshotId,
+        changeIndex,
         change?.GetType().Name,
         (IObjectWithId?) entity?.DbObject,
         typeName,
@@ -95,7 +98,8 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
     public IAsyncEnumerable<HistoryLineItem> GetHistory(Guid entityId)
     {
         var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
-        var query = from commit in dbContext.Commits.DefaultOrder()
+        var query =
+            from commit in dbContext.Commits.DefaultOrder()
             from snapshot in dbContext.Snapshots.LeftJoin(
                 s => s.CommitId == commit.Id && s.EntityId == entityId)
             from change in changeEntities.LeftJoin(c =>
@@ -105,6 +109,7 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
                 entityId,
                 commit.HybridDateTime.DateTime,
                 snapshot.Id,
+                change.Index,
                 change.Change,
                 snapshot.Entity,
                 snapshot.TypeName,

@@ -1,23 +1,24 @@
 ﻿<script lang="ts">
-  import {mdiCloseCircle, mdiHistory} from '@mdi/js';
-  import {
-    cls,
-    DurationUnits,
-    Toggle,
-    Button,
-    Dialog,
-    InfiniteScroll,
-    ListItem,
-    Duration,
-    TextField
-  } from 'svelte-ux';
-  import {useHistoryService} from '$lib/services/history-service';
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
+  import {useHistoryService} from '$lib/services/history-service';
+  import {mdiClose} from '@mdi/js';
+  import {
+    Button,
+    cls,
+    Dialog,
+    Duration,
+    DurationUnits,
+    InfiniteScroll,
+    ListItem
+  } from 'svelte-ux';
 
   const historyService = useHistoryService();
 
   let loading = false;
+
+  export let open: boolean;
   export let projectName: string;
+
   type Activity = {
     commitId: string,
     changeName: string,
@@ -29,7 +30,13 @@
   let activity: Array<Activity>;
   let selectedRow: Activity | undefined;
 
+  // loaded makes hot-reload work
+  let loaded = false;
+  $: loaded = !open;
+  if (!loaded) void load();
+
   async function load() {
+    loaded = true;
     activity = [];
     loading = true;
     const data = await historyService.activity(projectName) as Activity[];
@@ -49,60 +56,79 @@
     activity = data.toReversed();
     selectedRow = activity[0];
   }
+
+  function formatJsonForUi(json: object) {
+    return JSON.stringify(json, null, 2)
+      .split('\n') // Split into lines
+      .slice(1, -1) // Remove the first and last line
+      .map(line => line.slice(2)) // Remove one level of indentation
+      .join('\n'); // Join the lines back together;
+  }
 </script>
 
-<Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={load}>
-  <Button on:click={toggleOn} icon={mdiHistory} variant="fill-outline" color="info" size="sm">
-    <div class="hidden lg-view:contents">
-      Activity
-    </div>
-  </Button>
-  <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
-    <Button on:click={toggleOff} icon={mdiCloseCircle} class="absolute right-2 top-2 z-40" rounded="full"></Button>
-    <div slot="title">Activity</div>
-    <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr">
-      <div class="flex flex-col gap-4 overflow-y-auto">
-        <div class="border rounded-md">
-          {#if !activity || activity.length === 0}
-            <div class="p-4 text-center opacity-75">No activity found</div>
-          {:else}
-            <InfiniteScroll perPage={10} items={activity} let:visibleItems>
-              {#each visibleItems as row (row.timestamp)}
-                <ListItem
-                  title={row.changeName}
-                  noShadow
-                  on:click={() => selectedRow = row}
-                  class={cls(selectedRow?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : '')}>
-                  <div slot="subheading" class="text-sm text-surface-content/50">
-                    {#if row.previousTimestamp}
-                      <Duration totalUnits={2} start={new Date(row.timestamp)}
-                                end={new Date(row.previousTimestamp)}
-                                minUnits={DurationUnits.Second}/>
-                      before
-                    {:else}
-                      <Duration totalUnits={2} start={new Date(row.timestamp)} minUnits={DurationUnits.Second}/>
-                      ago
-                    {/if}
-                  </div>
-                </ListItem>
-              {/each}
-            </InfiniteScroll>
-          {/if}
-        </div>
+<Dialog bind:open {loading} persistent={loading}>
+  <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
+  <div slot="title">Activity</div>
+  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%)">
+    <div class="flex flex-col gap-4 overflow-hidden row-start-2">
+      <div class="border rounded-md overflow-y-auto">
+        {#if !activity || activity.length === 0}
+          <div class="p-4 text-center opacity-75">No activity found</div>
+        {:else}
+          <InfiniteScroll perPage={10} items={activity} let:visibleItems>
+            {#each visibleItems as row (row.timestamp)}
+              <ListItem
+                title={row.changeName}
+                noShadow
+                on:click={() => selectedRow = row}
+                class={cls(selectedRow?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : '')}>
+                <div slot="subheading" class="text-sm text-surface-content/50">
+                  {#if row.previousTimestamp}
+                    <Duration totalUnits={2} start={new Date(row.timestamp)}
+                              end={new Date(row.previousTimestamp)}
+                              minUnits={DurationUnits.Second}/>
+                    before
+                  {:else}
+                    <Duration totalUnits={2} start={new Date(row.timestamp)} minUnits={DurationUnits.Second}/>
+                    ago
+                  {/if}
+                </div>
+              </ListItem>
+            {/each}
+          </InfiniteScroll>
+        {/if}
       </div>
-
-      {#if selectedRow}
-        <div>
-          <span>Author: {selectedRow.metadata.authorName ?? 'Unknown'}</span>
-          <TextField label="Changes"
-                     value={JSON.stringify(selectedRow.changes, null, 4)}
-                     disabled
-                     multiline
-                     class="readonly field"
-                     classes={{input: 'h-80'}}/>
-        </div>
-      {/if}
     </div>
-    <div class="flex-grow"></div>
-  </Dialog>
-</Toggle>
+
+    {#if selectedRow}
+      <div class="col-start-2 row-start-1 text-sm">
+        <span>Author:
+          {#if selectedRow.metadata.authorName}
+            <span class="font-semibold">{selectedRow.metadata.authorName}</span>
+          {:else}
+            <span class="opacity-75 italic">Unknown</span>
+          {/if}
+        </span>
+        {#if selectedRow.changes.length > 1}
+          <span>– ({selectedRow.changes.length} changes)</span>
+        {/if}
+      </div>
+      <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full change-list">
+        <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
+          {#each visibleItems as change}
+            <div class="whitespace-pre-wrap font-mono text-sm [&:not(> :last-child)]:border-b [&:not(> :last-child)]:pb-4">
+              {formatJsonForUi(change)}
+            </div>
+          {/each}
+        </InfiniteScroll>
+      </div>
+    {/if}
+  </div>
+  <div class="flex-grow"></div>
+</Dialog>
+
+<style lang="postcss" global>
+  .change-list .sentinel {
+    @apply -mt-4; /* make gap-4 not apply to the infinite-scroll end detector */
+  }
+</style>

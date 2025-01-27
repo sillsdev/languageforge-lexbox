@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
+  import {mdiArrowLeft, mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
   import {Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
   import {useLexboxApi} from '../services/service-provider';
   import {derived, type Writable} from 'svelte/store';
@@ -19,12 +19,13 @@
   }>();
 
   export let createNew: boolean;
+  export let projectName: string;
 
   let waitingForSecondShift = false;
   let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
   const abortController = new AbortController();
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Shift') {
+  document.addEventListener('keyup', (e) => {
+    if (e.key !== 'Shift' || $showSearchDialog) {
       //cancel, user pressed shift and typed another letter
       waitingForSecondShift = false;
       clearTimeout(waitingForSecondShiftTimeout);
@@ -86,21 +87,26 @@
 
 <button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => ($showSearchDialog = true)}>
   <Field
-    classes={{ input: 'my-1 justify-center opacity-60' }}
+    classes={{ input: 'my-1 justify-center opacity-60 sm-view:overflow-hidden' }}
     class="cursor-pointer">
     <div class="hidden lg-view:contents whitespace-nowrap">
       Find {fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...
       <span class="ml-2"><Icon data={mdiMagnify} /></span>
       <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
     </div>
-    <div class="contents lg-view:hidden">
-      <Icon data={mdiBookSearchOutline} />
+    <div class="flex gap-2 lg-view:hidden overflow-hidden">
+      <Icon class="shrink-0" data={mdiBookSearchOutline} />
+      <span class="whitespace-nowrap overflow-hidden text-ellipsis grow-0 shrink max-w-[200px]">{projectName}</span>
     </div>
   </Field>
 </button>
 
-<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
-  <div slot="title">
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''}
+  classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0', dialog: 'md:h-auto md:max-h-[min(50rem, 100%)]'}}>
+  <div slot="title" class="flex items-center h-12">
+    <div class="hidden max-md:contents">
+      <Button on:click={() => $showSearchDialog = false} icon={mdiArrowLeft} rounded="full"></Button>
+    </div>
     <TextField
       bind:inputEl={searchElement}
       autofocus
@@ -123,7 +129,7 @@
       </div>
     </TextField>
   </div>
-  <div>
+  <div class="overflow-auto">
     <div class="p-0.5">
       {#each $displayedEntries as entry}
         <ListItem

@@ -27,7 +27,7 @@
     components: {
       AppBar: {
         classes: {
-          root: 'max-sm:px-2',
+          root: 'max-md:px-1',
         },
       },
       MenuItem: {
@@ -50,6 +50,16 @@
         classes: {
           content: 'CollapseContent',
           icon: 'CollapseIcon',
+        }
+      },
+      Drawer: {
+        classes:
+          '[&.ResponsiveMenu]:rounded-t-xl [&.ResponsiveMenu]:py-2 [&.ResponsiveMenu]:pb-[env(safe-area-inset-bottom)]',
+      },
+      Menu: {
+        classes: {
+          root: 'flex flex-col',
+          menu: 'overflow-hidden',
         }
       }
     },

@@ -59,8 +59,8 @@
   const currentView = useCurrentView();
 </script>
 
-<div class="entry-list flex flex-col gap-4 w-full justify-self-center">
-  <div class="flex gap-3 w-full self-center">
+<div class="entry-list lg-view:flex flex-col gap-4 w-full justify-self-center">
+  <div class="flex gap-3 w-full self-center sm-view:p-2">
     <IndexCharacters />
     <div class="grow">
       <TextField
@@ -89,8 +89,8 @@
       </Button>
     </div>
   </div>
-  <div class="border rounded-md overflow-hidden flex">
-    <div class="overflow-auto w-full" bind:this={scrollContainerElem}>
+  <div class="lg-view:border lg-view:rounded-md overflow-hidden flex">
+    <div class="lg-view:overflow-auto w-full" bind:this={scrollContainerElem}>
       {#if !entries || entries.length == 0}
         <div class="p-4 text-center opacity-75">
           No entries found
@@ -137,7 +137,7 @@
     cursor: pointer;
 
     &.selected-entry > :global(*) {
-      @apply bg-surface-200;
+      @apply lg-view:bg-surface-200;
     }
 
     &:hover > :global(*) {

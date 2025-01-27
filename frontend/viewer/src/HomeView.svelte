@@ -162,7 +162,7 @@
     </Button>
   </div>
 </AppBar>
-<div class="mx-auto md:w-3/4 lg:w-2/4 md:py-4">
+<div class="mx-auto md:w-full md:py-4 max-w-2xl">
   <div class="flex-grow hidden md:block"></div>
   <div class="project-list">
     {#await projectsPromise}
@@ -221,7 +221,7 @@
             </div>
             <div>
               {#if !serverProjects.length}
-                <p class="text-surface-content/50 text-center border border-surface-300 elevation-1 rounded p-4 max-sm:mx-2">
+                <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
                   {#if status.loggedIn}
                     No projects
                   {:else}
@@ -230,7 +230,7 @@
                 </p>
               {/if}
               {#if loadingServerProjects === server.id}
-                <p class="text-surface-content/50 text-center border border-surface-300 elevation-1 rounded p-4 max-sm:mx-2">
+                <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
                   <Icon data={mdiRefresh} class="animate-spin"/>
                   Loading...
                 </p>
@@ -311,7 +311,7 @@
     flex-direction: column;
 
     :global(:is(.ListItem)) {
-      @apply max-sm:!rounded-none;
+      @apply max-md:!rounded-none;
       @apply contrast-[0.95];
     }
   }
