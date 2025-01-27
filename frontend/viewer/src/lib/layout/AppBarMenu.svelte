@@ -27,7 +27,7 @@
 <Toggle let:on={open} let:toggle let:toggleOff>
   <Button on:click={toggle} icon={mdiDotsVertical} iconOnly>
     <!-- the menu transition doesn't play well with our portal, so it's just turned off -->
-    <Menu {open} on:close={toggleOff} class="app-bar-menu whitespace-nowrap" transitionParams={{ duration: 0 }}>
+    <Menu {open} on:close={toggleOff} class="app-bar-menu whitespace-nowrap -translate-x-1" transitionParams={{ duration: 0 }}>
       <div class="contents" use:asScottyPortal={'app-bar-menu'}></div>
       <div class="contents" class:sm-view:hidden={$projectViewState.userPickedEntry}>
         {#if $features.history}
