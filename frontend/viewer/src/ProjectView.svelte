@@ -394,7 +394,7 @@
         {/if}
         <div class="w-[15vw] collapsible-col sm-form:w-min" class:self-center={$state.rightToolbarCollapsed} class:lg-view:collapse-col={expandList} class:!w-min={$state.rightToolbarCollapsed}>
           {#if $selectedEntry}
-            <div class="contents" class:lg-view:hidden={expandList}>
+            <div class="sm-form:flex flex-col" class:lg-view:hidden={expandList} class:lg-view:flex={$state.rightToolbarCollapsed}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 <div class="grid gap-4 auto-rows-fr sm-form:gap-2 sm-form:icon-button-group-container" class:!gap-2={$state.rightToolbarCollapsed} class:icon-button-group-container={$state.rightToolbarCollapsed}>
                   <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
@@ -408,11 +408,14 @@
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
-              <span class="sm-view:hidden text-surface-content whitespace-nowrap bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
-                {$currentView.label}
+              <span class="text-surface-content whitespace-nowrap bg-surface-100/75 !pt-2 text-sm lg-form:absolute -bottom-4 -right-4 inline-flex gap-2 text-end items-center"
+                class:lg-form:!static={$state.rightToolbarCollapsed} class:lg-form:p-2={!$state.rightToolbarCollapsed}>
+                <span class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
+                  {$currentView.label}
+                </span>
                 <Button
                   on:click={() => (showOptionsDialog = true)}
-                  size="sm"
+                  size="md"
                   variant="default"
                   iconOnly
                   icon={mdiEyeSettingsOutline} />

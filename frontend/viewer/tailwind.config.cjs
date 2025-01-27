@@ -66,6 +66,7 @@ module.exports = {
         // Breakpoints for the entry form aka editor
         'xs-form': {'max': '800px'},
         'sm-form': {'max': '1279px'},
+        'lg-form': {'min': '1280px'},
 
         // Breakpoints for the project view layout
         'sm-view': { 'max': '800px' },
