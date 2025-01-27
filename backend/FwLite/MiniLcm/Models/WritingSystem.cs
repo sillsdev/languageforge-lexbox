@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public record WritingSystem: IObjectWithId
+public record WritingSystem: IObjectWithId<WritingSystem>
 {
     public required Guid Id { get; set; }
     public virtual required WritingSystemId WsId { get; set; }
@@ -28,7 +28,7 @@ public record WritingSystem: IObjectWithId
     {
     }
 
-    public IObjectWithId Copy()
+    public WritingSystem Copy()
     {
         return new WritingSystem
         {

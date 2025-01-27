@@ -31,7 +31,8 @@
 </script>
 <form class="flex flex-col gap-2 p-2">
     <CrdtTextField label="Language Code" readonly={!newWs} on:change={() => onChange()} bind:value={writingSystem.wsId}/>
-    <CrdtTextField label="Name" on:change={() => onChange()} bind:value={writingSystem.name}/>
+<!--    todo changing the name for FieldWorks writing systems is not yet supported-->
+    <CrdtTextField label="Name" readonly={!newWs} on:change={() => onChange()} bind:value={writingSystem.name}/>
     <CrdtTextField label="Abbreviation" on:change={() => onChange()} bind:value={writingSystem.abbreviation}/>
     <CrdtTextField label="Font" on:change={() => onChange()} bind:value={writingSystem.font}/>
     {#if newWs}
