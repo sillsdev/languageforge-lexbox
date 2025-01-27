@@ -43,6 +43,7 @@
     value={editorValue}
     disabled={readonly}
     options={sortedOptions}
+    menuProps={{resize: true}}
     icon={mdiMagnify}
     formatSelected={({ value, options }) => {
       return (preserveOrder

@@ -56,6 +56,12 @@
         classes:
           '[&.ResponsiveMenu]:rounded-t-xl [&.ResponsiveMenu]:py-2 [&.ResponsiveMenu]:pb-[env(safe-area-inset-bottom)]',
       },
+      Menu: {
+        classes: {
+          root: 'flex flex-col',
+          menu: 'overflow-hidden',
+        }
+      }
     },
   });
   /* eslint-enable @typescript-eslint/naming-convention */
