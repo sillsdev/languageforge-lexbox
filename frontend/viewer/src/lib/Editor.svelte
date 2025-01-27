@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+  import type {IComplexFormComponent, IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
@@ -12,6 +12,7 @@
   const dispatch = createEventDispatcher<{
     delete: { entry: IEntry };
     change: { entry: IEntry };
+    refreshEntries: { entryIds: IEntry['id'][] };
   }>();
 
   export let entry: IEntry;
@@ -25,10 +26,38 @@
 
   const viewSettings = useViewSettings();
 
+  function listHasChanged(entryList: IComplexFormComponent[], initialList: IComplexFormComponent[]): boolean {
+    if (entryList && !initialList) return true;
+    if (!entryList && initialList) return true;
+    if (!entryList && !initialList) return false;
+    // By this point we know that both lists exist
+    if (entryList.length != initialList.length) return true;
+    for (var i = 0; i < entryList.length; i++) {
+      if (entryList[i] != initialList[i]) return true;
+    }
+    return false;
+  }
+
   async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     if (readonly) return;
     await updateEntry(e.entry);
     dispatch('change', {entry: e.entry});
+    if (listHasChanged(e.entry.complexForms, initialEntry.complexForms)) {
+      const entryIdsWithDupes = [
+        ...e.entry.complexForms.map(c => c.complexFormEntryId),
+        ...initialEntry.complexForms.map(c => c.complexFormEntryId),
+      ];
+      const entryIds = [...new Set(entryIdsWithDupes)];
+      dispatch('refreshEntries', { entryIds });
+    }
+    if (listHasChanged(e.entry.components, initialEntry.components)) {
+      const entryIdsWithDupes = [
+        ...e.entry.components.map(c => c.componentEntryId),
+        ...initialEntry.components.map(c => c.componentEntryId),
+      ];
+      const entryIds = [...new Set(entryIdsWithDupes)];
+      dispatch('refreshEntries', { entryIds });
+    }
     updateInitialEntry();
   }
 
