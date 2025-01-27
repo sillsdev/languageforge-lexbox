@@ -108,7 +108,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             server.Authority,
             async (provider, project) =>
             {
-                await provider.GetRequiredService<SyncService>().ExecuteSync();
+                await provider.GetRequiredService<SyncService>().ExecuteSync(true);
             },
             SeedNewProjectData: false,
             AuthenticatedUser: currentUser?.Name,
