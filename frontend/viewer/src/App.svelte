@@ -51,7 +51,11 @@
           content: 'CollapseContent',
           icon: 'CollapseIcon',
         }
-      }
+      },
+      Drawer: {
+        classes:
+          '[&.ResponsiveMenu]:rounded-t-xl [&.ResponsiveMenu]:py-2 [&.ResponsiveMenu]:pb-[env(safe-area-inset-bottom)]',
+      },
     },
   });
   /* eslint-enable @typescript-eslint/naming-convention */
