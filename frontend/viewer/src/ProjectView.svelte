@@ -307,7 +307,7 @@
   <NewEntryDialog bind:this={newEntryDialog} />
 {/if}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
-  <AppBar class="bg-secondary min-h-12 shadow-md sm-view:sticky sm-view:top-0 max-md:pl-0 overflow-hidden" head={false}>
+  <AppBar class="bg-secondary min-h-12 shadow-md sm-view:sticky sm-view:top-0 overflow-hidden" head={false}>
     <div slot="title" class="prose whitespace-nowrap max-w-[20%] sm-view:hidden">
       <h3 class="text-ellipsis overflow-hidden">{projectName}</h3>
     </div>

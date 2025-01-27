@@ -27,7 +27,7 @@
     components: {
       AppBar: {
         classes: {
-          root: 'max-md:px-2',
+          root: 'max-md:px-1',
         },
       },
       MenuItem: {
