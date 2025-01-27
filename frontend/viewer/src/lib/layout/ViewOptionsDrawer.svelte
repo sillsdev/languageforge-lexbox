@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Button, Drawer, SelectField, Switch} from 'svelte-ux';
+  import {Button, Drawer, SelectField, Switch, ThemeSwitch} from 'svelte-ux';
   import DevContent from './DevContent.svelte';
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
@@ -33,6 +33,13 @@
 
     <div class="h-10">
       <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
+    </div>
+
+    <div class="h-10">
+      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <label class="flex gap-2 items-center text-sm">
+        <ThemeSwitch /> Dark mode
+      </label>
     </div>
 
     <div class="grow"></div>
