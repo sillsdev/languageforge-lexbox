@@ -1,4 +1,6 @@
-﻿namespace MiniLcm.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace MiniLcm.Models;
 
 public record WritingSystem: IObjectWithId
 {
@@ -49,6 +51,7 @@ public record WritingSystems
     public WritingSystem[] Vernacular { get; set; } = [];
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum WritingSystemType
 {
     Vernacular = 0,

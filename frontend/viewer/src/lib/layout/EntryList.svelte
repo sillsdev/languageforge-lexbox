@@ -9,6 +9,8 @@
   import {useCurrentView} from '$lib/services/view-service';
   import {fieldName} from '$lib/i18n';
   import {useWritingSystemService} from '$lib/writing-system-service';
+  import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
@@ -81,6 +83,10 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
+<!--    todo move this-->
+    <DevContent>
+      <WritingSystemDialog/>
+    </DevContent>
     <div class="hidden lg-view:contents">
       <Button icon={expand ? mdiArrowCollapseLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"

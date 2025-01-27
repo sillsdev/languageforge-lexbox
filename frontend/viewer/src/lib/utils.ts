@@ -1,4 +1,4 @@
-import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -46,5 +46,19 @@ export function defaultExampleSentence(senseId: string): IExampleSentence {
     sentence: {},
     translation: {},
     reference: '',
+  };
+}
+
+export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
+  return {
+    id: randomId(),
+    wsId: 'en',
+    name: 'English',
+    abbreviation: 'en',
+    font: 'Arial',
+    exemplars: [],
+    order: 0,
+    deletedAt: undefined,
+    type
   };
 }
