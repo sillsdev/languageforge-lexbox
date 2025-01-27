@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using MiniLcm.Models;
 
 namespace MiniLcm.Validators;
@@ -30,5 +31,10 @@ public class SenseValidator : AbstractValidator<Sense>
             return sense.Id.ToString("D");
         }
         return $"{sense.Gloss} - {sense.Id}";
+    }
+
+    protected override void RaiseValidationException(ValidationContext<Sense> context, ValidationResult result)
+    {
+        throw new ValidationException(GetSenseIdentifier(context.InstanceToValidate), result.Errors, true);
     }
 }
