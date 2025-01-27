@@ -24,8 +24,8 @@
   let waitingForSecondShift = false;
   let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
   const abortController = new AbortController();
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Shift') {
+  document.addEventListener('keyup', (e) => {
+    if (e.key !== 'Shift' || $showSearchDialog) {
       //cancel, user pressed shift and typed another letter
       waitingForSecondShift = false;
       clearTimeout(waitingForSecondShiftTimeout);
