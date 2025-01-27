@@ -34,9 +34,9 @@
   });
 </script>
 
-<Button on:click icon={mdiPlus} variant={atBottom ? 'fill-light' : 'fill'} color="success" size="md" iconOnly rounded="full"
-  class="gap-0 transition-all drop-shadow-md leading-none {shrinkFab ? '' : 'px-4'}">
-  <div class="overflow-hidden ease-linear max-w-max transition-all" class:!max-w-0={shrinkFab}>
+<Button on:click icon={mdiPlus} variant="fill" color="success" size="md" iconOnly rounded="full"
+  class="gap-0 transition-all drop-shadow-md leading-none ease-in-out duration-300 {shrinkFab ? '' : 'px-4'}">
+  <div class="overflow-hidden max-w-max transition-all ease-in-out duration-300" class:!max-w-0={shrinkFab}>
     {fieldName({id: 'sense'}, $currentView.i18nKey)}
   </div>
 </Button>
