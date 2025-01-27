@@ -295,6 +295,7 @@
               History
             </MenuItem>
           {/if}
+          <hr class="border-surface-300" />
         </div>
       {/if}
     </Scotty>
