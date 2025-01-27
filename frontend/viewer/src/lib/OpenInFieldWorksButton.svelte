@@ -24,6 +24,7 @@
   }
 </script>
 {#if show}
+<!--button must be a link otherwise it won't follow the redirect to a protocol handler-->
   <Button
     href={`/api/fw/${projectName}/open/entry/${entryId}`}
     on:click={openInFlex}

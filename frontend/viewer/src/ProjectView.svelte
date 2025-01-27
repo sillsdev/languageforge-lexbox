@@ -400,7 +400,6 @@
                   <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
                   {#if $selectedEntry}
                     <div class="contents">
-  <!--                    button must be a link otherwise it won't follow the redirect to a protocol handler-->
                       <OpenInFieldWorksButton entryId={$selectedEntry.id} {projectName} show={$features.openWithFlex}/>
                     </div>
                   {/if}
