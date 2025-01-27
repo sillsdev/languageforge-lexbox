@@ -48,10 +48,10 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 
     private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(FwLiteEdition edition, CancellationToken token)
     {
-        var platformConfig = config.Value.Editions.GetValueOrDefault(edition);
-        if (platformConfig is null)
+        var editionConfig = config.Value.Editions.GetValueOrDefault(edition);
+        if (editionConfig is null)
         {
-            throw new ArgumentException($"No config for platform {edition}");
+            throw new ArgumentException($"No config for edition {edition}");
         }
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag(FwLiteEditionTag, edition.ToString());
@@ -87,7 +87,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
                     continue;
                 }
 
-                var releaseAsset = release.Assets.FirstOrDefault(a => platformConfig.FileName.IsMatch(a.Name));
+                var releaseAsset = release.Assets.FirstOrDefault(a => editionConfig.FileName.IsMatch(a.Name));
                 if (releaseAsset is not null)
                 {
                     activity?.AddTag(FwLiteReleaseVersionTag, release.TagName);

@@ -21,8 +21,8 @@ public class FwLiteReleaseServiceTests
             .AddHttpClient()
             .AddOptions<FwLiteReleaseConfig>().Configure(config =>
             {
-                config.Editions.Add(FwLiteEdition.Windows, new FwLitePlatformEdition() { FileNameRegex = "(?i)\\.msixbundle$" });
-                config.Editions.Add(FwLiteEdition.Linux, new FwLitePlatformEdition() { FileNameRegex = "(?i)linux\\.zip$" });
+                config.Editions.Add(FwLiteEdition.Windows, new FwLiteEditionConfig() { FileNameRegex = "(?i)\\.msixbundle$" });
+                config.Editions.Add(FwLiteEdition.Linux, new FwLiteEditionConfig() { FileNameRegex = "(?i)linux\\.zip$" });
             })
             .Services
             .AddHybridCache()
