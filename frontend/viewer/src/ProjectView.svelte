@@ -396,7 +396,7 @@
           {#if $selectedEntry}
             <div class="contents" class:lg-view:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
-                <div class="grid gap-4 auto-rows-fr">
+                <div class="grid gap-4 auto-rows-fr sm-form:gap-2 sm-form:icon-button-group-container" class:!gap-2={$state.rightToolbarCollapsed} class:icon-button-group-container={$state.rightToolbarCollapsed}>
                   <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
                   {#if $selectedEntry}
                     <div class="contents">

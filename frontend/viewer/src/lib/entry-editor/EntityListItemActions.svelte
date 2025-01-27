@@ -36,7 +36,7 @@
 </script>
 
 {#if !readonly || $features.history}
-<ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded-sm entity-list-item-actions">
+<ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded icon-button-group-container" rounded={false}>
   {#if !only && !readonly}
     <Toggle let:on={open} let:toggle let:toggleOff>
       <Popover {open} let:close on:close={toggleOff} placement={last ? 'left-end' : 'left-start'} resize offset={4}>
@@ -88,10 +88,3 @@
   {/if}
 </ButtonGroup>
 {/if}
-
-<style lang="postcss" global>
-  .entity-list-item-actions .Button {
-    border-radius: 0;
-    padding: 6px;
-  }
-</style>
