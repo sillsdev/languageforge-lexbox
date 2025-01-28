@@ -1,10 +1,11 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {AppNotification} from './notifications';
   import {Notification, Icon, Button} from 'svelte-ux';
   import {
     mdiAlert,
     mdiAlertCircleOutline,
     mdiCheckCircleOutline,
+    mdiClose,
     mdiInformationOutline
   } from '@mdi/js';
 
@@ -35,5 +36,10 @@
       </Notification>
     </div>
   {/each}
+  {#if $notifications.length > 1}
+    <Button class="w-[min(400px,100%)] shadow-lg" variant="fill-outline" on:click={() => AppNotification.clear()} icon={mdiClose}>
+      Close all
+    </Button>
+  {/if}
 </div>
 {/if}
