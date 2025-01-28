@@ -49,7 +49,7 @@ export async function verifyTempUserEmail(page: Page, tempUser: TempUser): Promi
   return pagePromise;
 }
 
-export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: OrgRole): Promise<UUID> {
+export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: OrgRole): Promise<unknown> {
   return executeGql(api, `
     mutation {
         changeOrgMemberRole(input: { userId: "${userId}", orgId: "${orgId}", role: ${role} }) {
