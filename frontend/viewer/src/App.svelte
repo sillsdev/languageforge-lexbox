@@ -58,8 +58,9 @@
       },
       Menu: {
         classes: {
+          /* these classes prevent a MultiSelectField from having 2 scrollbars when used with `resize` */
           root: 'flex flex-col',
-          menu: 'overflow-hidden',
+          menu: '[&:has(.actions)]:overflow-hidden',
         }
       }
     },
