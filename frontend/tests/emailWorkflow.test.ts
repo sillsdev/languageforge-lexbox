@@ -168,12 +168,12 @@ test('ask to join project via new-project page', async ({ page, tempUserInTestOr
     let newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
     dashboardPage = await new UserDashboardPage(newPage).goto();
 
-    // Create project with similar name to Sena-3
+    // Create project with similar name to Elawa
     const newProjectPage = await dashboardPage.clickCreateProject();
-    await newProjectPage.fillForm({name: 'Sena', code: 'xyz', purpose: 'Testing', organization: 'Test Org'});
+    await newProjectPage.fillForm({name: 'Elaw', code: 'xyz', purpose: 'Testing', organization: 'Test Org'});
     await expect(newProjectPage.extraProjectsDiv).toBeVisible();
     await expect(newProjectPage.askToJoinBtn).toBeDisabled();
-    await newProjectPage.extraProjectsDiv.locator('#extra-projects-sena-3').check();
+    await newProjectPage.extraProjectsDiv.locator('#extra-projects-elawa-dev-flex').check();
     await expect(newProjectPage.askToJoinBtn).toBeEnabled();
     await newProjectPage.askToJoinBtn.click();
     await expect(newProjectPage.toast('has been sent to the project manager(s)')).toBeVisible();
@@ -185,14 +185,14 @@ test('ask to join project via new-project page', async ({ page, tempUserInTestOr
     const pagePromise = emailPage.page.context().waitForEvent('page');
     await emailPage.clickApproveRequest();
     newPage = await pagePromise;
-    const sena3ProjectPage = await new ProjectPage(newPage, 'Sena 3', 'sena-3').waitFor();
-    await sena3ProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
-    await sena3ProjectPage.goto();
+    const elawaProjectPage = await new ProjectPage(newPage, 'Elawa', 'elawa-dev-flex').waitFor();
+    await elawaProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
+    await elawaProjectPage.goto();
 
-    // Log in as temp user, should see Sena-3 project
+    // Log in as temp user, should see Elawa project
     await loginAs(page.request, email, password);
     dashboardPage = await new UserDashboardPage(page).goto();
-    await dashboardPage.openProject('Sena 3', 'sena-3');
+    await dashboardPage.openProject('Elawa', 'elawa-dev-flex');
 });
 
 test('ask to join project via project page', async ({ page, tempUserInTestOrg }) => {
@@ -211,11 +211,11 @@ test('ask to join project via project page', async ({ page, tempUserInTestOrg })
     let newPage = await pagePromise;
     dashboardPage = await new UserDashboardPage(newPage).goto();
 
-    // Get to Sena-3 project page via org page, then ask to join
+    // Get to Elawa project page via org page, then ask to join
     const testOrgPage = await new OrgPage(page, 'Test Org', testOrgId).goto();
     await testOrgPage.membersTab.click();
     await testOrgPage.projectsTab.click();
-    const projectPage = await testOrgPage.openProject('Sena 3', 'sena-3');
+    const projectPage = await testOrgPage.openProject('Elawa', 'elawa-dev-flex');
     await projectPage.askToJoinButton.click();
 
     // Log in as manager, approve join request.
@@ -225,12 +225,12 @@ test('ask to join project via project page', async ({ page, tempUserInTestOrg })
     pagePromise = emailPage.page.context().waitForEvent('page');
     await emailPage.clickApproveRequest();
     newPage = await pagePromise;
-    let sena3ProjectPage = await new ProjectPage(newPage, 'Sena 3', 'sena-3').waitFor();
-    await sena3ProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
-    await sena3ProjectPage.goto();
+    const elawaProjectPage = await new ProjectPage(newPage, 'Elawa', 'elawa-dev-flex').waitFor();
+    await elawaProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
+    await elawaProjectPage.goto();
 
-    // Log in as temp user, should see Sena-3 project
+    // Log in as temp user, should see Elawa project
     await loginAs(page.request, email, password);
     dashboardPage = await new UserDashboardPage(page).goto();
-    await dashboardPage.openProject('Sena 3', 'sena-3');
+    await dashboardPage.openProject('Elawa', 'elawa-dev-flex');
 });
