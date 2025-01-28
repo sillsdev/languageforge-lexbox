@@ -3,9 +3,9 @@
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {
-    mdiAlert,
     mdiDotsVertical,
     mdiEyeSettingsOutline,
+    mdiFaceAgent,
     mdiHistory,
     mdiInformationVariantCircle,
     mdiNoteEdit
@@ -61,7 +61,7 @@
           </MenuItem>
         </DevContent>
         {#if supportsTroubleshooting}
-          <MenuItem icon={mdiAlert} on:click={() => troubleshootDialogOpen = true}>Troubleshoot</MenuItem>
+          <MenuItem icon={mdiFaceAgent} on:click={() => troubleshootDialogOpen = true}>Troubleshoot</MenuItem>
         {/if}
       </button>
     </ResponsiveMenu>

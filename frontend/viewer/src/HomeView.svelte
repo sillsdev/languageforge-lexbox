@@ -1,6 +1,5 @@
 ﻿<script lang="ts">
   import {
-    mdiAlert,
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
@@ -9,6 +8,7 @@
     mdiChatQuestion,
     mdiChevronRight,
     mdiCloud,
+    mdiFaceAgent,
     mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
@@ -165,8 +165,9 @@
         Feedback
     </Button>
     {#if supportsTroubleshooting}
-      <Button size="sm" variant="outline" icon={mdiAlert} title="Troubleshoot"
-              on:click={() => showTroubleshooting = !showTroubleshooting}/>
+      <Button size="sm" variant="outline" icon={mdiFaceAgent} title="Troubleshoot" iconOnly={false}
+              on:click={() => showTroubleshooting = !showTroubleshooting}>
+      </Button>
       <TroubleshootDialog bind:open={showTroubleshooting}/>
     {/if}
   </div>
