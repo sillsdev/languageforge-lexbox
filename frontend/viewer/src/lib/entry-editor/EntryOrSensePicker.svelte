@@ -19,6 +19,7 @@
   import type { SaveHandler } from '../services/save-event-service';
   import {SortField} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service';
+  import NewEntryButton from './NewEntryButton.svelte';
 
   const dispatch = createEventDispatcher<{
     pick: EntrySenseSelection;
@@ -87,8 +88,8 @@
   }
 
 
-  async function onClickCreateNewEntry(search: string): Promise<void> {
-    const entry = await projectCommands.createNewEntry(search, { dontSelect: true });
+  async function onClickCreateNewEntry(): Promise<void> {
+    const entry = await projectCommands.createNewEntry($search, { dontSelect: true });
     selectedEntry = entry;
     selectedEntryId = entry?.id;
     if (entry) {
@@ -208,23 +209,25 @@
       </div>
     {/each}
     {#if $displayedEntries.length === 0 && addedEntries.length === 0}
-      <div class="p-4 text-center opacity-75">
+      <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
         {#if $result.search}
           No entries found <Icon data={mdiMagnifyRemoveOutline} />
+          <NewEntryButton on:click={onClickCreateNewEntry} />
         {:else if $loading}
           <ProgressCircle size={30} />
         {:else}
-            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
+            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
+            <NewEntryButton on:click={onClickCreateNewEntry} />
         {/if}
       </div>
     {/if}
-    {#if $result.search}
+    {#if $displayedEntries.length}
       <ListItem
         title="Create new Entry..."
         icon={mdiBookPlusOutline}
         classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
         noShadow
-        on:click={() => onClickCreateNewEntry($result.search ?? '')}
+        on:click={onClickCreateNewEntry}
       />
     {/if}
     {#if $result.entries.length > $displayedEntries.length}
