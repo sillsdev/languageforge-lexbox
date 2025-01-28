@@ -5,7 +5,7 @@ import {UserDashboardPage} from '../pages/userDashboardPage';
 import type {UUID} from 'crypto';
 import {executeGql} from './gqlHelpers';
 import {LoginPage} from '../pages/loginPage';
-import type {OrgRole} from '$lib/gql/types';
+import type {OrgRole, ProjectRole} from '$lib/gql/types';
 import type {TempUser} from '../fixtures';
 import {EmailSubjects} from '../email/email-page';
 
@@ -56,6 +56,20 @@ export async function addUserToOrg(api: APIRequestContext, userId: string, orgId
             organization {
                 id
             }
+            errors {
+                ... on Error {
+                    message
+                }
+            }
+        }
+    }
+  `);
+}
+
+export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: ProjectRole): Promise<unknown> {
+  return executeGql(api, `
+    mutation {
+        addProjectMember(input: { userId: "${userId}", projectId: "${projectId}", role: ${role} }) {
             errors {
                 ... on Error {
                     message
