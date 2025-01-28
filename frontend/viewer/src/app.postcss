@@ -20,9 +20,10 @@
 /* The search bar dialog is somewhat unique. It should be considered when making global changes here. */
 .dialog {
     /*using 100vh or dvh still caused the action items to get clipped*/
-  height: 100%;
-  width: 767px; /* matches md/max-md */
+  height: min(1200px, 100%);
+  width: min(900px, 100%);
   @apply md:max-h-[calc(100vh-16px)];
+  @apply md:max-w-[calc(100vw-30px)]; /* more than the 16px for height, because of scrollbars */
   @apply flex flex-col;
   @apply max-md:rounded-none;
 
