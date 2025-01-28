@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IEntry } from '$lib/dotnet-types';
+  import type { IEntry, ISense } from '$lib/dotnet-types';
   import {useWritingSystemService} from './writing-system-service';
   import { usePartsOfSpeech } from './parts-of-speech';
 
@@ -11,62 +11,88 @@
   const wsService = useWritingSystemService();
 
   $: headwords = wsService.vernacular
-    .map(ws => ({ws: ws.wsId, value: wsService.headword(entry)}))
+    .map(ws => ({
+      wsId: ws.wsId,
+      value: wsService.headword(entry, ws.wsId),
+      color: wsService.wsColor(ws.wsId, 'vernacular'),
+    }))
     .filter(({value}) => !!value);
+
+  $: senses = entry.senses.map(getRenderedContent);
+
+  /**
+   * Returns the rendered content for a sense.
+   * Primary purpose is to filter out list items that won't be rendered,
+   * so we can easily/reliably determine if an item is the last that will be rendered.
+   * @param sense
+   */
+  function getRenderedContent(sense: ISense) {
+    return {
+      id: sense.id,
+      partOfSpeech: $partsOfSpeech.find(pos => pos.id === sense.partOfSpeechId)?.label,
+      glossesAndDefs: wsService.analysis
+        .map(ws => ({
+          wsId: ws.wsId,
+          wsAbbr: ws.abbreviation,
+          gloss: sense.gloss[ws.wsId],
+          definition: sense.definition[ws.wsId],
+          color: wsService.wsColor(ws.wsId, 'analysis'),
+        }))
+        .filter(({gloss, definition}) => gloss || definition),
+      exampleSentences: sense.exampleSentences.map(example => ({
+        id: example.id,
+        sentences: [
+          ...wsService.vernacular.map(ws => ({
+            text: example.sentence[ws.wsId],
+            color: wsService.wsColor(ws.wsId, 'vernacular'),
+          })),
+          ...wsService.analysis.map(ws => ({
+            text: example.translation[ws.wsId],
+            color: wsService.wsColor(ws.wsId, 'analysis'),
+          })),
+        ].filter(({text}) => !!text),
+      })),
+    }
+  }
 
   const partsOfSpeech = usePartsOfSpeech();
 </script>
 
 <div>
-  <strong class="inline-flex gap-1">
-    {#each headwords as {ws, value}, i}
-      {#if value}
-        {#if i > 0}/{/if}
-        <span class={wsService.wsColor(ws, 'vernacular')}>{value}</span>
-      {/if}
+  <strong class="inline-flex gap-1 mr-1">
+    {#each headwords as headword, i (headword.wsId)}
+      {#if i > 0}/{/if}
+      <span class={headword.color}>{headword.value}</span>
     {/each}
   </strong>
-  {#each entry.senses as sense, i (sense.id)}
-    {#if entry.senses.length > 1}
+  {#each senses as sense, i (sense.id)}
+    {#if senses.length > 1}
       <br />
       <strong class="ml-2">{i + 1} · </strong>
     {/if}
-    {@const partOfSpeech = $partsOfSpeech.find(pos => pos.id === sense.partOfSpeechId)?.label}
-    {#if partOfSpeech}
-      <i>{partOfSpeech}</i>
+    {#if sense.partOfSpeech}
+      <i>{sense.partOfSpeech}</i>
     {/if}
     <span>
-      {#each wsService.analysis as ws}
-        {#if sense.gloss[ws.wsId] || sense.definition[ws.wsId]}
-          <span class="ml-0.5">
-            <sub class="-mr-0.5">{ws.abbreviation}</sub>
-            {#if sense.gloss[ws.wsId]}
-              <span class={wsService.wsColor(ws.wsId, 'analysis')}>{sense.gloss[ws.wsId]}</span>;
-            {/if}
-            {#if sense.definition[ws.wsId]}
-              <span class={wsService.wsColor(ws.wsId, 'analysis')}>{sense.definition[ws.wsId]}</span>
-            {/if}
-          </span>
-        {/if}
+      {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
+        <span class="ml-0.5">
+          <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
+          {#if glossAndDef.gloss}
+            <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
+          {/if}
+          {#if glossAndDef.definition}
+            <span class={glossAndDef.color}>{glossAndDef.definition}</span>
+          {/if}
+        </span>
       {/each}
     </span>
     {#each sense.exampleSentences as example (example.id)}
-      {@const usedVernacular = wsService.vernacular.filter(ws => !!example.sentence[ws.wsId])}
-      {@const usedAnalysis = wsService.analysis.filter(ws => !!example.translation[ws.wsId])}
-      {#if usedVernacular.length || usedAnalysis.length}
-        <span class="-mr-0.5">[</span>
-          {#each usedVernacular as ws}
-            <span class={wsService.wsColor(ws.wsId, 'vernacular')}>{example.sentence[ws.wsId]}</span>
-            <span></span><!-- standardizes whitespace between texts -->
-          {/each}
-          <span></span>
-          {#each usedAnalysis as ws}
-            <span class={wsService.wsColor(ws.wsId, 'analysis')}>{example.translation[ws.wsId]}</span>
-            <span></span><!-- standardizes whitespace between texts -->
-          {/each}
-        <span class="-ml-0.5">]</span>
-        <span></span><!-- standardizes whitespace between texts -->
-      {/if}
+      {#each example.sentences as sentence, j}
+        {@const first = j === 0}
+        {@const last = j === example.sentences.length - 1}
+        {#if j > 0};{/if}
+        {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
+      {/each}
     {/each}
   {/each}
 </div>
