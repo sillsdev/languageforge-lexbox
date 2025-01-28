@@ -32,6 +32,10 @@ export class AppNotification {
     this._notifications.update(notifications => notifications.filter(n => n !== notification));
   }
 
+  public static clear(): void {
+    this._notifications.set([]);
+  }
+
   private constructor(public message: string, public type: 'success' | 'error' | 'info' | 'warning', public action?: NotificationAction) {
   }
 }
