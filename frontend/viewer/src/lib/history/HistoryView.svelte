@@ -23,9 +23,13 @@
 
   async function load() {
     loading = true;
-    history = await historyService.load(id);
-    record = history[0];
-    loading = false;
+    try {
+      history = [];
+      history = await historyService.load(id);
+      record = history[0];
+    } finally {
+      loading = false;
+    }
   }
 
   async function showEntry(row: HistoryItem) {
@@ -35,12 +39,18 @@
       record = row;
     }
   }
+
+  function reset() {
+    record = undefined;
+    history = [];
+  }
 </script>
 
-<Dialog bind:open {loading} persistent={loading}>
+<Dialog bind:open {loading} persistent={loading} on:close={reset}>
   <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
   <div slot="title">History</div>
-  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%)">
+  {#if !loading}
+  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if !history || history.length === 0}
@@ -70,33 +80,36 @@
         {/if}
       </div>
     </div>
-    {#if record?.entity && record?.entityName}
-      <div class="col-start-2 row-start-1 text-sm flex justify-between items-center px-2 pb-0.5">
-        <span>Author:
-          {#if record.authorName}
-            <span class="font-semibold">{record.authorName}</span>
-          {:else}
-            <span class="opacity-75 italic">Unknown</span>
-          {/if}
-        </span>
-        <div class="hidden sm:contents">
-          <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
+    <div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
+      {#if record?.entity && record?.entityName}
+        <div class="col-start-2 row-start-1 text-sm flex justify-between items-center px-2 pb-0.5">
+          <span>Author:
+            {#if record.authorName}
+              <span class="font-semibold">{record.authorName}</span>
+            {:else}
+              <span class="opacity-75 italic">Unknown</span>
+            {/if}
+          </span>
+          <div class="hidden sm:contents">
+            <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
+          </div>
         </div>
-      </div>
-      <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full" class:hide-empty={!showEmptyFields}>
-        {#if record.entityName === 'Entry'}
-          <EntryEditor entry={record.entity} modalMode readonly/>
-        {:else if record.entityName === 'Sense'}
-          <div class="editor-grid">
-            <SenseEditor sense={record.entity} readonly/>
-          </div>
-        {:else if record.entityName === 'ExampleSentence'}
-          <div class="editor-grid">
-            <ExampleEditor example={record.entity} readonly/>
-          </div>
-        {/if}
-      </div>
-    {/if}
+        <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full" class:hide-empty={!showEmptyFields}>
+          {#if record.entityName === 'Entry'}
+            <EntryEditor entry={record.entity} modalMode readonly/>
+          {:else if record.entityName === 'Sense'}
+            <div class="editor-grid">
+              <SenseEditor sense={record.entity} readonly/>
+            </div>
+          {:else if record.entityName === 'ExampleSentence'}
+            <div class="editor-grid">
+              <ExampleEditor example={record.entity} readonly/>
+            </div>
+          {/if}
+        </div>
+      {/if}
+    </div>
   </div>
+  {/if}
   <div class="flex-grow"></div>
 </Dialog>

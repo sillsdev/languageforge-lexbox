@@ -7,6 +7,7 @@ using SIL.Harmony.Db;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using SIL.Harmony.Entities;
+using System.Text.RegularExpressions;
 
 namespace LcmCrdt;
 public record ProjectActivity(
@@ -108,7 +109,8 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
         {
             { Count: 0 } => "No changes",
             { Count: 1 } => ChangeNameHelper(changeEntities[0].Change),
-            { Count: var count } => $"{count} changes"
+            { Count: > 10 } => $"{changeEntities.Count} changes",
+            { Count: var count } => $"{ChangeNameHelper(changeEntities[0].Change)} (+{count - 1} other change{(count > 2 ? "s" : "")})",
         };
     }
 
@@ -118,7 +120,10 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
         if (change is null) return null;
         var type = change.GetType();
         //todo call JsonPatchChange.Summarize() instead of this
-        if (type.Name.StartsWith("JsonPatchChange")) return "Change " + change.EntityType.Name;
-        return type.Name.Humanize();
+        if (type.Name.StartsWith("JsonPatchChange")) return $"Change{change.EntityType.Name}".Humanize();
+        else if (type.Name.StartsWith("DeleteChange`")) return $"Delete{change.EntityType.Name}".Humanize();
+        else if (type.Name.StartsWith("SetOrderChange`")) return $"Reorder{change.EntityType.Name}".Humanize();
+        var changeName = type.Name.Humanize();
+        return Regex.Replace(changeName, " Change$", "", RegexOptions.IgnoreCase);
     }
 }
