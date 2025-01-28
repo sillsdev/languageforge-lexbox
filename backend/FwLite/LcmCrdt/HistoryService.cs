@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Humanizer;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
@@ -14,23 +15,7 @@ public record ProjectActivity(
     List<ChangeEntity<IChange>> Changes,
     CommitMetadata Metadata)
 {
-    public string ChangeName => ChangeNameHelper(Changes);
-
-    private static string ChangeNameHelper(List<ChangeEntity<IChange>> changeEntities)
-    {
-        return changeEntities switch
-        {
-            { Count: 0 } => "No changes",
-            { Count: 1 } => changeEntities[0].Change switch
-            {
-                //todo call JsonPatchChange.Summarize() instead of this
-                IChange change when change.GetType().Name.StartsWith("JsonPatchChange") => "Change " +
-                    change.EntityType.Name,
-                IChange change => change.GetType().Name.Humanize()
-            },
-            { Count: var count } => $"{count} changes"
-        };
-    }
+    public string ChangeName => HistoryService.ChangesNameHelper(Changes);
 }
 
 public record HistoryLineItem(
@@ -59,7 +44,7 @@ public record HistoryLineItem(
             TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
         snapshotId,
         changeIndex,
-        change?.GetType().Name,
+        HistoryService.ChangeNameHelper(change),
         (IObjectWithId?) entity?.DbObject,
         typeName,
         authorName)
@@ -115,5 +100,25 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
                 snapshot.TypeName,
                 commit.Metadata.AuthorName);
         return query.ToLinqToDB().AsAsyncEnumerable();
+    }
+
+    public static string ChangesNameHelper(List<ChangeEntity<IChange>> changeEntities)
+    {
+        return changeEntities switch
+        {
+            { Count: 0 } => "No changes",
+            { Count: 1 } => ChangeNameHelper(changeEntities[0].Change),
+            { Count: var count } => $"{count} changes"
+        };
+    }
+
+    [return: NotNullIfNotNull("change")]
+    public static string? ChangeNameHelper(IChange? change)
+    {
+        if (change is null) return null;
+        var type = change.GetType();
+        //todo call JsonPatchChange.Summarize() instead of this
+        if (type.Name.StartsWith("JsonPatchChange")) return "Change " + change.EntityType.Name;
+        return type.Name.Humanize();
     }
 }

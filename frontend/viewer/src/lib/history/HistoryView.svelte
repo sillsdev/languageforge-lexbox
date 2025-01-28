@@ -17,13 +17,11 @@
 
   let showEmptyFields = false;
 
-  // loaded makes hot-reload work
-  let loaded = false;
-  $: loaded = !open;
-  if (!loaded) void load();
+  $: if (open && id) {
+    void load();
+  }
 
   async function load() {
-    loaded = true;
     loading = true;
     history = await historyService.load(id);
     record = history[0];
