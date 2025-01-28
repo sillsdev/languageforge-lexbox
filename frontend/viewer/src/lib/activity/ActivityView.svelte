@@ -30,31 +30,37 @@
   let activity: Array<Activity>;
   let selectedRow: Activity | undefined;
 
-  // loaded makes hot-reload work
-  let loaded = false;
-  $: loaded = !open;
-  if (!loaded) void load();
+  $: if (open && projectName) {
+    void load();
+  }
 
   async function load() {
-    loaded = true;
     activity = [];
     loading = true;
-    const data = await historyService.activity(projectName) as Activity[];
-    console.debug('Activity data', data);
-    loading = false;
-    if (!Array.isArray(data)) {
-      console.error('Invalid history data', data);
-      activity = [];
-      return;
+    try {
+      const data = await historyService.activity(projectName) as Activity[];
+      console.debug('Activity data', data);
+      if (!Array.isArray(data)) {
+        console.error('Invalid history data', data);
+        activity = [];
+        return;
+      }
+      data.reverse();
+      for (let i = 0; i < data.length; i++) {
+        let row = data[i];
+        row.previousTimestamp = data[i + 1]?.timestamp;
+      }
+      // Reverse the history so that the most recent changes are at the top
+      activity = data.toReversed();
+      selectedRow = activity[0];
+    } finally {
+      loading = false;
     }
-    data.reverse();
-    for (let i = 0; i < data.length; i++) {
-      let row = data[i];
-      row.previousTimestamp = data[i + 1]?.timestamp;
-    }
-    // Reverse the history so that the most recent changes are at the top
-    activity = data.toReversed();
-    selectedRow = activity[0];
+  }
+
+  function reset() {
+    activity = [];
+    selectedRow = undefined;
   }
 
   function formatJsonForUi(json: object) {
@@ -66,10 +72,11 @@
   }
 </script>
 
-<Dialog bind:open {loading} persistent={loading}>
+<Dialog bind:open {loading} persistent={loading} on:close={reset}>
   <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
   <div slot="title">Activity</div>
-  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%)">
+  {#if !loading}
+  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if !activity || activity.length === 0}
@@ -100,35 +107,41 @@
       </div>
     </div>
 
-    {#if selectedRow}
-      <div class="col-start-2 row-start-1 text-sm">
-        <span>Author:
-          {#if selectedRow.metadata.authorName}
-            <span class="font-semibold">{selectedRow.metadata.authorName}</span>
-          {:else}
-            <span class="opacity-75 italic">Unknown</span>
+    <div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
+      {#if selectedRow}
+        <div class="col-start-2 row-start-1 text-sm">
+          <span>Author:
+            {#if selectedRow.metadata.authorName}
+              <span class="font-semibold">{selectedRow.metadata.authorName}</span>
+            {:else}
+              <span class="opacity-75 italic">Unknown</span>
+            {/if}
+          </span>
+          {#if selectedRow.changes.length > 1}
+            <span>– ({selectedRow.changes.length} changes)</span>
           {/if}
-        </span>
-        {#if selectedRow.changes.length > 1}
-          <span>– ({selectedRow.changes.length} changes)</span>
-        {/if}
-      </div>
-      <div class="col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full change-list">
-        <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
-          {#each visibleItems as change}
-            <div class="whitespace-pre-wrap font-mono text-sm [&:not(> :last-child)]:border-b [&:not(> :last-child)]:pb-4">
+        </div>
+        <div class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full">
+          <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
+            {#each visibleItems as change}
+            <div class="change whitespace-pre-wrap font-mono text-sm">
               {formatJsonForUi(change)}
             </div>
-          {/each}
-        </InfiniteScroll>
-      </div>
-    {/if}
+            {/each}
+          </InfiniteScroll>
+        </div>
+      {/if}
+    </div>
   </div>
+  {/if}
   <div class="flex-grow"></div>
 </Dialog>
 
-<style lang="postcss" global>
-  .change-list .sentinel {
+<style lang="postcss">
+  :global(.change-list .sentinel) {
     @apply -mt-4; /* make gap-4 not apply to the infinite-scroll end detector */
+  }
+  .change-list .change:not(:nth-last-child(2)) { /* 2, because InfiniteScroll adds an additional element */
+    @apply border-b pb-4;
   }
 </style>
