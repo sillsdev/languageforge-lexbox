@@ -37,7 +37,7 @@
     { options: { id: string }[]; } |
     { getOptionId: (value: TOption) => string; }
   ) & (
-    { value: TValue & TOption } |
+    { value: Exclude<TValue, string> } |
     { value: Id; valueIsId: true; } | // we need valueIsId to know what type to return at run time
     { getValueById: (id: Id) => TValue }
   );

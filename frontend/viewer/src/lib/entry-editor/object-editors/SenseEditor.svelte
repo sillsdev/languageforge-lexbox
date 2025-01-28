@@ -28,9 +28,9 @@
                     {readonly}
                     id="definition"
                     wsType="analysis" />
-  <SingleOptionEditor on:change
-                      bind:value={sense.partOfSpeechId}
-                      valueIsId
+  <SingleOptionEditor on:change={() => sense.partOfSpeechId = sense.partOfSpeech?.id}
+                      on:change
+                      bind:value={sense.partOfSpeech}
                       options={$partsOfSpeech}
                       getOptionLabel={(pos) => pos.label}
                       {readonly}
