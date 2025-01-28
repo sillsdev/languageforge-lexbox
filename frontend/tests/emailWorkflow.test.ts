@@ -195,7 +195,7 @@ test('ask to join project via new-project page', async ({ page, tempUserInTestOr
     await dashboardPage.openProject('Sena 3', 'sena-3');
 });
 
-test.only('ask to join project via project page', async ({ page, tempUserInTestOrg }) => {
+test('ask to join project via project page', async ({ page, tempUserInTestOrg }) => {
     test.setTimeout(TEST_TIMEOUT_2X);
 
     const { name, email, password } = tempUserInTestOrg;
