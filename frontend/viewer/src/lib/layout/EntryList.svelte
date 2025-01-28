@@ -83,10 +83,6 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-<!--    todo move this-->
-    <DevContent>
-      <WritingSystemDialog/>
-    </DevContent>
     <div class="hidden lg-view:contents">
       <Button icon={expand ? mdiArrowCollapseLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"

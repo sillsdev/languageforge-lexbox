@@ -1,11 +1,12 @@
 ﻿<script lang="ts">
-  import {Button, Dialog, SelectField} from 'svelte-ux';
+  import {Button, Dialog, MenuItem, SelectField} from 'svelte-ux';
   import WritingSystemEditor from '$lib/writing-system/WritingSystemEditor.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
   import {defaultWritingSystem} from '$lib/utils';
+  import {mdiNoteEdit} from '@mdi/js';
 
-  let open = false;
+  export let open = false;
   let loading = false;
   const writingSystemService = useWritingSystemService();
   let vernacular = writingSystemService.vernacular;
@@ -39,9 +40,7 @@
     location.reload();
   }
 </script>
-<Button rounded variant="outline" on:click={() => open = true}>
-  Edit WS
-</Button>
+
 <Dialog bind:open={open} {loading} persistent={loading} style="height: auto">
   <div slot="title">Edit Writing Systems</div>
   <SelectField label="Writing System" bind:value={selectedOption} {options} clearable={false}/>
