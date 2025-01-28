@@ -82,7 +82,7 @@
         {#if !activity || activity.length === 0}
           <div class="p-4 text-center opacity-75">No activity found</div>
         {:else}
-          <InfiniteScroll perPage={10} items={activity} let:visibleItems>
+          <InfiniteScroll perPage={50} items={activity} let:visibleItems>
             {#each visibleItems as row (row.timestamp)}
               <ListItem
                 title={row.changeName}
