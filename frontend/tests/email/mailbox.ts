@@ -9,9 +9,9 @@ export interface Email {
 export abstract class Mailbox {
   constructor(readonly email: string) { }
 
-  abstract fetchEmails(subject: EmailSubjects, extraText?: string): Promise<Email[]>;
+  abstract fetchEmails(subject: EmailSubjects | string, extraText?: string): Promise<Email[]>;
 
-  async openEmail(page: Page, subject: EmailSubjects, extraText?: string, index: number = 0): Promise<EmailPage> {
+  async openEmail(page: Page, subject: EmailSubjects | string, extraText?: string, index: number = 0): Promise<EmailPage> {
     let email: Email | undefined = undefined;
 
     await expect.poll(async () => {

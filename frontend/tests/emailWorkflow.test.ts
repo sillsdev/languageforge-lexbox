@@ -1,6 +1,5 @@
 import {TEST_TIMEOUT_2X, defaultPassword, testOrgId} from './envVars';
-import {deleteUser, getCurrentUserId, loginAs, logout} from './utils/authHelpers';
-
+import {deleteUser, getCurrentUserId, loginAs, logout, verifyTempUserEmail} from './utils/authHelpers';
 import {AcceptInvitationPage} from './pages/acceptInvitationPage';
 import {AdminDashboardPage} from './pages/adminDashboardPage';
 import {EmailSubjects} from './email/email-page';
@@ -156,20 +155,17 @@ test('register via new-user invitation email', async ({ page, mailboxFactory }) 
   await userDashboardPage.openProject('Sena 3', 'sena-3');
 });
 
-test('ask to join project via craete-project page', async ({ page, tempUserInTestOrg }) => {
+test('ask to join project via new-project page', async ({ page, tempUserInTestOrg }) => {
     test.setTimeout(TEST_TIMEOUT_2X);
 
     const { name, email, password } = tempUserInTestOrg;
 
     await loginAs(page.request, email, password);
     let dashboardPage = await new UserDashboardPage(page).goto();
-  
+
     // Must verify email before being allowed to request project creation
     await dashboardPage.emailVerificationAlert.assertPleaseVerify();
-    let emailPage = await tempUserInTestOrg.mailbox.openEmail(page, EmailSubjects.VerifyEmail);
-    let pagePromise = emailPage.page.context().waitForEvent('page');
-    await emailPage.clickVerifyEmail();
-    let newPage = await pagePromise;
+    let newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
     dashboardPage = await new UserDashboardPage(newPage).goto();
 
     // Create project with similar name to Sena-3
@@ -185,11 +181,11 @@ test('ask to join project via craete-project page', async ({ page, tempUserInTes
     // Log in as manager, approve join request.
     await loginAs(page.request, 'manager');
     const managerMailbox = new MaildevMailbox('manager@test.com', page.request);
-    emailPage = await managerMailbox.openEmail(page, EmailSubjects.ProjectJoinRequest, `: ${name}`);
-    pagePromise = emailPage.page.context().waitForEvent('page');
+    const emailPage = await managerMailbox.openEmail(page, EmailSubjects.ProjectJoinRequest, `: ${name}`);
+    const pagePromise = emailPage.page.context().waitForEvent('page');
     await emailPage.clickApproveRequest();
     newPage = await pagePromise;
-    let sena3ProjectPage = await new ProjectPage(newPage, 'Sena 3', 'sena-3').waitFor();
+    const sena3ProjectPage = await new ProjectPage(newPage, 'Sena 3', 'sena-3').waitFor();
     await sena3ProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
     await sena3ProjectPage.goto();
 

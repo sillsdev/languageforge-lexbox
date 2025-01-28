@@ -118,7 +118,6 @@ export const test = base.extend<Fixtures>({
     const mailbox = await mailboxFactory();
     const email = mailbox.email;
     const name = `Test: ${testInfo.title} - ${email.replaceAll('@', "(at)")}`;
-    console.log(name);
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
     await loginAs(page.request, 'admin');
