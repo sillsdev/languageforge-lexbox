@@ -104,7 +104,7 @@ public class SyncService(
         await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);
         try
         {
-            await ExecuteSync();
+            await ExecuteSync(true);
         }
         catch
         {

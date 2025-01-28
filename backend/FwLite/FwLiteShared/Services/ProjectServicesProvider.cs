@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using FwLiteShared.Projects;
+using FwLiteShared.Sync;
 using LcmCrdt;
 using LexCore.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,7 @@ public class ProjectServicesProvider(
                       throw new InvalidOperationException($"Crdt Project {projectName} not found");
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
         var projectData = await currentProjectService.SetupProjectContext(project);
+        await scopedServices.GetRequiredService<SyncService>().ExecuteSync(true);
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
         var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
         {
