@@ -10,6 +10,6 @@
 
 <Button on:click icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
   <div class="hidden sm:contents">
-    New {fieldName({id: 'entry'}, $currentView.i18nKey)}
+    Create {fieldName({id: 'entry'}, $currentView.i18nKey)}
   </div>
 </Button>
