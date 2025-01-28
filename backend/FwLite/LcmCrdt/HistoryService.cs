@@ -58,7 +58,7 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
     {
         return dbContext.Commits
                 .DefaultOrderDescending()
-                .Take(20)
+                .Take(100)
                 .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities, c.Metadata))
                 .AsAsyncEnumerable();
     }
