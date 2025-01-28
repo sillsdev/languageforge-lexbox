@@ -1,12 +1,11 @@
 ﻿<script lang="ts">
   import flexLogo from '$lib/assets/flex-logo.png';
-  import {Button} from 'svelte-ux';
   import {AppNotification} from '$lib/notifications/notifications';
-  import {getContext} from 'svelte';
-  import type {Readable} from 'svelte/store';
   import {useAppLauncher} from '$lib/services/service-provider';
+  import {Button} from 'svelte-ux';
+  import {useProjectViewState} from './services/project-view-state-service';
 
-  const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
+  const projectViewState = useProjectViewState();
   const appLauncher = useAppLauncher();
 
   export let show = false;
@@ -25,6 +24,7 @@
   }
 </script>
 {#if show}
+<!--button must be a link otherwise it won't follow the redirect to a protocol handler-->
   <Button
     href={`/api/fw/${projectName}/open/entry/${entryId}`}
     on:click={openInFlex}
@@ -32,7 +32,7 @@
     color="info"
     size="sm">
     <img src={flexLogo} alt="FieldWorks logo" class="h-6 max-w-fit"/>
-    <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
+    <div class="sm-form:hidden" class:hidden={$projectViewState.rightToolbarCollapsed}>
       Open in FieldWorks
     </div>
   </Button>

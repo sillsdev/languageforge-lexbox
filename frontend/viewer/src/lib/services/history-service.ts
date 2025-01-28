@@ -20,6 +20,7 @@ export type HistoryItem = {
   timestamp: string,
   previousTimestamp?: string,
   snapshotId: string,
+  changeIndex: number,
   changeName: string | undefined,
   authorName: string | undefined,
 } & EntityType;
@@ -38,7 +39,7 @@ export class HistoryService {
   }
 
   async load(objectId: string) {
-    const data = await  (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectName}/${objectId}`)
+    const data = await (this.historyApi?.getHistory(objectId) ?? fetch(`/api/history/${this.projectName}/${objectId}`)
       .then(res => res.json())) as HistoryItem[];
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
@@ -53,7 +54,9 @@ export class HistoryService {
   }
 
   async fetchSnapshot(history: HistoryItem, objectId: string): Promise<HistoryItem> {
-    const data = (await this.historyApi?.getObject(history.commitId, objectId) ?? fetch(`/api/history/${this.projectName}/snapshot/commit/${history.commitId}?entityId=${objectId}`).then(res => res.json())) as EntityType['entity'];
+    const data = (await this.historyApi?.getObject(history.commitId, objectId)
+      ?? await fetch(`/api/history/${this.projectName}/snapshot/commit/${history.commitId}?entityId=${objectId}`)
+          .then(res => res.json())) as EntityType['entity'];
     if (this.isEntry(data)) {
       return {...history, entity: data, entityName: 'Entry'};
     }

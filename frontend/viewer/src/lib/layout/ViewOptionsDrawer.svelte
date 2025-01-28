@@ -1,11 +1,12 @@
 <script lang="ts">
-  import {Button, Drawer, SelectField, Switch} from 'svelte-ux';
-  import type {LexboxFeatures} from '../config-types';
+  import {Button, Drawer, SelectField, Switch, ThemeSwitch} from 'svelte-ux';
   import DevContent from './DevContent.svelte';
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
   import {generateExternalChanges} from '../debug';
   import {mdiClose} from '@mdi/js';
+  import ShowEmptyFieldsSwitch from './ShowEmptyFieldsSwitch.svelte';
+  import type {LexboxFeatures} from '$lib/services/feature-service';
 
   export let activeView: View;
   export let viewSettings: ViewSettings;
@@ -14,10 +15,10 @@
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
-  <div class="flex flex-col h-full gap-4 px-6 py-4 w-full font-semibold">
-    <div>
-      <Button icon={mdiClose} size="sm" on:click={() => open = false} class="float-right"/>
-    </div>
+  <div class="absolute right-2 top-2">
+    <Button icon={mdiClose} on:click={() => open = false} class="float-right"/>
+  </div>
+  <div class="flex flex-col min-h-full gap-4 px-6 pt-8 pb-4 w-full font-semibold">
     <SelectField
       label="Fields"
       options={views.map((view) => ({ value: view, label: view.label, group: view.label }))}
@@ -29,12 +30,17 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="flex gap-2 items-center text-sm h-10">
-      <Switch bind:checked={viewSettings.hideEmptyFields}
-              color="neutral"/>
-      Hide empty fields
-    </label>
+
+    <div class="h-10">
+      <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
+    </div>
+
+    <div class="h-10">
+      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <label class="flex gap-2 items-center text-sm">
+        <ThemeSwitch /> Dark mode
+      </label>
+    </div>
 
     <div class="grow"></div>
     <DevContent>

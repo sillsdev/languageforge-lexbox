@@ -1,24 +1,26 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
-  import EntityEditor from './EntityEditor.svelte';
-  import {createEventDispatcher, getContext} from 'svelte';
-  import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures } from '$lib/config-types';
-  import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
-  import { Button, portal } from 'svelte-ux';
-  import EntityListItemActions from '../EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense} from '$lib/utils';
-  import HistoryView from '../../history/HistoryView.svelte';
-  import SenseEditor from './SenseEditor.svelte';
-  import ExampleEditor from './ExampleEditor.svelte';
-  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
+  import {useDialogService} from '$lib/entry-editor/dialog-service';
+  import {fieldName} from '$lib/i18n';
+  import Scotty from '$lib/layout/Scotty.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
   import {objectTemplateAreas, useCurrentView} from '$lib/services/view-service';
+  import {defaultExampleSentence, defaultSense} from '$lib/utils';
+  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
+  import {createEventDispatcher} from 'svelte';
+  import {Button, MenuItem} from 'svelte-ux';
+  import HistoryView from '../../history/HistoryView.svelte';
+  import EntityListItemActions from '../EntityListItemActions.svelte';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
-  import {useDialogService} from '$lib/entry-editor/dialog-service';
-  import {fieldName} from '$lib/i18n';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
+  import AddSenseFab from './AddSenseFab.svelte';
+  import EntityEditor from './EntityEditor.svelte';
+  import ExampleEditor from './ExampleEditor.svelte';
+  import SenseEditor from './SenseEditor.svelte';
+
   const dialogService = useDialogService();
   const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
@@ -132,12 +134,14 @@
 
   function isTopInView(element: Element): boolean {
     const elementRect = element.getBoundingClientRect();
-    return elementRect.top >= 0;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    return elementRect.top <= viewportHeight;
   }
 
-  const features = getContext<Readable<LexboxFeatures>>('features');
-  const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
+  const features = useFeatures();
   const currentView = useCurrentView();
+
+  let showHistoryView = false;
 </script>
 
 <div bind:this={editorElem} class="editor-grid">
@@ -192,47 +196,48 @@
   {#each entry.senses as sense, i (sense.id)}
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-      <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
-        <h2 class="text-lg text-surface-content">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
-        <hr class="grow border-t-4">
-        {#if !readonly}
+      <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
+        <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
+        <hr class="grow border-t-2">
+        <div class="bg-surface-100">
           <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
-            on:move={(e) => moveSense(sense, e.detail)}
-            on:delete={() => deleteSense(sense)} id={sense.id} />
-        {/if}
+              {readonly}
+              on:move={(e) => moveSense(sense, e.detail)}
+              on:delete={() => deleteSense(sense)} id={sense.id} />
+        </div>
       </div>
 
       <SenseEditor {sense} {readonly} on:change={() => onSenseChange(sense)}/>
 
-      <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
-        {#each sense.exampleSentences as example, j (example.id)}
-          <div class="grid-layer" class:highlight={example === highlightedEntity}>
-            <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-            <div class="col-span-full flex items-center gap-4 mb-4">
-              <h3 class="text-surface-content">Example {j + 1}</h3>
-              <!--
+      {#if sense.exampleSentences.length}
+        <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+          {#each sense.exampleSentences as example, j (example.id)}
+            <div class="grid-layer" class:highlight={example === highlightedEntity}>
+              <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
+              <div class="col-span-full flex items-center mb-4">
+                <h3 class="text-surface-content mr-4">Example {j + 1}</h3>
+                <!--
+                  <hr class="grow">
+                  collapse/expand toggle
+                -->
                 <hr class="grow">
-                collapse/expand toggle
-              -->
-              <hr class="grow">
-              {#if !readonly}
-                <EntityListItemActions i={j}
-                                       items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
-                                       on:move={(e) => moveExample(sense, example, e.detail)}
-                                       on:delete={() => deleteExample(sense, example)}
-                                       id={example.id}
+                <EntityListItemActions i={j} {readonly}
+                                      items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
+                                      on:move={(e) => moveExample(sense, example, e.detail)}
+                                      on:delete={() => deleteExample(sense, example)}
+                                      id={example.id}
                 />
-              {/if}
-            </div>
+              </div>
 
-            <ExampleEditor
-              {example}
-              {readonly}
-              on:change={() => onExampleChange(sense, example)}
-              />
-          </div>
-        {/each}
-      </div>
+              <ExampleEditor
+                {example}
+                {readonly}
+                on:change={() => onExampleChange(sense, example)}
+                />
+            </div>
+          {/each}
+        </div>
+      {/if}
       {#if !readonly}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
@@ -242,30 +247,64 @@
   {/each}
   {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
-    <div class="col-span-full flex justify-end">
+    <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
+      <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
+      <AddSenseFab on:click={addSense} />
+    </div>
+    <div class="col-span-full flex justify-end" class:sm-view:hidden={!modalMode}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
 </div>
 
-{#if !modalMode && !readonly}
+{#if !modalMode}
+{@const willRenderAnyButtons = $features.history || !readonly}
+  {#if willRenderAnyButtons}
   <div class="hidden">
-    <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
-      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
-        </div>
-      </Button>
-      <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
-        <div class="sm-form:hidden" class:hidden={$entryActionsPortal.collapsed}>
-          Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
-        </div>
-      </Button>
-      {#if $features.history}
-        <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
+    <Scotty beamMeTo="right-toolbar" let:projectViewState>
+      {#if !readonly}
+        <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+            Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
+          </div>
+        </Button>
+        <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
+          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+            Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
+          </div>
+        </Button>
       {/if}
-    </div>
+      {#if $features.history}
+        <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info" size="sm">
+          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
+            History
+          </div>
+        </Button>
+      {/if}
+    </Scotty>
+    <Scotty beamMeTo="app-bar-menu" let:projectViewState>
+      {#if projectViewState.userPickedEntry}
+        <div class="lg-view:hidden">
+          {#if !readonly}
+            <MenuItem on:click={deleteEntry} icon={mdiTrashCanOutline}>
+              Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
+            </MenuItem>
+          {/if}
+          {#if $features.history}
+            <MenuItem on:click={() => showHistoryView = true} icon={mdiHistory}>
+              History
+            </MenuItem>
+          {/if}
+          <hr class="border-surface-300" />
+        </div>
+      {/if}
+    </Scotty>
   </div>
+
+  {/if}
+  {#if $features.history}
+    <HistoryView id={entry.id} bind:open={showHistoryView} />
+  {/if}
 {/if}
 
 <style lang="postcss">

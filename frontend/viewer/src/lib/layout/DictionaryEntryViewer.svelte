@@ -11,7 +11,6 @@
 </script>
 
 <div class="relative">
-  <!-- rounded-sm shadow shadow-surface-content -->
   <div class="text-surface-content overflow-auto fancy-border" class:max-h-14={!expandDictionaryEntry}>
     <div class="px-3 py-2 text-sm">
       <DictionaryEntry entry={entry} bind:lines={dictionaryEntryLines} />
@@ -23,7 +22,8 @@
         icon={expandDictionaryEntry ? mdiChevronUp : mdiChevronDown}
         iconOnly
         size="sm"
-        class="p-2 absolute bottom-2 {expandDictionaryEntry ? 'right-2' : 'right-6'}" />
+        class="p-2 absolute bottom-2 right-2 {expandDictionaryEntry ? '' : 'pointer:right-6'}" />
+        <!-- pointer, because we want more padding if there's a big scrollbar -->
     {/if}
 </div>
 

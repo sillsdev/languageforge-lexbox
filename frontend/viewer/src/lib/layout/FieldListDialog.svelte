@@ -16,7 +16,7 @@
   );
 </script>
 
-<Dialog bind:open class="w-[700px]" classes={{title: 'px-4'}}>
+<Dialog bind:open classes={{title: 'px-4'}}>
   <div slot="title" class="font-normal">
     <TextField
       bind:value={fieldSearch}
