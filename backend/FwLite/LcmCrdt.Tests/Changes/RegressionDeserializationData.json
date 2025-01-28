@@ -255,11 +255,12 @@
     "Order": 0.9610462315814435,
     "EntityId": "56fb336c-5bcf-afc8-04b5-1df4176975f1"
   },
-  {
-    "$type": "SetOrderChange:ComplexFormComponent",
-    "Order": 0.1655437666547228,
-    "EntityId": "e92d4673-888c-3204-0767-17adc2a2405e"
-  },
+//commented out since it's not implemented yet
+//  {
+//    "$type": "SetOrderChange:ComplexFormComponent",
+//    "Order": 0.1655437666547228,
+//    "EntityId": "e92d4673-888c-3204-0767-17adc2a2405e"
+//  },
   {
     "$type": "SetComplexFormComponentChange",
     "ComplexFormEntryId": "bf296463-7b81-4a33-b9e7-6f4f8179715e",

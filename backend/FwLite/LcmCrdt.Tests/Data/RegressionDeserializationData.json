@@ -46873,7 +46873,7 @@
       "Abbreviation": "th",
       "Font": "Arial",
       "DeletedAt": null,
-      "Type": "Vernacular",
+      "Type": 0,
       "Exemplars": [],
       "Order": 1
     },
@@ -46886,7 +46886,7 @@
       "Abbreviation": "th",
       "Font": "Arial",
       "DeletedAt": null,
-      "Type": "Vernacular",
+      "Type": 0,
       "Exemplars": [],
       "Order": 1
     }
@@ -46901,7 +46901,7 @@
       "Abbreviation": "De",
       "Font": "Arial",
       "DeletedAt": null,
-      "Type": "Analysis",
+      "Type": 1,
       "Exemplars": [],
       "Order": 1
     },
@@ -46914,7 +46914,7 @@
       "Abbreviation": "De",
       "Font": "Arial",
       "DeletedAt": null,
-      "Type": "Analysis",
+      "Type": 1,
       "Exemplars": [],
       "Order": 1
     }
@@ -46929,7 +46929,7 @@
       "Abbreviation": "Th",
       "Font": "Arial",
       "DeletedAt": null,
-      "Type": "Vernacular",
+      "Type": 0,
       "Exemplars": [],
       "Order": 1
     },
@@ -46942,7 +46942,7 @@
       "Abbreviation": "Th",
       "Font": "Arial",
       "DeletedAt": null,
-      "Type": "Vernacular",
+      "Type": 0,
       "Exemplars": [],
       "Order": 1
     }
