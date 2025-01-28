@@ -159,22 +159,26 @@
                       id="citationForm"
                       wsType="vernacular"/>
 
-    <ComplexForms on:change={() => dispatch('change', {entry})}
-                  bind:value={entry.complexForms}
-                  {readonly}
-                  {entry}
-                  id="complexForms" />
+    {#if !modalMode}
 
-    <ComplexFormTypes on:change={() => dispatch('change', {entry})}
-                  bind:value={entry.complexFormTypes}
-                  {readonly}
-                  id="complexFormTypes" />
+      <ComplexForms on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.complexForms}
+                    {readonly}
+                    {entry}
+                    id="complexForms" />
 
-    <ComplexFormComponents  on:change={() => dispatch('change', {entry})}
-                            bind:value={entry.components}
-                            {readonly}
-                            {entry}
-                            id="components" />
+      <ComplexFormTypes on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.complexFormTypes}
+                    {readonly}
+                    id="complexFormTypes" />
+
+      <ComplexFormComponents  on:change={() => dispatch('change', {entry})}
+                              bind:value={entry.components}
+                              {readonly}
+                              {entry}
+                              id="components" />
+
+    {/if}
 
     <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                       bind:value={entry.literalMeaning}
