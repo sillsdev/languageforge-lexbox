@@ -50,8 +50,9 @@
   const lexboxApi = useLexboxApi();
   const fetchCount = 105;
   const { value: result, loading } = deriveAsync(search, async (s) => {
+    s = s?.trim();
     if (!s) return Promise.resolve({ entries: [], search: undefined });
-    const entries = await lexboxApi.searchEntries(s ?? '', {
+    const entries = await lexboxApi.searchEntries(s, {
       offset: 0,
       count: fetchCount,
       order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
