@@ -98,6 +98,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ProjectServicesProvider),
             typeof(IAppLauncher)
         ], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
+        builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
 
         builder.ExportAsInterfaces([
             typeof(ServerStatus),

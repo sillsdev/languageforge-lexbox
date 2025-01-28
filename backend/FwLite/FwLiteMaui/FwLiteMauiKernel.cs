@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Reflection;
+using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -88,12 +90,10 @@ public static class FwLiteMauiKernel
             }
         });
 
-        var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
-        //when launching from a notification, the current directory may be C:\Windows\System32, so we'll use the path of the executable instead
-        if (defaultDataPath.StartsWith("C:\\Windows\\System32", StringComparison.OrdinalIgnoreCase))
-            defaultDataPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName ?? Assembly.GetExecutingAssembly().Location) ?? ".";
-        var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteMaui").GetValue<string>("BaseDataDir") ??
-                                            defaultDataPath);
+
+        services.AddOptions<FwLiteMauiConfig>().BindConfiguration("FwLiteMaui");
+        var fwLiteMauiConfig = configuration.GetSection("FwLiteMaui").Get<FwLiteMauiConfig>() ?? new();
+        var baseDataPath = fwLiteMauiConfig.BaseDataDir;
         logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);
         logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);
         Directory.CreateDirectory(baseDataPath);
@@ -103,14 +103,15 @@ public static class FwLiteMauiKernel
         });
         services.Configure<AuthConfig>(config =>
         {
-            config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
+            config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
         });
 
-        logging.AddFile(Path.Combine(baseDataPath, "app.log"));
+        logging.AddFile(fwLiteMauiConfig.AppLogFilePath);
         services.AddSingleton<IPreferences>(Preferences.Default);
         services.AddSingleton<IVersionTracking>(VersionTracking.Default);
         services.AddSingleton<IConnectivity>(Connectivity.Current);
+        services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();

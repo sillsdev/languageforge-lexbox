@@ -20,7 +20,8 @@ public class FwLiteProvider(
     ImportFwdataService importFwdataService,
     ILogger<FwLiteProvider> logger,
     IOptions<FwLiteConfig> config,
-    IAppLauncher? appLauncher = null
+    IAppLauncher? appLauncher = null,
+    ITroubleshootingService? troubleshootingService = null
 )
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
@@ -36,6 +37,8 @@ public class FwLiteProvider(
         };
         if (appLauncher is not null)
             services[DotnetService.AppLauncher] = appLauncher;
+        if (troubleshootingService is not null)
+            services[DotnetService.TroubleshootingService] = troubleshootingService;
         return services;
     }
 
@@ -78,5 +81,6 @@ public enum DotnetService
     FwLiteConfig,
     ProjectServicesProvider,
     HistoryService,
-    AppLauncher
+    AppLauncher,
+    TroubleshootingService
 }
