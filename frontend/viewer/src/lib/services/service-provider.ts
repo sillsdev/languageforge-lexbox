@@ -72,6 +72,10 @@ export function useLexboxApi(): IMiniLcmJsInvokable {
   return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
 }
 
+export function useMiniLcmApi(): IMiniLcmJsInvokable {
+  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
+}
+
 export function useProjectsService(): ICombinedProjectsService {
   return window.lexbox.ServiceProvider.getService(DotnetService.CombinedProjectsService);
 }

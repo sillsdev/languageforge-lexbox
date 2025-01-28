@@ -2,11 +2,13 @@
   import AboutDialog from '$lib/about/AboutDialog.svelte';
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import {mdiDotsVertical, mdiEyeSettingsOutline, mdiHistory, mdiInformationVariantCircle} from '@mdi/js';
+  import {mdiDotsVertical, mdiEyeSettingsOutline, mdiHistory, mdiInformationVariantCircle, mdiNoteEdit} from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem, ResponsiveMenu, Toggle} from 'svelte-ux';
   import {asScottyPortal} from './Scotty.svelte';
   import {useProjectViewState} from '$lib/services/project-view-state-service';
+  import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
@@ -20,6 +22,7 @@
 
   let activityViewOpen = false;
   let aboutDialogOpen = false;
+  let wsEditDialogOpen = false;
 </script>
 
 <!-- #key prevents rendering ugly delayed state updates -->
@@ -41,6 +44,11 @@
             <MenuItem icon={mdiInformationVariantCircle} on:click={() => aboutDialogOpen = true}>About</MenuItem>
           </div>
         {/if}
+        <DevContent>
+          <MenuItem icon={mdiNoteEdit} on:click={() => wsEditDialogOpen = true}>
+            Edit WS
+          </MenuItem>
+        </DevContent>
       </button>
     </ResponsiveMenu>
   </Button>
@@ -50,10 +58,11 @@
 {#if $features.history}
   <ActivityView bind:open={activityViewOpen} {projectName} />
 {/if}
-
 {#if about}
   <AboutDialog bind:open={aboutDialogOpen} text={about} />
 {/if}
+
+<WritingSystemDialog bind:open={wsEditDialogOpen}/>
 
 <style lang="postcss" global>
   .app-bar-menu .MenuItem {

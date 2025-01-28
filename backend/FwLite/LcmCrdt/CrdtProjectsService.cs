@@ -155,6 +155,18 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             {
                 Id = Guid.NewGuid(),
                 Type = WritingSystemType.Vernacular,
+                WsId = "de",
+                Name = "German",
+                Abbreviation = "de",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
                 WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
@@ -170,6 +182,17 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "fr",
+                Name = "French",
+                Abbreviation = "fr",
                 Font = "Arial",
                 Exemplars = WritingSystem.LatinExemplars
             });

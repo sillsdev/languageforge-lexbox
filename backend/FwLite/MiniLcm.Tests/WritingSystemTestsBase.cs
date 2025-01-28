@@ -64,4 +64,15 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
             });
         await action.Should().ThrowAsync<DuplicateObjectException>();
     }
+
+    [Fact]
+    public async Task UpdateExistingWritingSystem_Works()
+    {
+        var writingSystems = await Api.GetWritingSystems();
+        var writingSystem = writingSystems.Vernacular.First();
+        var original = writingSystem.Copy();
+        writingSystem.Abbreviation = "New Abbreviation";
+        var updatedWritingSystem = await Api.UpdateWritingSystem(original, writingSystem);
+        updatedWritingSystem.Abbreviation.Should().Be("New Abbreviation");
+    }
 }

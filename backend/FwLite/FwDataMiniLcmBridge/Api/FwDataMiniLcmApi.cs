@@ -136,9 +136,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
-    public Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public async Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        throw new NotImplementedException();
+        var writingSystems = await GetWritingSystems();
+        return type switch
+        {
+            WritingSystemType.Vernacular => writingSystems.Vernacular.FirstOrDefault(ws => ws.WsId == id),
+            WritingSystemType.Analysis => writingSystems.Analysis.FirstOrDefault(ws => ws.WsId == id),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        } ?? throw new NullReferenceException($"unable to find writing system with id {id}");
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -208,13 +214,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Revert WritingSystem",
             async () =>
             {
-                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, this)
+                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem)
                 {
                     Id = Guid.Empty,
                     Type = type,
                 };
                 update.Apply(updateProxy);
-                updateProxy.CommitUpdate(Cache);
             });
         return await GetWritingSystem(id, type);
     }
