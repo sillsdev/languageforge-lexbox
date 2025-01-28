@@ -74,7 +74,7 @@ public static class ReinforcedFwLiteTypingConfig
                 exportBuilder.Ignore();
             }
         }));
-        builder.ExportAsEnum<WritingSystemType>().UseString();
+        builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()

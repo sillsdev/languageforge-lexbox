@@ -51,7 +51,6 @@ public record WritingSystems
     public WritingSystem[] Vernacular { get; set; } = [];
 }
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum WritingSystemType
 {
     Vernacular = 0,

@@ -49,7 +49,7 @@ export const writingSystems: IWritingSystems = {
       'abbreviation': 'Por',
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-      'type': WritingSystemType.Vernacular,
+      'type': WritingSystemType.Analysis,
       'order': 1
     }
   ],
