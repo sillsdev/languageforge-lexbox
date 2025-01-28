@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {AppNotification} from './notifications';
   import {Notification, Icon, Button} from 'svelte-ux';
   import {
@@ -11,9 +11,9 @@
   const notifications = AppNotification.notifications;
 </script>
 {#if $notifications.length}
-<div class="fixed bottom-0 z-50 flex flex-col gap-2 p-4 w-full overflow-y-auto">
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 p-4 min-w-[min(400px,100%)] overflow-y-auto overflow-x-hidden">
   {#each $notifications as notification (notification)}
-    <div class="max-w-full min-w-[min(400px, 100%)] mx-auto">
+    <div class="max-w-full min-w-[min(400px,100%)]">
       <Notification open on:close={() => AppNotification.remove(notification)} closeIcon actionsPlacement="inline" classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces'}}>
         <div slot="icon">
           {#if notification.type === 'success'}
