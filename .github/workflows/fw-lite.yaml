@@ -1,6 +1,11 @@
 ﻿name: FieldWorks Lite
 on:
   workflow_dispatch:
+    inputs:
+      android-version-code:
+        description: 'Android Version Code'
+        required: false
+        default: '1'
   push:
     paths:
       - 'backend/FwLite/**'
@@ -177,7 +182,7 @@ jobs:
         run: |
           dotnet publish -f net9.0-android --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ inputs.android-version-code }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
