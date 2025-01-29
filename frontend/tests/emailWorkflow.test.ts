@@ -12,7 +12,6 @@ import {randomUUID} from 'crypto';
 import {test} from './fixtures';
 import {ProjectPage} from './pages/projectPage';
 import {OrgPage} from './pages/orgPage';
-import {ProjectRole} from '$lib/gql/types';
 
 const userIdsToDelete: string[] = [];
 
@@ -169,7 +168,7 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
 
     // Add manager to Elawa project
     await loginAs(newPage.request, 'admin');
-    await addUserToProject(newPage.request, manager.id, elawaProjectId, ProjectRole.Manager);
+    await addUserToProject(newPage.request, manager.id, elawaProjectId, 'MANAGER');
 
     const { name, email, password } = tempUserInTestOrg;
 
@@ -221,7 +220,7 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
 
     // Add manager to Elawa project
     await loginAs(newPage.request, 'admin');
-    await addUserToProject(newPage.request, manager.id, elawaProjectId, ProjectRole.Manager);
+    await addUserToProject(newPage.request, manager.id, elawaProjectId, 'MANAGER');
 
     const { name, email, password } = tempUserInTestOrg;
 

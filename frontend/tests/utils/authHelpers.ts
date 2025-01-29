@@ -5,7 +5,6 @@ import {UserDashboardPage} from '../pages/userDashboardPage';
 import type {UUID} from 'crypto';
 import {executeGql} from './gqlHelpers';
 import {LoginPage} from '../pages/loginPage';
-import type {OrgRole, ProjectRole} from '$lib/gql/types';
 import type {TempUser} from '../fixtures';
 import {EmailSubjects} from '../email/email-page';
 
@@ -49,7 +48,7 @@ export async function verifyTempUserEmail(page: Page, tempUser: TempUser): Promi
   return pagePromise;
 }
 
-export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: OrgRole): Promise<unknown> {
+export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: string): Promise<unknown> {
   return executeGql(api, `
     mutation {
         changeOrgMemberRole(input: { userId: "${userId}", orgId: "${orgId}", role: ${role} }) {
@@ -66,7 +65,7 @@ export async function addUserToOrg(api: APIRequestContext, userId: string, orgId
   `);
 }
 
-export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: ProjectRole): Promise<unknown> {
+export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: string): Promise<unknown> {
   return executeGql(api, `
     mutation {
         addProjectMember(input: { userId: "${userId}", projectId: "${projectId}", role: ${role}, canInvite: false }) {

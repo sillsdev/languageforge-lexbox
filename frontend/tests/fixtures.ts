@@ -11,7 +11,6 @@ import {isDev} from './envVars';
 import {E2EMailboxApi} from './email/e2e-mailbox-module-patched';
 import {MaildevMailbox} from './email/maildev-mailbox';
 import {E2EMailbox} from './email/e2e-mailbox';
-import {OrgRole} from '../src/lib/gql/types';
 
 export interface TempUser {
   id: UUID
@@ -121,7 +120,7 @@ export const test = base.extend<Fixtures>({
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
     await loginAs(page.request, 'admin');
-    await addUserToOrg(page.request, tempUserId, testEnv.testOrgId, OrgRole.User);
+    await addUserToOrg(page.request, tempUserId, testEnv.testOrgId, 'USER');
     await loginAs(page.request, email, password);
     const tempUser = Object.freeze({
       id: tempUserId,
