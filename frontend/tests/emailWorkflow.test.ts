@@ -10,7 +10,6 @@ import {UserDashboardPage} from './pages/userDashboardPage';
 import {expect} from '@playwright/test';
 import {randomUUID} from 'crypto';
 import {test} from './fixtures';
-import {MaildevMailbox} from './email/maildev-mailbox';
 import {ProjectPage} from './pages/projectPage';
 import {OrgPage} from './pages/orgPage';
 import {ProjectRole} from '$lib/gql/types';
@@ -166,11 +165,11 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
 
     // Must verify email before being made manager of a project
     await dashboardPage.emailVerificationAlert.assertPleaseVerify();
-    let newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
+    let newPage = await verifyTempUserEmail(page, manager);
 
     // Add manager to Elawa project
     await loginAs(newPage.request, 'admin');
-    await addUserToProject(page.request, manager.id, elawaProjectId, ProjectRole.Manager);
+    await addUserToProject(newPage.request, manager.id, elawaProjectId, ProjectRole.Manager);
 
     const { name, email, password } = tempUserInTestOrg;
 
@@ -193,8 +192,8 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
     await expect(newProjectPage.toast('has been sent to the project manager(s)')).toBeVisible();
 
     // Log in as manager, approve join request.
-    await loginAs(page.request, 'manager');
-    const emailPage = await manager.mailbox.openEmail(page, EmailSubjects.ProjectJoinRequest, `: ${name}`);
+    await loginAs(page.request, manager.email, manager.password);
+    const emailPage = await manager.mailbox.openEmail(page, `${EmailSubjects.ProjectJoinRequest}: ${name}`);
     const pagePromise = emailPage.page.context().waitForEvent('page');
     await emailPage.clickApproveRequest();
     newPage = await pagePromise;
@@ -218,11 +217,11 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
 
     // Must verify email before being made manager of a project
     await dashboardPage.emailVerificationAlert.assertPleaseVerify();
-    let newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
+    let newPage = await verifyTempUserEmail(page, manager);
 
     // Add manager to Elawa project
     await loginAs(newPage.request, 'admin');
-    await addUserToProject(page.request, manager.id, elawaProjectId, ProjectRole.Manager);
+    await addUserToProject(newPage.request, manager.id, elawaProjectId, ProjectRole.Manager);
 
     const { name, email, password } = tempUserInTestOrg;
 
@@ -245,8 +244,8 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
     await projectPage.askToJoinButton.click();
 
     // Log in as manager, approve join request.
-    await loginAs(page.request, 'manager');
-    emailPage = await manager.mailbox.openEmail(page, EmailSubjects.ProjectJoinRequest, `: ${name}`);
+    await loginAs(page.request, manager.email, manager.password);
+    emailPage = await manager.mailbox.openEmail(page, `${EmailSubjects.ProjectJoinRequest}: ${name}`);
     pagePromise = emailPage.page.context().waitForEvent('page');
     await emailPage.clickApproveRequest();
     newPage = await pagePromise;

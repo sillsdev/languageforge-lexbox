@@ -69,7 +69,10 @@ export async function addUserToOrg(api: APIRequestContext, userId: string, orgId
 export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: ProjectRole): Promise<unknown> {
   return executeGql(api, `
     mutation {
-        addProjectMember(input: { userId: "${userId}", projectId: "${projectId}", role: ${role} }) {
+        addProjectMember(input: { userId: "${userId}", projectId: "${projectId}", role: ${role}, canInvite: false }) {
+            project {
+                id
+            }
             errors {
                 ... on Error {
                     message
