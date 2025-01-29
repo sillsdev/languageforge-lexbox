@@ -15,6 +15,7 @@
   export let type: 'fwdata' | 'crdt';
   let projectScope: IProjectScope;
   let serviceLoaded = false;
+  let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
     if (type === 'crdt') {
@@ -22,20 +23,30 @@
     } else {
       projectScope = await projectServicesProvider.openFwDataProject(projectName);
     }
-    //todo also history service
-    if (projectScope.historyService) {
-      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, wrapInProxy(projectScope.historyService) as IHistoryServiceJsInvokable);
+    if (destroyed) {
+      cleanup();
+      return;
     }
-    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, wrapInProxy(projectScope.miniLcm) as IMiniLcmJsInvokable);
+    if (projectScope.historyService) {
+      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable);
+    }
+    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable);
     serviceLoaded = true;
   });
   onDestroy(() => {
+    destroyed = true;
     if (serviceLoaded) {
       window.lexbox.ServiceProvider.removeService(DotnetService.MiniLcmApi);
-      if (projectScope.cleanup)
-        void projectServicesProvider.disposeService(projectScope.cleanup);
+      cleanup();
     }
   });
+
+  function cleanup() {
+    setTimeout(() => {
+      if (projectScope.cleanup)
+        void projectServicesProvider.disposeService(projectScope.cleanup);
+    }, 1000);
+  }
 </script>
 
 <ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
