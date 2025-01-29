@@ -98,7 +98,7 @@ export const test = base.extend<Fixtures>({
   tempUser: async ({browser, page, mailboxFactory}, use, testInfo) => {
     const mailbox = await mailboxFactory();
     const email = mailbox.email;
-    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', "(at)")}`;
+    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', '(at)')}`;
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
     const tempUser = Object.freeze({
@@ -117,7 +117,7 @@ export const test = base.extend<Fixtures>({
   tempUserInTestOrg: async ({browser, page, mailboxFactory}, use, testInfo) => {
     const mailbox = await mailboxFactory();
     const email = mailbox.email;
-    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', "(at)")}`;
+    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', '(at)')}`;
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
     await loginAs(page.request, 'admin');

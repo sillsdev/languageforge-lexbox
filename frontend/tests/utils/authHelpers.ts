@@ -1,5 +1,5 @@
 import {expect, type APIRequestContext, type Page} from '@playwright/test';
-import {defaultPassword, testOrgId, serverBaseUrl} from '../envVars';
+import {defaultPassword, serverBaseUrl} from '../envVars';
 import {RegisterPage} from '../pages/registerPage';
 import {UserDashboardPage} from '../pages/userDashboardPage';
 import type {UUID} from 'crypto';
