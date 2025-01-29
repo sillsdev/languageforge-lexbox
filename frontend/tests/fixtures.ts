@@ -11,7 +11,7 @@ import {isDev} from './envVars';
 import {E2EMailboxApi} from './email/e2e-mailbox-module-patched';
 import {MaildevMailbox} from './email/maildev-mailbox';
 import {E2EMailbox} from './email/e2e-mailbox';
-import {OrgRole} from '$lib/gql/types';
+import {OrgRole} from '../src/lib/gql/types';
 
 export interface TempUser {
   id: UUID
