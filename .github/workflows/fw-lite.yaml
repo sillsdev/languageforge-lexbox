@@ -177,6 +177,7 @@ jobs:
         run: |
           dotnet publish -f net9.0-android --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
