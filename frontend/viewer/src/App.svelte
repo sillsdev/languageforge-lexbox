@@ -6,7 +6,6 @@
     }
   }
   window.svelteNavigate =  (to: string) => {
-   console.log('svelteNavigate', to);
    navigate(to, {replace: true});
   };
 </script>

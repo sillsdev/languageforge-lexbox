@@ -8,6 +8,7 @@
     mdiChatQuestion,
     mdiChevronRight,
     mdiCloud,
+    mdiFaceAgent,
     mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
@@ -22,11 +23,12 @@
     useAuthService,
     useFwLiteConfig,
     useImportFwdataService,
-    useProjectsService
+    useProjectsService, useTroubleshootingService
   } from './lib/services/service-provider';
   import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
+  import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
 
   const projectsService = useProjectsService();
   const authService = useAuthService();
@@ -141,6 +143,8 @@
       .find(([_server, projects]) => matchesProject(projects, project))?.[0];
     return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
   }
+  const supportsTroubleshooting = useTroubleshootingService();
+  let showTroubleshooting = false;
 </script>
 <AppBar title="Projects" class="bg-secondary min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
@@ -151,7 +155,7 @@
     </picture>
     <h3>Projects</h3>
   </div>
-  <div slot="actions">
+  <div slot="actions" class="flex gap-2">
     <Button
       href={fwLiteConfig.feedbackUrl}
       target="_blank"
@@ -160,6 +164,12 @@
       icon={mdiChatQuestion}>
         Feedback
     </Button>
+    {#if supportsTroubleshooting}
+      <Button size="sm" variant="outline" icon={mdiFaceAgent} title="Troubleshoot" iconOnly={false}
+              on:click={() => showTroubleshooting = !showTroubleshooting}>
+      </Button>
+      <TroubleshootDialog bind:open={showTroubleshooting}/>
+    {/if}
   </div>
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">

@@ -2,13 +2,22 @@
   import AboutDialog from '$lib/about/AboutDialog.svelte';
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import {mdiDotsVertical, mdiEyeSettingsOutline, mdiHistory, mdiInformationVariantCircle, mdiNoteEdit} from '@mdi/js';
+  import {
+    mdiDotsVertical,
+    mdiEyeSettingsOutline,
+    mdiFaceAgent,
+    mdiHistory,
+    mdiInformationVariantCircle,
+    mdiNoteEdit
+  } from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem, ResponsiveMenu, Toggle} from 'svelte-ux';
   import {asScottyPortal} from './Scotty.svelte';
   import {useProjectViewState} from '$lib/services/project-view-state-service';
   import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
+  import {useTroubleshootingService} from '$lib/services/service-provider';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
@@ -19,10 +28,12 @@
 
   const features = useFeatures();
   const projectViewState = useProjectViewState();
+  const supportsTroubleshooting = useTroubleshootingService();
 
   let activityViewOpen = false;
   let aboutDialogOpen = false;
   let wsEditDialogOpen = false;
+  let troubleshootDialogOpen = false;
 </script>
 
 <!-- #key prevents rendering ugly delayed state updates -->
@@ -49,6 +60,9 @@
             Edit WS
           </MenuItem>
         </DevContent>
+        {#if supportsTroubleshooting}
+          <MenuItem icon={mdiFaceAgent} on:click={() => troubleshootDialogOpen = true}>Troubleshoot</MenuItem>
+        {/if}
       </button>
     </ResponsiveMenu>
   </Button>
@@ -61,7 +75,9 @@
 {#if about}
   <AboutDialog bind:open={aboutDialogOpen} text={about} />
 {/if}
-
+{#if supportsTroubleshooting}
+  <TroubleshootDialog bind:open={troubleshootDialogOpen}/>
+{/if}
 <WritingSystemDialog bind:open={wsEditDialogOpen}/>
 
 <style lang="postcss" global>
