@@ -134,6 +134,9 @@ public record LexAuthUser
     [JsonPropertyName(LexAuthConstants.OrgsClaimType)]
     public AuthUserOrg[] Orgs { get; set; } = Array.Empty<AuthUserOrg>();
 
+    [JsonPropertyName(LexAuthConstants.FeatureFlagsClaimType)]
+    public FeatureFlag[] FeatureFlags { get; set; } = Array.Empty<FeatureFlag>();
+
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public string ProjectsJson
     {
@@ -244,6 +247,12 @@ public record LexAuthUser
             return Projects.Any(p => p.ProjectId == projectId && p.Role == role);
         }
         return Projects.Any(p => p.ProjectId == projectId);
+    }
+
+    public bool HasFeature(FeatureFlag feature)
+    {
+        if (FeatureFlags is null) return false;
+        return FeatureFlags.Contains(feature);
     }
 }
 

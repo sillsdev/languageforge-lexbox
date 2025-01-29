@@ -216,6 +216,7 @@ type LeaveProjectPayload {
 
 type LexAuthUser {
   isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
+  hasFeature(feature: FeatureFlag!): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -226,6 +227,7 @@ type LexAuthUser {
   isAdmin: Boolean!
   projects: [AuthUserProject!]!
   orgs: [AuthUserOrg!]!
+  featureFlags: [FeatureFlag!]!
   projectsJson: String!
   locked: Boolean
   emailVerificationRequired: Boolean
@@ -549,6 +551,7 @@ type User {
   createdBy: User
   usersICreated: [User!]!
   organizations: [OrgMember!]!
+  featureFlags: [FeatureFlag!]!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -1173,6 +1176,10 @@ enum CreateProjectResult {
 enum DbErrorCode {
   UNKNOWN
   DUPLICATE
+}
+
+enum FeatureFlag {
+  FW_LITE_BETA
 }
 
 enum LexboxAudience {
