@@ -11,8 +11,8 @@ export class AppNotification {
     return this._notifications;
   }
 
-  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout?: 'short' | 'long' | number) {
-    const notification = new AppNotification(message, type);
+  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout?: 'short' | 'long' | number, detail?: string) {
+    const notification = new AppNotification(message, type, undefined, detail);
     this._notifications.update(notifications => [...notifications, notification]);
     if (!timeout || typeof timeout === 'number' && timeout <= 0) return;
     if (typeof timeout === 'string') {
@@ -36,6 +36,6 @@ export class AppNotification {
     this._notifications.set([]);
   }
 
-  private constructor(public message: string, public type: 'success' | 'error' | 'info' | 'warning', public action?: NotificationAction) {
+  private constructor(public message: string, public type: 'success' | 'error' | 'info' | 'warning', public action?: NotificationAction, public detail?: string) {
   }
 }

@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import {AppNotification} from './notifications';
-  import {Notification, Icon, Button} from 'svelte-ux';
+  import {Notification, Icon, Button, Collapse} from 'svelte-ux';
   import {
     mdiAlert,
     mdiAlertCircleOutline,
@@ -28,6 +28,14 @@
           {/if}
         </div>
         <div slot="title">{notification.message}</div>
+        <svelte:fragment slot="description">
+          {#if notification.detail}
+            <Collapse name="Details" class="whitespace-break-spaces">
+              {notification.detail}
+            </Collapse>
+          {/if}
+        </svelte:fragment>
+
         <div slot="actions">
           {#if notification.action}
             <Button color="primary" on:click={notification.action.callback}>{notification.action.label}</Button>

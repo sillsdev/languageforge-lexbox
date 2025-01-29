@@ -9,6 +9,7 @@
   import {initWritingSystemService} from '../writing-system-service';
   import {DotnetService, WritingSystemType} from '$lib/dotnet-types';
   import {useService} from '$lib/services/service-provider';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   initWritingSystemService(readable({
     analysis: [{
@@ -95,9 +96,10 @@
   </div>
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <div class="flex flex-col gap-2">
-      Error handling
+      Notifications
       <Button variant="fill" on:click={() => testingService.throwException()}>Throw Exception</Button>
       <Button variant="fill" on:click={() => testingService.throwExceptionAsync()}>Throw Exception Async</Button>
+      <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple Notification</Button>
     </div>
   </div>
 </div>
