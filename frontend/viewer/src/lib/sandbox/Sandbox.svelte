@@ -100,6 +100,10 @@
       <Button variant="fill" on:click={() => testingService.throwException()}>Throw Exception</Button>
       <Button variant="fill" on:click={() => testingService.throwExceptionAsync()}>Throw Exception Async</Button>
       <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple Notification</Button>
+      <Button variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
+        label: 'Action',
+        callback: () => alert('Action clicked')
+      })}>Notification with action</Button>
     </div>
   </div>
 </div>
