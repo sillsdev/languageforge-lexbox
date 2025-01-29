@@ -7,7 +7,8 @@
   import {type View} from '../entry-editor/view-data';
   import MapBind from '../utils/MapBind.svelte';
   import {initWritingSystemService} from '../writing-system-service';
-  import {WritingSystemType} from '$lib/dotnet-types';
+  import {DotnetService, WritingSystemType} from '$lib/dotnet-types';
+  import {useService} from '$lib/services/service-provider';
 
   initWritingSystemService(readable({
     analysis: [{
@@ -59,6 +60,8 @@
   ];
 
   let crdtValue = ['a'];
+
+  const testingService = useService(DotnetService.TestingService);
 </script>
 
 <MapBind bind:in={idValue} bind:out={idObjectValue} map={(value) => value.map(v => ({id: v}))} unmap={(value => value.map(v => v.id))} />
@@ -88,6 +91,13 @@
     <div class="flex flex-col">
       <p>selected: {crdtValue.join('|')}</p>
       <Button variant="fill" on:click={() => crdtValue = ['c']}>Select Charlie only</Button>
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <div class="flex flex-col gap-2">
+      Error handling
+      <Button variant="fill" on:click={() => testingService.throwException()}>Throw Exception</Button>
+      <Button variant="fill" on:click={() => testingService.throwExceptionAsync()}>Throw Exception Async</Button>
     </div>
   </div>
 </div>
