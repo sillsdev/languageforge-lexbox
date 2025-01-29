@@ -2,7 +2,7 @@
   import {Button, Dialog, Field} from 'svelte-ux';
   import {useTroubleshootingService} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
-  import {mdiFileEye, mdiFolderSearch} from '@mdi/js';
+  import {mdiFileExport, mdiFileEye, mdiFolderSearch} from '@mdi/js';
 
   const service = useTroubleshootingService();
   export let open = false;
@@ -23,7 +23,10 @@
           </span>
       </Field>
     {/await}
-    <Button variant="fill-light" icon={mdiFileEye} on:click={() => service?.openLogFile()}>Open Log file</Button>
+    <div>
+      <Button variant="fill-light" icon={mdiFileEye} on:click={() => service?.openLogFile()}>Open Log file</Button>
+      <Button variant="fill-light" icon={mdiFileExport} on:click={() => service?.shareLogFile()}>Share Log file</Button>
+    </div>
   </div>
   <div slot="actions">
     <Button on:click={() => open = false}>Close</Button>

@@ -9,6 +9,7 @@ public class MauiTroubleshootingService(IOptions<FwLiteMauiConfig> config, ILogg
 {
     private readonly ILauncher _launcher = Launcher.Default;
     private readonly IBrowser _browser = Browser.Default;
+    private readonly IShare _share = Share.Default;
     private FwLiteMauiConfig Config => config.Value;
 
     [JSInvokable]
@@ -37,5 +38,11 @@ public class MauiTroubleshootingService(IOptions<FwLiteMauiConfig> config, ILogg
     public async Task OpenLogFile()
     {
         await _launcher.OpenAsync(new OpenFileRequest("Log File", new FileResult(Config.AppLogFilePath)));
+    }
+
+    [JSInvokable]
+    public async Task ShareLogFile()
+    {
+        await _share.RequestAsync(new ShareFileRequest("FieldWorks Lite logs", new ShareFile(Config.AppLogFilePath, "text/plain")));
     }
 }

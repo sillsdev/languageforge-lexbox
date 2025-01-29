@@ -8,5 +8,6 @@ export interface ITroubleshootingService
 	tryOpenDataDirectory() : Promise<boolean>;
 	getDataDirectory() : Promise<string>;
 	openLogFile() : Promise<void>;
+	shareLogFile() : Promise<void>;
 }
 /* eslint-enable */
