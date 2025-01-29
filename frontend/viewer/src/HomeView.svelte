@@ -42,10 +42,16 @@
       .replace(/-$/, '');
   }
 
+  let createProjectLoading = false;
   async function createProject(projectName: string) {
-    if ($isDev) projectName += `-dev-${dateTimeProjectSuffix()}`;
-    await projectsService.createProject(projectName);
-    await refreshProjects();
+    try {
+      createProjectLoading = true;
+      if ($isDev) projectName += `-dev-${dateTimeProjectSuffix()}`;
+      await projectsService.createProject(projectName);
+      await refreshProjects();
+    } finally {
+      createProjectLoading = false;
+    }
   }
 
   let importing = '';
@@ -204,7 +210,7 @@
               </AnchorListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)}>
+              <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)} loading={createProjectLoading}>
                 <div slot="actions" class="pointer-events-none">
                   <Button icon={mdiBookPlusOutline} class="p-2"/>
                 </div>

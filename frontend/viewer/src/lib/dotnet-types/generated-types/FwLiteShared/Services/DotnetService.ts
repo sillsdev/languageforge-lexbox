@@ -12,6 +12,7 @@ export enum DotnetService {
 	ProjectServicesProvider = "ProjectServicesProvider",
 	HistoryService = "HistoryService",
 	AppLauncher = "AppLauncher",
-	TroubleshootingService = "TroubleshootingService"
+	TroubleshootingService = "TroubleshootingService",
+	TestingService = "TestingService"
 }
 /* eslint-enable */

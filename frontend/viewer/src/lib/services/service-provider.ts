@@ -15,6 +15,7 @@ import type {IAppLauncher} from '$lib/dotnet-types/generated-types/FwLiteShared/
 import type {
   ITroubleshootingService
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITroubleshootingService';
+import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITestingService';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -26,7 +27,8 @@ export type LexboxServiceRegistry = {
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
   [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
-  [DotnetService.TroubleshootingService]: ITroubleshootingService
+  [DotnetService.TroubleshootingService]: ITroubleshootingService,
+  [DotnetService.TestingService]: ITestingService
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
@@ -104,4 +106,8 @@ export function useAppLauncher(): IAppLauncher | undefined {
 
 export function useTroubleshootingService(): ITroubleshootingService | undefined {
   return window.lexbox.ServiceProvider.tryGetService(DotnetService.TroubleshootingService);
+}
+
+export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
+  return window.lexbox.ServiceProvider.getService(key);
 }

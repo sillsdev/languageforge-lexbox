@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import {AppNotification} from './notifications';
-  import {Notification, Icon, Button} from 'svelte-ux';
+  import {Notification, Icon, Button, Collapse} from 'svelte-ux';
   import {
     mdiAlert,
     mdiAlertCircleOutline,
@@ -15,7 +15,11 @@
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 p-4 min-w-[min(400px,100%)] overflow-y-auto overflow-x-hidden">
   {#each $notifications as notification (notification)}
     <div class="max-w-full min-w-[min(400px,100%)]">
-      <Notification open on:close={() => AppNotification.remove(notification)} closeIcon actionsPlacement="inline" classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces'}}>
+      <Notification open
+                    on:close={() => AppNotification.remove(notification)}
+                    closeIcon
+                    actionsPlacement="inline"
+                    classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces', actions: notification.action ? '' : 'hidden'}}>
         <div slot="icon">
           {#if notification.type === 'success'}
             <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-success"/>
@@ -28,11 +32,19 @@
           {/if}
         </div>
         <div slot="title">{notification.message}</div>
-        <div slot="actions">
+        <svelte:fragment slot="description">
+          {#if notification.detail}
+            <Collapse name="Details" class="whitespace-break-spaces">
+              {notification.detail}
+            </Collapse>
+          {/if}
+        </svelte:fragment>
+
+        <svelte:fragment slot="actions">
           {#if notification.action}
             <Button color="primary" on:click={notification.action.callback}>{notification.action.label}</Button>
           {/if}
-        </div>
+        </svelte:fragment>
       </Notification>
     </div>
   {/each}

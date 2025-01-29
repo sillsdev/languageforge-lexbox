@@ -18,19 +18,28 @@ function suppressErrorNotification(message: string): boolean {
   return false;
 }
 
+const dotnetErrorRegex = /^((?:.|\s)+?) {3}at /m;
+function processErrorIntoDetails(message: string): {message: string, detail?: string} {
+  const match = dotnetErrorRegex.exec(message);
+  if (!match) return {message};
+  return {message: match[1].trim(), detail: message.substring(match[1].length).trim()};
+}
+
 export function setupGlobalErrorHandlers() {
   window.addEventListener('error', (event: ErrorEvent) => {
     console.error('Global error', event);
 
     if (suppressErrorNotification(event.message)) return;
-    AppNotification.display(event.message, 'error', undefined);
+    const {message: simpleMessage, detail} = processErrorIntoDetails(event.message);
+    AppNotification.display(simpleMessage, 'error', undefined, detail);
   });
 
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     const message = getPromiseRejectionMessage(event);
-    console.error('Global unhandled rejection', message, event);
+    //no need to log these because they already get logged by blazor.web.js
 
     if (suppressErrorNotification(message)) return;
-    AppNotification.display(message, 'error', undefined);
+    const {message: simpleMessage, detail} = processErrorIntoDetails(message);
+    AppNotification.display(simpleMessage, 'error', undefined, detail);
   });
 }

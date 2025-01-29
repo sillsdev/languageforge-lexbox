@@ -26,7 +26,7 @@ export class DotNetServiceProvider {
     const service = this.services[key] as LexboxServiceRegistry[K] | DotNet.DotNetObject | undefined;
     //todo maybe don't return undefined
     if (!service) return undefined;
-    if (this.isDotnetObject(service)) return wrapInProxy(service) as LexboxServiceRegistry[K];
+    if (this.isDotnetObject(service)) return wrapInProxy(service, key) as LexboxServiceRegistry[K];
     return service;
   }
 
@@ -45,12 +45,15 @@ export class DotNetServiceProvider {
   }
 }
 
-export function wrapInProxy(dotnetObject: DotNet.DotNetObject): unknown {
+export function wrapInProxy(dotnetObject: DotNet.DotNetObject, serviceName: string): unknown {
   return new Proxy(dotnetObject, {
     get(target: DotNet.DotNetObject, prop: string) {
       const dotnetMethodName = uppercaseFirstLetter(prop);
-      return function (...args: unknown[]) {
-        return target.invokeMethodAsync(dotnetMethodName, ...args);
+      return async function proxyHandler(...args: unknown[]) {
+        console.debug(`[Dotnet Proxy] Calling ${serviceName} method ${dotnetMethodName}`, args);
+        const result = await target.invokeMethodAsync(dotnetMethodName, ...args);
+        console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, result);
+        return result;
       };
     },
   });

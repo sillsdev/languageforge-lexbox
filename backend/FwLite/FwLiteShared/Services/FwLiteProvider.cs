@@ -20,6 +20,7 @@ public class FwLiteProvider(
     ImportFwdataService importFwdataService,
     ILogger<FwLiteProvider> logger,
     IOptions<FwLiteConfig> config,
+    TestingService testingService,
     IAppLauncher? appLauncher = null,
     ITroubleshootingService? troubleshootingService = null
 )
@@ -33,7 +34,8 @@ public class FwLiteProvider(
             [DotnetService.CombinedProjectsService] = projectService,
             [DotnetService.AuthService] = authService,
             [DotnetService.ImportFwdataService] = importFwdataService,
-            [DotnetService.FwLiteConfig] = config.Value
+            [DotnetService.FwLiteConfig] = config.Value,
+            [DotnetService.TestingService] = testingService
         };
         if (appLauncher is not null)
             services[DotnetService.AppLauncher] = appLauncher;
@@ -82,5 +84,6 @@ public enum DotnetService
     ProjectServicesProvider,
     HistoryService,
     AppLauncher,
-    TroubleshootingService
+    TroubleshootingService,
+    TestingService
 }
