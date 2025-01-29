@@ -42,6 +42,7 @@ public class User : EntityBase
 
     public List<ProjectUsers> Projects { get; set; } = new();
     public List<OrgMember> Organizations { get; set; } = [];
+    public List<FeatureFlag> FeatureFlags { get; set; } = [];
 
     public bool CanLogin()
     {
