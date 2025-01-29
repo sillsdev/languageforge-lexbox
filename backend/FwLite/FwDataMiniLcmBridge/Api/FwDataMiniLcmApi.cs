@@ -309,7 +309,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
-            Code = semanticDomain.Abbreviation.UiString ?? "",
+            Code = GetSemanticDomainCode(semanticDomain),
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -319,7 +319,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return
             SemanticDomainRepository
             .AllInstances()
-            .OrderBy(p => p.Abbreviation.UiString)
+            .OrderBy(GetSemanticDomainCode)
             .ToAsyncEnumerable()
             .Select(FromLcmSemanticDomain);
     }
@@ -328,6 +328,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var semDom = GetLcmSemanticDomain(id);
         return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
+    }
+
+    private string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
+    {
+        var abbr = semanticDomain.Abbreviation;
+        // UiString can be null even though there is an abbreviation available
+        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
@@ -478,30 +485,45 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     private Entry FromLexEntry(ILexEntry entry)
     {
-        return new Entry
+        try
         {
-            Id = entry.Guid,
-            Note = FromLcmMultiString(entry.Comment),
-            LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
-            CitationForm = FromLcmMultiString(entry.CitationForm),
-            LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
-            Senses = entry.AllSenses.Select(FromLexSense).ToList(),
-            ComplexFormTypes = ToComplexFormTypes(entry),
-            Components = ToComplexFormComponents(entry).ToList(),
-            ComplexForms = [
-                ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
-                ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
-            ]
-        };
+            return new Entry
+            {
+                Id = entry.Guid,
+                Note = FromLcmMultiString(entry.Comment),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                CitationForm = FromLcmMultiString(entry.CitationForm),
+                LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
+                Senses = entry.AllSenses.Select(FromLexSense).ToList(),
+                ComplexFormTypes = ToComplexFormTypes(entry),
+                Components = ToComplexFormComponents(entry).ToList(),
+                ComplexForms = [
+                    ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
+                    ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
+                ]
+            };
+        }
+        catch (Exception e)
+        {
+            var headword = LexEntryHeadword(entry);
+            throw new InvalidOperationException($"Failed to map FW entry to MiniLCM entry '{headword}' ({entry.Guid})", e);
+        }
     }
 
     private string LexEntryHeadword(ILexEntry entry)
     {
-        return new Entry()
+        try
         {
-            LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
-            CitationForm = FromLcmMultiString(entry.CitationForm),
-        }.Headword();
+            return new Entry()
+            {
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                CitationForm = FromLcmMultiString(entry.CitationForm),
+            }.Headword();
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException($"Failed to get headword for FW entry {entry.Guid}", e);
+        }
     }
 
     private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)

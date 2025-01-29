@@ -1,4 +1,5 @@
-﻿using FluentValidation.TestHelper;
+﻿using FluentValidation;
+using FluentValidation.TestHelper;
 using MiniLcm.Validators;
 
 namespace MiniLcm.Tests.Validators;
@@ -19,6 +20,14 @@ public class SenseValidatorTests
     {
         var sense = new Sense() { Id = Guid.NewGuid(), DeletedAt = DateTimeOffset.UtcNow };
         _validator.TestValidate(sense).ShouldHaveValidationErrorFor("DeletedAt");
+    }
+
+    [Fact]
+    public async Task Fails_WithIdInException()
+    {
+        var sense = new Sense() { Id = Guid.NewGuid(), DeletedAt = DateTimeOffset.UtcNow };
+        var act = () => _validator.ValidateAndThrowAsync(sense);
+        (await act.Should().ThrowAsync<ValidationException>()).Which.Message.Should().Contain(sense.Id.ToString());
     }
 
     [Theory]
