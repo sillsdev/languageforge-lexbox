@@ -144,7 +144,6 @@
   // Used for triggering rerendering when display values of the current entry change (e.g. the headword in the list view)
   const entries = writable<IEntry[] | undefined>();
   $: $entries = $_entries;
-  $: console.debug('Entries:', $_entries);
 
   function fetchEntries(s: string, isConnected: boolean, exemplar: string | null): Promise<IEntry[] | undefined> {
     if (!isConnected) return Promise.resolve(undefined);
