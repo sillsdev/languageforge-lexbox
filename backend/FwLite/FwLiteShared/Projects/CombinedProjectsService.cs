@@ -120,4 +120,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         await crdtProjectsService.CreateExampleProject(name);
     }
+
+    [JSInvokable]
+    public async Task DeleteProject(string name)
+    {
+        await crdtProjectsService.DeleteProject(name);
+    }
 }

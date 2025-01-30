@@ -8,11 +8,12 @@
     mdiChatQuestion,
     mdiChevronRight,
     mdiCloud,
+    mdiDelete,
     mdiFaceAgent,
     mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
-  import {AppBar, Button, Icon, ListItem} from 'svelte-ux';
+  import {AppBar, Button, Icon, ListItem, TextField} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import logoLight from './lib/assets/logo-light.svg';
   import logoDark from './lib/assets/logo-dark.svg';
@@ -42,15 +43,36 @@
       .replace(/-$/, '');
   }
 
+  let customExampleProjectName: string = '';
+
   let createProjectLoading = false;
-  async function createProject(projectName: string) {
+  async function createExampleProject() {
     try {
       createProjectLoading = true;
-      if ($isDev) projectName += `-dev-${dateTimeProjectSuffix()}`;
+      let projectName = exampleProjectName;
+      if ($isDev)
+      {
+        if (customExampleProjectName) {
+          projectName = customExampleProjectName;
+        } else {
+          projectName += `-dev-${dateTimeProjectSuffix()}`;
+        }
+      }
       await projectsService.createProject(projectName);
       await refreshProjects();
     } finally {
       createProjectLoading = false;
+    }
+  }
+
+  let deletingProject: undefined | string = undefined;
+  async function deleteProject(projectName: string) {
+    try {
+      deletingProject = projectName;
+      await projectsService.deleteProject(projectName);
+      await refreshProjects();
+    } finally {
+      deletingProject = undefined;
     }
   }
 
@@ -193,9 +215,16 @@
               <AnchorListItem href={`/project/${project.name}`}>
                 <ListItem title={project.name}
                           icon={mdiBookEditOutline}
-                          subheading={!server ? 'Local only' : ('Synced with ' + server.displayName)}>
-                  <div slot="actions" class="pointer-events-none">
-                    <Button icon={mdiChevronRight} class="p-2"/>
+                          subheading={!server ? 'Local only' : ('Synced with ' + server.displayName)}
+                          loading={deletingProject === project.name}>
+                  <div slot="actions">
+                    {#if $isDev}
+                      <Button icon={mdiDelete} title="Delete" class="p-2" on:click={(e) => {
+                        e.preventDefault();
+                        void deleteProject(project.name);
+                      }} />
+                    {/if}
+                    <Button icon={mdiChevronRight} class="p-2 pointer-events-none"/>
                   </div>
                 </ListItem>
               </AnchorListItem>
@@ -210,9 +239,12 @@
               </AnchorListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem title="Create Example Project" on:click={() => createProject(exampleProjectName)} loading={createProjectLoading}>
-                <div slot="actions" class="pointer-events-none">
-                  <Button icon={mdiBookPlusOutline} class="p-2"/>
+              <ListItem title="Create Example Project" on:click={() => createExampleProject()} loading={createProjectLoading}>
+                <div slot="actions" class="flex flex-nowrap gap-2">
+                  {#if $isDev}
+                    <TextField bind:value={customExampleProjectName} placeholder="Project name..." on:click={(e) => e.stopPropagation()} />
+                  {/if}
+                  <Button icon={mdiBookPlusOutline} class="pointer-events-none p-2"/>
                 </div>
               </ListItem>
             {/if}
