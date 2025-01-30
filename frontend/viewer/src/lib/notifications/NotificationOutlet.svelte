@@ -14,7 +14,7 @@
 {#if $notifications.length}
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 p-4 min-w-[min(400px,100%)] overflow-y-auto overflow-x-hidden">
   {#each $notifications as notification (notification)}
-    <div class="max-w-full min-w-[min(400px,100%)]">
+    <div class="max-w-[100vw] min-w-[min(400px,100%)]">
       <Notification open
                     on:close={() => AppNotification.remove(notification)}
                     closeIcon
@@ -34,8 +34,10 @@
         <div slot="title">{notification.message}</div>
         <svelte:fragment slot="description">
           {#if notification.detail}
-            <Collapse name="Details" class="whitespace-break-spaces">
-              {notification.detail}
+            <Collapse name="Details">
+              <div class="whitespace-pre max-w-[60vw] max-h-64 overflow-auto">
+                {notification.detail}
+              </div>
             </Collapse>
           {/if}
         </svelte:fragment>
