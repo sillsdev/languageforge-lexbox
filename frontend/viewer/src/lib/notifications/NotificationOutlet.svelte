@@ -34,8 +34,8 @@
         <div slot="title">{notification.message}</div>
         <svelte:fragment slot="description">
           {#if notification.detail}
-            <Collapse name="Details">
-              <div class="whitespace-pre max-w-[60vw] max-h-64 overflow-auto">
+            <Collapse name="Details" class="px-2">
+              <div class="whitespace-pre-wrap max-w-[60vw] max-h-64 p-2 overflow-auto border mt-2">
                 {notification.detail}
               </div>
             </Collapse>
