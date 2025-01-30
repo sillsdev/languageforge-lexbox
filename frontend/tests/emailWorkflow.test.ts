@@ -229,7 +229,6 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
 
     // Get to Elawa project page via org page, then ask to join
     const testOrgPage = await new OrgPage(newPage, 'Test Org', testOrgId).goto();
-    await testOrgPage.membersTab.click();
     await testOrgPage.projectsTab.click();
     const projectPage = await testOrgPage.openProject('Elawa', 'elawa-dev-flex');
     await projectPage.askToJoinButton.click();
