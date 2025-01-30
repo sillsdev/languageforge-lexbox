@@ -53,7 +53,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
                 ? commit.DateTime
                 : (DateTime?)null,
         };
-        if (component.DeletedAt is null && await HasReferenceCycle(component, context))
+        if (component.DeletedAt is null && await CreatesReferenceCycleOrDuplicate(component, context))
         {
             component.DeletedAt = commit.DateTime;
         }
@@ -61,7 +61,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
         return component;
     }
 
-    private static async ValueTask<bool> HasReferenceCycle(ComplexFormComponent parent, ChangeContext context)
+    private static async ValueTask<bool> CreatesReferenceCycleOrDuplicate(ComplexFormComponent parent, ChangeContext context)
     {
         if (parent.ComplexFormEntryId == parent.ComponentEntryId) return true;
         //used to avoid checking the same ComplexFormComponent multiple times
@@ -77,6 +77,13 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
                 if (o is not ComplexFormComponent cfc) continue;
                 if (cfc.DeletedAt is not null) continue;
                 if (visited.Contains(cfc.Id)) continue;
+                if (current == parent)
+                {
+                    var duplicate = cfc.ComplexFormEntryId == parent.ComplexFormEntryId &&
+                                    cfc.ComponentEntryId == parent.ComponentEntryId &&
+                                    cfc.ComponentSenseId == parent.ComponentSenseId;
+                    if (duplicate) return true;
+                }
 
                 if (cfc.ComplexFormEntryId == parent.ComponentEntryId) return true;
                 queue.Enqueue(cfc);
