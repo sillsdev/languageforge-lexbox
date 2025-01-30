@@ -821,6 +821,13 @@ input FLExWsIdFilterInput {
   isDefault: BooleanOperationFilterInput
 }
 
+input FeatureFlagOperationFilterInput {
+  eq: FeatureFlag @cost(weight: "10")
+  neq: FeatureFlag @cost(weight: "10")
+  in: [FeatureFlag!] @cost(weight: "10")
+  nin: [FeatureFlag!] @cost(weight: "10")
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
@@ -859,6 +866,13 @@ input LeaveOrgInput {
 
 input LeaveProjectInput {
   projectId: UUID!
+}
+
+input ListFeatureFlagOperationFilterInput {
+  all: FeatureFlagOperationFilterInput @cost(weight: "10")
+  none: FeatureFlagOperationFilterInput @cost(weight: "10")
+  some: FeatureFlagOperationFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfFLExWsIdFilterInput {
@@ -1134,6 +1148,7 @@ input UserFilterInput {
   createdById: UuidOperationFilterInput
   username: StringOperationFilterInput
   id: UuidOperationFilterInput
+  featureFlags: ListFeatureFlagOperationFilterInput
 }
 
 input UserSortInput {
