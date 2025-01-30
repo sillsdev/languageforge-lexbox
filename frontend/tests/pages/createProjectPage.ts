@@ -36,6 +36,10 @@ export class CreateProjectPage extends BasePage {
     return { code, name, organization, type, purpose, description, customCode };
   }
 
+  async selectExtraProject(projectCode: string): Promise<void> {
+    await this.extraProjectsDiv.locator(`#extra-projects-${projectCode}`).check();
+  }
+
   async submit(): Promise<void> {
     await this.page.getByRole('button', {name: /(Create|Request) Project/}).click();
   }

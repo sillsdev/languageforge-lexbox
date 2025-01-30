@@ -48,7 +48,7 @@ export async function verifyTempUserEmail(page: Page, tempUser: TempUser): Promi
   return pagePromise;
 }
 
-export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: string): Promise<unknown> {
+export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: 'ADMIN' | 'USER' | 'UNKNOWN'): Promise<unknown> {
   return executeGql(api, `
     mutation {
         changeOrgMemberRole(input: { userId: "${userId}", orgId: "${orgId}", role: ${role} }) {
@@ -65,7 +65,7 @@ export async function addUserToOrg(api: APIRequestContext, userId: string, orgId
   `);
 }
 
-export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: string): Promise<unknown> {
+export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: 'EDITOR' | 'MANAGER' | 'UNKNOWN'): Promise<unknown> {
   return executeGql(api, `
     mutation {
         addProjectMember(input: { userId: "${userId}", projectId: "${projectId}", role: ${role}, canInvite: false }) {

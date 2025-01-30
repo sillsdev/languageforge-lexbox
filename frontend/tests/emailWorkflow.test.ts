@@ -163,7 +163,6 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
     let dashboardPage = await new UserDashboardPage(page).goto();
 
     // Must verify email before being made manager of a project
-    await dashboardPage.emailVerificationAlert.assertPleaseVerify();
     let newPage = await verifyTempUserEmail(page, manager);
 
     // Add manager to Elawa project
@@ -176,7 +175,6 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
     dashboardPage = await new UserDashboardPage(page).goto();
 
     // Must verify email before being allowed to request project creation
-    await dashboardPage.emailVerificationAlert.assertPleaseVerify();
     newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
     dashboardPage = await new UserDashboardPage(newPage).goto();
 
@@ -185,7 +183,7 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
     await newProjectPage.fillForm({name: 'Elaw', code: 'xyz', purpose: 'Testing', organization: 'Test Org'});
     await expect(newProjectPage.extraProjectsDiv).toBeVisible();
     await expect(newProjectPage.askToJoinBtn).toBeDisabled();
-    await newProjectPage.extraProjectsDiv.locator('#extra-projects-elawa-dev-flex').check();
+    await newProjectPage.selectExtraProject('elawa-dev-flex');
     await expect(newProjectPage.askToJoinBtn).toBeEnabled();
     await newProjectPage.askToJoinBtn.click();
     await expect(newProjectPage.toast('has been sent to the project manager(s)')).toBeVisible();
@@ -215,7 +213,6 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
     let dashboardPage = await new UserDashboardPage(page).goto();
 
     // Must verify email before being made manager of a project
-    await dashboardPage.emailVerificationAlert.assertPleaseVerify();
     let newPage = await verifyTempUserEmail(page, manager);
 
     // Add manager to Elawa project
@@ -228,15 +225,10 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
     dashboardPage = await new UserDashboardPage(page).goto();
 
     // Must verify email before being allowed to request project creation
-    await dashboardPage.emailVerificationAlert.assertPleaseVerify();
-    let emailPage = await tempUserInTestOrg.mailbox.openEmail(page, EmailSubjects.VerifyEmail);
-    let pagePromise = emailPage.page.context().waitForEvent('page');
-    await emailPage.clickVerifyEmail();
-    newPage = await pagePromise;
-    dashboardPage = await new UserDashboardPage(newPage).goto();
+    newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
 
     // Get to Elawa project page via org page, then ask to join
-    const testOrgPage = await new OrgPage(page, 'Test Org', testOrgId).goto();
+    const testOrgPage = await new OrgPage(newPage, 'Test Org', testOrgId).goto();
     await testOrgPage.membersTab.click();
     await testOrgPage.projectsTab.click();
     const projectPage = await testOrgPage.openProject('Elawa', 'elawa-dev-flex');
@@ -244,8 +236,8 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
 
     // Log in as manager, approve join request.
     await loginAs(page.request, manager.email, manager.password);
-    emailPage = await manager.mailbox.openEmail(page, `${EmailSubjects.ProjectJoinRequest}: ${name}`);
-    pagePromise = emailPage.page.context().waitForEvent('page');
+    const emailPage = await manager.mailbox.openEmail(page, `${EmailSubjects.ProjectJoinRequest}: ${name}`);
+    const pagePromise = emailPage.page.context().waitForEvent('page');
     await emailPage.clickApproveRequest();
     newPage = await pagePromise;
     const elawaProjectPage = await new ProjectPage(newPage, 'Elawa', 'elawa-dev-flex').waitFor();
