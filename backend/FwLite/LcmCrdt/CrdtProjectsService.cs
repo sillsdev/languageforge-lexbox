@@ -119,6 +119,16 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return crdtProject;
     }
 
+    public async Task DeleteProject(string name)
+    {
+        var project = GetProject(name) ?? throw new InvalidOperationException($"Project {name} found");
+        await using var serviceScope = provider.CreateAsyncScope();
+        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        currentProjectService.SetupProjectContextForNewDb(project);
+        var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        await db.Database.EnsureDeletedAsync();
+    }
+
     internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
     {
         await db.Database.MigrateAsync();
