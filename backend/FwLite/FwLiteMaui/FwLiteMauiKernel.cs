@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
+using SIL.Harmony;
 
 namespace FwLiteMaui;
 
@@ -105,6 +106,11 @@ public static class FwLiteMauiKernel
         {
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
+        });
+        services.Configure<CrdtConfig>(config =>
+        {
+            config.FailedSyncOutputPath = Path.Combine(baseDataPath, "failedSyncs");
+            config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");
         });
 
         logging.AddFile(fwLiteMauiConfig.AppLogFilePath);
