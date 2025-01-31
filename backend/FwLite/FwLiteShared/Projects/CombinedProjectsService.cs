@@ -13,7 +13,7 @@ public record ProjectModel(
     bool Crdt,
     bool Fwdata,
     bool Lexbox = false,
-    string? ServerAuthority = null,
+    LexboxServer? Server = null,
     Guid? Id = null);
 
 public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
@@ -34,8 +34,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             var server = lexboxServers[i];
             var projectModels = await ServerProjects(server, forceRefresh);
-            serverProjects[i] = new ServerProjects(server,
-                projectModels);
+            serverProjects[i] = new ServerProjects(server, projectModels);
         }
 
         return serverProjects;
@@ -49,7 +48,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 Crdt: p.IsCrdtProject,
                 Fwdata: false,
                 Lexbox: true,
-                server.Authority.Authority,
+                server,
                 p.Id))
             .ToArray();
         return projectModels;
@@ -69,16 +68,12 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var crdtProjects = crdtProjectsService.ListProjects();
         //todo get project Id and use that to specify the Id in the model. Also pull out server
         var projects = crdtProjects.ToDictionary(p => p.Name,
-            p =>
-            {
-                var uri = p.Data?.OriginDomain is not null ? new Uri(p.Data.OriginDomain) : null;
-                return new ProjectModel(p.Name,
-                    true,
-                    false,
-                    p.Data?.OriginDomain is not null,
-                    uri?.Authority,
-                    p.Data?.Id);
-            });
+            p => new ProjectModel(p.Name,
+                true,
+                false,
+                p.Data?.OriginDomain is not null,
+                lexboxProjectService.GetServer(p.Data),
+                p.Data?.Id));
         //basically populate projects and indicate if they are lexbox or fwdata
         if (FwDataProjectProvider is not null)
         {
