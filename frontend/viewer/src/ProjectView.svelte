@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {AppBar, Button} from 'svelte-ux';
+  import {AppBar, Button, clamp} from 'svelte-ux';
   import {
     mdiArrowCollapseRight,
     mdiArrowExpandLeft,
@@ -230,12 +230,14 @@
     const _entries = $entries!;
     const deletedEntry = event.detail.entry;
     const deletedIndex = _entries.findIndex(e => e.id === deletedEntry.id);
-    $selectedEntry = _entries[deletedIndex + 1];
 
     if (deletedIndex >= 0 && deletedIndex < _entries.length) {
       _entries.splice(deletedIndex, 1);
       $entries = _entries;
     }
+
+    const selectIndex = clamp(deletedIndex, 0, _entries.length - 1);
+    $selectedEntry = _entries[selectIndex];
   }
 
   function navigateToEntry(entry: IEntry, searchText?: string) {
