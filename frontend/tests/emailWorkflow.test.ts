@@ -1,6 +1,5 @@
-import {TEST_TIMEOUT_2X, defaultPassword} from './envVars';
-import {deleteUser, getCurrentUserId, loginAs, logout} from './utils/authHelpers';
-
+import {TEST_TIMEOUT_2X, defaultPassword, elawaProjectId, testOrgId} from './envVars';
+import {addUserToProject, deleteUser, getCurrentUserId, loginAs, logout, verifyTempUserEmail} from './utils/authHelpers';
 import {AcceptInvitationPage} from './pages/acceptInvitationPage';
 import {AdminDashboardPage} from './pages/adminDashboardPage';
 import {EmailSubjects} from './email/email-page';
@@ -11,6 +10,8 @@ import {UserDashboardPage} from './pages/userDashboardPage';
 import {expect} from '@playwright/test';
 import {randomUUID} from 'crypto';
 import {test} from './fixtures';
+import {ProjectPage} from './pages/projectPage';
+import {OrgPage} from './pages/orgPage';
 
 const userIdsToDelete: string[] = [];
 
@@ -151,4 +152,99 @@ test('register via new-user invitation email', async ({ page, mailboxFactory }) 
 
   // Should be able to open sena-3 project from user dashboard as we are now a member
   await userDashboardPage.openProject('Sena 3', 'sena-3');
+});
+
+test('ask to join project via new-project page', async ({ page, tempUser, tempUserInTestOrg }) => {
+    test.setTimeout(TEST_TIMEOUT_2X);
+
+    // First, set up new user to be manager of Elawa project (since it doesn't have one in default seed data)
+    const manager = tempUser;
+    await loginAs(page.request, manager.email, manager.password);
+    let dashboardPage = await new UserDashboardPage(page).goto();
+
+    // Must verify email before being made manager of a project
+    let newPage = await verifyTempUserEmail(page, manager);
+
+    // Add manager to Elawa project
+    await loginAs(newPage.request, 'admin');
+    await addUserToProject(newPage.request, manager.id, elawaProjectId, 'MANAGER');
+
+    const { name, email, password } = tempUserInTestOrg;
+
+    await loginAs(page.request, email, password);
+    dashboardPage = await new UserDashboardPage(page).goto();
+
+    // Must verify email before being allowed to request project creation
+    newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
+    dashboardPage = await new UserDashboardPage(newPage).goto();
+
+    // Create project with similar name to Elawa
+    const newProjectPage = await dashboardPage.clickCreateProject();
+    await newProjectPage.fillForm({name: 'Elaw', code: 'xyz', purpose: 'Testing', organization: 'Test Org'});
+    await expect(newProjectPage.extraProjectsDiv).toBeVisible();
+    await expect(newProjectPage.askToJoinBtn).toBeDisabled();
+    await newProjectPage.selectExtraProject('elawa-dev-flex');
+    await expect(newProjectPage.askToJoinBtn).toBeEnabled();
+    await newProjectPage.askToJoinBtn.click();
+    await expect(newProjectPage.toast('has been sent to the project manager(s)')).toBeVisible();
+
+    // Log in as manager, approve join request.
+    await loginAs(page.request, manager.email, manager.password);
+    const emailPage = await manager.mailbox.openEmail(page, `${EmailSubjects.ProjectJoinRequest}: ${name}`);
+    const pagePromise = emailPage.page.context().waitForEvent('page');
+    await emailPage.clickApproveRequest();
+    newPage = await pagePromise;
+    const elawaProjectPage = await new ProjectPage(newPage, 'Elawa', 'elawa-dev-flex').waitFor();
+    await elawaProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
+    await elawaProjectPage.goto();
+
+    // Log in as temp user, should see Elawa project
+    await loginAs(page.request, email, password);
+    dashboardPage = await new UserDashboardPage(page).goto();
+    await dashboardPage.openProject('Elawa', 'elawa-dev-flex');
+});
+
+test('ask to join project via project page', async ({ page, tempUser, tempUserInTestOrg }) => {
+    test.setTimeout(TEST_TIMEOUT_2X);
+
+    // First, set up new user to be manager of Elawa project (since it doesn't have one in default seed data)
+    const manager = tempUser;
+    await loginAs(page.request, manager.email, manager.password);
+    let dashboardPage = await new UserDashboardPage(page).goto();
+
+    // Must verify email before being made manager of a project
+    let newPage = await verifyTempUserEmail(page, manager);
+
+    // Add manager to Elawa project
+    await loginAs(newPage.request, 'admin');
+    await addUserToProject(newPage.request, manager.id, elawaProjectId, 'MANAGER');
+
+    const { name, email, password } = tempUserInTestOrg;
+
+    await loginAs(page.request, email, password);
+    dashboardPage = await new UserDashboardPage(page).goto();
+
+    // Must verify email before being allowed to request project creation
+    newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
+
+    // Get to Elawa project page via org page, then ask to join
+    const testOrgPage = await new OrgPage(newPage, 'Test Org', testOrgId).goto();
+    await testOrgPage.projectsTab.click();
+    const projectPage = await testOrgPage.openProject('Elawa', 'elawa-dev-flex');
+    await projectPage.askToJoinButton.click();
+
+    // Log in as manager, approve join request.
+    await loginAs(page.request, manager.email, manager.password);
+    const emailPage = await manager.mailbox.openEmail(page, `${EmailSubjects.ProjectJoinRequest}: ${name}`);
+    const pagePromise = emailPage.page.context().waitForEvent('page');
+    await emailPage.clickApproveRequest();
+    newPage = await pagePromise;
+    const elawaProjectPage = await new ProjectPage(newPage, 'Elawa', 'elawa-dev-flex').waitFor();
+    await elawaProjectPage.modal.getByRole('button', {name: 'Add Member'}).click();
+    await elawaProjectPage.goto();
+
+    // Log in as temp user, should see Elawa project
+    await loginAs(page.request, email, password);
+    dashboardPage = await new UserDashboardPage(page).goto();
+    await dashboardPage.openProject('Elawa', 'elawa-dev-flex');
 });

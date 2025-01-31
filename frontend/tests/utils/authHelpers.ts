@@ -5,6 +5,8 @@ import {UserDashboardPage} from '../pages/userDashboardPage';
 import type {UUID} from 'crypto';
 import {executeGql} from './gqlHelpers';
 import {LoginPage} from '../pages/loginPage';
+import type {TempUser} from '../fixtures';
+import {EmailSubjects} from '../email/email-page';
 
 export async function loginAs(api: APIRequestContext, emailOrUsername: string, password: string = defaultPassword): Promise<void> {
   const loginData = {
@@ -35,6 +37,49 @@ export async function registerUser(page: Page, name: string, email: string, pass
   await new UserDashboardPage(page).waitFor();
   const userId = await getCurrentUserId(page.request);
   return userId;
+}
+
+// Verify email address; returns a Page promise that should be used to load a UserDashboardPage or AdminDashboardPage
+// Does not call loginAs(page.request, tempUser.email, tempUser.password); calling code should be doing that
+export async function verifyTempUserEmail(page: Page, tempUser: TempUser): Promise<Page> {
+  const emailPage = await tempUser.mailbox.openEmail(page, EmailSubjects.VerifyEmail);
+  const pagePromise = emailPage.page.context().waitForEvent('page');
+  await emailPage.clickVerifyEmail();
+  return pagePromise;
+}
+
+export async function addUserToOrg(api: APIRequestContext, userId: string, orgId: string, role: 'ADMIN' | 'USER' | 'UNKNOWN'): Promise<unknown> {
+  return executeGql(api, `
+    mutation {
+        changeOrgMemberRole(input: { userId: "${userId}", orgId: "${orgId}", role: ${role} }) {
+            organization {
+                id
+            }
+            errors {
+                ... on Error {
+                    message
+                }
+            }
+        }
+    }
+  `);
+}
+
+export async function addUserToProject(api: APIRequestContext, userId: string, projectId: string, role: 'EDITOR' | 'MANAGER' | 'UNKNOWN'): Promise<unknown> {
+  return executeGql(api, `
+    mutation {
+        addProjectMember(input: { userId: "${userId}", projectId: "${projectId}", role: ${role}, canInvite: false }) {
+            project {
+                id
+            }
+            errors {
+                ... on Error {
+                    message
+                }
+            }
+        }
+    }
+  `);
 }
 
 export async function deleteUser(api: APIRequestContext, userId: string): Promise<unknown> {
