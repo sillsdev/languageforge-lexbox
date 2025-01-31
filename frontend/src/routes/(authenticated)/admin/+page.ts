@@ -113,6 +113,7 @@ export async function load(event: PageLoadEvent) {
                 updatedDate
                 lastActive
                 canCreateProjects
+                featureFlags
                 createdById
                 createdBy {
                   id

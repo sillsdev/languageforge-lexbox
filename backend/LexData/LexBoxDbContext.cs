@@ -1,6 +1,9 @@
+using System.Text.Json;
+using LexCore;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LexData;
 
@@ -22,7 +25,13 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
+        builder.Properties<List<FeatureFlag>>()
+            .HaveConversion<FeatureFlagListConverter>();
     }
+
+    private class FeatureFlagListConverter() : ValueConverter<List<FeatureFlag>, List<string>>(
+        flags => flags.Select(flag => JsonSerializer.Serialize(flag, (JsonSerializerOptions?)null)).ToList(),
+        strs => strs.Select(flagStr => JsonSerializer.Deserialize<FeatureFlag>(flagStr, (JsonSerializerOptions?)null)).ToList());
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
