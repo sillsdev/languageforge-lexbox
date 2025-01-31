@@ -63,6 +63,15 @@
   let crdtValue = ['a'];
 
   const testingService = useService(DotnetService.TestingService);
+
+  function triggerNotificationWithLargeDetail() {
+    let detail = '';
+    for (let i = 0; i < 100; i++) {
+      if (i % 10 === 0) detail += '='.repeat(20);
+      detail += `This is line ${i + 1} of the detail\n`;
+    }
+    AppNotification.display('This is a notification with a large detail', 'info', undefined, detail);
+  }
 </script>
 
 <MapBind bind:in={idValue} bind:out={idObjectValue} map={(value) => value.map(v => ({id: v}))} unmap={(value => value.map(v => v.id))} />
@@ -104,6 +113,7 @@
         label: 'Action',
         callback: () => alert('Action clicked')
       })}>Notification with action</Button>
+      <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail</Button>
     </div>
   </div>
 </div>

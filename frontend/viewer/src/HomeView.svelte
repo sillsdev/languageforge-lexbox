@@ -176,6 +176,15 @@
       </Button>
       <TroubleshootDialog bind:open={showTroubleshooting}/>
     {/if}
+    <DevContent>
+      <Button
+        href="/sandbox"
+        size="sm"
+        variant="outline"
+        icon={mdiTestTube}>
+        Sandbox
+      </Button>
+    </DevContent>
   </div>
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
