@@ -25,7 +25,9 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
     {
         modelBuilder.UseCrdt(options.Value);
 
-        modelBuilder.Entity<ProjectData>().HasKey(p => p.Id);
+        var projectDataModel = modelBuilder.Entity<ProjectData>();
+        projectDataModel.HasKey(p => p.Id);
+        projectDataModel.Ignore(p => p.ServerId);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

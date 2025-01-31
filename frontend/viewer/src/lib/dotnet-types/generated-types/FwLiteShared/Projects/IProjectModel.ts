@@ -3,13 +3,15 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ILexboxServer} from '../Auth/ILexboxServer';
+
 export interface IProjectModel
 {
 	name: string;
 	crdt: boolean;
 	fwdata: boolean;
 	lexbox: boolean;
-	serverAuthority?: string;
+	server?: ILexboxServer;
 	id?: string;
 }
 /* eslint-enable */

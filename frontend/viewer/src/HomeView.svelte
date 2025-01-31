@@ -95,7 +95,7 @@
     try {
       let result = await projectsService.remoteProjects(force);
       for (let serverProjects of result) {
-        remoteProjects[serverProjects.server.authority] = serverProjects.projects;
+        remoteProjects[serverProjects.server.id] = serverProjects.projects;
       }
       remoteProjects = remoteProjects;
     } finally {
@@ -106,7 +106,7 @@
   let loadingServerProjects: undefined | string = undefined;
   async function refreshServerProjects(server: ILexboxServer, force: boolean = false) {
     loadingServerProjects = server.id;
-    remoteProjects[server.authority] = await projectsService.serverProjects(server.id, force);
+    remoteProjects[server.id] = await projectsService.serverProjects(server.id, force);
     remoteProjects = remoteProjects;
     loadingServerProjects = undefined;
   }
@@ -129,25 +129,10 @@
 
 
   function matchesProject(projects: Project[], project: Project): Project | undefined {
-    let matches: Project | undefined = undefined;
     if (project.id) {
-      matches = projects.find(p => p.id == project.id && p.serverAuthority == project.serverAuthority);
+      return projects.find(p => p.id == project.id && p.server?.id == project.server?.id);
     }
-    return matches;
-  }
-
-  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project, serversStatus: IServerStatus[]): ILexboxServer | undefined {
-    //this may be null, even if the project is synced, when the project info isn't cached on the server yet.
-    if (project.serverAuthority) {
-      return serversStatus.find(s => s.server.id == project.serverAuthority)?.server ?? {
-        displayName: 'Unknown server ' + project.serverAuthority,
-        authority: project.serverAuthority,
-        id: project.serverAuthority
-      } satisfies ILexboxServer;
-    }
-    let authority =  Object.entries(serversProjects)
-      .find(([_server, projects]) => matchesProject(projects, project))?.[0];
-    return authority ? serversStatus.find(s => s.server.authority == authority)?.server : undefined;
+    return undefined;
   }
   const supportsTroubleshooting = useTroubleshootingService();
   let showTroubleshooting = false;
@@ -198,7 +183,7 @@
           <p class="sub-title">Local</p>
           <div>
             {#each projects.filter(p => p.crdt) as project, i (project.id ?? i)}
-              {@const server = syncedServer(remoteProjects, project, serversStatus)}
+              {@const server = project.server}
               <AnchorListItem href={`/project/${project.name}`}>
                 <ListItem title={project.name}
                           icon={mdiBookEditOutline}
@@ -229,7 +214,7 @@
         </div>
         {#each serversStatus as status}
           {@const server = status.server}
-          {@const serverProjects = remoteProjects[server.authority]?.filter(p => p.crdt) ?? []}
+          {@const serverProjects = remoteProjects[server.id]?.filter(p => p.crdt) ?? []}
           <div>
             <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
               <p class="sub-title !my-0">
