@@ -26,9 +26,10 @@
   $: writingSystems = writingSystemService.pickWritingSystems(wsType);
   $: empty = !writingSystems.some((ws) => value[ws.wsId] || unsavedChanges[ws.wsId]);
   $: collapse = empty && writingSystems.length > 1;
+  $: hide = !$currentView.fields[id].show;
 </script>
 
-<div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
+<div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={hide} style:grid-area={id}>
   <FieldTitle {id} {name} />
   <div class="fields">
     {#each writingSystems as ws, idx (ws.wsId)}

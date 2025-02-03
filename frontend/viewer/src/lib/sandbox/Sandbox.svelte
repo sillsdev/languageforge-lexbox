@@ -8,11 +8,9 @@
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
   import {initWritingSystemService} from '$lib/writing-system-service';
-  import {deriveAsync} from '$lib/utils/time';
   import {writable} from 'svelte/store';
   import {initView, initViewSettings} from '$lib/services/view-service';
-
-
+  import OverrideFields from '$lib/OverrideFields.svelte';
 
 
   const crdtOptions: MenuOption[] = [
@@ -32,6 +30,15 @@
       detail += `This is line ${i + 1} of the detail\n`;
     }
     AppNotification.display('This is a notification with a large detail', 'info', undefined, detail);
+  }
+
+  const inMemoryLexboxApi = InMemoryApiService.setup();
+  initWritingSystemService(writable(inMemoryLexboxApi.getWritingSystemsSync()));
+  initView();
+  initViewSettings();
+
+  function makeSense(s: ISense) {
+    return s;
   }
 </script>
 
@@ -61,12 +68,23 @@
       Notifications
       <Button variant="fill" on:click={() => testingService.throwException()}>Throw Exception</Button>
       <Button variant="fill" on:click={() => testingService.throwExceptionAsync()}>Throw Exception Async</Button>
-      <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple Notification</Button>
+      <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple
+        Notification
+      </Button>
       <Button variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
         label: 'Action',
         callback: () => alert('Action clicked')
-      })}>Notification with action</Button>
-      <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail</Button>
+      })}>Notification with action
+      </Button>
+      <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
+      </Button>
     </div>
+  </div>
+
+  <div class="editor-grid border p-4">
+    <OverrideFields shownFields={['definition', 'gloss']} respectOrder>
+      <SenseEditor
+        sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+    </OverrideFields>
   </div>
 </div>

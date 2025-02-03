@@ -9,14 +9,15 @@ export interface ViewSettings {
   showEmptyFields: boolean;
 }
 
-export function initViewSettings(defaultSettings: ViewSettings): Writable<ViewSettings> {
+export function initViewSettings(defaultSettings: ViewSettings = {showEmptyFields: true}): Writable<ViewSettings> {
   //todo load from local storage
   const viewSettingsStore = writable<ViewSettings>(defaultSettings);
   setContext<Writable<ViewSettings>>(viewSettingsContextName, viewSettingsStore);
   return viewSettingsStore;
 }
 
-export function initView(defaultView: View): Writable<View> {
+export function initView(defaultView?: View): Writable<View> {
+  defaultView ??= views[0];
   const localView = localStorage.getItem('currentView');
   const currentViewStore = writable<View>(views.find(v => v.id === localView) ?? defaultView);
   onDestroy(currentViewStore.subscribe(v => localStorage.setItem('currentView', v.id)));
@@ -29,14 +30,18 @@ export function initView(defaultView: View): Writable<View> {
  * and what labels are used.
  */
 export function useCurrentView(): Writable<View> {
-  return getContext<Writable<View>>(currentViewContextName);
+  const currentView = getContext<Writable<View>>(currentViewContextName);
+  if (!currentView) throw new Error('Current view is not initialized. Are you in the context of a project?');
+  return currentView;
 }
 
 /**
  * View settings contains user specified settings, such as hiding empty fields.
  */
 export function useViewSettings(): Writable<ViewSettings> {
-  return getContext<Writable<ViewSettings>>(viewSettingsContextName);
+  const viewSettings = getContext<Writable<ViewSettings>>(viewSettingsContextName);
+  if (!viewSettings) throw new Error('View settings is not initialized. Are you in the context of a project?');
+  return viewSettings;
 }
 
 /**
