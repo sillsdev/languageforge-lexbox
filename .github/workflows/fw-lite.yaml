@@ -37,9 +37,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:
@@ -60,7 +65,6 @@ jobs:
       - name: Build viewer
         working-directory: frontend/viewer
         run: |
-          corepack enable
           pnpm install
           pnpm run build-app
 
