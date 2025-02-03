@@ -30,6 +30,22 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         throw new NotImplementedException();
     }
 
+    private async Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
+    {
+        if (project.Data is not null) return project.Data;
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        return await currentProjectService.SetupProjectContext(project);
+    }
+
+    public async ValueTask EnsureProjectDataCacheIsLoaded()
+    {
+        var tasks = ListProjects().Where(p => p.Data is null).Select(EnsureProjectDataCacheIsLoaded).ToArray();
+        if (tasks is []) return;
+        await Task.WhenAll(tasks);
+    }
+
     public IEnumerable<CrdtProject> ListProjects()
     {
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>

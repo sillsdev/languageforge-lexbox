@@ -25,6 +25,12 @@ public class LexboxProjectService(
         return options.Value.LexboxServers;
     }
 
+    public LexboxServer? GetServer(ProjectData? projectData)
+    {
+        if (projectData is null) return null;
+        return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
+    }
+
     public async Task<LexboxProject[]> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),

@@ -51,7 +51,7 @@
           <!--Register COM CLSID LocalServer32 registry key-->
           <com:Extension Category="windows.comServer">
               <com:ComServer>
-                  <com:ExeServer Executable="$targetnametoken$.exe" Arguments="-ToastActivated"
+                  <com:ExeServer Executable="FwLiteMaui.exe" Arguments="-ToastActivated"
                                  DisplayName="Toast activator">
                       <com:Class Id="49f2053c-31cc-4eb9-8a65-84491e543d56" DisplayName="Toast activator"/>
                   </com:ExeServer>

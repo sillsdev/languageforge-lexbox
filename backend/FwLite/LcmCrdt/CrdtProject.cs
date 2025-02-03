@@ -22,4 +22,6 @@ public record ProjectData(string Name, Guid Id, string? OriginDomain, Guid Clien
     {
         return uri?.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
     }
+
+    public string? ServerId => OriginDomain is not null ? new Uri(OriginDomain).Authority : null;
 }

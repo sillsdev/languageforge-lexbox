@@ -77,7 +77,7 @@ public static class MauiProgram
         var app = builder.Build();
         holder.App = app;
         var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
-        logger.LogInformation("App started");
+        logger.LogInformation("App started, {Version}", AppVersion.Version);
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
             if (e.ExceptionObject is Exception exception)

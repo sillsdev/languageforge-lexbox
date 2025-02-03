@@ -68,11 +68,7 @@ public class BackgroundSyncService(
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
         _running = true;
-        var crdtProjects = crdtProjectsService.ListProjects();
-        foreach (var crdtProject in crdtProjects)
-        {
-            await SyncProject(crdtProject, true, stoppingToken);
-        }
+        await SyncAllProjects(stoppingToken);
 
         try
         {
@@ -86,6 +82,15 @@ public class BackgroundSyncService(
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
             // Expected during shutdown
+        }
+    }
+
+    private async Task SyncAllProjects(CancellationToken stoppingToken)
+    {
+        var crdtProjects = crdtProjectsService.ListProjects();
+        foreach (var crdtProject in crdtProjects)
+        {
+            await SyncProject(crdtProject, true, stoppingToken);
         }
     }
 

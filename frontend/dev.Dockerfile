@@ -2,7 +2,7 @@
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
 FROM node:20 AS builder
 
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@9.11.0 --activate
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/

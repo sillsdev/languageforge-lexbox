@@ -22,15 +22,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
 
-    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>().AsTracking(false);
-    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>()
-        .AsTracking(false);
-    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>().AsTracking(false);
-    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>().AsTracking(false);
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>().AsTracking(false);
-    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>().AsTracking(false);
-    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>().AsTracking(false);
-    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>().AsTracking(false);
+    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
+    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
+    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>();
+    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>();
+    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>();
+    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
+    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
+    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
 
     private CommitMetadata NewMetadata()
     {
@@ -80,7 +79,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         {
             throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
         }
-        return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
+        return await GetWritingSystem(writingSystem.WsId, type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -89,7 +88,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
         await AddChange(patchChange);
-        return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
+        return await GetWritingSystem(id, type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
@@ -120,9 +119,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
-    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return dataModel.GetLatest<PartOfSpeech>(id);
+        return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -317,7 +316,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries.AsTracking(false)
+        var entry = await Entries
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
             .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
@@ -481,15 +480,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         }
     }
 
-    public async Task<Sense?> GetSense(Guid entryId, Guid id)
+    public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
     {
-        var entry = await Entries.AsTracking(false)
-            .LoadWith(e => e.Senses)
-            .ThenLoad(s => s.ExampleSentences)
-            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
+        var sense = await Senses.LoadWith(s => s.PartOfSpeech)
             .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == entryId);
-        var sense = entry?.Senses.FirstOrDefault(s => s.Id == id);
+            .SingleOrDefaultAsync(e => e.Id == senseId);
         sense?.ApplySortOrder();
         return sense;
     }
@@ -502,17 +497,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
-        return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
+        return await GetSense(entryId, sense.Id) ?? throw new NullReferenceException("unable to find sense " + sense.Id);
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
         Guid senseId,
         UpdateObjectInput<Sense> update)
     {
-        var sense = await dataModel.GetLatest<Sense>(senseId);
+        var sense = await GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
         await dataModel.AddChanges(ClientId, [..sense.ToChanges(update.Patch)]);
-        return await dataModel.GetLatest<Sense>(senseId) ?? throw new NullReferenceException();
+        return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
@@ -551,12 +546,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await validators.ValidateAndThrow(exampleSentence);
         exampleSentence.Order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
         await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
-        return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
+        return await GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw new NullReferenceException();
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        var exampleSentence = await ExampleSentences.AsTracking(false)
+        var exampleSentence = await ExampleSentences
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
         return exampleSentence;
@@ -570,7 +565,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var jsonPatch = update.Patch;
         var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch);
         await AddChange(patchChange);
-        return await dataModel.GetLatest<ExampleSentence>(exampleSentenceId) ?? throw new NullReferenceException();
+        return await GetExampleSentence(entryId, senseId, exampleSentenceId) ?? throw new NullReferenceException();
     }
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
