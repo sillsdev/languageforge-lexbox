@@ -63,8 +63,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public IReadOnlyCollection<ProjectModel> LocalProjects()
+    public async ValueTask<IReadOnlyCollection<ProjectModel>> LocalProjects()
     {
+        await crdtProjectsService.EnsureProjectDataCacheIsLoaded();
         var crdtProjects = crdtProjectsService.ListProjects();
         //todo get project Id and use that to specify the Id in the model. Also pull out server
         var projects = crdtProjects.ToDictionary(p => p.Name,
