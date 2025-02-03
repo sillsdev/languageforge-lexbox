@@ -94,18 +94,20 @@
             <ShowEmptyFieldsSwitch bind:value={showEmptyFields} />
           </div>
         </div>
-        <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full" class:hide-empty={!showEmptyFields}>
-          {#if record.entityName === 'Entry'}
-            <EntryEditor entry={record.entity} modalMode readonly/>
-          {:else if record.entityName === 'Sense'}
-            <div class="editor-grid">
-              <SenseEditor sense={record.entity} readonly/>
-            </div>
-          {:else if record.entityName === 'ExampleSentence'}
-            <div class="editor-grid">
-              <ExampleEditor example={record.entity} readonly/>
-            </div>
-          {/if}
+        <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full" class:hide-unused={!showEmptyFields}>
+          {#key record}
+            {#if record.entityName === 'Entry'}
+              <EntryEditor entry={record.entity} modalMode readonly/>
+            {:else if record.entityName === 'Sense'}
+              <div class="editor-grid">
+                <SenseEditor sense={record.entity} readonly/>
+              </div>
+            {:else if record.entityName === 'ExampleSentence'}
+              <div class="editor-grid">
+                <ExampleEditor example={record.entity} readonly/>
+              </div>
+            {/if}
+          {/key}
         </div>
       {/if}
     </div>

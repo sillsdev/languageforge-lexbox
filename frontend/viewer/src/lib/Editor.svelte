@@ -53,16 +53,18 @@
   }
 </script>
 
-<div id="entry" class:hide-empty={!$viewSettings.showEmptyFields}>
-  <EntryEditor
-    on:change={e => onChange(e.detail)}
-    on:delete={e => onDelete(e.detail)}
-    entry={entry}
-    {readonly}/>
+<div id="entry" class:hide-unused={!$viewSettings.showEmptyFields}>
+  {#key entry.id}
+    <EntryEditor
+      on:change={e => onChange(e.detail)}
+      on:delete={e => onDelete(e.detail)}
+      entry={entry}
+      {readonly}/>
+  {/key}
 </div>
 
 <style lang="postcss">
-  :global(.hide-empty :is(.empty, .ws-field-wrapper:has(.empty))) {
+  :global(.hide-unused :is(.unused, .ws-field-wrapper:has(.unused))) {
     display: none !important;
   }
 </style>

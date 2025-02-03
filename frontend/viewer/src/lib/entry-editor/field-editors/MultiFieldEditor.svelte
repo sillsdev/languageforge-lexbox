@@ -6,6 +6,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import {useCurrentView} from '../../services/view-service';
   import {useWritingSystemService} from '../../writing-system-service';
+  import {makeHasHadValueTracker} from '$lib/utils';
 
   const dispatch = createEventDispatcher<{
     change: { value: IMultiString };
@@ -24,12 +25,15 @@
   let currentView = useCurrentView();
 
   $: writingSystems = writingSystemService.pickWritingSystems(wsType);
-  $: empty = !writingSystems.some((ws) => value[ws.wsId] || unsavedChanges[ws.wsId]);
-  $: collapse = empty && writingSystems.length > 1;
+
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(writingSystems.some((ws) => value[ws.wsId] || unsavedChanges[ws.wsId]));
+  $: collapse = !$hasHadValue && writingSystems.length > 1;
   $: hide = !$currentView.fields[id].show;
 </script>
 
-<div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={hide} style:grid-area={id}>
+<div class="multi-field field" class:collapse-field={collapse} class:unused={!$hasHadValue} class:hidden={hide} style:grid-area={id}>
   <FieldTitle {id} {name} />
   <div class="fields">
     {#each writingSystems as ws, idx (ws.wsId)}

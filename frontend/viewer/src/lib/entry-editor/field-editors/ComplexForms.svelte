@@ -2,7 +2,7 @@
   import FieldTitle from '../FieldTitle.svelte';
   import { useCurrentView } from '$lib/services/view-service';
   import EntryOrSensePicker, { type EntrySenseSelection } from '../EntryOrSensePicker.svelte';
-  import { randomId } from '$lib/utils';
+  import { makeHasHadValueTracker, randomId } from '$lib/utils';
   import { createEventDispatcher } from 'svelte';
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
@@ -22,7 +22,9 @@
   let currentView = useCurrentView();
   let writingSystemService = useWritingSystemService();
 
-  $: empty = !value?.length;
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value?.length);
 
   let openPicker = false;
 
@@ -48,7 +50,7 @@
 
 <div
   class="complex-forms-field field"
-  class:empty
+  class:unused={!$hasHadValue}
   class:hidden={!$currentView.fields[id].show}
   style:grid-area={id}
 >
