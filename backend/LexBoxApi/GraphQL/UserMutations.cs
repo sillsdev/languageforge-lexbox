@@ -26,7 +26,7 @@ public class UserMutations
     public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string? Email, string Name);
     public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale)
         : ChangeUserAccountDataInput(UserId, Email, Name);
-    public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role)
+    public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role, FeatureFlag[]? FeatureFlags)
         : ChangeUserAccountDataInput(UserId, Email, Name);
     public record CreateGuestUserByAdminInput(
         string? Email,
@@ -180,6 +180,10 @@ public class UserMutations
                 if (user.IsAdmin && adminInput.Role == UserRole.user)
                 {
                     user.IsAdmin = false;
+                }
+                if (adminInput.FeatureFlags is not null)
+                {
+                    user.FeatureFlags = adminInput.FeatureFlags.ToList();
                 }
             }
         }

@@ -123,6 +123,7 @@
       </div>
       <AdminContent>
       <div>
+        Feature flags:
         <ul>
           {#each allPossibleFlags as flag}
             <li><input
@@ -130,7 +131,7 @@
               name="featureFlags"
               value={flag}
               bind:group={user.featureFlags}
-            ></li>
+            > {flag}</li>
           {/each}
         </ul>
       </div>

@@ -12,6 +12,8 @@
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
+  import {allPossibleFlags} from '$lib/user';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
@@ -54,6 +56,7 @@
         userId: user.id,
         email: $form.email,
         name: $form.name,
+        featureFlags: user.featureFlags, // TODO: Put it into the form instead so it can be sent only if changed, otherwise it should be sent as NULL for no change
         role: $form.role,
       });
       if (data?.changeUserAccountByAdmin.errors?.some((e) => e.__typename === 'UniqueValueError')) {
@@ -120,6 +123,21 @@
     error={errors.role}
     disabled={_user.id === currUser.id}
   />
+  <AdminContent>
+    <div>
+      Feature flags:
+      <ul>
+        {#each allPossibleFlags as flag}
+          <li><input
+            type="checkbox"
+            name="featureFlags"
+            value={flag}
+            bind:group={_user.featureFlags}
+          > {flag}</li>
+        {/each}
+      </ul>
+    </div>
+  </AdminContent>
   <div class="text-error">
     <Input
       id="new-password"

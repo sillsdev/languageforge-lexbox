@@ -715,6 +715,7 @@ input ChangeProjectNameInput {
 
 input ChangeUserAccountByAdminInput {
   role: UserRole!
+  featureFlags: [FeatureFlag!]
   userId: UUID!
   email: String
   name: String!
