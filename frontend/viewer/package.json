@@ -57,6 +57,7 @@
     "fast-json-patch": "^3.1.1",
     "just-throttle": "^4.2.0",
     "postcss": "catalog:",
+    "svelte-dnd-action": "^0.9.57",
     "svelte-exmarkdown": "^3.0.5",
     "svelte-preprocess": "catalog:",
     "svelte-routing": "^2.12.0",

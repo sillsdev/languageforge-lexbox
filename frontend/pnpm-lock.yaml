@@ -303,6 +303,9 @@ importers:
       postcss:
         specifier: 'catalog:'
         version: 8.4.47
+      svelte-dnd-action:
+        specifier: ^0.9.57
+        version: 0.9.57(svelte@4.2.19)
       svelte-exmarkdown:
         specifier: ^3.0.5
         version: 3.0.5(svelte@4.2.19)
@@ -5315,6 +5318,11 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
+  svelte-dnd-action@0.9.57:
+    resolution: {integrity: sha512-H1QPlthwAH+xjaISKbp/dQJYeC3Jt1mlTNqJDko0f7XgEyi5ee3PMEuAfF1soJXA0Y5ceb+W8xJXiSZ+2CeMNA==}
+    peerDependencies:
+      svelte: '>=3.23.0 || ^5.0.0-next.0'
+
   svelte-eslint-parser@0.33.1:
     resolution: {integrity: sha512-vo7xPGTlKBGdLH8T5L64FipvTrqv3OQRx9d2z5X05KKZDlF4rQk8KViZO4flKERY+5BiVdOh7zZ7JGJWo5P0uA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -8690,7 +8698,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.9
       tinyrainbow: 1.2.0
-      vitest: 2.1.4(@types/node@20.12.12)(@vitest/ui@2.1.4)(happy-dom@15.7.4)
+      vitest: 2.1.4(@types/node@22.7.3)(@vitest/ui@2.1.4)(happy-dom@15.7.4)
 
   '@vitest/utils@2.1.4':
     dependencies:
@@ -11990,6 +11998,10 @@ snapshots:
       typescript: 5.3.3
     transitivePeerDependencies:
       - picomatch
+
+  svelte-dnd-action@0.9.57(svelte@4.2.19):
+    dependencies:
+      svelte: 4.2.19
 
   svelte-eslint-parser@0.33.1(svelte@4.2.19):
     dependencies:

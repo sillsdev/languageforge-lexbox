@@ -111,3 +111,7 @@ export function useTroubleshootingService(): ITroubleshootingService | undefined
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
   return window.lexbox.ServiceProvider.getService(key);
 }
+
+export function tryUseService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
+  return window.lexbox.ServiceProvider.tryGetService(key);
+}
