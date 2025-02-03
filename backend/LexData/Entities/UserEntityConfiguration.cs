@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using LexCore;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData.Configuration;
@@ -17,6 +18,8 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
         builder.HasIndex(u => u.Username).IsUnique();
         builder.Property(u => u.Email).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
         builder.HasIndex(u => u.Email).IsUnique();
+        builder.Property(u => u.FeatureFlags).HasDefaultValue(new List<FeatureFlag>()); // Will this create the *same* list object for all rows, thus creating a bug?
+        // builder.Property(u => u.FeatureFlags).HasDefaultValueSql("ARRAY[]::text[]"); // Is this too PostgreSQL-specific so that we are locking ourselves into one SQL provider?
         builder.HasMany(user => user.Projects)
             .WithOne(projectUser => projectUser.User)
             .HasForeignKey(projectUser => projectUser.UserId)
