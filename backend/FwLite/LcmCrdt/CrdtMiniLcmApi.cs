@@ -127,6 +127,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
+        if (partOfSpeech.Id == Guid.Empty) partOfSpeech.Id = Guid.NewGuid();
         await validators.ValidateAndThrow(partOfSpeech);
         await AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
