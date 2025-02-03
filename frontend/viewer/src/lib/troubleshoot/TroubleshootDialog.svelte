@@ -1,10 +1,11 @@
 ﻿<script lang="ts">
   import {Button, Dialog, Field} from 'svelte-ux';
-  import {useTroubleshootingService} from '$lib/services/service-provider';
+  import {useFwLiteConfig, useTroubleshootingService} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
   import {mdiFileExport, mdiFileEye, mdiFolderSearch} from '@mdi/js';
 
   const service = useTroubleshootingService();
+  const config = useFwLiteConfig();
   export let open = false;
 
   async function tryOpenDataDirectory() {
@@ -16,6 +17,8 @@
 <Dialog bind:open={open} style="height: auto">
   <div slot="title">Troubleshoot</div>
   <div class="flex flex-col gap-4 items-start p-4">
+    <p>Application version: <span class="font-mono text-surface-content/50 border-b">{config.appVersion}</span></p>
+
     {#await service?.getDataDirectory() then value}
       <Field label="Data Directory" {value} class="self-stretch">
           <span slot="append">
