@@ -99,6 +99,8 @@
   }
   export let modalMode = false;
   export let readonly = false;
+  export let canAddSense = true;
+  export let canAddExample = true;
 
   let editorElem: HTMLDivElement | undefined;
   let highlightedEntity: IExampleSentence | ISense | undefined;
@@ -242,14 +244,14 @@
           {/each}
         </div>
       {/if}
-      {#if !readonly}
+      {#if !readonly && canAddExample}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
         </div>
       {/if}
     </div>
   {/each}
-  {#if !readonly}
+  {#if !readonly && canAddSense}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
       <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
