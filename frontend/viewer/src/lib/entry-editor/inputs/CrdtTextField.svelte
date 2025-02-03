@@ -2,6 +2,7 @@
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
   import { TextField, autoFocus as autoFocusFunc } from 'svelte-ux';
+  import {makeHasHadValueTracker} from '$lib/utils';
 
   export let value: string | number | null | undefined;
   export let unsavedChanges = false;
@@ -11,6 +12,8 @@
   export let readonly: boolean | undefined = undefined;
   export let autofocus: boolean = false;
   let append: HTMLElement;
+
+  let hasHadValue = makeHasHadValueTracker();
 
   // Labels don't always fit (beause WS's can be long and ugly), so a title might be important sometimes
   function addTitleToLabel(textElem: HTMLElement): void {
@@ -31,7 +34,7 @@
     value={editorValue}
     disabled={readonly}
     class="ws-field gap-2 text-right"
-    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container' }}
+    classes={{ root: `${hasHadValue.pushAndGet(editorValue) ? '' : 'unused'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

@@ -4,6 +4,7 @@
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import {useCurrentView} from '../../services/view-service';
   import {useWritingSystemService} from '../../writing-system-service';
+  import {makeHasHadValueTracker} from '$lib/utils';
 
   export let id: string;
   export let name: string | undefined = undefined;
@@ -15,10 +16,13 @@
   const writingSystemService = useWritingSystemService();
 
   $: [ws] = writingSystemService.pickWritingSystems(wsType);
-  $: empty = !value;
+
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value);
 </script>
 
-<div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
+<div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle id={id} {name}/>
   <div class="fields">
     <CrdtTextField on:change bind:value placeholder={ws.abbreviation} {readonly} />

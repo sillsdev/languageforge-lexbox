@@ -1,4 +1,6 @@
 <script lang="ts">
+  import {makeHasHadValueTracker} from '$lib/utils';
+
   /* eslint-disable @typescript-eslint/no-duplicate-type-constituents, @typescript-eslint/no-redundant-type-constituents */
   import {createEventDispatcher} from 'svelte';
   import type {WritingSystemSelection} from '../../config-types';
@@ -101,13 +103,16 @@
   const writingSystemService = useWritingSystemService();
 
   $: [ws] = writingSystemService.pickWritingSystems(wsType);
-  $: empty = !value?.length;
+
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value?.length);
 </script>
 
 {#key options}
   <MapBind bind:in={value} bind:out={ids} map={toIds} unmap={fromIds} />
 {/key}
-<div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
+<div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
     <CrdtMultiOptionField on:change={onChange} bind:value={ids} options={uiOptions} placeholder={ws.abbreviation} {readonly} {preserveOrder} />

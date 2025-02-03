@@ -3,6 +3,7 @@
   import {createEventDispatcher, type ComponentProps} from 'svelte';
   import {MultiSelectField, type MenuOption, type TextField} from 'svelte-ux';
   import CrdtField from './CrdtField.svelte';
+  import {makeHasHadValueTracker} from '$lib/utils';
 
   const dispatch = createEventDispatcher<{
     change: { value: string[] }; // Generics aren't working properly in CrdtField, so we make the type excplicit here
@@ -29,6 +30,8 @@
       return aIndex - bIndex;
     });
   }
+
+  let hasHadValue = makeHasHadValueTracker();
 </script>
 
 <CrdtField on:change={(e) => dispatch('change', { value: e.detail.value})} bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
@@ -56,7 +59,7 @@
     clearSearchOnOpen={false}
     clearable={false}
     class="ws-field"
-    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
+    classes={{ root: `${hasHadValue.pushAndGet(editorValue) ? '' : 'unused'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

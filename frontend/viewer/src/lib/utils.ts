@@ -1,4 +1,5 @@
 import type {IEntry, IExampleSentence, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
+import {get, writable, type Readable} from 'svelte/store';
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -61,4 +62,17 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
     deletedAt: undefined,
     type
   };
+}
+
+export function makeHasHadValueTracker(): { store: Readable<boolean>, pushAndGet(currValueOrHasValue?: unknown): boolean } {
+  const hasHadValueStore = writable<boolean>();
+  function pushAndGet(currValueOrHasValue?: unknown) {
+    hasHadValueStore.update(hasHadValue => {
+      if (hasHadValue) return true;
+      return !!currValueOrHasValue;
+    });
+    return get(hasHadValueStore);
+  }
+
+  return { store: hasHadValueStore, pushAndGet };
 }
