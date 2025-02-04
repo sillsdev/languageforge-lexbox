@@ -68,7 +68,7 @@
   }
 </script>
 
-<Dialog bind:open on:close={onClosing} {loading} persistent={loading} classes={{backdrop: 'overflow-hidden'}}>
+<Dialog bind:open on:close={onClosing} {loading} persistent={loading}>
   <div slot="title">New {fieldName({id: 'entry'}, $currentView.i18nKey)}</div>
   <div class="m-6">
     <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
