@@ -58,28 +58,25 @@
     {/if}
   </div>
   <div>
-    {#if !projects.length || !status}
-      {#if !status}
-        <!--override the defaults from App.svelte-->
-        <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
-          <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50'}}>
-            <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
-            </div>
-            <div slot="actions" class="pointer-events-none">
-              <div class="h-4 my-3 bg-neutral-50/50 rounded-full w-20"></div>
-            </div>
-          </ListItem>
-        </Settings>
-      {:else}
-        <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
-          {#if status.loggedIn}
-            No projects
-          {:else}
-            <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
-          {/if}
-        </p>
-      {/if}
-
+    {#if !status}
+      <!--override the defaults from App.svelte-->
+      <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
+        <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50'}}>
+          <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
+          </div>
+          <div slot="actions" class="pointer-events-none">
+            <div class="h-4 my-3 bg-neutral-50/50 rounded-full w-20"></div>
+          </div>
+        </ListItem>
+      </Settings>
+    {:else if !projects.length}
+      <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
+        {#if status.loggedIn}
+          No projects
+        {:else}
+          <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
+        {/if}
+      </p>
     {:else if loading}
       <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
         <Icon data={mdiRefresh} class="animate-spin"/>
