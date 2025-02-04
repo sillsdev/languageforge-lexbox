@@ -82,7 +82,7 @@
     <Server {status}
             projects={serverProjects}
             {localProjects}
-            loading={loadingServerProjects === server.id}
+            loading={loadingServerProjects === server.id || loadingRemoteProjects}
             on:refreshProjects={() => refreshServerProjects(server, true)}
             on:refreshAll={() => refreshProjectsAndServers()}/>
   {/each}

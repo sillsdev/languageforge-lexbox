@@ -58,7 +58,7 @@
     {/if}
   </div>
   <div>
-    {#if !status}
+    {#if !status || loading}
       <!--override the defaults from App.svelte-->
       <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
         <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50'}}>
@@ -76,11 +76,6 @@
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
-      </p>
-    {:else if loading}
-      <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
-        <Icon data={mdiRefresh} class="animate-spin"/>
-        Loading...
       </p>
     {:else}
       {#each projects as project}
