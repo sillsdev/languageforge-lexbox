@@ -1,7 +1,10 @@
-﻿using FwLiteShared.Auth;
+﻿using System.Diagnostics;
+using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
+using LcmCrdt.Utils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
@@ -17,7 +20,8 @@ public class SyncService(
     ChangeEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
-    ILogger<SyncService> logger)
+    ILogger<SyncService> logger,
+    LcmCrdtDbContext dbContext)
 {
     public async Task<SyncResults> ExecuteSync(bool skipNotifications = false)
     {
@@ -43,7 +47,9 @@ public class SyncService(
         await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
 
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
+        var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
         var syncResults = await dataModel.SyncWith(remoteModel);
+        await UpdateSyncDate(syncDate);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
         return syncResults;
@@ -97,6 +103,21 @@ public class SyncService(
             default:
                 break;
         }
+    }
+
+    /// <summary>
+    /// Note this will update any commits, not just the ones that were synced. This includes ours which we just sent
+    /// </summary>
+    private async Task UpdateSyncDate(DateTimeOffset syncDate)
+    {
+        //the prop name is hardcoded into the sql so we just want to assert it's what we expect
+        Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+        await dbContext.Database.ExecuteSqlAsync(
+            $"""
+             UPDATE Commits
+             SET metadata = json_set(metadata, '$.ExtraMetadata.SyncDate', {syncDate.ToString("u")})
+             WHERE json_extract(Metadata, '$.ExtraMetadata.SyncDate') IS NULL;
+             """);
     }
 
     public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)
