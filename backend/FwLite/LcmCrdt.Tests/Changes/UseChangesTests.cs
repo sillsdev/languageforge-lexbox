@@ -25,9 +25,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     public async Task CanAddAllChangeTypes()
     {
         var shuffledChangesWithDependencies = random.Shuffle(GetAllChanges())
-            .ToDictionary(change => change.Change, change => change.Dependencies == null ? null : random.Shuffle(change.Dependencies));
+            .ToDictionary(change => change.Change, change => change.Dependencies == null ? null : random.Shuffle(change.Dependencies).ToList());
         var pendingChanges = shuffledChangesWithDependencies.Select(c => c.Key).ToList();
-        var queuedChanges = new List<IChange>();
+        var queuedChanges = new List<IChange>(pendingChanges.Count);
 
         while (pendingChanges is not [])
         {
@@ -53,7 +53,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         return dependencies == null || dependencies.All(queuedChanges.Contains);
     }
 
-    private IChange FindFirstSatisfiedChangeRecursive(IEnumerable<IChange> changes, Dictionary<IChange, IEnumerable<IChange>?> allChangesWithDependencies, IEnumerable<IChange> queuedChanges)
+    private IChange FindFirstSatisfiedChangeRecursive(List<IChange> changes,
+        Dictionary<IChange, List<IChange>?> allChangesWithDependencies,
+        List<IChange> queuedChanges)
     {
         var change = changes.First(d => !queuedChanges.Contains(d));
         var dependencies = allChangesWithDependencies[change];
@@ -71,7 +73,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     public void ChangesIncludeAllExpectedChangeTypes()
     {
         var allExpectedChangeTypes = LcmCrdtKernel.AllChangeTypes()
-            .Where(type => !type.Name.StartsWith("DeleteChange`") && !type.Name.StartsWith("JsonPatchChange`"));
+            .Where(type => !type.Name.StartsWith("DeleteChange`") && !type.Name.StartsWith("JsonPatchChange`")).ToArray();
         allExpectedChangeTypes.Should().NotBeEmpty();
 
         var testedTypes = GetAllChanges().Select(c => c.Change.GetType()).ToArray();
