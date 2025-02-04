@@ -12,7 +12,7 @@
 <script lang="ts">
   import {Router, Route} from 'svelte-routing';
   import TestProjectView from './TestProjectView.svelte';
-  import HomeView from './HomeView.svelte';
+  import HomeView from './home/HomeView.svelte';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import Sandbox from './lib/sandbox/Sandbox.svelte';
   import {settings} from 'svelte-ux';
