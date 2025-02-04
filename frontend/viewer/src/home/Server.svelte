@@ -4,7 +4,7 @@
   import {createEventDispatcher} from 'svelte';
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import {Button, Icon, ListItem} from 'svelte-ux';
+  import {Button, Icon, ListItem, Settings} from 'svelte-ux';
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
 
@@ -14,8 +14,8 @@
     refreshProjects: void,
     refreshAll: void,
   }>();
-  export let status: IServerStatus;
-  $: server = status.server;
+  export let status: IServerStatus | undefined;
+  $: server = status?.server;
   export let projects: Project[];
   export let localProjects: Project[];
   export let loading: boolean;
@@ -42,10 +42,14 @@
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <p class="sub-title !my-0">
-      {server.displayName} Server
+      {#if server}
+        {server.displayName} Server
+      {:else}
+        <div class="h-2 w-28 bg-surface-content/50 rounded-full animate-pulse"></div>
+      {/if}
     </p>
     <div class="flex-grow"></div>
-    {#if status.loggedIn}
+    {#if status?.loggedIn}
       <Button icon={mdiRefresh}
               title="Refresh Projects"
               disabled={loading}
@@ -54,16 +58,29 @@
     {/if}
   </div>
   <div>
-    {#if !projects.length}
-      <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
-        {#if status.loggedIn}
-          No projects
-        {:else}
-          <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
-        {/if}
-      </p>
-    {/if}
-    {#if loading}
+    {#if !projects.length || !status}
+      {#if !status}
+        <!--override the defaults from App.svelte-->
+        <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
+          <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50'}}>
+            <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
+            </div>
+            <div slot="actions" class="pointer-events-none">
+              <div class="h-4 my-3 bg-neutral-50/50 rounded-full w-20"></div>
+            </div>
+          </ListItem>
+        </Settings>
+      {:else}
+        <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
+          {#if status.loggedIn}
+            No projects
+          {:else}
+            <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
+          {/if}
+        </p>
+      {/if}
+
+    {:else if loading}
       <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
         <Icon data={mdiRefresh} class="animate-spin"/>
         Loading...

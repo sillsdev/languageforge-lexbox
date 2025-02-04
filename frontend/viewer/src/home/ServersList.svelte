@@ -73,9 +73,8 @@
 
 </script>
 
-
 {#await serversPromise}
-  <p>loading...</p>
+  <Server status={undefined} projects={[]} localProjects={[]} loading={true}/>
 {:then serversStatus}
   {#each serversStatus as status}
     {@const server = status.server}
