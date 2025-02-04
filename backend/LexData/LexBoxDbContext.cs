@@ -1,4 +1,3 @@
-using System.Text.Json;
 using LexCore;
 using LexCore.Entities;
 using LexData.Configuration;
@@ -30,8 +29,8 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
     }
 
     private class FeatureFlagListConverter() : ValueConverter<List<FeatureFlag>, List<string>>(
-        flags => flags.Select(flag => JsonSerializer.Serialize(flag, (JsonSerializerOptions?)null)).ToList(),
-        strs => strs.Select(flagStr => JsonSerializer.Deserialize<FeatureFlag>(flagStr, (JsonSerializerOptions?)null)).ToList());
+        flags => flags.Select(flag => flag.ToString()).ToList(),
+        strs => strs.Where(flagStr => Enum.IsDefined(typeof(FeatureFlag), flagStr)).Select(Enum.Parse<FeatureFlag>).ToList());
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
