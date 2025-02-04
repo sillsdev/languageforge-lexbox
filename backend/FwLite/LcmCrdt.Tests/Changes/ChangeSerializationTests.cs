@@ -93,7 +93,7 @@ public class ChangeSerializationTests
     [Fact]
     public void ChangesIncludesAllValidChangeTypes()
     {
-        var allChangeTypes = LcmCrdtKernel.AllChangeTypes();
+        var allChangeTypes = LcmCrdtKernel.AllChangeTypes().ToArray();
         allChangeTypes.Should().NotBeEmpty();
         var testedTypes = Changes().Select(c => c[0].GetType()).ToArray();
         using (new AssertionScope())
