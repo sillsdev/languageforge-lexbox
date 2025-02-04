@@ -9,7 +9,7 @@
   import {_sendNewVerificationEmailByAdmin} from '../../../routes/(authenticated)/admin/+page';
   import type {UUID} from 'crypto';
   import {useNotifications} from '$lib/notify';
-  import {allPossibleFlags, type FeatureFlag} from '$lib/user';
+  import type {FeatureFlag} from '$lib/gql/types';
 
   type User = {
     id: string;
@@ -122,19 +122,11 @@
         <p class="value">{user.createdBy?.name  ?? NULL_LABEL}</p>
       </div>
       <AdminContent>
+      {#if user.featureFlags && user.featureFlags.length}
       <div>
-        Feature flags:
-        <ul>
-          {#each allPossibleFlags as flag}
-            <li><input
-              type="checkbox"
-              name="featureFlags"
-              value={flag}
-              bind:group={user.featureFlags}
-            > {flag}</li>
-          {/each}
-        </ul>
+        Feature flags: {user.featureFlags.join(', ')}
       </div>
+      {/if}
       </AdminContent>
       <DevContent>
         <div>

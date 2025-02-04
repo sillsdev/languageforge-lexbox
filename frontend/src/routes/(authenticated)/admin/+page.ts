@@ -192,6 +192,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               name
               email
               isAdmin
+              featureFlags
               emailVerified
             }
             errors {

@@ -181,10 +181,10 @@ public class UserMutations
                 {
                     user.IsAdmin = false;
                 }
-                if (adminInput.FeatureFlags is not null)
-                {
-                    user.FeatureFlags = adminInput.FeatureFlags.ToList();
-                }
+            }
+            if (adminInput.FeatureFlags is not null)
+            {
+                user.FeatureFlags = adminInput.FeatureFlags.ToList();
             }
         }
         else if (input is ChangeUserAccountBySelfInput selfInput)

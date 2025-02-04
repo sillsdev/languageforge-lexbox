@@ -5,7 +5,7 @@ import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
 import {ensureErrorIsTraced, errorSourceTag} from './otel';
 import zxcvbn from 'zxcvbn';
-import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience} from './gql/types';
+import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience, FeatureFlag} from './gql/types';
 import {_createGuestUserByAdmin} from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
@@ -26,13 +26,7 @@ type RegisterResponseErrors = {
 
 type ApiLexboxAudience = 'LexboxApi' | 'Unknown';
 
-export enum FeatureFlag {
-  FwLiteBeta = 'FW_LITE_BETA',
-}
-
-export const allPossibleFlags: FeatureFlag[] = [
-  FeatureFlag.FwLiteBeta,
-];
+export const allPossibleFlags = Object.values(FeatureFlag) as FeatureFlag[];
 
 type JwtTokenUser = {
   sub: string
