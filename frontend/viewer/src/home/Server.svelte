@@ -21,7 +21,8 @@
   export let loading: boolean;
   let downloading = '';
 
-  async function downloadCrdtProject(project: Project, server: ILexboxServer) {
+  async function downloadCrdtProject(project: Project, server: ILexboxServer | undefined) {
+    if (!server) throw new Error('Server is undefined');
     downloading = project.name;
     if (project.id == null) throw new Error('Project id is null');
     try {
@@ -95,7 +96,7 @@
         {:else}
           <ListItem icon={mdiCloud}
                     title={project.name}
-                    on:click={() => void downloadCrdtProject(project, status.server)}
+                    on:click={() => void downloadCrdtProject(project, server)}
                     loading={downloading === project.name}>
             <div slot="actions" class="pointer-events-none">
               <Button icon={mdiBookArrowDownOutline} class="p-2">
