@@ -2,6 +2,8 @@
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
 FROM node:20 AS builder-base
 WORKDIR /app
+# Version of corepack distributed with node currently (2025-02-04) has a bug that prevents PNPM installation; latest version has the bugfix
+RUN npm install -g corepack@latest
 RUN corepack enable && corepack prepare pnpm@9.11.0 --activate
 
 FROM builder-base AS builder-viewer
