@@ -52,6 +52,7 @@ public static class FwLiteSharedKernel
         var httpClientBuilder = services.AddHttpClient(OAuthClient.AuthHttpClientName);
         if (environment.IsDevelopment())
         {
+            ConfigureHttpClientChaos(httpClientBuilder);
             // Allow self-signed certificates in development
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -62,6 +63,15 @@ public static class FwLiteSharedKernel
                 };
             });
         }
+    }
+
+    private static void ConfigureHttpClientChaos(IHttpClientBuilder builder)
+    {
+        builder.AddResilienceHandler("chaos",
+            pipelineBuilder =>
+            {
+// pipelineBuilder
+            });
     }
 
     private static void DecorateConstructor<TService>(this IServiceCollection services,
