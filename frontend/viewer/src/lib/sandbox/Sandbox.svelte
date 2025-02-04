@@ -45,7 +45,7 @@
 
   let senseFields: ({ id: FieldIds })[] = [{id: 'gloss'}, {id: 'definition'}];
 
-  function updateFields(e) {
+  function updateFields(e: CustomEvent<{ items: ({ id: FieldIds })[] }>) {
     senseFields = e.detail.items;
   }
 </script>
