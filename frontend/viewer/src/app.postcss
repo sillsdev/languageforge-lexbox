@@ -130,4 +130,6 @@
 
 html:has(.Dialog) {
     @apply overflow-hidden;
+    /* scrollbar-gutter: stable; prevents a page-width resize if there IS a scrollbar,
+    but it causes a page-width reisze if there ISN'T a scrollbar. */
 }
