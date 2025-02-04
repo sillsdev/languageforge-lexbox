@@ -1,58 +1,19 @@
 <script lang="ts">
-  import {setContext} from 'svelte';
   import {Button, type MenuOption} from 'svelte-ux';
-  import {readable, type Readable} from 'svelte/store';
-  import MultiOptionEditor from '../entry-editor/field-editors/MultiOptionEditor.svelte';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
-  import {type View} from '../entry-editor/view-data';
-  import MapBind from '../utils/MapBind.svelte';
-  import {initWritingSystemService} from '../writing-system-service';
-  import {DotnetService, WritingSystemType} from '$lib/dotnet-types';
-  import {useService} from '$lib/services/service-provider';
+  import {DotnetService, type ISense} from '$lib/dotnet-types';
+  import {tryUseService, useService} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
+  import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
+  import {InMemoryApiService} from '$lib/in-memory-api-service';
+  import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
+  import {initWritingSystemService} from '$lib/writing-system-service';
+  import {writable} from 'svelte/store';
+  import {initView, initViewSettings} from '$lib/services/view-service';
+  import OverrideFields from '$lib/OverrideFields.svelte';
+  import type {FieldIds} from '$lib/entry-editor/field-data';
+  import {dndzone} from 'svelte-dnd-action';
 
-  initWritingSystemService(readable({
-    analysis: [{
-      id: 'test',
-      wsId: 'test',
-      name: 'test',
-      abbreviation: 'test',
-      font: 'test',
-      exemplars: [],
-      type: WritingSystemType.Analysis,
-      order: 0,
-    }],
-    vernacular: [],
-  }));
-
-  const fields = {
-    'multi1': {show: true, order: 1},
-    'multi2': {show: true, order: 2},
-    'multi3': {show: true, order: 3},
-  };
-  const fieldGridAreas = Object.keys(fields).map(field => `'${field}'`).join(' ');
-
-  setContext<Readable<View>>('currentView', readable({
-    id: 'sandbox',
-    i18nKey: 'languageForge',
-    label: 'Language Forge',
-    fields,
-  }));
-
-  const options = [
-    { label: 'One', id: '1' },
-    { label: 'Two', id: '2' },
-    { label: 'Three', id: '3' },
-    { label: 'Four', id: '4' },
-  ];
-
-  function findOption(id: string) {
-    return options.find(o => o.id === id)!;
-  }
-
-  let idValue = ['3'];
-  let idObjectValue = [{id: '3'}];
-  let optionValue = [{ label: 'Three', id: '3' }];
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -62,7 +23,7 @@
 
   let crdtValue = ['a'];
 
-  const testingService = useService(DotnetService.TestingService);
+  const testingService = tryUseService(DotnetService.TestingService);
 
   function triggerNotificationWithLargeDetail() {
     let detail = '';
@@ -72,24 +33,30 @@
     }
     AppNotification.display('This is a notification with a large detail', 'info', undefined, detail);
   }
+
+  const inMemoryLexboxApi = InMemoryApiService.setup();
+  initWritingSystemService(writable(inMemoryLexboxApi.getWritingSystemsSync()));
+  initView();
+  initViewSettings();
+
+  function makeSense(s: ISense) {
+    return s;
+  }
+
+  let senseFields: ({ id: FieldIds })[] = [{id: 'gloss'}, {id: 'definition'}];
+
+  function updateFields(e) {
+    senseFields = e.detail.items;
+  }
 </script>
 
-<MapBind bind:in={idValue} bind:out={idObjectValue} map={(value) => value.map(v => ({id: v}))} unmap={(value => value.map(v => v.id))} />
-<MapBind bind:in={idObjectValue} bind:out={optionValue} map={(value) => value.map(v => findOption(v.id))} unmap={(value => value)} />
 
 <div class="grid grid-cols-3 gap-6 p-6">
   <div class="flex flex-col gap-2 border p-4 justify-between">
     MultiOptionEditor configurations
-    <div class="grid gap-2" style:grid-template-areas={fieldGridAreas}>
-      <MultiOptionEditor id="multi1" name="String values" bind:value={idValue} valuesAreIds getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
-      <MultiOptionEditor id="multi2" name="(id: string) values" bind:value={idObjectValue} getValueById={findOption} getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
-      <MultiOptionEditor id="multi3" name="Option values" bind:value={optionValue} getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
-    </div>
-    <div class="flex flex-col">
-      <p>selected: {idValue.join('|')}</p>
-      <Button variant="fill" on:click={() => idValue = ['4']}>Select Four only</Button>
-    </div>
+    <OptionSandbox/>
   </div>
+
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <div class="flex flex-col gap-2">
       Lower level editor
@@ -103,17 +70,43 @@
       <Button variant="fill" on:click={() => crdtValue = ['c']}>Select Charlie only</Button>
     </div>
   </div>
+
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <div class="flex flex-col gap-2">
       Notifications
-      <Button variant="fill" on:click={() => testingService.throwException()}>Throw Exception</Button>
-      <Button variant="fill" on:click={() => testingService.throwExceptionAsync()}>Throw Exception Async</Button>
-      <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple Notification</Button>
+      <Button variant="fill" on:click={() => testingService?.throwException()}>Throw Exception</Button>
+      <Button variant="fill" on:click={() => testingService?.throwExceptionAsync()}>Throw Exception Async</Button>
+      <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple
+        Notification
+      </Button>
       <Button variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
         label: 'Action',
         callback: () => alert('Action clicked')
-      })}>Notification with action</Button>
-      <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail</Button>
+      })}>Notification with action
+      </Button>
+      <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
+      </Button>
     </div>
   </div>
+  <div class="border grid" style="grid-template-columns: auto 1fr">
+    <div class="col-span-2">
+      <h3>Override Fields</h3>
+    </div>
+    <div>
+      <p>Shown:</p>
+      <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} on:consider={updateFields}
+           on:finalize={updateFields}>
+        {#each senseFields as field (field)}
+          <div class="p-2 border m-3">{field.id}</div>
+        {/each}
+      </div>
+    </div>
+    <div class="editor-grid border p-4">
+      <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+        <SenseEditor
+          sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+      </OverrideFields>
+    </div>
+  </div>
+
 </div>

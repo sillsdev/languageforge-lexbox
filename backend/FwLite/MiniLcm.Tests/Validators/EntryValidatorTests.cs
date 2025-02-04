@@ -55,14 +55,14 @@ public class EntryValidatorTests
         _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
     }
 
-    [Fact]
+    [Fact(Skip = "Disabled for now as users can import entries without a lexeme form")]
     public void Fails_WhenLexemeFormIsMissing()
     {
         var entry = new Entry() { Id = Guid.NewGuid() };
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor("LexemeForm");
     }
 
-    [Fact]
+    [Fact(Skip = "Disabled for now as users can import entries without a lexeme form")]
     public void Fails_WhenLexemeFormHasWsWithEmptyContent()
     {
         var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = new MultiString(){{"en", ""}} };

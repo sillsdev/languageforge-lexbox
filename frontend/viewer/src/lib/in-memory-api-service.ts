@@ -1,22 +1,24 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
-import type {
-  IComplexFormComponent,
-  IComplexFormType,
-  IEntry,
-  IExampleSentence,
-  IMiniLcmJsInvokable,
-  IPartOfSpeech,
-  IQueryOptions,
-  ISemanticDomain,
-  ISense,
-  IWritingSystem,
-  IWritingSystems,
-  WritingSystemType
+import {
+  DotnetService,
+  type IComplexFormComponent,
+  type IComplexFormType,
+  type IEntry,
+  type IExampleSentence,
+  type IMiniLcmJsInvokable,
+  type IPartOfSpeech,
+  type IQueryOptions,
+  type ISemanticDomain,
+  type ISense,
+  type IWritingSystem,
+  type IWritingSystems,
+  type WritingSystemType
 } from '$lib/dotnet-types';
 import {entries, partsOfSpeech, projectName, writingSystems} from './entry-data';
 
 import {WritingSystemService} from './writing-system-service';
+import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -40,6 +42,19 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
 const writingSystemService = new WritingSystemService(writingSystems);
 
 export class InMemoryApiService implements IMiniLcmJsInvokable {
+
+  public static setup(): InMemoryApiService {
+    const inMemoryLexboxApi = new InMemoryApiService();
+    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, inMemoryLexboxApi);
+    window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
+      appVersion: 'test-project',
+      feedbackUrl: '',
+      os: FwLitePlatform.Web,
+      useDevAssets: true,
+    });
+    return inMemoryLexboxApi;
+  }
+
   getComplexFormTypes(): Promise<IComplexFormType[]> {
     return Promise.resolve(
       //*
@@ -88,6 +103,9 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     return Promise.resolve(this.ApplyQueryOptions(this._Entries(), options));
   }
 
+  getWritingSystemsSync(): IWritingSystems {
+    return writingSystems;
+  }
   getWritingSystems(): Promise<IWritingSystems> {
     return Promise.resolve(writingSystems);
   }

@@ -8,7 +8,7 @@ public class EntryValidator : AbstractValidator<Entry>
     public EntryValidator()
     {
         RuleFor(e => e.DeletedAt).Null();
-        RuleFor(e => e.LexemeForm).Required(GetEntryIdentifier);
+        RuleFor(e => e.LexemeForm).NoEmptyValues(GetEntryIdentifier);
         RuleFor(e => e.CitationForm).NoEmptyValues(GetEntryIdentifier);
         RuleFor(e => e.LiteralMeaning).NoEmptyValues(GetEntryIdentifier);
         RuleFor(e => e.Note).NoEmptyValues(GetEntryIdentifier);
