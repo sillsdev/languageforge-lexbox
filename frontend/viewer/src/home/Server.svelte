@@ -95,7 +95,7 @@
         {:else}
           <ListItem icon={mdiCloud}
                     title={project.name}
-                    on:click={() => void downloadCrdtProject(project, server)}
+                    on:click={() => void downloadCrdtProject(project, status.server)}
                     loading={downloading === project.name}>
             <div slot="actions" class="pointer-events-none">
               <Button icon={mdiBookArrowDownOutline} class="p-2">
