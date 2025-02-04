@@ -41,6 +41,7 @@
   import {asScottyPortal, initScottyPortalContext} from '$lib/layout/Scotty.svelte';
   import {initProjectViewState} from '$lib/services/project-view-state-service';
   import NewEntryButton from '$lib/entry-editor/NewEntryButton.svelte';
+  import {getSelectedEntryChangedStore} from '$lib/services/selected-entry-service';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -274,7 +275,13 @@
     };
   });
 
-
+  const selectedEntryChanged = getSelectedEntryChangedStore(selectedEntry);
+  onDestroy(selectedEntryChanged.subscribe(() => { // reactive syntax was not reliable
+    const scrolledDown = (editorElem?.getBoundingClientRect()?.y ?? 0) < 0;
+    // we don't want to scroll the app-bar out of view, but we also don't want to scroll it into view
+    // i.e. the project-view should look the same, we just want to make sure we're at the top of the editor
+    if (scrolledDown) editorElem?.scrollIntoView({block: 'start', inline: 'nearest', behavior: 'instant'});
+  }));
 
   let newEntryDialog: NewEntryDialog;
   async function openNewEntryDialog(lexemeForm?: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
