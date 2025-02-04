@@ -48,7 +48,7 @@ public class ProjectServicesProvider(
                       throw new InvalidOperationException($"Crdt Project {projectName} not found");
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
         var projectData = await currentProjectService.SetupProjectContext(project);
-        await scopedServices.GetRequiredService<SyncService>().ExecuteSync(true);
+        await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
         var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
         {

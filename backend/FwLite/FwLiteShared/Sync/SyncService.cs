@@ -23,6 +23,19 @@ public class SyncService(
     ILogger<SyncService> logger,
     LcmCrdtDbContext dbContext)
 {
+    public async Task<SyncResults> SafeExecuteSync(bool skipNotifications = false)
+    {
+        try
+        {
+            return await ExecuteSync(skipNotifications);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to sync project");
+            return new SyncResults([], [], false);
+        }
+    }
+
     public async Task<SyncResults> ExecuteSync(bool skipNotifications = false)
     {
         var project = await currentProjectService.GetProjectData();
@@ -110,14 +123,21 @@ public class SyncService(
     /// </summary>
     private async Task UpdateSyncDate(DateTimeOffset syncDate)
     {
-        //the prop name is hardcoded into the sql so we just want to assert it's what we expect
-        Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
-        await dbContext.Database.ExecuteSqlAsync(
-            $"""
-             UPDATE Commits
-             SET metadata = json_set(metadata, '$.ExtraMetadata.SyncDate', {syncDate.ToString("u")})
-             WHERE json_extract(Metadata, '$.ExtraMetadata.SyncDate') IS NULL;
-             """);
+        try
+        {
+            //the prop name is hardcoded into the sql so we just want to assert it's what we expect
+            Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            await dbContext.Database.ExecuteSqlAsync(
+                $"""
+                 UPDATE Commits
+                 SET metadata = json_set(metadata, '$.ExtraMetadata.SyncDate', {syncDate.ToString("u")})
+                 WHERE json_extract(Metadata, '$.ExtraMetadata.SyncDate') IS NULL;
+                 """);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to update sync date");
+        }
     }
 
     public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)

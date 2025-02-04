@@ -34,7 +34,7 @@ public class CrdtMiniLcmApiHub(
     public override async Task OnConnectedAsync()
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project.Name));
-        await syncService.ExecuteSync(true);
+        await syncService.SafeExecuteSync(true);
         Cleanup =
         [
             changeEventBus.OnProjectEntryUpdated(projectContext.Project).Subscribe(e => OnEntryChangedExternal(e, hubContext, memoryCache, Context.ConnectionId))
