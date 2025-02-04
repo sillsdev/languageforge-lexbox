@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LcmCrdt.Utils;
+using Microsoft.Extensions.Logging;
 using Refit;
 using SIL.Harmony;
 using SIL.Harmony.Core;
@@ -79,6 +80,11 @@ internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid cl
     {
         var changes = await restSyncClient.GetChanges(projectId, otherHeads);
         ArgumentNullException.ThrowIfNull(changes);
+        foreach (var commit in changes.MissingFromClient)
+        {
+            //ignore the sync date from the server, we only care about our sync date. Setting this to the correct value is handled in SyncService.UpdateSyncDate
+            commit.SetSyncDate(null);
+        }
         return changes;
     }
 

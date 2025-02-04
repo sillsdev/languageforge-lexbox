@@ -120,6 +120,11 @@
           {#if selectedRow.changes.length > 1}
             <span>– ({selectedRow.changes.length} changes)</span>
           {/if}
+          {#if selectedRow.metadata.extraMetadata['SyncDate']}
+            <span class="float-right">
+              Synced <Duration totalUnits={2} minUnits={DurationUnits.Second} start={new Date(selectedRow.metadata.extraMetadata['SyncDate'])}/> ago
+            </span>
+          {/if}
         </div>
         <div class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full">
           <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
