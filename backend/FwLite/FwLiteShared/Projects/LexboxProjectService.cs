@@ -43,7 +43,7 @@ public class LexboxProjectService(
                 {
                     return await httpClient.GetFromJsonAsync<LexboxProject[]>("api/crdt/listProjects") ?? [];
                 }
-                catch (HttpRequestException e)
+                catch (Exception e)
                 {
                     logger.LogError(e, "Error getting lexbox projects");
                     return [];
@@ -64,7 +64,7 @@ public class LexboxProjectService(
         {
             return (await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}"));
         }
-        catch (HttpRequestException e)
+        catch (Exception e)
         {
             logger.LogError(e, "Error getting lexbox project id");
             return null;
