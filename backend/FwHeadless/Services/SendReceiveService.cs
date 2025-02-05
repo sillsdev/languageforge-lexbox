@@ -29,4 +29,15 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
             progress: progress
         );
     }
+
+    public async Task<int> PendingCommitCount(FwDataProject project, string? projectCode)
+    {
+        return await SendReceiveHelpers.PendingMercurialCommits(
+            project: project,
+            projectCode: projectCode,
+            baseUrl: config.Value.HgWebUrl,
+            auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
+            progress: progress
+        );
+    }
 }
