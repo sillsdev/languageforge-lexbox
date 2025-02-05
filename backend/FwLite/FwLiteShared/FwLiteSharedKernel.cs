@@ -55,7 +55,10 @@ public static class FwLiteSharedKernel
         var httpClientBuilder = services.AddHttpClient(OAuthClient.AuthHttpClientName);
         if (environment.IsDevelopment())
         {
-            ConfigureHttpClientChaos(httpClientBuilder);
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FW_LITE_CHAOS")))
+            {
+                ConfigureHttpClientChaos(httpClientBuilder);
+            }
             // Allow self-signed certificates in development
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
             {

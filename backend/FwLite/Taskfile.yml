@@ -13,6 +13,12 @@ tasks:
     label: Run FwLiteWeb with Local LexBox, requires vite dev server to be running, use task fw-lite-web in root
     dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
+  web-chaos:
+    lable: Run FwLiteWeb with some Chaos injected to http requests to lexbox, requests will have chaos 30% of the time, this includes some latency of 5 seconds
+    dir: ./FwLiteWeb
+    env:
+      FW_LITE_CHAOS: true
+    cmd: dotnet run
 
   tool-restore:
     cmd: dotnet tool restore
