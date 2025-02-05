@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
   import {setContext} from 'svelte';
   import {readable, type Readable} from 'svelte/store';
-  import type {View} from '$lib/entry-editor/view-data';
+  import type {View} from '$lib/views/view-data';
   import MultiOptionEditor from '$lib/entry-editor/field-editors/MultiOptionEditor.svelte';
   import {Button} from 'svelte-ux';
   import MapBind from '$lib/utils/MapBind.svelte';
