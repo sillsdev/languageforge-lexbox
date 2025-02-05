@@ -1,4 +1,5 @@
-﻿using FwLiteShared.Auth;
+﻿using System.Net;
+using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -7,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using Polly;
+using Polly.Simmy;
 using SIL.Harmony;
 
 namespace FwLiteShared;
@@ -70,7 +73,18 @@ public static class FwLiteSharedKernel
         builder.AddResilienceHandler("chaos",
             pipelineBuilder =>
             {
-// pipelineBuilder
+                const double injectionRate = 0.3;
+                pipelineBuilder.AddChaosLatency(injectionRate, TimeSpan.FromSeconds(5))
+                    .AddChaosFault(injectionRate, () => new InvalidOperationException("Chaos injected fault"))
+                    .AddChaosOutcome(new()
+                    {
+                        InjectionRate = injectionRate,
+                        OutcomeGenerator = arguments =>
+                            new(Outcome.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                            {
+                                RequestMessage = arguments.Context.GetRequestMessage()
+                            }))
+                    });
             });
     }
 
