@@ -7,9 +7,34 @@ type I18nKey = FieldIds;
 /**
  * I18n type is used to specify which i18n group to use for a field. If empty, the default i18n is used.
  */
-export type I18nType = 'weSay' | 'languageForge' | '';
+export type I18nType = 'weSay' | 'languageForge' | 'fieldworks' | '';
 
 const defaultI18n: Record<FieldIds, string> = {
+  // entry
+  'lexemeForm': 'Word',
+  'citationForm': 'Display as',
+  'complexForms': 'Part of',
+  'complexFormTypes': 'Complex form types',
+  'components': 'Made of',
+  'literalMeaning': 'Literal meaning',
+  'note': 'Note',
+  // sense
+  'definition': 'Definition',
+  'gloss': 'Gloss',
+  'partOfSpeechId': 'Part of speech',
+  'semanticDomains': 'Semantic domain',
+  // example sentence
+  'sentence': 'Sentence',
+  'translation': 'Translation',
+  'reference': 'Reference',
+
+  'test': 'Test',
+  'sense': 'Definition',
+  'entry': 'Word',
+  'entries': 'Words'
+};
+
+const fieldWorksI18n: Record<FieldIds, string> = {
   'lexemeForm': 'Lexeme form',
   'citationForm': 'Citation form',
   'complexForms': 'Complex forms',
@@ -34,8 +59,6 @@ const weSayI18n = {
   'lexemeForm': 'Word',
   'gloss': 'Definition',
   'partOfSpeechId': 'Part of speech',
-  complexForms: 'Part of',
-  components: 'Made of',
   'sense': 'Definition',
   'entry': 'Word',
   'entries': 'Words'
@@ -44,8 +67,6 @@ const weSayI18n = {
 const languageForgeI18n = {
   'lexemeForm': 'Word',
   'partOfSpeechId': 'Part of speech',
-  complexForms: 'Part of',
-  components: 'Made of',
   'sense': 'Definition',
   'entry': 'Word',
   'entries': 'Words'
@@ -54,6 +75,7 @@ const languageForgeI18n = {
 const i18nMap: Record<Exclude<I18nType, ''>, Partial<Record<FieldIds, string>>> = {
   weSay: weSayI18n,
   languageForge: languageForgeI18n,
+  fieldworks: fieldWorksI18n,
 };
 
 export function i18n(key: I18nKey, i18nType?: I18nType): string {

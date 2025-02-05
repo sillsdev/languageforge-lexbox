@@ -6,14 +6,16 @@ interface FieldView {
   order: number;
 }
 
+const defaultDef = Symbol('default spread values');
+
 export const allFields: Record<FieldIds, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
   complexForms: {show: true, order: 3},
-  complexFormTypes: {show: true, order: 4},
+  complexFormTypes: {show: false, order: 4},
   components: {show: true, order: 5},
-  literalMeaning: {show: true, order: 6},
+  literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
 
   //sense
@@ -25,23 +27,30 @@ export const allFields: Record<FieldIds, FieldView> = {
   //example sentence
   sentence: {show: true, order: 1},
   translation: {show: true, order: 2},
-  reference: {show: true, order: 3},
+  reference: {show: false, order: 3},
 };
 
 const viewDefinitions: ViewDefinition[] = [
+  {
+    id: 'fieldworks',
+    i18nKey: 'fieldworks',
+    label: 'FieldWorks',
+    fields: {[defaultDef]: {show: true}}
+  },
   {
     id: 'wesay',
     i18nKey: 'weSay',
     label: 'WeSay',
     fields: {
-      citationForm: {show: false},
-      literalMeaning: {show: false},
-      note: {show: false},
-      complexFormTypes: {show: false},
-      semanticDomains: {show: false},
-      definition: {show: false},
-      translation: {show: false},
-      reference: {show: false},
+      [defaultDef]: {show: false},
+      lexemeForm: {show: true},
+
+      //sense
+      gloss: {show: true},
+      partOfSpeechId: {show: true},
+
+      //example sentence
+      sentence: {show: true},
     }
   },
   {
@@ -49,23 +58,25 @@ const viewDefinitions: ViewDefinition[] = [
     i18nKey: 'languageForge',
     label: 'Language Forge',
     fields: {
-      citationForm: {show: false},
-      literalMeaning: {show: false},
-      note: {show: false},
-      complexFormTypes: {show: false},
+      [defaultDef]: {show: false},
+      lexemeForm: {show: true},
 
       //sense
-      gloss: {order: 2},
-      definition: {order: 1},
+      gloss: {show: true, order: 2},
+      definition: {show: true, order: 1},
+      partOfSpeechId: {show: true},
+      semanticDomains: {show: true},
 
-      reference: {show: false},
+      //example sentence
+      sentence: {show: true},
+      translation: {show: true},
     }
   }
 ];
 const everythingView: View = {
-  id: 'everything',
+  id: 'fwlite',
   i18nKey: '',
-  label: 'Everything (FieldWorks)',
+  label: 'FieldWorks Lite',
   fields: allFields,
 };
 export const views: View[] = [
@@ -80,8 +91,18 @@ export const views: View[] = [
   })
 ];
 
-function recursiveSpread<T extends Record<string, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> }): T {
+function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> }): T {
   const result: Record<string, unknown> = {...obj1};
+  const defaultValues = obj2[defaultDef];
+  if (defaultValues) {
+    for (const [key, value] of Object.entries(result)) {
+      if (typeof value === 'object' && value !== null) {
+        result[key] = {...value, ...defaultValues};
+      } else {
+        result[key] = defaultValues;
+      }
+    }
+  }
   for (const [key, value] of Object.entries(obj2)) {
     const currentValue = result[key];
     if (typeof currentValue === 'object' && currentValue !== null && typeof value === 'object' && value !== null) {
