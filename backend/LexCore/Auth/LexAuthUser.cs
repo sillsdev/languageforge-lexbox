@@ -108,6 +108,7 @@ public record LexAuthUser
         Orgs = user.IsAdmin
             ? Array.Empty<AuthUserOrg>() // likewise, admins have access to all orgs, so we don't include them
             : user.Organizations.Select(p => new AuthUserOrg(p.Role, p.OrgId)).ToArray();
+        FeatureFlags = user.FeatureFlags?.ToArray() ?? [];
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
         CreatedByAdmin = user.CreatedById == null ? null : true;
