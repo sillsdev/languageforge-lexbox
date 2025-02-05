@@ -30,9 +30,6 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-    <DevContent>
-      <pre>{JSON.stringify(activeView, null, 2)}</pre>
-    </DevContent>
     <div class="h-10">
       <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
     </div>
