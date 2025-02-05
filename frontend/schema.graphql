@@ -353,6 +353,14 @@ type OrgMemberRole {
   role: OrgRole!
 }
 
+type OrgMembersMustBeVerified implements Error {
+  message: String!
+}
+
+type OrgMembersMustBeVerifiedForRole implements Error {
+  message: String!
+}
+
 type OrgProjects {
   org: Organization!
   project: Project!
@@ -589,7 +597,7 @@ union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
-union ChangeOrgMemberRoleError = DbError | NotFoundError
+union ChangeOrgMemberRoleError = DbError | NotFoundError | OrgMembersMustBeVerified | OrgMembersMustBeVerifiedForRole
 
 union ChangeOrgNameError = NotFoundError | DbError | RequiredError
 
@@ -623,7 +631,7 @@ union RemoveProjectFromOrgError = DbError | NotFoundError
 
 union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
-union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
+union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail | OrgMembersMustBeVerified | OrgMembersMustBeVerifiedForRole
 
 union SetProjectConfidentialityError = NotFoundError | DbError
 
