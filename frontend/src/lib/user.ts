@@ -215,7 +215,8 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
 }
 
 export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag): boolean {
-  return user.featureFlags.includes(flag);
+  const searchTerm = flag.replaceAll('_', '').toLowerCase();
+  return !!user.featureFlags.find(f => f.toLowerCase() === searchTerm);
 }
 
 function projectsStringToProjects(projectsString: string | undefined): AuthUserProject[] {
