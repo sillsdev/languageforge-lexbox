@@ -20,7 +20,7 @@ const defaultI18n: Record<FieldIds, string> = {
   'note': 'Note',
   // sense
   'definition': 'Definition',
-  'gloss': 'Gloss',
+  'gloss': 'Same as',
   'partOfSpeechId': 'Part of speech',
   'semanticDomains': 'Semantic domain',
   // example sentence
