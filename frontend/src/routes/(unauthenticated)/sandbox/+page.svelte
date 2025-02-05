@@ -14,6 +14,7 @@
   import {Modal} from '$lib/components/modals';
   import {useNotifications} from '$lib/notify';
   import {page} from '$app/stores'
+  import {FeatureFlag} from '$lib/gql/types';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -218,8 +219,8 @@
     <div class="card-body">
       <h2 class="card-title">Feature Flags</h2>
       <div>current user flags: {JSON.stringify($page.data.user.featureFlags)}</div>
-      <FeatureFlagContent flag="FW_LITE_BETA">
-        <p>User has FW_LITE_BETA flag</p>
+      <FeatureFlagContent flag={FeatureFlag.FwLiteBeta}>
+        <p>User has {FeatureFlag.FwLiteBeta} flag</p>
       </FeatureFlagContent>
     </div>
   </div>
