@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using LexCore;
 
 namespace Testing.LexCore;
 
@@ -41,7 +42,8 @@ public class LexAuthUserTests
         Projects = new[]
         {
             new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99"))
-        }
+        },
+        FeatureFlags = [FeatureFlag.FwLiteBeta]
     };
 
     private static readonly JwtBearerOptions JwtBearerOptions = new()
@@ -59,12 +61,14 @@ public class LexAuthUserTests
         var emailClaim = new Claim(LexAuthConstants.EmailClaimType, _user.Email);
         var roleClaim = new Claim(LexAuthConstants.RoleClaimType, _user.Role.ToString());
         var projectClaim = new Claim("proj", _user.ProjectsJson);
+        var featureFlagClaim = new Claim(LexAuthConstants.FeatureFlagsClaimType, string.Join(",", _user.FeatureFlags));
         using (new AssertionScope())
         {
             claims.Should().Contain(idClaim.ToString());
             claims.Should().Contain(emailClaim.ToString());
             claims.Should().Contain(roleClaim.ToString());
             claims.Should().Contain(projectClaim.ToString());
+            claims.Should().Contain(featureFlagClaim.ToString());
         }
     }
 
@@ -189,6 +193,8 @@ public class LexAuthUserTests
         //old jwt doesn't have updated date or orgs, we're ok with that so we correct the values to make the equivalence work
         newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];
         newUser.UpdatedDate = _user.UpdatedDate;
+        newUser.FeatureFlags = _user.FeatureFlags;
+
         newUser.Should().BeEquivalentTo(_user);
     }
 

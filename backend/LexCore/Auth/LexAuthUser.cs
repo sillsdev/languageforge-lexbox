@@ -50,15 +50,25 @@ public record LexAuthUser
                     }
                 }
 
+                var elementType = property.PropertyType.IsArray ? property.PropertyType.GetElementType() : property.PropertyType.GetGenericArguments()[0];
+                if (elementType is null) throw new Exception("Could not determine element type");
                 //claim json arrays may be a single object or an array of objects
                 //we need to handle that properly here
                 if (claim.ValueType != JsonClaimValueTypes.JsonArray)
                 {
-                    array.Add(JsonSerializer.Deserialize<JsonObject>(claim.Value));
+                    if (elementType.IsEnum)
+                    {
+                        if (Enum.TryParse(elementType, claim.Value, out var enumValue))
+                            array.Add(enumValue);
+                    }
+                    else
+                    {
+                        array.Add(JsonSerializer.Deserialize<JsonObject>(claim.Value));
+                    }
                     continue;
                 }
 
-                var claimArray = JsonSerializer.Deserialize<JsonObject[]>(claim.Value);
+                var claimArray = JsonSerializer.Deserialize<JsonNode[]>(claim.Value);
                 if (claimArray is null) continue;
                 foreach (var item in claimArray)
                 {
