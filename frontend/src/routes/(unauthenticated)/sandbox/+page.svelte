@@ -2,7 +2,7 @@
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
-  import {PageBreadcrumb} from '$lib/layout';
+  import {FeatureFlagContent, PageBreadcrumb} from '$lib/layout';
   import z from 'zod';
   // eslint-disable-next-line no-restricted-imports
   import {t as otherT} from 'svelte-intl-precompile';
@@ -13,6 +13,7 @@
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import {Modal} from '$lib/components/modals';
   import {useNotifications} from '$lib/notify';
+  import {page} from '$app/stores'
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -210,6 +211,16 @@
       }}>
         Play with notifications
       </Button>
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title">Feature Flags</h2>
+      <div>current user flags: {JSON.stringify($page.data.user.featureFlags)}</div>
+      <FeatureFlagContent flag="FW_LITE_BETA">
+        <p>User has FW_LITE_BETA flag</p>
+      </FeatureFlagContent>
     </div>
   </div>
 </div>
