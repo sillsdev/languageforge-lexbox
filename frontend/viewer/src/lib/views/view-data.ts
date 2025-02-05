@@ -1,5 +1,5 @@
 ﻿import type {I18nType} from '../i18n';
-import type {FieldIds} from './field-data';
+import type {FieldIds} from '$lib/entry-editor/field-data';
 
 interface FieldView {
   show: boolean;

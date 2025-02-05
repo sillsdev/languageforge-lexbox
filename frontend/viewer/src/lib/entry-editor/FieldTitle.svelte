@@ -1,6 +1,6 @@
 <script lang="ts">
   import {fieldName} from '../i18n';
-  import {useCurrentView} from '../services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import FieldHelpIcon from './FieldHelpIcon.svelte';
   import {fieldData} from './field-data';
 

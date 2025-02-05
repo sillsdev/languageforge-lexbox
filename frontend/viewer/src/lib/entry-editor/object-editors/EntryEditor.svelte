@@ -4,7 +4,7 @@
   import {fieldName} from '$lib/i18n';
   import Scotty from '$lib/layout/Scotty.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import {objectTemplateAreas, useCurrentView} from '$lib/services/view-service';
+  import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';

@@ -9,7 +9,7 @@
   import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
   import {initWritingSystemService} from '$lib/writing-system-service';
   import {writable} from 'svelte/store';
-  import {initView, initViewSettings} from '$lib/services/view-service';
+  import {initView, initViewSettings} from '$lib/views/view-service';
   import OverrideFields from '$lib/OverrideFields.svelte';
   import type {FieldIds} from '$lib/entry-editor/field-data';
   import {dndzone} from 'svelte-dnd-action';

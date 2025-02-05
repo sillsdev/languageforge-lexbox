@@ -1,8 +1,8 @@
 <script lang="ts">
   import {Button, Drawer, SelectField, Switch, ThemeSwitch} from 'svelte-ux';
   import DevContent from './DevContent.svelte';
-  import {type View, views} from '../entry-editor/view-data';
-  import type {ViewSettings} from '../services/view-service';
+  import {type View, views} from '$lib/views/view-data';
+  import type {ViewSettings} from '$lib/views/view-service';
   import {generateExternalChanges} from '../debug';
   import {mdiClose} from '@mdi/js';
   import ShowEmptyFieldsSwitch from './ShowEmptyFieldsSwitch.svelte';
@@ -30,7 +30,9 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-
+    <DevContent>
+      <pre>{JSON.stringify(activeView, null, 2)}</pre>
+    </DevContent>
     <div class="h-10">
       <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
     </div>

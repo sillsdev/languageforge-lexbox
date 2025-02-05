@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { IEntry } from '$lib/dotnet-types';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
   import {useWritingSystemService} from '$lib/writing-system-service';
 
