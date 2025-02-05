@@ -33,8 +33,8 @@
     }}
     value={editorValue}
     disabled={readonly}
-    class="ws-field gap-2 text-right"
-    classes={{ root: `${hasHadValue.pushAndGet(editorValue) ? '' : 'unused'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container' }}
+    class="ws-field gap-0 text-right"
+    classes={{ root: `${hasHadValue.pushAndGet(editorValue) ? '' : 'unused'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container', label: 'pr-2' }}
     {label}
     {labelPlacement}
     {placeholder}>
