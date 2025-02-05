@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Humanizer;
 using LexBoxApi.Auth;
 using LexCore.Auth;
@@ -36,7 +37,12 @@ public class LexAuthUserTests
         Email = "test@test.com",
         Role = UserRole.user,
         Name = "test",
+        Username = "test",
+        Locked = false,
+        EmailVerificationRequired = false,
+        CanCreateProjects = true,
         UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+        CreatedByAdmin = false,
         Locale = "en",
         Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ],
         Projects = new[]
@@ -51,6 +57,17 @@ public class LexAuthUserTests
         TokenValidationParameters = LexAuthService.TokenValidationParameters(JwtOptions.TestingOptions),
         MapInboundClaims = false
     };
+
+    [Fact]
+    public void EnsureAllClaimsAreRepresentedByTestUser()
+    {
+        var propsSet = _user.GetClaims().Select(c => c.Type);
+        var propsWhichShouldBeUsed = LexAuthUser.LexAuthUserTypeInfo.Properties
+            .Where(p => p.AttributeProvider?.IsDefined(typeof(JsonIgnoreAttribute), true) is false or null)
+            .Select(p => p.Name);
+
+        propsSet.Should().BeEquivalentTo(propsWhichShouldBeUsed);
+    }
 
     [Fact]
     public void CanGetClaimsFromUser()
