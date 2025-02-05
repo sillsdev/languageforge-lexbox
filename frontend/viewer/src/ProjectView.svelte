@@ -113,7 +113,6 @@
     const searchParams = getSearchParams();
     $search = searchParams.get(ViewerSearchParam.Search) ?? '';
     $selectedIndexExemplar = searchParams.get(ViewerSearchParam.IndexCharacter);
-    navigateToEntryId = searchParams.get(ViewerSearchParam.EntryId);
   }
 
   const selectedIndexExemplar = writable<string | null>(getSearchParam(ViewerSearchParam.IndexCharacter));
