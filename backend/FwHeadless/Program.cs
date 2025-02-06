@@ -16,6 +16,12 @@ using LinqToDB;
 using SIL.Harmony.Core;
 using SIL.Harmony;
 
+if (TestSendReceiveService.IsTestRequest(args))
+{
+    await TestSendReceiveService.TestHgIncoming(args);
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
