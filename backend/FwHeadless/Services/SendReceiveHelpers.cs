@@ -63,7 +63,7 @@ public static class SendReceiveHelpers
             $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
 
         var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth, forChorus: false);
-        var hgResult = await Task.Run(() => HgRunner.Run($"hg incoming -T \"{{node}}\\n\" {repoUrl}", fwdataInfo.Directory.FullName, 9999, progress));
+        var hgResult = await Task.Run(() => HgRunner.Run($"hg incoming -T \"node: {{node}}\\n\" {repoUrl}", fwdataInfo.Directory.FullName, 9999, progress));
         if (hgResult.ExitCode == 1)
         {
             // hg incoming exits with 1 if there were no changes
@@ -74,7 +74,7 @@ public static class SendReceiveHelpers
         {
             return 0;
         }
-        var lines = output.Split('\n').SkipWhile(line => line != "searching for changes").Skip(1);
+        var lines = output.Split('\n').Where(line => line.StartsWith("node"));
         return lines.Count();
     }
 
