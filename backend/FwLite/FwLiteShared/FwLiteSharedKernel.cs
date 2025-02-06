@@ -32,7 +32,6 @@ public static class FwLiteSharedKernel
         //it also avoids issues if there's multiple blazor circuits running at the same time
         services.AddScoped<FwLiteProvider>();
 
-        services.AddSingleton<ChangeEventBus>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<TestingService>();

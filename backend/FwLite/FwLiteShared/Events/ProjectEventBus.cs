@@ -30,6 +30,11 @@ public class ProjectEventBus : IDisposable
         _globalEventBus.PublishEvent(new ProjectEvent(@event, project));
     }
 
+    public void PublishEntryChangedEvent(IProjectIdentifier project, Entry entry)
+    {
+        PublishEvent(project, new EntryChangedEvent(entry));
+    }
+
     private IObservable<T> OnProjectEvent<T>(IProjectIdentifier project) where T : IFwEvent
     {
         return _globalEventBus.OnGlobalEvent
