@@ -13,6 +13,7 @@ export enum DotnetService {
 	HistoryService = "HistoryService",
 	AppLauncher = "AppLauncher",
 	TroubleshootingService = "TroubleshootingService",
-	TestingService = "TestingService"
+	TestingService = "TestingService",
+	MultiWindowService = "MultiWindowService"
 }
 /* eslint-enable */

@@ -16,6 +16,7 @@ import type {
   ITroubleshootingService
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITroubleshootingService';
 import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITestingService';
+import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -28,7 +29,8 @@ export type LexboxServiceRegistry = {
   [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
-  [DotnetService.TestingService]: ITestingService
+  [DotnetService.TestingService]: ITestingService,
+  [DotnetService.MultiWindowService]: IMultiWindowService,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);

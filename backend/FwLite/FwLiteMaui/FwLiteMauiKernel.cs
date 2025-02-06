@@ -20,7 +20,7 @@ public static class FwLiteMauiKernel
         ConfigurationManager configuration,
         ILoggingBuilder logging)
     {
-        services.AddSingleton<MainPage>();
+        services.AddTransient<MainPage>();
         configuration.AddJsonFile("appsettings.json", optional: true);
 
         string environment = "Production";
