@@ -26,7 +26,7 @@ public class ProjectEventBus : IDisposable
             _globalEventBus.PublishEvent(@event);
             return;
         }
-        _logger.LogInformation("Publishing project event {@event}", @event);
+        _logger.LogTrace("Publishing project event {@event}", @event);
         _globalEventBus.PublishEvent(new ProjectEvent(@event, project));
     }
 

@@ -10,8 +10,6 @@ import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared
 export class EventBus {
   private _onEvent = new Set<(event: IFwEvent) => void>();
   private _onProjectClosed = new Set<(reason: CloseReason) => void>();
-
-
   constructor() {
     void this.eventLoop(useService(DotnetService.JsEventListener));
   }
@@ -21,7 +19,6 @@ export class EventBus {
     do {
       event = await jsEventListener.nextEventAsync();
       if (!event) return;
-      console.log('event bus received event', event);
       this.distributor(event);
     } while (event);
   }
@@ -42,7 +39,7 @@ export class EventBus {
   }
 
   public onEntryUpdated(projectName: string, callback: (entry: IEntry) => void): () => void {
-    const cb = (event: IFwEvent) => {
+    const onEventCallback = (event: IFwEvent) => {
       const projectEvent = event as IProjectEvent;
       if (projectEvent.project.name !== projectName) return;
       if (projectEvent.event.type !== FwEventType.EntryChanged) return;
@@ -50,8 +47,8 @@ export class EventBus {
       const entryChangedEvent = projectEvent.event as IEntryChangedEvent;
       callback(entryChangedEvent.entry);
     };
-    this._onEvent.add(cb);
-    return () => this._onEvent.delete(cb);
+    this._onEvent.add(onEventCallback);
+    return () => this._onEvent.delete(onEventCallback);
   }
 
   public notifyEntryUpdated(entry: IEntry) {

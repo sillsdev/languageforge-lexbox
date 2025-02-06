@@ -25,7 +25,7 @@ public class GlobalEventBus : IDisposable
     public void PublishEvent(IFwEvent @event)
     {
         if (!@event.IsGlobal) throw new ArgumentException($"Event {@event.GetType()} is not global");
-        _logger.LogInformation("Publishing global event {@event}", @event);
+        _logger.LogTrace("Publishing global event {@event}", @event);
         _globalEventSubject.OnNext(@event);
     }
 

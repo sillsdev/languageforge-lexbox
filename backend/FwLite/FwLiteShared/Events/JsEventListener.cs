@@ -33,7 +33,7 @@ public class JsEventListener : IDisposable
         try
         {
             var e = await _jsEventChannel.Reader.ReadAsync();
-            _logger.LogInformation("Received js event {Event}, json: {Json}", e.Type, JsonSerializer.Serialize(e));
+            _logger.LogTrace("Received js event {Event}, json: {Json}", e.Type, JsonSerializer.Serialize(e));
             return e;
         }
         catch (ChannelClosedException)
