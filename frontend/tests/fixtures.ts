@@ -1,7 +1,7 @@
 import {test as base, expect, type BrowserContext, type BrowserContextOptions} from '@playwright/test';
 import * as testEnv from './envVars';
 import {type UUID, randomUUID} from 'crypto';
-import {addUserToOrg, deleteUser, loginAs, registerUser} from './utils/authHelpers';
+import {addUserToOrg, deleteUser, loginAs, registerUser, verifyTempUserEmail} from './utils/authHelpers';
 import {executeGql, type GqlResult} from './utils/gqlHelpers';
 import {mkdtemp, rm} from 'fs/promises';
 import {join} from 'path';
@@ -119,9 +119,6 @@ export const test = base.extend<Fixtures>({
     const name = `Test: ${testInfo.title} - ${email.replaceAll('@', '(at)')}`;
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
-    await loginAs(page.request, 'admin');
-    await addUserToOrg(page.request, tempUserId, testEnv.testOrgId, 'USER');
-    await loginAs(page.request, email, password);
     const tempUser = Object.freeze({
       id: tempUserId,
       name,
@@ -129,6 +126,10 @@ export const test = base.extend<Fixtures>({
       password,
       mailbox,
     });
+    const newPage = await verifyTempUserEmail(page, tempUser);
+    await loginAs(newPage.request, 'admin');
+    await addUserToOrg(newPage.request, tempUserId, testEnv.testOrgId, 'USER');
+    await loginAs(page.request, email, password);
     await use(tempUser);
     const context = await browser.newContext();
     await loginAs(context.request, 'admin');
