@@ -9,21 +9,25 @@ public class ChangeEventBus
     : IDisposable
 {
 
-    private record struct ChangeNotification(Entry Entry, string ProjectName);
+    public record struct ChangeNotification(Entry Entry, CrdtProject Project);
 
     private readonly Subject<ChangeNotification> _entryUpdated = new();
+    public IObservable<ChangeNotification> OnProjectEntryUpdated()
+    {
+        return _entryUpdated;
+    }
 
     public IObservable<Entry> OnProjectEntryUpdated(CrdtProject project)
     {
         var projectName = project.Name;
         return _entryUpdated
-            .Where(n => n.ProjectName == projectName)
+            .Where(n => n.Project.Name == projectName)
             .Select(n => n.Entry);
     }
 
     public void NotifyEntryUpdated(Entry entry, CrdtProject project)
     {
-        _entryUpdated.OnNext(new ChangeNotification(entry, project.Name));
+        _entryUpdated.OnNext(new ChangeNotification(entry, project));
     }
 
     public void Dispose()

@@ -1,4 +1,5 @@
 ﻿using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -24,6 +25,9 @@ public static class FwLiteSharedKernel
         services.AddScoped<ProjectServicesProvider>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
+        services.AddSingleton<GlobalEventBus>();
+        services.AddSingleton<ProjectEventBus>();
+        services.AddScoped<JsEventListener>();
         //this is scoped so that there will be once instance per blazor circuit, this prevents issues where the same instance is used when reloading the page.
         //it also avoids issues if there's multiple blazor circuits running at the same time
         services.AddScoped<FwLiteProvider>();

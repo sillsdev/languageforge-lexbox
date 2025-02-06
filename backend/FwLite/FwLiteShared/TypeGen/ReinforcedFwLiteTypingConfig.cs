@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
@@ -116,6 +117,14 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ObjectSnapshot),
             typeof(ProjectScope)
         ], exportBuilder => exportBuilder.WithPublicProperties());
+
+        builder.ExportAsEnum<FwEventType>().UseString();
+        builder.ExportAsInterfaces(
+            typeof(IFwEvent).Assembly.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IFwEvent))),
+            exportBuilder => exportBuilder.WithPublicProperties()
+        );
+
     }
 
     private static MethodExportBuilder AlwaysReturnPromise(this MethodExportBuilder exportBuilder)
