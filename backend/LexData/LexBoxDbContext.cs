@@ -1,8 +1,6 @@
-using LexCore;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LexData;
 
@@ -24,13 +22,7 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
-        builder.Properties<List<FeatureFlag>>()
-            .HaveConversion<FeatureFlagListConverter>();
     }
-
-    private class FeatureFlagListConverter() : ValueConverter<List<FeatureFlag>, List<string>>(
-        flags => flags.Select(flag => flag.ToString()).ToList(),
-        strs => strs.Where(flagStr => Enum.IsDefined(typeof(FeatureFlag), flagStr)).Select(Enum.Parse<FeatureFlag>).ToList());
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
