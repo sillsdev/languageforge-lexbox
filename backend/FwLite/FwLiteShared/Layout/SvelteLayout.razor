@@ -33,12 +33,6 @@ else
             delete services[key];
         }
     };
-    //called from FwLiteProvider.InjectCrdtProject
-    window['notifyEntryUpdated'] = (projectName, entry) => {
-        if (window.lexbox?.EventBus) {
-            window.lexbox.EventBus.notifyEntryUpdated(entry);
-        }
-    }
 
 </script>
 <div id="svelte-app" class="contents">

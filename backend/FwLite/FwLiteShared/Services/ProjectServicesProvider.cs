@@ -16,9 +16,7 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
-    ChangeEventBus changeEventBus,
     IEnumerable<IProjectProvider> projectProviders,
-    IJSRuntime jsRuntime,
     ILogger<ProjectServicesProvider> logger
 ): IAsyncDisposable
 {
@@ -50,15 +48,11 @@ public class ProjectServicesProvider(
         var projectData = await currentProjectService.SetupProjectContext(project);
         await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
         await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
-        var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
-        {
-            _ = jsRuntime.DurableInvokeVoidAsync("notifyEntryUpdated", projectName, entry);
-        });
         var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
         var scope = new ProjectScope(Defer.Async(() =>
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
-            entryUpdatedSubscription.Dispose();
+            // entryUpdatedSubscription.Dispose();
             return Task.CompletedTask;
         }), serviceScope, this, projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
         _projectScopes.TryAdd(scope, scope);

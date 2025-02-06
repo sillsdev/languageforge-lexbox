@@ -117,7 +117,8 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<FwEventType>().UseString();
         builder.ExportAsInterfaces(
             typeof(IFwEvent).Assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IFwEvent))),
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IFwEvent)))
+                .Append(typeof(IFwEvent)),
             exportBuilder => exportBuilder.WithPublicProperties()
         );
 

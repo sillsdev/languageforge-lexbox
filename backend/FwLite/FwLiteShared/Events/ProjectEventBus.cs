@@ -7,22 +7,16 @@ namespace FwLiteShared.Events;
 
 public class ProjectEventBus : IDisposable
 {
-    private IDisposable changeEventBusSubscription;
 
     private readonly GlobalEventBus _globalEventBus;
     private readonly ILogger<ProjectEventBus> _logger;
 
     public ProjectEventBus(GlobalEventBus globalEventBus,
-        ILogger<ProjectEventBus> logger,
-        ChangeEventBus changeEventBus)
+        ILogger<ProjectEventBus> logger
+        )
     {
         _globalEventBus = globalEventBus;
         _logger = logger;
-        changeEventBusSubscription = changeEventBus.OnProjectEntryUpdated().Subscribe(
-            changeNotification =>
-            {
-                PublishEvent(changeNotification.Project, new EntryChangedEvent(changeNotification.Entry));
-            });
     }
 
     public void PublishEvent(IProjectIdentifier project, IFwEvent @event)

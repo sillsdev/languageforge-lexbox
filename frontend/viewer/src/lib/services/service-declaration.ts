@@ -8,7 +8,6 @@ declare global {
     FwLiteProvider?: LexboxServiceRegistry;
     ServiceProvider: LexboxServiceProvider;
     Search: { openSearch: (search: string) => void };
-    EventBus: EventBus;
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 
