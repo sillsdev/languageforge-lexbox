@@ -211,8 +211,11 @@ public class LexAuthUserTests
         newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];
         newUser.UpdatedDate = _user.UpdatedDate;
         newUser.FeatureFlags = _user.FeatureFlags;
-
-        newUser.Should().BeEquivalentTo(_user);
+        // ditto for Username
+        newUser.Username = _user.Username;
+        // ditto for Locked, EmailVerificationRequired, CanCreateProjects, and CreatedByAdmin
+        newUser.Should().BeEquivalentTo(_user,
+            user => user.Excluding(u => u.Locked).Excluding(u => u.EmailVerificationRequired).Excluding(u => u.CanCreateProjects).Excluding(u => u.CreatedByAdmin));
     }
 
     [Fact]
