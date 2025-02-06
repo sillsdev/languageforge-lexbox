@@ -216,6 +216,7 @@ type LeaveProjectPayload {
 
 type LexAuthUser {
   isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
+  hasFeature(feature: FeatureFlag!): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -226,6 +227,7 @@ type LexAuthUser {
   isAdmin: Boolean!
   projects: [AuthUserProject!]!
   orgs: [AuthUserOrg!]!
+  featureFlags: [FeatureFlag!]!
   projectsJson: String!
   locked: Boolean
   emailVerificationRequired: Boolean
@@ -336,6 +338,7 @@ type OrgMemberDto {
   isAdmin: Boolean!
   locked: Boolean!
   canCreateProjects: Boolean!
+  featureFlags: [FeatureFlag!]!
   createdBy: OrgMemberDtoCreatedBy
 }
 
@@ -557,6 +560,7 @@ type User {
   createdBy: User
   usersICreated: [User!]!
   organizations: [OrgMember!]!
+  featureFlags: [FeatureFlag!]!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -720,6 +724,7 @@ input ChangeProjectNameInput {
 
 input ChangeUserAccountByAdminInput {
   role: UserRole!
+  featureFlags: [FeatureFlag!]
   userId: UUID!
   email: String
   name: String!
@@ -826,6 +831,13 @@ input FLExWsIdFilterInput {
   isDefault: BooleanOperationFilterInput
 }
 
+input FeatureFlagOperationFilterInput {
+  eq: FeatureFlag @cost(weight: "10")
+  neq: FeatureFlag @cost(weight: "10")
+  in: [FeatureFlag!] @cost(weight: "10")
+  nin: [FeatureFlag!] @cost(weight: "10")
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
@@ -864,6 +876,13 @@ input LeaveOrgInput {
 
 input LeaveProjectInput {
   projectId: UUID!
+}
+
+input ListFeatureFlagOperationFilterInput {
+  all: FeatureFlagOperationFilterInput @cost(weight: "10")
+  none: FeatureFlagOperationFilterInput @cost(weight: "10")
+  some: FeatureFlagOperationFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfFLExWsIdFilterInput {
@@ -1139,6 +1158,7 @@ input UserFilterInput {
   createdById: UuidOperationFilterInput
   username: StringOperationFilterInput
   id: UuidOperationFilterInput
+  featureFlags: ListFeatureFlagOperationFilterInput
 }
 
 input UserSortInput {
@@ -1181,6 +1201,10 @@ enum CreateProjectResult {
 enum DbErrorCode {
   UNKNOWN
   DUPLICATE
+}
+
+enum FeatureFlag {
+  FW_LITE_BETA
 }
 
 enum LexboxAudience {
