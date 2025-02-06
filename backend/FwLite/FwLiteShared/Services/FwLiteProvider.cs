@@ -15,33 +15,48 @@ using MiniLcm.Project;
 namespace FwLiteShared.Services;
 
 public class FwLiteProvider(
-    CombinedProjectsService projectService,
-    AuthService authService,
-    ImportFwdataService importFwdataService,
     ILogger<FwLiteProvider> logger,
     IOptions<FwLiteConfig> config,
-    TestingService testingService,
-    IAppLauncher? appLauncher = null,
-    ITroubleshootingService? troubleshootingService = null
+    IServiceProvider services
 )
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
 
+    public static readonly DotnetService[] ExportedServices =
+    [
+        DotnetService.CombinedProjectsService,
+        DotnetService.AuthService,
+        DotnetService.ImportFwdataService,
+        DotnetService.FwLiteConfig,
+        DotnetService.TestingService,
+        DotnetService.AppLauncher,
+        DotnetService.TroubleshootingService,
+        DotnetService.MultiWindowService
+    ];
+
+    public static Type GetServiceType(DotnetService service) => service switch
+    {
+        DotnetService.MiniLcmApi => typeof(IMiniLcmApi),
+        DotnetService.CombinedProjectsService => typeof(CombinedProjectsService),
+        DotnetService.AuthService => typeof(AuthService),
+        DotnetService.ImportFwdataService => typeof(ImportFwdataService),
+        DotnetService.FwLiteConfig => typeof(FwLiteConfig),
+        DotnetService.ProjectServicesProvider => typeof(ProjectServicesProvider),
+        DotnetService.HistoryService => typeof(HistoryServiceJsInvokable),
+        DotnetService.AppLauncher => typeof(IAppLauncher),
+        DotnetService.TroubleshootingService => typeof(ITroubleshootingService),
+        DotnetService.TestingService => typeof(TestingService),
+        DotnetService.MultiWindowService => typeof(IMultiWindowService),
+        _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
+    };
+
     public Dictionary<DotnetService, object> GetServices()
     {
-        var services = new Dictionary<DotnetService, object>()
-        {
-            [DotnetService.CombinedProjectsService] = projectService,
-            [DotnetService.AuthService] = authService,
-            [DotnetService.ImportFwdataService] = importFwdataService,
-            [DotnetService.FwLiteConfig] = config.Value,
-            [DotnetService.TestingService] = testingService
-        };
-        if (appLauncher is not null)
-            services[DotnetService.AppLauncher] = appLauncher;
-        if (troubleshootingService is not null)
-            services[DotnetService.TroubleshootingService] = troubleshootingService;
-        return services;
+        var result = ExportedServices.Select(s => (key: s, service: services.GetService(GetServiceType(s))))
+            .Where(t => t.service is not null)
+            .ToDictionary(s => s.key, s => s.service);
+        result[DotnetService.FwLiteConfig] = config.Value;
+        return result!;
     }
 
     public async Task<IDisposable?> SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
@@ -85,5 +100,6 @@ public enum DotnetService
     HistoryService,
     AppLauncher,
     TroubleshootingService,
-    TestingService
+    TestingService,
+    MultiWindowService
 }
