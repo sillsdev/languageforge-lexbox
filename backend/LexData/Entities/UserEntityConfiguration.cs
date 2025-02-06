@@ -20,10 +20,10 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
         builder.Property(u => u.Email).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
         builder.HasIndex(u => u.Email).IsUnique();
         builder.Property(u => u.FeatureFlags)
-            .HasDefaultValue(new List<FeatureFlag>())
+            .IsRequired(false)
             .HasConversion(
                 flags => flags.Select(flag => flag.ToString()).ToList(),
-                strs => strs.Where(flagStr => Enum.IsDefined(typeof(FeatureFlag), flagStr)).Select(Enum.Parse<FeatureFlag>).ToList(),
+                strs => (strs == null) ? new List<FeatureFlag>() : strs.Where(flagStr => Enum.IsDefined(typeof(FeatureFlag), flagStr)).Select(Enum.Parse<FeatureFlag>).ToList(),
                 new ValueComparer<List<FeatureFlag>>(
                     (c1, c2) => (c1 ?? new()).SequenceEqual(c2 ?? new()),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
