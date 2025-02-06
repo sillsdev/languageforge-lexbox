@@ -161,6 +161,7 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     emailVerified: responseUser.emailVerificationRequired ?? false,
     canCreateProjects: responseUser.canCreateProjects ?? false,
     createdByAdmin: responseUser.createdByAdmin ?? false,
+    featureFlags: responseUser.featureFlags ?? [],
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
     audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
   }

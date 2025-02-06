@@ -1,6 +1,7 @@
 ﻿<script lang="ts">
   import {page} from '$app/stores'
-  import {type FeatureFlag, hasFeatureFlag} from '$lib/user';
+  import type {FeatureFlag} from '$lib/gql/types';
+  import {hasFeatureFlag} from '$lib/user';
 
   export let flag: FeatureFlag;
 </script>

@@ -262,6 +262,7 @@ export async function _createGuestUserByAdmin(input: CreateGuestUserByAdminInput
                 orgId
                 role
               }
+              featureFlags
               audience
             }
             errors {

@@ -280,6 +280,7 @@ public class LexQueries
             IsAdmin = user.IsAdmin,
             Locked = user.Locked,
             CanCreateProjects = user.CanCreateProjects,
+            FeatureFlags = user.FeatureFlags,
             CreatedBy = user.CreatedBy is null ? null : new OrgMemberDtoCreatedBy { Id = user.CreatedBy.Id, Name = user.CreatedBy.Name },
         };
     }

@@ -338,6 +338,7 @@ type OrgMemberDto {
   isAdmin: Boolean!
   locked: Boolean!
   canCreateProjects: Boolean!
+  featureFlags: [FeatureFlag!]!
   createdBy: OrgMemberDtoCreatedBy
 }
 
