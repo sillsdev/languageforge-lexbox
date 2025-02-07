@@ -129,7 +129,7 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     return TypedResults.Ok(result);
 }
 
-static async Task<Results<Ok<ProjectSyncStatusV2>, NotFound>> GetMergeStatus(
+static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     CurrentProjectService projectContext,
     ProjectLookupService projectLookupService,
     SendReceiveService srService,
@@ -140,12 +140,12 @@ static async Task<Results<Ok<ProjectSyncStatusV2>, NotFound>> GetMergeStatus(
     Guid projectId)
 {
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
-    if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatusV2.Syncing);
+    if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
     var project = projectContext.MaybeProject;
     if (project is null)
     {
         // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
-        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatusV2.NeverSynced);
+        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
         else return TypedResults.NotFound();
     }
     var lexboxProject = await lexBoxDb.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Id == projectId);
@@ -168,7 +168,7 @@ static async Task<Results<Ok<ProjectSyncStatusV2>, NotFound>> GetMergeStatus(
     var pendingHgCommits = File.Exists(fwDataProject.FilePath) ? await srService.PendingCommitCount(fwDataProject, lexboxProject.Code) : -1;
     // TODO: PendingCommitCount can take a couple of seconds to return, so perhaps start it first and await it at the end of the method since it's likely the longest-running process
 
-    return TypedResults.Ok(ProjectSyncStatusV2.ReadyToSync(pendingCrdtCommits, pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
+    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
