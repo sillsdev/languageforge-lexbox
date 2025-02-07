@@ -16,12 +16,6 @@ using SIL.Harmony.Core;
 using SIL.Harmony;
 using Microsoft.EntityFrameworkCore;
 
-if (TestSendReceiveService.IsTestRequest(args))
-{
-    await TestSendReceiveService.TestHgIncoming(args);
-    return;
-}
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
