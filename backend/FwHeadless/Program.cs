@@ -12,9 +12,9 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using Scalar.AspNetCore;
 using LexCore.Utils;
-using LinqToDB;
 using SIL.Harmony.Core;
 using SIL.Harmony;
+using Microsoft.EntityFrameworkCore;
 
 if (TestSendReceiveService.IsTestRequest(args))
 {
@@ -135,27 +135,46 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     return TypedResults.Ok(result);
 }
 
-static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
+static async Task<Results<Ok<ProjectSyncStatusV2>, NotFound>> GetMergeStatus(
     CurrentProjectService projectContext,
     ProjectLookupService projectLookupService,
+    SendReceiveService srService,
+    IOptions<FwHeadlessConfig> config,
     SyncJobStatusService syncJobStatusService,
     IServiceProvider services,
     LexBoxDbContext lexBoxDb,
     Guid projectId)
 {
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
-    if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
+    if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatusV2.Syncing);
     var project = projectContext.MaybeProject;
     if (project is null)
     {
         // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
-        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
+        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatusV2.NeverSynced);
         else return TypedResults.NotFound();
     }
-    var commitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
+    var lexboxProject = await lexBoxDb.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Id == projectId);
+    if (lexboxProject is null)
+    {
+        // Can't sync if lexbox doesn't have this project
+        return TypedResults.NotFound();
+    }
+    var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
     var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
-    var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
-    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
+    var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
+    var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
+    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
+
+    var lastHgCommitDate = lexboxProject.LastCommit ?? DateTimeOffset.UnixEpoch;
+    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
+    if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
+    var fwDataProject = new FwDataProject("fw", projectFolder);
+    // TODO: Deicde what to return for pending Mercurial commits if we don't yet have a clone of the FW project. At the moment I'm going to return "-1" to mean "all of them, don't know how many".
+    var pendingHgCommits = File.Exists(fwDataProject.FilePath) ? await srService.PendingCommitCount(fwDataProject, lexboxProject.Code) : -1;
+    // TODO: PendingCommitCount can take a couple of seconds to return, so perhaps start it first and await it at the end of the method since it's likely the longest-running process
+
+    return TypedResults.Ok(ProjectSyncStatusV2.ReadyToSync(pendingCrdtCommits, pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,

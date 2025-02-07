@@ -47,3 +47,23 @@ public record ProjectSyncStatus(
         return new(ProjectSyncStatusEnum.ReadyToSync, changes);
     }
 }
+
+public record ProjectSyncStatusV2(
+    ProjectSyncStatusEnum status,
+    int PendingCrdtChanges,
+    int PendingMercurialChanges,
+    DateTimeOffset LastCrdtCommitDate,
+    DateTimeOffset LastMercurialCommitDate)
+{
+    public static ProjectSyncStatusV2 NeverSynced => new(ProjectSyncStatusEnum.NeverSynced, 0, 0, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch);
+    public static ProjectSyncStatusV2 Syncing => new(ProjectSyncStatusEnum.Syncing, 0, 0, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch);
+    public static ProjectSyncStatusV2 ReadyToSync(
+        int pendingCrdtChanges,
+        int pendingMercurialChanges,
+        DateTimeOffset lastCrdtCommitDate,
+        DateTimeOffset lastMercurialCommitDate)
+
+    {
+        return new(ProjectSyncStatusEnum.ReadyToSync, pendingCrdtChanges, pendingMercurialChanges, lastCrdtCommitDate, lastMercurialCommitDate);
+    }
+}
