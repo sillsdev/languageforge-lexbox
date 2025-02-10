@@ -13,6 +13,8 @@ refreshinterval=5
 bundle1=True
 bundle1.push=True
 bundle1.pull=True
+uncompressed=false
+compressionengines=bz2,zstd,zlib
 
 [paths]
 /a/ = /var/hg/repos/a/*

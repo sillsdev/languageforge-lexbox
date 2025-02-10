@@ -37,7 +37,9 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var version = await _sendReceiveService.GetHgVersion();
         version.Should().StartWith("Mercurial Distributed SCM");
         _output.WriteLine("Hg version: " + version);
-        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
+        var result = HgRunner.Run("hg debuginstall", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
+        _output.WriteLine("Hg debuginstall result:");
+        _output.WriteLine(result.StandardOutput);
         HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
     }
 
@@ -190,9 +192,40 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         await SendNewProject(90, 5);
     }
 
+    [Fact]
+    public async Task SendNewProject_Small()
+    {
+        await SendNewProject(10, 5);
+    }
+
     private async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        var hgrcContents = """
+                           [ui]
+                           merge = chorusmerge
+                           interactive = True
+                           [merge-tools]
+                           chorusmerge.premerge = False
+                           chorusmerge.executable = C:\dev\LexBox\backend\Testing\bin\Debug\net9.0\ChorusMerge.exe
+                           [web]
+                           cacerts = C:\dev\LexBox\backend\Testing\bin\Debug\net9.0\Mercurial\cacert.pem
+                           [format]
+
+                           [server]
+                           uncompressed=false
+                           compressionengines= bz2 zstd zlib
+                           [experimental]
+                           clientcompressionengines= bz2 zstd zlib
+
+                           [extensions]
+                           eol =
+                           hgext.graphlog =
+                           convert =
+                           fixutf8 = C:\dev\LexBox\backend\Testing\bin\Debug\net9.0\MercurialExtensions\fixutf8\fixutf8.py
+                           """;
+        var hgrcPath = Path.Combine(projectConfig.Dir, ".hg", "hgrc");
+        File.WriteAllText(hgrcPath, hgrcContents);
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
 
         await WaitForHgRefreshIntervalAsync();

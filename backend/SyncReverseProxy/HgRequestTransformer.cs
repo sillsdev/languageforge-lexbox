@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Net.Http.Headers;
 using Yarp.ReverseProxy.Forwarder;
+using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
 
 namespace LexSyncReverseProxy;
 
@@ -44,5 +45,26 @@ public partial class HgRequestTransformer : HttpTransformer
         }
 
         proxyRequest.RequestUri = builder.Uri;
+    }
+
+    public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext,
+        HttpResponseMessage? proxyResponse,
+        CancellationToken cancellationToken)
+    {
+        if (proxyResponse?.RequestMessage?.RequestUri?.Query.Contains("cmd=capabilities") == true)
+        {
+            var originalRequestContent = proxyResponse.Content;
+            var responseString = await originalRequestContent.ReadAsStringAsync(cancellationToken);
+            responseString = responseString.Replace("unbundle=HG10GZ,HG10BZ,HG10UN", "unbundle=HG10GZ,HG10BZ");
+            proxyResponse.Content = new StringContent(responseString, new MediaTypeHeaderValue("application/mercurial-0.1"))
+            {
+            };
+            // proxyResponse.Content.Headers.Clear();
+            // foreach (var httpContentHeader in originalRequestContent.Headers)
+            // {
+                // proxyResponse.Content.Headers.Add(httpContentHeader.Key, httpContentHeader.Value);
+            // }
+        }
+        return await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
     }
 }
