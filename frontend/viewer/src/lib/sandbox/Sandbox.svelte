@@ -2,7 +2,7 @@
   import {Button, type MenuOption} from 'svelte-ux';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
   import {DotnetService, type ISense} from '$lib/dotnet-types';
-  import {tryUseService, useService} from '$lib/services/service-provider';
+  import {tryUseService} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
   import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';

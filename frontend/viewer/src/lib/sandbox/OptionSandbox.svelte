@@ -28,12 +28,25 @@
   };
   const fieldGridAreas = Object.keys(fields).map(field => `'${field}'`).join(' ');
 
-  setContext<Readable<View>>('currentView', readable({
+  const alternateView = {
+    id: 'alternate',
+    i18nKey: '',
+    label: 'Alternate',
+    fields,
+    get alternateView() {
+      return defaultView;
+    },
+  } as const;
+
+  const defaultView = {
     id: 'sandbox',
-    i18nKey: 'languageForge',
+    i18nKey: '',
     label: 'Language Forge',
     fields,
-  }));
+    alternateView,
+  } as const;
+
+  setContext<Readable<View>>('currentView', readable(defaultView));
 
   const options = [
     {label: 'One', id: '1'},
