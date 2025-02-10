@@ -6,7 +6,7 @@ export type Project = IProjectModel;
 export type ServerStatus = IServerStatus;
 
 export class ProjectService implements ICombinedProjectsService {
-  serverProjects(serverId: string, forceRefresh: boolean): Promise<IProjectModel[]> {
+  serverProjects(_serverId: string, _forceRefresh: boolean): Promise<IProjectModel[]> {
       throw new Error('Method not implemented.');
   }
   supportsFwData(): Promise<boolean> {
@@ -15,7 +15,10 @@ export class ProjectService implements ICombinedProjectsService {
   remoteProjects(): Promise<IServerProjects[]> {
       throw new Error('Method not implemented.');
   }
-  downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer): Promise<void> {
+  downloadProject(_lexboxProjectId: string, _projectName: string, _server: ILexboxServer): Promise<void> {
+      throw new Error('Method not implemented.');
+  }
+  deleteProject(_name: string): Promise<void> {
       throw new Error('Method not implemented.');
   }
   async createProject(newProjectName: string): Promise<void> {
