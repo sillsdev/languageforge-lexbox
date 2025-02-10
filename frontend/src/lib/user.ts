@@ -5,7 +5,7 @@ import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
 import {ensureErrorIsTraced, errorSourceTag} from './otel';
 import zxcvbn from 'zxcvbn';
-import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience} from './gql/types';
+import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience, FeatureFlag} from './gql/types';
 import {_createGuestUserByAdmin} from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
@@ -26,6 +26,8 @@ type RegisterResponseErrors = {
 
 type ApiLexboxAudience = 'LexboxApi' | 'Unknown';
 
+export const allPossibleFlags = Object.values(FeatureFlag) as FeatureFlag[];
+
 type JwtTokenUser = {
   sub: string
   name: string
@@ -34,6 +36,7 @@ type JwtTokenUser = {
   role: 'admin' | 'user'
   proj?: string,
   orgs?: AuthUserOrg[],
+  feat?: FeatureFlag[],
   lock?: boolean | undefined,
   unver?: boolean | undefined,
   mkproj?: boolean | undefined,
@@ -52,6 +55,7 @@ export type LexAuthUser = {
   isAdmin: boolean
   projects: AuthUserProject[]
   orgs: AuthUserOrg[]
+  featureFlags: FeatureFlag[]
   locked: boolean
   emailVerified: boolean
   canCreateProjects: boolean
@@ -157,6 +161,7 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     emailVerified: responseUser.emailVerificationRequired ?? false,
     canCreateProjects: responseUser.canCreateProjects ?? false,
     createdByAdmin: responseUser.createdByAdmin ?? false,
+    featureFlags: responseUser.featureFlags ?? [],
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
     audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
   }
@@ -199,6 +204,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     isAdmin: role === UserRole.Admin,
     projects: projectsStringToProjects(projectsString),
     orgs: user.orgs ?? [],
+    featureFlags: user.feat ?? [],
     locked: user.lock === true,
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,
@@ -207,6 +213,11 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     audience,
     emailOrUsername: (email ?? username) as string,
   }
+}
+
+export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag): boolean {
+  const searchTerm = flag.replaceAll('_', '').toLowerCase();
+  return !!user.featureFlags.find(f => f.toLowerCase() === searchTerm);
 }
 
 function projectsStringToProjects(projectsString: string | undefined): AuthUserProject[] {

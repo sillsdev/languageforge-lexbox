@@ -18,6 +18,9 @@ export class ProjectService implements ICombinedProjectsService {
   downloadProject(_lexboxProjectId: string, _projectName: string, _server: ILexboxServer): Promise<void> {
       throw new Error('Method not implemented.');
   }
+  deleteProject(_name: string): Promise<void> {
+      throw new Error('Method not implemented.');
+  }
   async createProject(newProjectName: string): Promise<void> {
 
     if (!newProjectName) {

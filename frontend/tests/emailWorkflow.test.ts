@@ -174,10 +174,6 @@ test('ask to join project via new-project page', async ({ page, tempUser, tempUs
     await loginAs(page.request, email, password);
     dashboardPage = await new UserDashboardPage(page).goto();
 
-    // Must verify email before being allowed to request project creation
-    newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
-    dashboardPage = await new UserDashboardPage(newPage).goto();
-
     // Create project with similar name to Elawa
     const newProjectPage = await dashboardPage.clickCreateProject();
     await newProjectPage.fillForm({name: 'Elaw', code: 'xyz', purpose: 'Testing', organization: 'Test Org'});
@@ -222,13 +218,9 @@ test('ask to join project via project page', async ({ page, tempUser, tempUserIn
     const { name, email, password } = tempUserInTestOrg;
 
     await loginAs(page.request, email, password);
-    dashboardPage = await new UserDashboardPage(page).goto();
-
-    // Must verify email before being allowed to request project creation
-    newPage = await verifyTempUserEmail(page, tempUserInTestOrg);
 
     // Get to Elawa project page via org page, then ask to join
-    const testOrgPage = await new OrgPage(newPage, 'Test Org', testOrgId).goto();
+    const testOrgPage = await new OrgPage(page, 'Test Org', testOrgId).goto();
     await testOrgPage.projectsTab.click();
     const projectPage = await testOrgPage.openProject('Elawa', 'elawa-dev-flex');
     await projectPage.askToJoinButton.click();
