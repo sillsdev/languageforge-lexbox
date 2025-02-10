@@ -5,7 +5,7 @@
     mdiBookPlusOutline,
     mdiChatQuestion,
     mdiChevronRight,
-    mdiFaceAgent,
+    mdiFaceAgent, mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
   import {AppBar, Button, ListItem} from 'svelte-ux';
@@ -114,7 +114,13 @@
     {:then projects}
       <div class="space-y-4 md:space-y-8">
         <div>
-          <p class="sub-title">Local</p>
+          <div class="flex flex-row">
+            <p class="sub-title">Local</p>
+            <div class="flex-grow"></div>
+            <Button icon={mdiRefresh}
+                    title="Refresh Projects"
+                    on:click={() => refreshProjects()}/>
+          </div>
           <div>
             {#each projects.filter(p => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
