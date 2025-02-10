@@ -13,6 +13,7 @@ public class MiniLcmJsInvokable(
     IProjectIdentifier project,
     ProjectEventBus projectEventBus) : IDisposable
 {
+    // TODO: Wrap MiniLcmApiNotifyWrapper around the api we receive so that JS calls will call it instead
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
