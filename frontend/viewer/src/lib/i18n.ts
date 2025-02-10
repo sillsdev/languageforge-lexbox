@@ -18,11 +18,13 @@ const defaultI18n: Record<FieldIds, string> = {
   'components': 'Made of',
   'literalMeaning': 'Literal meaning',
   'note': 'Note',
+
   // sense
   'definition': 'Definition',
-  'gloss': 'Same as',
+  'gloss': 'Translation',
   'partOfSpeechId': 'Part of speech',
   'semanticDomains': 'Semantic domain',
+
   // example sentence
   'sentence': 'Sentence',
   'translation': 'Translation',
