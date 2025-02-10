@@ -1,5 +1,5 @@
-﻿import type {I18nType} from '../i18n';
-import type {FieldIds} from '$lib/entry-editor/field-data';
+﻿import type {FieldIds} from '$lib/entry-editor/field-data';
+import type {I18nType} from '../i18n';
 
 interface FieldView {
   show: boolean;
@@ -12,9 +12,9 @@ export const allFields: Record<FieldIds, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
-  complexForms: {show: true, order: 3},
+  complexForms: {show: false, order: 3},
   complexFormTypes: {show: false, order: 4},
-  components: {show: true, order: 5},
+  components: {show: false, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
 
@@ -30,61 +30,33 @@ export const allFields: Record<FieldIds, FieldView> = {
   reference: {show: false, order: 3},
 };
 
-const viewDefinitions: ViewDefinition[] = [
-  {
-    id: 'fieldworks',
-    i18nKey: 'fieldworks',
-    label: 'FieldWorks',
-    fields: {[defaultDef]: {show: true}}
-  },
-  {
-    id: 'wesay',
-    i18nKey: 'weSay',
-    label: 'WeSay',
-    fields: {
-      [defaultDef]: {show: false},
-      lexemeForm: {show: true},
-
-      //sense
-      gloss: {show: true},
-      partOfSpeechId: {show: true},
-
-      //example sentence
-      sentence: {show: true},
-    }
-  },
-  {
-    id: 'languageforge',
-    i18nKey: 'languageForge',
-    label: 'Language Forge',
-    fields: {
-      [defaultDef]: {show: false},
-      lexemeForm: {show: true},
-
-      //sense
-      gloss: {show: true, order: 2},
-      definition: {show: true, order: 1},
-      partOfSpeechId: {show: true},
-      semanticDomains: {show: true},
-
-      //example sentence
-      sentence: {show: true},
-      translation: {show: true},
-    }
-  }
-];
-const everythingView: View = {
+const defaultView: RootView = {
   id: 'fwlite',
   i18nKey: '',
   label: 'FieldWorks Lite',
   fields: allFields,
+  get alternateView() { return fieldWorksView; }
 };
-export const views: View[] = [
-  everythingView,
+
+const fieldWorksView: RootView = {
+  id: 'fieldworks',
+  i18nKey: 'fieldworks',
+  label: 'FieldWorks',
+  fields: recursiveSpread(allFields, {[defaultDef]: {show: true}}),
+  alternateView: defaultView,
+};
+
+const viewDefinitions: CustomViewDefinition[] = [
+  // custom views
+];
+
+export const views: [RootView, RootView, ...CustomView[]] = [
+  defaultView,
+  fieldWorksView,
   ...viewDefinitions.map(view => {
-    const fields: Record<FieldIds, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fields);
+    const fields: Record<FieldIds, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fieldOverrides);
     return {
-      ...everythingView,
+      ...defaultView,
       ...view,
       fields: fields
     };
@@ -118,9 +90,25 @@ interface ViewDefinition {
   id: string;
   i18nKey: I18nType;
   label: string;
-  fields: Partial<Record<FieldIds, Partial<FieldView>>>;
 }
 
-export interface View extends ViewDefinition {
+interface CustomViewDefinition extends ViewDefinition {
+  fieldOverrides: Partial<Record<FieldIds, Partial<FieldView>>>;
+  parentView: RootView;
+}
+
+interface ViewBase extends ViewDefinition {
   fields: Record<FieldIds, FieldView>;
 }
+
+interface RootView extends ViewBase {
+  alternateView: RootView;
+}
+
+interface CustomView extends ViewBase {
+  // Forcing this to be a RootView theoretically avoids potential cycles that might not include a RootView at all
+  // A user can still start a new custom view based on an existing custom view, but they won't inherit from each other afterwards
+  parentView: RootView;
+}
+
+export type View = (RootView | CustomView);

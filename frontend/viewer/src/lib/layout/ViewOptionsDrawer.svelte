@@ -21,8 +21,14 @@
   <div class="flex flex-col min-h-full gap-4 px-6 pt-8 pb-4 w-full font-semibold">
     <SelectField
       label="Fields"
-      options={views.map((view) => ({ value: view, label: view.label, group: view.label }))}
-      bind:value={activeView}
+      options={views.map((view) => ({ value: view.label, label: view.label, group: view.label }))}
+      value={activeView.label}
+      on:change={({detail}) => {
+        // We can't use the view itself as the value, because it gets stringified
+        // and contains circular references
+        const view = views.find((view) => view.label === detail.value);
+        if (view)  activeView = view;
+      }}
       classes={{root: 'view-select w-auto', options: 'view-select-options'}}
       clearable={false}
       labelPlacement="top"
