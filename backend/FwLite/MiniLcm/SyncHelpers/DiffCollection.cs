@@ -245,4 +245,5 @@ public record PositionDiff(int Index, PositionDiffKind Kind)
     public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
 }
 
-public record BetweenPosition(Guid? Previous, Guid? Next);
+public record BetweenPosition<T>(T? Previous, T? Next);
+public record BetweenPosition(Guid? Previous, Guid? Next) : BetweenPosition<Guid?>(Previous, Next);

@@ -173,31 +173,29 @@ public static class EntrySync
 
     private class ComplexFormComponentsDiffApi(Entry afterEntry, IMiniLcmApi api) : IOrderableCollectionDiffApi<ComplexFormComponent>
     {
-        private readonly bool supportsEntityIds = api.GetDataFormat() == ProjectDataFormat.Harmony;
-
         public Guid GetId(ComplexFormComponent component)
         {
             // we can't use the ID as there's none defined by Fw so it won't work as a sync key
             return component.ComponentSenseId ?? component.ComponentEntryId;
         }
 
-        private BetweenPosition MapBackToEntityIds(BetweenPosition between)
+        private BetweenPosition<ComplexFormComponent> MapBackToEntities(BetweenPosition between)
         {
             var previous = between!.Previous is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Previous);
             var next = between!.Next is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Next);
-            return new BetweenPosition(previous?.Id, next?.Id);
+            return new BetweenPosition<ComplexFormComponent>(previous, next);
         }
 
         public async Task<int> Add(ComplexFormComponent after, BetweenPosition between)
         {
-            if (supportsEntityIds) between = MapBackToEntityIds(between);
+            var betweenComponents = MapBackToEntities(between);
 
             //change id, since we're not using the id as the key for this collection
             //the id may be the same, which is not what we want here
             after.Id = Guid.NewGuid();
             try
             {
-                await api.CreateComplexFormComponent(after, between);
+                await api.CreateComplexFormComponent(after, betweenComponents);
             }
             catch (NotFoundException)
             {
@@ -208,9 +206,8 @@ public static class EntrySync
 
         public async Task<int> Move(ComplexFormComponent component, BetweenPosition between)
         {
-            if (supportsEntityIds) between = MapBackToEntityIds(between);
-            var componentId = supportsEntityIds ? component.Id : component.ComponentSenseId ?? component.ComponentEntryId;
-            await api.MoveComplexFormComponent(afterEntry.Id, componentId, between);
+            var betweenComponents = MapBackToEntities(between);
+            await api.MoveComplexFormComponent(afterEntry.Id, component, betweenComponents);
             return 1;
         }
 

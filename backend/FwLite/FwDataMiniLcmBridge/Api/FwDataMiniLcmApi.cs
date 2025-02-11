@@ -715,7 +715,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition? position = null)
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Complex Form Component",
             "Remove Complex Form Component",
@@ -729,11 +729,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId && c.ComponentSenseId == complexFormComponent.ComponentSenseId));
     }
 
-    public Task MoveComplexFormComponent(Guid complexFormEntryId, Guid complexFormComponentEntityId, BetweenPosition between)
+    public Task MoveComplexFormComponent(Guid complexFormEntryId, ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
     {
         if (!EntriesRepository.TryGetObject(complexFormEntryId, out var lexComplexFormEntry))
             throw new InvalidOperationException("Entry not found");
 
+        var complexFormComponentEntityId = complexFormComponent.ComponentSenseId ?? complexFormComponent.ComponentEntryId;
         var lexComponent = FindSenseOrEntryComponent(complexFormComponentEntityId);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Complex Form Component",
@@ -793,7 +794,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>
-    internal void AddComplexFormComponent(ILexEntry lexComplexForm, ComplexFormComponent component, BetweenPosition? between = null)
+    internal void AddComplexFormComponent(ILexEntry lexComplexForm, ComplexFormComponent component, BetweenPosition<ComplexFormComponent>? between = null)
     {
         ICmObject lexComponent = component.ComponentSenseId is not null
             ? SenseRepository.GetObject(component.ComponentSenseId.Value)
@@ -801,10 +802,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         InsertComplexFormComponent(lexComplexForm, lexComponent, between);
     }
 
-    internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition? between = null)
+    internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        var previousComponentId = between?.Previous;
-        var nextComponentId = between?.Next;
+        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
+        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
 
         var entryRef = lexComplexForm.ComplexFormEntryRefs.SingleOrDefault();
         if (entryRef is null || entryRef.ComponentLexemesRS.Count == 0)
@@ -1272,10 +1273,5 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
-    }
-
-    public ProjectDataFormat GetDataFormat()
-    {
-        return ProjectDataFormat.FwData;
     }
 }

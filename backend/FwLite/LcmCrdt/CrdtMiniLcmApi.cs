@@ -214,7 +214,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return new AddEntryComponentChange(complexFormComponent);
     }
 
-    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition? between = null)
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
         var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
             c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
@@ -222,21 +222,23 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
         if (existing is null)
         {
-            var addEntryComponentChange = await CreateComplexFormComponentChange(complexFormComponent, between);
+            var betweenIds = between is null ? null : new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+            var addEntryComponentChange = await CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await dataModel.AddChange(ClientId, addEntryComponentChange);
             return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
         }
         else if (between is not null)
         {
-            await MoveComplexFormComponent(complexFormComponent.ComplexFormEntryId, existing.Id, between);
+            await MoveComplexFormComponent(complexFormComponent.ComplexFormEntryId, existing, between);
         }
         return existing;
     }
 
-    public async Task MoveComplexFormComponent(Guid complexFormEntryId, Guid complexFormComponentId, BetweenPosition between)
+    public async Task MoveComplexFormComponent(Guid complexFormEntryId, ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
     {
-        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == complexFormEntryId), between);
-        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(complexFormComponentId, order));
+        var betweenIds = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == complexFormEntryId), betweenIds);
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -622,10 +624,5 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public void Dispose()
     {
-    }
-
-    public ProjectDataFormat GetDataFormat()
-    {
-        return ProjectDataFormat.Harmony;
     }
 }
