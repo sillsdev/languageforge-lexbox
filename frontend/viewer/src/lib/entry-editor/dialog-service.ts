@@ -1,5 +1,6 @@
-﻿import type DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
-import {getContext, setContext} from 'svelte';
+﻿import {getContext, setContext} from 'svelte';
+
+import type DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
 
 export function initDialogService(rootDialog: () => DeleteDialog | undefined): DialogService {
   const dialogService = new DialogService(rootDialog);
@@ -23,6 +24,7 @@ export class DialogService {
   promptDelete(subject: string): Promise<boolean> {
     const deleteDialog = this.deleteDialog();
     if (!deleteDialog) throw new Error('no deleted dialog found');
+    // eslint-disable-next-line -- false positive (.ts -> .svelte)
     return deleteDialog.prompt(subject);
   }
 }

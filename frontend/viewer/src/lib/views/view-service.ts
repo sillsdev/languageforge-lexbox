@@ -1,5 +1,5 @@
 ﻿import {type Writable, writable} from 'svelte/store';
-import {type View, views} from '../entry-editor/view-data';
+import {type View, views} from './view-data';
 import {getContext, onDestroy, setContext} from 'svelte';
 
 const currentViewContextName = 'currentView';

@@ -4,7 +4,7 @@
   import {createEventDispatcher} from 'svelte';
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import {Button, Icon, ListItem, Settings} from 'svelte-ux';
+  import {Button, ListItem, Settings} from 'svelte-ux';
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
 
@@ -61,6 +61,7 @@
   <div>
     {#if !status || loading}
       <!--override the defaults from App.svelte-->
+      <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
       <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
         <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50'}}>
           <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">

@@ -9,6 +9,7 @@
   import {_sendNewVerificationEmailByAdmin} from '../../../routes/(authenticated)/admin/+page';
   import type {UUID} from 'crypto';
   import {useNotifications} from '$lib/notify';
+  import type {FeatureFlag} from '$lib/gql/types';
 
   type User = {
     id: string;
@@ -22,6 +23,7 @@
     localizationCode: string
     updatedDate: string | Date
     lastActive: string | Date
+    featureFlags: FeatureFlag[]
     canCreateProjects: boolean
     createdBy?: Partial<User> | null
   };
@@ -119,6 +121,13 @@
         <h3>{$t('admin_dashboard.user_details_modal.createdBy')}</h3>
         <p class="value">{user.createdBy?.name  ?? NULL_LABEL}</p>
       </div>
+      <AdminContent>
+      {#if user.featureFlags && user.featureFlags.length}
+      <div>
+        Feature flags: {user.featureFlags.join(', ')}
+      </div>
+      {/if}
+      </AdminContent>
       <DevContent>
         <div>
           <h3>ID</h3>

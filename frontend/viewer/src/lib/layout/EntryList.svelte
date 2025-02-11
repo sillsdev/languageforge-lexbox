@@ -6,7 +6,7 @@
   import type { Writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import DictionaryEntry from '../DictionaryEntry.svelte';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
   import {useWritingSystemService} from '$lib/writing-system-service';
 

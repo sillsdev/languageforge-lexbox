@@ -50,15 +50,25 @@ public record LexAuthUser
                     }
                 }
 
+                var elementType = property.PropertyType.IsArray ? property.PropertyType.GetElementType() : property.PropertyType.GetGenericArguments()[0];
+                if (elementType is null) throw new Exception("Could not determine element type");
                 //claim json arrays may be a single object or an array of objects
                 //we need to handle that properly here
                 if (claim.ValueType != JsonClaimValueTypes.JsonArray)
                 {
-                    array.Add(JsonSerializer.Deserialize<JsonObject>(claim.Value));
+                    if (elementType.IsEnum)
+                    {
+                        if (Enum.TryParse(elementType, claim.Value, out var enumValue))
+                            array.Add(enumValue);
+                    }
+                    else
+                    {
+                        array.Add(JsonSerializer.Deserialize<JsonObject>(claim.Value));
+                    }
                     continue;
                 }
 
-                var claimArray = JsonSerializer.Deserialize<JsonObject[]>(claim.Value);
+                var claimArray = JsonSerializer.Deserialize<JsonNode[]>(claim.Value);
                 if (claimArray is null) continue;
                 foreach (var item in claimArray)
                 {
@@ -98,6 +108,7 @@ public record LexAuthUser
         Orgs = user.IsAdmin
             ? Array.Empty<AuthUserOrg>() // likewise, admins have access to all orgs, so we don't include them
             : user.Organizations.Select(p => new AuthUserOrg(p.Role, p.OrgId)).ToArray();
+        FeatureFlags = user.FeatureFlags?.ToArray() ?? [];
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
         CreatedByAdmin = user.CreatedById == null ? null : true;
@@ -133,6 +144,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.OrgsClaimType)]
     public AuthUserOrg[] Orgs { get; set; } = Array.Empty<AuthUserOrg>();
+
+    [JsonPropertyName(LexAuthConstants.FeatureFlagsClaimType)]
+    public FeatureFlag[] FeatureFlags { get; set; } = Array.Empty<FeatureFlag>();
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public string ProjectsJson
@@ -244,6 +258,12 @@ public record LexAuthUser
             return Projects.Any(p => p.ProjectId == projectId && p.Role == role);
         }
         return Projects.Any(p => p.ProjectId == projectId);
+    }
+
+    public bool HasFeature(FeatureFlag feature)
+    {
+        if (FeatureFlags is null) return false;
+        return FeatureFlags.Contains(feature);
     }
 }
 
