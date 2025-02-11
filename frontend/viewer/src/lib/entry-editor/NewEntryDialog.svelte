@@ -1,38 +1,49 @@
-﻿<script lang="ts">
-  import {Toggle, Button, Dialog} from 'svelte-ux';
-  import EntryEditor from './object-editors/EntryEditor.svelte';
+<script lang="ts">
   import type {IEntry} from '$lib/dotnet-types';
+  import {fieldName} from '$lib/i18n';
+  import {useCurrentView} from '$lib/views/view-service';
+  import {getContext} from 'svelte';
+  import {Button, Dialog} from 'svelte-ux';
+  import type {SaveHandler} from '../services/save-event-service';
   import {useLexboxApi} from '../services/service-provider';
-  import { mdiBookPlusOutline } from '@mdi/js';
-  import { defaultEntry } from '../utils';
-  import { createEventDispatcher, getContext } from 'svelte';
-  import type { SaveHandler } from '../services/save-event-service';
+  import {defaultEntry, defaultSense} from '../utils';
+  import EntryEditor from './object-editors/EntryEditor.svelte';
+  import OverrideFields from '$lib/OverrideFields.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {initFeatures} from '$lib/services/feature-service';
 
-  const dispatch = createEventDispatcher<{
-    created: { entry: IEntry };
-  }>();
-
+  let open = false;
   let loading = false;
   let entry: IEntry = defaultEntry();
 
+  const currentView = useCurrentView();
+  const writingSystemService = useWritingSystemService();
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
 
-  async function createEntry(e: Event, closeDialog: () => void) {
+  async function createEntry(e: Event) {
     e.preventDefault();
+    e.stopPropagation();
+    if (!requester) throw new Error('No requester');
+    if (!validateEntry()) return;
     loading = true;
     console.debug('Creating entry', entry);
     await saveHandler(() => lexboxApi.createEntry(entry));
-    dispatch('created', {entry});
-    if (requester) {
-      requester.resolve(entry);
-      requester = undefined;
-    }
+    requester.resolve(entry);
+    requester = undefined;
     loading = false;
-    closeDialog();
+    open = false;
+  }
+
+  let errors: string[] = [];
+  function validateEntry(): boolean {
+    errors = [];
+    if (!writingSystemService.headword(entry)) errors.push('Lexeme form is required');
+    if (entry.senses.length > 0 && !writingSystemService.firstDefOrGlossVal(entry.senses[0])) errors.push('Definition or gloss is required');
+    return errors.length === 0;
   }
 
   export function openWithValue(newEntry: Partial<IEntry>): Promise<IEntry | undefined> {
@@ -40,8 +51,12 @@
       if (requester) requester.resolve(undefined);
       requester = { resolve };
       const tmpEntry = defaultEntry();
-      toggle.on = true;
+      open = true;
       entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
+      if (entry.senses.length === 0) {
+        entry.senses.push(defaultSense(entry.id));
+      }
+      errors = [];
     });
   }
 
@@ -53,24 +68,24 @@
     entry = defaultEntry();
   }
 
-  let toggle: Toggle;
+  initFeatures({ write: true }); // hide history buttons
 </script>
 
-<Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOff={onClosing}>
-  <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
-    <div class="hidden sm:contents">
-      New Entry
-    </div>
-  </Button>
-  <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
-    <div slot="title">New Entry</div>
-    <div class="m-6">
-      <EntryEditor bind:entry={entry} modalMode/>
-    </div>
-    <div class="flex-grow"></div>
-    <div slot="actions">
-      <Button>Cancel</Button>
-      <Button variant="fill-light" color="success" on:click={e => createEntry(e, toggleOff)}>Create Entry</Button>
-    </div>
-  </Dialog>
-</Toggle>
+<Dialog bind:open on:close={onClosing} {loading} persistent={loading}>
+  <div slot="title">New {fieldName({id: 'entry'}, $currentView.i18nKey)}</div>
+  <div class="m-6">
+    <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
+      <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
+    </OverrideFields>
+  </div>
+  <div class="flex-grow"></div>
+  <div class="self-end m-4">
+    {#each errors as error}
+      <p class="text-danger p-2">{error}</p>
+    {/each}
+  </div>
+  <div slot="actions">
+    <Button>Cancel</Button>
+    <Button variant="fill-light" color="success" on:click={e => createEntry(e)}>Create {fieldName({id: 'entry'}, $currentView.i18nKey)}</Button>
+  </div>
+</Dialog>

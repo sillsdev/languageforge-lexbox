@@ -232,6 +232,18 @@ public class ProjectController(
         await hgResult.CopyToAsync(writer.AsStream());
     }
 
+    [HttpGet("sldr-export")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetLdmlZip(CancellationToken token)
+    {
+        var path = await projectService.PrepareLdmlZip(scheduler, token);
+        if (path is null) return NotFound("No SLDR files available");
+        var filename = Path.GetFileName(path);
+        var stream = System.IO.File.OpenRead(path);
+        return File(stream, "application/zip", filename);
+    }
+
     [HttpPost("updateMissingLanguageList")]
     public async Task<ActionResult<string[]>> UpdateMissingLanguageList(int limit = 10)
     {

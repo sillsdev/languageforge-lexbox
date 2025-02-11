@@ -161,6 +161,7 @@
     "label_password": "Password",
     "missing_user_info": "User info missing",
     "sign_in_with_google": "Sign in with Google",
+    "register_with_google": "Register with Google",
     "title": "Log in",
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
@@ -212,6 +213,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "no_thanks": "No thanks, create a new project",
       "click_to_view_related_projects": "Found {count, plural, one {# related project} other {# related projects}}, click here to see {count, plural, one {it} other {them}}",
       "join_request_sent": "Your request to join the {projectName} project has been sent to the project manager(s)",
+      "join_request_error_no_managers": "The {projectName} project has no project managers, so your request to join could not be sent",
       "description": "Description",
       "no_description": "This project does not have a description",
       "name_missing": "Project name required",
@@ -530,6 +532,9 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     },
     "promote_project": {
       "label": "Promote to real project",
+    },
+    "join_project": {
+      "label": "Ask to join project",
     },
     "open_with_viewer": "Browse",
     "open_with_flex": {

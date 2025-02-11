@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -491,11 +492,28 @@ public partial class HgService : IHgService, IHostedService
         return version.Trim();
     }
 
+    public async Task<ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default)
+    {
+        var content = await MaybeExecuteHgCommandServerCommand(code, "ldmlzip", [HttpStatusCode.Forbidden], token);
+        if (content is null) return null;
+        return new ZipArchive(await content.ReadAsStreamAsync(token), ZipArchiveMode.Read);
+    }
+
     private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
         var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        response.EnsureSuccessStatusCode();
+        return response.Content;
+    }
+
+    private async Task<HttpContent?> MaybeExecuteHgCommandServerCommand(ProjectCode code, string command, IEnumerable<HttpStatusCode> okErrors, CancellationToken token)
+    {
+        var httpClient = _hgClient.Value;
+        var baseUri = _options.Value.HgCommandServer;
+        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        if (okErrors.Contains(response.StatusCode)) return null;
         response.EnsureSuccessStatusCode();
         return response.Content;
     }

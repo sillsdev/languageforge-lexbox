@@ -1,14 +1,17 @@
 <script lang="ts">
+  import {useWritingSystemService} from '$lib/writing-system-service';
   import { mdiBookAlphabet, mdiClose } from '@mdi/js';
   import { getContext } from 'svelte';
   import { Button, Popover, Toggle } from 'svelte-ux';
-  import type { Writable, Readable } from 'svelte/store';
+  import type { Writable } from 'svelte/store';
 
-  const characters = getContext<Readable<string[] | null>>('indexExamplars');
+  const writingSystemService = useWritingSystemService();
+
+  const characters = writingSystemService.indexExemplars();
   const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 </script>
 
-{#if $characters?.length}
+{#if characters?.length}
   <Toggle let:on={open} let:toggle let:toggleOff>
     <Popover {open} let:close on:close={toggleOff} placement="bottom-start" offset={4} padding={6}>
       <div class="index-container flex flex-row flex-wrap justify-evenly gap-2 p-3 rounded bg-surface-100 border shadow-lg overflow-auto">
@@ -27,7 +30,7 @@
             </Button>
           </button>
         {/if}
-        {#each $characters ?? [] as character}
+        {#each characters ?? [] as character}
           <!-- for some reason the web-component only gets clicks this way :( -->
           <button class="contents" on:mouseup={() => {
               if ($selectedCharacter === character) $selectedCharacter = undefined;

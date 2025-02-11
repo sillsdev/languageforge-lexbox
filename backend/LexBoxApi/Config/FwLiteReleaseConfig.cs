@@ -9,10 +9,10 @@ namespace LexBoxApi.Config;
 
 public class FwLiteReleaseConfig
 {
-    public Dictionary<FwLitePlatform, FwLitePlatformConfig> Platforms { get; set; } = new();
+    public Dictionary<FwLiteEdition, FwLiteEditionConfig> Editions { get; set; } = new();
 }
 
-public class FwLitePlatformConfig
+public class FwLiteEditionConfig
 {
     [Required]
     public required string FileNameRegex { get; init; }

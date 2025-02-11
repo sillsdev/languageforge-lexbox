@@ -1,22 +1,24 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 
-import {entries, projectName, writingSystems, partsOfSpeech} from './entry-data';
-import type {
-  IEntry,
-  IExampleSentence,
-  ISense,
-  IPartOfSpeech,
-  IQueryOptions,
-  ISemanticDomain,
-  WritingSystemType,
-  IWritingSystems,
-  IComplexFormType,
-  IWritingSystem,
-  IComplexFormComponent,
-  IMiniLcmJsInvokable
+import {
+  DotnetService,
+  type IComplexFormComponent,
+  type IComplexFormType,
+  type IEntry,
+  type IExampleSentence,
+  type IMiniLcmJsInvokable,
+  type IPartOfSpeech,
+  type IQueryOptions,
+  type ISemanticDomain,
+  type ISense,
+  type IWritingSystem,
+  type IWritingSystems,
+  type WritingSystemType
 } from '$lib/dotnet-types';
+import {entries, partsOfSpeech, projectName, writingSystems} from './entry-data';
 
-import {headword} from './utils';
+import {WritingSystemService} from './writing-system-service';
+import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -37,7 +39,22 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
 
+const writingSystemService = new WritingSystemService(writingSystems);
+
 export class InMemoryApiService implements IMiniLcmJsInvokable {
+
+  public static setup(): InMemoryApiService {
+    const inMemoryLexboxApi = new InMemoryApiService();
+    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, inMemoryLexboxApi);
+    window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
+      appVersion: 'test-project',
+      feedbackUrl: '',
+      os: FwLitePlatform.Web,
+      useDevAssets: true,
+    });
+    return inMemoryLexboxApi;
+  }
+
   getComplexFormTypes(): Promise<IComplexFormType[]> {
     return Promise.resolve(
       //*
@@ -86,6 +103,9 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     return Promise.resolve(this.ApplyQueryOptions(this._Entries(), options));
   }
 
+  getWritingSystemsSync(): IWritingSystems {
+    return writingSystems;
+  }
   getWritingSystems(): Promise<IWritingSystems> {
     return Promise.resolve(writingSystems);
   }
@@ -109,8 +129,8 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
-        const v1 = headword(e1, sortWs);
-        const v2 = headword(e2, sortWs);
+        const v1 = writingSystemService.headword(e1, sortWs);
+        const v2 = writingSystemService.headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
         const compare = v1.localeCompare(v2, sortWs);

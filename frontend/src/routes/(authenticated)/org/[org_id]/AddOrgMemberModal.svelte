@@ -74,6 +74,12 @@
         userInvited = true;
         return undefined; // Close modal as if success
       }
+      if (error?.byType('OrgMembersMustBeVerified')) {
+        return { usernameOrEmail: [$t('org_page.add_user.user_must_be_verified')] };
+      }
+      if (error?.byType('OrgMembersMustBeVerifiedForRole')) {
+        return { role: [$t('org_page.add_user.admin_must_be_verified')] };
+      }
 
       return error?.message;
     });

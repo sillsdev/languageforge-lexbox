@@ -3,7 +3,7 @@
   import { Checkbox, Dialog, ListItem, TextField } from 'svelte-ux';
   import { fieldName } from '../i18n';
   import type {FieldConfig} from '../config-types';
-  import {useCurrentView} from '../services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
 
   export let open = false;
   let fieldSearch = '';
@@ -16,7 +16,7 @@
   );
 </script>
 
-<Dialog bind:open class="w-[700px]" classes={{title: 'px-4'}}>
+<Dialog bind:open classes={{title: 'px-4'}}>
   <div slot="title" class="font-normal">
     <TextField
       bind:value={fieldSearch}

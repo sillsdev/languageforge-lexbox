@@ -1,4 +1,5 @@
-﻿using FwLiteShared.Sync;
+﻿using FwLiteShared.Events;
+using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -6,10 +7,11 @@ using MiniLcm.Models;
 
 namespace FwLiteShared.Services;
 
-internal class MiniLcmJsInvokable(
+public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
-    IProjectIdentifier project) : IDisposable
+    IProjectIdentifier project,
+    ProjectEventBus projectEventBus) : IDisposable
 {
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
@@ -194,6 +196,7 @@ internal class MiniLcmJsInvokable(
     {
         var createdEntry = await api.CreateEntry(entry);
         OnDataChanged();
+        projectEventBus.PublishEntryChangedEvent(project, createdEntry);
         return createdEntry;
     }
 
@@ -203,6 +206,7 @@ internal class MiniLcmJsInvokable(
         //todo trigger sync on the test
         var result = await api.UpdateEntry(before, after);
         OnDataChanged();
+        projectEventBus.PublishEntryChangedEvent(project, result);
         return result;
     }
 

@@ -68,17 +68,29 @@ public class BackgroundSyncService(
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
         _running = true;
+        await SyncAllProjects(stoppingToken);
+
+        try
+        {
+            await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
+            {
+                //todo, this might not be required, but I can't remember why I added it
+                await Task.Delay(100, stoppingToken);
+                await SyncProject(project, false, stoppingToken);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected during shutdown
+        }
+    }
+
+    private async Task SyncAllProjects(CancellationToken stoppingToken)
+    {
         var crdtProjects = crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
             await SyncProject(crdtProject, true, stoppingToken);
-        }
-
-        await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
-        {
-            //todo, this might not be required, but I can't remember why I added it
-            await Task.Delay(100, stoppingToken);
-            await SyncProject(project, false, stoppingToken);
         }
     }
 
@@ -90,11 +102,15 @@ public class BackgroundSyncService(
         {
             await using var serviceScope = serviceProvider.CreateAsyncScope();
             var services = serviceScope.ServiceProvider;
-            await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
+            var currentProjectService = services.GetRequiredService<CurrentProjectService>();
+            //not using SetupProjectContext because it will try to fetch project data, which might fail due to missing migrations
+            //we fetch the project data after the migrations
+            currentProjectService.SetupProjectContextForNewDb(crdtProject);
             if (applyMigrations)
             {
                 await services.GetRequiredService<LcmCrdtDbContext>().Database.MigrateAsync(cancellationToken);
             }
+            await currentProjectService.RefreshProjectData();
             var syncService = services.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }

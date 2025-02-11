@@ -1,4 +1,7 @@
 using System.Data.Common;
+using System.Globalization;
+using System.IO.Compression;
+using LexBoxApi.Jobs;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services.Email;
 using LexCore.Auth;
@@ -10,6 +13,7 @@ using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Path = System.IO.Path; // Resolves ambiguous reference with HotChocolate.Path
 
 namespace LexBoxApi.Services;
 
@@ -267,6 +271,40 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             project.FlexProjectMetadata.LexEntryCount = null;
             await dbContext.SaveChangesAsync();
         }
+    }
+
+    public async Task<DirectoryInfo?> ExtractLdmlZip(Project project, string destRoot, CancellationToken token = default)
+    {
+        if (project.Type != ProjectType.FLEx) return null;
+        using var zip = await hgService.GetLdmlZip(project.Code, token);
+        if (zip is null) return null;
+        var path = Path.Join(destRoot, project.Id.ToString());
+        if (Directory.Exists(path)) Directory.Delete(path, true);
+        var dirInfo = Directory.CreateDirectory(path);
+        zip.ExtractToDirectory(dirInfo.FullName, true);
+        return dirInfo;
+    }
+
+    public async Task<string?> PrepareLdmlZip(Quartz.ISchedulerFactory schedulerFactory, CancellationToken token = default)
+    {
+        var nowStr = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+        var path = Path.Join(Path.GetTempPath(), $"sldr-export-{nowStr}");
+        if (Directory.Exists(path)) Directory.Delete(path, true);
+        Directory.CreateDirectory(path);
+        await DeleteTempDirectoryJob.Queue(schedulerFactory, path, TimeSpan.FromHours(4));
+        var zipRoot = Path.Join(path, "zipRoot");
+        Directory.CreateDirectory(zipRoot);
+        await foreach (var project in dbContext.Projects.Where(p => p.Type == ProjectType.FLEx).AsAsyncEnumerable())
+        {
+            await ExtractLdmlZip(project, zipRoot, token);
+        }
+        var zipFilename = $"sldr-{nowStr}.zip";
+        var zipFilePath = Path.Join(path, zipFilename);
+        if (File.Exists(zipFilePath)) File.Delete(zipFilePath);
+        // If we would create an empty .zip file, just return null instead (will become a 404)
+        if (!Directory.EnumerateDirectories(zipRoot).Any()) return null;
+        ZipFile.CreateFromDirectory(zipRoot, zipFilePath, CompressionLevel.Fastest, includeBaseDirectory: false);
+        return zipFilePath;
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)

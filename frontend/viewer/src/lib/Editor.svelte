@@ -4,7 +4,7 @@
   import {createEventDispatcher, getContext} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
   import type { SaveHandler } from './services/save-event-service';
-  import {useViewSettings} from './services/view-service';
+  import {useViewSettings} from '$lib/views/view-service';
 
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
@@ -27,8 +27,8 @@
 
   async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     if (readonly) return;
-    await updateEntry(e.entry);
-    dispatch('change', {entry: e.entry});
+    entry = await updateEntry(e.entry);
+    dispatch('change', {entry: entry});
     updateInitialEntry();
   }
 
@@ -49,20 +49,22 @@
   async function updateEntry(updatedEntry: IEntry) {
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
     console.debug('Updating entry', updatedEntry);
-    await saveHandler(() => lexboxApi.updateEntry(initialEntry, updatedEntry));
+    return saveHandler(() => lexboxApi.updateEntry(initialEntry, updatedEntry));
   }
 </script>
 
-<div id="entry" class:hide-empty={$viewSettings.hideEmptyFields}>
-  <EntryEditor
-    on:change={e => onChange(e.detail)}
-    on:delete={e => onDelete(e.detail)}
-    entry={entry}
-    {readonly}/>
+<div id="entry" class:hide-unused={!$viewSettings.showEmptyFields}>
+  {#key entry.id}
+    <EntryEditor
+      on:change={e => onChange(e.detail)}
+      on:delete={e => onDelete(e.detail)}
+      entry={entry}
+      {readonly}/>
+  {/key}
 </div>
 
 <style lang="postcss">
-  :global(.hide-empty :is(.empty, .ws-field-wrapper:has(.empty))) {
+  :global(.hide-unused :is(.unused, .ws-field-wrapper:has(.unused))) {
     display: none !important;
   }
 </style>

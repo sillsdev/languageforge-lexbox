@@ -92,6 +92,48 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreateComplexFormComponent_ThrowsWhenMakingASimpleReferenceCycle()
+    {
+        var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_componentEntry, _componentEntry));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_ThrowsWhenMakingA2LayerReferenceCycle()
+    {
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_componentEntry, _complexFormEntry));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_ThrowsWhenMakingA3LayerReferenceCycle()
+    {
+        var entry3 = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(), LexemeForm = { { "en", "entry3" } }
+        });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, entry3));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(entry3, _componentEntry));
+        var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_componentEntry, _complexFormEntry));
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task CreateComplexFormComponent_WorksWhenAComponentWasDeletedWhichWouldCauseACycle()
+    {
+        var entry3 = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(), LexemeForm = { { "en", "entry3" } }
+        });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, entry3));
+        var complexFormComponent = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(entry3, _componentEntry));
+        await Api.DeleteComplexFormComponent(complexFormComponent);
+        var act = async () => await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_componentEntry, _complexFormEntry));
+        await act.Should().NotThrowAsync("a component was deleted which was part of the cycle");
+    }
+
+    [Fact]
     public async Task CreateComplexFormType_Works()
     {
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };

@@ -37,9 +37,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:
@@ -57,12 +62,15 @@ jobs:
       - name: Check for pending EF model changes
         run: task fw-lite:has-pending-model-changes
 
+      - name: Prepare frontend
+        working-directory: frontend
+        run: |
+          pnpm install
+          pnpm svelte-kit sync
+
       - name: Build viewer
         working-directory: frontend/viewer
-        run: |
-          corepack enable
-          pnpm install
-          pnpm run build-app
+        run: pnpm run build-app
 
       - name: Dotnet test
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions
@@ -160,17 +168,39 @@ jobs:
 
       - name: Setup Maui
         run: dotnet workload install maui
+      - name: Decode Android Keystore
+        id: decodeKeystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.FW_LITE_KEYSTORE_BASE64 }}
+        run: |
+          echo "KEYSTORE_PATH=${RUNNER_TEMP}/keystore.jks" >> ${GITHUB_OUTPUT}
+          base64 -d <<< "$KEYSTORE_BASE64" > ${RUNNER_TEMP}/keystore.jks
 
       - name: Publish Android
         working-directory: backend/FwLite/FwLiteMaui
-        run: dotnet publish -f net9.0-android --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+        env:
+          KEYSTORE_PATH: ${{ steps.decodeKeystore.outputs.KEYSTORE_PATH }}
+          KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
+          KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
+        run: |
+          dotnet publish -f net9.0-android --artifacts-path ../artifacts \
+            -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
+            -p:AndroidSigningKeyPass=env:KEYSTORE_PASS \
+            -p:AndroidSigningStorePass=env:KEYSTORE_PASS \
+            -p:AndroidSigningKeyAlias=${KEYSTORE_ALIAS}
+          rm ${KEYSTORE_PATH}
 
       - name: Upload FWLite App artifacts
         uses: actions/upload-artifact@v4
         with:
           name: fw-lite-android
           if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/*/*
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/org.sil.fwlitemaui-signed.apk
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net9.0-android/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -273,9 +303,12 @@ jobs:
           zip -r fw-lite-portable.zip fw-lite-portable
           chmod +x fw-lite-web-linux/*/FwLiteWeb
           zip -r fw-lite-web-linux.zip fw-lite-web-linux
+      - name: Rename Installer
+        run: |
+          mv fw-lite-msix/FwLiteMaui.msixbundle fw-lite-msix/FieldWorksLiteInstaller.msixbundle
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda #v2.2.1
         with:
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}

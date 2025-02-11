@@ -1,4 +1,5 @@
 ﻿using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -29,7 +30,7 @@ public static class FwIntegrationRoutes
                 await hubContext.Clients.Group(context.Project.Name).OnProjectClosed(CloseReason.Locked);
                 factory.CloseProject(context.Project);
                 //need to use redirect as a way to not trigger flex until after we have closed the project
-                return Results.Redirect($"silfw://localhost/link?database={context.Project.Name}&tool=lexiconEdit&guid={id}");
+                return Results.Redirect(FwLink.ToEntry(id, context.Project.Name));
             });
         return group;
     }

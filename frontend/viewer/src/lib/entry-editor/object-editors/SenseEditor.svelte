@@ -5,15 +5,14 @@
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
   import {useSemanticDomains} from '../../semantic-domains';
-  import {useWritingSystems} from '../../writing-systems';
-  import {pickBestAlternative} from '../../utils';
+  import {useWritingSystemService} from '../../writing-system-service';
   import {usePartsOfSpeech} from '../../parts-of-speech';
-  import {useCurrentView, objectTemplateAreas} from '../../services/view-service';
+  import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
 
   export let sense: ISense;
   export let readonly: boolean = false;
-  const writingSystems = useWritingSystems();
-  const partsOfSpeech = usePartsOfSpeech(writingSystems);
+  const writingSystemService = useWritingSystemService();
+  const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
   const currentView = useCurrentView();
 </script>
@@ -29,9 +28,9 @@
                     {readonly}
                     id="definition"
                     wsType="analysis" />
-  <SingleOptionEditor on:change
-                      bind:value={sense.partOfSpeechId}
-                      valueIsId
+  <SingleOptionEditor on:change={() => sense.partOfSpeechId = sense.partOfSpeech?.id}
+                      on:change
+                      bind:value={sense.partOfSpeech}
                       options={$partsOfSpeech}
                       getOptionLabel={(pos) => pos.label}
                       {readonly}
@@ -41,7 +40,7 @@
                     on:change
                     bind:value={sense.semanticDomains}
                     options={$semanticDomains}
-                    getOptionLabel={(sd) => `${sd.code} ${pickBestAlternative(sd.name, 'analysis', $writingSystems)}`}
+                    getOptionLabel={(sd) => `${sd.code} ${writingSystemService.pickBestAlternative(sd.name, 'analysis')}`}
                     {readonly}
                     id="semanticDomains"
                     wsType="first-analysis" />

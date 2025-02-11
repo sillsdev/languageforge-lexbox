@@ -3,9 +3,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {IObjectWithId} from './IObjectWithId';
 import type {WritingSystemType} from './WritingSystemType';
 
-export interface IWritingSystem
+export interface IWritingSystem extends IObjectWithId
 {
 	id: string;
 	wsId: string;

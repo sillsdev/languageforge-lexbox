@@ -3,12 +3,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {IObjectWithId} from './IObjectWithId';
 import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {ISense} from './ISense';
 import type {IComplexFormComponent} from './IComplexFormComponent';
 import type {IComplexFormType} from './IComplexFormType';
 
-export interface IEntry
+export interface IEntry extends IObjectWithId
 {
 	id: string;
 	deletedAt?: string;

@@ -26,9 +26,9 @@ public static class HistoryRoutes
         });
         group.MapGet("/snapshot/{snapshotId:guid}",
             async (Guid snapshotId, HistoryService historyService) => await historyService.GetSnapshot(snapshotId));
-        group.MapGet("/snapshot/at/{timestamp}",
-            async (DateTime timestamp, Guid entityId, HistoryService historyService) =>
-                await historyService.GetObject(timestamp, entityId));
+        group.MapGet("/snapshot/commit/{commitId}",
+            async (Guid commitId, Guid entityId, HistoryService historyService) =>
+                await historyService.GetObject(commitId, entityId));
         group.MapGet("/{entityId}",
             (Guid entityId, HistoryService historyService) => historyService.GetHistory(entityId));
         return group;

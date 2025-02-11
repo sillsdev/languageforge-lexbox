@@ -61,10 +61,12 @@ module.exports = {
     extend: {
       screens: {
         'max-sm': { 'max': '639px' },
+        'max-md': { 'max': '767px' },
 
         // Breakpoints for the entry form aka editor
         'xs-form': {'max': '800px'},
         'sm-form': {'max': '1279px'},
+        'lg-form': {'min': '1280px'},
 
         // Breakpoints for the project view layout
         'sm-view': { 'max': '800px' },

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
@@ -12,6 +13,8 @@ using Reinforced.Typings.Ast.Dependency;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
 using Reinforced.Typings.Visitors.TypeScript;
+using SIL.Harmony.Core;
+using SIL.Harmony.Db;
 
 namespace FwLiteShared.TypeGen;
 
@@ -22,7 +25,7 @@ public static class ReinforcedFwLiteTypingConfig
     {
         builder.Global(c => c.AutoAsync()
             .UseModules()
-            .UnresolvedToUnknown()
+            .UnresolvedToUnknown(true)
             .CamelCaseForProperties()
             .CamelCaseForMethods()
             .AutoOptionalProperties()
@@ -32,6 +35,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
         builder.SubstituteGeneric(typeof(DotNetObjectReference<>), (type, resolver) => resolver.ResolveTypeName(dotnetObjectRefInterface));
@@ -39,6 +43,7 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithName("DotNet.DotNetObject").Imports([
                 new() { From = "@microsoft/dotnet-js-interop", Target = "type {DotNet}" }
             ]));
+        builder.ExportAsInterface<IAsyncDisposable>();
 
         ConfigureMiniLcmTypes(builder);
         ConfigureFwLiteSharedTypes(builder);
@@ -62,6 +67,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(ComplexFormType),
                 typeof(ComplexFormComponent),
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
+                typeof(IObjectWithId)
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
@@ -70,7 +76,7 @@ public static class ReinforcedFwLiteTypingConfig
                 exportBuilder.Ignore();
             }
         }));
-        builder.ExportAsEnum<WritingSystemType>().UseString();
+        builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()
@@ -86,12 +92,12 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
-        builder.ExportAsInterfaces([
-            typeof(AuthService),
-            typeof(ImportFwdataService),
-            typeof(CombinedProjectsService),
-            typeof(MiniLcmApiProvider)
-        ], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
+        var serviceTypes = Enum.GetValues<DotnetService>()
+            //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
+            .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
+            .Select(FwLiteProvider.GetServiceType);
+        builder.ExportAsInterfaces(serviceTypes, exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
+        builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
 
         builder.ExportAsInterfaces([
             typeof(ServerStatus),
@@ -101,8 +107,22 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(CrdtProject),
             typeof(ProjectData),
             typeof(IProjectIdentifier),
-            typeof(FwLiteConfig)
+            typeof(FwLiteConfig),
+            typeof(HistoryLineItem),
+            typeof(ProjectActivity),
+            typeof(CommitMetadata),
+            typeof(ObjectSnapshot),
+            typeof(ProjectScope)
         ], exportBuilder => exportBuilder.WithPublicProperties());
+
+        builder.ExportAsEnum<FwEventType>().UseString();
+        builder.ExportAsInterfaces(
+            typeof(IFwEvent).Assembly.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IFwEvent)))
+                .Append(typeof(IFwEvent)),
+            exportBuilder => exportBuilder.WithPublicProperties()
+        );
+
     }
 
     private static MethodExportBuilder AlwaysReturnPromise(this MethodExportBuilder exportBuilder)

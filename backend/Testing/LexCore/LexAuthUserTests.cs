@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Humanizer;
 using LexBoxApi.Auth;
 using LexCore.Auth;
@@ -14,6 +15,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using LexCore;
 
 namespace Testing.LexCore;
 
@@ -35,13 +37,19 @@ public class LexAuthUserTests
         Email = "test@test.com",
         Role = UserRole.user,
         Name = "test",
+        Username = "test",
+        Locked = false,
+        EmailVerificationRequired = false,
+        CanCreateProjects = true,
         UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+        CreatedByAdmin = false,
         Locale = "en",
         Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ],
         Projects = new[]
         {
             new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99"))
-        }
+        },
+        FeatureFlags = [FeatureFlag.FwLiteBeta]
     };
 
     private static readonly JwtBearerOptions JwtBearerOptions = new()
@@ -49,6 +57,17 @@ public class LexAuthUserTests
         TokenValidationParameters = LexAuthService.TokenValidationParameters(JwtOptions.TestingOptions),
         MapInboundClaims = false
     };
+
+    [Fact]
+    public void EnsureAllClaimsAreRepresentedByTestUser()
+    {
+        var propsSet = _user.GetClaims().Select(c => c.Type);
+        var propsWhichShouldBeUsed = LexAuthUser.LexAuthUserTypeInfo.Properties
+            .Where(p => p.AttributeProvider?.IsDefined(typeof(JsonIgnoreAttribute), true) is false or null)
+            .Select(p => p.Name);
+
+        propsSet.Should().BeEquivalentTo(propsWhichShouldBeUsed);
+    }
 
     [Fact]
     public void CanGetClaimsFromUser()
@@ -59,12 +78,14 @@ public class LexAuthUserTests
         var emailClaim = new Claim(LexAuthConstants.EmailClaimType, _user.Email);
         var roleClaim = new Claim(LexAuthConstants.RoleClaimType, _user.Role.ToString());
         var projectClaim = new Claim("proj", _user.ProjectsJson);
+        var featureFlagClaim = new Claim(LexAuthConstants.FeatureFlagsClaimType, string.Join(",", _user.FeatureFlags));
         using (new AssertionScope())
         {
             claims.Should().Contain(idClaim.ToString());
             claims.Should().Contain(emailClaim.ToString());
             claims.Should().Contain(roleClaim.ToString());
             claims.Should().Contain(projectClaim.ToString());
+            claims.Should().Contain(featureFlagClaim.ToString());
         }
     }
 
@@ -189,7 +210,12 @@ public class LexAuthUserTests
         //old jwt doesn't have updated date or orgs, we're ok with that so we correct the values to make the equivalence work
         newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];
         newUser.UpdatedDate = _user.UpdatedDate;
-        newUser.Should().BeEquivalentTo(_user);
+        newUser.FeatureFlags = _user.FeatureFlags;
+        // ditto for Username
+        newUser.Username = _user.Username;
+        // ditto for Locked, EmailVerificationRequired, CanCreateProjects, and CreatedByAdmin
+        newUser.Should().BeEquivalentTo(_user,
+            user => user.Excluding(u => u.Locked).Excluding(u => u.EmailVerificationRequired).Excluding(u => u.CanCreateProjects).Excluding(u => u.CreatedByAdmin));
     }
 
     [Fact]

@@ -4,7 +4,7 @@
 //     the code is regenerated.
 
 export enum WritingSystemType {
-	Vernacular = "Vernacular",
-	Analysis = "Analysis"
+	Vernacular = 0,
+	Analysis = 1
 }
 /* eslint-enable */

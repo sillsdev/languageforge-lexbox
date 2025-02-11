@@ -7,6 +7,7 @@
   import {AppNotification} from './lib/notifications/notifications';
   import {CloseReason} from './lib/generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
   import {useEventBus} from './lib/services/event-bus';
+  import ProjectLoader from './ProjectLoader.svelte';
 
   export let projectName: string;
   export let baseUrl: string = '';
@@ -41,4 +42,7 @@
     }
   }));
 </script>
-<ProjectView {projectName} isConnected={$connected}></ProjectView>
+
+<ProjectLoader {projectName} let:onProjectLoaded>
+  <ProjectView {projectName} isConnected={$connected} on:loaded={e => onProjectLoaded(e.detail)}></ProjectView>
+</ProjectLoader>

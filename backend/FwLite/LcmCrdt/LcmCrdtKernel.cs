@@ -205,15 +205,11 @@ public static class LcmCrdtKernel
             ;
     }
 
-    public static Type[] AllChangeTypes()
+    public static IEnumerable<Type> AllChangeTypes()
     {
         var crdtConfig = new CrdtConfig();
         ConfigureCrdt(crdtConfig);
-
-
-        var list = typeof(ChangeTypeListBuilder).GetProperty("Types", BindingFlags.Instance | BindingFlags.NonPublic)
-            ?.GetValue(crdtConfig.ChangeTypeListBuilder) as List<JsonDerivedType>;
-        return list?.Select(t => t.DerivedType).ToArray() ?? [];
+        return crdtConfig.ChangeTypes;
     }
 
 

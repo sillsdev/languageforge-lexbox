@@ -11,21 +11,25 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 {
     private const string GithubLatestRelease = "GithubLatestRelease";
     public const string FwLiteClientVersionTag = "app.fw-lite.client.version";
-    public const string FwLitePlatformTag = "app.fw-lite.platform";
+    public const string FwLiteEditionTag = "app.fw-lite.edition";
     public const string FwLiteReleaseVersionTag = "app.fw-lite.release.version";
 
-    public async ValueTask<FwLiteRelease?> GetLatestRelease(FwLitePlatform platform, CancellationToken token = default)
+    public async ValueTask<FwLiteRelease?> GetLatestRelease(FwLiteEdition edition, CancellationToken token = default)
     {
-        return await cache.GetOrCreateAsync($"{GithubLatestRelease}|{platform}",
-            platform,
+        if (edition == FwLiteEdition.WindowsAppInstaller)
+        {
+            throw new ArgumentException("WindowsAppInstaller edition is not supported");
+        }
+        return await cache.GetOrCreateAsync($"{GithubLatestRelease}|{edition}",
+            edition,
             FetchLatestReleaseFromGithub,
             new HybridCacheEntryOptions() { Expiration = TimeSpan.FromDays(1) },
             cancellationToken: token, tags: [GithubLatestRelease]);
     }
 
-    public async ValueTask<ShouldUpdateResponse> ShouldUpdate(FwLitePlatform platform, string appVersion)
+    public async ValueTask<ShouldUpdateResponse> ShouldUpdate(FwLiteEdition edition, string appVersion)
     {
-        var latestRelease = await GetLatestRelease(platform);
+        var latestRelease = await GetLatestRelease(edition);
         if (latestRelease is null) return new ShouldUpdateResponse(null);
 
         var shouldUpdateToRelease = ShouldUpdateToRelease(appVersion, latestRelease.Version);
@@ -42,15 +46,15 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         await cache.RemoveByTagAsync(GithubLatestRelease);
     }
 
-    private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(FwLitePlatform platform, CancellationToken token)
+    private async ValueTask<FwLiteRelease?> FetchLatestReleaseFromGithub(FwLiteEdition edition, CancellationToken token)
     {
-        var platformConfig = config.Value.Platforms.GetValueOrDefault(platform);
-        if (platformConfig is null)
+        var editionConfig = config.Value.Editions.GetValueOrDefault(edition);
+        if (editionConfig is null)
         {
-            throw new ArgumentException($"No config for platform {platform}");
+            throw new ArgumentException($"No config for edition {edition}");
         }
         using var activity = LexBoxActivitySource.Get().StartActivity();
-        activity?.AddTag(FwLitePlatformTag, platform.ToString());
+        activity?.AddTag(FwLiteEditionTag, edition.ToString());
         var response = await factory.CreateClient("Github")
             .SendAsync(new HttpRequestMessage(HttpMethod.Get,
                     "https://api.github.com/repos/sillsdev/languageforge-lexbox/releases")
@@ -83,7 +87,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
                     continue;
                 }
 
-                var releaseAsset = release.Assets.FirstOrDefault(a => platformConfig.FileName.IsMatch(a.Name));
+                var releaseAsset = release.Assets.FirstOrDefault(a => editionConfig.FileName.IsMatch(a.Name));
                 if (releaseAsset is not null)
                 {
                     activity?.AddTag(FwLiteReleaseVersionTag, release.TagName);
@@ -95,5 +99,44 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         activity?.SetStatus(ActivityStatusCode.Error, "No release found");
         activity?.AddTag(FwLiteReleaseVersionTag, null);
         return null;
+    }
+
+    public async ValueTask<string> GenerateAppInstaller(CancellationToken token = default)
+    {
+        var windowsRelease = await GetLatestRelease(FwLiteEdition.Windows, token);
+        if (windowsRelease is null) throw new InvalidOperationException("Windows release not found");
+        var version = ConvertVersionToAppInstallerVersion(windowsRelease.Version);
+        //lang=xml
+        return $"""
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+ Uri="https://lexbox.org/api/fwlite-release/download-latest?edition=windowsAppInstaller"
+ Version="{version}"
+ xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
+ <MainBundle
+   Name="FwLiteDesktop"
+   Publisher="CN=&quot;Summer Institute of Linguistics, Inc.&quot;, O=&quot;Summer Institute of Linguistics, Inc.&quot;, L=Dallas, S=Texas, C=US"
+   Version="{version}"
+   Uri="{windowsRelease.Url}" />
+ <UpdateSettings>
+   <OnLaunch
+     HoursBetweenUpdateChecks="8"
+     ShowPrompt="true"
+     UpdateBlocksActivation="false" />
+   <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
+   <AutomaticBackgroundTask />
+ </UpdateSettings>
+</AppInstaller>
+""";
+    }
+
+    private static string ConvertVersionToAppInstallerVersion(string version)
+    {
+        //version is something like v2025-01-17-a62c709c which should be converted to 2025.1.17.1 always adding .1 on the end and trimming zeros
+        return version.Split('-') switch
+        {
+            [var year, var month, var day, ..] => $"{year.TrimStart('v')}.{month.TrimStart('0')}.{day.TrimStart('0')}.1",
+            _ => throw new ArgumentException($"Invalid version {version}")
+        };
     }
 }

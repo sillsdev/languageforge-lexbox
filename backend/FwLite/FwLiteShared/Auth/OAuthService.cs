@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using System.Web;
+using FwLiteShared.Events;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,21 +14,24 @@ namespace FwLiteShared.Auth;
 public class OAuthService(
     ILogger<OAuthService> logger,
     IOptions<AuthConfig> options,
+    GlobalEventBus globalEventBus,
     IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     public record SignInResult(Uri? AuthUri, bool HandledBySystemWebView);
 
     public async Task<SignInResult> SubmitLoginRequest(IPublicClientApplication application,
         string returnUrl,
+        LexboxServer lexboxServer,
         CancellationToken cancellation)
     {
         if (options.Value.SystemWebViewLogin)
         {
             await HandleSystemWebViewLogin(application, cancellation);
+            globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer.Id));
             return new(null, true);
         }
 
-        var request = new OAuthLoginRequest(application, returnUrl);
+        var request = new OAuthLoginRequest(application, returnUrl, lexboxServer);
         if (!_requestChannel.Writer.TryWrite(request))
         {
             throw new InvalidOperationException("Only one request at a time");
@@ -60,10 +64,12 @@ public class OAuthService(
             throw new InvalidOperationException("Invalid state");
         //step 5
         request.SetReturnUri(uri);
-        return (
+        var result = (
             await request.GetAuthenticationResult(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
                                                   cancellation),
             request.ClientReturnUrl);
+        globalEventBus.PublishEvent(new AuthenticationChangedEvent(request.LexboxServer.Id));
+        return result;
         //step 8
     }
 
@@ -74,11 +80,18 @@ public class OAuthService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var loginRequest in _requestChannel.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            //don't await, otherwise we'll block the channel reader and only 1 login will be processed at a time
-            //cancel the login after 5 minutes, otherwise it'll probably hang forever and abandoned requests will never be cleaned up
-            _ = Task.Run(() => StartLogin(loginRequest, stoppingToken.Merge(new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token)), stoppingToken);
+            await foreach (var loginRequest in _requestChannel.Reader.ReadAllAsync(stoppingToken))
+            {
+                //don't await, otherwise we'll block the channel reader and only 1 login will be processed at a time
+                //cancel the login after 5 minutes, otherwise it'll probably hang forever and abandoned requests will never be cleaned up
+                _ = Task.Run(() => StartLogin(loginRequest, stoppingToken.Merge(new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token)), stoppingToken);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected during shutdown
         }
     }
 
@@ -112,7 +125,7 @@ public class OAuthService(
 /// instead we have to do this so we can use the currently open browser, redirect it to the auth url passed in here and then once it's done and the callback comes to our server,
 /// send that  call to here so that MSAL can pull out the access token
 /// </summary>
-public class OAuthLoginRequest(IPublicClientApplication app, string clientReturnUrl) : ICustomWebUi
+public class OAuthLoginRequest(IPublicClientApplication app, string clientReturnUrl, LexboxServer lexboxServer) : ICustomWebUi
 {
     public IPublicClientApplication Application { get; } = app;
     public string? State { get; private set; }
@@ -153,4 +166,6 @@ public class OAuthLoginRequest(IPublicClientApplication app, string clientReturn
     /// url to return the client to once the login is finished
     /// </summary>
     public string ClientReturnUrl { get; } = clientReturnUrl;
+
+    public LexboxServer LexboxServer { get; } = lexboxServer;
 }

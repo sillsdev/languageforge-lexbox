@@ -13,8 +13,9 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.1.0" />
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.64.0"/>
+        <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.67.2" />
         <PackageReference Include="Reinforced.Typings" Version="1.6.5" />
         <PackageReference Include="System.Reactive" Version="6.0.1"/>
     </ItemGroup>

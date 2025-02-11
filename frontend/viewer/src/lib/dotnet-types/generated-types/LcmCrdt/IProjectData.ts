@@ -10,5 +10,8 @@ export interface IProjectData
 	originDomain?: string;
 	clientId: string;
 	fwProjectId?: string;
+	lastUserName?: string;
+	lastUserId?: string;
+	serverId?: string;
 }
 /* eslint-enable */

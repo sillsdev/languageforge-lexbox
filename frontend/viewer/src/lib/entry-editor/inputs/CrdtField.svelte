@@ -85,7 +85,7 @@
   {#if unsavedChanges}
     <Tooltip title="Unsaved changes" delay={0} placement="top" offset={4}>
       <span
-        class="absolute -left-3.5 top-1/2 xs-form:bottom-2.5 xs-form:top-auto -translate-y-1/2 bg-blue-700 rounded-full h-2.5 w-2.5"
+        class="absolute -left-[0.825rem] top-1/2 xs-form:bottom-2.5 xs-form:top-auto -translate-y-1/2 bg-blue-700 rounded-full h-2.5 w-2.5"
       ></span>
     </Tooltip>
   {/if}

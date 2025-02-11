@@ -3,11 +3,14 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {DotNet} from '@microsoft/dotnet-js-interop';
+import type {ICommitMetadata} from '../SIL/Harmony/Core/ICommitMetadata';
 
-export interface IMiniLcmApiProvider
+export interface IProjectActivity
 {
-	getMiniLcmApi() : Promise<DotNet.DotNetObject>;
-	clearMiniLcmApi() : Promise<void>;
+	commitId: string;
+	timestamp: string;
+	changes: unknown[];
+	metadata: ICommitMetadata;
+	changeName: string;
 }
 /* eslint-enable */

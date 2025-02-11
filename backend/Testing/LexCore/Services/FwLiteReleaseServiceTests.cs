@@ -21,8 +21,8 @@ public class FwLiteReleaseServiceTests
             .AddHttpClient()
             .AddOptions<FwLiteReleaseConfig>().Configure(config =>
             {
-                config.Platforms.Add(FwLitePlatform.Windows, new FwLitePlatformConfig() { FileNameRegex = "(?i)\\.msixbundle$" });
-                config.Platforms.Add(FwLitePlatform.Linux, new FwLitePlatformConfig() { FileNameRegex = "(?i)linux\\.zip$" });
+                config.Editions.Add(FwLiteEdition.Windows, new FwLiteEditionConfig() { FileNameRegex = "(?i)\\.msixbundle$" });
+                config.Editions.Add(FwLiteEdition.Linux, new FwLiteEditionConfig() { FileNameRegex = "(?i)linux\\.zip$" });
             })
             .Services
             .AddHybridCache()
@@ -32,11 +32,11 @@ public class FwLiteReleaseServiceTests
     }
 
     [Theory]
-    [InlineData(FwLitePlatform.Windows)]
-    [InlineData(FwLitePlatform.Linux)]
-    public async Task CanGetLatestRelease(FwLitePlatform platform)
+    [InlineData(FwLiteEdition.Windows)]
+    [InlineData(FwLiteEdition.Linux)]
+    public async Task CanGetLatestRelease(FwLiteEdition edition)
     {
-        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(platform);
+        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(edition);
         latestRelease.Should().NotBeNull();
         latestRelease.Version.Should().NotBeNullOrEmpty();
         latestRelease.Url.Should().NotBeNullOrEmpty();
@@ -46,7 +46,7 @@ public class FwLiteReleaseServiceTests
     [InlineData("v2024-11-20-d04e9b96")]
     public async Task IsConsideredAnOldVersion(string appVersion)
     {
-        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(FwLitePlatform.Windows, appVersion);
+        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(FwLiteEdition.Windows, appVersion);
         shouldUpdate.Should().NotBeNull();
         shouldUpdate.Release.Should().NotBeNull();
         shouldUpdate.Update.Should().BeTrue();
@@ -55,9 +55,9 @@ public class FwLiteReleaseServiceTests
     [Fact]
     public async Task ShouldUpdateWithLatestVersionShouldReturnFalse()
     {
-        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(FwLitePlatform.Windows);
+        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(FwLiteEdition.Windows);
         latestRelease.Should().NotBeNull();
-        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(FwLitePlatform.Windows, latestRelease.Version);
+        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(FwLiteEdition.Windows, latestRelease.Version);
         shouldUpdate.Should().NotBeNull();
         shouldUpdate.Release.Should().BeNull();
         shouldUpdate.Update.Should().BeFalse();

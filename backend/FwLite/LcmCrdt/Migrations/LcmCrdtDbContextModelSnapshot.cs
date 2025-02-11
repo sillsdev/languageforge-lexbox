@@ -30,6 +30,12 @@ namespace LcmCrdt.Migrations
                     b.Property<Guid?>("FwProjectId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("LastUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastUserName")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");

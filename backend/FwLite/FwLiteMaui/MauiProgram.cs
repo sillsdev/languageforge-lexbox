@@ -70,14 +70,21 @@ public static class MauiProgram
 #endif
 #if WINDOWS
             events.AddWindows(windows => windows
-                .OnClosed((window, args) => holder.Shutdown()));
+                .OnClosed((window, args) =>
+                {
+                    //only shutdown if there are no windows open
+                    if (Application.Current?.Windows is [])
+                    {
+                        holder.Shutdown();
+                    }
+                }));
 #endif
         });
 
         var app = builder.Build();
         holder.App = app;
         var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
-        logger.LogInformation("App started");
+        logger.LogInformation("App started, {Version}", AppVersion.Version);
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
             if (e.ExceptionObject is Exception exception)

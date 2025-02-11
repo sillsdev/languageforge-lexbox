@@ -4,6 +4,8 @@
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ClientId (Guid) Required
       FwProjectId (Guid?)
+      LastUserId (string)
+      LastUserName (string)
       Name (string) Required
       OriginDomain (string)
     Keys: 

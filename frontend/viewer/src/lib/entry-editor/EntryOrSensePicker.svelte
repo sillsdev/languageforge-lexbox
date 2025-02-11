@@ -14,10 +14,12 @@
   import { createEventDispatcher, getContext } from 'svelte';
   import { useLexboxApi } from '../services/service-provider';
   import { deriveAsync } from '../utils/time';
-  import { defaultSense, firstDef, firstGloss, glosses, headword } from '../utils';
+  import { defaultSense } from '../utils';
   import { useProjectCommands } from '../commands';
   import type { SaveHandler } from '../services/save-event-service';
   import {SortField} from '$lib/dotnet-types';
+  import {useWritingSystemService} from '$lib/writing-system-service';
+  import NewEntryButton from './NewEntryButton.svelte';
 
   const dispatch = createEventDispatcher<{
     pick: EntrySenseSelection;
@@ -25,6 +27,7 @@
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
+  const writingSystemService = useWritingSystemService();
 
   export let open = false;
   export let title: string;
@@ -85,8 +88,8 @@
   }
 
 
-  async function onClickCreateNewEntry(search: string): Promise<void> {
-    const entry = await projectCommands.createNewEntry(search, { dontNavigate: true });
+  async function onClickCreateNewEntry(): Promise<void> {
+    const entry = await projectCommands.createNewEntry($search, { dontSelect: true });
     selectedEntry = entry;
     selectedEntryId = entry?.id;
     if (entry) {
@@ -161,8 +164,8 @@
               }
             }}>
             <ListItem
-              title={headword(entry).padStart(1, '–')}
-              subheading={glosses(entry).padStart(1, '–')}
+              title={writingSystemService.headword(entry).padStart(1, '–')}
+              subheading={writingSystemService.glosses(entry).padStart(1, '–')}
               noShadow />
             <div class="grow"></div>
             {#if disabledEntry}
@@ -184,8 +187,8 @@
               class:disabled={disabledSense}
               on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
               <ListItem
-                title={firstGloss(sense).padStart(1, '–')}
-                subheading={firstDef(sense).padStart(1, '–')}
+                title={writingSystemService.firstGloss(sense).padStart(1, '–')}
+                subheading={writingSystemService.firstDef(sense).padStart(1, '–')}
                 classes={{icon: 'text-info'}}
                 noShadow />
               {#if disabledSense}
@@ -206,23 +209,25 @@
       </div>
     {/each}
     {#if $displayedEntries.length === 0 && addedEntries.length === 0}
-      <div class="p-4 text-center opacity-75">
+      <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
         {#if $result.search}
           No entries found <Icon data={mdiMagnifyRemoveOutline} />
+          <NewEntryButton on:click={onClickCreateNewEntry} />
         {:else if $loading}
           <ProgressCircle size={30} />
         {:else}
-            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
+            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
+            <NewEntryButton on:click={onClickCreateNewEntry} />
         {/if}
       </div>
     {/if}
-    {#if $result.search}
+    {#if $displayedEntries.length}
       <ListItem
         title="Create new Entry..."
         icon={mdiBookPlusOutline}
         classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
         noShadow
-        on:click={() => onClickCreateNewEntry($result.search ?? '')}
+        on:click={onClickCreateNewEntry}
       />
     {/if}
     {#if $result.entries.length > $displayedEntries.length}

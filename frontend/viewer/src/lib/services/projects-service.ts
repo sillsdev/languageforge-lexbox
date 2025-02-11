@@ -1,11 +1,12 @@
-﻿import {AppNotification} from '../notifications/notifications';
-import type {IServerStatus, ICombinedProjectsService, IProjectModel, ILexboxServer, IServerProjects} from '$lib/dotnet-types';
+﻿import type {ICombinedProjectsService, ILexboxServer, IProjectModel, IServerProjects, IServerStatus} from '$lib/dotnet-types';
+
+import {AppNotification} from '../notifications/notifications';
 
 export type Project = IProjectModel;
 export type ServerStatus = IServerStatus;
 
 export class ProjectService implements ICombinedProjectsService {
-  serverProjects(serverId: string, forceRefresh: boolean): Promise<IProjectModel[]> {
+  serverProjects(_serverId: string, _forceRefresh: boolean): Promise<IProjectModel[]> {
       throw new Error('Method not implemented.');
   }
   supportsFwData(): Promise<boolean> {
@@ -14,7 +15,10 @@ export class ProjectService implements ICombinedProjectsService {
   remoteProjects(): Promise<IServerProjects[]> {
       throw new Error('Method not implemented.');
   }
-  downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer): Promise<void> {
+  downloadProject(_lexboxProjectId: string, _projectName: string, _server: ILexboxServer): Promise<void> {
+      throw new Error('Method not implemented.');
+  }
+  deleteProject(_name: string): Promise<void> {
       throw new Error('Method not implemented.');
   }
   async createProject(newProjectName: string): Promise<void> {
@@ -44,7 +48,7 @@ export class ProjectService implements ICombinedProjectsService {
   }
 
   async downloadCrdtProject(project: Project) {
-    const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.id}?projectName=${project.name}`, {method: 'POST'});
+    const r = await fetch(`/api/download/crdt/${project.server!.authority}/${project.id}?projectName=${project.name}`, {method: 'POST'});
     if (!r.ok) {
       AppNotification.display(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, 'error', 'long');
       console.error(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, r, await r.text())
@@ -64,7 +68,7 @@ export class ProjectService implements ICombinedProjectsService {
   async getProjectServer(projectName: string): Promise<string|null> {
     const projects = await this.localProjects();
     //todo project server is always null from local projects`
-    return projects.find(p => p.name === projectName)?.serverAuthority ?? null;
+    return projects.find(p => p.name === projectName)?.server?.authority ?? null;
   }
 
   async localProjects(): Promise<Project[]> {

@@ -8,10 +8,10 @@ public class EntryValidator : AbstractValidator<Entry>
     public EntryValidator()
     {
         RuleFor(e => e.DeletedAt).Null();
-        RuleFor(e => e.LexemeForm).Required();
-        RuleFor(e => e.CitationForm).NoEmptyValues();
-        RuleFor(e => e.LiteralMeaning).NoEmptyValues();
-        RuleFor(e => e.Note).NoEmptyValues();
+        RuleFor(e => e.LexemeForm).NoEmptyValues(GetEntryIdentifier);
+        RuleFor(e => e.CitationForm).NoEmptyValues(GetEntryIdentifier);
+        RuleFor(e => e.LiteralMeaning).NoEmptyValues(GetEntryIdentifier);
+        RuleFor(e => e.Note).NoEmptyValues(GetEntryIdentifier);
         RuleForEach(e => e.Senses).SetValidator(entry => new SenseValidator(entry));
         RuleForEach(e => e.Components).Must(NotBeEmptyComponentReference).WithMessage("Component reference must not be empty.");
         RuleForEach(e => e.Components).Must(NotBeComponentSelfReference).WithMessage("Component reference must not be the same as the entry.");
@@ -49,5 +49,10 @@ public class EntryValidator : AbstractValidator<Entry>
     {
         // Empty GUID is okay here because it can be guessed from the parent object
         return component.ComponentEntryId == entry.Id || component.ComponentEntryId == Guid.Empty;
+    }
+
+    private string GetEntryIdentifier(Entry entry)
+    {
+        return $"{entry.Headword} - {entry.Id}";
     }
 }

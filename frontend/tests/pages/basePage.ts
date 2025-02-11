@@ -13,6 +13,11 @@ export class BasePage {
     return undefined;
   }
 
+  get toastDiv(): Locator { return this.page.locator('.toast'); }
+  toast(text: string|RegExp, options?: {exact: boolean}): Locator {
+    return this.toastDiv.getByText(text, options);
+  }
+
   get urlPattern(): RegExp | undefined {
     if (!this.url) return undefined;
     return new RegExp(regexEscape(this.url) + '($|\\?|#)');
