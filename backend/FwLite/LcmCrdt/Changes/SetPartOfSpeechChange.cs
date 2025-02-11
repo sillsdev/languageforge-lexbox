@@ -1,4 +1,5 @@
 ﻿using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -7,7 +8,7 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
 {
     public Guid? PartOfSpeechId { get; } = partOfSpeechId;
 
-    public override async ValueTask ApplyChange(Sense entity, ChangeContext context)
+    public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
         if (PartOfSpeechId is null)
         {

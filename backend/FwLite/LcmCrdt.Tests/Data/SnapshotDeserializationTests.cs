@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
-using SIL.Harmony.Entities;
+using SIL.Harmony.Core;
 
 namespace LcmCrdt.Tests.Data;
 

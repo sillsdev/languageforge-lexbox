@@ -1,21 +1,22 @@
 ﻿using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 
 namespace LcmCrdt.Utils;
 
 public static class ChangeContextHelpers
 {
-    public static async ValueTask<bool> IsObjectDeleted(this ChangeContext context, Guid? entityId)
+    public static async ValueTask<bool> IsObjectDeleted(this IChangeContext context, Guid? entityId)
     {
         return entityId is null || await context.IsObjectDeleted(entityId.Value);
     }
 
-    public static async ValueTask<Guid?> DeletedAsNull(this ChangeContext context, Guid? entityId)
+    public static async ValueTask<Guid?> DeletedAsNull(this IChangeContext context, Guid? entityId)
     {
         if (entityId is null) return null;
         return await context.IsObjectDeleted(entityId.Value) ? null : entityId;
     }
 
-    public static async IAsyncEnumerable<T> FilterDeleted<T>(this ChangeContext context, IEnumerable<T> entities)
+    public static async IAsyncEnumerable<T> FilterDeleted<T>(this IChangeContext context, IEnumerable<T> entities)
         where T : IObjectWithId
     {
         foreach (var objectWithId in entities)
