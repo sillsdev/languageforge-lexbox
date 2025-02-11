@@ -1,6 +1,7 @@
 ﻿import type {LexboxServiceProvider, LexboxServiceRegistry} from './service-provider';
-import type { DotNetServiceProvider } from './service-provider-dotnet';
-import type {EventBus} from './event-bus';
+
+import type {DotNetServiceProvider} from './service-provider-dotnet';
+
 declare global {
   interface Lexbox {
     /* eslint-disable @typescript-eslint/naming-convention */
