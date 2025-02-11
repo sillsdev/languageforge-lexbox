@@ -34,6 +34,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
         builder.SubstituteGeneric(typeof(DotNetObjectReference<>), (type, resolver) => resolver.ResolveTypeName(dotnetObjectRefInterface));
@@ -90,15 +91,11 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
-        builder.ExportAsInterfaces([
-            typeof(AuthService),
-            typeof(ImportFwdataService),
-            typeof(CombinedProjectsService),
-            typeof(HistoryServiceJsInvokable),
-            typeof(ProjectServicesProvider),
-            typeof(IAppLauncher),
-            typeof(TestingService)
-        ], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
+        var serviceTypes = Enum.GetValues<DotnetService>()
+            //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
+            .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
+            .Select(FwLiteProvider.GetServiceType);
+        builder.ExportAsInterfaces(serviceTypes, exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
         builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
 
         builder.ExportAsInterfaces([

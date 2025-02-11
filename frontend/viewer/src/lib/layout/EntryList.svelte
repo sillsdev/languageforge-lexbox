@@ -79,12 +79,14 @@
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
       class="text-field-sibling-button"
       rounded
+      title={dictionaryMode ? 'Switch to list view' : 'Switch to dictionary view'}
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
     <div class="hidden lg-view:contents">
       <Button icon={expand ? mdiArrowCollapseLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded
+        title={expand ? 'Collapse list' : 'Expand list'}
         on:click={() => expand = !expand}>
       </Button>
     </div>
