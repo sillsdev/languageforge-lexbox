@@ -44,9 +44,11 @@
   }>();
 
   export let about: string | undefined = undefined;
+  export let projectName: string;
+  setContext('project-name', projectName);
 
   const changeEventBus = useEventBus();
-  onDestroy(changeEventBus.onEntryUpdated(updateEntryInList));
+  onDestroy(changeEventBus.onEntryUpdated(projectName, updateEntryInList));
 
   function updateEntryInList(updatedEntry: IEntry) {
     entries.update(list => {
@@ -92,8 +94,6 @@
     userPickedEntry: false,
   });
 
-  export let projectName: string;
-  setContext('project-name', projectName);
   export let isConnected: boolean;
   export let showHomeButton = true;
   $: connected.set(isConnected);

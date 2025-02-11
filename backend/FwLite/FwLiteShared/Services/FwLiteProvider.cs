@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using LcmCrdt;
 using LexCore.Utils;
@@ -31,7 +32,8 @@ public class FwLiteProvider(
         DotnetService.TestingService,
         DotnetService.AppLauncher,
         DotnetService.TroubleshootingService,
-        DotnetService.MultiWindowService
+        DotnetService.MultiWindowService,
+        DotnetService.JsEventListener,
     ];
 
     public static Type GetServiceType(DotnetService service) => service switch
@@ -47,6 +49,7 @@ public class FwLiteProvider(
         DotnetService.TroubleshootingService => typeof(ITroubleshootingService),
         DotnetService.TestingService => typeof(TestingService),
         DotnetService.MultiWindowService => typeof(IMultiWindowService),
+        DotnetService.JsEventListener => typeof(JsEventListener),
         _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
     };
 
@@ -101,5 +104,6 @@ public enum DotnetService
     AppLauncher,
     TroubleshootingService,
     TestingService,
-    MultiWindowService
+    MultiWindowService,
+    JsEventListener
 }

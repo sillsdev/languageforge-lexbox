@@ -2,8 +2,7 @@ import './service-declaration';
 import {openSearch} from '../search-bar/search';
 import {DotnetService, type IAuthService, type ICombinedProjectsService} from '../dotnet-types';
 import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IImportFwdataService';
-import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
-import {useEventBus} from './event-bus';
+import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable'
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {
   IProjectServicesProvider
@@ -17,6 +16,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITroubleshootingService';
 import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITestingService';
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
+import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -31,6 +31,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,
   [DotnetService.MultiWindowService]: IMultiWindowService,
+  [DotnetService.JsEventListener]: IJsEventListener,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
@@ -66,9 +67,10 @@ export class LexboxServiceProvider {
   }
 }
 
-{
+export function setupServiceProvider() {
+  if (window.lexbox?.ServiceProvider) return;
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}, EventBus: useEventBus()}
+  const lexbox = { ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch} }
   if (!window.lexbox) {
     window.lexbox = lexbox;
   } else {

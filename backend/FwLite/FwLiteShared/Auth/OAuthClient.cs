@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ public class OAuthClient
     private readonly LexboxServer _lexboxServer;
     private readonly LexboxProjectService _lexboxProjectService;
     private readonly ILogger<OAuthClient> _logger;
+    private readonly GlobalEventBus _globalEventBus;
     private readonly IPublicClientApplication _application;
     private bool _cacheConfigured;
     private readonly SemaphoreSlim _cacheConfiguredSemaphore = new(1, 1);
@@ -39,6 +41,7 @@ public class OAuthClient
         LexboxServer lexboxServer,
         LexboxProjectService lexboxProjectService,
         ILogger<OAuthClient> logger,
+        GlobalEventBus globalEventBus,
         IHostEnvironment? hostEnvironment = null,
         IRedirectUrlProvider? redirectUrlProvider = null
             )
@@ -49,6 +52,7 @@ public class OAuthClient
         _lexboxServer = lexboxServer;
         _lexboxProjectService = lexboxProjectService;
         _logger = logger;
+        _globalEventBus = globalEventBus;
         RedirectUrl = options.Value.SystemWebViewLogin
             ? "http://localhost" //system web view will always have no path, changing this will not do anything in that case
             :  redirectUrlProvider?.GetRedirectUrl() ?? throw new InvalidOperationException("No IRedirectUrlProvider configured, required for non-system web view login");
@@ -133,7 +137,7 @@ public class OAuthClient
     {
         InvalidateProjectCache();
         await ConfigureCache();
-        return await _oAuthService.SubmitLoginRequest(_application, returnUrl, cancellation);
+        return await _oAuthService.SubmitLoginRequest(_application, returnUrl, _lexboxServer, cancellation);
     }
 
     public async Task Logout()
@@ -146,6 +150,7 @@ public class OAuthClient
             await _application.RemoveAsync(account);
         }
         InvalidateProjectCache();
+        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer.Id));
     }
 
     private void InvalidateProjectCache()

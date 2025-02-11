@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
@@ -17,7 +18,7 @@ public class SyncService(
     CrdtHttpSyncService remoteSyncServiceServer,
     OAuthClientFactory oAuthClientFactory,
     CurrentProjectService currentProjectService,
-    ChangeEventBus changeEventBus,
+    ProjectEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
     ILogger<SyncService> logger,
@@ -82,7 +83,7 @@ public class SyncService(
                 var entry = await lexboxApi.GetEntry(entryId.Value);
                 if (entry is not null)
                 {
-                    changeEventBus.NotifyEntryUpdated(entry, currentProjectService.Project);
+                    changeEventBus.PublishEntryChangedEvent(currentProjectService.Project, entry);
                 }
                 else
                 {
