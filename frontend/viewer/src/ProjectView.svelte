@@ -1,11 +1,8 @@
 <script lang="ts">
   import {AppBar, Button, clamp} from 'svelte-ux';
   import {
-    mdiArrowCollapseRight,
-    mdiArrowExpandLeft,
     mdiArrowLeft,
     mdiChatQuestion,
-    mdiEyeSettingsOutline,
   } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {useLocation} from 'svelte-routing';
@@ -17,7 +14,6 @@
   import type {LexboxPermissions} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
-  import Toc from './lib/layout/Toc.svelte';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
@@ -25,8 +21,8 @@
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
-  import {initView, initViewSettings} from './lib/services/view-service';
-  import {views} from './lib/entry-editor/view-data';
+  import {initView, initViewSettings} from './lib/views/view-service';
+  import {views} from './lib/views/view-data';
   import {initWritingSystemService} from './lib/writing-system-service';
   import {useEventBus} from './lib/services/event-bus';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
@@ -34,14 +30,14 @@
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {initDialogService} from '$lib/entry-editor/dialog-service';
-  import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
   import HomeButton from '$lib/HomeButton.svelte';
   import AppBarMenu from '$lib/layout/AppBarMenu.svelte';
   import {initFeatures} from '$lib/services/feature-service';
-  import {asScottyPortal, initScottyPortalContext} from '$lib/layout/Scotty.svelte';
-  import {initProjectViewState} from '$lib/services/project-view-state-service';
+  import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
+  import {initProjectViewState} from '$lib/views/project-view-state-service';
   import NewEntryButton from '$lib/entry-editor/NewEntryButton.svelte';
   import {getSelectedEntryChangedStore} from '$lib/services/selected-entry-service';
+  import RightToolbar from '$lib/RightToolbar.svelte';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -113,7 +109,6 @@
     const searchParams = getSearchParams();
     $search = searchParams.get(ViewerSearchParam.Search) ?? '';
     $selectedIndexExemplar = searchParams.get(ViewerSearchParam.IndexCharacter);
-    navigateToEntryId = searchParams.get(ViewerSearchParam.EntryId);
   }
 
   const selectedIndexExemplar = writable<string | null>(getSearchParam(ViewerSearchParam.IndexCharacter));
@@ -393,45 +388,7 @@
           </div>
         {/if}
       </div>
-      <div class="side-scroller pl-6 border-l-2 gap-4 flex-col col-start-3 hidden" class:border-l-2={$selectedEntry && !expandList} class:lg-view:flex={!expandList}>
-        {#if $selectedEntry}
-          <div class="sm-form:hidden" class:sm:hidden={expandList}>
-            <Button icon={$state.rightToolbarCollapsed ? mdiArrowExpandLeft : mdiArrowCollapseRight} class="text-field-sibling-button" iconOnly rounded variant="outline"
-              on:click={() => $state.rightToolbarCollapsed = !$state.rightToolbarCollapsed} />
-          </div>
-        {/if}
-        <div class="w-[15vw] collapsible-col sm-form:w-min" class:self-center={$state.rightToolbarCollapsed} class:lg-view:collapse-col={expandList} class:!w-min={$state.rightToolbarCollapsed}>
-          {#if $selectedEntry}
-            <div class="sm-form:flex flex-col" class:lg-view:hidden={expandList} class:lg-view:flex={$state.rightToolbarCollapsed}>
-              <div class="h-full flex flex-col gap-4 justify-stretch">
-                <div class="grid gap-4 auto-rows-fr sm-form:gap-2 sm-form:icon-button-group-container" class:!gap-2={$state.rightToolbarCollapsed} class:icon-button-group-container={$state.rightToolbarCollapsed}>
-                  <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
-                  {#if $selectedEntry}
-                    <div class="contents">
-                      <OpenInFieldWorksButton entryId={$selectedEntry.id} {projectName} show={$features.openWithFlex}/>
-                    </div>
-                  {/if}
-                </div>
-                <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
-                  <Toc entry={$selectedEntry} />
-                </div>
-              </div>
-              <span class="text-surface-content whitespace-nowrap bg-surface-100/75 !pt-2 text-sm lg-form:absolute -bottom-4 -right-4 inline-flex gap-2 text-end items-center"
-                class:lg-form:!static={$state.rightToolbarCollapsed} class:lg-form:p-2={!$state.rightToolbarCollapsed}>
-                <span class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
-                  {$currentView.label}
-                </span>
-                <Button
-                  on:click={() => (showOptionsDialog = true)}
-                  size="md"
-                  variant="default"
-                  iconOnly
-                  icon={mdiEyeSettingsOutline} />
-              </span>
-            </div>
-          {/if}
-        </div>
-      </div>
+      <RightToolbar selectedEntry={$selectedEntry} {expandList} on:showOptionsDialog={() => showOptionsDialog = true} />
     </div>
   </main>
 

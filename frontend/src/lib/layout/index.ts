@@ -5,6 +5,7 @@ import Content from './Content.svelte'
 import DetailItem from './DetailItem.svelte'
 import DetailsPage from './DetailsPage.svelte'
 import EditableDetailItem from './EditableDetailItem.svelte'
+import FeatureFlagContent from './FeatureFlagContent.svelte'
 import Footer from './Footer.svelte'
 import HeaderPage from './HeaderPage.svelte'
 import Layout from './Layout.svelte'
@@ -19,6 +20,7 @@ export {
   Page,
   Content,
   AdminContent,
+  FeatureFlagContent,
   Footer,
   PageTitle,
   TitlePage,

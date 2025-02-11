@@ -25,6 +25,12 @@
         member.userId,
         $form.role,
       );
+      if (result.error?.byType('OrgMembersMustBeVerified')) {
+        return { role: [$t('org_page.add_user.user_must_be_verified')] };
+      }
+      if (result.error?.byType('OrgMembersMustBeVerifiedForRole')) {
+        return { role: [$t('org_page.add_user.admin_must_be_verified')] };
+      }
       return result.error?.message;
     });
   }

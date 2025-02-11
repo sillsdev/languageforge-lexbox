@@ -1,16 +1,6 @@
 ﻿<script lang="ts">
-  import {
-    mdiBookArrowDownOutline,
-    mdiBookSyncOutline,
-    mdiCloud,
-    mdiRefresh,
-  } from '@mdi/js';
-  import {Button, Icon, ListItem} from 'svelte-ux';
-  import LoginButton from '$lib/auth/LoginButton.svelte';
-  import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
-  import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
+  import type {ILexboxServer} from '$lib/dotnet-types';
   import {type Project} from '$lib/services/projects-service';
-  import {onMount} from 'svelte';
   import {useAuthService, useProjectsService} from '$lib/services/service-provider';
   import Server from './Server.svelte';
 
@@ -19,18 +9,6 @@
 
   const projectsService = useProjectsService();
   const authService = useAuthService();
-  let downloading = '';
-
-  async function downloadCrdtProject(project: Project, server: ILexboxServer) {
-    downloading = project.name;
-    if (project.id == null) throw new Error('Project id is null');
-    try {
-      await projectsService.downloadProject(project.id, project.name, server);
-      await refreshProjects();
-    } finally {
-      downloading = '';
-    }
-  }
 
   let remoteProjects: { [server: string]: Project[] } = {};
   let loadingRemoteProjects = false;
@@ -63,6 +41,7 @@
   });
 
   async function refreshProjectsAndServers() {
+    await refreshProjects();
     await fetchRemoteProjects();
     serversPromise = authService.servers();
     await serversPromise;

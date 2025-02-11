@@ -5,5 +5,5 @@ namespace FwLiteShared.Services;
 public interface IMultiWindowService
 {
     [JSInvokable]
-    public ValueTask OpenNewWindow(string? url = null);
+    void OpenNewWindow(string? url = null, int? width = null);
 }

@@ -1,6 +1,6 @@
 <script>
   import {fieldName} from '$lib/i18n';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {mdiBookPlusOutline} from '@mdi/js';
   import {Button} from 'svelte-ux';
 

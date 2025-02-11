@@ -113,6 +113,7 @@ export async function load(event: PageLoadEvent) {
                 updatedDate
                 lastActive
                 canCreateProjects
+                featureFlags
                 createdById
                 createdBy {
                   id
@@ -191,6 +192,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               name
               email
               isAdmin
+              featureFlags
               emailVerified
             }
             errors {
@@ -260,6 +262,7 @@ export async function _createGuestUserByAdmin(input: CreateGuestUserByAdminInput
                 orgId
                 role
               }
+              featureFlags
               audience
             }
             errors {

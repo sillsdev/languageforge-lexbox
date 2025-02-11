@@ -5,6 +5,6 @@
 
 export interface IMultiWindowService
 {
-	openNewWindow(url?: string) : unknown;
+	openNewWindow(url?: string, width?: number) : Promise<void>;
 }
 /* eslint-enable */

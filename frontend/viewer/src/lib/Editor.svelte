@@ -4,7 +4,7 @@
   import {createEventDispatcher, getContext} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
   import type { SaveHandler } from './services/save-event-service';
-  import {useViewSettings} from './services/view-service';
+  import {useViewSettings} from '$lib/views/view-service';
 
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');

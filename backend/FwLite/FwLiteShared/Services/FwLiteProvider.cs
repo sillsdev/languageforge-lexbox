@@ -105,5 +105,5 @@ public enum DotnetService
     TroubleshootingService,
     TestingService,
     MultiWindowService,
-    JsEventListener,
+    JsEventListener
 }

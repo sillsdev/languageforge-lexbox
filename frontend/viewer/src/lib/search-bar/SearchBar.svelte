@@ -7,7 +7,7 @@
   import {createEventDispatcher, getContext, onDestroy} from 'svelte';
   import {type IEntry, SortField} from '$lib/dotnet-types';
   import {useSearch} from './search';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
   import {useWritingSystemService} from '$lib/writing-system-service';
 

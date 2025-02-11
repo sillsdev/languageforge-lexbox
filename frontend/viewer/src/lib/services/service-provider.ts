@@ -16,6 +16,7 @@ import type {
   ITroubleshootingService
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITroubleshootingService';
 import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITestingService';
+import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
@@ -30,6 +31,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,
+  [DotnetService.MultiWindowService]: IMultiWindowService,
   [DotnetService.JsEventListener]: IJsEventListener,
 };
 
