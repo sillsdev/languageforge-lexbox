@@ -4,7 +4,7 @@
   import {fieldName} from '$lib/i18n';
   import Scotty from '$lib/layout/Scotty.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import {objectTemplateAreas, useCurrentView} from '$lib/services/view-service';
+  import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
@@ -269,19 +269,19 @@
   <div class="hidden">
     <Scotty beamMeTo="right-toolbar" let:projectViewState>
       {#if !readonly}
-        <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+        <Button on:click={addSense} title="Add sense" icon={mdiPlus} variant="fill-light" color="success" size="sm">
           <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
             Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
           </div>
         </Button>
-        <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
+        <Button on:click={deleteEntry} title="Delete entry" icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
           <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
             Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
           </div>
         </Button>
       {/if}
       {#if $features.history}
-        <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info" size="sm">
+        <Button on:click={() => showHistoryView = true} title="View entry level history" icon={mdiHistory} variant="fill-light" color="info" size="sm">
           <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
             History
           </div>

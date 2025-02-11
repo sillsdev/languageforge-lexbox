@@ -62,11 +62,15 @@ jobs:
       - name: Check for pending EF model changes
         run: task fw-lite:has-pending-model-changes
 
-      - name: Build viewer
-        working-directory: frontend/viewer
+      - name: Prepare frontend
+        working-directory: frontend
         run: |
           pnpm install
-          pnpm run build-app
+          pnpm svelte-kit sync
+
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: pnpm run build-app
 
       - name: Dotnet test
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions

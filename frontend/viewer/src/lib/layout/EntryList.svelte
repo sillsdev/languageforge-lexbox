@@ -6,7 +6,7 @@
   import type { Writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import DictionaryEntry from '../DictionaryEntry.svelte';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
   import {useWritingSystemService} from '$lib/writing-system-service';
 
@@ -79,12 +79,14 @@
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
       class="text-field-sibling-button"
       rounded
+      title={dictionaryMode ? 'Switch to list view' : 'Switch to dictionary view'}
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
     <div class="hidden lg-view:contents">
       <Button icon={expand ? mdiArrowCollapseLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded
+        title={expand ? 'Collapse list' : 'Expand list'}
         on:click={() => expand = !expand}>
       </Button>
     </div>

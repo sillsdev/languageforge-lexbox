@@ -36,7 +36,7 @@
 </script>
 
 <script lang="ts">
-  import {useProjectViewState} from '$lib/services/project-view-state-service';
+  import {useProjectViewState} from '$lib/views/project-view-state-service';
   import {portal} from 'svelte-ux';
 
   export let beamMeTo: ScottyPortalTarget;

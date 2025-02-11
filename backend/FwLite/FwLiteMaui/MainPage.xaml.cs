@@ -10,4 +10,10 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
     }
+
+    internal string StartPath
+    {
+        get => blazorWebView.StartPath;
+        set => blazorWebView.StartPath = value;
+    }
 }

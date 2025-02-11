@@ -3,7 +3,7 @@
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
   import { Button, FormError, Input, SystemRoleSelect, emptyString, passwordFormRules } from '$lib/forms';
-  import { UserRole } from '$lib/gql/types';
+  import { type FeatureFlag, UserRole } from '$lib/gql/types';
   import { _changeUserAccountByAdmin, _setUserLocked, type User } from './+page';
   import type { LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
@@ -12,6 +12,8 @@
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
+  import {allPossibleFlags} from '$lib/user';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
@@ -23,6 +25,7 @@
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     score: z.number(),
+    featureFlags: z.array(z.string()),
     role: z.enum([UserRole.User, UserRole.Admin]),
     })
   const refinedSchema = schema
@@ -49,11 +52,12 @@
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email ?? null, role, emailVerified: user.emailVerified }, async () => {
+    return await formModal.open({ name: user.name, email: user.email ?? null, featureFlags: user.featureFlags, role, emailVerified: user.emailVerified }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
         name: $form.name,
+        featureFlags: $form.featureFlags as FeatureFlag[],
         role: $form.role,
       });
       if (data?.changeUserAccountByAdmin.errors?.some((e) => e.__typename === 'UniqueValueError')) {
@@ -120,6 +124,22 @@
     error={errors.role}
     disabled={_user.id === currUser.id}
   />
+  <AdminContent>
+    <div>
+      Feature flags:
+      <ul>
+        {#each allPossibleFlags as flag}
+          <li>
+            <label><input
+            type="checkbox"
+            name="featureFlags"
+            value={flag}
+            bind:group={$form.featureFlags}
+          > {flag}</label></li>
+        {/each}
+      </ul>
+    </div>
+  </AdminContent>
   <div class="text-error">
     <Input
       id="new-password"

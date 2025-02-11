@@ -258,6 +258,7 @@ export async function _orgMemberById(orgId: UUID, userId: UUID): Promise<OrgMemb
             localizationCode
             updatedDate
             lastActive
+            featureFlags
             canCreateProjects
             createdBy {
               id

@@ -1,4 +1,5 @@
 ﻿using FwLiteShared;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -16,7 +17,7 @@ public class CrdtMiniLcmApiHub(
     IMiniLcmApi miniLcmApi,
     BackgroundSyncService backgroundSyncService,
     SyncService syncService,
-    ChangeEventBus changeEventBus,
+    ProjectEventBus projectEventBus,
     CurrentProjectService projectContext,
     LexboxProjectService lexboxProjectService,
     IMemoryCache memoryCache,
@@ -37,7 +38,7 @@ public class CrdtMiniLcmApiHub(
         await syncService.SafeExecuteSync(true);
         Cleanup =
         [
-            changeEventBus.OnProjectEntryUpdated(projectContext.Project).Subscribe(e => OnEntryChangedExternal(e, hubContext, memoryCache, Context.ConnectionId))
+            projectEventBus.OnEntryChanged(projectContext.Project).Subscribe(e => OnEntryChangedExternal(e.Entry, hubContext, memoryCache, Context.ConnectionId))
         ];
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);

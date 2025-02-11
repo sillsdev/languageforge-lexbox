@@ -37,6 +37,7 @@ public class UserFilterType : FilterInputType<User>
         descriptor.Field(t => t.CreatedById);
         descriptor.Field(t => t.Username);
         descriptor.Field(t => t.Id);
+        descriptor.Field(t => t.FeatureFlags);
     }
 }
 

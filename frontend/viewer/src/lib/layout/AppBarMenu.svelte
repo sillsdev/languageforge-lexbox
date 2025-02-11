@@ -8,16 +8,17 @@
     mdiFaceAgent,
     mdiHistory,
     mdiInformationVariantCircle,
-    mdiNoteEdit
+    mdiNoteEdit, mdiOpenInNew
   } from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem, ResponsiveMenu, Toggle} from 'svelte-ux';
   import {asScottyPortal} from './Scotty.svelte';
-  import {useProjectViewState} from '$lib/services/project-view-state-service';
+  import {useProjectViewState} from '$lib/views/project-view-state-service';
   import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import {useTroubleshootingService} from '$lib/services/service-provider';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
@@ -29,6 +30,7 @@
   const features = useFeatures();
   const projectViewState = useProjectViewState();
   const supportsTroubleshooting = useTroubleshootingService();
+  const multiWindowService = useMultiWindowService();
 
   let activityViewOpen = false;
   let aboutDialogOpen = false;
@@ -49,6 +51,12 @@
             <MenuItem icon={mdiHistory} on:click={() => activityViewOpen = true}>Activity</MenuItem>
           {/if}
         </div>
+        {#if multiWindowService}
+          <MenuItem icon={mdiOpenInNew}
+                    on:click={() => multiWindowService.openNewWindow(location.pathname + location.search + location.hash)}>
+            Open new Window
+          </MenuItem>
+        {/if}
         <MenuItem icon={mdiEyeSettingsOutline} on:click={() => dispatch('showOptionsDialog')}>Configure</MenuItem>
         {#if about}
           <div class="contents" class:sm-view:hidden={$projectViewState.userPickedEntry}>

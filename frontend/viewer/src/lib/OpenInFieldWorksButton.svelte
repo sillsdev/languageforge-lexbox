@@ -3,7 +3,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useAppLauncher} from '$lib/services/service-provider';
   import {Button} from 'svelte-ux';
-  import {useProjectViewState} from './services/project-view-state-service';
+  import {useProjectViewState} from '$lib/views/project-view-state-service';
 
   const projectViewState = useProjectViewState();
   const appLauncher = useAppLauncher();

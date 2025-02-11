@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {IEntry} from '$lib/dotnet-types';
   import {fieldName} from '$lib/i18n';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {getContext} from 'svelte';
   import {Button, Dialog} from 'svelte-ux';
   import type {SaveHandler} from '../services/save-event-service';
