@@ -9,7 +9,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {useCurrentView} from './views/view-service';
   import {asScottyPortal} from '$lib/layout/Scotty.svelte';
-  import {useMultiWindowService} from '$lib/services/service-provider';
+  import {useMultiWindowService} from './services/multi-window-service';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;

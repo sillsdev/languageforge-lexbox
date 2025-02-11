@@ -1,3 +1,4 @@
+import {DotnetService} from '$lib/dotnet-types';
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import {ViewerSearchParam} from '$lib/utils/search-params';
 
@@ -18,4 +19,9 @@ export class MultiWindowService implements IMultiWindowService {
     url.searchParams.set(ViewerSearchParam.EntryId, entryId);
     await this.openNewWindow(url.pathname + url.search + url.hash, SM_VIEW_MAX_WIDTH);
   }
+}
+
+export function useMultiWindowService(): MultiWindowService | undefined {
+  const multiWindowService = window.lexbox.ServiceProvider.tryGetService(DotnetService.MultiWindowService);
+  return multiWindowService ? new MultiWindowService(multiWindowService) : undefined;
 }

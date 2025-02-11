@@ -17,7 +17,8 @@
   import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
-  import {useMultiWindowService, useTroubleshootingService} from '$lib/services/service-provider';
+  import {useTroubleshootingService} from '$lib/services/service-provider';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
