@@ -36,6 +36,13 @@
   $: dispatch('selectedUserId', $selectedUserId);
   $: dispatch('selectedUser', $selectedUser);
 
+  function selectUser(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null) {
+    if (user && 'id' in user && user.id) {
+      $selectedUser = user;
+      $input = value = getInputValue(user);
+    }
+  }
+
   function formatResult(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
     const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
                 : 'username' in user && user.username ? ` (${user.username})`
@@ -51,6 +58,29 @@
     return '';
   }
 
+  let highlightIdx = -1;
+  typeaheadResults.subscribe(() => { highlightIdx = 0; });
+  function keydownHandler(event: KeyboardEvent)
+  {
+    switch (event.key) {
+      case 'ArrowDown':
+        if (filteredResults && filteredResults.length > highlightIdx && highlightIdx >= 0) highlightIdx++;
+        event.preventDefault();
+        break;
+      case 'ArrowUp':
+        if (filteredResults && filteredResults.length && highlightIdx > 0) highlightIdx--;
+        event.preventDefault();
+        break;
+      case 'Enter':
+        if (filteredResults && filteredResults.length > highlightIdx && 0 <= highlightIdx) {
+          const user = filteredResults[highlightIdx];
+          selectUser(user);
+        }
+        event.preventDefault();
+        break;
+    }
+  }
+
 </script>
 
 <FormField {id} {label} {error} {autofocus} >
@@ -61,18 +91,13 @@
       type="text"
       autocomplete="off"
       {autofocus}
-      keydownHandler={() => {$selectedUser = null}}
+      {keydownHandler}
     />
     <div class="overlay-content">
       <ul class="menu p-0">
-      {#each filteredResults as user}
-        <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
-          setTimeout(() => {
-            if ('id' in user && user.id) {
-              $selectedUser = user;
-            }
-            $input = value = getInputValue(user);
-          });
+      {#each filteredResults as user, idx}
+        <li class={(highlightIdx == idx) ? 'p-0 bg-primary text-white' : 'p-0'}><button class="whitespace-nowrap" on:click={() => {
+          setTimeout(() => selectUser(user));
         }}>{formatResult(user)}</button></li>
       {/each}
       </ul>
