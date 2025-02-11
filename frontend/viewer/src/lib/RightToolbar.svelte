@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {DotnetService, type IEntry} from '$lib/dotnet-types';
   import {mdiArrowCollapseRight, mdiArrowExpandLeft, mdiEyeSettingsOutline, mdiOpenInNew} from '@mdi/js';
   import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
@@ -36,10 +36,11 @@
     {#if selectedEntry}
       <div class="sm-form:flex flex-col" class:lg-view:hidden={expandList}
            class:lg-view:flex={$state.rightToolbarCollapsed}>
-        <div class="h-full flex flex-col gap-4 justify-stretch">
-          <div class="grid gap-4 auto-rows-fr sm-form:gap-2 sm-form:icon-button-group-container"
+        <div class="h-full flex flex-col gap-4 justify-stretch sm-form:icon-button-group-container"
+          class:icon-button-group-container={$state.rightToolbarCollapsed}>
+          <div class="grid gap-4 auto-rows-fr sm-form:gap-2"
                class:!gap-2={$state.rightToolbarCollapsed}
-               class:icon-button-group-container={$state.rightToolbarCollapsed}>
+               >
             <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
             <div class="contents">
               <OpenInFieldWorksButton entryId={selectedEntry.id} {projectName} show={$features.openWithFlex}/>
@@ -49,9 +50,11 @@
             <Toc entry={selectedEntry}/>
           </div>
           {#if multiWindowService}
-            <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
-              <Button icon={mdiOpenInNew} on:click={() => multiWindowService.openNewWindow(location.pathname + location.search + location.hash)}>Open new Window</Button>
-            </div>
+            <Button icon={mdiOpenInNew} zize="md" title="Open new Window" iconOnly on:click={() => multiWindowService.openNewWindow(location.pathname + location.search + location.hash)} size="sm">
+              <div class="sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
+                Open new Window
+              </div>
+            </Button>
           {/if}
         </div>
         <span
