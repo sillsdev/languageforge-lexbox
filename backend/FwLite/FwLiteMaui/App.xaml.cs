@@ -12,9 +12,17 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(_mainPage)
+        return CreateWindow(_mainPage);
+    }
+
+    public static Window CreateWindow(MainPage mainPage, int? width = null)
+    {
+        var window = new Window(mainPage)
         {
-            Title = "FieldWorks Lite " + AppVersion.Version
+            Title = "FieldWorks Lite " + AppVersion.Version,
+
         };
+        if (width is not null) window.Width = width.Value;
+        return window;
     }
 }

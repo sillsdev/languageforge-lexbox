@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-  import {DotnetService, type IEntry} from '$lib/dotnet-types';
+  import {type IEntry} from '$lib/dotnet-types';
   import {mdiArrowCollapseRight, mdiArrowExpandLeft, mdiEyeSettingsOutline, mdiOpenInNew} from '@mdi/js';
   import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
   import {Button} from 'svelte-ux';
@@ -9,7 +9,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {useCurrentView} from './views/view-service';
   import {asScottyPortal} from '$lib/layout/Scotty.svelte';
-  import {tryUseService} from '$lib/services/service-provider';
+  import {useMultiWindowService} from '$lib/services/service-provider';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
@@ -20,7 +20,7 @@
   const state = useProjectViewState();
   const features = useFeatures();
   const currentView = useCurrentView();
-  const multiWindowService = tryUseService(DotnetService.MultiWindowService);
+  const multiWindowService = useMultiWindowService();
 </script>
 <div class="side-scroller pl-6 border-l-2 gap-4 flex-col col-start-3 hidden"
      class:border-l-2={selectedEntry && !expandList} class:lg-view:flex={!expandList}>
@@ -35,6 +35,7 @@
   <div class="w-[15vw] collapsible-col sm-form:w-min" class:self-center={$state.rightToolbarCollapsed}
        class:lg-view:collapse-col={expandList} class:!w-min={$state.rightToolbarCollapsed}>
     {#if selectedEntry}
+      {@const entryId = selectedEntry.id}
       <div class="sm-form:flex flex-col" class:lg-view:hidden={expandList}
            class:lg-view:flex={$state.rightToolbarCollapsed}>
         <div class="h-full flex flex-col gap-4 justify-stretch sm-form:icon-button-group-container"
@@ -44,16 +45,16 @@
                >
             <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
             <div class="contents">
-              <OpenInFieldWorksButton entryId={selectedEntry.id} {projectName} show={$features.openWithFlex}/>
+              <OpenInFieldWorksButton {entryId} {projectName} show={$features.openWithFlex}/>
             </div>
           </div>
           <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
             <Toc entry={selectedEntry}/>
           </div>
           {#if multiWindowService}
-            <Button icon={mdiOpenInNew} zize="md" title="Open new Window" iconOnly on:click={() => multiWindowService.openNewWindow(location.pathname + location.search + location.hash)} size="sm">
+            <Button icon={mdiOpenInNew} zize="md" title="Open in new Window" iconOnly on:click={() => multiWindowService.openEntryInNewWindow(entryId)} size="sm">
               <div class="sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
-                Open new Window
+                Open in new Window
               </div>
             </Button>
           {/if}

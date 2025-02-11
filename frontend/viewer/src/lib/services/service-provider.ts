@@ -17,6 +17,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITroubleshootingService';
 import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ITestingService';
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
+import {MultiWindowService} from './multi-window-service';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -116,4 +117,9 @@ export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[
 
 export function tryUseService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] | undefined {
   return window.lexbox.ServiceProvider.tryGetService(key);
+}
+
+export function useMultiWindowService(): MultiWindowService | undefined {
+  const multiWindowService = window.lexbox.ServiceProvider.tryGetService(DotnetService.MultiWindowService);
+  return multiWindowService ? new MultiWindowService(multiWindowService) : undefined;
 }

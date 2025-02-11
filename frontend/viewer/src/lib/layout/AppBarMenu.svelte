@@ -17,8 +17,7 @@
   import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
-  import {tryUseService, useTroubleshootingService} from '$lib/services/service-provider';
-  import {DotnetService} from '$lib/dotnet-types';
+  import {useMultiWindowService, useTroubleshootingService} from '$lib/services/service-provider';
 
   const dispatch = createEventDispatcher<{
     showOptionsDialog: void;
@@ -30,7 +29,7 @@
   const features = useFeatures();
   const projectViewState = useProjectViewState();
   const supportsTroubleshooting = useTroubleshootingService();
-  const multiWindowService = tryUseService(DotnetService.MultiWindowService);
+  const multiWindowService = useMultiWindowService();
 
   let activityViewOpen = false;
   let aboutDialogOpen = false;

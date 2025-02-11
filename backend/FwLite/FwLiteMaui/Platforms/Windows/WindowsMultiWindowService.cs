@@ -6,11 +6,10 @@ namespace FwLiteMaui;
 public class WindowsMultiWindowService(IApplication app, IServiceProvider services) : IMultiWindowService
 {
     [JSInvokable]
-    public ValueTask OpenNewWindow(string? url = null)
+    public void OpenNewWindow(string? url = null, int? width = null)
     {
         var mainPage = services.GetRequiredService<MainPage>();
         if (url is not null) mainPage.StartPath = url;
-        app.OpenWindow(new Window(mainPage));
-        return ValueTask.CompletedTask;
+        app.OpenWindow(App.CreateWindow(mainPage, width));
     }
 }

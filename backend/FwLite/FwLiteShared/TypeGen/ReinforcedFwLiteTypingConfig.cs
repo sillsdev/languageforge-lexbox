@@ -34,6 +34,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
         builder.SubstituteGeneric(typeof(DotNetObjectReference<>), (type, resolver) => resolver.ResolveTypeName(dotnetObjectRefInterface));
