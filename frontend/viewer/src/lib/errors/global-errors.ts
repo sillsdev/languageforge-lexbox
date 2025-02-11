@@ -1,5 +1,25 @@
 import {AppNotification} from '$lib/notifications/notifications';
 
+const sayWuuuuuuut = 'We\'re not sure what happened.';
+
+function getErrorMessage(error: unknown): string {
+  if (error === null || error === undefined) {
+    return sayWuuuuuuut;
+  } else if (typeof error === 'string') {
+    return error;
+  }
+
+  const _error = (error ?? {}) as Record<string, string>;
+  return (
+      _error.message ??
+      _error.reason ??
+      _error.cause ??
+      _error.error ??
+      _error.code ??
+      sayWuuuuuuut
+  );
+}
+
 function getPromiseRejectionMessage(event: PromiseRejectionEvent): string {
   if (event.reason instanceof Error) {
     return event.reason.message;
@@ -29,17 +49,24 @@ export function setupGlobalErrorHandlers() {
   window.addEventListener('error', (event: ErrorEvent) => {
     console.error('Global error', event);
 
-    if (suppressErrorNotification(event.message)) return;
-    const {message: simpleMessage, detail} = processErrorIntoDetails(event.message);
-    AppNotification.display(simpleMessage, 'error', undefined, detail);
+    handleErrorMessage(event.message);
   });
 
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     const message = getPromiseRejectionMessage(event);
     //no need to log these because they already get logged by blazor.web.js
 
-    if (suppressErrorNotification(message)) return;
-    const {message: simpleMessage, detail} = processErrorIntoDetails(message);
-    AppNotification.display(simpleMessage, 'error', undefined, detail);
+    handleErrorMessage(message);
   });
+}
+
+function handleErrorMessage(message: string) {
+  if (suppressErrorNotification(message)) return;
+  const {message: simpleMessage, detail} = processErrorIntoDetails(message);
+  AppNotification.display(simpleMessage, 'error', undefined, detail);
+}
+
+export function isNoSuchHostError(error: unknown): boolean {
+  const message = getErrorMessage(error);
+  return message.includes('SocketException') && message.includes('(11001)');
 }

@@ -18,6 +18,7 @@
     import type {ILexboxServer} from '$lib/dotnet-types';
     import {useAuthService} from '$lib/services/service-provider';
     import {createEventDispatcher} from 'svelte';
+    import {isNoSuchHostError} from '$lib/errors/global-errors';
 
     const authService = useAuthService();
     const shouldUseSystemWebView = useSystemWebView(authService);
@@ -27,13 +28,21 @@
     export let status: IServerStatus;
     $: server = status.server;
     let loading = false;
-
+    let loginError: string | undefined;
 
     async function login(server: ILexboxServer) {
         loading = true;
+        loginError = undefined;
         try {
             await authService.signInWebView(server);
             dispatch('status', 'logged-in');
+        } catch (e) {
+            console.error(e);
+            if (isNoSuchHostError(e)) {
+                loginError = `Failed to connect. Are you online?`;
+            } else {
+                throw e;
+            }
         } finally {
             loading = false;
         }
@@ -60,6 +69,7 @@
       </Button>
     </Toggle>
 {:else}
+  <div class="flex flex-col gap-2">
     {#if $shouldUseSystemWebView}
         <Button {loading}
                 variant="fill-light"
@@ -77,4 +87,8 @@
               Login to see projects
         </Button>
     {/if}
+    {#if loginError}
+        <span class="text-warning text-sm">{loginError}</span>
+    {/if}
+  </div>
 {/if}
