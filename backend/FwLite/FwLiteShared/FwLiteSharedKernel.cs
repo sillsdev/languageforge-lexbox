@@ -1,4 +1,5 @@
-﻿using FwLiteShared.Auth;
+using System.Net;
+using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
@@ -8,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using Polly;
+using Polly.Simmy;
 using SIL.Harmony;
 
 namespace FwLiteShared;
@@ -55,6 +58,10 @@ public static class FwLiteSharedKernel
         var httpClientBuilder = services.AddHttpClient(OAuthClient.AuthHttpClientName);
         if (environment.IsDevelopment())
         {
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FW_LITE_CHAOS")))
+            {
+                ConfigureHttpClientChaos(httpClientBuilder);
+            }
             // Allow self-signed certificates in development
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -65,6 +72,26 @@ public static class FwLiteSharedKernel
                 };
             });
         }
+    }
+
+    private static void ConfigureHttpClientChaos(IHttpClientBuilder builder)
+    {
+        builder.AddResilienceHandler("chaos",
+            pipelineBuilder =>
+            {
+                const double injectionRate = 0.3;
+                pipelineBuilder.AddChaosLatency(injectionRate, TimeSpan.FromSeconds(5))
+                    .AddChaosFault(injectionRate, () => new InvalidOperationException("Chaos injected fault"))
+                    .AddChaosOutcome(new()
+                    {
+                        InjectionRate = injectionRate,
+                        OutcomeGenerator = arguments =>
+                            new(Outcome.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                            {
+                                RequestMessage = arguments.Context.GetRequestMessage()
+                            }))
+                    });
+            });
     }
 
     private static void DecorateConstructor<TService>(this IServiceCollection services,

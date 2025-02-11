@@ -20,7 +20,7 @@ public class OAuthClient
     //all 3 scopes are required to work around this bug https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5094
     //more can be added in needed but this is the minimum set
     public static IReadOnlyCollection<string> DefaultScopes { get; } = ["profile", "openid", "offline_access" ];
-    public const string AuthHttpClientName = "AuthHttpClient";
+    public const string AuthHttpClientName = "LexboxHttpClient";
     public string? RedirectUrl { get; }
     private readonly IHttpMessageHandlerFactory _httpMessageHandlerFactory;
     private readonly AuthConfig _options;
