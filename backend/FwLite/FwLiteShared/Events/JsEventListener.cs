@@ -11,10 +11,12 @@ public class JsEventListener : IDisposable
     //just a guess, this may need to be adjusted if we start losing events
     private const int MaxJsEventQueueSize = 10;
     private readonly Channel<IFwEvent> _jsEventChannel = Channel.CreateBounded<IFwEvent>(MaxJsEventQueueSize);
+    private readonly IDisposable _globalBusSubscription;
+
     public JsEventListener(ILogger<JsEventListener> logger, GlobalEventBus globalEventBus)
     {
         _logger = logger;
-        globalEventBus.OnGlobalEvent.Subscribe(e =>
+        _globalBusSubscription = globalEventBus.OnGlobalEvent.Subscribe(e =>
         {
             if (_jsEventChannel.Writer.TryWrite(e))
             {
@@ -53,6 +55,7 @@ public class JsEventListener : IDisposable
 
     public void Dispose()
     {
+        _globalBusSubscription.Dispose();
         _jsEventChannel.Writer.Complete();
     }
 }
