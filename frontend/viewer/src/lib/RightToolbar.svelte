@@ -5,9 +5,9 @@
   import {Button} from 'svelte-ux';
   import Toc from '$lib/layout/Toc.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
-  import {useProjectViewState} from '$lib/services/project-view-state-service';
+  import {useProjectViewState} from './views/project-view-state-service';
   import {useFeatures} from '$lib/services/feature-service';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from './views/view-service';
   import {asScottyPortal} from '$lib/layout/Scotty.svelte';
   import {tryUseService} from '$lib/services/service-provider';
 
