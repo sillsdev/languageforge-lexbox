@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {DotnetService, type IEntry} from '$lib/dotnet-types';
   import {mdiArrowCollapseRight, mdiArrowExpandLeft, mdiEyeSettingsOutline, mdiOpenInNew} from '@mdi/js';
   import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
@@ -28,6 +28,7 @@
     <div class="sm-form:hidden" class:sm:hidden={expandList}>
       <Button icon={$state.rightToolbarCollapsed ? mdiArrowExpandLeft : mdiArrowCollapseRight}
               class="text-field-sibling-button" iconOnly rounded variant="outline"
+              title={$state.rightToolbarCollapsed ? 'Expand toolbar' : 'Collapse toolbar'}
               on:click={() => $state.rightToolbarCollapsed = !$state.rightToolbarCollapsed}/>
     </div>
   {/if}
@@ -67,6 +68,7 @@
                   on:click={() => (dispatch('showOptionsDialog'))}
                   size="md"
                   variant="default"
+                  title="Configure view"
                   iconOnly
                   icon={mdiEyeSettingsOutline}/>
               </span>
