@@ -2,14 +2,14 @@
   import {Button, type MenuOption} from 'svelte-ux';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
   import {DotnetService, type ISense} from '$lib/dotnet-types';
-  import {tryUseService, useService} from '$lib/services/service-provider';
+  import {tryUseService} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
   import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
   import {initWritingSystemService} from '$lib/writing-system-service';
   import {writable} from 'svelte/store';
-  import {initView, initViewSettings} from '$lib/services/view-service';
+  import {initView, initViewSettings} from '$lib/views/view-service';
   import OverrideFields from '$lib/OverrideFields.svelte';
   import type {FieldIds} from '$lib/entry-editor/field-data';
   import {dndzone} from 'svelte-dnd-action';

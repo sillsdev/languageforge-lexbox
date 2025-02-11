@@ -1,6 +1,6 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
-  import { useCurrentView } from '$lib/services/view-service';
+  import { useCurrentView } from '$lib/views/view-service';
   import EntryOrSensePicker, { type EntrySenseSelection } from '../EntryOrSensePicker.svelte';
   import { makeHasHadValueTracker, randomId } from '$lib/utils';
   import { createEventDispatcher } from 'svelte';

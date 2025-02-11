@@ -1,6 +1,6 @@
 <script lang="ts">
   import {fieldName} from '$lib/i18n';
-  import {useCurrentView} from '$lib/services/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {mdiPlus} from '@mdi/js';
   import throttle from 'just-throttle';
   import {onMount} from 'svelte';

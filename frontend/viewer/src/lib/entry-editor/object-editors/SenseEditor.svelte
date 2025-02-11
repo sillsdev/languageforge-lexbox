@@ -7,7 +7,7 @@
   import {useSemanticDomains} from '../../semantic-domains';
   import {useWritingSystemService} from '../../writing-system-service';
   import {usePartsOfSpeech} from '../../parts-of-speech';
-  import {useCurrentView, objectTemplateAreas} from '../../services/view-service';
+  import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
 
   export let sense: ISense;
   export let readonly: boolean = false;

@@ -25,8 +25,8 @@
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
-  import {initView, initViewSettings} from './lib/services/view-service';
-  import {views} from './lib/entry-editor/view-data';
+  import {initView, initViewSettings} from './lib/views/view-service';
+  import {views} from './lib/views/view-data';
   import {initWritingSystemService} from './lib/writing-system-service';
   import {useEventBus} from './lib/services/event-bus';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
@@ -39,7 +39,7 @@
   import AppBarMenu from '$lib/layout/AppBarMenu.svelte';
   import {initFeatures} from '$lib/services/feature-service';
   import {asScottyPortal, initScottyPortalContext} from '$lib/layout/Scotty.svelte';
-  import {initProjectViewState} from '$lib/services/project-view-state-service';
+  import {initProjectViewState} from '$lib/views/project-view-state-service';
   import NewEntryButton from '$lib/entry-editor/NewEntryButton.svelte';
   import {getSelectedEntryChangedStore} from '$lib/services/selected-entry-service';
 
@@ -113,7 +113,6 @@
     const searchParams = getSearchParams();
     $search = searchParams.get(ViewerSearchParam.Search) ?? '';
     $selectedIndexExemplar = searchParams.get(ViewerSearchParam.IndexCharacter);
-    navigateToEntryId = searchParams.get(ViewerSearchParam.EntryId);
   }
 
   const selectedIndexExemplar = writable<string | null>(getSearchParam(ViewerSearchParam.IndexCharacter));

@@ -13,7 +13,7 @@
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem, ResponsiveMenu, Toggle} from 'svelte-ux';
   import {asScottyPortal} from './Scotty.svelte';
-  import {useProjectViewState} from '$lib/services/project-view-state-service';
+  import {useProjectViewState} from '$lib/views/project-view-state-service';
   import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
