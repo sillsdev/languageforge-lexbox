@@ -17,7 +17,6 @@ public interface IFwEvent
 public enum FwEventType
 {
     EntryChanged,
-    NewProject,
     AuthenticationChanged,
     ProjectEvent,
 }

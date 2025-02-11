@@ -1,12 +1,11 @@
-﻿using FwLiteShared.Events;
-using FwLiteShared.Projects;
+﻿using FwLiteShared.Projects;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 
 namespace FwLiteShared.Auth;
 
 public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, LexboxServer Server);
-public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientFactory clientFactory, IOptions<AuthConfig> options, GlobalEventBus globalEventBus)
+public class AuthService(LexboxProjectService lexboxProjectService, OAuthClientFactory clientFactory, IOptions<AuthConfig> options)
 {
     [JSInvokable]
     public async Task<ServerStatus[]> Servers()

@@ -64,6 +64,7 @@ function uppercaseFirstLetter(str: string): string {
 }
 
 export function setupDotnetServiceProvider() {
+  if (globalThis.window.lexbox?.DotNetServiceProvider) return;
   const lexbox = {DotNetServiceProvider: new DotNetServiceProvider()};
   if (globalThis.window.lexbox) {
     globalThis.window.lexbox = {...globalThis.window.lexbox, ...lexbox};

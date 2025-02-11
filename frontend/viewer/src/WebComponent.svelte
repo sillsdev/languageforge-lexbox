@@ -1,3 +1,8 @@
+<script context="module" lang="ts">
+  import {setupServiceProvider} from '$lib/services/service-provider';
+
+  setupServiceProvider();
+</script>
 <script lang="ts">
   import { onMount } from 'svelte';
   import ProjectView from './ProjectView.svelte';

@@ -16,14 +16,16 @@ export class EventBus {
 
   private async eventLoop(jsEventListener: IJsEventListener) {
     let event: IFwEvent;
-    do {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       event = await jsEventListener.nextEventAsync();
       if (!event) return;
       this.distributor(event);
-    } while (event);
+    }
   }
 
   private distributor(event: IFwEvent) {
+    //using set timeout to queue processing events outside the event loop, this prevents the event loop from being blocked
     setTimeout(() => {
       this._onEvent.forEach(callback => callback(event));
     });
@@ -59,5 +61,5 @@ export class EventBus {
 let changeEventBus: EventBus | undefined = undefined;
 
 export function useEventBus(): EventBus {
-  return changeEventBus ?? (changeEventBus = new EventBus());
+  return changeEventBus ??= new EventBus();
 }

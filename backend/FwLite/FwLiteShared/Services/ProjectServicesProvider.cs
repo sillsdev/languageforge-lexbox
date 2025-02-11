@@ -52,7 +52,6 @@ public class ProjectServicesProvider(
         var scope = new ProjectScope(Defer.Async(() =>
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectName);
-            // entryUpdatedSubscription.Dispose();
             return Task.CompletedTask;
         }), serviceScope, this, projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
         _projectScopes.TryAdd(scope, scope);
