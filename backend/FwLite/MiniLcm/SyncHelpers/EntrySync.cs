@@ -1,4 +1,4 @@
-using MiniLcm.Exceptions;
+﻿using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 
@@ -139,8 +139,9 @@ public static class EntrySync
 
         public override async Task<int> Add(ComplexFormComponent after)
         {
-            //change id, since we're not using the id as the key for this collection
-            //the id may be the same, which is not what we want here
+            //We're not using the id as the key for this collection.
+            //So, if a client only changed ComplexFormEntryId it would trigger
+            //this Add with an id that is already in use. So we need to change it.
             after.Id = Guid.NewGuid();
             try
             {
@@ -190,8 +191,9 @@ public static class EntrySync
         {
             var betweenComponents = MapBackToEntities(between);
 
-            //change id, since we're not using the id as the key for this collection
-            //the id may be the same, which is not what we want here
+            //We're not using the id as the key for this collection.
+            //So, if a client only changed ComponentEntryId or ComponentSenseId it would trigger
+            //this Add with an id that is already in use. So we need to change it.
             after.Id = Guid.NewGuid();
             try
             {
