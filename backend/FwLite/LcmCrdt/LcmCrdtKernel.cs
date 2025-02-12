@@ -201,6 +201,9 @@ public static class LcmCrdtKernel
             .Add<CreateComplexFormType>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<Changes.SetOrderChange<ComplexFormComponent>>()
+            // When adding anything other than a Delete or JsonPatch change,
+            // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
     }
 

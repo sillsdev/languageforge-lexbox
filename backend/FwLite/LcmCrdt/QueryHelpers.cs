@@ -5,6 +5,7 @@ public static class QueryHelpers
     public static void ApplySortOrder(this Entry entry)
     {
         entry.Senses.ApplySortOrder();
+        entry.Components.ApplySortOrder();
         foreach (var sense in entry.Senses)
         {
             sense.ApplySortOrder();

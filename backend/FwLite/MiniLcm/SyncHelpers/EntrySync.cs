@@ -21,8 +21,8 @@ public static class EntrySync
             if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
             var changes = await SensesSync(afterEntry.Id, beforeEntry.Senses, afterEntry.Senses, api);
 
-            changes += await Sync(beforeEntry.Components, afterEntry.Components, api);
-            changes += await Sync(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
+            changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
+            changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
             changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
             return changes + (updateObjectInput is null ? 0 : 1);
         }
@@ -43,12 +43,21 @@ public static class EntrySync
             new ComplexFormTypesDiffApi(api, entryId));
     }
 
-    private static async Task<int> Sync(IList<ComplexFormComponent> beforeComponents, IList<ComplexFormComponent> afterComponents, IMiniLcmApi api)
+    private static async Task<int> SyncComplexFormComponents(Entry afterEntry, IList<ComplexFormComponent> beforeComponents, IList<ComplexFormComponent> afterComponents, IMiniLcmApi api)
+    {
+        return await DiffCollection.DiffOrderable(
+            beforeComponents,
+            afterComponents,
+            new ComplexFormComponentsDiffApi(afterEntry, api)
+        );
+    }
+
+    private static async Task<int> SyncComplexForms(IList<ComplexFormComponent> beforeComponents, IList<ComplexFormComponent> afterComponents, IMiniLcmApi api)
     {
         return await DiffCollection.Diff(
             beforeComponents,
             afterComponents,
-            new ComplexFormComponentsDiffApi(api)
+            new ComplexFormsDiffApi(api)
         );
     }
 
@@ -120,22 +129,23 @@ public static class EntrySync
         }
     }
 
-    private class ComplexFormComponentsDiffApi(IMiniLcmApi api) : CollectionDiffApi<ComplexFormComponent, (Guid, Guid, Guid?)>
+    private class ComplexFormsDiffApi(IMiniLcmApi api) : CollectionDiffApi<ComplexFormComponent, Guid>
     {
-        public override (Guid, Guid, Guid?) GetId(ComplexFormComponent component)
+        public override Guid GetId(ComplexFormComponent component)
         {
             //we can't use the ID as there's none defined by Fw so it won't work as a sync key
-            return (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId);
+            return component.ComplexFormEntryId;
         }
 
-        public override async Task<int> Add(ComplexFormComponent afterComplexFormType)
+        public override async Task<int> Add(ComplexFormComponent after)
         {
-            //change id, since we're not using the id as the key for this collection
-            //the id may be the same, which is not what we want here
-            afterComplexFormType.Id = Guid.NewGuid();
+            //We're not using the id as the key for this collection.
+            //So, if a client only changed ComplexFormEntryId it would trigger
+            //this Add with an id that is already in use. So we need to change it.
+            after.Id = Guid.NewGuid();
             try
             {
-                await api.CreateComplexFormComponent(afterComplexFormType);
+                await api.CreateComplexFormComponent(after);
             }
             catch (NotFoundException)
             {
@@ -144,13 +154,72 @@ public static class EntrySync
             return 1;
         }
 
-        public override async Task<int> Remove(ComplexFormComponent beforeComplexFormType)
+        public override async Task<int> Remove(ComplexFormComponent before)
         {
-            await api.DeleteComplexFormComponent(beforeComplexFormType);
+            await api.DeleteComplexFormComponent(before);
             return 1;
         }
 
         public override Task<int> Replace(ComplexFormComponent beforeComponent, ComplexFormComponent afterComponent)
+        {
+            if (beforeComponent.ComplexFormEntryId == afterComponent.ComplexFormEntryId &&
+                beforeComponent.ComponentEntryId == afterComponent.ComponentEntryId &&
+                beforeComponent.ComponentSenseId == afterComponent.ComponentSenseId)
+            {
+                return Task.FromResult(0);
+            }
+            throw new InvalidOperationException($"changing complex form components is not supported, they should just be deleted and recreated");
+        }
+    }
+
+    private class ComplexFormComponentsDiffApi(Entry afterEntry, IMiniLcmApi api) : IOrderableCollectionDiffApi<ComplexFormComponent>
+    {
+        public Guid GetId(ComplexFormComponent component)
+        {
+            // we can't use the ID as there's none defined by Fw so it won't work as a sync key
+            return component.ComponentSenseId ?? component.ComponentEntryId;
+        }
+
+        private BetweenPosition<ComplexFormComponent> MapBackToEntities(BetweenPosition between)
+        {
+            var previous = between!.Previous is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Previous);
+            var next = between!.Next is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Next);
+            return new BetweenPosition<ComplexFormComponent>(previous, next);
+        }
+
+        public async Task<int> Add(ComplexFormComponent after, BetweenPosition between)
+        {
+            var betweenComponents = MapBackToEntities(between);
+
+            //We're not using the id as the key for this collection.
+            //So, if a client only changed ComponentEntryId or ComponentSenseId it would trigger
+            //this Add with an id that is already in use. So we need to change it.
+            after.Id = Guid.NewGuid();
+            try
+            {
+                await api.CreateComplexFormComponent(after, betweenComponents);
+            }
+            catch (NotFoundException)
+            {
+                //this can happen if the entry was deleted, so we can just ignore it
+            }
+            return 1;
+        }
+
+        public async Task<int> Move(ComplexFormComponent component, BetweenPosition between)
+        {
+            var betweenComponents = MapBackToEntities(between);
+            await api.MoveComplexFormComponent(component, betweenComponents);
+            return 1;
+        }
+
+        public async Task<int> Remove(ComplexFormComponent before)
+        {
+            await api.DeleteComplexFormComponent(before);
+            return 1;
+        }
+
+        public Task<int> Replace(ComplexFormComponent beforeComponent, ComplexFormComponent afterComponent)
         {
             if (beforeComponent.ComplexFormEntryId == afterComponent.ComplexFormEntryId &&
                 beforeComponent.ComponentEntryId == afterComponent.ComponentEntryId &&

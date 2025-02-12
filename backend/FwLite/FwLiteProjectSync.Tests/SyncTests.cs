@@ -73,6 +73,17 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         _syncService = _fixture.SyncService;
     }
 
+    internal static EquivalencyOptions<Entry> SyncExclusions(EquivalencyOptions<Entry> options)
+    {
+        return options
+            .For(e => e.Senses).Exclude(s => s.Order)
+            .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
+            .For(e => e.Components).Exclude(c => c.Id)
+            .For(e => e.Components).Exclude(c => c.Order)
+            .For(e => e.ComplexForms).Exclude(c => c.Id)
+            .For(e => e.ComplexForms).Exclude(c => c.Order);
+    }
+
     [Fact]
     [Trait("Category", "Integration")]
     public async Task FirstSyncJustDoesAnImport()
@@ -83,12 +94,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
@@ -151,12 +157,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
@@ -234,12 +235,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
 
         // Sync again, ensure no problems or changes
         var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
@@ -329,12 +325,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
@@ -413,12 +404,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
@@ -441,13 +427,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                //todo the headword should be changed
+            options => SyncExclusions(options)
+                //todo the headwords should be changed
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
-                .For(e => e.ComplexForms).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
     }
 
@@ -512,12 +494,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Senses).Exclude(s => s.Order)
-                .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
-                .For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
