@@ -2,6 +2,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore.Auth;
+using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexData;
@@ -18,7 +19,9 @@ public class TestingController(
     LexAuthService lexAuthService,
     LexBoxDbContext lexBoxDbContext,
     IHgService hgService,
-    SeedingData seedingData)
+    SeedingData seedingData,
+    ProjectService projectService,
+    LoggedInContext loggedInContext)
     : ControllerBase
 {
 #if DEBUG
@@ -63,6 +66,23 @@ public class TestingController(
     {
         var configurationRoot = (IConfigurationRoot)HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         return Ok(configurationRoot.GetDebugView());
+    }
+
+    [HttpPost("copyToNewProject")]
+    [AdminRequired]
+    public async Task<ActionResult> CopyToNewProject(string newProjectCode, string existingProjectCode)
+    {
+        await projectService.CreateProject(new(null,
+            newProjectCode,
+            "Copy of " + existingProjectCode,
+            newProjectCode,
+            ProjectType.FLEx,
+            RetentionPolicy.Dev,
+            true,
+            loggedInContext.User.Id,
+            null));
+        await hgService.CopyRepo(existingProjectCode, newProjectCode);
+        return Ok();
     }
 
 #endif
