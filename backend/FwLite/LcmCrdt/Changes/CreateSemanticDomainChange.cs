@@ -1,5 +1,6 @@
 ﻿using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -12,7 +13,7 @@ public class CreateSemanticDomainChange(Guid entityId, MultiString name, string 
     public bool Predefined { get; } = predefined;
     public string Code { get; } = code;
 
-    public override ValueTask<SemanticDomain> NewEntity(Commit commit, ChangeContext context)
+    public override ValueTask<SemanticDomain> NewEntity(Commit commit, IChangeContext context)
     {
         return ValueTask.FromResult(new SemanticDomain { Id = EntityId, Code = Code, Name = Name, Predefined = Predefined });
     }
