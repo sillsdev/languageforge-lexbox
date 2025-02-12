@@ -41,7 +41,7 @@ public interface IMiniLcmWriteApi
     Task<Entry> UpdateEntry(Entry before, Entry after);
     Task DeleteEntry(Guid id);
     Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null);
-    Task MoveComplexFormComponent(Guid complexFormEntryId, ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between);
+    Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between);
     Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
     Task AddComplexFormType(Guid entryId, Guid complexFormTypeId);
     Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);

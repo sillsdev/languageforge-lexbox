@@ -756,12 +756,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId && c.ComponentSenseId == complexFormComponent.ComponentSenseId));
     }
 
-    public Task MoveComplexFormComponent(Guid complexFormEntryId, ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    public Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
     {
-        if (!EntriesRepository.TryGetObject(complexFormEntryId, out var lexComplexFormEntry))
+        if (!EntriesRepository.TryGetObject(component.ComplexFormEntryId, out var lexComplexFormEntry))
             throw new InvalidOperationException("Entry not found");
 
-        var complexFormComponentEntityId = complexFormComponent.ComponentSenseId ?? complexFormComponent.ComponentEntryId;
+        var complexFormComponentEntityId = component.ComponentSenseId ?? component.ComponentEntryId;
         var lexComponent = FindSenseOrEntryComponent(complexFormComponentEntityId);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Complex Form Component",

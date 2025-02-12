@@ -1,4 +1,4 @@
-﻿using MiniLcm.Exceptions;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 
@@ -207,7 +207,7 @@ public static class EntrySync
         public async Task<int> Move(ComplexFormComponent component, BetweenPosition between)
         {
             var betweenComponents = MapBackToEntities(between);
-            await api.MoveComplexFormComponent(afterEntry.Id, component, betweenComponents);
+            await api.MoveComplexFormComponent(component, betweenComponents);
             return 1;
         }
 

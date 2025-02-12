@@ -240,6 +240,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
+        // tests in seperate PR:
+        // 1: call create with the same ID should throw.
+        // 2: change a propertyId => should result in a new ID (in Crdt test not base).
+        // 3: "normal" create also changes provided ID.
         var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
             c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
             && c.ComponentEntryId == complexFormComponent.ComponentEntryId
@@ -253,16 +257,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         }
         else if (between is not null)
         {
-            await MoveComplexFormComponent(complexFormComponent.ComplexFormEntryId, existing, between);
+            await MoveComplexFormComponent(existing, between);
         }
         return existing;
     }
 
-    public async Task MoveComplexFormComponent(Guid complexFormEntryId, ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
     {
         var betweenIds = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
-        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == complexFormEntryId), betweenIds);
-        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, order));
+        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(component.Id, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)

@@ -298,7 +298,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.FromResult(complexFormComponent);
     }
 
-    public Task MoveComplexFormComponent(Guid complexFormEntryId, ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    public Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
     {
         var previousId = between.Previous?.ComponentSenseId ?? between.Previous?.ComponentEntryId;
         var nextId = between.Next?.ComponentSenseId ?? between.Next?.ComponentEntryId;
