@@ -92,19 +92,22 @@ public class SyncFixture : IAsyncLifetime
     public async Task EnsureDefaultVernacularWritingSystemExistsInCrdt()
     {
         // This is optionally called from tests that consume this fixture, so it could get called multiple times in parallel
-        await _vernacularSemaphore.WaitAsync(100);
-
-        if ((await CrdtApi.GetWritingSystems()).Vernacular.Length == 0)
+        if (!await _vernacularSemaphore.WaitAsync(100))
         {
-            try
+            throw new InvalidOperationException("Timeout waiting for vernacular semaphore");
+        }
+
+        try
+        {
+            if ((await CrdtApi.GetWritingSystems()).Vernacular.Length == 0)
             {
                 var firstVernacularWs = (await FwDataApi.GetWritingSystems()).Vernacular.First();
                 await CrdtApi.CreateWritingSystem(WritingSystemType.Vernacular, firstVernacularWs);
             }
-            finally
-            {
-                _vernacularSemaphore.Release();
-            }
+        }
+        finally
+        {
+            _vernacularSemaphore.Release();
         }
     }
 }
