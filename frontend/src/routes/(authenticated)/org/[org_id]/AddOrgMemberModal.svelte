@@ -106,7 +106,7 @@
       isAdmin={$page.data.user?.isAdmin}
       bind:value={$form.usernameOrEmail}
       error={errors.usernameOrEmail}
-      on:selectedUser={(event) => populateUserProjects(event.detail)}
+      on:selectedUserChange={(event) => populateUserProjects(event.detail)}
       autofocus
       exclude={org.members.map(m => m.user.id)}
       />

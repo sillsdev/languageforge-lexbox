@@ -3,14 +3,13 @@
   import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
-  import { derived, writable } from 'svelte/store';
+  import { writable } from 'svelte/store';
   import { createEventDispatcher } from 'svelte';
 
   export let label: string;
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFormId();
   export let autofocus: true | undefined = undefined;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
   export let debounceMs = 200;
   export let isAdmin: boolean = false;
@@ -18,7 +17,7 @@
 
   const input = writable('');
   $: $input = value;
-  let typeaheadResults = deriveAsync(
+  const typeaheadResults = deriveAsync(
     input,
     isAdmin ? _userTypeaheadSearch : _usersTypeaheadSearch,
     [],
@@ -27,20 +26,19 @@
   $: filteredResults = $typeaheadResults.filter(user => !exclude.includes(user.id));
 
   const dispatch = createEventDispatcher<{
-      selectedUserId: string | null;
-      selectedUser: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null;
+      selectedUserChange: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null;
   }>();
 
   let selectedUser = writable<SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null>(null);
-  let selectedUserId = derived(selectedUser, user => user?.id ?? null);
-  $: dispatch('selectedUserId', $selectedUserId);
-  $: dispatch('selectedUser', $selectedUser);
+  $: dispatch('selectedUserChange', $selectedUser);
 
-  function selectUser(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null) {
-    if (user && 'id' in user && user.id) {
-      $selectedUser = user;
-      $input = value = getInputValue(user);
-    }
+  function selectUser(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): void {
+    $selectedUser = user;
+    $input = value = getInputValue(user);
+  }
+
+  $: if ($selectedUser && value !== getInputValue($selectedUser)) {
+    $selectedUser = null;
   }
 
   function formatResult(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
