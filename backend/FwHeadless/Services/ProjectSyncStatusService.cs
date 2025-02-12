@@ -33,6 +33,7 @@ public enum ProjectSyncStatusEnum
     NeverSynced,
     ReadyToSync,
     Syncing,
+    QueuedToSync
 }
 
 // TODO: Bikeshed this name
@@ -42,6 +43,7 @@ public record ProjectSyncStatus(
 {
     public static ProjectSyncStatus NeverSynced => new(ProjectSyncStatusEnum.NeverSynced, 0);
     public static ProjectSyncStatus Syncing => new(ProjectSyncStatusEnum.Syncing, 0);
+    public static ProjectSyncStatus QueuedToSync => new(ProjectSyncStatusEnum.QueuedToSync, 0);
     public static ProjectSyncStatus ReadyToSync(int changes)
     {
         return new(ProjectSyncStatusEnum.ReadyToSync, changes);
