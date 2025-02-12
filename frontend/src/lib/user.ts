@@ -26,7 +26,7 @@ type RegisterResponseErrors = {
 
 type ApiLexboxAudience = 'LexboxApi' | 'Unknown';
 
-export const allPossibleFlags = Object.values(FeatureFlag) as FeatureFlag[];
+export const allPossibleFlags = Object.values(FeatureFlag);
 
 type JwtTokenUser = {
   sub: string
@@ -215,7 +215,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
   }
 }
 
-export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag): boolean {
+export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag | keyof typeof FeatureFlag): boolean {
   const searchTerm = flag.replaceAll('_', '').toLowerCase();
   return !!user.featureFlags.find(f => f.toLowerCase() === searchTerm);
 }

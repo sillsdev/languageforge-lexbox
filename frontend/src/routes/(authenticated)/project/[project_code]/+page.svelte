@@ -32,7 +32,7 @@
   import {_deleteProject} from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, PageBreadcrumb } from '$lib/layout';
+  import {AdminContent, FeatureFlagContent, PageBreadcrumb} from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
@@ -332,8 +332,12 @@
           <span class="i-mdi-dictionary text-2xl"/>
         </a>
       {/if}
+      {#if project.type === ProjectType.FlEx}
+        <FeatureFlagContent flag="FwLiteBeta">
+          <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
+        </FeatureFlagContent>
+      {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else if canAskToJoinProject}
