@@ -61,7 +61,7 @@ spec:
           name: pgadmin-config
       containers:
       - name: pgadmin
-        image: dpage/pgadmin4:8.10
+        image: dpage/pgadmin4:8.14
         # pgadmin needs a specific format for its pgpass files
         # Can't just mount k8s secret, so have to run some pre-entrypoint code instead
         command: ["/bin/sh"]

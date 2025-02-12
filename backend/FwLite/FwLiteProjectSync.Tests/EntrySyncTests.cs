@@ -49,7 +49,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     }
 
     [Fact]
-    public async Task CanChangeComplexFormVisSync_Components()
+    public async Task CanChangeComplexFormViaSync_Components()
     {
         var component1 = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "component1" } } });
         var component2 = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "component2" } } });

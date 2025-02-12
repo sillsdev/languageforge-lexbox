@@ -216,6 +216,7 @@ type LeaveProjectPayload {
 
 type LexAuthUser {
   isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
+  hasFeature(feature: FeatureFlag!): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -226,6 +227,7 @@ type LexAuthUser {
   isAdmin: Boolean!
   projects: [AuthUserProject!]!
   orgs: [AuthUserOrg!]!
+  featureFlags: [FeatureFlag!]!
   projectsJson: String!
   locked: Boolean
   emailVerificationRequired: Boolean
@@ -254,7 +256,7 @@ type Mutation {
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload! @cost(weight: "10")
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy") @cost(weight: "10")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload! @cost(weight: "10")
-  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @cost(weight: "10")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload! @cost(weight: "10")
   askToJoinProject(input: AskToJoinProjectInput!): AskToJoinProjectPayload! @cost(weight: "10")
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload! @cost(weight: "10")
@@ -273,7 +275,7 @@ type Mutation {
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload! @cost(weight: "10")
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   sendNewVerificationEmailByAdmin(input: SendNewVerificationEmailByAdminInput!): SendNewVerificationEmailByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
-  createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @cost(weight: "10")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload! @cost(weight: "10")
   setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
 }
@@ -336,6 +338,7 @@ type OrgMemberDto {
   isAdmin: Boolean!
   locked: Boolean!
   canCreateProjects: Boolean!
+  featureFlags: [FeatureFlag!]!
   createdBy: OrgMemberDtoCreatedBy
 }
 
@@ -351,6 +354,14 @@ type OrgMemberInvitedByEmail implements Error {
 type OrgMemberRole {
   username: String!
   role: OrgRole!
+}
+
+type OrgMembersMustBeVerified implements Error {
+  message: String!
+}
+
+type OrgMembersMustBeVerifiedForRole implements Error {
+  message: String!
 }
 
 type OrgProjects {
@@ -402,6 +413,10 @@ type Project {
 }
 
 type ProjectCreatorsMustHaveEmail implements Error {
+  message: String!
+}
+
+type ProjectHasNoManagers implements Error {
   message: String!
 }
 
@@ -546,6 +561,7 @@ type User {
   createdBy: User
   usersICreated: [User!]!
   organizations: [OrgMember!]!
+  featureFlags: [FeatureFlag!]!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -580,13 +596,13 @@ union AddProjectToOrgError = DbError | NotFoundError
 
 union AddProjectsToOrgError = DbError | NotFoundError
 
-union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
+union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectHasNoManagers
 
 union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
-union ChangeOrgMemberRoleError = DbError | NotFoundError
+union ChangeOrgMemberRoleError = DbError | NotFoundError | OrgMembersMustBeVerified | OrgMembersMustBeVerifiedForRole
 
 union ChangeOrgNameError = NotFoundError | DbError | RequiredError
 
@@ -620,7 +636,7 @@ union RemoveProjectFromOrgError = DbError | NotFoundError
 
 union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
-union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
+union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail | OrgMembersMustBeVerified | OrgMembersMustBeVerifiedForRole
 
 union SetProjectConfidentialityError = NotFoundError | DbError
 
@@ -674,7 +690,7 @@ input BulkAddOrgMembersInput {
 }
 
 input BulkAddProjectMembersInput {
-  projectId: UUID
+  projectId: UUID!
   usernames: [String!]!
   role: ProjectRole!
   passwordHash: String!
@@ -709,6 +725,7 @@ input ChangeProjectNameInput {
 
 input ChangeUserAccountByAdminInput {
   role: UserRole!
+  featureFlags: [FeatureFlag!]
   userId: UUID!
   email: String
   name: String!
@@ -728,6 +745,7 @@ input CreateGuestUserByAdminInput {
   locale: String!
   passwordHash: String!
   passwordStrength: Int!
+  orgId: UUID
 }
 
 input CreateOrganizationInput {
@@ -814,6 +832,13 @@ input FLExWsIdFilterInput {
   isDefault: BooleanOperationFilterInput
 }
 
+input FeatureFlagOperationFilterInput {
+  eq: FeatureFlag @cost(weight: "10")
+  neq: FeatureFlag @cost(weight: "10")
+  in: [FeatureFlag!] @cost(weight: "10")
+  nin: [FeatureFlag!] @cost(weight: "10")
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
@@ -852,6 +877,13 @@ input LeaveOrgInput {
 
 input LeaveProjectInput {
   projectId: UUID!
+}
+
+input ListFeatureFlagOperationFilterInput {
+  all: FeatureFlagOperationFilterInput @cost(weight: "10")
+  none: FeatureFlagOperationFilterInput @cost(weight: "10")
+  some: FeatureFlagOperationFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfFLExWsIdFilterInput {
@@ -1127,6 +1159,7 @@ input UserFilterInput {
   createdById: UuidOperationFilterInput
   username: StringOperationFilterInput
   id: UuidOperationFilterInput
+  featureFlags: ListFeatureFlagOperationFilterInput
 }
 
 input UserSortInput {
@@ -1169,6 +1202,10 @@ enum CreateProjectResult {
 enum DbErrorCode {
   UNKNOWN
   DUPLICATE
+}
+
+enum FeatureFlag {
+  FW_LITE_BETA
 }
 
 enum LexboxAudience {

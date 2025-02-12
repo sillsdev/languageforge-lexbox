@@ -25,6 +25,12 @@ public class LexboxProjectService(
         return options.Value.LexboxServers;
     }
 
+    public LexboxServer? GetServer(ProjectData? projectData)
+    {
+        if (projectData is null) return null;
+        return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
+    }
+
     public async Task<LexboxProject[]> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),
@@ -37,7 +43,7 @@ public class LexboxProjectService(
                 {
                     return await httpClient.GetFromJsonAsync<LexboxProject[]>("api/crdt/listProjects") ?? [];
                 }
-                catch (HttpRequestException e)
+                catch (Exception e)
                 {
                     logger.LogError(e, "Error getting lexbox projects");
                     return [];
@@ -58,7 +64,7 @@ public class LexboxProjectService(
         {
             return (await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}"));
         }
-        catch (HttpRequestException e)
+        catch (Exception e)
         {
             logger.LogError(e, "Error getting lexbox project id");
             return null;

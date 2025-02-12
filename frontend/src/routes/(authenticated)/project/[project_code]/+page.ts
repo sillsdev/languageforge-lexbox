@@ -78,6 +78,7 @@ export async function load(event: PageLoadEvent) {
                   localizationCode
                   lastActive
                   canCreateProjects
+                  featureFlags
                   isAdmin
                   emailVerified
                   createdBy {

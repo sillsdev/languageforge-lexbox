@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
+using LexCore;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexData.Entities;
@@ -17,6 +19,15 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
         builder.HasIndex(u => u.Username).IsUnique();
         builder.Property(u => u.Email).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
         builder.HasIndex(u => u.Email).IsUnique();
+        builder.Property(u => u.FeatureFlags)
+            .IsRequired(false)
+            .HasConversion(
+                flags => flags.Select(flag => flag.ToString()).ToList(),
+                strs => (strs == null) ? new List<FeatureFlag>() : strs.Where(flagStr => Enum.IsDefined(typeof(FeatureFlag), flagStr)).Select(Enum.Parse<FeatureFlag>).ToList(),
+                new ValueComparer<List<FeatureFlag>>(
+                    (c1, c2) => (c1 ?? new()).SequenceEqual(c2 ?? new()),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList()));
         builder.HasMany(user => user.Projects)
             .WithOne(projectUser => projectUser.User)
             .HasForeignKey(projectUser => projectUser.UserId)
@@ -60,5 +71,16 @@ public static class UserEntityExtensions
         if (user.CreatedById is null) throw new ProjectMembersMustBeVerified("Member must verify email first");
         // Only project editors (basic role) are allowed not to have verified email addresses
         if (forRole != ProjectRole.Editor) throw new ProjectMembersMustBeVerifiedForRole("Member must verify email before taking on this role", forRole);
+    }
+
+    public static void AssertHasVerifiedEmailForOrgRole(this User user, OrgRole forRole = OrgRole.Unknown)
+    {
+        // Users with verified emails are the most common case, so check that first
+        if (user.Email is not null && user.EmailVerified) return;
+        // Users bulk-created by admins might not have email addresses
+        // Users who self-registered must verify email in all cases
+        if (user.CreatedById is null) throw new OrgMembersMustBeVerified("Member must verify email first");
+        // Only basic Org members are allowed not to have verified email addresses
+        if (forRole != OrgRole.User) throw new OrgMembersMustBeVerifiedForRole("Member must verify email before taking on this role", forRole);
     }
 }

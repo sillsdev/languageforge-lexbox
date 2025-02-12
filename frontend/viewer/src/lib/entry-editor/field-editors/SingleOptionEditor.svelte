@@ -1,12 +1,13 @@
 <script lang="ts">
+  import {makeHasHadValueTracker} from '$lib/utils';
+
   /* eslint-disable @typescript-eslint/no-duplicate-type-constituents, @typescript-eslint/no-redundant-type-constituents */
   import { createEventDispatcher } from 'svelte';
   import MapBind from '../../utils/MapBind.svelte';
 
   import type { WritingSystemSelection } from '../../config-types';
-  import { useCurrentView } from '../../services/view-service';
-  import { pickWritingSystems } from '../../utils';
-  import { useWritingSystems } from '../../writing-systems';
+  import { useCurrentView } from '$lib/views/view-service';
+  import { useWritingSystemService } from '../../writing-system-service';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
 
@@ -38,7 +39,7 @@
     { options: { id: string }[]; } |
     { getOptionId: (value: TOption) => string; }
   ) & (
-    { value: TValue & TOption } |
+    { value: Exclude<TValue, string> } |
     { value: Id; valueIsId: true; } | // we need valueIsId to know what type to return at run time
     { getValueById: (id: Id) => TValue }
   );
@@ -88,16 +89,19 @@
   }
 
   let currentView = useCurrentView();
-  const allWritingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 
-  $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
-  $: empty = !value;
+  $: [ws] = writingSystemService.pickWritingSystems(wsType);
+
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value);
 </script>
 
 {#key options}
   <MapBind bind:in={value} bind:out={valueId} map={getValueId} unmap={getValueById} />
 {/key}
-<div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
+<div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
     <CrdtOptionField on:change={onChange} bind:value={valueId} options={uiOptions} placeholder={ws.abbreviation} {readonly} />

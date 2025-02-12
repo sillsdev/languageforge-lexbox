@@ -1,12 +1,12 @@
-import { browser } from '$app/environment'
-import { redirect, type Cookies } from '@sveltejs/kit'
-import { jwtDecode } from 'jwt-decode'
-import { deleteCookie, getCookie } from './util/cookies'
+import {browser} from '$app/environment';
+import {redirect, type Cookies} from '@sveltejs/kit';
+import {jwtDecode} from 'jwt-decode';
+import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
-import { ensureErrorIsTraced, errorSourceTag } from './otel'
+import {ensureErrorIsTraced, errorSourceTag} from './otel';
 import zxcvbn from 'zxcvbn';
-import { type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole } from './gql/types';
-import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
+import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience, FeatureFlag} from './gql/types';
+import {_createGuestUserByAdmin} from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -24,6 +24,10 @@ type RegisterResponseErrors = {
   }
 }
 
+type ApiLexboxAudience = 'LexboxApi' | 'Unknown';
+
+export const allPossibleFlags = Object.values(FeatureFlag) as FeatureFlag[];
+
 type JwtTokenUser = {
   sub: string
   name: string
@@ -32,10 +36,12 @@ type JwtTokenUser = {
   role: 'admin' | 'user'
   proj?: string,
   orgs?: AuthUserOrg[],
+  feat?: FeatureFlag[],
   lock?: boolean | undefined,
   unver?: boolean | undefined,
   mkproj?: boolean | undefined,
   creat?: boolean | undefined,
+  aud: ApiLexboxAudience,
   loc: string,
 }
 
@@ -49,10 +55,12 @@ export type LexAuthUser = {
   isAdmin: boolean
   projects: AuthUserProject[]
   orgs: AuthUserOrg[]
+  featureFlags: FeatureFlag[]
   locked: boolean
   emailVerified: boolean
   canCreateProjects: boolean
   createdByAdmin: boolean
+  audience: ApiLexboxAudience
   locale: string
 }
 
@@ -120,13 +128,14 @@ export function register(password: string, passwordStrength: number, name: strin
 export function acceptInvitation(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
   return createUser('/api/User/acceptInvitation', password, passwordStrength, name, email, locale, turnstileToken);
 }
-export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string): Promise<RegisterResponse> {
+export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string, orgId?: string): Promise<RegisterResponse> {
   const passwordHash = await hash(password);
   const gqlInput: CreateGuestUserByAdminInput = {
     passwordHash,
     passwordStrength,
     name,
     locale,
+    orgId,
   };
   if (email.includes('@')) {
     gqlInput.email = email;
@@ -152,7 +161,9 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     emailVerified: responseUser.emailVerificationRequired ?? false,
     canCreateProjects: responseUser.canCreateProjects ?? false,
     createdByAdmin: responseUser.createdByAdmin ?? false,
+    featureFlags: responseUser.featureFlags ?? [],
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
+    audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
   }
   return { user }
 }
@@ -176,7 +187,7 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 }
 
 export function jwtToUser(user: JwtTokenUser): LexAuthUser {
-  const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
+  const { sub: id, aud: audience, name, email, user: username, proj: projectsString, role: jwtRole } = user;
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
   if (user.orgs) {
@@ -193,13 +204,20 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     isAdmin: role === UserRole.Admin,
     projects: projectsStringToProjects(projectsString),
     orgs: user.orgs ?? [],
+    featureFlags: user.feat ?? [],
     locked: user.lock === true,
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,
     createdByAdmin: user.creat ?? false,
     locale: user.loc,
+    audience,
     emailOrUsername: (email ?? username) as string,
   }
+}
+
+export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag): boolean {
+  const searchTerm = flag.replaceAll('_', '').toLowerCase();
+  return !!user.featureFlags.find(f => f.toLowerCase() === searchTerm);
 }
 
 function projectsStringToProjects(projectsString: string | undefined): AuthUserProject[] {

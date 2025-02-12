@@ -1,4 +1,6 @@
-﻿using MiniLcm.Attributes;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
@@ -11,7 +13,9 @@ public class Sense : IObjectWithId, IOrderable
     public Guid EntryId { get; set; }
     public virtual MultiString Definition { get; set; } = new();
     public virtual MultiString Gloss { get; set; } = new();
-    public virtual string PartOfSpeech { get; set; } = string.Empty;
+
+    [JsonConverter(typeof(SensePoSConverter))]
+    public virtual PartOfSpeech? PartOfSpeech { get; set; } = null;
     public virtual Guid? PartOfSpeechId { get; set; }
     public virtual IList<SemanticDomain> SemanticDomains { get; set; } = [];
     public virtual List<ExampleSentence> ExampleSentences { get; set; } = [];
@@ -46,5 +50,20 @@ public class Sense : IObjectWithId, IOrderable
             SemanticDomains = [..SemanticDomains],
             ExampleSentences = [..ExampleSentences.Select(s => (ExampleSentence)s.Copy())]
         };
+    }
+}
+
+internal class SensePoSConverter : JsonConverter<PartOfSpeech?>
+{
+    public override PartOfSpeech? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        //PartOfSpeech used to be a string, we can just leave it as null if it's a string since the PartOfSpeechId is what we really care about
+        if (reader.TokenType == JsonTokenType.String) return null;
+        return JsonSerializer.Deserialize<PartOfSpeech>(ref reader, options);
+    }
+
+    public override void Write(Utf8JsonWriter writer, PartOfSpeech? value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value, options);
     }
 }

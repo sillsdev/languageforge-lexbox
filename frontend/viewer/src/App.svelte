@@ -6,14 +6,13 @@
     }
   }
   window.svelteNavigate =  (to: string) => {
-   console.log('svelteNavigate', to);
    navigate(to, {replace: true});
   };
 </script>
 <script lang="ts">
   import {Router, Route} from 'svelte-routing';
   import TestProjectView from './TestProjectView.svelte';
-  import HomeView from './HomeView.svelte';
+  import HomeView from './home/HomeView.svelte';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import Sandbox from './lib/sandbox/Sandbox.svelte';
   import {settings} from 'svelte-ux';
@@ -27,7 +26,7 @@
     components: {
       AppBar: {
         classes: {
-          root: 'max-sm:px-2',
+          root: 'max-md:px-1',
         },
       },
       MenuItem: {
@@ -51,6 +50,17 @@
           content: 'CollapseContent',
           icon: 'CollapseIcon',
         }
+      },
+      Drawer: {
+        classes:
+          '[&.ResponsiveMenu]:rounded-t-xl [&.ResponsiveMenu]:py-2 [&.ResponsiveMenu]:pb-[env(safe-area-inset-bottom)]',
+      },
+      Menu: {
+        classes: {
+          /* these classes prevent a MultiSelectField from having 2 scrollbars when used with `resize` */
+          root: 'flex flex-col',
+          menu: '[&:has(.actions)]:overflow-hidden',
+        }
       }
     },
   });
@@ -66,14 +76,14 @@
     <Route path="/project/:name" let:params>
       <Router {url} basepath="/project/{params.name}">
         {#key params.name}
-          <DotnetProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name} type="crdt"/>
         {/key}
       </Router>
     </Route>
     <Route path="/fwdata/:name" let:params>
       <Router {url} basepath="/fwdata/{params.name}">
         {#key params.name}
-          <DotnetProjectView projectName={params.name}/>
+          <DotnetProjectView projectName={params.name} type="fwdata"/>
         {/key}
       </Router>
     </Route>

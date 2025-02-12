@@ -15,10 +15,10 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     //only works because PopulateProjectDataCache is called first in the request pipeline
     public ProjectData ProjectData => memoryCache.Get<ProjectData>(CacheKey(Project)) ?? throw new InvalidOperationException("Project data not found, call PopulateProjectDataCache first or use GetProjectData");
 
-    public async ValueTask<ProjectData> GetProjectData()
+    public async ValueTask<ProjectData> GetProjectData(bool forceRefresh = false)
     {
         var key = CacheKey(Project);
-        if (!memoryCache.TryGetValue(key, out object? result))
+        if (!memoryCache.TryGetValue(key, out object? result) || forceRefresh)
         {
             result = await DbContext.ProjectData.AsNoTracking().FirstAsync();
             memoryCache.Set(key, result);
@@ -61,6 +61,12 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     {
         _project = project;
     }
+
+    public void ClearProjectContext()
+    {
+        _project = null;
+    }
+
     public async ValueTask<ProjectData> SetupProjectContext(CrdtProject project)
     {
         if (_project != null && project != _project) throw new InvalidOperationException("Can't setup project context for a different project");
@@ -75,14 +81,8 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
 
     public async ValueTask<ProjectData> RefreshProjectData()
     {
-        RemoveProjectDataCache();
-        var projectData = await GetProjectData();
+        var projectData = await GetProjectData(true);
         return projectData;
-    }
-
-    private void RemoveProjectDataCache()
-    {
-        memoryCache.Remove(CacheKey(Project));
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
@@ -101,5 +101,17 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         }
 
         await RefreshProjectData();
+    }
+
+    public async Task UpdateLastUser(string? userName, string? userId)
+    {
+        if (userName is null && userId is null) return;
+        if (userName != ProjectData.LastUserName || userId != ProjectData.LastUserId)
+        {
+            await DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+                .SetProperty(p => p.LastUserName, userName)
+                .SetProperty(p => p.LastUserId, userId));
+            await RefreshProjectData();
+        }
     }
 }

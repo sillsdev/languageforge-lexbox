@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using LcmCrdt;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -67,27 +68,50 @@ public class BackgroundSyncService(
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
         _running = true;
-        var crdtProjects = crdtProjectsService.ListProjects();
-        foreach (var crdtProject in crdtProjects)
-        {
-            await SyncProject(crdtProject);
-        }
+        await SyncAllProjects(stoppingToken);
 
-        await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            //todo, this might not be required, but I can't remember why I added it
-            await Task.Delay(100, stoppingToken);
-            await SyncProject(project);
+            await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
+            {
+                //todo, this might not be required, but I can't remember why I added it
+                await Task.Delay(100, stoppingToken);
+                await SyncProject(project, false, stoppingToken);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected during shutdown
         }
     }
 
-    private async Task<SyncResults> SyncProject(CrdtProject crdtProject)
+    private async Task SyncAllProjects(CancellationToken stoppingToken)
+    {
+        var crdtProjects = crdtProjectsService.ListProjects();
+        foreach (var crdtProject in crdtProjects)
+        {
+            await SyncProject(crdtProject, true, stoppingToken);
+        }
+    }
+
+    private async Task<SyncResults> SyncProject(CrdtProject crdtProject,
+        bool applyMigrations = false,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             await using var serviceScope = serviceProvider.CreateAsyncScope();
-            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
-            var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
+            var services = serviceScope.ServiceProvider;
+            var currentProjectService = services.GetRequiredService<CurrentProjectService>();
+            //not using SetupProjectContext because it will try to fetch project data, which might fail due to missing migrations
+            //we fetch the project data after the migrations
+            currentProjectService.SetupProjectContextForNewDb(crdtProject);
+            if (applyMigrations)
+            {
+                await services.GetRequiredService<LcmCrdtDbContext>().Database.MigrateAsync(cancellationToken);
+            }
+            await currentProjectService.RefreshProjectData();
+            var syncService = services.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }
         catch (Exception e)

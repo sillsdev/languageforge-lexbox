@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using MiniLcm.Models;
 
 namespace MiniLcm.Validators;
@@ -8,10 +9,10 @@ public class SenseValidator : AbstractValidator<Sense>
     public SenseValidator()
     {
         RuleFor(s => s.DeletedAt).Null();
-        RuleFor(s => s.Definition).NoEmptyValues();
-        RuleFor(s => s.Gloss).NoEmptyValues();
-        // RuleFor(s => s.PartOfSpeech).Empty(); // TODO: Comment out if we're not yet ready to move away from strings
-        // RuleFor(s => s.PartOfSpeechId).SetValidator(new IsCanonicalPartOfSpeechGuidValidator()); // Can't do this statelessly, as we'd need a full PartOfSpeech object to check if it's predefined or not
+        RuleFor(s => s.Definition).NoEmptyValues(GetSenseIdentifier);
+        RuleFor(s => s.Gloss).NoEmptyValues(GetSenseIdentifier);
+        RuleFor(s => s.PartOfSpeech!).SetValidator(new PartOfSpeechValidator()).When(s => s.PartOfSpeech is not null);
+        RuleFor(s => s.PartOfSpeechId).Equal(s => s.PartOfSpeech!.Id).When(s => s.PartOfSpeech is not null && s.PartOfSpeechId is not null);
         RuleForEach(s => s.SemanticDomains).SetValidator(new SemanticDomainValidator());
         RuleForEach(s => s.ExampleSentences).SetValidator(sense => new ExampleSentenceValidator(sense));
     }
@@ -20,5 +21,20 @@ public class SenseValidator : AbstractValidator<Sense>
     {
         //it's ok if senses EntryId is an Empty guid
         RuleFor(s => s.EntryId).Equal(entry.Id).When(s => s.EntryId != Guid.Empty).WithMessage(sense => $"Sense (Id: {sense.Id}) EntryId must match Entry {entry.Id}, but instead was {sense.EntryId}");
+    }
+
+    private string GetSenseIdentifier(Sense sense)
+    {
+        var firstGloss = sense.Gloss?.Values?.Values.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(firstGloss))
+        {
+            return sense.Id.ToString("D");
+        }
+        return $"{sense.Gloss} - {sense.Id}";
+    }
+
+    protected override void RaiseValidationException(ValidationContext<Sense> context, ValidationResult result)
+    {
+        throw new ValidationException(GetSenseIdentifier(context.InstanceToValidate), result.Errors, true);
     }
 }

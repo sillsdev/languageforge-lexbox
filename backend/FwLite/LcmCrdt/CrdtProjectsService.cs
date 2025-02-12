@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using MiniLcm.Project;
 
 namespace LcmCrdt;
@@ -26,6 +28,22 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     {
         //todo not sure if we should implement this, it's mostly there for the FwData version
         throw new NotImplementedException();
+    }
+
+    private async Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
+    {
+        if (project.Data is not null) return project.Data;
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        return await currentProjectService.SetupProjectContext(project);
+    }
+
+    public async ValueTask EnsureProjectDataCacheIsLoaded()
+    {
+        var tasks = ListProjects().Where(p => p.Data is null).Select(EnsureProjectDataCacheIsLoaded).ToArray();
+        if (tasks is []) return;
+        await Task.WhenAll(tasks);
     }
 
     public IEnumerable<CrdtProject> ListProjects()
@@ -59,7 +77,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
         bool SeedNewProjectData = false,
         string? Path = null,
-        Guid? FwProjectId = null);
+        Guid? FwProjectId = null,
+        string? AuthenticatedUser = null,
+        string? AuthenticatedUserId = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
@@ -83,7 +103,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             var projectData = new ProjectData(name,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid(), request.FwProjectId);
+                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             if (request.SeedNewProjectData)
@@ -99,9 +119,19 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return crdtProject;
     }
 
+    public async Task DeleteProject(string name)
+    {
+        var project = GetProject(name) ?? throw new InvalidOperationException($"Project {name} not found");
+        await using var serviceScope = provider.CreateAsyncScope();
+        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        currentProjectService.SetupProjectContextForNewDb(project);
+        var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        await db.Database.EnsureDeletedAsync();
+    }
+
     internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
     {
-        await db.Database.EnsureCreatedAsync();
+        await db.Database.MigrateAsync();
         db.ProjectData.Add(data);
         await db.SaveChangesAsync();
     }
@@ -151,6 +181,18 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             {
                 Id = Guid.NewGuid(),
                 Type = WritingSystemType.Vernacular,
+                WsId = "de",
+                Name = "German",
+                Abbreviation = "de",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
                 WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
@@ -166,6 +208,17 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = WritingSystem.LatinExemplars
+            });
+        await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "fr",
+                Name = "French",
+                Abbreviation = "fr",
                 Font = "Arial",
                 Exemplars = WritingSystem.LatinExemplars
             });

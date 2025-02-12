@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "tipdate" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "tipdate" "ldmlzip" "reposizeinkb" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -9,7 +9,7 @@ project_code="${PATH_SEGMENTS[1]}"
 command_name="${PATH_SEGMENTS[2]}"
 
 # Ensure the project code and command name are safe to use in a shell command
-if [[ ! $project_code =~ ^[a-z0-9][a-z0-9-]*$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
+if [[ ! "$project_code" =~ ^[a-z0-9][a-z0-9-]*$ ]] || [[ ! "$command_name" =~ ^[a-zA-Z0-9]+$ ]]; then
     echo "Content-type: text/plain"
     echo "Status: 400 Bad Request"
     echo ""
@@ -38,8 +38,23 @@ if [[ $command_name == "healthz" ]]; then
     exit 0
 fi
 
+if [[ $command_name == "ldmlzip" ]]; then
+    # Preflight check: ldml zip access is only allowed if LexiconSettings.plsx contains addToSldr="true"
+    first_char=$(echo $project_code | cut -c1)
+    if (chg --cwd /var/hg/repos/$first_char/$project_code cat -r tip CachedSettings/SharedSettings/LexiconSettings.plsx | grep '<WritingSystems' | grep 'addToSldr="true"' >/dev/null); then
+        CONTENT_TYPE="application/zip"
+    else
+        echo "Content-type: text/plain"
+        echo "Status: 403 Forbidden"
+        echo ""
+        echo "Forbidden. Project does not allow sharing writing systems with SLDR or project does not exist"
+        exit 1
+    fi
+fi
+
+CONTENT_TYPE="${CONTENT_TYPE:-text/plain}"
 # Start outputting the result right away so the HTTP connection won't be timed out
-echo "Content-type: text/plain"
+echo "Content-type: ${CONTENT_TYPE}"
 echo ""
 
 # Run the hg command, simply output to stdout
@@ -88,6 +103,11 @@ case $command_name in
 
     reposizeinkb)
         du -ks .hg | cut -f1
+        ;;
+
+    ldmlzip)
+        # -p '.' so that resulting zipfiles will *not* have the project name in the file paths
+        chg archive -p '.' -t zip -r tip -I 'CachedSettings/WritingSystemStore/*.ldml' -
         ;;
 
     verify)

@@ -1,10 +1,10 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
-  import { pickWritingSystems } from '../../utils';
   import type {WritingSystemSelection} from '../../config-types';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
-  import {useCurrentView} from '../../services/view-service';
-  import {useWritingSystems} from '../../writing-systems';
+  import {useCurrentView} from '$lib/views/view-service';
+  import {useWritingSystemService} from '../../writing-system-service';
+  import {makeHasHadValueTracker} from '$lib/utils';
 
   export let id: string;
   export let name: string | undefined = undefined;
@@ -13,13 +13,16 @@
   export let readonly: boolean;
   let currentView = useCurrentView();
 
-  const allWritingSystems = useWritingSystems();
+  const writingSystemService = useWritingSystemService();
 
-  $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
-  $: empty = !value;
+  $: [ws] = writingSystemService.pickWritingSystems(wsType);
+
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value);
 </script>
 
-<div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
+<div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle id={id} {name}/>
   <div class="fields">
     <CrdtTextField on:change bind:value placeholder={ws.abbreviation} {readonly} />

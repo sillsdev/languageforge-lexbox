@@ -4,6 +4,8 @@
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ClientId (Guid) Required
       FwProjectId (Guid?)
+      LastUserId (string)
+      LastUserName (string)
       Name (string) Required
       OriginDomain (string)
     Keys: 
@@ -202,21 +204,23 @@
         Annotations: 
           Relational:ColumnType: jsonb
       Order (double) Required
-      PartOfSpeech (string) Required
-      PartOfSpeechId (Guid?)
+      PartOfSpeechId (Guid?) FK Index
       SemanticDomains (IList<SemanticDomain>) Required
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
       ExampleSentences (List<ExampleSentence>) Collection ToDependent ExampleSentence
+      PartOfSpeech (PartOfSpeech) ToPrincipal PartOfSpeech
     Keys: 
       Id PK
     Foreign keys: 
       Sense {'EntryId'} -> Entry {'Id'} Required Cascade ToDependent: Senses
+      Sense {'PartOfSpeechId'} -> PartOfSpeech {'Id'} ClientSetNull ToPrincipal: PartOfSpeech
       Sense {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       EntryId
+      PartOfSpeechId
       SnapshotId Unique
     Annotations: 
       DiscriminatorProperty: 

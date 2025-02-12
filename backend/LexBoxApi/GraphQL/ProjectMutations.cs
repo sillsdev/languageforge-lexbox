@@ -134,18 +134,16 @@ public class ProjectMutations
     [Error<NotFoundException>]
     [Error<InvalidEmailException>]
     [Error<DbError>]
-    [AdminRequired]
     [UseMutationConvention]
     public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
+        IPermissionService permissionService,
         LoggedInContext loggedInContext,
         BulkAddProjectMembersInput input,
         LexBoxDbContext dbContext)
     {
-        if (input.ProjectId.HasValue)
-        {
-            var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId.Value);
-            if (!projectExists) throw new NotFoundException("Project not found", "project");
-        }
+        await permissionService.AssertCanCreateGuestUserInProject(input.ProjectId);
+        var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId);
+        if (!projectExists) throw new NotFoundException("Project not found", "project");
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
         List<UserProjectRole> ExistingMembers = [];
@@ -176,13 +174,10 @@ public class ProjectMutations
                     CanCreateProjects = false
                 };
                 CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
-                if (input.ProjectId.HasValue)
-                {
-                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId.Value, UserId = user.Id });
-                }
+                user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 dbContext.Add(user);
             }
-            else if (input.ProjectId.HasValue)
+            else
             {
                 var userProject = user.Projects.FirstOrDefault(p => p.ProjectId == input.ProjectId);
                 if (userProject is not null)
@@ -193,13 +188,8 @@ public class ProjectMutations
                 {
                     AddedMembers.Add(new UserProjectRole(user.Username ?? user.Email!, input.Role));
                     // Not yet a member, so add a membership. We don't want to touch existing memberships, which might have other roles
-                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId.Value, UserId = user.Id });
+                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 }
-            }
-            else
-            {
-                // No project ID specified, user already exists. This is probably part of bulk-adding through the admin dashboard or org page.
-                ExistingMembers.Add(new UserProjectRole(user.Username ?? user.Email!, ProjectRole.Unknown));
             }
         }
         await dbContext.SaveChangesAsync();
@@ -240,6 +230,7 @@ public class ProjectMutations
     [Error<DbError>]
     [Error<ProjectMembersMustBeVerified>]
     [Error<ProjectMembersMustBeVerifiedForRole>]
+    [Error<ProjectHasNoManagers>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -264,11 +255,14 @@ public class ProjectMutations
         NotFoundException.ThrowIfNull(project);
 
         var managers = project.Users.Where(u => u.Role == ProjectRole.Manager);
+        var emailsSent = 0;
         foreach (var manager in managers)
         {
             if (manager.User is null) continue;
             await emailService.SendJoinProjectRequestEmail(manager.User, user, project);
+            emailsSent++;
         }
+        if (emailsSent == 0) throw new ProjectHasNoManagers(project.Code);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 

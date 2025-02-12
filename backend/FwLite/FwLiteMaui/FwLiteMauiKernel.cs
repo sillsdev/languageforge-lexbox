@@ -1,13 +1,16 @@
 using System.Diagnostics;
 using System.Reflection;
+using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
+using SIL.Harmony;
 
 namespace FwLiteMaui;
 
@@ -17,31 +20,44 @@ public static class FwLiteMauiKernel
         ConfigurationManager configuration,
         ILoggingBuilder logging)
     {
-        services.AddSingleton<MainPage>();
+        services.AddTransient<MainPage>();
         configuration.AddJsonFile("appsettings.json", optional: true);
-
-        services.Configure<AuthConfig>(config =>
-            config.LexboxServers =
-            [
-                new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
-                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
-            ]);
 
         string environment = "Production";
 #if DEBUG
         environment = "Development";
-        services.AddBlazorWebViewDeveloperTools();
 #endif
-        var env = new HostingEnvironment() { EnvironmentName = environment };
+        IHostEnvironment env = new HostingEnvironment() { EnvironmentName = environment };
         services.AddSingleton<IHostEnvironment>(env);
-        services.AddFwLiteShared(env);
         services.AddMauiBlazorWebView();
+        services.AddBlazorWebViewDeveloperTools();
+        //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
+        services.AddFwLiteShared(env);
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
+        services.Configure<AuthConfig>(config =>
+        {
+            List<LexboxServer> servers =
+            [
+                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
+            ];
+            if (env.IsDevelopment())
+            {
+                servers.Add(new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"));
+            }
+
+            config.LexboxServers = servers.ToArray();
+            config.AfterLoginWebView = () =>
+            {
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window is not null) Application.Current?.ActivateWindow(window);
+            };
+        });
 #if INCLUDE_FWDATA_BRIDGE
         //need to call them like this otherwise we need a using statement at the top of the file
         FwDataMiniLcmBridge.FwDataBridgeKernel.AddFwDataBridge(services);
         FwLiteProjectSync.FwLiteProjectSyncKernel.AddFwLiteProjectSync(services);
+        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
 #endif
 #if WINDOWS
         services.AddFwLiteWindows(env);
@@ -49,11 +65,7 @@ public static class FwLiteMauiKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
 #endif
-        services.Configure<AuthConfig>(config => config.AfterLoginWebView = () =>
-        {
-            var window = Application.Current?.Windows.FirstOrDefault();
-            if (window is not null) Application.Current?.ActivateWindow(window);
-        });
+
         services.Configure<FwLiteConfig>(config =>
         {
             config.AppVersion = AppVersion.Version;
@@ -79,12 +91,10 @@ public static class FwLiteMauiKernel
             }
         });
 
-        var defaultDataPath = IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
-        //when launching from a notification, the current directory may be C:\Windows\System32, so we'll use the path of the executable instead
-        if (defaultDataPath.StartsWith("C:\\Windows\\System32", StringComparison.OrdinalIgnoreCase))
-            defaultDataPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName ?? Assembly.GetExecutingAssembly().Location) ?? ".";
-        var baseDataPath = Path.GetFullPath(configuration.GetSection("FwLiteMaui").GetValue<string>("BaseDataDir") ??
-                                            defaultDataPath);
+
+        services.AddOptions<FwLiteMauiConfig>().BindConfiguration("FwLiteMaui");
+        var fwLiteMauiConfig = configuration.GetSection("FwLiteMaui").Get<FwLiteMauiConfig>() ?? new();
+        var baseDataPath = fwLiteMauiConfig.BaseDataDir;
         logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);
         logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);
         Directory.CreateDirectory(baseDataPath);
@@ -94,14 +104,20 @@ public static class FwLiteMauiKernel
         });
         services.Configure<AuthConfig>(config =>
         {
-            config.CacheFileName = Path.Combine(baseDataPath, "msal.cache");
+            config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
         });
+        services.Configure<CrdtConfig>(config =>
+        {
+            config.FailedSyncOutputPath = Path.Combine(baseDataPath, "failedSyncs");
+            config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");
+        });
 
-        logging.AddFile(Path.Combine(baseDataPath, "app.log"));
+        logging.AddFile(fwLiteMauiConfig.AppLogFilePath);
         services.AddSingleton<IPreferences>(Preferences.Default);
         services.AddSingleton<IVersionTracking>(VersionTracking.Default);
         services.AddSingleton<IConnectivity>(Connectivity.Current);
+        services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();

@@ -136,9 +136,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
-    public Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public async Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        throw new NotImplementedException();
+        var writingSystems = await GetWritingSystems();
+        return type switch
+        {
+            WritingSystemType.Vernacular => writingSystems.Vernacular.FirstOrDefault(ws => ws.WsId == id),
+            WritingSystemType.Analysis => writingSystems.Analysis.FirstOrDefault(ws => ws.WsId == id),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        } ?? throw new NullReferenceException($"unable to find writing system with id {id}");
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -208,13 +214,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Revert WritingSystem",
             async () =>
             {
-                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem, this)
+                var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem)
                 {
                     Id = Guid.Empty,
                     Type = type,
                 };
                 update.Apply(updateProxy);
-                updateProxy.CommitUpdate(Cache);
             });
         return await GetWritingSystem(id, type);
     }
@@ -304,7 +309,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
-            Code = semanticDomain.Abbreviation.UiString ?? "",
+            Code = GetSemanticDomainCode(semanticDomain),
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -314,7 +319,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return
             SemanticDomainRepository
             .AllInstances()
-            .OrderBy(p => p.Abbreviation.UiString)
+            .OrderBy(GetSemanticDomainCode)
             .ToAsyncEnumerable()
             .Select(FromLcmSemanticDomain);
     }
@@ -323,6 +328,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var semDom = GetLcmSemanticDomain(id);
         return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
+    }
+
+    private string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
+    {
+        var abbr = semanticDomain.Abbreviation;
+        // UiString can be null even though there is an abbreviation available
+        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
@@ -473,30 +485,45 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     private Entry FromLexEntry(ILexEntry entry)
     {
-        return new Entry
+        try
         {
-            Id = entry.Guid,
-            Note = FromLcmMultiString(entry.Comment),
-            LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
-            CitationForm = FromLcmMultiString(entry.CitationForm),
-            LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
-            Senses = entry.AllSenses.Select(FromLexSense).ToList(),
-            ComplexFormTypes = ToComplexFormTypes(entry),
-            Components = ToComplexFormComponents(entry).ToList(),
-            ComplexForms = [
-                ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
-                ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
-            ]
-        };
+            return new Entry
+            {
+                Id = entry.Guid,
+                Note = FromLcmMultiString(entry.Comment),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                CitationForm = FromLcmMultiString(entry.CitationForm),
+                LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
+                Senses = entry.AllSenses.Select(FromLexSense).ToList(),
+                ComplexFormTypes = ToComplexFormTypes(entry),
+                Components = ToComplexFormComponents(entry).ToList(),
+                ComplexForms = [
+                    ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
+                    ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
+                ]
+            };
+        }
+        catch (Exception e)
+        {
+            var headword = LexEntryHeadword(entry);
+            throw new InvalidOperationException($"Failed to map FW entry to MiniLCM entry '{headword}' ({entry.Guid})", e);
+        }
     }
 
     private string LexEntryHeadword(ILexEntry entry)
     {
-        return new Entry()
+        try
         {
-            LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
-            CitationForm = FromLcmMultiString(entry.CitationForm),
-        }.Headword();
+            return new Entry()
+            {
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                CitationForm = FromLcmMultiString(entry.CitationForm),
+            }.Headword();
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException($"Failed to get headword for FW entry {entry.Guid}", e);
+        }
     }
 
     private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
@@ -568,14 +595,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private Sense FromLexSense(ILexSense sense)
     {
         var enWs = GetWritingSystemHandle("en");
+        var pos = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech();
         var s =  new Sense
         {
             Id = sense.Guid,
             EntryId = sense.Entry.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
-            PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
+            PartOfSpeech = pos is null ? null : FromLcmPartOfSpeech(pos),
+            PartOfSpeechId = pos?.Guid,
             SemanticDomains = sense.SemanticDomainsRC.Select(FromLcmSemanticDomain).ToList(),
             ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
         };
@@ -887,8 +915,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var lexSense = LexSenseFactory.Create(sense.Id);
         InsertSense(lexEntry, lexSense, between);
         var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
-        if (sense.PartOfSpeechId.HasValue && PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos))
+        if (sense.PartOfSpeechId.HasValue)
         {
+            var found = PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos);
+            if (!found) throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
             msa.MainPOS = pos;
         }
         lexSense.SandboxMSA = msa;

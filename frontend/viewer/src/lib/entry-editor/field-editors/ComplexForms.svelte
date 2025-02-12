@@ -1,13 +1,14 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
-  import { useCurrentView } from '$lib/services/view-service';
+  import { useCurrentView } from '$lib/views/view-service';
   import EntryOrSensePicker, { type EntrySenseSelection } from '../EntryOrSensePicker.svelte';
-  import { headword, randomId } from '$lib/utils';
+  import { makeHasHadValueTracker, randomId } from '$lib/utils';
   import { createEventDispatcher } from 'svelte';
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
   import type { IEntry, IComplexFormComponent } from '$lib/dotnet-types';
+  import {useWritingSystemService} from '$lib/writing-system-service';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };
@@ -19,8 +20,11 @@
   export let readonly: boolean;
   export let entry: IEntry;
   let currentView = useCurrentView();
+  let writingSystemService = useWritingSystemService();
 
-  $: empty = !value?.length;
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value?.length);
 
   let openPicker = false;
 
@@ -28,9 +32,9 @@
     const complexForm: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: selection.entry.id,
-      complexFormHeadword: headword(selection.entry),
+      complexFormHeadword: writingSystemService.headword(selection.entry),
       componentEntryId: entry.id,
-      componentHeadword: headword(entry),
+      componentHeadword: writingSystemService.headword(entry),
     };
     value = [...value, complexForm];
     dispatch('change', { value });
@@ -46,7 +50,7 @@
 
 <div
   class="complex-forms-field field"
-  class:empty
+  class:unused={!$hasHadValue}
   class:hidden={!$currentView.fields[id].show}
   style:grid-area={id}
 >

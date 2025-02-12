@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using LcmCrdt;
 using LexCore.Utils;
@@ -15,50 +16,50 @@ using MiniLcm.Project;
 namespace FwLiteShared.Services;
 
 public class FwLiteProvider(
-    CombinedProjectsService projectService,
-    AuthService authService,
-    ImportFwdataService importFwdataService,
-    CrdtProjectsService crdtProjectsService,
-    LexboxProjectService lexboxProjectService,
-    ChangeEventBus changeEventBus,
-    IEnumerable<IProjectProvider> projectProviders,
     ILogger<FwLiteProvider> logger,
     IOptions<FwLiteConfig> config,
-    ILoggerFactory loggerFactory
-) : IDisposable
+    IServiceProvider services
+)
 {
     public const string OverrideServiceFunctionName = "setOverrideService";
-    private readonly List<IDisposable> _disposables = [];
-    private readonly MiniLcmApiProvider _miniLcmApiProvider = new(loggerFactory.CreateLogger<MiniLcmApiProvider>());
 
-    private IProjectProvider? FwDataProjectProvider =>
-        projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
+    public static readonly DotnetService[] ExportedServices =
+    [
+        DotnetService.CombinedProjectsService,
+        DotnetService.AuthService,
+        DotnetService.ImportFwdataService,
+        DotnetService.FwLiteConfig,
+        DotnetService.TestingService,
+        DotnetService.AppLauncher,
+        DotnetService.TroubleshootingService,
+        DotnetService.MultiWindowService,
+        DotnetService.JsEventListener,
+    ];
 
-    public void Dispose()
+    public static Type GetServiceType(DotnetService service) => service switch
     {
-        foreach (var disposable in _disposables)
-        {
-            disposable.Dispose();
-        }
-    }
+        DotnetService.MiniLcmApi => typeof(IMiniLcmApi),
+        DotnetService.CombinedProjectsService => typeof(CombinedProjectsService),
+        DotnetService.AuthService => typeof(AuthService),
+        DotnetService.ImportFwdataService => typeof(ImportFwdataService),
+        DotnetService.FwLiteConfig => typeof(FwLiteConfig),
+        DotnetService.ProjectServicesProvider => typeof(ProjectServicesProvider),
+        DotnetService.HistoryService => typeof(HistoryServiceJsInvokable),
+        DotnetService.AppLauncher => typeof(IAppLauncher),
+        DotnetService.TroubleshootingService => typeof(ITroubleshootingService),
+        DotnetService.TestingService => typeof(TestingService),
+        DotnetService.MultiWindowService => typeof(IMultiWindowService),
+        DotnetService.JsEventListener => typeof(JsEventListener),
+        _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
+    };
 
     public Dictionary<DotnetService, object> GetServices()
     {
-        return Enum.GetValues<DotnetService>().Where(s => s != DotnetService.MiniLcmApi)
-            .ToDictionary(s => s, GetService);
-    }
-
-    public object GetService(DotnetService service)
-    {
-        return service switch
-        {
-            DotnetService.CombinedProjectsService => projectService,
-            DotnetService.AuthService => authService,
-            DotnetService.ImportFwdataService => importFwdataService,
-            DotnetService.FwLiteConfig => config.Value,
-            DotnetService.MiniLcmApiProvider => _miniLcmApiProvider,
-            _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
-        };
+        var result = ExportedServices.Select(s => (key: s, service: services.GetService(GetServiceType(s))))
+            .Where(t => t.service is not null)
+            .ToDictionary(s => s.key, s => s.service);
+        result[DotnetService.FwLiteConfig] = config.Value;
+        return result!;
     }
 
     public async Task<IDisposable?> SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
@@ -87,114 +88,22 @@ public class FwLiteProvider(
             _ => true
         };
     }
-
-    public async Task<IAsyncDisposable> InjectCrdtProject(IJSRuntime jsRuntime,
-        IServiceProvider scopedServices,
-        string projectName)
-    {
-        var project = crdtProjectsService.GetProject(projectName) ?? throw new InvalidOperationException($"Crdt Project {projectName} not found");
-        var projectData = await scopedServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
-        await lexboxProjectService.ListenForProjectChanges(projectData, CancellationToken.None);
-        var entryUpdatedSubscription = changeEventBus.OnProjectEntryUpdated(project).Subscribe(entry =>
-        {
-            _ = jsRuntime.DurableInvokeVoidAsync("notifyEntryUpdated", projectName, entry);
-        });
-        var cleanup = ProvideMiniLcmApi(ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project));
-
-        return Defer.Async(() =>
-        {
-            cleanup.Dispose();
-            entryUpdatedSubscription.Dispose();
-            return Task.CompletedTask;
-        });
-    }
-
-    public IAsyncDisposable InjectFwDataProject(IServiceProvider scopedServices, string projectName)
-    {
-        if (FwDataProjectProvider is null) throw new InvalidOperationException("FwData Project provider is not available");
-        var project = FwDataProjectProvider.GetProject(projectName) ?? throw new InvalidOperationException($"FwData Project {projectName} not found");
-        var service = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
-            FwDataProjectProvider.OpenProject(project), project);
-        var cleanup = ProvideMiniLcmApi(service);
-        return Defer.Async(() =>
-        {
-            cleanup.Dispose();
-            service.Dispose();
-            return Task.CompletedTask;
-        });
-    }
-
-    private IDisposable ProvideMiniLcmApi(MiniLcmJsInvokable miniLcmApi)
-    {
-        var reference = DotNetObjectReference.Create(miniLcmApi);
-        var cleanup = _miniLcmApiProvider.SetMiniLcmApi(reference);
-        return Defer.Action(() =>
-        {
-            reference.Dispose();
-            cleanup.Dispose();
-        });
-    }
 }
 
-/// <summary>
-/// this service is used to allow the frontend to await the api being setup by the backend, this means the frontend doesn't need to poll for the api being ready
-/// </summary>
-internal class MiniLcmApiProvider(ILogger<MiniLcmApiProvider> logger)
-{
-    private TaskCompletionSource<DotNetObjectReference<MiniLcmJsInvokable>> _tcs = new();
-
-    [JSInvokable]
-    public async Task<DotNetObjectReference<MiniLcmJsInvokable>> GetMiniLcmApi()
-    {
-#pragma warning disable VSTHRD003
-        return await _tcs.Task;
-#pragma warning restore VSTHRD003
-    }
-
-    public IDisposable SetMiniLcmApi(DotNetObjectReference<MiniLcmJsInvokable> miniLcmApi)
-    {
-        logger.LogInformation("Setting MiniLcmApi");
-        _tcs.SetResult(miniLcmApi);
-        var currentTask = _tcs.Task;
-        return Defer.Action(() =>
-        {
-            //if the tcs has been reset, then we don't want to clear it again
-            if (_tcs.Task == currentTask)
-            {
-                ClearMiniLcmApi();
-            }
-        });
-    }
-
-    [JSInvokable]
-    public void ClearMiniLcmApi()
-    {
-        logger.LogInformation("Clearing MiniLcmApi");
-        //we can't cancel a tcs if it's already completed
-        if (!_tcs.Task.IsCompleted)
-        {
-            //we need to tell any clients awaiting the tcs it's canceled. otherwise they will hang
-            _tcs.SetCanceled();
-        }
-        else if (_tcs.Task.IsCompletedSuccessfully)
-        {
-#pragma warning disable VSTHRD002
-            _tcs.Task.Result.Value.Dispose();
-#pragma warning restore VSTHRD002
-        }
-
-        //create a new tcs so any new clients will await the new api.
-        _tcs = new();
-    }
-}
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DotnetService
 {
     MiniLcmApi,
-    MiniLcmApiProvider,
     CombinedProjectsService,
     AuthService,
     ImportFwdataService,
     FwLiteConfig,
+    ProjectServicesProvider,
+    HistoryService,
+    AppLauncher,
+    TroubleshootingService,
+    TestingService,
+    MultiWindowService,
+    JsEventListener
 }

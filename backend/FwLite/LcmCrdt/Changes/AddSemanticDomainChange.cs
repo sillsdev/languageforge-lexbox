@@ -1,4 +1,5 @@
 ﻿using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -8,7 +9,7 @@ public class AddSemanticDomainChange(SemanticDomain semanticDomain, Guid entityI
 {
     public SemanticDomain SemanticDomain { get; } = semanticDomain;
 
-    public override async ValueTask ApplyChange(Sense entity, ChangeContext context)
+    public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
         if (await context.IsObjectDeleted(SemanticDomain.Id))
         {

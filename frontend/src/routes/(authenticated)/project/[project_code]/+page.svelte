@@ -56,6 +56,8 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
   import CrdtSyncButton from './CrdtSyncButton.svelte';
+  import {_askToJoinProject} from '../create/+page'; // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
+  import {Duration} from '$lib/util/time';
 
   export let data: PageData;
   $: user = data.user;
@@ -142,6 +144,11 @@
     || projectRole == ProjectRole.Manager
     || projectRole && !project.isConfidential // public by default for members (non-members shouldn't even be here)
     || orgRoles.some(role => role === OrgRole.Admin);
+
+  // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
+  $: canAskToJoinProject = !user.isAdmin
+    && !projectRole
+    && orgRoles.some((_) => true);
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
@@ -271,6 +278,19 @@
     }
   }
 
+  let askLoading = false;
+  async function askToJoinProject(projectId: string, projectName: string): Promise<void> {
+    askLoading = true;
+    const joinResult = await _askToJoinProject(projectId);
+    askLoading = false;
+    if (!joinResult.error) {
+      notifySuccess($t('project.create.join_request_sent', { projectName }), Duration.Persistent);
+    }
+    if (joinResult.error?.byType('ProjectHasNoManagers')) {
+      notifyWarning($t('project.create.join_request_error_no_managers', { projectName }), Duration.Persistent);
+    }
+  }
+
   let projectConfidentialityModal: ProjectConfidentialityModal;
   let openInFlexModal: OpenInFlexModal;
   let leaveModal: ConfirmModal;
@@ -316,6 +336,17 @@
         <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
+      {:else if canAskToJoinProject}
+        <Button
+          variant="btn-primary"
+          loading={askLoading}
+          on:click={() => askToJoinProject(project.id, project.name)}
+        >
+          {#if !askLoading}
+            <span class="i-mdi-email text-2xl"></span>
+          {/if}
+          {$t('project_page.join_project.label')}
+        </Button>
       {:else}
         <Dropdown>
           <button class="btn btn-primary">

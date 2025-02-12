@@ -763,6 +763,9 @@ namespace LexData.Migrations
                     b.Property<bool>("EmailVerified")
                         .HasColumnType("boolean");
 
+                    b.Property<List<string>>("FeatureFlags")
+                        .HasColumnType("text[]");
+
                     b.Property<string>("GoogleId")
                         .HasColumnType("text");
 

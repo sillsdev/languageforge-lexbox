@@ -6,6 +6,7 @@
 
         <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
         <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+        <LangVersion>preview</LangVersion>
 
 		<!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
@@ -31,7 +32,7 @@
 		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.sil.FwLiteMaui</ApplicationId>
+		<ApplicationId>org.sil.FwLiteMaui</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -56,14 +57,27 @@
         <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
+    </PropertyGroup>
 
 	<ItemGroup>
 		<!-- App Icon -->
-        <!--        background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
-        <MauiIcon Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
+        <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
+        <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'"
+            Include="Resources\AppIcon\logo_light.svg"
+            Color="#1c4e80" />
+
+		<MauiIcon Condition="'$(TargetPlatform)' == 'android'"
+            Include="Resources\AppIcon\logo_background.svg"
+            ForegroundFile="Resources\AppIcon\logo_light_padding.svg"
+            ForegroundScale="0.8" />
+
+        <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'"
+            Include="Resources\AppIcon\logo_light.svg" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#152747" BaseSize="512,512" />
+		<MauiSplashScreen Include="Resources\AppIcon\logo_light_padding.svg" Color="#1c4e80" BaseSize="512,512" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />

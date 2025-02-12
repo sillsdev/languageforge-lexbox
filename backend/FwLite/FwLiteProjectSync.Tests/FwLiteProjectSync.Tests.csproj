@@ -16,7 +16,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1"/>
         <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
         <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
         <PackageReference Include="xunit" Version="2.9.2" />
@@ -24,7 +24,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1"/>
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
         <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.*" />
     </ItemGroup>

@@ -7,11 +7,16 @@ public static class QueryHelpers
         entry.Senses.ApplySortOrder();
         foreach (var sense in entry.Senses)
         {
-            sense.ExampleSentences.ApplySortOrder();
+            sense.ApplySortOrder();
         }
     }
 
-    public static void ApplySortOrder<T>(this List<T> items) where T : IOrderable
+    public static void ApplySortOrder(this Sense sense)
+    {
+        sense.ExampleSentences.ApplySortOrder();
+    }
+
+    private static void ApplySortOrder<T>(this List<T> items) where T : IOrderable
     {
         items.Sort((x, y) =>
         {

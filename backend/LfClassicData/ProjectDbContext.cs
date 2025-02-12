@@ -29,4 +29,18 @@ public class ProjectDbContext
         if (result is null) return [];
         return [..result.Items];
     }
+
+    public async Task<OptionListItem?> GetOptionListItemByKey(string projectCode, string listCode, string key)
+    {
+        var collection = GetCollection<OptionListRecord>(projectCode, "optionlists");
+        var result = await collection.Find(e => e.Code == listCode).FirstOrDefaultAsync();
+        return result.Items.Find(item => item.Key == key);
+    }
+
+    public async Task<OptionListItem?> GetOptionListItemByGuid(string projectCode, string listCode, Guid guid)
+    {
+        var collection = GetCollection<OptionListRecord>(projectCode, "optionlists");
+        var result = await collection.Find(e => e.Code == listCode).FirstOrDefaultAsync();
+        return result.Items.Find(item => item.Guid == guid);
+    }
 }

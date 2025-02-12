@@ -1,5 +1,9 @@
 .field {
-    @apply grid grid-cols-subgrid items-center mb-4;
+    @apply grid grid-cols-subgrid items-center;
+
+    &:not(:last-child) {
+      @apply mb-4;
+    }
 
     &.multi-field {
       @apply items-baseline;
@@ -21,7 +25,7 @@
     }
 
     .item-list-field {
-      @apply col-span-2 pl-4;
+      grid-column-start: 3;
     }
 
     &.TextField, .TextField {
