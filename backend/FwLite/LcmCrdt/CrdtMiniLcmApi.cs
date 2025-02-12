@@ -333,11 +333,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
             .ThenBy(e => e.Id);
         queryable = options.ApplyPaging(queryable);
-        var sortCompareInfo = cultureProvider.GetCompareInfo(sortWs);
+        var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+            .AsComplexFormComparer();
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
-            entry.ApplySortOrder(sortCompareInfo);
+            entry.ApplySortOrder(complexFormComparer);
             yield return entry;
         }
     }
@@ -355,8 +356,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (entry is not null)
         {
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
-            var sortCompareInfo = cultureProvider.GetCompareInfo(sortWs);
-            entry.ApplySortOrder(sortCompareInfo);
+            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+                .AsComplexFormComparer();
+            entry.ApplySortOrder(complexFormComparer);
         }
         return entry;
     }
