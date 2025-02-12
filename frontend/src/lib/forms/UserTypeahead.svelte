@@ -6,6 +6,8 @@
   import { writable } from 'svelte/store';
   import { createEventDispatcher } from 'svelte';
 
+  type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
+
   export let label: string;
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFormId();
@@ -15,33 +17,39 @@
   export let isAdmin: boolean = false;
   export let exclude: string[] = [];
 
-  const input = writable('');
-  $: $input = value;
-  const typeaheadResults = deriveAsync(
-    input,
-    isAdmin ? _userTypeaheadSearch : _usersTypeaheadSearch,
+  function typeaheadSearch(): Promise<UserTypeaheadResult[]> {
+    return isAdmin ? _userTypeaheadSearch(value) : _usersTypeaheadSearch(value);
+  }
+
+  // making this explicit allows us to only react to input events,
+  // rather than programmatic changes like selecting a user
+  let trigger = writable(0);
+  const _typeaheadResults = deriveAsync(
+    trigger,
+    typeaheadSearch,
     [],
     debounceMs);
 
-  $: filteredResults = $typeaheadResults.filter(user => !exclude.includes(user.id));
+  $: typeaheadResults = $_typeaheadResults;
+  $: filteredResults = typeaheadResults.filter(user => !exclude.includes(user.id));
 
   const dispatch = createEventDispatcher<{
-      selectedUserChange: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null;
+      selectedUserChange: UserTypeaheadResult | null;
   }>();
 
-  let selectedUser = writable<SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null>(null);
+  let selectedUser = writable<UserTypeaheadResult | null>(null);
   $: dispatch('selectedUserChange', $selectedUser);
 
-  function selectUser(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): void {
+  function selectUser(user: UserTypeaheadResult): void {
     $selectedUser = user;
-    $input = value = getInputValue(user);
+    value = getInputValue(user);
   }
 
   $: if ($selectedUser && value !== getInputValue($selectedUser)) {
     $selectedUser = null;
   }
 
-  function formatResult(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
+  function formatResult(user: UserTypeaheadResult): string {
     const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
                 : 'username' in user && user.username ? ` (${user.username})`
                 : 'email' in user && user.email ? ` (${user.email})`
@@ -49,7 +57,7 @@
     return `${user.name}${extra}`;
   }
 
-  function getInputValue(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult): string {
+  function getInputValue(user: UserTypeaheadResult): string {
     if ('email' in user && user.email) return user.email;
     if ('username' in user && user.username) return user.username;
     if ('name' in user && user.name) return user.name;
@@ -89,11 +97,18 @@
     }
   }
 
+  function onOverlayOpen(e: CustomEvent): void {
+    typeaheadOpen = e.detail;
+    if (!typeaheadOpen) {
+      // eslint-disable-next-line svelte/no-reactive-reassign
+      typeaheadResults = []; // prevent old results showing when opening next time
+    }
+  }
 </script>
 
-<FormField {id} {label} {error} {autofocus} >
+<FormField {id} {label} {error} {autofocus}>
   <div use:overlay={{ closeClickSelector: '.menu li'}}
-    on:overlayOpen={(e) => typeaheadOpen = e.detail}>
+    on:overlayOpen={onOverlayOpen}>
     <PlainInput
       style="w-full"
       bind:value {id}
@@ -101,6 +116,7 @@
       autocomplete="off"
       {autofocus}
       {keydownHandler}
+      on:input={() => $trigger++}
     />
     <div class="overlay-content">
       <ul class="menu p-0">
