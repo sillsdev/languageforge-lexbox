@@ -16,7 +16,7 @@
   export let isAdmin: boolean = false;
   export let exclude: string[] = [];
 
-  let input = writable('');
+  const input = writable('');
   $: $input = value;
   let typeaheadResults = deriveAsync(
     input,
@@ -58,24 +58,34 @@
     return '';
   }
 
-  let highlightIdx = -1;
-  typeaheadResults.subscribe(() => { highlightIdx = 0; });
-  function keydownHandler(event: KeyboardEvent)
+  let highlightIdx: number | undefined = undefined;
+  let typeaheadOpen = false;
+  $: {
+    if (typeaheadOpen) {
+      highlightIdx ??= filteredResults.length ? 0 : undefined;
+    } else {
+      highlightIdx = undefined;
+    }
+  }
+  function keydownHandler(event: KeyboardEvent): void
   {
+    if (!typeaheadOpen) return;
+    if (!filteredResults.length) return;
+    if (highlightIdx === undefined) return;
+
+    const max = filteredResults.length - 1;
+
     switch (event.key) {
       case 'ArrowDown':
-        if (filteredResults && filteredResults.length > highlightIdx && highlightIdx >= 0) highlightIdx++;
+        highlightIdx = Math.min(max, highlightIdx + 1);
         event.preventDefault();
         break;
       case 'ArrowUp':
-        if (filteredResults && filteredResults.length && highlightIdx > 0) highlightIdx--;
+        highlightIdx = Math.max(0, highlightIdx - 1);
         event.preventDefault();
         break;
       case 'Enter':
-        if (filteredResults && filteredResults.length > highlightIdx && 0 <= highlightIdx) {
-          const user = filteredResults[highlightIdx];
-          selectUser(user);
-        }
+        selectUser(filteredResults[highlightIdx]);
         event.preventDefault();
         break;
     }
@@ -84,7 +94,8 @@
 </script>
 
 <FormField {id} {label} {error} {autofocus} >
-  <div use:overlay={{ closeClickSelector: '.menu li'}}>
+  <div use:overlay={{ closeClickSelector: '.menu li'}}
+    on:overlayOpen={(e) => typeaheadOpen = e.detail}>
     <PlainInput
       style="w-full"
       bind:value {id}
