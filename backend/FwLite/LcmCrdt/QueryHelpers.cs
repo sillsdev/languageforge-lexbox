@@ -1,11 +1,14 @@
+using System.Globalization;
+
 namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void ApplySortOrder(this Entry entry)
+    public static void ApplySortOrder(this Entry entry, IComparer<ComplexFormComponent> complexFormComparer)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
+        entry.ComplexForms.Sort(complexFormComparer);
         foreach (var sense in entry.Senses)
         {
             sense.ApplySortOrder();
@@ -19,14 +22,21 @@ public static class QueryHelpers
 
     private static void ApplySortOrder<T>(this List<T> items) where T : IOrderable
     {
-        items.Sort((x, y) =>
+        items.Sort((a, b) =>
         {
-            var result = x.Order.CompareTo(y.Order);
-            if (result == 0)
-            {
-                result = x.Id.CompareTo(y.Id);
-            }
-            return result;
+            var result = a.Order.CompareTo(b.Order);
+            if (result != 0) return result;
+            return a.Id.CompareTo(b.Id);
+        });
+    }
+
+    public static IComparer<ComplexFormComponent> AsComplexFormComparer(this CompareInfo compareInfo)
+    {
+        return Comparer<ComplexFormComponent>.Create((a, b) =>
+        {
+            var result = compareInfo.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword, CompareOptions.IgnoreCase);
+            if (result != 0) return result;
+            return a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
         });
     }
 }

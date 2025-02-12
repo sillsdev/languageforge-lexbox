@@ -14,10 +14,11 @@ using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
+using MiniLcm.Culture;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, LcmCrdtDbContext dbContext, MiniLcmValidators validators) : IMiniLcmApi
+public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, IMiniLcmCultureProvider cultureProvider, MiniLcmValidators validators) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -332,10 +333,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
             .ThenBy(e => e.Id);
         queryable = options.ApplyPaging(queryable);
+        var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+            .AsComplexFormComparer();
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
-            entry.ApplySortOrder();
+            entry.ApplySortOrder(complexFormComparer);
             yield return entry;
         }
     }
@@ -350,7 +353,13 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .LoadWith(e => e.Components)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
-        entry?.ApplySortOrder();
+        if (entry is not null)
+        {
+            var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
+            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+                .AsComplexFormComparer();
+            entry.ApplySortOrder(complexFormComparer);
+        }
         return entry;
     }
 
