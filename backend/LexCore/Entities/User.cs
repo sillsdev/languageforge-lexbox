@@ -42,7 +42,13 @@ public class User : EntityBase
 
     public List<ProjectUsers> Projects { get; set; } = new();
     public List<OrgMember> Organizations { get; set; } = [];
-    public List<FeatureFlag> FeatureFlags { get; set; } = [];
+    public List<FeatureFlag> FeatureFlags
+    {
+        get;
+        //even though this may not be null EF still sets it to null based on what's in the db.
+        set => field = value ?? [];
+    } = [];
+
 
     public bool CanLogin()
     {
