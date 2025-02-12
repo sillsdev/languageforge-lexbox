@@ -263,14 +263,24 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     "awaiting_approval": "Awaiting approval",
     "crdt": {
       "try_fw_lite": "Try FieldWorks Lite",
-      "try_info": "This will make your project available in [FieldWorks Lite](https://software.sil.org/fieldworks/download/fieldworks-lite/). \
+      "try_info": "This will make your project available in [FieldWorks Lite](https://lexbox.org/fw-lite). \
 This is still experimental and it will effect your FieldWorks project data. \
 However, **all your data is safe and backed up** here on Lexbox. \
-If you run into problems with your project please tell support that you are using FieldWorks Lite.",
+If you run into problems with your project please tell support that you are using FieldWorks Lite.\
+Steps to start using FieldWorks Lite:\
+1. Make the project available (click 'Yes' below)\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite)\
+1. Login to lexbox from FieldWorks Lite\
+1. Wait for this process to finish making the project available\
+1. Open your project in FieldWorks lite, you will need to download it under the Lexbox server section, you may need to refresh the list first",
       "submit": "Yes, please!",
       "cancel": "Not yet",
       "finish": "Close",
-      "now_available": "Your project is now available in [FieldWorks Lite](https://software.sil.org/fieldworks/download/fieldworks-lite/)!",
+      "now_available": "Your project is now available in [FieldWorks Lite](https://lexbox.org/fw-lite)!\
+To start using it:\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite)\
+1. Login to Lexbox from FieldWorks Lite\
+1. Open your project in FieldWorks lite, you will need to download it under the Lexbox server section, you may need to refresh the list first",
       "making_available": "We're making your project available in FieldWorks Lite...",
       "reach_out_for_help": "Please reach out to us at \
 [lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org?subject={subject}), \
