@@ -828,9 +828,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
-        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
-
         var entryRef = lexComplexForm.ComplexFormEntryRefs.SingleOrDefault();
         if (entryRef is null || entryRef.ComponentLexemesRS.Count == 0)
         {
@@ -838,14 +835,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             return;
         }
 
+        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
+        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
+
         // Prevents adding duplicates (which ComponentLexemesRS.Insert is susceptible to)
         if (entryRef.ComponentLexemesRS.Contains(lexComponent))
         {
-            if (between is null) return;
+            if (previousComponentId is null && nextComponentId is null) return;
             entryRef.ComponentLexemesRS.Remove(lexComponent);
         }
 
-        var previousComponent = previousComponentId.HasValue ? entryRef.ComponentLexemesRS.FirstOrDefault(s => s.Guid == previousComponentId) : null;
+        var previousComponent = entryRef.ComponentLexemesRS.FirstOrDefault(s => s.Guid == previousComponentId);
         if (previousComponent is not null)
         {
             var insertI = entryRef.ComponentLexemesRS.IndexOf(previousComponent) + 1;
@@ -861,7 +861,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             return;
         }
 
-        var nextComponent = nextComponentId.HasValue ? entryRef.ComponentLexemesRS.FirstOrDefault(s => s.Guid == nextComponentId) : null;
+        var nextComponent = entryRef.ComponentLexemesRS.FirstOrDefault(s => s.Guid == nextComponentId);
         if (nextComponent is not null)
         {
             var insertI = entryRef.ComponentLexemesRS.IndexOf(nextComponent);
