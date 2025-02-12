@@ -1,8 +1,7 @@
 <script lang="ts">
   import {NewTabLinkRenderer} from '$lib/components/Markdown';
-  import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import {tryGetErrorMessage} from '$lib/error/utils';
-  import {Button} from '$lib/forms';
+  import {Button, FormError} from '$lib/forms';
   import t from '$lib/i18n';
   import {Icon} from '$lib/icons';
   import {useNotifications} from '$lib/notify';
@@ -10,6 +9,7 @@
   import {bounceIn} from 'svelte/easing';
   import {scale} from 'svelte/transition';
   import type {Project} from './+page';
+  import {Modal} from '$lib/components/modals';
 
   export let project: Project;
   export let hasHarmonyCommits: boolean;
@@ -17,6 +17,9 @@
   const { notifySuccess, notifyWarning } = useNotifications();
 
   let syncing = false;
+  let done = false;
+  $: state = done ? 'done' : syncing ? 'syncing' : 'idle';
+  let error: string | undefined = undefined;
 
   async function triggerSync(): Promise<string | undefined> {
     syncing = true;
@@ -26,14 +29,15 @@
       });
 
       if (response.ok) {
-        const { crdtChanges, fwdataChanges } = await response.json();
+        const {crdtChanges, fwdataChanges} = await response.json();
         notifySuccess(`Synced successfully (${fwdataChanges} FwData changes. ${crdtChanges} CRDT changes)`);
-      } else {
-        const error = `Failed to sync: ${response.statusText} (${response.status})`;
-        notifyWarning(error);
-        console.error(error, await response.text());
-        return error;
+        done = true;
+        return;
       }
+      const error = `Failed to sync: ${response.statusText} (${response.status})`;
+      notifyWarning(error);
+      console.error(error, await response.text());
+      return error;
     } catch (error) {
       return tryGetErrorMessage(error);
     } finally {
@@ -41,35 +45,41 @@
     }
   }
 
-  async function useInFwLite(): Promise<void> {
-    await confirmModal.open(async () => {
-      return await triggerSync();
-    });
+  async function onSubmit(): Promise<void> {
+    error = await triggerSync();
   }
-  let confirmModal: ConfirmModal;
+
+  async function useInFwLite(): Promise<void> {
+    await modal.openModal();
+  }
+  let modal: Modal;
 </script>
 
 {#if hasHarmonyCommits}
-  <Button variant="btn-primary" class="gap-1" on:click={triggerSync} loading={syncing} customLoader>
-    FwData
-    <Icon icon="i-mdi-sync" spin={syncing} spinReverse />
-    CRDT
+  <Button variant="btn-primary" class="gap-1" on:click={triggerSync} loading={state === 'syncing'} customLoader>
+    FieldWorks Classic
+    <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse />
+    FieldWorks Lite
   </Button>
 {:else}
-  <Button variant="btn-primary" on:click={useInFwLite}>{$t('project.crdt.try_fw_lite')}</Button>
-  <ConfirmModal bind:this={confirmModal} hideActions={syncing} showDoneState let:done let:error
-    title={$t('project.crdt.try_fw_lite')}
-    submitText={$t('project.crdt.submit')}
-    cancelText={$t('project.crdt.cancel')}
-    >
-    {#if syncing}
+  <Button variant="btn-primary" class="indicator" on:click={useInFwLite}>
+    <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)]">Beta</span>
+    <span>
+      {$t('project.crdt.try_fw_lite')}
+    </span>
+  </Button>
+  <Modal bind:this={modal} showCloseButton={false} hideActions={state === 'syncing'} closeOnClickOutside={false}>
+    <h2 class="text-xl mb-2">
+      {$t('project.crdt.try_fw_lite')}
+    </h2>
+    {#if state === 'syncing'}
       <div class="text-center">
         <p class="mb-2 label justify-center">
           {$t('project.crdt.making_available')}
         </p>
         <span class="loading loading-lg" />
       </div>
-    {:else if done && !error}
+    {:else if state === 'done'}
       <div class="text-center">
         <p class="mb-2 label justify-center underline-links">
           <Markdown md={$t('project.crdt.now_available')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
@@ -88,6 +98,21 @@
             plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
         {/if}
       </div>
+      <FormError {error} right/>
     {/if}
-  </ConfirmModal>
+    <svelte:fragment slot="actions" let:close>
+      {#if state === 'idle'}
+        <Button variant="btn-primary" on:click={onSubmit}>
+          {$t('project.crdt.submit')}
+        </Button>
+        <Button on:click={close}>
+          {$t('project.crdt.cancel')}
+        </Button>
+      {:else if state === 'done'}
+        <Button variant="btn-primary" on:click={close}>
+          {$t('project.crdt.finish')}
+        </Button>
+      {/if}
+    </svelte:fragment>
+  </Modal>
 {/if}
