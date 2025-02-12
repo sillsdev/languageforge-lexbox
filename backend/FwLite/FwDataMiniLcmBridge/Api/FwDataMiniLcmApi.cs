@@ -761,8 +761,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (!EntriesRepository.TryGetObject(component.ComplexFormEntryId, out var lexComplexFormEntry))
             throw new InvalidOperationException("Entry not found");
 
-        var complexFormComponentEntityId = component.ComponentSenseId ?? component.ComponentEntryId;
-        var lexComponent = FindSenseOrEntryComponent(complexFormComponentEntityId);
+        var lexComponent = FindSenseOrEntryComponent(component);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Complex Form Component",
             "Move Complex Form Component back",
@@ -774,11 +773,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
-    private ICmObject FindSenseOrEntryComponent(Guid id)
+    private ICmObject FindSenseOrEntryComponent(ComplexFormComponent component)
     {
-        if (SenseRepository.TryGetObject(id, out var sense)) return sense;
-        if (EntriesRepository.TryGetObject(id, out var entry)) return entry;
-        throw new InvalidOperationException("Component not found");
+        return component.ComponentSenseId is not null
+            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
+            : EntriesRepository.GetObject(component.ComponentEntryId);
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -823,9 +822,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     /// </summary>
     internal void AddComplexFormComponent(ILexEntry lexComplexForm, ComplexFormComponent component, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        ICmObject lexComponent = component.ComponentSenseId is not null
-            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
-            : EntriesRepository.GetObject(component.ComponentEntryId);
+        var lexComponent = FindSenseOrEntryComponent(component);
         InsertComplexFormComponent(lexComplexForm, lexComponent, between);
     }
 
