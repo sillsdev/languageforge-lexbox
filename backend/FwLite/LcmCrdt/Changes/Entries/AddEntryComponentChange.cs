@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes.Entries;
@@ -33,7 +34,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
     {
     }
 
-    public override async ValueTask<ComplexFormComponent> NewEntity(Commit commit, ChangeContext context)
+    public override async ValueTask<ComplexFormComponent> NewEntity(Commit commit, IChangeContext context)
     {
         var complexFormEntry = await context.GetCurrent<Entry>(ComplexFormEntryId);
         var componentEntry = await context.GetCurrent<Entry>(ComponentEntryId);
@@ -64,7 +65,7 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
         return component;
     }
 
-    private static async ValueTask<bool> CreatesReferenceCycleOrDuplicate(ComplexFormComponent parent, ChangeContext context)
+    private static async ValueTask<bool> CreatesReferenceCycleOrDuplicate(ComplexFormComponent parent, IChangeContext context)
     {
         if (parent.ComplexFormEntryId == parent.ComponentEntryId) return true;
         //used to avoid checking the same ComplexFormComponent multiple times

@@ -2,6 +2,7 @@
 using LcmCrdt.Utils;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -32,7 +33,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public Guid? PartOfSpeechId { get; set; }
     public IList<SemanticDomain>? SemanticDomains { get; set; }
 
-    public override async ValueTask<Sense> NewEntity(Commit commit, ChangeContext context)
+    public override async ValueTask<Sense> NewEntity(Commit commit, IChangeContext context)
     {
         return new Sense
         {

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;

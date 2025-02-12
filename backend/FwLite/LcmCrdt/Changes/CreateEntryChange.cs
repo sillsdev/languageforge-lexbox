@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -30,7 +31,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
 
     public MultiString? Note { get; set; }
 
-    public override ValueTask<Entry> NewEntity(Commit commit, ChangeContext context)
+    public override ValueTask<Entry> NewEntity(Commit commit, IChangeContext context)
     {
         return new(new Entry
         {

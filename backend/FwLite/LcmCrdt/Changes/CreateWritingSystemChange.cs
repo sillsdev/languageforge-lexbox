@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -34,7 +35,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     {
     }
 
-    public override ValueTask<WritingSystem> NewEntity(Commit commit, ChangeContext context)
+    public override ValueTask<WritingSystem> NewEntity(Commit commit, IChangeContext context)
     {
         return ValueTask.FromResult(new WritingSystem
         {
