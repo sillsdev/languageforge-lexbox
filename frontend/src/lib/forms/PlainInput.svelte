@@ -25,7 +25,7 @@
   export let style: string | undefined = undefined;
 
   $: undebouncedValue = value;
-  $: dispatch('input', value);
+  $: if (handlingInputEvent) dispatch('input', value);
 
   export function clear(): void {
     debouncer.clear();
@@ -43,10 +43,15 @@
   $: debouncingStore = debouncer.debouncing;
   $: debouncing = $debouncingStore;
 
+  let handlingInputEvent = false;
+  let handlingInputEventTimeout: ReturnType<typeof setTimeout>;
   function onInput(event: Event): void {
+    clearTimeout(handlingInputEventTimeout);
+    handlingInputEvent = true;
     const currValue = (event.target as HTMLInputElement).value;
     undebouncedValue = currValue;
     debouncer.debounce(currValue);
+    handlingInputEventTimeout = setTimeout(() => handlingInputEvent = false);
   }
 </script>
 
