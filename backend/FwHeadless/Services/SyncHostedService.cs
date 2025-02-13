@@ -13,7 +13,7 @@ namespace FwHeadless.Services;
 public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedService> logger) : BackgroundService
 {
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
-    private readonly ConcurrentDictionary<Guid, Guid> _projectsQueuedOrRunning = new();
+    private readonly ConcurrentDictionary<Guid, TaskCompletionSource<SyncJobResult>> _projectsQueuedOrRunning = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -23,19 +23,28 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
             var result = await syncWorker.Execute(stoppingToken);
             logger.LogInformation("Sync job result: {Result}", result);
-            _projectsQueuedOrRunning.TryRemove(projectId, out _);
+            _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
+            tcs?.TrySetResult(result);
         }
     }
 
-    public bool IsJobQueued(Guid projectId)
+    public bool IsJobQueuedOrRunning(Guid projectId)
     {
         return _projectsQueuedOrRunning.ContainsKey(projectId);
+    }
+
+    public async Task<SyncJobResult?> AwaitSyncFinished(Guid projectId, CancellationToken cancellationToken)
+    {
+        if (_projectsQueuedOrRunning.TryGetValue(projectId, out var tcs))
+            return await tcs.Task.WaitAsync(cancellationToken);
+
+        return null;
     }
 
     public bool QueueJob(Guid projectId)
     {
         //will only queue job if it's not already queued
-        var queued = _projectsQueuedOrRunning.TryAdd(projectId, projectId) && _projectsToSync.Writer.TryWrite(projectId);
+        var queued = _projectsQueuedOrRunning.TryAdd(projectId, new()) && _projectsToSync.Writer.TryWrite(projectId);
         if (queued) logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
         else logger.LogInformation("Project {ProjectId} is already queued", projectId);
         return queued;

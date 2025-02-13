@@ -62,6 +62,7 @@ app.MapHealthChecks("/api/healthz");
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
+app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 
 app.Run();
 
@@ -102,7 +103,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
 {
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
     if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
-    if (syncHostedService.IsJobQueued(projectId)) return TypedResults.Ok(ProjectSyncStatus.QueuedToSync);
+    if (syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.Ok(ProjectSyncStatus.QueuedToSync);
     var project = projectContext.MaybeProject;
     if (project is null)
     {
@@ -114,4 +115,24 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
     var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
+}
+
+static async Task<Results<Ok, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
+    SyncHostedService syncHostedService,
+    SyncJobStatusService syncJobStatusService,
+    CancellationToken cancellationToken,
+    Guid projectId)
+{
+    if (!syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.NotFound();
+    try
+    {
+
+        var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
+        if (result is null) return TypedResults.NotFound();
+        return TypedResults.Ok();
+    }
+    catch (OperationCanceledException e)
+    {
+        return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+    }
 }
