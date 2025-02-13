@@ -154,20 +154,20 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         // Can't sync if lexbox doesn't have this project
         return TypedResults.NotFound();
     }
+    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
+    if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
+    var fwDataProject = new FwDataProject("fw", projectFolder);
+    var pendingHgCommits = srService.PendingCommitCount(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
+
     var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
     var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
     var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
+
     var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
-
     var lastHgCommitDate = lexboxProject.LastCommit;
-    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
-    if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
-    var fwDataProject = new FwDataProject("fw", projectFolder);
-    var pendingHgCommits = await srService.PendingCommitCount(fwDataProject, lexboxProject.Code);
-    // TODO: PendingCommitCount can take a couple of seconds to return, so perhaps start it first and await it at the end of the method since it's likely the longest-running process
 
-    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
+    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
