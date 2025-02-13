@@ -27,23 +27,3 @@ public enum SyncJobStatus
     NotRunning,
     Running,
 }
-
-public enum ProjectSyncStatusEnum
-{
-    NeverSynced,
-    ReadyToSync,
-    Syncing,
-}
-
-// TODO: Bikeshed this name
-public record ProjectSyncStatus(
-    ProjectSyncStatusEnum status,
-    int ChangesAvailable)
-{
-    public static ProjectSyncStatus NeverSynced => new(ProjectSyncStatusEnum.NeverSynced, 0);
-    public static ProjectSyncStatus Syncing => new(ProjectSyncStatusEnum.Syncing, 0);
-    public static ProjectSyncStatus ReadyToSync(int changes)
-    {
-        return new(ProjectSyncStatusEnum.ReadyToSync, changes);
-    }
-}
