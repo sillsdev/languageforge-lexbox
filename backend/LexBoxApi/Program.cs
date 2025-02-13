@@ -83,6 +83,9 @@ builder.Services.AddSwaggerGen(options =>
             """,
     });
 });
+#pragma warning disable EXTEXP0018
+builder.Services.AddHybridCache();
+#pragma warning restore EXTEXP0018
 builder.Services.AddHealthChecks();
 //in prod the exception handler middleware adds the exception feature, but in dev we need to do it manually
 builder.Services.AddSingleton<IDeveloperPageExceptionFilter, AddExceptionFeatureDevExceptionFilter>();
@@ -169,9 +172,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapSecurityTxt();
 app.MapNitroApp("/api/graphql/ui").WithOptions(new (){ServeMode = GraphQLToolServeMode.Embedded}).AllowAnonymous();
-if (app.Environment.IsDevelopment())
-    //required for vite to generate types
-    app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
+app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());

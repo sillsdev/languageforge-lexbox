@@ -1,11 +1,14 @@
 ﻿version: 3
 
-vars:
-  OUTPUT_PATH:
-    sh: dotnet msbuild --getProperty:OutputPath
-
 tasks:
   unit:
+    interactive: true
+    vars:
+      FILTER: '{{default "." .CLI_ARGS}}'
+    cmds:
+      - dotnet test --filter="Category!=RequiresDb&Category!=Integration&Category!=FlakyIntegration&{{.FILTER}}"
+
+  unit-with-db:
     interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
@@ -68,8 +71,14 @@ tasks:
     cmd: task playwright -- {{.CLI_ARGS}}
 
   traces:
+    env:
+      OUTPUT_PATH:
+        sh: dotnet msbuild --getProperty:OutputPath
     cmd: explorer "{{.OUTPUT_PATH}}playwright-traces"
     ignore_error: true
 
   playwright-install:
+    env:
+      OUTPUT_PATH:
+        sh: dotnet msbuild --getProperty:OutputPath
     cmd: pwsh '{{.OUTPUT_PATH}}playwright.ps1 install'

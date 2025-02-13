@@ -37,6 +37,7 @@ import {
   type MutationBulkAddProjectMembersArgs,
   type MutationChangeOrgMemberRoleArgs,
   type MutationChangeUserAccountBySelfArgs,
+  type MutationCreateGuestUserByAdminArgs,
   type MutationCreateOrganizationArgs,
   type MutationCreateProjectArgs,
   type MutationDeleteDraftProjectArgs,
@@ -62,16 +63,10 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           'Changeset': () => null,
           'UsersCollectionSegment': () => null,
           'FlexProjectMetadata': (metaData) => metaData.projectId as string,
+          'ProjectWritingSystems': () => null,
+          'FLExWsId': (metaData) => metaData.tag as string,
         },
         updates: {
-          Query: {
-            'projectByCode': (result, args, cache) => {
-              if (result.projectByCode === null) {
-                // Don't cache null project results
-                cache.invalidate('Query', 'projectByCode', args);
-              }
-            },
-          },
           Mutation: {
             createProject: (result: CreateProjectMutation, args: MutationCreateProjectArgs, cache, _info) => {
               if (args.input.orgId) {
@@ -83,6 +78,10 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               cache.inspectFields('Query')
                 .filter(field => field.fieldName === dashboardQuery || field.fieldName === adminDashboardQuery)
                 .forEach(field => cache.invalidate('Query', field.fieldKey));
+              // Invalidate the project code in case there's a deleted project with the same code in the cache
+              // in a perfect world, we might update the cache with a result from the create mutation response,
+              // but then we'd probably still need to refetch it, because fields would be missing
+              cache.invalidate('Query', 'projectByCode', {code: args.input.code});
             },
             softDeleteProject: (result, args: MutationSoftDeleteProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
@@ -97,8 +96,11 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
             bulkAddProjectMembers: (result, args: MutationBulkAddProjectMembersArgs, cache, _info) => {
-              if (args.input.projectId) {
-                cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate({__typename: 'Project', id: args.input.projectId});
+            },
+            createGuestUserByAdmin: (result, args: MutationCreateGuestUserByAdminArgs, cache, _info) => {
+              if (args.input.orgId) {
+                cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
               }
             },
             createOrganization: (result: CreateOrgMutation, args: MutationCreateOrganizationArgs, cache, _info) => {

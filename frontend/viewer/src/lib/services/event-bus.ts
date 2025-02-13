@@ -1,9 +1,35 @@
-﻿import type {CloseReason} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
-import type {Entry} from '../mini-lcm';
+﻿import {type CloseReason} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
+import {DotnetService, type IEntry} from '$lib/dotnet-types';
+import {useService} from '$lib/services/service-provider';
+import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
+import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
+import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
+import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
 
 export class EventBus {
-  private _onEntryUpdated = new Set<(entry: Entry) => void>();
+  private _onEvent = new Set<(event: IFwEvent) => void>();
   private _onProjectClosed = new Set<(reason: CloseReason) => void>();
+  constructor() {
+    void this.eventLoop(useService(DotnetService.JsEventListener));
+  }
+
+  private async eventLoop(jsEventListener: IJsEventListener) {
+    let event: IFwEvent;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      event = await jsEventListener.nextEventAsync();
+      if (!event) return;
+      this.distributor(event);
+    }
+  }
+
+  private distributor(event: IFwEvent) {
+    //using set timeout to queue processing events outside the event loop, this prevents the event loop from being blocked
+    setTimeout(() => {
+      this._onEvent.forEach(callback => callback(event));
+    });
+  }
 
   public onProjectClosed(callback: (reason: CloseReason) => void): () => void {
     this._onProjectClosed.add(callback);
@@ -14,18 +40,26 @@ export class EventBus {
     this._onProjectClosed.forEach(callback => callback(reason));
   }
 
-  public onEntryUpdated(callback: (entry: Entry) => void): () => void {
-    this._onEntryUpdated.add(callback);
-    return () => this._onEntryUpdated.delete(callback);
+  public onEntryUpdated(projectName: string, callback: (entry: IEntry) => void): () => void {
+    const onEventCallback = (event: IFwEvent) => {
+      const projectEvent = event as IProjectEvent;
+      if (projectEvent.project.name !== projectName) return;
+      if (projectEvent.event.type !== FwEventType.EntryChanged) return;
+
+      const entryChangedEvent = projectEvent.event as IEntryChangedEvent;
+      callback(entryChangedEvent.entry);
+    };
+    this._onEvent.add(onEventCallback);
+    return () => this._onEvent.delete(onEventCallback);
   }
 
-  public notifyEntryUpdated(entry: Entry) {
-    this._onEntryUpdated.forEach(callback => callback(entry));
+  public notifyEntryUpdated(entry: IEntry) {
+    console.error('notifyEntryUpdated, no longer supported', entry);
   }
 }
 
-const changeEventBus = new EventBus();
+let changeEventBus: EventBus | undefined = undefined;
 
 export function useEventBus(): EventBus {
-  return changeEventBus;
+  return changeEventBus ??= new EventBus();
 }

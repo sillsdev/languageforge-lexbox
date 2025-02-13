@@ -15,6 +15,9 @@ public class ConcurrentWeakDictionary<TKey, TValue>
 {
     private readonly ConcurrentDictionary<TKey, WeakReference<TValue>> _lookup = new();
 
+    public IEnumerable<TValue> Values => _lookup.Keys.ToArray()
+        .Select(key => TryGetValue(key, out var value) ? value : null)
+        .OfType<TValue>();
     public void Add(TKey key, TValue value)
     {
         var added = _lookup.TryAdd(key, new WeakReference<TValue>(value));
@@ -29,6 +32,15 @@ public class ConcurrentWeakDictionary<TKey, TValue>
         _lookup.TryRemove(key, out _);
         Cull();
         return GetOrAdd(key, valueFactory);
+    }
+
+    public TValue? Remove(TKey key)
+    {
+        _lookup.TryRemove(key, out var weakReference);
+        TValue? target = null;
+        weakReference?.TryGetTarget(out target);
+        Cull();
+        return target;
     }
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)

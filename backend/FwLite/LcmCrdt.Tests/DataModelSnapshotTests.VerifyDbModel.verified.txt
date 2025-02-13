@@ -4,6 +4,8 @@
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ClientId (Guid) Required
       FwProjectId (Guid?)
+      LastUserId (string)
+      LastUserName (string)
       Name (string) Required
       OriginDomain (string)
     Keys: 
@@ -24,7 +26,10 @@
       ComponentEntryId (Guid) Required FK Index
       ComponentHeadword (string)
       ComponentSenseId (Guid?) FK Index
+        Annotations: 
+          Relational:ColumnName: ComponentSenseId
       DeletedAt (DateTimeOffset?)
+      Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
     Keys: 
       Id PK
@@ -34,10 +39,15 @@
       ComplexFormComponent {'ComponentSenseId'} -> Sense {'Id'} Cascade
       ComplexFormComponent {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
-      ComplexFormEntryId
       ComponentEntryId
       ComponentSenseId
       SnapshotId Unique
+      ComplexFormEntryId, ComponentEntryId Unique
+        Annotations: 
+          Relational:Filter: ComponentSenseId IS NULL
+      ComplexFormEntryId, ComponentEntryId, ComponentSenseId Unique
+        Annotations: 
+          Relational:Filter: ComponentSenseId IS NOT NULL
     Annotations: 
       DiscriminatorProperty: 
       Relational:FunctionName: 
@@ -89,9 +99,9 @@
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
-      ComplexForms (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
-      Components (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
-      Senses (IList<Sense>) Collection ToDependent Sense
+      ComplexForms (List<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
+      Components (List<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
+      Senses (List<Sense>) Collection ToDependent Sense
     Keys: 
       Id PK
     Foreign keys: 
@@ -110,6 +120,7 @@
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       DeletedAt (DateTimeOffset?)
+      Order (double) Required
       Reference (string)
       SenseId (Guid) Required FK Index
       Sentence (MultiString) Required
@@ -193,21 +204,24 @@
       Gloss (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      PartOfSpeech (string) Required
-      PartOfSpeechId (Guid?)
+      Order (double) Required
+      PartOfSpeechId (Guid?) FK Index
       SemanticDomains (IList<SemanticDomain>) Required
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
-      ExampleSentences (IList<ExampleSentence>) Collection ToDependent ExampleSentence
+      ExampleSentences (List<ExampleSentence>) Collection ToDependent ExampleSentence
+      PartOfSpeech (PartOfSpeech) ToPrincipal PartOfSpeech
     Keys: 
       Id PK
     Foreign keys: 
       Sense {'EntryId'} -> Entry {'Id'} Required Cascade ToDependent: Senses
+      Sense {'PartOfSpeechId'} -> PartOfSpeech {'Id'} ClientSetNull ToPrincipal: PartOfSpeech
       Sense {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       EntryId
+      PartOfSpeechId
       SnapshotId Unique
     Annotations: 
       DiscriminatorProperty: 
@@ -229,14 +243,15 @@
       Name (string) Required
       Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
-      Type (WritingSystemType) Required
-      WsId (WritingSystemId) Required
+      Type (WritingSystemType) Required Index
+      WsId (WritingSystemId) Required Index
     Keys: 
       Id PK
     Foreign keys: 
       WritingSystem {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       SnapshotId Unique
+      WsId, Type Unique
     Annotations: 
       DiscriminatorProperty: 
       Relational:FunctionName: 
@@ -328,4 +343,4 @@
       Relational:ViewName: 
       Relational:ViewSchema: 
 Annotations: 
-  ProductVersion: 8.0.4
+  ProductVersion: 8.0.11

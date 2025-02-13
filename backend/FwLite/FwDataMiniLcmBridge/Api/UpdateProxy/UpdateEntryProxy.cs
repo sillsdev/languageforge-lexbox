@@ -4,7 +4,7 @@ using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateEntryProxy : Entry
+public record UpdateEntryProxy : Entry
 {
     private readonly ILexEntry _lcmEntry;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
@@ -45,42 +45,21 @@ public class UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override IList<Sense> Senses
+    public override List<Sense> Senses
     {
-        get =>
-            new UpdateListProxy<Sense>(
-                sense => _lexboxLcmApi.CreateSense(_lcmEntry, sense),
-                sense => _lexboxLcmApi.DeleteSense(Id, sense.Id),
-                i => new UpdateSenseProxy(_lcmEntry.SensesOS[i], _lexboxLcmApi),
-                _lcmEntry.SensesOS.Count
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override IList<ComplexFormComponent> Components
+    public override List<ComplexFormComponent> Components
     {
-        get =>
-            new UpdateListProxy<ComplexFormComponent>(
-                component => _lexboxLcmApi.AddComplexFormComponent(_lcmEntry, component),
-                component => _lexboxLcmApi.RemoveComplexFormComponent(_lcmEntry, component),
-                i => new UpdateComplexFormComponentProxy(_lcmEntry,
-                    _lcmEntry.ComplexFormEntryRefs.Single().ComponentLexemesRS[i],
-                    _lexboxLcmApi),
-                _lcmEntry.ComplexFormEntryRefs.SingleOrDefault()?.ComponentLexemesRS.Count ?? 0
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override IList<ComplexFormComponent> ComplexForms
+    public override List<ComplexFormComponent> ComplexForms
     {
-        get =>
-            new UpdateListProxy<ComplexFormComponent>(
-                component => _lexboxLcmApi.AddComplexFormComponent(_lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
-                component => _lexboxLcmApi.RemoveComplexFormComponent(_lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
-                //todo this does not handle complex forms which reference a sense
-                i => _lazyComplexForms.Value[i],
-                _lazyComplexForms.Value.Length
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 

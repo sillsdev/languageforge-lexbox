@@ -1,3 +1,5 @@
+using LexCore;
+
 namespace LexBoxApi.GraphQL.CustomTypes;
 
 public class OrgMemberDto
@@ -14,6 +16,7 @@ public class OrgMemberDto
     public required bool IsAdmin { get; set; }
     public required bool Locked { get; set; }
     public required bool CanCreateProjects { get; set; }
+    public List<FeatureFlag> FeatureFlags { get; set; } = [];
     public required OrgMemberDtoCreatedBy? CreatedBy { get; set; }
 }
 

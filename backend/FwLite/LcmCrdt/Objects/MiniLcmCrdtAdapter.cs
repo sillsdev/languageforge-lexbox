@@ -1,6 +1,6 @@
 ﻿using SIL.Harmony;
 using SIL.Harmony.Adapters;
-using SIL.Harmony.Entities;
+using SIL.Harmony.Core;
 
 namespace LcmCrdt.Objects;
 
@@ -27,7 +27,7 @@ public class MiniLcmCrdtAdapter : ICustomAdapter<MiniLcmCrdtAdapter, IObjectWith
         return Obj.GetReferences();
     }
 
-    public void RemoveReference(Guid id, Commit commit)
+    public void RemoveReference(Guid id, CommitBase commit)
     {
         Obj.RemoveReference(id, commit.DateTime);
     }

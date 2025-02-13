@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public static class AppVersionService
 {

@@ -13,6 +13,14 @@
   isDev.set(localStorage.getItem('devMode') === 'true');
 </script>
 
+<script lang="ts">
+  export let invisible = false;
+</script>
+
 {#if $isDev}
   <slot />
+{:else if invisible}
+  <div class="invisible">
+    <slot />
+  </div>
 {/if}

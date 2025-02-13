@@ -1,26 +1,52 @@
-﻿using LcmCrdt;
+﻿using System.Diagnostics;
+using FwDataMiniLcmBridge;
+using Humanizer;
+using LcmCrdt;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Project;
 
 namespace FwLiteProjectSync;
 
-public class MiniLcmImport(ILogger<MiniLcmImport> logger)
+public class MiniLcmImport(
+    ILogger<MiniLcmImport> logger,
+    FwDataFactory fwDataFactory,
+    CrdtProjectsService crdtProjectsService
+    ) : IProjectImport
 {
+    public async Task<IProjectIdentifier> Import(IProjectIdentifier project)
+    {
+        if (project is not FwDataProject fwDataProject) throw new ArgumentException("Project is not a fwdata project");
+        var startTime = Stopwatch.GetTimestamp();
+        try
+        {
+            using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
+            var harmonyProject = await crdtProjectsService.CreateProject(new(fwDataProject.Name,
+                SeedNewProjectData: false,
+                FwProjectId: fwDataApi.ProjectId,
+                AfterCreate: async (provider, _) =>
+                {
+                    var crdtApi = provider.GetRequiredService<IMiniLcmApi>();
+                    await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
+                }));
+            var timeSpent = Stopwatch.GetElapsedTime(startTime);
+            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}",
+                fwDataProject.Name,
+                timeSpent.Humanize(2));
+            return harmonyProject;
+        }
+        catch
+        {
+            logger.LogError("Import of {ProjectName} failed, deleting project", fwDataProject.Name);
+            throw;
+        }
+    }
+
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
-        var writingSystems = await importFrom.GetWritingSystems();
-        foreach (var ws in writingSystems.Analysis)
-        {
-            await importTo.CreateWritingSystem(WritingSystemType.Analysis, ws);
-            logger.LogInformation("Imported ws {WsId}", ws.WsId);
-        }
-
-        foreach (var ws in writingSystems.Vernacular)
-        {
-            await importTo.CreateWritingSystem(WritingSystemType.Vernacular, ws);
-            logger.LogInformation("Imported ws {WsId}", ws.WsId);
-        }
+        await ImportWritingSystems(importTo, importFrom);
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
         {
@@ -36,7 +62,7 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
 
 
         var semanticDomains = importFrom.GetSemanticDomains();
-        var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
+        var entries = importFrom.GetAllEntries();
         if (importTo is CrdtMiniLcmApi crdtLexboxApi)
         {
             logger.LogInformation("Importing semantic domains");
@@ -61,5 +87,21 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
         }
 
         logger.LogInformation("Imported {Count} entries", entryCount);
+    }
+
+    internal async Task ImportWritingSystems(IMiniLcmApi importTo, IMiniLcmApi importFrom)
+    {
+        var writingSystems = await importFrom.GetWritingSystems();
+        foreach (var ws in writingSystems.Analysis)
+        {
+            await importTo.CreateWritingSystem(WritingSystemType.Analysis, ws);
+            logger.LogInformation("Imported ws {WsId}", ws.WsId);
+        }
+
+        foreach (var ws in writingSystems.Vernacular)
+        {
+            await importTo.CreateWritingSystem(WritingSystemType.Vernacular, ws);
+            logger.LogInformation("Imported ws {WsId}", ws.WsId);
+        }
     }
 }

@@ -13,7 +13,7 @@
   });
   let isPlaywright = false;
   let environmentName = env.PUBLIC_ENV_NAME?.toLowerCase();
-  export let user: LexAuthUser | undefined;
+  export let user: LexAuthUser | null;
   $: loggedIn = !!user;
 </script>
 

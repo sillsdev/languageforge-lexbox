@@ -1,12 +1,14 @@
-﻿namespace MiniLcm.Models;
+﻿using System.Text.Json.Serialization;
 
-public record WritingSystem: IObjectWithId
+namespace MiniLcm.Models;
+
+public record WritingSystem: IObjectWithId<WritingSystem>
 {
     public required Guid Id { get; set; }
-    public required WritingSystemId WsId { get; set; }
-    public required string Name { get; set; }
-    public required string Abbreviation { get; set; }
-    public required string Font { get; set; }
+    public virtual required WritingSystemId WsId { get; set; }
+    public virtual required string Name { get; set; }
+    public virtual required string Abbreviation { get; set; }
+    public virtual required string Font { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
     public required WritingSystemType Type { get; set; }
@@ -26,7 +28,7 @@ public record WritingSystem: IObjectWithId
     {
     }
 
-    public IObjectWithId Copy()
+    public WritingSystem Copy()
     {
         return new WritingSystem
         {

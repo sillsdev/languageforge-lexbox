@@ -15,5 +15,5 @@
 
 from repo root you will be able to develop the UI as well. From this folder it will just run the backend and use the most recent built of the frontend for the UI.
 ```bash
-task local-web-app-for-develop
+task web-for-develop
 ```

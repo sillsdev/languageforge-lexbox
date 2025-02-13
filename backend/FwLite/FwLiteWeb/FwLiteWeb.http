@@ -1,0 +1,7 @@
+@FwLiteWeb_HostAddress = http://localhost:5173
+
+GET {{FwLiteWeb_HostAddress}}/api/auth/login/default
+Accept: application/json
+
+
+###

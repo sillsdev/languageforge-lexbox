@@ -1,5 +1,6 @@
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -18,6 +19,9 @@ public static class DataKernel
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
             options.UseProjectables();
+            //todo remove this once this bug is fixed: https://github.com/dotnet/efcore/issues/35110
+            //we ended up not upgrading to EF Core 9, so this was disabled for now, may or may not be needed in the future
+            // options.ConfigureWarnings(builder => builder.Ignore(RelationalEventId.PendingModelChangesWarning));
             if (useOpenIddict) options.UseOpenIddict();
 #if DEBUG
             options.EnableSensitiveDataLogging();

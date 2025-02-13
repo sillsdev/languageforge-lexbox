@@ -7,12 +7,14 @@
       "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj",
       "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
       "backend\\FwLite\\LcmCrdt.Tests\\LcmCrdt.Tests.csproj",
-      "backend\\FWLite\\LocalWebApp\\LocalWebApp.csproj",
-      "backend\\FwLite\\FwLiteDesktop\\FwLiteDesktop.csproj",
+      "backend\\FWLite\\FwLiteWeb\\FwLiteWeb.csproj",
+      "backend\\FwLite\\FwLiteMaui\\FwLiteMaui.csproj",
+      "backend\\FwLite\\FwLiteShared\\FwLiteShared.csproj",
       "backend\\FWLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",
       "backend\\FwLite\\FwDataMiniLcmBridge.Tests\\FwDataMiniLcmBridge.Tests.csproj",
       "backend\\FWLite\\FwLiteProjectSync\\FwLiteProjectSync.csproj",
       "backend\\FWLite\\FwLiteProjectSync.Tests\\FwLiteProjectSync.Tests.csproj",
+      "backend\\LfClassicData\\LfClassicData.csproj",
     ]
   }
-} 
+}

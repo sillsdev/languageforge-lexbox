@@ -134,7 +134,7 @@ type CreateProjectPayload {
 }
 
 type CreateProjectResponse {
-  id: UUID
+  id: UUID!
   result: CreateProjectResult!
 }
 
@@ -216,6 +216,7 @@ type LeaveProjectPayload {
 
 type LexAuthUser {
   isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
+  hasFeature(feature: FeatureFlag!): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
@@ -226,6 +227,7 @@ type LexAuthUser {
   isAdmin: Boolean!
   projects: [AuthUserProject!]!
   orgs: [AuthUserOrg!]!
+  featureFlags: [FeatureFlag!]!
   projectsJson: String!
   locked: Boolean
   emailVerificationRequired: Boolean
@@ -254,7 +256,7 @@ type Mutation {
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload! @cost(weight: "10")
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy") @cost(weight: "10")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload! @cost(weight: "10")
-  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @cost(weight: "10")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload! @cost(weight: "10")
   askToJoinProject(input: AskToJoinProjectInput!): AskToJoinProjectPayload! @cost(weight: "10")
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload! @cost(weight: "10")
@@ -273,7 +275,7 @@ type Mutation {
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload! @cost(weight: "10")
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   sendNewVerificationEmailByAdmin(input: SendNewVerificationEmailByAdminInput!): SendNewVerificationEmailByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
-  createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @cost(weight: "10")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload! @cost(weight: "10")
   setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
 }
@@ -336,6 +338,7 @@ type OrgMemberDto {
   isAdmin: Boolean!
   locked: Boolean!
   canCreateProjects: Boolean!
+  featureFlags: [FeatureFlag!]!
   createdBy: OrgMemberDtoCreatedBy
 }
 
@@ -351,6 +354,14 @@ type OrgMemberInvitedByEmail implements Error {
 type OrgMemberRole {
   username: String!
   role: OrgRole!
+}
+
+type OrgMembersMustBeVerified implements Error {
+  message: String!
+}
+
+type OrgMembersMustBeVerifiedForRole implements Error {
+  message: String!
 }
 
 type OrgProjects {
@@ -404,6 +415,10 @@ type ProjectCreatorsMustHaveEmail implements Error {
   message: String!
 }
 
+type ProjectHasNoManagers implements Error {
+  message: String!
+}
+
 type ProjectMemberInvitedByEmail implements Error {
   message: String!
 }
@@ -441,10 +456,8 @@ type Query {
   projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput @cost(weight: "10") orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
   projectById(projectId: UUID!): Project @cost(weight: "10")
   projectByCode(code: String!): Project @cost(weight: "10")
-  draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
-  usersInMyOrg(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersInMyOrgCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   orgById(orgId: UUID!): OrgById @cost(weight: "10")
   users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
@@ -546,8 +559,8 @@ type User {
   createdById: UUID
   createdBy: User
   usersICreated: [User!]!
-  googleId: String
   organizations: [OrgMember!]!
+  featureFlags: [FeatureFlag!]!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -576,28 +589,19 @@ type UsersICanSeeCollectionSegment {
   totalCount: Int! @cost(weight: "10")
 }
 
-"A segment of a collection."
-type UsersInMyOrgCollectionSegment {
-  "Information to aid in pagination."
-  pageInfo: CollectionSegmentInfo!
-  "A flattened list of the items."
-  items: [User!]
-  totalCount: Int! @cost(weight: "10")
-}
-
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
 union AddProjectToOrgError = DbError | NotFoundError
 
 union AddProjectsToOrgError = DbError | NotFoundError
 
-union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
+union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectHasNoManagers
 
 union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
-union ChangeOrgMemberRoleError = DbError | NotFoundError
+union ChangeOrgMemberRoleError = DbError | NotFoundError | OrgMembersMustBeVerified | OrgMembersMustBeVerifiedForRole
 
 union ChangeOrgNameError = NotFoundError | DbError | RequiredError
 
@@ -631,7 +635,7 @@ union RemoveProjectFromOrgError = DbError | NotFoundError
 
 union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
-union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
+union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail | OrgMembersMustBeVerified | OrgMembersMustBeVerifiedForRole
 
 union SetProjectConfidentialityError = NotFoundError | DbError
 
@@ -685,7 +689,7 @@ input BulkAddOrgMembersInput {
 }
 
 input BulkAddProjectMembersInput {
-  projectId: UUID
+  projectId: UUID!
   usernames: [String!]!
   role: ProjectRole!
   passwordHash: String!
@@ -720,6 +724,7 @@ input ChangeProjectNameInput {
 
 input ChangeUserAccountByAdminInput {
   role: UserRole!
+  featureFlags: [FeatureFlag!]
   userId: UUID!
   email: String
   name: String!
@@ -739,6 +744,7 @@ input CreateGuestUserByAdminInput {
   locale: String!
   passwordHash: String!
   passwordStrength: Int!
+  orgId: UUID
 }
 
 input CreateOrganizationInput {
@@ -755,6 +761,7 @@ input CreateProjectInput {
   isConfidential: Boolean!
   projectManagerId: UUID
   orgId: UUID
+  forceDraft: Boolean! = false
 }
 
 input DateTimeOperationFilterInput {
@@ -824,6 +831,13 @@ input FLExWsIdFilterInput {
   isDefault: BooleanOperationFilterInput
 }
 
+input FeatureFlagOperationFilterInput {
+  eq: FeatureFlag @cost(weight: "10")
+  neq: FeatureFlag @cost(weight: "10")
+  in: [FeatureFlag!] @cost(weight: "10")
+  nin: [FeatureFlag!] @cost(weight: "10")
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
@@ -864,6 +878,13 @@ input LeaveProjectInput {
   projectId: UUID!
 }
 
+input ListFeatureFlagOperationFilterInput {
+  all: FeatureFlagOperationFilterInput @cost(weight: "10")
+  none: FeatureFlagOperationFilterInput @cost(weight: "10")
+  some: FeatureFlagOperationFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
 input ListFilterInputTypeOfFLExWsIdFilterInput {
   all: FLExWsIdFilterInput @cost(weight: "10")
   none: FLExWsIdFilterInput @cost(weight: "10")
@@ -896,13 +917,6 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput @cost(weight: "10")
   none: ProjectUsersFilterInput @cost(weight: "10")
   some: ProjectUsersFilterInput @cost(weight: "10")
-  any: Boolean @cost(weight: "10")
-}
-
-input ListFilterInputTypeOfUserFilterInput {
-  all: UserFilterInput @cost(weight: "10")
-  none: UserFilterInput @cost(weight: "10")
-  some: UserFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
 }
 
@@ -1140,46 +1154,18 @@ input UserFilterInput {
   or: [UserFilterInput!]
   name: StringOperationFilterInput
   email: StringOperationFilterInput
-  localizationCode: StringOperationFilterInput
   isAdmin: BooleanOperationFilterInput
-  passwordHash: StringOperationFilterInput
-  salt: StringOperationFilterInput
-  passwordStrength: IntOperationFilterInput
-  lastActive: DateTimeOperationFilterInput
-  emailVerified: BooleanOperationFilterInput
-  canCreateProjects: BooleanOperationFilterInput
   createdById: UuidOperationFilterInput
-  createdBy: UserFilterInput
-  usersICreated: ListFilterInputTypeOfUserFilterInput
-  locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
-  googleId: StringOperationFilterInput
-  projects: ListFilterInputTypeOfProjectUsersFilterInput
-  organizations: ListFilterInputTypeOfOrgMemberFilterInput
   id: UuidOperationFilterInput
-  createdDate: DateTimeOperationFilterInput
-  updatedDate: DateTimeOperationFilterInput
+  featureFlags: ListFeatureFlagOperationFilterInput
 }
 
 input UserSortInput {
   name: SortEnumType @cost(weight: "10")
   email: SortEnumType @cost(weight: "10")
-  localizationCode: SortEnumType @cost(weight: "10")
-  isAdmin: SortEnumType @cost(weight: "10")
-  passwordHash: SortEnumType @cost(weight: "10")
-  salt: SortEnumType @cost(weight: "10")
-  passwordStrength: SortEnumType @cost(weight: "10")
-  lastActive: SortEnumType @cost(weight: "10")
-  emailVerified: SortEnumType @cost(weight: "10")
-  canCreateProjects: SortEnumType @cost(weight: "10")
-  createdById: SortEnumType @cost(weight: "10")
-  createdBy: UserSortInput @cost(weight: "10")
-  locked: SortEnumType @cost(weight: "10")
   username: SortEnumType @cost(weight: "10")
-  googleId: SortEnumType @cost(weight: "10")
-  id: SortEnumType @cost(weight: "10")
   createdDate: SortEnumType @cost(weight: "10")
-  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input UuidOperationFilterInput {
@@ -1215,6 +1201,10 @@ enum CreateProjectResult {
 enum DbErrorCode {
   UNKNOWN
   DUPLICATE
+}
+
+enum FeatureFlag {
+  FW_LITE_BETA
 }
 
 enum LexboxAudience {

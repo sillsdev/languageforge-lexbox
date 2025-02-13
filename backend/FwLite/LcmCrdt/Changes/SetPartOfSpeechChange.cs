@@ -1,4 +1,5 @@
 ﻿using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -7,12 +8,11 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
 {
     public Guid? PartOfSpeechId { get; } = partOfSpeechId;
 
-    public override async ValueTask ApplyChange(Sense entity, ChangeContext context)
+    public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
         if (PartOfSpeechId is null)
         {
             entity.PartOfSpeechId = null;
-            entity.PartOfSpeech = string.Empty;
             return;
         }
 
@@ -20,10 +20,11 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
         if (partOfSpeech is null or { DeletedAt: not null })
         {
             entity.PartOfSpeechId = null;
-            entity.PartOfSpeech = string.Empty;
+            entity.PartOfSpeech = null;
             return;
         }
         entity.PartOfSpeechId = partOfSpeech.Id;
-        entity.PartOfSpeech = partOfSpeech.Name["en"];
+        //don't set the part of speech, it may trigger an insert of that part of speech
+        //I wasn't able to figure out how to write a test to cover this sadly, I only saw it live.
     }
 }

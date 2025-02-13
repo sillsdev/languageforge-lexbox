@@ -25,6 +25,10 @@
       TypeDiscriminator: jsonPatch:SemanticDomain
     },
     {
+      DerivedType: JsonPatchChange<ComplexFormType>,
+      TypeDiscriminator: jsonPatch:ComplexFormType
+    },
+    {
       DerivedType: DeleteChange<Entry>,
       TypeDiscriminator: delete:Entry
     },
@@ -115,6 +119,18 @@
     {
       DerivedType: CreateComplexFormType,
       TypeDiscriminator: CreateComplexFormType
+    },
+    {
+      DerivedType: SetOrderChange<Sense>,
+      TypeDiscriminator: SetOrderChange:Sense
+    },
+    {
+      DerivedType: SetOrderChange<ExampleSentence>,
+      TypeDiscriminator: SetOrderChange:ExampleSentence
+    },
+    {
+      DerivedType: SetOrderChange<ComplexFormComponent>,
+      TypeDiscriminator: SetOrderChange:ComplexFormComponent
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,

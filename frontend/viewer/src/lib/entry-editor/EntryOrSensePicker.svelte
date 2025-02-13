@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { IEntry, ISense } from '../mini-lcm';
+  import type {IEntry, ISense} from '$lib/dotnet-types';
 
   export type EntrySenseSelection = {
     entry: IEntry;
@@ -14,9 +14,12 @@
   import { createEventDispatcher, getContext } from 'svelte';
   import { useLexboxApi } from '../services/service-provider';
   import { deriveAsync } from '../utils/time';
-  import { defaultSense, firstDef, firstGloss, glosses, headword, randomId } from '../utils';
+  import { defaultSense } from '../utils';
   import { useProjectCommands } from '../commands';
   import type { SaveHandler } from '../services/save-event-service';
+  import {SortField} from '$lib/dotnet-types';
+  import {useWritingSystemService} from '$lib/writing-system-service';
+  import NewEntryButton from './NewEntryButton.svelte';
 
   const dispatch = createEventDispatcher<{
     pick: EntrySenseSelection;
@@ -24,6 +27,7 @@
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
+  const writingSystemService = useWritingSystemService();
 
   export let open = false;
   export let title: string;
@@ -46,10 +50,10 @@
   let addedEntries: IEntry[] = [];
   const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
-    let entries = await lexboxApi.SearchEntries(s ?? '', {
+    let entries = await lexboxApi.searchEntries(s ?? '', {
       offset: 0,
       count: fetchCount,
-      order: {field: 'headword', writingSystem: 'default'},
+      order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
     return { entries, search: s};
   }, {entries: [], search: undefined}, 200);
@@ -76,8 +80,8 @@
   }
 
   async function onClickAddSense(entry: IEntry): Promise<void> {
-    const newSense = defaultSense(randomId());
-    const savedSense = await saveHandler(() => lexboxApi.CreateSense(entry.id, newSense));
+    const newSense = defaultSense(entry.id);
+    const savedSense = await saveHandler(() => lexboxApi.createSense(entry.id, newSense));
     entry.senses = [...entry.senses, savedSense];
     selectedSense = savedSense;
     onPick();
@@ -85,8 +89,8 @@
   }
 
 
-  async function onClickCreateNewEntry(search: string): Promise<void> {
-    const entry = await projectCommands.createNewEntry(search, { dontNavigate: true });
+  async function onClickCreateNewEntry(): Promise<void> {
+    const entry = await projectCommands.createNewEntry($search, { dontSelect: true });
     selectedEntry = entry;
     selectedEntryId = entry?.id;
     if (entry) {
@@ -161,8 +165,8 @@
               }
             }}>
             <ListItem
-              title={headword(entry).padStart(1, '–')}
-              subheading={glosses(entry).padStart(1, '–')}
+              title={writingSystemService.headword(entry).padStart(1, '–')}
+              subheading={writingSystemService.glosses(entry).padStart(1, '–')}
               noShadow />
             <div class="grow"></div>
             {#if disabledEntry}
@@ -170,7 +174,7 @@
                 {disabledEntry.reason}
               </span>
             {/if}
-            {#if entry.senses.length}
+            {#if entry.senses.length && !onlyEntries}
               <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
                 {entry.senses.length}
               </span>
@@ -184,8 +188,8 @@
               class:disabled={disabledSense}
               on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
               <ListItem
-                title={firstGloss(sense).padStart(1, '–')}
-                subheading={firstDef(sense).padStart(1, '–')}
+                title={writingSystemService.firstGloss(sense).padStart(1, '–')}
+                subheading={writingSystemService.firstDef(sense).padStart(1, '–')}
                 classes={{icon: 'text-info'}}
                 noShadow />
               {#if disabledSense}
@@ -206,23 +210,25 @@
       </div>
     {/each}
     {#if $displayedEntries.length === 0 && addedEntries.length === 0}
-      <div class="p-4 text-center opacity-75">
+      <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
         {#if $result.search}
           No entries found <Icon data={mdiMagnifyRemoveOutline} />
+          <NewEntryButton on:click={onClickCreateNewEntry} />
         {:else if $loading}
           <ProgressCircle size={30} />
         {:else}
-            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
+            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
+            <NewEntryButton on:click={onClickCreateNewEntry} />
         {/if}
       </div>
     {/if}
-    {#if $result.search}
+    {#if $displayedEntries.length}
       <ListItem
         title="Create new Entry..."
         icon={mdiBookPlusOutline}
         classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
         noShadow
-        on:click={() => onClickCreateNewEntry($result.search ?? '')}
+        on:click={onClickCreateNewEntry}
       />
     {/if}
     {#if $result.entries.length > $displayedEntries.length}

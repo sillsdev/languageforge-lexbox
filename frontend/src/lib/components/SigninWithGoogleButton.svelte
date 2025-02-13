@@ -1,6 +1,7 @@
 <script lang="ts">
   export let href: string;
   import t from '$lib/i18n';
+  export let text: 'sign_in_with_google' | 'register_with_google' = 'sign_in_with_google';
 </script>
 
 <!--
@@ -42,8 +43,8 @@
         <path fill="none" d="M0 0h48v48H0z"></path>
       </svg>
     </div>
-    <span class="gsi-material-button-contents">{$t('login.sign_in_with_google')}</span>
-    <span style="display: none;">{$t('login.sign_in_with_google')}</span>
+    <span class="gsi-material-button-contents">{$t(`login.${text}`)}</span>
+    <span style="display: none;">{$t(`login.${text}`)}</span>
   </div>
 </a>
 
@@ -69,7 +70,9 @@
     cursor: pointer;
     font-family: 'Roboto', arial, sans-serif;
     font-size: 14px;
+    /* EDIT:
     height: 40px;
+    */
     letter-spacing: 0.25px;
     outline: none;
     overflow: hidden;
@@ -83,7 +86,9 @@
     vertical-align: middle;
     white-space: nowrap;
     width: auto;
+    /* EDIT:
     max-width: 400px;
+    */
     min-width: min-content;
   }
 
@@ -103,14 +108,16 @@
     -webkit-flex-wrap: nowrap;
     flex-wrap: nowrap;
     height: 100%;
-    justify-content: space-between;
+    justify-content: center; /* EDIT: space-between */
     position: relative;
     width: 100%;
   }
 
   .gsi-material-button .gsi-material-button-contents {
+    /* EDIT:
     -webkit-flex-grow: 1;
     flex-grow: 1;
+    */
     font-family: 'Roboto', arial, sans-serif;
     font-weight: 500;
     /* EDIT:

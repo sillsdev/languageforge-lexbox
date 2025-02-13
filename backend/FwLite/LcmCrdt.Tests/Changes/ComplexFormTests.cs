@@ -11,7 +11,7 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
     [Fact]
     public async Task AddComplexFormType()
     {
-        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
         await fixture.Api.CreateComplexFormType(complexFormType);
         var complexEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat rack" } }, });
         var change = new AddComplexFormTypeChange(complexEntry.Id,complexFormType);
@@ -25,7 +25,7 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
     public async Task RemoveComplexFormType()
     {
         var complexEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat rack" } }, });
-        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new(){ { "en", "test" } } };
         await fixture.Api.CreateComplexFormType(complexFormType);
         await fixture.DataModel.AddChange(
             Guid.NewGuid(),
@@ -80,5 +80,22 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
         complexEntry.Should().NotBeNull();
         complexEntry.Components.Should().NotContain(c => c.Id == component.Id);
+    }
+
+    [Fact]
+    public async Task DuplicateComponentsAreDeleted()
+    {
+        var complexEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat rack" } }, });
+        var coatEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat" } }, });
+
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, coatEntry)));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, coatEntry)));
+        complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
+        complexEntry.Should().NotBeNull();
+        complexEntry.Components.Should().ContainSingle(e => e.ComponentEntryId == coatEntry.Id);
+
+        coatEntry = await fixture.Api.GetEntry(coatEntry.Id);
+        coatEntry.Should().NotBeNull();
+        coatEntry.ComplexForms.Should().ContainSingle(e => e.ComplexFormEntryId == complexEntry.Id);
     }
 }

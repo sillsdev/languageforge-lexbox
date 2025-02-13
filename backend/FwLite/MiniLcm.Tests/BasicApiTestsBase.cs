@@ -8,28 +8,6 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        await Api.CreateWritingSystem(WritingSystemType.Analysis,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Analysis,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "En",
-                Font = "Arial",
-                Exemplars = []
-            });
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "En",
-                Font = "Arial",
-                Exemplars = []
-            });
         await Api.CreateEntry(new Entry
         {
             Id = Entry1Id,
@@ -141,7 +119,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 Id = Guid.NewGuid(),
                 Type = WritingSystemType.Vernacular,
-                WsId = "en",
+                WsId = "es",
                 Name = "test",
                 Abbreviation = "test",
                 Font = "Arial",
@@ -356,7 +334,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var createdSense = await Api.CreateSense(Entry1Id, new Sense()
         {
             Id = senseId,
-            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString() }],
+            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
         });
         createdSense.Id.Should().Be(senseId);
         createdSense.SemanticDomains.Should().BeEmpty("because the domain does not exist (or was deleted)");
@@ -381,13 +359,14 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task CreateSense_WontCreateMissingPartOfSpeech()
+    public async Task CreateSense_WillThrowExceptionWithMissingPartOfSpeech()
     {
         var senseId = Guid.NewGuid();
-        var createdSense = await Api.CreateSense(Entry1Id,
-            new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = Guid.NewGuid(), });
-        createdSense.Id.Should().Be(senseId);
-        createdSense.PartOfSpeechId.Should().BeNull("because the part of speech does not exist (or was deleted)");
+        var partOfSpeechId = Guid.NewGuid();
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Api.CreateSense(Entry1Id, new Sense() { Id = senseId, PartOfSpeech = null, PartOfSpeechId = partOfSpeechId, })
+        );
+        exception.Should().NotBeNull("because the part of speech does not exist (or was deleted)");
     }
 
     [Fact]
@@ -399,7 +378,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var partOfSpeech = await Api.GetPartsOfSpeech().SingleOrDefaultAsync(pos => pos.Id == partOfSpeechId);
         ArgumentNullException.ThrowIfNull(partOfSpeech);
         var createdSense = await Api.CreateSense(Entry1Id,
-            new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = partOfSpeechId, });
+            new Sense() { Id = senseId, PartOfSpeech = partOfSpeech, PartOfSpeechId = partOfSpeechId, });
         createdSense.Id.Should().Be(senseId);
         createdSense.PartOfSpeechId.Should().Be(partOfSpeechId, "because the part of speech does exist");
     }
@@ -422,7 +401,6 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    PartOfSpeech = "test",
                     Definition = new MultiString
                     {
                         Values =
@@ -436,9 +414,10 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
-                .Set(e => e.PartOfSpeech, "updated")//should be ignored
+                .Set(e => e.PartOfSpeech, new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{"en","updated"}} }) // should be ignored
                 .Set(e => e.PartOfSpeechId, partOfSpeechId));
-        updatedSense.PartOfSpeech.Should().Be("Adverb");
+        updatedSense.PartOfSpeech.Should().NotBeNull();
+        updatedSense.PartOfSpeech.Name.Should().BeEquivalentTo(new MultiString() {{"en","Adverb"}});
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 
@@ -460,7 +439,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 new Sense()
                 {
                     SemanticDomains =
-                        [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString() }],
+                        [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
                     Definition = new MultiString { Values = { { "en", "test" } } }
                 }
             ]

@@ -1,0 +1,8 @@
+﻿@page "/project/{projectName}"
+@using FwLiteShared.Layout
+@layout SvelteLayout;
+
+@code {
+    [Parameter]
+    public required string ProjectName { get; set; }
+}

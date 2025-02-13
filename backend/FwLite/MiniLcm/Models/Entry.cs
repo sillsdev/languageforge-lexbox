@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm.Models;
 
-public class Entry : IObjectWithId<Entry>
+public record Entry : IObjectWithId<Entry>
 {
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
@@ -10,26 +10,28 @@ public class Entry : IObjectWithId<Entry>
     public virtual MultiString CitationForm { get; set; } = new();
 
     public virtual MultiString LiteralMeaning { get; set; } = new();
-    public virtual IList<Sense> Senses { get; set; } = [];
+    public virtual List<Sense> Senses { get; set; } = [];
 
     public virtual MultiString Note { get; set; } = new();
 
     /// <summary>
     /// Components making up this complex entry
     /// </summary>
-    public virtual IList<ComplexFormComponent> Components { get; set; } = [];
+    public virtual List<ComplexFormComponent> Components { get; set; } = [];
 
     /// <summary>
     /// This entry is a part of these complex forms
     /// </summary>
-    public virtual IList<ComplexFormComponent> ComplexForms { get; set; } = [];
+    public virtual List<ComplexFormComponent> ComplexForms { get; set; } = [];
 
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
     public string Headword()
     {
-        var word = CitationForm.Values.Values.FirstOrDefault();
-        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.Values.FirstOrDefault();
+        //order by code to ensure the headword is stable
+        //todo choose ws by preference based on ws order/default
+        var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
+        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         return word?.Trim() ?? "(Unknown)";
     }
 
@@ -67,6 +69,11 @@ public class Entry : IObjectWithId<Entry>
 
     public void RemoveReference(Guid id, DateTimeOffset time)
     {
+    }
+
+    public Entry WithoutEntryRefs()
+    {
+        return this with { Components = [], ComplexForms = [] };
     }
 }
 

@@ -12,7 +12,7 @@ public class UpdateProjectMetadataJob(ProjectService projectService) : LexJob
         await QueueJob(schedulerFactory,
             Key,
             new JobDataMap { { nameof(ProjectCode), projectCode } },
-            cancellationToken);
+            cancellationToken: cancellationToken);
     }
 
     public static JobKey Key { get; } = new("UpdateProjectMetadataJob", "DataUpdate");

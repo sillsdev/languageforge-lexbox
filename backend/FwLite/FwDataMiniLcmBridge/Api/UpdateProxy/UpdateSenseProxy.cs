@@ -25,7 +25,7 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         set => throw new NotImplementedException();
     }
 
-    public override string PartOfSpeech
+    public override PartOfSpeech? PartOfSpeech
     {
         get => throw new NotImplementedException();
         set { }
@@ -113,15 +113,9 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         }
     }
 
-    public override IList<ExampleSentence> ExampleSentences
+    public override List<ExampleSentence> ExampleSentences
     {
-        get =>
-            new UpdateListProxy<ExampleSentence>(
-                sentence => lexboxLcmApi.CreateExampleSentence(sense, sentence),
-                sentence => lexboxLcmApi.DeleteExampleSentence(sense.Owner.Guid, Id, sentence.Id),
-                i => new UpdateExampleSentenceProxy(sense.ExamplesOS[i], lexboxLcmApi),
-                sense.ExamplesOS.Count
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 }

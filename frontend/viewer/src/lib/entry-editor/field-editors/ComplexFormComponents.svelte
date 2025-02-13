@@ -1,14 +1,14 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
-  import { useCurrentView } from '../../services/view-service';
+  import { useCurrentView } from '$lib/views/view-service';
   import EntryOrSensePicker, { type EntrySenseSelection } from '../EntryOrSensePicker.svelte';
-  import { headword, randomId } from '../../utils';
+  import { makeHasHadValueTracker, randomId } from '$lib/utils';
   import { createEventDispatcher } from 'svelte';
-  import type { IComplexFormComponent } from '../../mini-lcm/i-complex-form-component';
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
-  import type { IEntry, ISense } from '../../mini-lcm';
+  import type { IEntry, ISense, IComplexFormComponent } from '$lib/dotnet-types';
+  import {useWritingSystemService} from '$lib/writing-system-service';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };
@@ -20,8 +20,11 @@
   export let readonly: boolean;
   export let entry: IEntry;
   let currentView = useCurrentView();
+  const writingSystemService = useWritingSystemService();
 
-  $: empty = !value?.length;
+  let hasHadValueTracker = makeHasHadValueTracker();
+  let hasHadValue = hasHadValueTracker.store;
+  $: hasHadValueTracker.pushAndGet(value?.length);
 
   let openPicker = false;
 
@@ -29,10 +32,10 @@
     const component: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: entry.id,
-      complexFormHeadword: headword(entry),
+      complexFormHeadword: writingSystemService.headword(entry),
       componentEntryId: selection.entry.id,
       componentSenseId: selection.sense?.id,
-      componentHeadword: headword(selection.entry),
+      componentHeadword: writingSystemService.headword(selection.entry),
     };
     value = [...value, component];
     dispatch('change', { value });
@@ -53,16 +56,16 @@
 
 <div
   class="complex-form-components-field field"
-  class:empty
+  class:unused={!$hasHadValue}
   class:hidden={!$currentView.fields[id].show}
   style:grid-area={id}
 >
   <FieldTitle {id} {name} />
   <div class="item-list-field">
-    <EntryOrSenseItemList bind:value {readonly} on:change={() => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
+    <EntryOrSenseItemList bind:value {readonly} orderable on:change={() => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
       <svelte:fragment slot="actions">
         <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-          <div class="max-sm:hidden">Add Component</div>
+          Add Component
         </Button>
         <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} on:pick={(e) => addComponent(e.detail)}
           {disableEntry} {disableSense} />

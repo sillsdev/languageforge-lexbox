@@ -2,103 +2,109 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import type {ComplexFormType, Entry, ExampleSentence, PartOfSpeech, QueryOptions, SemanticDomain, Sense, WritingSystem, WritingSystems} from '../../mini-lcm';
-import type {ILexboxApiHub, ILexboxClient} from './Lexbox.ClientServer.Hubs';
+import type {ILexboxClient} from './Lexbox.ClientServer.Hubs';
 
 import {HubConnection} from '@microsoft/signalr';
-import type {JsonOperation} from '../Lexbox.ClientServer.Hubs';
-import type {WritingSystemType} from '../../services/lexbox-api';
+import type {
+  IComplexFormType, IEntry, IExampleSentence,
+  ISense,
+  IPartOfSpeech,
+  ISemanticDomain,
+  IWritingSystem,
+  IWritingSystems,
+  WritingSystemType,
+  IQueryOptions,
+  IComplexFormComponent,
+  IMiniLcmFeatures,
+  IMiniLcmJsInvokable
+} from '$lib/dotnet-types';
 
 // components
 
 export type Disposable = {
-    dispose(): void;
+  dispose(): void;
 }
 
 export type HubProxyFactory<T> = {
-    createHubProxy(connection: HubConnection): T;
+  createHubProxy(connection: HubConnection): T;
 }
 
 export type ReceiverRegister<T> = {
-    register(connection: HubConnection, receiver: T): Disposable;
+  register(connection: HubConnection, receiver: T): Disposable;
 }
 
 type ReceiverMethod = {
-    methodName: string,
-    method: (...args: any[]) => void
+  methodName: string,
+  method: (...args: any[]) => void
 }
 
 class ReceiverMethodSubscription implements Disposable {
 
-    public constructor(
-        private connection: HubConnection,
-        private receiverMethod: ReceiverMethod[]) {
-    }
+  public constructor(
+    private connection: HubConnection,
+    private receiverMethod: ReceiverMethod[]) {
+  }
 
-    public readonly dispose = () => {
-        for (const it of this.receiverMethod) {
-            this.connection.off(it.methodName, it.method);
-        }
+  public readonly dispose = () => {
+    for (const it of this.receiverMethod) {
+      this.connection.off(it.methodName, it.method);
     }
+  };
 }
 
 // API
 
 export type HubProxyFactoryProvider = {
-    (hubType: "ILexboxApiHub"): HubProxyFactory<ILexboxApiHub>;
+  (hubType: 'ILexboxApiHub'): HubProxyFactory<IMiniLcmJsInvokable>;
 }
 
 export const getHubProxyFactory = ((hubType: string) => {
-    if(hubType === "ILexboxApiHub") {
-        return ILexboxApiHub_HubProxyFactory.Instance;
-    }
+  if (hubType === 'ILexboxApiHub') {
+    return IMiniLcmJsInvokable_HubProxyFactory.Instance;
+  }
 }) as HubProxyFactoryProvider;
 
 export type ReceiverRegisterProvider = {
-    (receiverType: "ILexboxClient"): ReceiverRegister<ILexboxClient>;
+  (receiverType: 'ILexboxClient'): ReceiverRegister<ILexboxClient>;
 }
 
 export const getReceiverRegister = ((receiverType: string) => {
-    if(receiverType === "ILexboxClient") {
-        return ILexboxClient_Binder.Instance;
-    }
+  if (receiverType === 'ILexboxClient') {
+    return ILexboxClient_Binder.Instance;
+  }
 }) as ReceiverRegisterProvider;
 
 // HubProxy
 
-class ILexboxApiHub_HubProxyFactory implements HubProxyFactory<ILexboxApiHub> {
-    public static Instance = new ILexboxApiHub_HubProxyFactory();
+class IMiniLcmJsInvokable_HubProxyFactory implements HubProxyFactory<IMiniLcmJsInvokable> {
+  public static Instance = new IMiniLcmJsInvokable_HubProxyFactory();
 
-    private constructor() {
-    }
+  private constructor() {
+  }
 
-    public readonly createHubProxy = (connection: HubConnection): ILexboxApiHub => {
-        return new ILexboxApiHub_HubProxy(connection);
-    }
+  public readonly createHubProxy = (connection: HubConnection): IMiniLcmJsInvokable => {
+    return new IMiniLcmJsInvokable_HubProxy(connection);
+  };
 }
 
-class ILexboxApiHub_HubProxy implements ILexboxApiHub {
+class IMiniLcmJsInvokable_HubProxy implements IMiniLcmJsInvokable {
 
     public constructor(private connection: HubConnection) {
     }
 
-    public readonly GetWritingSystems = async (): Promise<WritingSystems> => {
+    public readonly getWritingSystems = async (): Promise<IWritingSystems> => {
         return await this.connection.invoke("GetWritingSystems");
     }
 
-    public readonly CreateWritingSystem = async (type: WritingSystemType, writingSystem: WritingSystem): Promise<void> => {
+    public readonly createWritingSystem = async (type: WritingSystemType, writingSystem: IWritingSystem): Promise<IWritingSystem> => {
         return await this.connection.invoke("CreateWritingSystem", type, writingSystem);
     }
 
-    public readonly UpdateWritingSystem = async (wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem> => {
-        return await this.connection.invoke("UpdateWritingSystem", wsId, type, update);
-    }
-
-    public readonly GetPartsOfSpeech = async (): Promise<PartOfSpeech[]> => {
+    public readonly getPartsOfSpeech = async (): Promise<IPartOfSpeech[]> => {
       return new Promise((resolve, reject) => {
-        let partsOfSpeech: PartOfSpeech[] = [];
-        this.connection.stream<PartOfSpeech>('GetPartsOfSpeech').subscribe({
-          next(value: PartOfSpeech) {
+        let partsOfSpeech: IPartOfSpeech[] = [];
+        this.connection.stream<IPartOfSpeech>('GetPartsOfSpeech').subscribe({
+          next(value: IPartOfSpeech) {
             partsOfSpeech.push(value);
           },
           error(err: any) {
@@ -111,11 +117,11 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
       });
     }
 
-    public readonly GetSemanticDomains = async (): Promise<SemanticDomain[]> => {
+    public readonly getSemanticDomains = async (): Promise<ISemanticDomain[]> => {
       return new Promise((resolve, reject) => {
-        let semanticDomains: SemanticDomain[] = [];
-        this.connection.stream<SemanticDomain>('GetSemanticDomains').subscribe({
-          next(value: SemanticDomain) {
+        let semanticDomains: ISemanticDomain[] = [];
+        this.connection.stream<ISemanticDomain>('GetSemanticDomains').subscribe({
+          next(value: ISemanticDomain) {
             semanticDomains.push(value);
           },
           error(err: any) {
@@ -128,11 +134,11 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
       });
     }
 
-    public readonly GetComplexFormTypes = async (): Promise<ComplexFormType[]> => {
+    public readonly getComplexFormTypes = async (): Promise<IComplexFormType[]> => {
       return new Promise((resolve, reject) => {
-        let complexFormTypes: ComplexFormType[] = [];
-        this.connection.stream<ComplexFormType>('GetComplexFormTypes').subscribe({
-          next(value: ComplexFormType) {
+        let complexFormTypes: IComplexFormType[] = [];
+        this.connection.stream<IComplexFormType>('GetComplexFormTypes').subscribe({
+          next(value: IComplexFormType) {
             complexFormTypes.push(value);
           },
           error(err: any) {
@@ -145,15 +151,15 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
       });
     }
 
-    public readonly GetEntries = async (options: QueryOptions): Promise<Entry[]> => {
+    public readonly getEntries = async (options: IQueryOptions): Promise<IEntry[]> => {
         return await this.connection.invoke("GetEntries", options);
     }
 
-  public readonly SearchEntries = (query: string, options: QueryOptions): Promise<Entry[]> => {
+  public readonly searchEntries = (query: string, options: IQueryOptions): Promise<IEntry[]> => {
     return new Promise((resolve, reject) => {
-      let entries: Entry[] = [];
-      this.connection.stream<Entry>('SearchEntries', query, options).subscribe({
-        next(value: Entry) {
+      let entries: IEntry[] = [];
+      this.connection.stream<IEntry>('SearchEntries', query, options).subscribe({
+        next(value: IEntry) {
           entries.push(value);
         },
         error(err: any) {
@@ -166,44 +172,136 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
     });
   };
 
-    public readonly GetEntry = async (id: string): Promise<Entry> => {
+    public readonly getEntry = async (id: string): Promise<IEntry> => {
         return await this.connection.invoke("GetEntry", id);
     }
 
-    public readonly CreateEntry = async (entry: Entry): Promise<Entry> => {
+    public readonly createEntry = async (entry: IEntry): Promise<IEntry> => {
         return await this.connection.invoke("CreateEntry", entry);
     }
 
-    public readonly UpdateEntry = async (before: Entry, after: Entry): Promise<Entry> => {
+    public readonly updateEntry = async (before: IEntry, after: IEntry): Promise<IEntry> => {
         return await this.connection.invoke("UpdateEntry", before, after);
     }
 
-    public readonly DeleteEntry = async (id: string): Promise<void> => {
+    public readonly deleteEntry = async (id: string): Promise<void> => {
         return await this.connection.invoke("DeleteEntry", id);
     }
 
-    public readonly CreateSense = async (entryId: string, sense: Sense): Promise<Sense> => {
+    public readonly createSense = async (entryId: string, sense: ISense): Promise<ISense> => {
         return await this.connection.invoke("CreateSense", entryId, sense);
     }
 
-    public readonly UpdateSense = async (entryId: string, senseId: string, update: JsonOperation[]): Promise<Sense> => {
-        return await this.connection.invoke("UpdateSense", entryId, senseId, update);
-    }
-
-    public readonly DeleteSense = async (entryId: string, senseId: string): Promise<void> => {
+    public readonly deleteSense = async (entryId: string, senseId: string): Promise<void> => {
         return await this.connection.invoke("DeleteSense", entryId, senseId);
     }
 
-    public readonly CreateExampleSentence = async (entryId: string, senseId: string, exampleSentence: ExampleSentence): Promise<ExampleSentence> => {
+    public readonly createExampleSentence = async (entryId: string, senseId: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> => {
         return await this.connection.invoke("CreateExampleSentence", entryId, senseId, exampleSentence);
     }
 
-    public readonly UpdateExampleSentence = async (entryId: string, senseId: string, exampleSentenceId: string, update: JsonOperation[]): Promise<ExampleSentence> => {
-        return await this.connection.invoke("UpdateExampleSentence", entryId, senseId, exampleSentenceId, update);
+    public readonly deleteExampleSentence = async (entryId: string, senseId: string, exampleSentenceId: string): Promise<void> => {
+        return await this.connection.invoke("DeleteExampleSentence", entryId, senseId, exampleSentenceId);
     }
 
-    public readonly DeleteExampleSentence = async (entryId: string, senseId: string, exampleSentenceId: string): Promise<void> => {
-        return await this.connection.invoke("DeleteExampleSentence", entryId, senseId, exampleSentenceId);
+    supportedFeatures(): Promise<IMiniLcmFeatures> {
+      throw new Error('Method not implemented.');
+    }
+
+    getComplexFormType(id: string): Promise<IComplexFormType> {
+      throw new Error('Method not implemented.');
+    }
+
+    getSense(entryId: string, id: string): Promise<ISense> {
+      throw new Error('Method not implemented.');
+    }
+
+    getPartOfSpeech(id: string): Promise<IPartOfSpeech> {
+      throw new Error('Method not implemented.');
+    }
+
+    getSemanticDomain(id: string): Promise<ISemanticDomain> {
+      throw new Error('Method not implemented.');
+    }
+
+    getExampleSentence(entryId: string, senseId: string, id: string): Promise<IExampleSentence> {
+      throw new Error('Method not implemented.');
+    }
+
+    updateWritingSystem(before: IWritingSystem, after: IWritingSystem): Promise<IWritingSystem> {
+      throw new Error('Method not implemented.');
+    }
+
+    createPartOfSpeech(partOfSpeech: IPartOfSpeech): Promise<IPartOfSpeech> {
+      throw new Error('Method not implemented.');
+    }
+
+    updatePartOfSpeech(before: IPartOfSpeech, after: IPartOfSpeech): Promise<IPartOfSpeech> {
+      throw new Error('Method not implemented.');
+    }
+
+    deletePartOfSpeech(id: string): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    createSemanticDomain(semanticDomain: ISemanticDomain): Promise<ISemanticDomain> {
+      throw new Error('Method not implemented.');
+    }
+
+    updateSemanticDomain(before: ISemanticDomain, after: ISemanticDomain): Promise<ISemanticDomain> {
+      throw new Error('Method not implemented.');
+    }
+
+    deleteSemanticDomain(id: string): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    createComplexFormType(complexFormType: IComplexFormType): Promise<IComplexFormType> {
+      throw new Error('Method not implemented.');
+    }
+
+    updateComplexFormType(before: IComplexFormType, after: IComplexFormType): Promise<IComplexFormType> {
+      throw new Error('Method not implemented.');
+    }
+
+    deleteComplexFormType(id: string): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    createComplexFormComponent(complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {
+      throw new Error('Method not implemented.');
+    }
+
+    deleteComplexFormComponent(complexFormComponent: IComplexFormComponent): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    addComplexFormType(entryId: string, complexFormTypeId: string): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    removeComplexFormType(entryId: string, complexFormTypeId: string): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    updateSense(entryId: string, before: ISense, after: ISense): Promise<ISense> {
+      throw new Error('Method not implemented.');
+    }
+
+    addSemanticDomainToSense(senseId: string, semanticDomain: ISemanticDomain): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    removeSemanticDomainFromSense(senseId: string, semanticDomainId: string): Promise<void> {
+      throw new Error('Method not implemented.');
+    }
+
+    updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence): Promise<IExampleSentence> {
+      throw new Error('Method not implemented.');
+    }
+
+    dispose(): Promise<void> {
+      throw new Error('Method not implemented.');
     }
 }
 

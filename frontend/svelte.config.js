@@ -13,6 +13,10 @@ const config = {
     handler(warning);
   },
   kit: {
+    alias: {
+      '$lib/dotnet-types': 'viewer/src/lib/dotnet-types',
+      '$lib/dotnet-types/*': 'viewer/src/lib/dotnet-types/*',
+    },
     version: {
       pollInterval: 0,
     },

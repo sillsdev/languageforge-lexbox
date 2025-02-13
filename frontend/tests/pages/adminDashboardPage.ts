@@ -1,8 +1,8 @@
-import type { Locator, Page } from '@playwright/test';
+import type {Locator, Page} from '@playwright/test';
 
-import { AuthenticatedBasePage } from './authenticatedBasePage';
-import { CreateProjectPage } from './createProjectPage';
-import { ProjectPage } from './projectPage';
+import {AuthenticatedBasePage} from './authenticatedBasePage';
+import {CreateProjectPage} from './createProjectPage';
+import {ProjectPage} from './projectPage';
 
 export class AdminDashboardPage extends AuthenticatedBasePage {
   get projectFilterBarInput(): Locator { return this.page.locator('.filter-bar').nth(0).getByRole('textbox'); }
@@ -14,6 +14,11 @@ export class AdminDashboardPage extends AuthenticatedBasePage {
   async openProject(projectName: string, projectCode: string): Promise<ProjectPage> {
     await this.clickProject(projectName);
     return await new ProjectPage(this.page, projectName, projectCode).waitFor();
+  }
+
+  async openDraftProject(projectName: string): Promise<CreateProjectPage> {
+    await this.clickProject(projectName);
+    return await new CreateProjectPage(this.page).waitFor();
   }
 
   async clickProject(projectName: string): Promise<void> {

@@ -4,26 +4,25 @@ using LexCore.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MiniLcm.Validators;
 using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge;
 
 public class FwDataFactory(
-    FwDataProjectContext context,
     ILogger<FwDataMiniLcmApi> fwdataLogger,
     IMemoryCache cache,
     ILogger<FwDataFactory> logger,
     IProjectLoader projectLoader,
-    FieldWorksProjectList fieldWorksProjectList) : IDisposable
+    MiniLcmValidators validators) : IDisposable, IHostedService
 {
     private bool _shuttingDown = false;
-    public FwDataFactory(FwDataProjectContext context,
-        ILogger<FwDataMiniLcmApi> fwdataLogger,
+    public FwDataFactory(ILogger<FwDataMiniLcmApi> fwdataLogger,
         IMemoryCache cache,
         ILogger<FwDataFactory> logger,
         IProjectLoader projectLoader,
         IHostApplicationLifetime lifetime,
-        FieldWorksProjectList fieldWorksProjectList) : this(context, fwdataLogger, cache, logger, projectLoader, fieldWorksProjectList)
+        MiniLcmValidators validators) : this(fwdataLogger, cache, logger, projectLoader, validators)
     {
         lifetime.ApplicationStopping.Register(() =>
         {
@@ -33,17 +32,11 @@ public class FwDataFactory(
         });
     }
 
-    public FwDataMiniLcmApi GetFwDataMiniLcmApi(string projectName, bool saveOnDispose)
-    {
-        var project = fieldWorksProjectList.GetProject(projectName) ?? throw new InvalidOperationException($"FwData Project {projectName} not found.");
-        return GetFwDataMiniLcmApi(project, saveOnDispose);
-    }
-
     private string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
-        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project);
+        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, validators);
     }
 
     private HashSet<string> _projects = [];
@@ -94,31 +87,17 @@ public class FwDataFactory(
     public void Dispose()
     {
         logger.LogInformation("Closing all projects");
-        foreach (var project in _projects)
+        //ensure a race condition doesn't cause us to dispose of a project that's already been disposed
+        var projects = Interlocked.Exchange(ref _projects, []);
+        foreach (var project in projects)
         {
             var lcmCache = cache.Get<LcmCache>(project);
             if (lcmCache is null || lcmCache.IsDisposed) continue;
             var name = lcmCache.ProjectId.Name;
             lcmCache.Dispose(); //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
             logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
+            cache.Remove(project);
         }
-    }
-
-    public FwDataMiniLcmApi GetCurrentFwDataMiniLcmApi(bool saveOnDispose)
-    {
-        var fwDataProject = context.Project;
-        if (fwDataProject is null)
-        {
-            throw new InvalidOperationException("No project is set in the context.");
-        }
-        return GetFwDataMiniLcmApi(fwDataProject, true);
-    }
-
-    public void CloseCurrentProject()
-    {
-        var fwDataProject = context.Project;
-        if (fwDataProject is null) return;
-        CloseProject(fwDataProject);
     }
 
     public void CloseProject(FwDataProject project)
@@ -135,5 +114,17 @@ public class FwDataFactory(
     public IDisposable DeferClose(FwDataProject project)
     {
         return Defer.Action(() => CloseProject(project));
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    //Services in MAUI apps aren't disposed when the app is shut down, we have a workaround to shutdown HostedServices on shutdown, so we made this IHostedService to close projects on shutdown
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _shuttingDown = true;
+        return Task.Run(Dispose, cancellationToken);
     }
 }

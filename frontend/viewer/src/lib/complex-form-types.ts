@@ -1,12 +1,12 @@
 ﻿import {derived, type Readable, type Writable, writable} from 'svelte/store';
-import type {ComplexFormType} from './mini-lcm';
+import type {IComplexFormType} from '$lib/dotnet-types';
 import {useLexboxApi} from './services/service-provider';
 
-let complexFormTypesStore: Writable<ComplexFormType[] | null> | null = null;
-export function useComplexFormTypes(): Readable<ComplexFormType[]> {
+let complexFormTypesStore: Writable<IComplexFormType[] | null> | null = null;
+export function useComplexFormTypes(): Readable<IComplexFormType[]> {
   if (complexFormTypesStore === null) {
-    complexFormTypesStore = writable<ComplexFormType[] | null>(null, (set) => {
-      useLexboxApi().GetComplexFormTypes().then(complexFormTypes => {
+    complexFormTypesStore = writable<IComplexFormType[] | null>(null, (set) => {
+      useLexboxApi().getComplexFormTypes().then(complexFormTypes => {
         set(complexFormTypes);
       }).catch(error => {
         console.error('Failed to load parts of speech', error);

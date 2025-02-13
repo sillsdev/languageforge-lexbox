@@ -1,9 +1,9 @@
 ﻿import {getContext, setContext} from 'svelte';
 
-import type { IEntry } from './mini-lcm';
+import type {IEntry} from '$lib/dotnet-types';
 
 export type NewEntryDialogOptions = {
-  dontNavigate?: true;
+  dontSelect?: true;
 };
 export type ProjectCommands = {
   createNewEntry: (headword: string, options?: NewEntryDialogOptions) => Promise<IEntry | undefined>,

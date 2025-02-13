@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FluentValidation;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -7,13 +8,17 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Validators;
+using SIL.Harmony.Core;
 using SIL.Harmony.Db;
+using MiniLcm.Culture;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, LcmCrdtDbContext dbContext) : IMiniLcmApi
+public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, IMiniLcmCultureProvider cultureProvider, MiniLcmValidators validators) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -26,6 +31,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
     private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
     private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
+
+    private CommitMetadata NewMetadata()
+    {
+        var metadata = new CommitMetadata
+        {
+            ClientVersion = AppVersion.Version,
+            //todo, if a user logs out and in with another account, this will be out of date until the next sync
+            AuthorName = ProjectData.LastUserName,
+            AuthorId = ProjectData.LastUserId
+        };
+        return metadata;
+    }
+    private async Task<Commit> AddChange(IChange change)
+    {
+        var commit = await dataModel.AddChange(ClientId, change, commitMetadata: NewMetadata());
+        return commit;
+    }
+
+    private async Task<Commit> AddChanges(IEnumerable<IChange> changes)
+    {
+        var commit = await dataModel.AddChanges(ClientId, changes, commitMetadata: NewMetadata());
+        return commit;
+    }
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -41,10 +69,18 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
+        await validators.ValidateAndThrow(writingSystem);
         var entityId = Guid.NewGuid();
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
-        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
-        return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
+        try
+        {
+            await AddChange(new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+        }
+        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.InnerException is SqliteException { SqliteErrorCode: 19 }) //19 is a unique constraint violation
+        {
+            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
+        }
+        return await GetWritingSystem(writingSystem.WsId, type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -52,8 +88,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var ws = await GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
-        await dataModel.AddChange(ClientId, patchChange);
-        return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
+        await AddChange(patchChange);
+        return await GetWritingSystem(id, type) ?? throw new NullReferenceException();
+    }
+
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    {
+        await validators.ValidateAndThrow(after);
+        await WritingSystemSync.Sync(before, after, this);
+        return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
 
     private WritingSystem? _defaultVernacularWs;
@@ -77,14 +120,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
-    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return dataModel.GetLatest<PartOfSpeech>(id);
+        return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        if (partOfSpeech.Id == Guid.Empty) partOfSpeech.Id = Guid.NewGuid();
+        await validators.ValidateAndThrow(partOfSpeech);
+        await AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
     }
 
@@ -93,13 +138,20 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var pos = await GetPartOfSpeech(id);
         if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..pos.ToChanges(update.Patch)]);
+        await AddChanges(pos.ToChanges(update.Patch));
         return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    {
+        await validators.ValidateAndThrow(after);
+        await PartOfSpeechSync.Sync(before, after, this);
+        return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
 
     public async Task DeletePartOfSpeech(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<PartOfSpeech>(id));
+        await AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
@@ -114,7 +166,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
     {
-        await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
+        await validators.ValidateAndThrow(semanticDomain);
+        await AddChange(new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new NullReferenceException();
     }
 
@@ -123,18 +176,25 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         var semDom = await GetSemanticDomain(id);
         if (semDom is null) throw new NullReferenceException($"unable to find semantic domain with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..semDom.ToChanges(update.Patch)]);
+        await AddChanges(semDom.ToChanges(update.Patch));
         return await GetSemanticDomain(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    {
+        await validators.ValidateAndThrow(after);
+        await SemanticDomainSync.Sync(before, after, this);
+        return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<SemanticDomain>(id));
+        await AddChange( new DeleteChange<SemanticDomain>(id));
     }
 
     public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
     {
-        await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
+        await AddChanges(semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)));
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -142,33 +202,87 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return ComplexFormTypes.AsAsyncEnumerable();
     }
 
+    public async Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        return await ComplexFormTypes.SingleOrDefaultAsync(c => c.Id == id);
+    }
+
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
+        await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
-        await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
+        await AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
-    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
-        await dataModel.AddChange(ClientId, addEntryComponentChange);
-        return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
+        await AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
+        return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
+    }
+
+    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    {
+        await validators.ValidateAndThrow(after);
+        await ComplexFormTypeSync.Sync(before, after, this);
+        return await GetComplexFormType(after.Id) ?? throw new NullReferenceException($"unable to find complex form type with id {after.Id}");
+    }
+
+    public async Task DeleteComplexFormType(Guid id)
+    {
+        await AddChange(new DeleteChange<ComplexFormType>(id));
+    }
+
+    private async Task<AddEntryComponentChange> CreateComplexFormComponentChange(ComplexFormComponent complexFormComponent, BetweenPosition? between = null)
+    {
+        complexFormComponent.Order = await OrderPicker.PickOrder(ComplexFormComponents.Where(c => c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId), between);
+        return new AddEntryComponentChange(complexFormComponent);
+    }
+
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    {
+        // tests in seperate PR:
+        // 1: call create with the same ID should throw.
+        // 2: change a propertyId => should result in a new ID (in Crdt test not base).
+        // 3: "normal" create also changes provided ID.
+        var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
+            c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
+            && c.ComponentEntryId == complexFormComponent.ComponentEntryId
+            && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
+        if (existing is null)
+        {
+            var betweenIds = between is null ? null : new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+            var addEntryComponentChange = await CreateComplexFormComponentChange(complexFormComponent, betweenIds);
+            await AddChange(addEntryComponentChange);
+            return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
+        }
+        else if (between is not null)
+        {
+            await MoveComplexFormComponent(existing, between);
+        }
+        return existing;
+    }
+
+    public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
+    {
+        var betweenIds = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
+        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(component.Id, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
+        await AddChange(new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
     }
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await dataModel.AddChange(ClientId, new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+        await AddChange(new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
     }
 
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await dataModel.AddChange(ClientId, new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+        await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -206,86 +320,88 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
         }
 
-        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
+        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable
-            .LoadWith(e => e.Senses).ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses)
+            .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
-            .OrderBy(e => e.Headword(sortWs.Value))
-            .ThenBy(e => e.Id)
-            .Skip(options.Offset)
-            .Take(options.Count);
+            .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
+            .ThenBy(e => e.Id);
+        queryable = options.ApplyPaging(queryable);
+        var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+            .AsComplexFormComparer();
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in entries)
         {
+            entry.ApplySortOrder(complexFormComparer);
             yield return entry;
         }
     }
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries.AsTracking(false)
+        var entry = await Entries
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
+        if (entry is not null)
+        {
+            var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
+            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+                .AsComplexFormComparer();
+            entry.ApplySortOrder(complexFormComparer);
+        }
         return entry;
-    }
-
-    /// <summary>
-    /// does not return the newly created entry, used for importing a large amount of data
-    /// </summary>
-    /// <param name="entry"></param>
-    public async Task CreateEntryLite(Entry entry)
-    {
-        await dataModel.AddChanges(ClientId,
-        [
-            new CreateEntryChange(entry),
-            ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
-            ..entry.Senses.SelectMany(s => s.ExampleSentences,
-                (sense, sentence) => new CreateExampleSentenceChange(sentence, sense.Id))
-        ], deferCommit: true);
     }
 
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
-        await dataModel.AddChanges(ClientId, entries.ToBlockingEnumerable().SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech)));
+        await AddChanges(
+            entries.ToBlockingEnumerable()
+                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
+                //force entries to be created first, this avoids issues where references are created before the entry is created
+                .OrderBy(c => c is CreateEntryChange ? 0 : 1)
+        );
     }
 
-    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, PartOfSpeech> partsOfSpeech)
+    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
     {
         yield return new CreateEntryChange(entry);
 
         //only add components, if we add both components and complex forms we'll get duplicates when importing data
-        foreach (var addEntryComponentChange in entry.Components.Select(c => new AddEntryComponentChange(c)))
+        var componentOrder = 1;
+        foreach (var component in entry.Components)
         {
-            yield return addEntryComponentChange;
+            component.Order = componentOrder++;
+            yield return new AddEntryComponentChange(component);
         }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {
             yield return addComplexFormTypeChange;
         }
+        var senseOrder = 1;
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
                 .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
                 .OfType<MiniLcm.Models.SemanticDomain>()
                 .ToList();
-            if (sense.PartOfSpeechId is not null && partsOfSpeech.TryGetValue(sense.PartOfSpeechId.Value, out var partOfSpeech))
-            {
-                sense.PartOfSpeechId = partOfSpeech.Id;
-                sense.PartOfSpeech = partOfSpeech.Name["en"] ?? string.Empty;
-            }
+            sense.Order = senseOrder++;
             yield return new CreateSenseChange(sense, entry.Id);
+            var exampleOrder = 1;
             foreach (var exampleSentence in sense.ExampleSentences)
             {
+                exampleSentence.Order = exampleOrder++;
                 yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
             }
         }
@@ -293,11 +409,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        await dataModel.AddChanges(ClientId,
-        [
+        await validators.ValidateAndThrow(entry);
+        await AddChanges([
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
-                .SelectMany(s => CreateSenseChanges(entry.Id, s))
+                .SelectMany((s, i) =>
+                {
+                    s.Order = i + 1;
+                    return CreateSenseChanges(entry.Id, s);
+                })
                 .ToArrayAsync(),
             ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
@@ -307,6 +427,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
         {
+            var currOrder = 1;
             foreach (var complexFormComponent in complexFormComponents)
             {
                 if (complexFormComponent.ComponentEntryId == default) complexFormComponent.ComponentEntryId = entry.Id;
@@ -333,7 +454,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 // {
                 //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
                 // }
-                yield return new AddEntryComponentChange(complexFormComponent);
+                if (complexFormComponent.ComplexFormEntryId == entry.Id)
+                {
+                    // the entry is the complex-form and picks what order its components are in
+                    complexFormComponent.Order = currOrder++;
+                    yield return new AddEntryComponentChange(complexFormComponent);
+                }
+                else
+                {
+                    // the entry is a component, so we let its complex-form pick the order
+                    yield return await CreateComplexFormComponentChange(complexFormComponent);
+                }
             }
         }
 
@@ -360,27 +491,26 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return !await Entries.AnyAsyncEF(e => e.Id == id);
     }
 
-
-
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
     {
         var entry = await GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
+        await AddChanges(entry.ToChanges(update.Patch));
         return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
     }
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        await EntrySync.Sync(after, before, this);
+        await validators.ValidateAndThrow(after);
+        await EntrySync.Sync(before, after, this);
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
     public async Task DeleteEntry(Guid id)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<Entry>(id));
+        await AddChange(new DeleteChange<Entry>(id));
     }
 
     private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId, Sense sense)
@@ -388,58 +518,91 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         sense.SemanticDomains = await SemanticDomains
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
             .ToListAsync();
-        if (sense.PartOfSpeechId is not null)
-        {
-            var partOfSpeech = await PartsOfSpeech.FirstOrDefaultAsync(p => p.Id == sense.PartOfSpeechId);
-            sense.PartOfSpeechId = partOfSpeech?.Id;
-            sense.PartOfSpeech = partOfSpeech?.Name["en"] ?? string.Empty;
-        }
 
         yield return new CreateSenseChange(sense, entryId);
-        foreach (var change in sense.ExampleSentences.Select(sentence =>
-                     new CreateExampleSentenceChange(sentence, sense.Id)))
+        var exampleOrder = 1;
+        foreach (var exampleSentence in sense.ExampleSentences)
         {
-            yield return change;
+            exampleSentence.Order = exampleOrder++;
+            yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
         }
     }
 
-    public async Task<Sense> CreateSense(Guid entryId, Sense sense)
+    public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
     {
+        var sense = await Senses.LoadWith(s => s.PartOfSpeech)
+            .AsQueryable()
+            .SingleOrDefaultAsync(e => e.Id == senseId);
+        sense?.ApplySortOrder();
+        return sense;
+    }
+
+    public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
+    {
+        await validators.ValidateAndThrow(sense);
+        if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
+            throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
+
+        sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
-        return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
+        return await GetSense(entryId, sense.Id) ?? throw new NullReferenceException("unable to find sense " + sense.Id);
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
         Guid senseId,
         UpdateObjectInput<Sense> update)
     {
-        var sense = await dataModel.GetLatest<Sense>(senseId);
+        var sense = await GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
         await dataModel.AddChanges(ClientId, [..sense.ToChanges(update.Patch)]);
-        return await dataModel.GetLatest<Sense>(senseId) ?? throw new NullReferenceException();
+        return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
+    }
+
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    {
+        await validators.ValidateAndThrow(after);
+        await SenseSync.Sync(entryId, before, after, this);
+        return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
+    }
+
+    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
+        await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
+        await AddChange(new DeleteChange<Sense>(senseId));
     }
 
     public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
-        await dataModel.AddChange(ClientId, new AddSemanticDomainChange(semanticDomain, senseId));
+        await AddChange(new AddSemanticDomainChange(semanticDomain, senseId));
     }
 
     public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
-        await dataModel.AddChange(ClientId, new RemoveSemanticDomainChange(semanticDomainId, senseId));
+        await AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
         Guid senseId,
-        ExampleSentence exampleSentence)
+        ExampleSentence exampleSentence,
+        BetweenPosition? between = null)
     {
-        await dataModel.AddChange(ClientId, new CreateExampleSentenceChange(exampleSentence, senseId));
-        return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
+        await validators.ValidateAndThrow(exampleSentence);
+        exampleSentence.Order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
+        await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
+        return await GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        var exampleSentence = await ExampleSentences
+            .AsQueryable()
+            .SingleOrDefaultAsync(e => e.Id == id);
+        return exampleSentence;
     }
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -449,13 +612,32 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var jsonPatch = update.Patch;
         var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch);
-        await dataModel.AddChange(ClientId, patchChange);
-        return await dataModel.GetLatest<ExampleSentence>(exampleSentenceId) ?? throw new NullReferenceException();
+        await AddChange(patchChange);
+        return await GetExampleSentence(entryId, senseId, exampleSentenceId) ?? throw new NullReferenceException();
+    }
+
+    public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
+        Guid senseId,
+        ExampleSentence before,
+        ExampleSentence after)
+    {
+        await validators.ValidateAndThrow(after);
+        await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
+        return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException();
+    }
+
+    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        var order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
+        await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        await dataModel.AddChange(ClientId, new DeleteChange<ExampleSentence>(exampleSentenceId));
+        await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
+    public void Dispose()
+    {
+    }
 }

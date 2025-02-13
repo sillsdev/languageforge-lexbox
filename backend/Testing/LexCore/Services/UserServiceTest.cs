@@ -12,6 +12,7 @@ using FluentAssertions;
 namespace Testing.LexCore.Services;
 
 [Collection(nameof(TestingServicesFixture))]
+[Trait("Category", "RequiresDb")]
 public class UserServiceTest : IAsyncLifetime
 {
     private readonly UserService _userService;
@@ -87,7 +88,7 @@ public class UserServiceTest : IAsyncLifetime
         return _lexBoxDbContext.SaveChangesAsync();
     }
 
-    public void UserListShouldBe(IEnumerable<User> actual, IEnumerable<User?> expected)
+    private void UserListShouldBe(IEnumerable<User> actual, IEnumerable<User?> expected)
     {
         var actualNames = actual.Select(u => u.Name);
         var expectedNames = expected.Select(u => u?.Name ?? "<null name>");

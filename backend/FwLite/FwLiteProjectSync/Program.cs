@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,8 +52,14 @@ public class Program
                 await using var scope = serviceRoot.CreateAsyncScope();
                 var services = scope.ServiceProvider;
                 var logger = services.GetRequiredService<ILogger<Program>>();
-                var fwdataApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwProjectName, true);
-                var projectsService = services.GetRequiredService<ProjectsService>();
+                var fieldWorksProjectList = services.GetRequiredService<FieldWorksProjectList>();
+                var fwProject = fieldWorksProjectList.GetProject(fwProjectName);
+                if (fwProject is null)
+                {
+                    throw new InvalidOperationException("Could not find fwdata project " + fwProjectName);
+                }
+                var fwdataApi = (FwDataMiniLcmApi) fieldWorksProjectList.OpenProject(fwProject);
+                var projectsService = services.GetRequiredService<CrdtProjectsService>();
                 var crdtProject = projectsService.GetProject(crdtProjectName);
                 if (crdtProject is null)
                 {

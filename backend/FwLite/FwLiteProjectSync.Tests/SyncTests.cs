@@ -57,11 +57,11 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await foreach (var entry in _fixture.FwDataApi.GetEntries())
+        await foreach (var entry in _fixture.FwDataApi.GetAllEntries())
         {
             await _fixture.FwDataApi.DeleteEntry(entry.Id);
         }
-        foreach (var entry in await _fixture.CrdtApi.GetEntries().ToArrayAsync())
+        foreach (var entry in await _fixture.CrdtApi.GetAllEntries().ToArrayAsync())
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
@@ -73,21 +73,44 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         _syncService = _fixture.SyncService;
     }
 
+    internal static EquivalencyOptions<Entry> SyncExclusions(EquivalencyOptions<Entry> options)
+    {
+        return options
+            .For(e => e.Senses).Exclude(s => s.Order)
+            .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
+            .For(e => e.Components).Exclude(c => c.Id)
+            .For(e => e.Components).Exclude(c => c.Order)
+            .For(e => e.ComplexForms).Exclude(c => c.Id)
+            .For(e => e.ComplexForms).Exclude(c => c.Order);
+    }
+
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task FirstSyncJustDoesAnImport()
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
-                              .For(e => e.ComplexForms).Exclude(c => c.Id));
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
+    public async Task SecondSyncDoesNothing()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
+        secondSync.CrdtChanges.Should().Be(0);
+        secondSync.FwdataChanges.Should().Be(0);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public static async Task SyncFailsWithMismatchedProjectIds()
     {
         var fixture = SyncFixture.Create();
@@ -99,7 +122,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var newFwProjectId = Guid.NewGuid();
         await fixture.Services.GetRequiredService<LcmCrdtDbContext>().ProjectData.
             ExecuteUpdateAsync(updates => updates.SetProperty(p => p.FwProjectId, newFwProjectId));
-        await fixture.Services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache(force: true);
+        await fixture.Services.GetRequiredService<CurrentProjectService>().RefreshProjectData();
 
         Func<Task> syncTask = async () => await fixture.SyncService.Sync(crdtApi, fwdataApi);
         await syncTask.Should().ThrowAsync<InvalidOperationException>();
@@ -107,6 +130,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CreatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -131,14 +155,97 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
+    public async Task SyncDryRun_NoChangesAreSynced()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        var fwDataEntryId = Guid.NewGuid();
+        var crdtEntryId = Guid.NewGuid();
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            Id = fwDataEntryId,
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            Id = crdtEntryId,
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, }
+            ]
+        });
+        await _syncService.SyncDryRun(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Select(e => e.Id).Should().NotContain(fwDataEntryId);
+        fwdataEntries.Select(e => e.Id).Should().NotContain(crdtEntryId);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task CreatingAComplexEntryInFwDataSyncsWithoutIssue()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var hat = await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Hat" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Hat" } }, }
+            ]
+        });
+        var stand = await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Stand" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Stand" } }, }
+            ]
+        });
+        var hatstand = await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Hatstand" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Hatstand" } }, }
+            ],
+        });
+        var component1 = ComplexFormComponent.FromEntries(hatstand, hat);
+        var component2 = ComplexFormComponent.FromEntries(hatstand, stand);
+        hatstand.Components = [component1, component2];
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+
+        // Sync again, ensure no problems or changes
+        var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
+        secondSync.CrdtChanges.Should().Be(0);
+        secondSync.FwdataChanges.Should().Be(0);
+    }
+
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task PartsOfSpeechSyncBothWays()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -174,6 +281,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task PartsOfSpeechSyncInEntries()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -189,6 +297,14 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreatePartOfSpeech(noun);
         // Note we do *not* call crdtApi.CreatePartOfSpeech(noun);
 
+        var verb = new PartOfSpeech()
+        {
+            Id = new Guid("86ff66f6-0774-407a-a0dc-3eeaf873daf7"),
+            Name = { { "en", "verb" } },
+            Predefined = true,
+        };
+        await crdtApi.CreatePartOfSpeech(verb);
+
         await fwdataApi.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", "Pear" } },
@@ -199,22 +315,21 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await crdtApi.CreateEntry(new Entry()
         {
-            LexemeForm = { { "en", "Banana" } },
+            LexemeForm = { { "en", "Eat" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = noun.Id }
+                new Sense() { Gloss = { { "en", "Eat" } }, PartOfSpeechId = verb.Id }
             ]
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SemanticDomainsSyncBothWays()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -252,6 +367,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task SemanticDomainsSyncInEntries()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -273,7 +389,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             LexemeForm = { { "en", "Pear" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Pear" } }, SemanticDomains = [ semdom3 ] }
+                new Sense() { Gloss = { { "en", "Pear" } }, SemanticDomains = [semdom3] }
             ]
         });
         await crdtApi.CreateEntry(new Entry()
@@ -281,19 +397,18 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             LexemeForm = { { "en", "Banana" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Banana" } }, SemanticDomains = [ semdom3 ] }
+                new Sense() { Gloss = { { "en", "Banana" } }, SemanticDomains = [semdom3] }
             ]
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -309,18 +424,17 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         results.CrdtChanges.Should().Be(1);
         results.FwdataChanges.Should().Be(1);
 
-        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options
-                .For(e => e.Components).Exclude(c => c.Id)
-                //todo the headword should be changed
+            options => SyncExclusions(options)
+                //todo the headwords should be changed
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
-                .For(e => e.ComplexForms).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task CanSyncAnyEntryWithDeletedComplexForm()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -358,6 +472,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task AddingASenseToAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -365,7 +480,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _syncService.Sync(crdtApi, fwdataApi);
 
         await fwdataApi.CreateSense(_testEntry.Id, new Sense()
-        {
+            {
             Gloss = { { "en", "Fruit" } },
             Definition = { { "en", "a round fruit, red or yellow" } },
         });
@@ -373,14 +488,48 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Gloss = { { "en", "Tree" } },
             Definition = { { "en", "a tall, woody plant, which grows fruit" } },
-        });
+            });
 
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task CanCreateAComplexFormAndItsComponentInOneSync()
+    {
+        //ensure they are synced so a real sync will happen when we want it to
+        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
+
+        var complexFormEntry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm" } } });
+        var componentEntry = await _fixture.CrdtApi.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "component" } },
+            ComplexForms =
+            [
+                new ComplexFormComponent() { ComplexFormEntryId = complexFormEntry.Id, ComponentEntryId = Guid.Empty }
+            ]
+        });
+
+        //one of the entries will be created first, it will try to create the reference to the other but it won't exist yet
+        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task CanCreateAComplexFormTypeAndSyncsIt()
+    {
+        //ensure they are synced so a real sync will happen when we want it to
+        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
+
+        var complexFormEntry = await _fixture.CrdtApi.CreateComplexFormType(new() { Name = new() { { "en", "complexFormType" } } });
+
+        //one of the entries will be created first, it will try to create the reference to the other but it won't exist yet
+        await _fixture.SyncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
+
+        _fixture.FwDataApi.GetComplexFormTypes().ToBlockingEnumerable().Should().ContainEquivalentOf(complexFormEntry);
     }
 }

@@ -11,14 +11,20 @@ public class JsonPatchSenseRewriteTests
 {
     private JsonPatchDocument<MiniLcm.Models.Sense> _patchDocument = new() { Options = new JsonSerializerOptions(JsonSerializerDefaults.Web) };
 
-    private Sense _sense = new Sense()
+    private Sense _sense = MakeSense("test");
+
+    private static Sense MakeSense(string name)
     {
-        Id = Guid.NewGuid(),
-        EntryId = Guid.NewGuid(),
-        PartOfSpeechId = Guid.NewGuid(),
-        PartOfSpeech = "test",
-        SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString() }],
-    };
+        var pos = new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{ "en", name }} };
+        return new Sense()
+        {
+            Id = Guid.NewGuid(),
+            EntryId = Guid.NewGuid(),
+            PartOfSpeech = pos,
+            PartOfSpeechId = pos.Id,
+            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString() }],
+        };
+    }
 
     [Fact]
     public void RewritePartOfSpeechChangesIntoSetPartOfSpeechChange()

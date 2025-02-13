@@ -4,7 +4,7 @@
 public record ComplexFormType : IObjectWithId
 {
     public virtual Guid Id { get; set; }
-    public required MultiString Name { get; set; }
+    public virtual required MultiString Name { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
 
@@ -19,6 +19,6 @@ public record ComplexFormType : IObjectWithId
 
     public IObjectWithId Copy()
     {
-        return new ComplexFormType { Id = Id, Name = Name, DeletedAt = DeletedAt };
+        return new ComplexFormType { Id = Id, Name = Name.Copy(), DeletedAt = DeletedAt };
     }
 }

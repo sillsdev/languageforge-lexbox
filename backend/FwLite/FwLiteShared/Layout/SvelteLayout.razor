@@ -1,0 +1,88 @@
+﻿@inherits LayoutComponentBase
+@using FwLiteShared.Services
+@using Microsoft.Extensions.Hosting
+@using Microsoft.Extensions.Logging
+@using Microsoft.Extensions.Options
+@inject IJSRuntime JS
+@inject ILogger<SvelteLayout> Logger
+@inject FwLiteProvider FwLiteProvider
+@inject IOptions<FwLiteConfig> Config;
+@inject ProjectServicesProvider ProjectServicesProvider;
+@inject NavigationManager NavigationManager;
+@implements IAsyncDisposable
+@if (useDevAssets)
+{
+    <script type="module" src="@DevScheme://@DevHostname:5173/@@vite/client"></script>
+}
+else
+{
+    <link rel="modulepreload" href="@Assets["_content/FwLiteShared/viewer/svelte-ux.js"]">
+    <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/main.css"]"/>
+}
+<script>
+    window['setOverrideService'] = (key, service) => {
+        window.lexbox ??= {};
+        window.lexbox.FwLiteProvider ??= {};
+        if (window.lexbox.DotNetServiceProvider) {
+          window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
+        }
+        const services = window.lexbox.FwLiteProvider;
+        if (service) {
+            services[key] = service;
+        } else {
+            delete services[key];
+        }
+    };
+
+</script>
+<div id="svelte-app" class="contents">
+</div>
+
+@Body
+
+@code {
+    private bool useDevAssets => Config.Value.UseDevAssets;
+    // private bool useDevAssets => false;
+    private Uri DevUri
+    {
+        get
+        {
+            //this lets us use the host from the request, this enables us to open the web page on a phone where the host will not be localhost
+            var uri = new Uri(NavigationManager.Uri);
+            //check if we're running in maui, then use localhost instead.
+            if (uri.Host == "0.0.0.1") uri = new Uri("http://localhost:" + uri.Port);
+            return uri;
+        }
+    }
+
+    private string DevHostname => DevUri.Host;
+    private string DevScheme => DevUri.Scheme;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRenderAsync SvelteLayout");
+        if (firstRender)
+        {
+            foreach (var (serviceKey, service) in FwLiteProvider.GetServices())
+            {
+                await FwLiteProvider.SetService(JS, serviceKey, service);
+            }
+
+            await FwLiteProvider.SetService(JS, DotnetService.ProjectServicesProvider, ProjectServicesProvider);
+
+            if (useDevAssets)
+            {
+                await JS.InvokeAsync<IJSObjectReference>("import", $"{DevScheme}://{DevHostname}:5173/src/main.ts");
+            } else
+            {
+                await JS.InvokeAsync<IJSObjectReference>("import",
+                    "/" + Assets["_content/FwLiteShared/viewer/main.js"]);
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+    }
+
+}

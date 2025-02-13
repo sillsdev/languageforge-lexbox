@@ -1,6 +1,5 @@
 ﻿using FluentAssertions.Execution;
 using LcmCrdt.Objects;
-using LcmCrdt.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
@@ -17,22 +17,28 @@ namespace LcmCrdt.Tests;
 
 public class DataModelSnapshotTests : IAsyncLifetime
 {
-    private static readonly AutoFaker Faker = new AutoFaker(new AutoFakerConfig()
+    private static readonly AutoFaker Faker = new(new AutoFakerConfig()
     {
-        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
+        RepeatCount = 5,
+        Overrides =
+        [
+            new MultiStringOverride(),
+            new WritingSystemIdOverride(),
+            new OrderableOverride(),
+        ]
     });
 
     protected readonly AsyncServiceScope _services;
     private readonly LcmCrdtDbContext _crdtDbContext;
     private CrdtConfig _crdtConfig;
+    private CrdtProject _crdtProject;
+
     public DataModelSnapshotTests()
     {
-
+        _crdtProject = new CrdtProject("sena-3", $"sena-3-{Guid.NewGuid()}.sqlite");
         var services = new ServiceCollection()
-            .AddLcmCrdtClient()
+            .AddTestLcmCrdtClient(_crdtProject)
             .AddLogging(builder => builder.AddDebug())
-            .RemoveAll(typeof(ProjectContext))
-            .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
@@ -43,13 +49,15 @@ public class DataModelSnapshotTests : IAsyncLifetime
     {
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        await ProjectsService.InitProjectDb(_crdtDbContext,
+        await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
-        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(_crdtProject);
     }
 
     public async Task DisposeAsync()
     {
+        await _crdtDbContext.Database.CloseConnectionAsync();
+        await _crdtDbContext.Database.EnsureDeletedAsync();
         await _services.DisposeAsync();
     }
 

@@ -1,15 +1,16 @@
 ﻿using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class ReplaceSemanticDomainChange(Guid oldSemanticDomainId, SemanticDomain semanticDomain, Guid senseId)
-    : EditChange<Sense>(senseId), ISelfNamedType<ReplaceSemanticDomainChange>
+public class ReplaceSemanticDomainChange(Guid oldSemanticDomainId, SemanticDomain semanticDomain, Guid entityId)
+    : EditChange<Sense>(entityId), ISelfNamedType<ReplaceSemanticDomainChange>
 {
     public Guid OldSemanticDomainId { get; } = oldSemanticDomainId;
     public SemanticDomain SemanticDomain { get; } = semanticDomain;
 
-    public override async ValueTask ApplyChange(Sense entity, ChangeContext context)
+    public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
         //remove the old domain
         entity.SemanticDomains = [..entity.SemanticDomains.Where(s => s.Id != OldSemanticDomainId)];

@@ -3,7 +3,7 @@ const plugin = require('tailwindcss/plugin');
 // const { createThemes } = require('tw-colors');
 const svelteUx = require('svelte-ux/plugins/tailwind.cjs')
 const { iconsPlugin, getIconCollections } = require('@egoist/tailwindcss-icons');
-
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/!(WebComponent).{html,svelte,ts}', './node_modules/svelte-ux/**/*.{svelte,js}'],
   variants: {
@@ -16,7 +16,7 @@ module.exports = {
       // Search showing aliases and version (of root source) icons were introduced: https://pictogrammers.com/library/mdi/
       collections: getIconCollections(['mdi']),
     }),
-    svelteUx({ colorSpace: 'oklch' }),
+    svelteUx({ colorSpace: 'hsl' }),
     require('@tailwindcss/typography'),
   ],
   ux: {
@@ -29,7 +29,7 @@ module.exports = {
         "secondary": "#D6E6FF",
         "accent": "#75d7ce",
         "neutral": "#70acc7",
-        "surface-100": "oklch(100% 0 0)",
+        "surface-100": "#ffffff",
         "surface-200": "#f4f5f6",
         "surface-300": "#d1d5db",
         "surface-content": "#394E6A",
@@ -60,10 +60,19 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'max-xs': { 'max': '400px' },
         'max-sm': { 'max': '639px' },
         'max-md': { 'max': '767px' },
-        'max-lg': { 'max': '1023px' },
+
+        // Breakpoints for the entry form aka editor
+        'xs-form': {'max': '800px'},
+        'sm-form': {'max': '1279px'},
+        'lg-form': {'min': '1280px'},
+
+        // Breakpoints for the project view layout
+        'sm-view': { 'max': '800px' },
+        'lg-view': '801px',
+        //only active when the user has a mouse (eg they can hover over an element)
+        'pointer': {'raw': '(hover: hover)'}
       },
     },
   },

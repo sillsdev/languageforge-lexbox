@@ -1,12 +1,14 @@
 <script lang="ts">
   import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from 'svelte-ux';
-  import type { IEntry } from '../mini-lcm';
-  import { firstDefOrGlossVal, headword } from '../utils';
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
+  import type { IEntry } from '$lib/dotnet-types';
+  import { mdiArrowCollapseLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
   import IndexCharacters from './IndexCharacters.svelte';
   import type { Writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import DictionaryEntry from '../DictionaryEntry.svelte';
+  import {useCurrentView} from '$lib/views/view-service';
+  import {fieldName} from '$lib/i18n';
+  import {useWritingSystemService} from '$lib/writing-system-service';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
@@ -16,6 +18,8 @@
   export let loading: boolean;
   export let search: string;
   export let expand: boolean;
+
+  const writingSystemService = useWritingSystemService();
 
   const selectedEntry = getContext<Writable<IEntry | undefined>>('selectedEntry');
   let lastScrolledTo: string | undefined = undefined;
@@ -52,15 +56,16 @@
   let dictionaryMode = false;
 
   const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
+  const currentView = useCurrentView();
 </script>
 
-<div class="entry-list flex flex-col gap-4 w-full justify-self-center">
-  <div class="flex gap-3 w-full self-center">
+<div class="entry-list lg-view:flex flex-col gap-4 w-full justify-self-center">
+  <div class="flex gap-3 w-full self-center sm-view:p-2">
     <IndexCharacters />
     <div class="grow">
       <TextField
         bind:value={search}
-        placeholder="Filter entries..."
+        placeholder={`Filter ${fieldName({id: 'entries'}, $currentView.i18nKey).toLowerCase()}...`}
         clearable
         classes={{ append: 'flex-row-reverse' }}
         icon={mdiBookSearchOutline}>
@@ -74,18 +79,20 @@
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
       class="text-field-sibling-button"
       rounded
+      title={dictionaryMode ? 'Switch to list view' : 'Switch to dictionary view'}
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-    <div class="hidden lg:contents">
-      <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
+    <div class="hidden lg-view:contents">
+      <Button icon={expand ? mdiArrowCollapseLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded
+        title={expand ? 'Collapse list' : 'Expand list'}
         on:click={() => expand = !expand}>
       </Button>
     </div>
   </div>
-  <div class="border rounded-md overflow-hidden flex">
-    <div class="overflow-auto w-full" bind:this={scrollContainerElem}>
+  <div class="lg-view:border lg-view:rounded-md overflow-hidden flex">
+    <div class="lg-view:overflow-auto w-full" bind:this={scrollContainerElem}>
       {#if !entries || entries.length == 0}
         <div class="p-4 text-center opacity-75">
           No entries found
@@ -112,8 +119,8 @@
                 </button>
               {:else}
                   <ListItem
-                    title={headword(entry).padStart(1, '–')}
-                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '–')}
+                    title={writingSystemService.headword(entry).padStart(1, '–')}
+                    subheading={writingSystemService.firstDefOrGlossVal(entry.senses[0]).padStart(1, '–')}
                     on:click={() => selectEntry(entry)}
                     noShadow
                     class="!rounded-none"
@@ -132,7 +139,7 @@
     cursor: pointer;
 
     &.selected-entry > :global(*) {
-      @apply bg-surface-200;
+      @apply lg-view:bg-surface-200;
     }
 
     &:hover > :global(*) {

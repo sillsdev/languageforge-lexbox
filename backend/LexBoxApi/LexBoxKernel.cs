@@ -4,6 +4,7 @@ using LexBoxApi.GraphQL;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
+using LexBoxApi.Services.FwLiteReleases;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
@@ -48,6 +49,10 @@ public static class LexBoxKernel
             .BindConfiguration("HealthChecks")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<FwLiteReleaseConfig>()
+            .BindConfiguration("FwLiteRelease")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddHttpClient();
         services.AddServiceDiscovery();
         services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))
@@ -62,6 +67,7 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        services.AddSingleton<FwLiteReleaseService>();
         services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddTransient<FwHeadlessHealthCheck>();

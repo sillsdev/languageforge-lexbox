@@ -1,4 +1,4 @@
-﻿import {writable, type Writable} from 'svelte/store';
+﻿import {writable, type Readable, type Writable} from 'svelte/store';
 
 interface NotificationAction {
   label: string;
@@ -7,19 +7,19 @@ interface NotificationAction {
 
 export class AppNotification {
   private static _notifications: Writable<AppNotification[]> = writable([]);
-  public static get notifications(): Writable<AppNotification[]> {
+  public static get notifications(): Readable<AppNotification[]> {
     return this._notifications;
   }
 
-  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout: 'short' | 'long' | number = 'short') {
-    const notification = new AppNotification(message, type);
+  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout?: 'short' | 'long' | number, detail?: string) {
+    const notification = new AppNotification(message, type, undefined, detail);
     this._notifications.update(notifications => [...notifications, notification]);
-    if (timeout === -1) return;
+    if (!timeout || typeof timeout === 'number' && timeout <= 0) return;
     if (typeof timeout === 'string') {
       timeout = timeout === 'short' ? 5000 : 30000;
     }
     setTimeout(() => {
-      this._notifications.update(notifications => notifications.filter(n => n !== notification));
+      this.remove(notification);
     }, timeout);
   }
 
@@ -28,6 +28,14 @@ export class AppNotification {
     this._notifications.update(notifications => [...notifications, notification]);
   }
 
-  private constructor(public message: string, public type: 'success' | 'error' | 'info' | 'warning', public action?: NotificationAction) {
+  public static remove(notification: AppNotification): void {
+    this._notifications.update(notifications => notifications.filter(n => n !== notification));
+  }
+
+  public static clear(): void {
+    this._notifications.set([]);
+  }
+
+  private constructor(public message: string, public type: 'success' | 'error' | 'info' | 'warning', public action?: NotificationAction, public detail?: string) {
   }
 }

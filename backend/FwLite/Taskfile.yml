@@ -7,51 +7,71 @@ includes:
 
 tasks:
 
-  local-web-app-for-develop:
-    label: dotnet
-    dir: ./LocalWebApp
+  web:
+    aliases:
+      - web-for-develop
+    label: Run FwLiteWeb with Local LexBox, requires vite dev server to be running, use task fw-lite-web in root
+    dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
-  local-web-app:
-    label: Run LocalWebApp with Local LexBox
+  web-chaos:
+    lable: Run FwLiteWeb with some Chaos injected to http requests to lexbox, requests will have chaos 30% of the time, this includes some latency of 5 seconds
+    dir: ./FwLiteWeb
     env:
-      Auth__DefaultAuthority: "https://localhost:3050"
-    dir: ./LocalWebApp
-    cmd: dotnet watch --no-hot-reload
+      FW_LITE_CHAOS: true
+    cmd: dotnet run
 
-  maui-desktop:
-    label: Run Maui Desktop
-    dir: ./FwLiteDesktop
-    cmd: dotnet run -f net8.0-windows10.0.19041.0
+  tool-restore:
+    cmd: dotnet tool restore
+  add-migration:
+    deps: [ tool-restore ]
+    label: Add Migration
+    desc: 'Usage: task add-migration "MigrationName"'
+    dir: ./LcmCrdt
+    cmd: dotnet ef migrations add {{.CLI_ARGS}}
 
-  publish-maui-desktop:
-    label: Publish Maui Desktop
-    dir: ./FwLiteDesktop
+  has-pending-model-changes:
+    deps: [ tool-restore ]
+    dir: ./LcmCrdt
     cmds:
-      - dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
-      - dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
-    # disabled since we can't sign the msix installer
-#      - dotnet publish -r win-x64 --artifacts-path ../artifacts
-#      - dotnet publish -r win-arm64 --artifacts-path ../artifacts
+      - dotnet ef migrations has-pending-model-changes
 
-  publish-local-all:
+  maui-windows:
+    label: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
+    dir: ./FwLiteMaui
+    cmd: dotnet run -f net9.0-windows10.0.19041.0
+
+  publish-maui-windows:
+    label: Publish Maui Windows
+    dir: ./FwLiteMaui
     cmds:
-      - task: publish-local-win
-      - task: publish-local-linux
-      - task: publish-local-osx
-      - task: publish-local-osx-arm
-  publish-local-win:
-    dir: ./LocalWebApp
+      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None
+      - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts
+
+  build-maui-android:
+    deps: [ ui:build-viewer-app ]
+    label: Build Maui Android
+    dir: ./FwLiteMaui
+    cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
+
+  publish-web-all:
+    cmds:
+      - task: publish-web-win
+      - task: publish-web-linux
+      - task: publish-web-osx
+      - task: publish-web-osx-arm
+  publish-web-win:
+    dir: ./FwLiteWeb
     deps: [ ui:build-viewer-app ]
     cmd: dotnet publish -r win-x64
-  publish-local-win-arm:
-    dir: ./LocalWebApp
+  publish-web-win-arm:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r win-arm64
-  publish-local-linux:
-    dir: ./LocalWebApp
+  publish-web-linux:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r linux-x64
-  publish-local-osx:
-    dir: ./LocalWebApp
+  publish-web-osx:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r osx-x64
-  publish-local-osx-arm:
-    dir: ./LocalWebApp
+  publish-web-osx-arm:
+    dir: ./FwLiteWeb
     cmd: dotnet publish -r osx-arm64

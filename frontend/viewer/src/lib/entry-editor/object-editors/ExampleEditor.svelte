@@ -1,9 +1,9 @@
 ﻿<script lang="ts">
-  import type {IExampleSentence} from '../../mini-lcm';
+  import type {IExampleSentence} from '$lib/dotnet-types';
   import EntityEditor from './EntityEditor.svelte';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import SingleFieldEditor from '../field-editors/SingleFieldEditor.svelte';
-  import {objectTemplateAreas, useCurrentView} from '../../services/view-service';
+  import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
 
   export let example: IExampleSentence;
   export let readonly: boolean;

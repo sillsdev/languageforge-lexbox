@@ -5,10 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C#: LocalWebApp Debug",
+      "name": "FwLite Web",
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/backend/FwLite/LocalWebApp/LocalWebApp.csproj"
+      "projectPath": "${workspaceFolder}/backend/FwLite/FwLiteWeb/FwLiteWeb.csproj"
+    },
+    {
+      "name": "FwLite Windows (Maui)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build FwLite Windows (Maui)",
+      "program": "${workspaceFolder}/backend/FwLite/FwLiteMaui/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/FwLiteMaui.exe",
+      "cwd": "${workspaceFolder}/backend/FwLite/FwLiteMaui",
+      "stopAtEntry": false,
     },
     {
       "name": ".NET Core Launch (web)",
@@ -21,7 +30,7 @@
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
-        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        "pattern": "/\bNow listening on:\\s+(https?://\\S+)"
       },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"

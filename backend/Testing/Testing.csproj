@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-
         <IsPackable>false</IsPackable>
         <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
         <!-- To switch Mercurial versions, do dotnet build /p:MercurialVersion=3 followed by dotnet test -->
@@ -16,7 +12,7 @@
         <When Condition=" '$(MercurialVersion)' == '6' ">
             <ItemGroup>
                 <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0049" />
-                <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.36" />
+                <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
             </ItemGroup>
         </When>
         <Otherwise>
@@ -27,23 +23,22 @@
         </Otherwise>
     </Choose>
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.12.0"/>
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.8.0" />
-        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.9.1" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
         <PackageReference Include="Squidex.Assets.TusClient" Version="6.6.4" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
         <PackageReference Include="Moq" Version="4.20.70" />
         <PackageReference Include="Moq.Contrib.HttpClient" Version="1.4.0" />
         <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.1.0" />
         <PackageReference Include="SIL.Core" Version="14.2.0-*" />
-        <PackageReference Include="xunit" Version="2.9.0" />
+        <PackageReference Include="xunit" Version="2.9.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="coverlet.collector" Version="6.0.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

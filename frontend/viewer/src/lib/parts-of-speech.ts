@@ -1,16 +1,17 @@
 ﻿import {derived, type Readable, type Writable, writable} from 'svelte/store';
-import type {PartOfSpeech, WritingSystems} from './mini-lcm';
+import type {IPartOfSpeech} from '$lib/dotnet-types';
 import {useLexboxApi} from './services/service-provider';
-import {pickBestAlternative} from './utils';
+import {useWritingSystemService} from './writing-system-service';
 
-type LabeledPartOfSpeech = PartOfSpeech & {label: string};
+type LabeledPartOfSpeech = IPartOfSpeech & {label: string};
 
-let partsOfSpeechStore: Writable<PartOfSpeech[] | null> | null = null;
+let partsOfSpeechStore: Writable<IPartOfSpeech[] | null> | null = null;
 
-export function usePartsOfSpeech(writingSystemsStore: Readable<WritingSystems>): Readable<LabeledPartOfSpeech[]> {
+export function usePartsOfSpeech(): Readable<LabeledPartOfSpeech[]> {
+  const writingSystemService = useWritingSystemService();
   if (partsOfSpeechStore === null) {
-    partsOfSpeechStore = writable<PartOfSpeech[] | null>([], (set) => {
-      useLexboxApi().GetPartsOfSpeech().then(partsOfSpeech => {
+    partsOfSpeechStore = writable<IPartOfSpeech[] | null>([], (set) => {
+      useLexboxApi().getPartsOfSpeech().then(partsOfSpeech => {
         set(partsOfSpeech);
       }).catch(error => {
         console.error('Failed to load parts of speech', error);
@@ -18,10 +19,10 @@ export function usePartsOfSpeech(writingSystemsStore: Readable<WritingSystems>):
       });
     });
   }
-  return derived([partsOfSpeechStore, writingSystemsStore], ([partsOfSpeech, writingSystems]) => {
+  return derived([partsOfSpeechStore], ([partsOfSpeech]) => {
     return (partsOfSpeech ?? []).map(partOfSpeech => ({
       ...partOfSpeech,
-      label: pickBestAlternative(partOfSpeech.name, 'analysis', writingSystems),
+      label: writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis'),
     }));
   });
 }

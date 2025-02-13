@@ -1,7 +1,4 @@
-﻿using SIL.Harmony.Entities;
-using LcmCrdt.Objects;
-using MiniLcm.Tests.AutoFakerHelpers;
-using SIL.Harmony;
+﻿using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -11,7 +8,13 @@ public class EntityCopyMethodTests
 {
     private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
     {
-        Overrides = [new MultiStringOverride(), new WritingSystemIdOverride()]
+        RepeatCount = 5,
+        Overrides =
+        [
+            new MultiStringOverride(),
+            new WritingSystemIdOverride(),
+            new OrderableOverride(),
+        ],
     });
 
     public static IEnumerable<object[]> GetEntityTypes()
@@ -25,7 +28,8 @@ public class EntityCopyMethodTests
             typeof(ExampleSentence),
             typeof(WritingSystem),
             typeof(PartOfSpeech),
-            typeof(SemanticDomain)
+            typeof(SemanticDomain),
+            typeof(ComplexFormType)
         ];
         return types.Select(t => new object[] { t });
     }
@@ -37,6 +41,7 @@ public class EntityCopyMethodTests
         type.IsAssignableTo(typeof(IObjectWithId)).Should().BeTrue();
         var entity = (IObjectWithId) AutoFaker.Generate(type);
         var copy = entity.Copy();
+        //todo this does not detect a deep copy, but it should as that breaks stuff
         copy.Should().BeEquivalentTo(entity, options => options.IncludingAllRuntimeProperties());
     }
 }

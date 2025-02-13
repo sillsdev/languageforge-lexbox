@@ -3,6 +3,7 @@
   import {createEventDispatcher, type ComponentProps} from 'svelte';
   import {MultiSelectField, type MenuOption, type TextField} from 'svelte-ux';
   import CrdtField from './CrdtField.svelte';
+  import {makeHasHadValueTracker} from '$lib/utils';
 
   const dispatch = createEventDispatcher<{
     change: { value: string[] }; // Generics aren't working properly in CrdtField, so we make the type excplicit here
@@ -18,7 +19,7 @@
   export let preserveOrder = false;
   let append: HTMLElement;
 
-  $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
+  $: sortedOptions = [...options].sort((a, b) => a.label.localeCompare(b.label));
 
   function preserveSortOrder(unsortedValue: string[] | undefined): void {
     unsortedValue?.sort((a, b) => {
@@ -29,6 +30,8 @@
       return aIndex - bIndex;
     });
   }
+
+  let hasHadValue = makeHasHadValueTracker();
 </script>
 
 <CrdtField on:change={(e) => dispatch('change', { value: e.detail.value})} bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
@@ -43,7 +46,8 @@
     value={editorValue}
     disabled={readonly}
     options={sortedOptions}
-    icon={readonly ? undefined : mdiMagnify}
+    menuProps={{resize: true}}
+    icon={mdiMagnify}
     formatSelected={({ value, options }) => {
       return (preserveOrder
       // sorted by order of selection
@@ -55,7 +59,7 @@
     clearSearchOnOpen={false}
     clearable={false}
     class="ws-field"
-    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
+    classes={{ root: `${hasHadValue.pushAndGet(editorValue) ? '' : 'unused'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

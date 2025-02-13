@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Internal;
@@ -28,7 +29,7 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
 
     public JsonPatchDocument<T> PatchDocument { get; }
 
-    public override ValueTask ApplyChange(T entity, ChangeContext context)
+    public override ValueTask ApplyChange(T entity, IChangeContext context)
     {
         PatchDocument.ApplyTo(entity);
         return ValueTask.CompletedTask;

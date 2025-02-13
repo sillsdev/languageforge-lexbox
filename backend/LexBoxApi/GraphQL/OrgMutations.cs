@@ -180,6 +180,8 @@ public class OrgMutations
     [Error<DbError>]
     [Error<NotFoundException>]
     [Error<OrgMemberInvitedByEmail>]
+    [Error<OrgMembersMustBeVerified>]
+    [Error<OrgMembersMustBeVerifiedForRole>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -236,6 +238,8 @@ public class OrgMutations
     /// <param name="role">set to null to remove the member</param>
     [Error<DbError>]
     [Error<NotFoundException>]
+    [Error<OrgMembersMustBeVerified>]
+    [Error<OrgMembersMustBeVerifiedForRole>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -252,6 +256,7 @@ public class OrgMutations
         permissionService.AssertCanEditOrg(org);
         var user = await dbContext.Users.FindAsync(userId);
         NotFoundException.ThrowIfNull(user);
+        if (role is not null) user.AssertHasVerifiedEmailForOrgRole(role.Value);
         await UpdateOrgMemberRole(dbContext, org, role, userId);
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }

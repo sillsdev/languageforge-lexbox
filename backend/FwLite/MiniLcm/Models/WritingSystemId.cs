@@ -31,9 +31,12 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
 {
     public string Code { get; init; }
 
+    public static readonly WritingSystemId Default = "default";
+
     public WritingSystemId(string code)
     {
-        if (code == "default" || IetfLanguageTag.IsValid(code))
+        //__key is used by the LfClassicMiniLcmApi to smuggle non guid ids with possibilitie lists
+        if (code == "default" || code == "__key" || IetfLanguageTag.IsValid(code))
         {
             Code = code;
         }

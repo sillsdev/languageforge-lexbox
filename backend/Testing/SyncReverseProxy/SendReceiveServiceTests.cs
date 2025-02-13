@@ -117,7 +117,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Verify the push updated the last commit date
         var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
-        lastCommitDateAfter.Should().BeAfter(lastCommitDate.Value);
+        lastCommitDateAfter.Should().BeAfter(lastCommitDate!.Value);
     }
 
     [Theory]

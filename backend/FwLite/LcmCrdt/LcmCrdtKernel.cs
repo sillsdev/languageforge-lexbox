@@ -1,10 +1,12 @@
-﻿using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LcmCrdt.RemoteSync;
 using LinqToDB;
@@ -12,12 +14,16 @@ using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Project;
+using MiniLcm.Validators;
 using Refit;
-using SIL.Harmony.Db;
+using MiniLcm.Culture;
+using LcmCrdt.Culture;
 
 namespace LcmCrdt;
 
@@ -25,8 +31,11 @@ public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
     {
+        AvoidTrimming();
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
+        services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
@@ -34,30 +43,39 @@ public static class LcmCrdtKernel
             ConfigureCrdt
         );
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
-        services.AddSingleton<ProjectContext>();
-        services.AddSingleton<ProjectsService>();
+        services.AddScoped<HistoryService>();
+        services.AddSingleton<CrdtProjectsService>();
+        services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
         services.AddHttpClient();
-        services.AddSingleton<RefitSettings>(provider => new RefitSettings
+        services.AddSingleton(provider => new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
                 TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeJsonTypeResolver()
+                    .MakeLcmCrdtExternalJsonTypeResolver()
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
         return services;
     }
 
+    private static void AvoidTrimming()
+    {
+        //this is only here so that the compiler doesn't trim this method as Linq2Db uses it via reflection
+        SqliteConnection.ClearAllPools();
+    }
+
     private static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
     {
-        var projectContext = provider.GetRequiredService<ProjectContext>();
-        if (projectContext.Project is null) throw new NullReferenceException("Project is null");
+        var projectContext = provider.GetRequiredService<CurrentProjectService>();
+        projectContext.ValidateProjectScope();
 #if DEBUG
         builder.EnableSensitiveDataLogging();
 #endif
+        builder.EnableDetailedErrors();
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDB(optionsBuilder =>
             {
@@ -70,6 +88,7 @@ public static class LcmCrdtKernel
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
+                optionsBuilder.AddCustomOptions(options => options.UseSQLiteMicrosoft());
                 var loggerFactory = provider.GetService<ILoggerFactory>();
                 if (loggerFactory is not null)
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
@@ -123,6 +142,7 @@ public static class LcmCrdtKernel
             })
             .Add<WritingSystem>(builder =>
             {
+                builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();
                 builder.Property(w => w.Exemplars)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
@@ -134,7 +154,22 @@ public static class LcmCrdtKernel
             .Add<ComplexFormType>()
             .Add<ComplexFormComponent>(builder =>
             {
+                const string componentSenseId = "ComponentSenseId";
                 builder.ToTable("ComplexFormComponents");
+                builder.Property(c => c.ComponentSenseId).HasColumnName(componentSenseId);
+                //these indexes are used to ensure that we don't create duplicate complex form components
+                //we need the filter otherwise 2 components which are the same and have a null sense id can be created because 2 rows with the same null are not considered duplicates
+                builder.HasIndex(component => new
+                {
+                    component.ComplexFormEntryId,
+                    component.ComponentEntryId,
+                    component.ComponentSenseId
+                }).IsUnique().HasFilter($"{componentSenseId} IS NOT NULL");
+                builder.HasIndex(component => new
+                {
+                    component.ComplexFormEntryId,
+                    component.ComponentEntryId
+                }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
@@ -143,6 +178,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<WritingSystem>>()
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
+            .Add<JsonPatchChange<ComplexFormType>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<ExampleSentence>>()
@@ -165,22 +201,35 @@ public static class LcmCrdtKernel
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()
             .Add<SetComplexFormComponentChange>()
-            .Add<CreateComplexFormType>();
+            .Add<CreateComplexFormType>()
+            .Add<Changes.SetOrderChange<Sense>>()
+            .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<Changes.SetOrderChange<ComplexFormComponent>>()
+            // When adding anything other than a Delete or JsonPatch change,
+            // you must add an instance of it to UseChangesTests.GetAllChanges()
+            ;
     }
+
+    public static IEnumerable<Type> AllChangeTypes()
+    {
+        var crdtConfig = new CrdtConfig();
+        ConfigureCrdt(crdtConfig);
+        return crdtConfig.ChangeTypes;
+    }
+
 
     public static Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
     {
         //this method must not be async, otherwise Setting the project scope will not work as expected.
         //the project is stored in the async scope, if a new scope is created in this method then it will be gone once the method returns
         //making the lcm api unusable
-        var projectsService = services.GetRequiredService<ProjectsService>();
-        projectsService.SetProjectScope(project);
-        return LoadMiniLcmApi(services);
+        var projectsService = services.GetRequiredService<CrdtProjectsService>();
+        return LoadMiniLcmApi(services, project);
     }
 
-    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services)
+    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services, CrdtProject project)
     {
-        await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         return services.GetRequiredService<IMiniLcmApi>();
     }
 }

@@ -68,7 +68,12 @@ tasks:
     cmds:
       - tilt up
 
-      # dev
+  prod-ui-up:
+    interactive: true
+    desc: 'Starts the cluster using the production build of UI, good for automated testing'
+    cmds:
+      - tilt up -- --prod-ui-build
+    # dev
   infra-up:
     desc: 'Starts infrastructure for our ui and api, does not forward ports for api, if you want port forwarding use k8s:infra-forward'
     cmds:
@@ -88,8 +93,11 @@ tasks:
     deps: [ infra-up, api:only, k8s:infra-forward ]
     interactive: true
 
-  local-web-app-for-develop:
-    deps: [ ui:viewer-dev, fw-lite:local-web-app-for-develop, ui:https-oauth-authority ]
+  fw-lite-web:
+    aliases:
+      - web
+      - web-for-develop
+    deps: [ ui:viewer-dev, fw-lite:web, ui:https-oauth-authority ]
 
-  local-web-app:
-    deps: [ ui:viewer-dev, fw-lite:local-web-app, ui:https-oauth-authority ]
+  fw-lite-win:
+    deps: [fw-lite:maui-windows, ui:viewer-dev, ui:https-oauth-authority]

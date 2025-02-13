@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using LcmCrdt.Objects;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes.Entries;
@@ -21,7 +22,7 @@ public class SetComplexFormComponentChange : EditChange<ComplexFormComponent>, I
     public Guid? ComplexFormEntryId { get; }
     public Guid? ComponentEntryId { get; }
     public Guid? ComponentSenseId { get; }
-    public override async ValueTask ApplyChange(ComplexFormComponent entity, ChangeContext context)
+    public override async ValueTask ApplyChange(ComplexFormComponent entity, IChangeContext context)
     {
         if (ComplexFormEntryId.HasValue)
         {

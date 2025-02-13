@@ -1,4 +1,5 @@
 using FwHeadless;
+using FwHeadless.Services;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync;
@@ -10,6 +11,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using Scalar.AspNetCore;
+using LexCore.Utils;
+using LinqToDB;
+using SIL.Harmony.Core;
+using SIL.Harmony;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +41,13 @@ app.Use(async (context, next) =>
     await next();
 });
 
+// Load project ID from request
+app.Use((context, next) =>
+{
+    var renameThisService = context.RequestServices.GetRequiredService<ProjectContextFromIdService>();
+    return renameThisService.PopulateProjectContext(context, next);
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -49,6 +61,7 @@ app.UseHttpsRedirection();
 app.MapHealthChecks("/api/healthz");
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
+app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 
 app.Run();
 
@@ -58,8 +71,9 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     SendReceiveService srService,
     IOptions<FwHeadlessConfig> config,
     FwDataFactory fwDataFactory,
-    ProjectsService projectsService,
+    CrdtProjectsService projectsService,
     ProjectLookupService projectLookupService,
+    SyncJobStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
@@ -72,6 +86,9 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
         logger.LogInformation("Dry run, not actually syncing");
         return TypedResults.Ok(new SyncResult(0, 0));
     }
+
+    syncStatusService.StartSyncing(projectId);
+    using var stopSyncing = Defer.Action(() => syncStatusService.StopSyncing(projectId));
 
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
@@ -103,7 +120,6 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
     await crdtSyncService.Sync();
 
-
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
 
@@ -111,6 +127,29 @@ static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteM
     var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
     return TypedResults.Ok(result);
+}
+
+static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
+    CurrentProjectService projectContext,
+    ProjectLookupService projectLookupService,
+    SyncJobStatusService syncJobStatusService,
+    IServiceProvider services,
+    LexBoxDbContext lexBoxDb,
+    Guid projectId)
+{
+    var jobStatus = syncJobStatusService.SyncStatus(projectId);
+    if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
+    var project = projectContext.MaybeProject;
+    if (project is null)
+    {
+        // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
+        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
+        else return TypedResults.NotFound();
+    }
+    var commitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
+    var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
+    var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
+    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
 }
 
 static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
@@ -137,7 +176,7 @@ static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
 static async Task<CrdtProject> SetupCrdtProject(string crdtFile,
     ProjectLookupService projectLookupService,
     Guid projectId,
-    ProjectsService projectsService,
+    CrdtProjectsService projectsService,
     string projectFolder,
     Guid fwProjectId,
     string lexboxUrl)

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
@@ -12,6 +13,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     {
         exampleSentence.Id = EntityId;
         SenseId = senseId;
+        Order = exampleSentence.Order;
         Sentence = exampleSentence.Sentence;
         Translation = exampleSentence.Translation;
         Reference = exampleSentence.Reference;
@@ -24,16 +26,18 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     }
 
     public Guid SenseId { get; init; }
+    public double Order { get; set; }
     public MultiString? Sentence { get; set; }
     public MultiString? Translation { get; set; }
     public string? Reference { get; set; }
 
-    public override async ValueTask<ExampleSentence> NewEntity(Commit commit, ChangeContext context)
+    public override async ValueTask<ExampleSentence> NewEntity(Commit commit, IChangeContext context)
     {
         return new ExampleSentence
         {
             Id = EntityId,
             SenseId = SenseId,
+            Order = Order,
             Sentence = Sentence ?? new MultiString(),
             Translation = Translation ?? new MultiString(),
             Reference = Reference,

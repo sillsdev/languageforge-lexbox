@@ -1,6 +1,8 @@
 ﻿import {describe, expect, it} from 'vitest';
+
+import {FeatureFlag, type AuthUserOrg} from '$lib/gql/generated/graphql';
 import {jwtToUser} from '$lib/user';
-import type {AuthUserOrg} from '$lib/gql/generated/graphql';
+
 describe('jwtToUser', () => {
   it('should convert a jwt token to a LexAuthUser', () => {
     const jwtUser = {
@@ -19,6 +21,7 @@ describe('jwtToUser', () => {
         } as unknown as AuthUserOrg
       ],
       'proj': 'e:0ebc5976058d4447aaa7297f8569f968|e91ccdb50b46401a97b1ee6fe6179f73,m:7a43d4788e484a64bd9a52f0d7b1d883|58ff3987c3ec40728717574537d61a67',
+      'feat': [FeatureFlag.FwLiteBeta],
       'mkproj': true,
       'loc': 'en',
       'jti': '391c2d93',
@@ -27,7 +30,7 @@ describe('jwtToUser', () => {
       'exp': 1722673515,
       'iat': 1721377515,
       'iss': 'LexboxApi',
-      'aud': 'LexboxApi'
+      'aud': 'LexboxApi' as const,
     };
     const user = jwtToUser(jwtUser);
     expect(user).toEqual({
@@ -61,12 +64,14 @@ describe('jwtToUser', () => {
           'role': 'USER'
         }
       ],
+      'featureFlags': ['FW_LITE_BETA'],
       'locked': false,
       'emailVerified': true,
       'canCreateProjects': true,
       'createdByAdmin': false,
       'locale': 'en',
-      'emailOrUsername': 'editor@test.com'
+      'emailOrUsername': 'editor@test.com',
+      'audience': 'LexboxApi',
     });
   });
 });

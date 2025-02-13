@@ -7,34 +7,26 @@ public static class ExampleSentenceSync
 {
     public static async Task<int> Sync(Guid entryId,
         Guid senseId,
-        IList<ExampleSentence> afterExampleSentences,
         IList<ExampleSentence> beforeExampleSentences,
+        IList<ExampleSentence> afterExampleSentences,
         IMiniLcmApi api)
     {
-        Func<IMiniLcmApi, ExampleSentence, Task<int>> add = async (api, afterExampleSentence) =>
-        {
-            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence);
-            return 1;
-        };
-        Func<IMiniLcmApi, ExampleSentence, Task<int>> remove = async (api, beforeExampleSentence) =>
-        {
-            await api.DeleteExampleSentence(entryId, senseId, beforeExampleSentence.Id);
-            return 1;
-        };
-        Func<IMiniLcmApi, ExampleSentence, ExampleSentence, Task<int>> replace =
-            async (api, beforeExampleSentence, afterExampleSentence) =>
-            {
-                var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
-                if (updateObjectInput is null) return 0;
-                await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
-                return 1;
-            };
-        return await DiffCollection.Diff(api,
+        return await DiffCollection.DiffOrderable(
             beforeExampleSentences,
             afterExampleSentences,
-            add,
-            remove,
-            replace);
+            new ExampleSentencesDiffApi(api, entryId, senseId));
+    }
+
+    public static async Task<int> Sync(Guid entryId,
+        Guid senseId,
+        ExampleSentence beforeExampleSentence,
+        ExampleSentence afterExampleSentence,
+        IMiniLcmApi api)
+    {
+        var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
+        if (updateObjectInput is null) return 0;
+        await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
+        return 1;
     }
 
     public static UpdateObjectInput<ExampleSentence>? DiffToUpdate(ExampleSentence beforeExampleSentence,
@@ -56,5 +48,31 @@ public static class ExampleSentenceSync
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<ExampleSentence>(patchDocument);
+    }
+
+    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence>
+    {
+        public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition between)
+        {
+            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence, between);
+            return 1;
+        }
+
+        public async Task<int> Move(ExampleSentence example, BetweenPosition between)
+        {
+            await api.MoveExampleSentence(entryId, senseId, example.Id, between);
+            return 1;
+        }
+
+        public async Task<int> Remove(ExampleSentence beforeExampleSentence)
+        {
+            await api.DeleteExampleSentence(entryId, senseId, beforeExampleSentence.Id);
+            return 1;
+        }
+
+        public Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
+        {
+            return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api);
+        }
     }
 }

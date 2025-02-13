@@ -1,5 +1,9 @@
 .field {
-    @apply grid grid-cols-subgrid col-span-3 items-center mb-4;
+    @apply grid grid-cols-subgrid items-center;
+
+    &:not(:last-child) {
+      @apply mb-4;
+    }
 
     &.multi-field {
       @apply items-baseline;
@@ -21,26 +25,56 @@
     }
 
     .item-list-field {
-      @apply col-span-2 pl-4;
+      grid-column-start: 3;
     }
 
-    .readonly {
-      &.TextField, .TextField {
-        opacity: 1;
+    &.TextField, .TextField {
+      [class~="border"] {
+        filter: contrast(0.95);
+        border-radius: 0;
+        border-style: none;
+        border-bottom-style: solid;
+        @apply !shadow-none;
+        border-color: hsl(var(--color-surface-content) / 30%);
+      }
+    }
 
-        [class~="border"] {
-          border: none;
-        }
+    &.readonly.TextField, .readonly.TextField, .readonly .TextField {
+      /* prevent other "disabled-state styles" from impacting readability */
+      opacity: 1;
 
-        input {
-          /* enable standard text selection */
-          pointer-events: auto;
-          cursor: text;
-        }
+      [class~="border"] {
+        border-color: hsl(var(--color-surface-content) / 20%);
+        background: transparent;
+      }
 
-        .append {
-          display: none;
-        }
+      input {
+        /* enable standard text selection */
+        pointer-events: auto;
+      }
+
+      .append, .prepend {
+        display: none;
+      }
+    }
+
+    .field-title, .fields, .ws-field-wrapper, .ws-field, .item-list-field {
+      @apply sm-form:!col-span-full;
+
+      & :has(> .field-container) {
+        @apply sm-form:col-span-2;
+      }
+
+      &.field-title {
+        @apply sm-form:mb-2;
+      }
+
+      &.item-list-field {
+        @apply sm-form:pl-0;
+      }
+
+      &.ws-field > .label {
+        @apply xs-form:text-left;
       }
     }
   }

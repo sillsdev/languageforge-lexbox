@@ -1,5 +1,6 @@
 ﻿using MiniLcm.Models;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes.Entries;
@@ -9,7 +10,7 @@ public class ReplaceComplexFormTypeChange(Guid entityId, ComplexFormType newComp
     public ComplexFormType NewComplexFormType { get; } = newComplexFormType;
     public Guid OldComplexFormTypeId { get; } = oldComplexFormTypeId;
 
-    public override ValueTask ApplyChange(Entry entity, ChangeContext context)
+    public override ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
         entity.ComplexFormTypes =
         [

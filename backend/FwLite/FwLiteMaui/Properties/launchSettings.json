@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Run": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "COREHOST_TRACE": "0",
+        "FWLITE_UPDATE_URL": "http://localhost:3000/api/fwlite-release/latest"
+      }
+    },
+    //won't work when WindowsPackageType is None, not sure how to make this work with both profiles without changing this
+    "Windows Machine": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
+    }
+  }
+}

@@ -1,27 +1,36 @@
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
-  import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
-  import { firstDefOrGlossVal, headword } from '../utils';
-  import { useLexboxApi } from '../services/service-provider';
-  import { derived, type Writable } from 'svelte/store';
-  import { deriveAsync } from '../utils/time';
+  import {mdiArrowLeft, mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
+  import {Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
+  import {useLexboxApi} from '../services/service-provider';
+  import {derived, type Writable} from 'svelte/store';
+  import {deriveAsync} from '../utils/time';
   import {createEventDispatcher, getContext, onDestroy} from 'svelte';
-  import type { IEntry } from '../mini-lcm';
+  import {type IEntry, SortField} from '$lib/dotnet-types';
   import {useSearch} from './search';
+  import {useCurrentView} from '$lib/views/view-service';
+  import {fieldName} from '$lib/i18n';
+  import {useWritingSystemService} from '$lib/writing-system-service';
 
   const {search, showSearchDialog} = useSearch();
+  const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
     entrySelected: {entry: IEntry, search: string};
     createNew: string
   }>();
 
   export let createNew: boolean;
+  export let projectName: string;
 
   let waitingForSecondShift = false;
   let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
   const abortController = new AbortController();
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Shift') return;
+  document.addEventListener('keyup', (e) => {
+    if (e.key !== 'Shift' || $showSearchDialog) {
+      //cancel, user pressed shift and typed another letter
+      waitingForSecondShift = false;
+      clearTimeout(waitingForSecondShiftTimeout);
+      return;
+    }
     if (waitingForSecondShift) {
       waitingForSecondShift = false;
       clearTimeout(waitingForSecondShiftTimeout);
@@ -41,11 +50,12 @@
   const lexboxApi = useLexboxApi();
   const fetchCount = 105;
   const { value: result, loading } = deriveAsync(search, async (s) => {
+    s = s?.trim();
     if (!s) return Promise.resolve({ entries: [], search: undefined });
-    const entries = await lexboxApi.SearchEntries(s ?? '', {
+    const entries = await lexboxApi.searchEntries(s, {
       offset: 0,
       count: fetchCount,
-      order: {field: 'headword', writingSystem: 'default'},
+      order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
     return { entries, search: s};
   }, {entries: [], search: undefined}, 200);
@@ -55,6 +65,7 @@
 
   const listSearch = getContext<Writable<string | undefined>>('listSearch');
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
+  const currentView = useCurrentView();
 
   function selectEntry(entry: IEntry) {
     dispatch('entrySelected', {entry, search: $search});
@@ -77,21 +88,26 @@
 
 <button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => ($showSearchDialog = true)}>
   <Field
-    classes={{ input: 'my-1 justify-center opacity-60' }}
+    classes={{ input: 'my-1 justify-center opacity-60 sm-view:overflow-hidden' }}
     class="cursor-pointer">
-    <div class="hidden lg:contents">
-      Find entry...
+    <div class="hidden lg-view:contents whitespace-nowrap">
+      Find {fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...
       <span class="ml-2"><Icon data={mdiMagnify} /></span>
       <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
     </div>
-    <div class="contents lg:hidden">
-      <Icon data={mdiBookSearchOutline} />
+    <div class="flex gap-2 lg-view:hidden overflow-hidden">
+      <Icon class="shrink-0" data={mdiBookSearchOutline} />
+      <span class="whitespace-nowrap overflow-hidden text-ellipsis grow-0 shrink max-w-[200px]">{projectName}</span>
     </div>
   </Field>
 </button>
 
-<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
-  <div slot="title">
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''}
+  classes={{root: 'items-start', title: 'px-2 py-0 max-md:pl-0', dialog: 'md:h-auto md:max-h-[min(50rem, 100%)]'}}>
+  <div slot="title" class="flex items-center h-12">
+    <div class="hidden max-md:contents">
+      <Button on:click={() => $showSearchDialog = false} icon={mdiArrowLeft} rounded="full"></Button>
+    </div>
     <TextField
       bind:inputEl={searchElement}
       autofocus
@@ -103,7 +119,7 @@
           selectEntry($displayedEntries[0]);
         }
       }}
-      placeholder="Find entry..."
+      placeholder={`Find ${fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...`}
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
       classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
       icon={mdiBookSearchOutline}>
@@ -114,12 +130,12 @@
       </div>
     </TextField>
   </div>
-  <div>
+  <div class="overflow-auto">
     <div class="p-0.5">
       {#each $displayedEntries as entry}
         <ListItem
-          title={headword(entry).padStart(1, '–')}
-          subheading={firstDefOrGlossVal(entry.senses[0])}
+          title={writingSystemService.headword(entry).padStart(1, '–')}
+          subheading={writingSystemService.firstDefOrGlossVal(entry.senses[0])}
           noShadow
           on:click={() => selectEntry(entry)}
         />

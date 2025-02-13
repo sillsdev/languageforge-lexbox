@@ -1,7 +1,12 @@
-import type { IEntry, IExampleSentence, IMultiString, ISense, SemanticDomain } from './mini-lcm';
+import type {
+  IEntry,
+  IExampleSentence,
+  IMultiString,
+  ISemanticDomain,
+  ISense
+} from '$lib/dotnet-types';
 
-import type { ConditionalKeys } from 'type-fest';
-import type { LexboxApiFeatures } from './services/lexbox-api';
+import type {ConditionalKeys} from 'type-fest';
 
 export type WritingSystemType = 'vernacular' | 'analysis';
 export type WritingSystemSelection = WritingSystemType | `first-${WritingSystemType}` | 'vernacular-analysis' | 'analysis-vernacular';
@@ -34,7 +39,7 @@ export type BaseEntityFieldConfig<T> = (({
   id: ConditionalKeys<T, IMultiString>;
 } | {
   type: 'single';
-  id: ConditionalKeys<T, string>;
+  id: ConditionalKeys<T, string | undefined>;
   ws: `first-${WritingSystemType}`;
 } | {
   type: 'option',
@@ -44,7 +49,7 @@ export type BaseEntityFieldConfig<T> = (({
 } | {
   type: `multi-option`;
   optionType: string;
-  id: ConditionalKeys<T, string[] | SemanticDomain[]>;
+  id: ConditionalKeys<T, string[] | ISemanticDomain[]>;
   ws: `first-${WritingSystemType}`;
 }) & BaseFieldConfig & {
   id: WellKnownFieldId
@@ -52,8 +57,6 @@ export type BaseEntityFieldConfig<T> = (({
 
 export type EntityFieldConfig = BaseEntityFieldConfig<IEntry> | BaseEntityFieldConfig<ISense> | BaseEntityFieldConfig<IExampleSentence>;
 export type FieldConfig = EntityFieldConfig | CustomFieldConfig;
-
-export type LexboxFeatures = LexboxApiFeatures;
 
 export type LexboxPermissions = {
   write: boolean,
