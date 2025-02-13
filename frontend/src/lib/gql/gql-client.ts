@@ -62,6 +62,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
         keys: {
           'Changeset': () => null,
           'UsersCollectionSegment': () => null,
+          'UsersICanSeeCollectionSegment': () => null,
           'FlexProjectMetadata': (metaData) => metaData.projectId as string,
           'ProjectWritingSystems': () => null,
           'FLExWsId': (metaData) => metaData.tag as string,
