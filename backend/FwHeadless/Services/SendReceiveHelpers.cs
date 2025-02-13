@@ -59,6 +59,7 @@ public static class SendReceiveHelpers
         progress ??= new NullProgress();
 
         var fwdataInfo = new FileInfo(project.FilePath);
+        if (!fwdataInfo.Exists) return -1; // If there's no local clone then `hg incoming` won't work, so -1 is used to mean "all the commits on the server will be pulled"
         if (fwdataInfo.Directory is null) throw new InvalidOperationException(
             $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
 

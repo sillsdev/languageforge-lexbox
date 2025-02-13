@@ -10,7 +10,7 @@ public enum ProjectSyncStatusEnum
 public record ProjectSyncStatus(
     ProjectSyncStatusEnum status,
     int PendingCrdtChanges,
-    int PendingMercurialChanges,
+    int PendingMercurialChanges, // Will be -1 if there is no clone yet; this means "all the commits, but we don't know how many there will be"
     DateTimeOffset? LastCrdtCommitDate,
     DateTimeOffset? LastMercurialCommitDate)
 {

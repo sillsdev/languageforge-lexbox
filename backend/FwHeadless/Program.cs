@@ -164,8 +164,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
     var fwDataProject = new FwDataProject("fw", projectFolder);
-    // TODO: Deicde what to return for pending Mercurial commits if we don't yet have a clone of the FW project. At the moment I'm going to return "-1" to mean "all of them, don't know how many".
-    var pendingHgCommits = File.Exists(fwDataProject.FilePath) ? await srService.PendingCommitCount(fwDataProject, lexboxProject.Code) : -1;
+    var pendingHgCommits = await srService.PendingCommitCount(fwDataProject, lexboxProject.Code);
     // TODO: PendingCommitCount can take a couple of seconds to return, so perhaps start it first and await it at the end of the method since it's likely the longest-running process
 
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
