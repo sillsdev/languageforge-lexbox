@@ -444,6 +444,11 @@
             </Badge>
           </button>
         {/if}
+        {#if project.hasHarmonyCommits}
+          <Badge>
+            {$t('project_page.using_fw_lite')}
+          </Badge>
+        {/if}
       </BadgeList>
       <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
     </svelte:fragment>

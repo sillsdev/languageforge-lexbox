@@ -57,9 +57,8 @@
 
 {#if hasHarmonyCommits}
   <Button variant="btn-primary" class="gap-1" on:click={triggerSync} loading={state === 'syncing'} customLoader>
-    FieldWorks Classic
+    Sync FieldWorks Lite
     <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse />
-    FieldWorks Lite
   </Button>
 {:else}
   <Button variant="btn-primary" class="indicator" on:click={useInFwLite}>
