@@ -160,7 +160,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
     var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
 
-    var lastHgCommitDate = lexboxProject.LastCommit ?? DateTimeOffset.UnixEpoch;
+    var lastHgCommitDate = lexboxProject.LastCommit;
     var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
     var fwDataProject = new FwDataProject("fw", projectFolder);

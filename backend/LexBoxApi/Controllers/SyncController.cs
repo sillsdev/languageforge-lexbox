@@ -26,7 +26,7 @@ public class SyncController(
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
         var result = await fwHeadlessClient.CrdtSync(projectId);
-        if (result is null) return NotFound(); // TODO: Handle ProblemHttpResult? Or just let it return 404 like this?
+        if (result is null) return StatusCode(500); // Apparently there's no InternalServerError()? Weird.
         return Ok(result);
     }
 }
