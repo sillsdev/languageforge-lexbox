@@ -67,7 +67,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
 
     public virtual async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        var entry = await miniLcmApi.UpdateEntry(before, after);
+        var entry = await miniLcmApi.UpdateEntry(before, after, miniLcmApi);
         await NotifyEntryUpdated(entry);
         return entry;
     }

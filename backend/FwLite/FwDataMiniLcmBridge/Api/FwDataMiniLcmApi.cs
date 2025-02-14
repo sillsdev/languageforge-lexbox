@@ -224,14 +224,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetWritingSystem(id, type);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
             async () =>
             {
-                await WritingSystemSync.Sync(before, after, this);
+                await WritingSystemSync.Sync(before, after, api);
             });
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
     }
@@ -284,10 +284,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech));
     }
 
-    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
-        await PartOfSpeechSync.Sync(before, after, this);
+        await PartOfSpeechSync.Sync(before, after, api);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
 
@@ -370,10 +370,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLcmSemanticDomain(lcmSemanticDomain));
     }
 
-    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
-        await SemanticDomainSync.Sync(before, after, this);
+        await SemanticDomainSync.Sync(before, after, api);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
 
@@ -445,10 +445,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(ToComplexFormType(type));
     }
 
-    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
-        await ComplexFormTypeSync.Sync(before, after, this);
+        await ComplexFormTypeSync.Sync(before, after, api);
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
     }
 
@@ -954,14 +954,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLexEntry(lexEntry));
     }
 
-    public async Task<Entry> UpdateEntry(Entry before, Entry after)
+    public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
             {
-                await EntrySync.Sync(before, after, this);
+                await EntrySync.Sync(before, after, api);
             });
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
@@ -1121,14 +1121,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLexSense(lexSense));
     }
 
-    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
             {
-                await SenseSync.Sync(entryId, before, after, this);
+                await SenseSync.Sync(entryId, before, after, api);
             });
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
@@ -1239,14 +1239,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence before,
-        ExampleSentence after)
+        ExampleSentence after,
+        IMiniLcmApi api)
     {
         await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert Example Sentence",
             async () =>
             {
-                await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
+                await ExampleSentenceSync.Sync(entryId, senseId, before, after, api);
             });
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }

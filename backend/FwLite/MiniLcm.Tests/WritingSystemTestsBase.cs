@@ -72,7 +72,7 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
         var writingSystem = writingSystems.Vernacular.First();
         var original = writingSystem.Copy();
         writingSystem.Abbreviation = "New Abbreviation";
-        var updatedWritingSystem = await Api.UpdateWritingSystem(original, writingSystem);
+        var updatedWritingSystem = await Api.UpdateWritingSystem(original, writingSystem, Api);
         updatedWritingSystem.Abbreviation.Should().Be("New Abbreviation");
     }
 }

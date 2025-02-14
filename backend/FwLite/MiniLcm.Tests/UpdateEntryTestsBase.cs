@@ -54,7 +54,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(entry);
         var before = entry.Copy();
         entry.LexemeForm["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(before, entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry, Api);
         updatedEntry.LexemeForm["en"].Should().Be("updated");
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
     }
@@ -66,7 +66,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(entry);
         var before = entry.Copy();
         entry.Senses[0].Gloss["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(before, entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry, Api);
         updatedEntry.Senses[0].Gloss["en"].Should().Be("updated");
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
     }
@@ -79,7 +79,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var before = entry.Copy();
         var senseCount = entry.Senses.Count;
         entry.Senses.RemoveAt(0);
-        var updatedEntry = await Api.UpdateEntry(before, entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry, Api);
         updatedEntry.Senses.Should().HaveCount(senseCount - 1);
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
     }
@@ -94,13 +94,13 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var update2 = original.Copy();
 
         update1.LexemeForm["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(original, update1);
+        var updatedEntry = await Api.UpdateEntry(original, update1, Api);
         updatedEntry.LexemeForm["en"].Should().Be("updated");
         updatedEntry.Should().BeEquivalentTo(update1);
 
 
         update2.LexemeForm["es"] = "updated again";
-        var updatedEntry2 = await Api.UpdateEntry(original, update2);
+        var updatedEntry2 = await Api.UpdateEntry(original, update2, Api);
         updatedEntry2.LexemeForm["en"].Should().Be("updated");
         updatedEntry2.LexemeForm["es"].Should().Be("updated again");
         updatedEntry2.Should().BeEquivalentTo(update2,
@@ -144,7 +144,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         }
 
         // act
-        await Api.UpdateEntry(beforeEntry, afterEntry);
+        await Api.UpdateEntry(beforeEntry, afterEntry, Api);
         var actual = await Api.GetEntry(afterEntry.Id);
 
         // assert
@@ -206,7 +206,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         }
 
         // act
-        await Api.UpdateEntry(beforeEntry, afterEntry);
+        await Api.UpdateEntry(beforeEntry, afterEntry, Api);
         var actualEntry = await Api.GetEntry(afterEntry.Id);
         var actual = actualEntry!.Senses[0];
 
@@ -284,7 +284,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         }
 
         // act
-        await Api.UpdateEntry(beforeEntry, afterEntry);
+        await Api.UpdateEntry(beforeEntry, afterEntry, Api);
         var actual = await Api.GetEntry(afterEntry.Id);
 
         // assert

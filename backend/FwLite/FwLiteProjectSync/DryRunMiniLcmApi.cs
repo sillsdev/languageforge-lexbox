@@ -39,7 +39,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         }).First(w => w.WsId == id);
     }
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update {after.Type} writing system {after.WsId}"));
         return Task.FromResult(after);
@@ -67,7 +67,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return GetPartOfSpeech(id)!;
     }
 
-    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {after.Id}"));
         return Task.FromResult(after);
@@ -102,7 +102,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return GetSemanticDomain(id)!;
     }
 
-    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {after.Id}"));
         return Task.FromResult(after);
@@ -138,7 +138,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
     }
 
-    public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateComplexFormType), $"Update complex form type {after.Id}"));
         return Task.FromResult(after);
@@ -177,7 +177,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return GetEntry(id)!;
     }
 
-    public Task<Entry> UpdateEntry(Entry before, Entry after)
+    public Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update entry {after.Id}"));
         return Task.FromResult(after);
@@ -216,7 +216,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return sense;
     }
 
-    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSense),
             $"Update sense {after.Id}"));
@@ -272,7 +272,8 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence before,
-        ExampleSentence after)
+        ExampleSentence after,
+        IMiniLcmApi api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence), $"Update example sentence {after.Id}"));
         return Task.FromResult(after);

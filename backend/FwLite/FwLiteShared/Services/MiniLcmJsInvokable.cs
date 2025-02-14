@@ -120,7 +120,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
-        var updatedWritingSystem = await wrappedApi.UpdateWritingSystem(before, after);
+        var updatedWritingSystem = await wrappedApi.UpdateWritingSystem(before, after, wrappedApi);
         OnDataChanged();
         return updatedWritingSystem;
     }
@@ -136,7 +136,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
     {
-        var updatedPartOfSpeech = await wrappedApi.UpdatePartOfSpeech(before, after);
+        var updatedPartOfSpeech = await wrappedApi.UpdatePartOfSpeech(before, after, wrappedApi);
         OnDataChanged();
         return updatedPartOfSpeech;
     }
@@ -159,7 +159,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
     {
-        var updatedSemanticDomain = await wrappedApi.UpdateSemanticDomain(before, after);
+        var updatedSemanticDomain = await wrappedApi.UpdateSemanticDomain(before, after, wrappedApi);
         OnDataChanged();
         return updatedSemanticDomain;
     }
@@ -182,7 +182,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
-        var updatedComplexFormType = await wrappedApi.UpdateComplexFormType(before, after);
+        var updatedComplexFormType = await wrappedApi.UpdateComplexFormType(before, after, wrappedApi);
         OnDataChanged();
         return updatedComplexFormType;
     }
@@ -207,7 +207,7 @@ public class MiniLcmJsInvokable(
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
         //todo trigger sync on the test
-        var result = await wrappedApi.UpdateEntry(before, after);
+        var result = await wrappedApi.UpdateEntry(before, after, wrappedApi);
         OnDataChanged();
         projectEventBus.PublishEntryChangedEvent(project, result);
         return result;
@@ -260,7 +260,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
-        var updatedSense = await wrappedApi.UpdateSense(entryId, before, after);
+        var updatedSense = await wrappedApi.UpdateSense(entryId, before, after, wrappedApi);
         OnDataChanged();
         return updatedSense;
     }
@@ -297,7 +297,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after)
     {
-        var updatedExampleSentence = await wrappedApi.UpdateExampleSentence(entryId, senseId, before, after);
+        var updatedExampleSentence = await wrappedApi.UpdateExampleSentence(entryId, senseId, before, after, wrappedApi);
         OnDataChanged();
         return updatedExampleSentence;
     }
