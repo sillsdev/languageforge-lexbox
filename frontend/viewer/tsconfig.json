@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
+  "extends": "./node_modules/@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -17,8 +17,9 @@
     "paths": {
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"]
-    }
+    },
+    "verbatimModuleSyntax": true,
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/web-component.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }],
+  // "references": [{ "path": "./tsconfig.node.json" }],
 }
