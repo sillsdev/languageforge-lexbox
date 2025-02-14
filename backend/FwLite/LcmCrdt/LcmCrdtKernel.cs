@@ -22,6 +22,8 @@ using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
+using MiniLcm.Culture;
+using LcmCrdt.Culture;
 
 namespace LcmCrdt;
 
@@ -32,6 +34,7 @@ public static class LcmCrdtKernel
         AvoidTrimming();
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
+        services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
@@ -201,6 +204,9 @@ public static class LcmCrdtKernel
             .Add<CreateComplexFormType>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<Changes.SetOrderChange<ComplexFormComponent>>()
+            // When adding anything other than a Delete or JsonPatch change,
+            // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
     }
 

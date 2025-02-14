@@ -221,4 +221,83 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
             actualOrderValues.Should().Be(expectedOrderValues);
         }
     }
+
+    [Theory]
+    [InlineData("a,b", "a,b,c,d", "1,2,3,4")] // append
+    [InlineData("a,b", "c,a,b", "0,1,2")] // single prepend
+    [InlineData("a,b", "d,c,a,b", "0,0.5,1,2")] // multi prepend
+    [InlineData("a,b,c,d", "d,a,b,c", "0,1,2,3")] // move to back
+    [InlineData("a,b,c,d", "b,c,d,a", "2,3,4,5")] // move to front
+    [InlineData("a,b,c,d,e", "a,b,e,c,d", "1,2,2.5,3,4")] // move to middle
+    [InlineData("a,b,c", "c,b,a", "3,4,5")] // reverse
+    [InlineData("a,b,c,d", "d,b,c,a", "1,2,3,4")] // swap
+    public async Task UpdateEntry_CanReorderComponents(string before, string after, string expectedOrderValues)
+    {
+        // arrange
+        var entryId = Guid.NewGuid();
+        var componentHeadwordsToIds = before.Split(',').Concat(after.Split(',')).Distinct()
+            .ToDictionary(i => i, _ => Guid.NewGuid());
+        var componentHeadwordsToEntryIds = componentHeadwordsToIds.Keys.ToAsyncEnumerable().SelectAwait(async @char =>
+        {
+            var componentEntry = await Api.CreateEntry(new()
+            {
+                Id = Guid.NewGuid(),
+                LexemeForm = { { "en", @char } },
+            });
+            return (Headword: @char, ComponentEntryId: componentEntry!.Id);
+        }).ToBlockingEnumerable().ToDictionary(t => t.Headword, t => t.ComponentEntryId);
+        var beforeComponents = before.Split(',').Select(@char => new ComplexFormComponent()
+        {
+            Id = componentHeadwordsToIds[@char],
+            ComplexFormEntryId = entryId,
+            ComplexFormHeadword = "complex-form",
+            ComponentHeadword = @char,
+            ComponentEntryId = componentHeadwordsToEntryIds[@char],
+        }).ToList();
+        var afterComponents = after.Split(',').Select(@char => new ComplexFormComponent()
+        {
+            Id = componentHeadwordsToIds[@char],
+            ComplexFormEntryId = entryId,
+            ComplexFormHeadword = "complex-form",
+            ComponentHeadword = @char,
+            ComponentEntryId = componentHeadwordsToEntryIds[@char],
+        }).ToList();
+
+        var beforeEntry = await Api.CreateEntry(new()
+        {
+            Id = entryId,
+            LexemeForm = { { "en", "complex-form" } },
+            Components = beforeComponents,
+        });
+
+        var afterEntry = beforeEntry!.Copy();
+        afterEntry.Components = afterComponents;
+
+        // sanity checks
+        beforeEntry.Components.Should().BeEquivalentTo(beforeComponents, options => options
+            .WithStrictOrdering()
+            .Excluding(c => c.Id));
+        if (!ApiUsesImplicitOrdering)
+        {
+            beforeEntry.Components.Select(s => s.Order).Should()
+                .BeEquivalentTo(Enumerable.Range(1, beforeComponents.Count), options => options.WithStrictOrdering());
+        }
+
+        // act
+        await Api.UpdateEntry(beforeEntry, afterEntry);
+        var actual = await Api.GetEntry(afterEntry.Id);
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.Components.Should().BeEquivalentTo(afterEntry.Components, options => options
+            .WithStrictOrdering()
+            .Excluding(s => s.Order)
+            .Excluding(c => c.Id));
+
+        if (!ApiUsesImplicitOrdering)
+        {
+            var actualOrderValues = string.Join(',', actual.Components.Select(s => s.Order.ToString(CultureInfo.GetCultureInfo("en-US"))));
+            actualOrderValues.Should().Be(expectedOrderValues);
+        }
+    }
 }

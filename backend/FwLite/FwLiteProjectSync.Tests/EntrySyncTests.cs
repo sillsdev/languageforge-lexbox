@@ -1,4 +1,5 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
+using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests.AutoFakerHelpers;
@@ -7,7 +8,7 @@ using Soenneker.Utils.AutoBogus.Config;
 
 namespace FwLiteProjectSync.Tests;
 
-public class EntrySyncTests : IClassFixture<SyncFixture>
+public class EntrySyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 {
     private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
     {
@@ -23,6 +24,16 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     public EntrySyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await _fixture.EnsureDefaultVernacularWritingSystemExistsInCrdt();
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     private readonly SyncFixture _fixture;
@@ -44,7 +55,9 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(after, options => options
             .For(e => e.Senses).Exclude(s => s.Order)
-            .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
+            .For(e => e.Components).Exclude(c => c.Order)
+            .For(e => e.ComplexForms).Exclude(c => c.Order)
+            .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(e => e.Order)
             );
     }
 
@@ -124,5 +137,57 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(after, options => options);
+    }
+
+    [Theory]
+    [InlineData(true, ProjectDataFormat.Harmony)]
+    [InlineData(true, ProjectDataFormat.FwData)]
+    [InlineData(false, ProjectDataFormat.Harmony)]
+    [InlineData(false, ProjectDataFormat.FwData)]
+    public async Task CanInsertComplexFormComponentViaSync(bool componentThenComplexForm, ProjectDataFormat apiType)
+    {
+        // arrange
+        IMiniLcmApi api = apiType == ProjectDataFormat.Harmony ? _fixture.CrdtApi : _fixture.FwDataApi;
+
+        var existingComponent = await api.CreateEntry(new() { LexemeForm = { { "en", "existing-component" } } });
+        var complexFormBefore = await api.CreateEntry(new() { LexemeForm = { { "en", "complex-form" } } });
+        await api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(complexFormBefore, existingComponent));
+        complexFormBefore = (await api.GetEntry(complexFormBefore.Id))!;
+
+        var newComponentBefore = await api.CreateEntry(new() { LexemeForm = { { "en", "component" } } });
+        var newComplexFormComponent = ComplexFormComponent.FromEntries(complexFormBefore, newComponentBefore);
+
+        var newComponentAfter = newComponentBefore.Copy();
+        newComponentAfter.ComplexForms.Add(newComplexFormComponent);
+        var complexFormAfter = complexFormBefore.Copy();
+        complexFormAfter.Components.Insert(0, newComplexFormComponent);
+
+        // act - The big question is: both entries want to add the same component to the complex form. One cares about its order, the other doesn't. Will it land in the right place?
+        if (componentThenComplexForm)
+        {
+            // this results in 2 crdt changes:
+            // (1) add complex-form (i.e. implicitly add component)
+            // (2) move component to the right place
+            await EntrySync.Sync([newComponentBefore, complexFormBefore], [newComponentAfter, complexFormAfter], api);
+        }
+        else
+        {
+            // this results in 1 crdt change:
+            // the component is added in the right place
+            // (adding the complex-form becomes a no-op, because it already exists and a BetweenPosition is not specified)
+            await EntrySync.Sync([complexFormBefore, newComponentBefore], [complexFormAfter, newComponentAfter], api);
+        }
+
+        // assert
+        var actual = await api.GetEntry(complexFormAfter.Id);
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(complexFormAfter, options => options
+            .WithStrictOrdering()
+            .For(e => e.Components).Exclude(c => c.Order)
+            .For(e => e.Components).Exclude(c => c.Id));
+        actual.Components.Count.Should().Be(2);
+        actual.Components.First().Should().BeEquivalentTo(newComplexFormComponent, options => options
+            .Excluding(c => c.Order)
+            .Excluding(c => c.Id));
     }
 }

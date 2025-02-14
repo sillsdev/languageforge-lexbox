@@ -221,7 +221,7 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Setup Maui
-        run: dotnet workload install maui-windows
+        run: dotnet workload install maui
 
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui

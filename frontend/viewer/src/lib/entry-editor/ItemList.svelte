@@ -13,6 +13,7 @@
 
   export let value: T[];
   export let readonly: boolean;
+  export let orderable = false;
   export let getDisplayName: (item: T) => string | undefined;
   export let getGotoLink: ((item: T) => string) | undefined = undefined;
 
@@ -47,7 +48,7 @@
   }
 </script>
 
-<div class="flex gap-2 flex-wrap">
+<div class="flex gap-2 flex-wrap items-center">
   {#each value as item, i}
     {@const gotoLink = getGotoLink?.(item)}
     {@const displayName = getDisplayName(item) || '–'}
@@ -69,7 +70,7 @@
               {@const first = i === 0}
               {@const last = i === count - 1}
               {@const only = count === 1}
-              {#if !only}
+              {#if orderable && !only}
                 <MenuItem>
                   <Toggle let:on={open} let:toggle let:toggleOff>
                     <Popover {open} let:close on:close={toggleOff} placement="right-start" resize offset={4}>

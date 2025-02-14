@@ -1,5 +1,5 @@
 <script lang="ts">
-  import OrderedItemList from './OrderedItemList.svelte';
+  import ItemList from './ItemList.svelte';
 
   import { Icon, MenuItem } from 'svelte-ux';
   import { mdiBookOutline } from '@mdi/js';
@@ -9,11 +9,12 @@
 
   export let value: T[];
   export let readonly: boolean;
+  export let orderable = false;
   export let getEntryId: (item: T) => string;
   export let getHeadword: (item: T) => string | undefined;
 </script>
 
-<OrderedItemList bind:value {readonly} on:change
+<ItemList bind:value {readonly} {orderable} on:change
   getDisplayName={getHeadword}
   getGotoLink={entry => `?entryId=${getEntryId(entry)}&search=${getHeadword(entry)?.replace(/\d?$/, '')}`}>
   <svelte:fragment slot="menuItems" let:item={entry}>
@@ -25,4 +26,4 @@
     </MenuItem>
   </svelte:fragment>
   <slot name="actions" slot="actions" />
-</OrderedItemList>
+</ItemList>

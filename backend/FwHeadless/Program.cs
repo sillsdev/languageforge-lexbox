@@ -12,9 +12,9 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using Scalar.AspNetCore;
 using LexCore.Utils;
-using LinqToDB;
 using SIL.Harmony.Core;
 using SIL.Harmony;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +95,8 @@ static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
 static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     CurrentProjectService projectContext,
     ProjectLookupService projectLookupService,
+    SendReceiveService srService,
+    IOptions<FwHeadlessConfig> config,
     SyncJobStatusService syncJobStatusService,
     IServiceProvider services,
     LexBoxDbContext lexBoxDb,
@@ -111,10 +113,26 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
         else return TypedResults.NotFound();
     }
-    var commitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
+    var lexboxProject = await lexBoxDb.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Id == projectId);
+    if (lexboxProject is null)
+    {
+        // Can't sync if lexbox doesn't have this project
+        return TypedResults.NotFound();
+    }
+    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
+    if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
+    var fwDataProject = new FwDataProject("fw", projectFolder);
+    var pendingHgCommits = srService.PendingCommitCount(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
+
+    var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
     var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
-    var localCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
-    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
+    var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
+    var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
+
+    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
+    var lastHgCommitDate = lexboxProject.LastCommit;
+
+    return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
 static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(

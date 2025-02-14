@@ -290,10 +290,20 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        var previousId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
+        var nextId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword} between {previousId} and {nextId}"));
         return Task.FromResult(complexFormComponent);
+    }
+
+    public Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    {
+        var previousId = between.Previous?.ComponentSenseId ?? between.Previous?.ComponentEntryId;
+        var nextId = between.Next?.ComponentSenseId ?? between.Next?.ComponentEntryId;
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveComplexFormComponent), $"Move complex form component {complexFormComponent.Id} between {previousId} and {nextId}"));
+        return Task.CompletedTask;
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)

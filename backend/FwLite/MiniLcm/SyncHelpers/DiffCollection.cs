@@ -34,6 +34,11 @@ public interface IOrderableCollectionDiffApi<T> where T : IOrderable
     Task<int> Remove(T value);
     Task<int> Move(T value, BetweenPosition between);
     Task<int> Replace(T before, T after);
+
+    Guid GetId(T value)
+    {
+        return value.Id;
+    }
 }
 
 public static class DiffCollection
@@ -115,13 +120,13 @@ public static class DiffCollection
     {
         var changes = 0;
 
-        var positionDiffs = DiffPositions(before, after);
+        var positionDiffs = DiffPositions(before, after, diffApi.GetId);
         if (positionDiffs is not null)
         {
             // The positive keys in positionDiffs are the indexes of added or moved items. I.e. they're the unstable ones.
             // Deleted items are given a negative index. So, they aren't picked up here. They also don't exist in the after list, so they're not relevant.
             var stableIds = after.Where((_, i) => !positionDiffs.ContainsKey(i))
-                .Select(item => item.Id)
+                .Select(diffApi.GetId)
                 .ToHashSet();
 
             foreach (var (_, diff) in positionDiffs)
@@ -130,18 +135,18 @@ public static class DiffCollection
                 {
                     case PositionDiffKind.Move:
                         var movedEntry = after[diff.Index];
-                        var between = GetStableBetween(diff.Index, after, stableIds);
+                        var between = GetStableBetween(diff.Index, after, stableIds, diffApi.GetId);
                         changes += await diffApi.Move(movedEntry, between);
-                        stableIds.Add(movedEntry.Id);
+                        stableIds.Add(diffApi.GetId(movedEntry));
                         break;
                     case PositionDiffKind.Remove:
                         changes += await diffApi.Remove(before[diff.Index]);
                         break;
                     case PositionDiffKind.Add:
                         var addedEntry = after[diff.Index];
-                        between = GetStableBetween(diff.Index, after, stableIds);
+                        between = GetStableBetween(diff.Index, after, stableIds, diffApi.GetId);
                         changes += await diffApi.Add(addedEntry, between);
-                        stableIds.Add(addedEntry.Id);
+                        stableIds.Add(diffApi.GetId(addedEntry));
                         break;
                     default:
                         throw new InvalidOperationException($"Unsupported position diff kind {diff.Kind}");
@@ -149,10 +154,10 @@ public static class DiffCollection
             }
         }
 
-        var afterEntriesDict = after.ToDictionary(entry => entry.Id);
+        var afterEntriesDict = after.ToDictionary(diffApi.GetId);
         foreach (var beforeEntry in before)
         {
-            if (afterEntriesDict.TryGetValue(beforeEntry.Id, out var afterEntry))
+            if (afterEntriesDict.TryGetValue(diffApi.GetId(beforeEntry), out var afterEntry))
             {
                 changes += await diffApi.Replace(beforeEntry, afterEntry);
             }
@@ -161,13 +166,13 @@ public static class DiffCollection
         return changes;
     }
 
-    private static BetweenPosition GetStableBetween<T>(int i, IList<T> current, HashSet<Guid> stable) where T : IOrderable
+    private static BetweenPosition GetStableBetween<T>(int i, IList<T> current, HashSet<Guid> stable, Func<T, Guid> GetId)
     {
         T? beforeEntity = default;
         T? afterEntity = default;
         for (var j = i - 1; j >= 0; j--)
         {
-            if (stable.Contains(current[j].Id))
+            if (stable.Contains(GetId(current[j])))
             {
                 beforeEntity = current[j];
                 break;
@@ -175,21 +180,24 @@ public static class DiffCollection
         }
         for (var j = i + 1; j < current.Count; j++)
         {
-            if (stable.Contains(current[j].Id))
+            if (stable.Contains(GetId(current[j])))
             {
                 afterEntity = current[j];
                 break;
             }
         }
-        return new BetweenPosition(beforeEntity?.Id, afterEntity?.Id);
+        return new BetweenPosition(
+            beforeEntity is not null ? GetId(beforeEntity) : null,
+            afterEntity is not null ? GetId(afterEntity) : null);
     }
 
     private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T>(
         IList<T> before,
-        IList<T> after) where T : IOrderable
+        IList<T> after,
+        Func<T, Guid> GetId)
     {
-        var beforeJson = new JsonArray([.. before.Select(item => JsonValue.Create(item.Id))]);
-        var afterJson = new JsonArray([.. after.Select(item => JsonValue.Create(item.Id))]);
+        var beforeJson = new JsonArray([.. before.Select(item => JsonValue.Create(GetId(item)))]);
+        var afterJson = new JsonArray([.. after.Select(item => JsonValue.Create(GetId(item)))]);
         return JsonDiffPatcher.Diff(beforeJson, afterJson, DiffFormatter.Instance);
     }
 
@@ -237,4 +245,5 @@ public record PositionDiff(int Index, PositionDiffKind Kind)
     public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
 }
 
-public record BetweenPosition(Guid? Previous, Guid? Next);
+public record BetweenPosition<T>(T? Previous, T? Next);
+public record BetweenPosition(Guid? Previous, Guid? Next) : BetweenPosition<Guid?>(Previous, Next);

@@ -21,7 +21,7 @@
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
-  let selectedUserId: string | null = null;
+  let selectedUserId: string | undefined = undefined;
 
   const { notifySuccess } = useNotifications();
 
@@ -83,8 +83,8 @@
     bind:value={$form.usernameOrEmail}
     error={errors.usernameOrEmail}
     autofocus
-    on:selectedUserId={({ detail }) => {
-        selectedUserId = detail;
+    on:selectedUserChange={({ detail }) => {
+        selectedUserId = detail?.id;
     }}
     exclude={project.users.map(m => m.user.id)}
   />
