@@ -3,6 +3,10 @@
 Dockerfile
 playwright.config.js
 .svelte-kit
+!.svelte-kit/tsconfig.json
+!.svelte-kit/ambient.d.ts
+!.svelte-kit/non-ambient.d.ts
+!.svelte-kit/types/**/*
 .vscode
 build
 node_modules
