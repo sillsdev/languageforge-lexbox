@@ -79,14 +79,14 @@
         <span class="loading loading-lg" />
       </div>
     {:else if state === 'done'}
-      <div class="text-center">
-        <p class="mb-2 label justify-center underline-links">
-          <Markdown md={$t('project.crdt.now_available')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+      <div class="prose max-w-none underline-links">
+        <Markdown md={$t('project.crdt.now_available')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <p class="text-center">
+          <span
+            class="i-mdi-check-circle-outline text-7xl text-center text-success"
+            transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
+          />
         </p>
-        <span
-          class="i-mdi-check-circle-outline text-7xl text-success"
-          transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
-        />
       </div>
     {:else}
       <div class="prose max-w-none underline-links">

@@ -278,10 +278,10 @@ Steps to start using FieldWorks Lite: \n\
       "submit": "Yes, please!",
       "cancel": "Not yet",
       "finish": "Close",
-      "now_available": "Your project is now available in [FieldWorks Lite](https://lexbox.org/fw-lite)!\
-To start using it:\n\
-1. Install [FieldWorks Lite](https://lexbox.org/fw-lite)\n\
-1. Login to Lexbox from FieldWorks Lite\n\
+      "now_available": "Your project is now available in [FieldWorks Lite](https://lexbox.org/fw-lite)! \n\n\
+To start using it: \n\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite) \n\
+1. Login to Lexbox from FieldWorks Lite \n\
 1. Open your project in FieldWorks lite, you will need to download it under the Lexbox server section, you may need to refresh the list first",
       "making_available": "We're making your project available in FieldWorks Lite...",
       "reach_out_for_help": "Please reach out to us at \
