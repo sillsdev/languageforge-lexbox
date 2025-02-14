@@ -5,6 +5,7 @@ using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
+using LexCore.Sync;
 using LexCore.Utils;
 using Microsoft.Extensions.Options;
 
@@ -119,7 +120,7 @@ public class SyncWorker(
         await crdtSyncService.Sync();
         var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
         logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
-        return new SyncJobResult(SyncJobResultEnum.Success, null);
+        return new SyncJobResult(SyncJobResultEnum.Success, null, result);
     }
 
     static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
@@ -172,18 +173,4 @@ public class SyncWorker(
         }
 
     }
-
-
-}
-
-public record SyncJobResult(SyncJobResultEnum Result, string? Error);
-
-public enum SyncJobResultEnum
-{
-    Success,
-    ProjectNotFound,
-    UnableToAuthenticate,
-    UnableToSync,
-    CrdtSyncFailed,
-    SendReceiveFailed,
 }

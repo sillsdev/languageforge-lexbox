@@ -13,6 +13,7 @@
 
   export let project: Project;
   export let hasHarmonyCommits: boolean;
+  type SyncResult = {crdtChanges: number, fwdataChanges: number};
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -29,8 +30,11 @@
       });
 
       if (response.ok) {
-        const {crdtChanges, fwdataChanges} = await response.json();
-        notifySuccess(`Synced successfully (${fwdataChanges} FwData changes. ${crdtChanges} CRDT changes)`);
+        const syncResults = await awaitSyncFinished();
+        if (typeof syncResults === 'string') {
+          return syncResults;
+        }
+        notifySuccess(`Synced successfully (${syncResults.fwdataChanges} FwData changes. ${syncResults.crdtChanges} CRDT changes)`);
         done = true;
         return;
       }
@@ -42,6 +46,20 @@
       return tryGetErrorMessage(error);
     } finally {
       syncing = false;
+    }
+  }
+
+  async function awaitSyncFinished(): Promise<SyncResult | string> {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const response = await fetch(`/api/crdt/await-sync-finished/${project.id}`);
+      if (response.status === 500) {
+        return 'Sync failed, please contact support';
+      }
+      if (response.status === 200) {
+        const result = await response.json() as SyncResult;
+        return result;
+      }
     }
   }
 

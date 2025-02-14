@@ -4,6 +4,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
+using LexCore;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
@@ -96,12 +97,24 @@ public class CrdtController(
     }
 
     [HttpPost("sync/{projectId}")]
-    [AdminRequired]
+    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
     [RequestTimeout(300_000)]//5 minutes
-    public async Task<ActionResult<SyncResult?>> ExecuteMerge(Guid projectId)
+    public async Task<ActionResult> TriggerMerge(Guid projectId)
     {
-        var result = await fwHeadlessClient.CrdtSync(projectId);
-        if (result is null) return Problem("Failed to sync CRDT");
+        await permissionService.AssertCanSyncProject(projectId);
+        var started = await fwHeadlessClient.CrdtSync(projectId);
+        if (!started) return Problem("Failed to sync CRDT");
+        return Ok();
+    }
+
+    [HttpGet("await-sync-finished/{projectId}")]
+    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
+    [RequestTimeout(300_000)]//5 minutes
+    public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
+    {
+        await permissionService.AssertCanSyncProject(projectId);
+        var result = await fwHeadlessClient.AwaitStatus(projectId);
+        if (result is null) return Problem("Failed to get sync status");
         return result;
     }
 }

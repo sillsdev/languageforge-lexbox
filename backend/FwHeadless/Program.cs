@@ -117,7 +117,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(commitsOnServer - localCommits));
 }
 
-static async Task<Results<Ok, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
+static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
     SyncHostedService syncHostedService,
     SyncJobStatusService syncJobStatusService,
     CancellationToken cancellationToken,
@@ -129,7 +129,7 @@ static async Task<Results<Ok, NotFound, StatusCodeHttpResult>> AwaitSyncFinished
 
         var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
         if (result is null) return TypedResults.NotFound();
-        return TypedResults.Ok();
+        return TypedResults.Ok(result);
     }
     catch (OperationCanceledException e)
     {
