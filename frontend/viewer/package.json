@@ -43,7 +43,7 @@
     "@vitest/ui": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-svelte": "catalog:",
-    "happy-dom": "^15.11.7",
+    "happy-dom": "^17.1.0",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
     "svelte-eslint-parser": "catalog:",

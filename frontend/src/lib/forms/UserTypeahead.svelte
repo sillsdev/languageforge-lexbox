@@ -10,7 +10,6 @@
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFormId();
   export let autofocus: true | undefined = undefined;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
   export let debounceMs = 200;
   export let isAdmin: boolean = false;

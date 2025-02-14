@@ -41,7 +41,6 @@
     </div>
 
     <div class="h-10">
-      <!-- svelte-ignore a11y-label-has-associated-control -->
       <label class="flex gap-2 items-center text-sm">
         <ThemeSwitch /> Dark mode
       </label>
@@ -51,17 +50,14 @@
     <DevContent>
       <div class="flex flex-col gap-4">
         Debug
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={features.write}/>
           Write
         </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={features.history}/>
           History
         </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={$generateExternalChanges}
                   color="warning"/>

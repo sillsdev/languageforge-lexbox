@@ -17,7 +17,7 @@ export default [
   {
     ignores: [
       '**/*js',
-      '**/generated/**',
+      '**/generated-types/**',
       '**/vite.config.*',
     ],
   },

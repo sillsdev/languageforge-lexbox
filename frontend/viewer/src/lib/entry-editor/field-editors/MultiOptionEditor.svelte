@@ -1,7 +1,5 @@
-<script lang="ts">
+<script lang="ts" generics="TValue extends string | object | undefined, TOption extends object | TValue">
   import {makeHasHadValueTracker} from '$lib/utils';
-
-  /* eslint-disable @typescript-eslint/no-duplicate-type-constituents, @typescript-eslint/no-redundant-type-constituents */
   import {createEventDispatcher} from 'svelte';
   import type {WritingSystemSelection} from '../../config-types';
   import {useCurrentView} from '$lib/views/view-service';
@@ -9,9 +7,6 @@
   import {useWritingSystemService} from '../../writing-system-service';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtMultiOptionField from '../inputs/CrdtMultiOptionField.svelte';
-
-  type TValue = $$Generic;
-  type TOption = $$Generic;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = {
@@ -41,7 +36,7 @@
     { options: { id: string }[]; } |
     { getOptionId: (value: TOption) => string; }
   ) & (
-    { value: (TValue & TOption)[] } |
+    { value: Exclude<TValue, string>[] } |
     { value: string[]; valuesAreIds: true; } | // we need valuesAreIds to know what type to return at run time
     { getValueById: (id: string) => TValue | undefined }
   );

@@ -15,7 +15,7 @@ import {
   type IWritingSystems,
   type WritingSystemType
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './entry-data';
+import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from './writing-system-service';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';

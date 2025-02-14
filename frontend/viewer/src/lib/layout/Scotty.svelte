@@ -3,9 +3,8 @@
   import {type Writable, writable, type Readable, get} from 'svelte/store';
   import type {ActionReturn} from 'svelte/action';
 
-  const name = 'scotty-portal-context' as const;
-  const portals = ['right-toolbar', 'app-bar-menu'] as const;
-  type ScottyPortalTarget = typeof portals[number];
+  const name = 'scotty-portal-context';
+  type ScottyPortalTarget = 'right-toolbar' | 'app-bar-menu';
   type ScottyPortalContext = Record<ScottyPortalTarget, Readable<HTMLElement | undefined>>;
 
   export function initScottyPortalContext(): void {
@@ -29,7 +28,6 @@
 
   export function useScottyPortals(): ScottyPortalContext {
     const portalStoreMap = getContext<ScottyPortalContext>(name);
-    // eslint-disable-next-line svelte/require-store-reactive-access
     if (!portalStoreMap) throw new Error(`Portal context not found: ${name as unknown as string}`);
     return portalStoreMap;
   }

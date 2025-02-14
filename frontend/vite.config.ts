@@ -1,11 +1,11 @@
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import codegen from 'vite-plugin-graphql-codegen';
-import { defineConfig } from 'vitest/config';
-import { gqlOptions } from './gql-codegen';
+import {defineConfig} from 'vitest/config';
+import {gqlOptions} from './gql-codegen';
 // eslint-disable-next-line no-restricted-imports
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import {type ProxyOptions, searchForWorkspaceRoot} from 'vite';
-import { sveltekit } from '@sveltejs/kit/vite';
+import {sveltekit} from '@sveltejs/kit/vite';
 
 const inDocker = process.env['DockerDev'] === 'true';
 const exposeServer = false;

@@ -750,6 +750,7 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "filter": {
     "placeholder": "Search...",
+    "aria_open_filters": "Open filters",
   },
   "common": {
     "yes": "Yes",
@@ -759,6 +760,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "did_you_know": "Did you know?",
+    "actions": "Actions"
   },
   "viewer": {
     "about": "## What is this?\n\

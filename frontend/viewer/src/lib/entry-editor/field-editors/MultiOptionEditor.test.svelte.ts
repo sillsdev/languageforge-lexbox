@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import {readable} from 'svelte/store'
-import {beforeEach, describe, expect, expectTypeOf, test} from 'vitest'
+import {beforeAll, beforeEach, describe, expect, expectTypeOf, test} from 'vitest'
 
 import {render, screen} from '@testing-library/svelte'
 import userEvent, {type UserEvent} from '@testing-library/user-event'
-import {getState} from '../../utils/test-utils'
 import MultiOptionEditor from './MultiOptionEditor.svelte'
 import type {ComponentProps} from 'svelte'
+import {WritingSystemService} from '$lib/writing-system-service'
+import {WritingSystemType} from '$lib/dotnet-types'
+import {views} from '$lib/views/view-data'
+import {polyfillMockAnimations} from '../../../test-utils'
 
 type Option = {id: string};
 
@@ -14,39 +17,50 @@ const value = ['2', '3', '4'];
 const options: Option[] = ['1', '2', '3', '4', '5'].map(id => ({id}));
 
 const context = new Map<string, unknown>([
-  ['writingSystems', readable({
+  ['writingSystems', readable(new WritingSystemService({
     analysis: [],
     vernacular: [{
       id: 'test',
+      wsId: 'test',
+      name: 'test',
+      abbreviation: 'test',
+      font: 'test',
+      exemplars: ['test'],
+      order: 0,
+      type: WritingSystemType.Vernacular,
     }],
-  })],
-  ['currentView', readable({
-    fields: {'test': {show: true}},
-  })],
+  }))],
+  ['currentView', readable(views[0])],
 ]);
 
 let user: UserEvent;
-let component: MultiOptionEditor<string, {id: string}>;
 
-const reusedProps: Pick<ComponentProps<typeof component>, 'id' | 'wsType' | 'name' | 'readonly'> = {
-  id: 'test',
+const reusedProps: Pick<ComponentProps<MultiOptionEditor<string, {id: string}>>, 'id' | 'wsType' | 'name' | 'readonly'> = {
+  id: 'semanticDomains',
   wsType: 'vernacular',
   name: 'test',
   readonly: false,
 };
 
+let props = $state<ComponentProps<MultiOptionEditor<string, {id: string}>>>()!;
+
 beforeEach(() => {
   user = userEvent.setup();
-  ({component} = render(MultiOptionEditor<string, {id: string}>, {
+  props = {
+    ...reusedProps,
+    valuesAreIds: true,
+    value,
+    options,
+    getOptionLabel: (option) => option.id,
+  };
+  render(MultiOptionEditor<string, {id: string}>, {
     context,
-    props: {
-      ...reusedProps,
-      valuesAreIds: true,
-      value,
-      options,
-      getOptionLabel: (option) => option.id,
-    }
-  }));
+    props,
+  });
+});
+
+beforeAll(() => {
+  polyfillMockAnimations();
 });
 
 describe('MultiOptionEditor value sorting', () => {
@@ -55,14 +69,14 @@ describe('MultiOptionEditor value sorting', () => {
     await user.click(screen.getByLabelText('1'));
     await user.click(screen.getByLabelText('5'));
     await user.click(screen.getByRole('button', {name: 'Apply'}));
-    expect(getState(component).value).toStrictEqual(['2', '3', '4', '1', '5']);
+    expect(props.value).toStrictEqual(['2', '3', '4', '1', '5']);
   });
 
   test('removes deselected options without changing the order', async () => {
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('3'));
     await user.click(screen.getByRole('button', {name: 'Apply'}));
-    expect(getState(component).value).toStrictEqual(['2', '4']);
+    expect(props.value).toStrictEqual(['2', '4']);
   });
 
   test('moves double-toggled options to the end', async () => {
@@ -70,7 +84,7 @@ describe('MultiOptionEditor value sorting', () => {
     await user.click(screen.getByLabelText('3'));
     await user.click(screen.getByLabelText('3'));
     await user.click(screen.getByRole('button', {name: 'Apply'}));
-    expect(getState(component).value).toStrictEqual(['2', '4', '3']);
+    expect(props.value).toStrictEqual(['2', '4', '3']);
   });
 });
 
@@ -80,18 +94,17 @@ describe('MultiOptionEditor displayed sorting', () => {
     await user.click(screen.getByLabelText('1'));
     await user.click(screen.getByLabelText('5'));
     await user.click(screen.getByRole('button', {name: 'Apply'}));
-    expect(getState(component).value).toStrictEqual(['2', '3', '4', '1', '5']);
+    expect(props.value).toStrictEqual(['2', '3', '4', '1', '5']);
     expect(screen.getByRole<HTMLInputElement>('textbox').value).toBe('1, 2, 3, 4, 5');
   });
 
   test('matches values sorting if `preserveOrder` option is set', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    component.$set({preserveOrder: true});
+    props.preserveOrder = true;
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('1'));
     await user.click(screen.getByLabelText('5'));
     await user.click(screen.getByRole('button', {name: 'Apply'}));
-    expect(getState(component).value).toStrictEqual(['2', '3', '4', '1', '5']);
+    expect(props.value).toStrictEqual(['2', '3', '4', '1', '5']);
     expect(screen.getByRole<HTMLInputElement>('textbox').value).toBe('2, 3, 4, 1, 5');
   });
 });

@@ -1,10 +1,10 @@
-import { browser, dev } from '$app/environment';
-import { isObject, isRedirect } from '$lib/util/types';
+import {browser, dev} from '$app/environment';
+import {isObject, isRedirect} from '$lib/util/types';
 
-import { writable, type Writable } from 'svelte/store';
-import { defineContext } from '$lib/util/context';
-import { ensureErrorIsTraced } from '$lib/otel';
-import { getStores } from '$app/stores';
+import {writable, type Writable} from 'svelte/store';
+import {defineContext} from '$lib/util/context';
+import {ensureErrorIsTraced} from '$lib/otel';
+import {getStores} from '$app/stores';
 
 export const { use: useError, init: initErrorStore } =
   defineContext<Writable<App.Error | null>, [App.Error | null]>(
@@ -43,8 +43,7 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
     const handler = 'client-error';
 
     // Try our best to only show the user errors that are from our code
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
-    const showToUser = !!event.error && !errorIsFromExtension(event.error);
+    const showToUser = !!event.error && !errorIsFromExtension(event.error as Error);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const eventError = event.error ?? {}; // sometimes null 🤷
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

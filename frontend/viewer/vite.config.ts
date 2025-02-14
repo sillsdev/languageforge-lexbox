@@ -56,6 +56,7 @@ export default defineConfig(({ mode, command }) => {
     test: {
       environment: 'happy-dom',
       setupFiles: ['./vitest-setup.js'],
+      include: ['**/*.{test,spec,test.svelte}.?(c|m)[jt]s?(x)'],
     },
   }
 });
