@@ -11,9 +11,10 @@ public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
+    MiniLcmApiNotifyWrapperFactory apiWrapperFactory,
     ProjectEventBus projectEventBus) : IDisposable
 {
-    // TODO: Wrap MiniLcmApiNotifyWrapper around the api we receive so that JS calls will call it instead
+    readonly IMiniLcmApi wrappedApi = apiWrapperFactory.Create(api, projectEventBus, project, api.GetEntry);
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
@@ -27,6 +28,7 @@ public class MiniLcmJsInvokable(
 
     private void OnDataChanged()
     {
+        // Do *not* check wrappedApi here
         if (api is IMiniLcmSaveApi saveApi)
         {
             saveApi.Save();
@@ -40,85 +42,85 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public Task<WritingSystems> GetWritingSystems()
     {
-        return api.GetWritingSystems();
+        return wrappedApi.GetWritingSystems();
     }
 
     [JSInvokable]
     public ValueTask<PartOfSpeech[]> GetPartsOfSpeech()
     {
-        return api.GetPartsOfSpeech().ToArrayAsync();
+        return wrappedApi.GetPartsOfSpeech().ToArrayAsync();
     }
 
     [JSInvokable]
     public ValueTask<SemanticDomain[]> GetSemanticDomains()
     {
-        return api.GetSemanticDomains().ToArrayAsync();
+        return wrappedApi.GetSemanticDomains().ToArrayAsync();
     }
 
     [JSInvokable]
     public ValueTask<ComplexFormType[]> GetComplexFormTypes()
     {
-        return api.GetComplexFormTypes().ToArrayAsync();
+        return wrappedApi.GetComplexFormTypes().ToArrayAsync();
     }
 
     [JSInvokable]
     public Task<ComplexFormType?> GetComplexFormType(Guid id)
     {
-        return api.GetComplexFormType(id);
+        return wrappedApi.GetComplexFormType(id);
     }
 
     [JSInvokable]
     public ValueTask<Entry[]> GetEntries(QueryOptions? options = null)
     {
-        return api.GetEntries(options).ToArrayAsync();
+        return wrappedApi.GetEntries(options).ToArrayAsync();
     }
 
     [JSInvokable]
     public ValueTask<Entry[]> SearchEntries(string query, QueryOptions? options = null)
     {
-        return api.SearchEntries(query, options).ToArrayAsync();
+        return wrappedApi.SearchEntries(query, options).ToArrayAsync();
     }
 
     [JSInvokable]
     public Task<Entry?> GetEntry(Guid id)
     {
-        return api.GetEntry(id);
+        return wrappedApi.GetEntry(id);
     }
 
     [JSInvokable]
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
-        return api.GetSense(entryId, id);
+        return wrappedApi.GetSense(entryId, id);
     }
 
     [JSInvokable]
     public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return api.GetPartOfSpeech(id);
+        return wrappedApi.GetPartOfSpeech(id);
     }
 
     [JSInvokable]
     public Task<SemanticDomain?> GetSemanticDomain(Guid id)
     {
-        return api.GetSemanticDomain(id);
+        return wrappedApi.GetSemanticDomain(id);
     }
 
     [JSInvokable]
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        return api.GetExampleSentence(entryId, senseId, id);
+        return wrappedApi.GetExampleSentence(entryId, senseId, id);
     }
 
     [JSInvokable]
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        return api.CreateWritingSystem(type, writingSystem);
+        return wrappedApi.CreateWritingSystem(type, writingSystem);
     }
 
     [JSInvokable]
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
     {
-        var updatedWritingSystem = await api.UpdateWritingSystem(before, after);
+        var updatedWritingSystem = await wrappedApi.UpdateWritingSystem(before, after);
         OnDataChanged();
         return updatedWritingSystem;
     }
@@ -126,7 +128,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        var createdPartOfSpeech = await api.CreatePartOfSpeech(partOfSpeech);
+        var createdPartOfSpeech = await wrappedApi.CreatePartOfSpeech(partOfSpeech);
         OnDataChanged();
         return createdPartOfSpeech;
     }
@@ -134,7 +136,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
     {
-        var updatedPartOfSpeech = await api.UpdatePartOfSpeech(before, after);
+        var updatedPartOfSpeech = await wrappedApi.UpdatePartOfSpeech(before, after);
         OnDataChanged();
         return updatedPartOfSpeech;
     }
@@ -142,14 +144,14 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeletePartOfSpeech(Guid id)
     {
-        await api.DeletePartOfSpeech(id);
+        await wrappedApi.DeletePartOfSpeech(id);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        var createdSemanticDomain = await api.CreateSemanticDomain(semanticDomain);
+        var createdSemanticDomain = await wrappedApi.CreateSemanticDomain(semanticDomain);
         OnDataChanged();
         return createdSemanticDomain;
     }
@@ -157,7 +159,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
     {
-        var updatedSemanticDomain = await api.UpdateSemanticDomain(before, after);
+        var updatedSemanticDomain = await wrappedApi.UpdateSemanticDomain(before, after);
         OnDataChanged();
         return updatedSemanticDomain;
     }
@@ -165,14 +167,14 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await api.DeleteSemanticDomain(id);
+        await wrappedApi.DeleteSemanticDomain(id);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        var createdComplexFormType = await api.CreateComplexFormType(complexFormType);
+        var createdComplexFormType = await wrappedApi.CreateComplexFormType(complexFormType);
         OnDataChanged();
         return createdComplexFormType;
     }
@@ -180,7 +182,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
     {
-        var updatedComplexFormType = await api.UpdateComplexFormType(before, after);
+        var updatedComplexFormType = await wrappedApi.UpdateComplexFormType(before, after);
         OnDataChanged();
         return updatedComplexFormType;
     }
@@ -188,14 +190,14 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteComplexFormType(Guid id)
     {
-        await api.DeleteComplexFormType(id);
+        await wrappedApi.DeleteComplexFormType(id);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        var createdEntry = await api.CreateEntry(entry);
+        var createdEntry = await wrappedApi.CreateEntry(entry);
         OnDataChanged();
         projectEventBus.PublishEntryChangedEvent(project, createdEntry);
         return createdEntry;
@@ -205,7 +207,7 @@ public class MiniLcmJsInvokable(
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
         //todo trigger sync on the test
-        var result = await api.UpdateEntry(before, after);
+        var result = await wrappedApi.UpdateEntry(before, after);
         OnDataChanged();
         projectEventBus.PublishEntryChangedEvent(project, result);
         return result;
@@ -214,14 +216,14 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteEntry(Guid id)
     {
-        await api.DeleteEntry(id);
+        await wrappedApi.DeleteEntry(id);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        var createdComplexFormComponent = await api.CreateComplexFormComponent(complexFormComponent);
+        var createdComplexFormComponent = await wrappedApi.CreateComplexFormComponent(complexFormComponent);
         OnDataChanged();
         return createdComplexFormComponent;
     }
@@ -229,28 +231,28 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        await api.DeleteComplexFormComponent(complexFormComponent);
+        await wrappedApi.DeleteComplexFormComponent(complexFormComponent);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await api.AddComplexFormType(entryId, complexFormTypeId);
+        await wrappedApi.AddComplexFormType(entryId, complexFormTypeId);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await api.RemoveComplexFormType(entryId, complexFormTypeId);
+        await wrappedApi.RemoveComplexFormType(entryId, complexFormTypeId);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
-        var createdSense = await api.CreateSense(entryId, sense);
+        var createdSense = await wrappedApi.CreateSense(entryId, sense);
         OnDataChanged();
         return createdSense;
     }
@@ -258,7 +260,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
     {
-        var updatedSense = await api.UpdateSense(entryId, before, after);
+        var updatedSense = await wrappedApi.UpdateSense(entryId, before, after);
         OnDataChanged();
         return updatedSense;
     }
@@ -266,28 +268,28 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        await api.DeleteSense(entryId, senseId);
+        await wrappedApi.DeleteSense(entryId, senseId);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
-        await api.AddSemanticDomainToSense(senseId, semanticDomain);
+        await wrappedApi.AddSemanticDomainToSense(senseId, semanticDomain);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
-        await api.RemoveSemanticDomainFromSense(senseId, semanticDomainId);
+        await wrappedApi.RemoveSemanticDomainFromSense(senseId, semanticDomainId);
         OnDataChanged();
     }
 
     [JSInvokable]
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
-        var createdExampleSentence = await api.CreateExampleSentence(entryId, senseId, exampleSentence);
+        var createdExampleSentence = await wrappedApi.CreateExampleSentence(entryId, senseId, exampleSentence);
         OnDataChanged();
         return createdExampleSentence;
     }
@@ -295,7 +297,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, ExampleSentence before, ExampleSentence after)
     {
-        var updatedExampleSentence = await api.UpdateExampleSentence(entryId, senseId, before, after);
+        var updatedExampleSentence = await wrappedApi.UpdateExampleSentence(entryId, senseId, before, after);
         OnDataChanged();
         return updatedExampleSentence;
     }
@@ -303,12 +305,13 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        await api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        await wrappedApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
         OnDataChanged();
     }
 
     public void Dispose()
     {
-        api.Dispose();
+        wrappedApi.Dispose();
+        // Note we do *not* call .Dispose() on the api handed to us in the constructor param, that's the job of the DI container
     }
 }
