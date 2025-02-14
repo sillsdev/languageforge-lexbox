@@ -8,12 +8,12 @@ public class SyncJobStatusService()
 
     public void StartSyncing(Guid projectId)
     {
-        Status.AddOrUpdate(projectId, (_) => SyncJobStatus.Running, (_, _) => SyncJobStatus.Running);
+        Status.AddOrUpdate(projectId, SyncJobStatus.Running, (_, _) => SyncJobStatus.Running);
     }
 
     public void StopSyncing(Guid projectId)
     {
-        Status.Remove(projectId, out var _);
+        Status.Remove(projectId, out _);
     }
 
     public SyncJobStatus SyncStatus(Guid projectId)
@@ -26,26 +26,4 @@ public enum SyncJobStatus
 {
     NotRunning,
     Running,
-}
-
-public enum ProjectSyncStatusEnum
-{
-    NeverSynced,
-    ReadyToSync,
-    Syncing,
-    QueuedToSync
-}
-
-// TODO: Bikeshed this name
-public record ProjectSyncStatus(
-    ProjectSyncStatusEnum status,
-    int ChangesAvailable)
-{
-    public static ProjectSyncStatus NeverSynced => new(ProjectSyncStatusEnum.NeverSynced, 0);
-    public static ProjectSyncStatus Syncing => new(ProjectSyncStatusEnum.Syncing, 0);
-    public static ProjectSyncStatus QueuedToSync => new(ProjectSyncStatusEnum.QueuedToSync, 0);
-    public static ProjectSyncStatus ReadyToSync(int changes)
-    {
-        return new(ProjectSyncStatusEnum.ReadyToSync, changes);
-    }
 }

@@ -144,12 +144,11 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
     if (!syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.NotFound();
     try
     {
-
         var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
         if (result is null) return TypedResults.NotFound();
         return TypedResults.Ok(result);
     }
-    catch (OperationCanceledException e)
+    catch (OperationCanceledException)
     {
         return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
     }
