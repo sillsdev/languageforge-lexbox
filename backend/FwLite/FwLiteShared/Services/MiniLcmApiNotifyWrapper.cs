@@ -1,6 +1,7 @@
 using FwLiteShared.Events;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteShared.Services;
 
@@ -38,6 +39,23 @@ public partial class MiniLcmApiNotifyWrapper(IMiniLcmApi api, ProjectEventBus bu
         // var maybeThisIsSimpler = await wrappedReadApi.GetEntry(entryId);
         if (entry is null) return;
         bus.PublishEntryChangedEvent(project, entry);
+    }
+
+    // ********** Overrides go here **********
+
+    async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
+    {
+        var result = await wrappedWriteApi.CreateComplexFormComponent(complexFormComponent, position);
+        await NotifyEntryChangedAsync(result.ComplexFormEntryId);
+        await NotifyEntryChangedAsync(result.ComponentEntryId);
+        return result;
+    }
+
+    async Task IMiniLcmWriteApi.DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        await wrappedWriteApi.DeleteComplexFormComponent(complexFormComponent);
+        await NotifyEntryChangedAsync(complexFormComponent.ComplexFormEntryId);
+        await NotifyEntryChangedAsync(complexFormComponent.ComponentEntryId);
     }
 
     public void Dispose()
