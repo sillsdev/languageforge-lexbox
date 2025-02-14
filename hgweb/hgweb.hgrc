@@ -13,6 +13,8 @@ refreshinterval=5
 bundle1=True
 bundle1.push=True
 bundle1.pull=True
+[experimental]
+bundle2-advertise=false
 
 [paths]
 /a/ = /var/hg/repos/a/*
