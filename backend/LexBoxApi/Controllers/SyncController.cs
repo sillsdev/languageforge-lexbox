@@ -1,4 +1,6 @@
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
+using LexCore;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +9,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fw-lite/sync")]
+[FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
     IPermissionService permissionService,
@@ -22,11 +25,21 @@ public class SyncController(
     }
 
     [HttpPost("trigger/{projectId}")]
-    public async Task<ActionResult<SyncResult>> TriggerSync(Guid projectId)
+    public async Task<ActionResult> TriggerSync(Guid projectId)
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
-        var result = await fwHeadlessClient.CrdtSync(projectId);
-        if (result is null) return StatusCode(500); // Apparently there's no InternalServerError()? Weird.
-        return Ok(result);
+        var started = await fwHeadlessClient.CrdtSync(projectId);
+        if (!started) return Problem("Failed to sync CRDT");
+        return Ok();
+    }
+
+    [HttpGet("await-sync-finished/{projectId}")]
+    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
+    public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
+    {
+        await permissionService.AssertCanSyncProject(projectId);
+        var result = await fwHeadlessClient.AwaitStatus(projectId);
+        if (result is null) return Problem("Failed to get sync status");
+        return result;
     }
 }

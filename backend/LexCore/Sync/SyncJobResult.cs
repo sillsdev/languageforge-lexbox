@@ -10,4 +10,5 @@ public enum SyncJobResultEnum
     UnableToSync,
     CrdtSyncFailed,
     SendReceiveFailed,
+    UnknownError,
 }

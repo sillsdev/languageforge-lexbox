@@ -25,7 +25,7 @@
   async function triggerSync(): Promise<string | undefined> {
     syncing = true;
     try {
-      const response = await fetch(`/api/crdt/sync/${project.id}`, {
+      const response = await fetch(`/api/fw-lite/sync/trigger/${project.id}`, {
         method: 'POST',
       });
 
@@ -52,19 +52,32 @@
   async function awaitSyncFinished(): Promise<SyncResult | string> {
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const response = await fetch(`/api/crdt/await-sync-finished/${project.id}`);
-      if (response.status === 500) {
-        return 'Sync failed, please contact support';
+      try {
+        const response = await fetch(`/api/fw-lite/sync/await-sync-finished/${project.id}`, {signal: AbortSignal.timeout(30_000)});
+        if (response.status === 500) {
+          return 'Sync failed, please contact support';
+        }
+        if (response.status === 200) {
+          const result = await response.json() as SyncResult;
+          return result;
+        }
+      } catch (error) {
+        if (error instanceof DOMException && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
+          continue;
+        }
+        return tryGetErrorMessage(error) ?? 'Unknown error';
       }
-      if (response.status === 200) {
-        const result = await response.json() as SyncResult;
-        return result;
-      }
+
     }
   }
 
   async function onSubmit(): Promise<void> {
     error = await triggerSync();
+  }
+
+  async function syncProject(): Promise<void> {
+    let error = await triggerSync();
+    if (error) notifyWarning(error);
   }
 
   async function useInFwLite(): Promise<void> {
@@ -74,7 +87,7 @@
 </script>
 
 {#if hasHarmonyCommits}
-  <Button variant="btn-primary" class="gap-1" on:click={triggerSync} loading={state === 'syncing'} customLoader>
+  <Button variant="btn-primary" class="gap-1" on:click={syncProject} loading={state === 'syncing'} customLoader>
     Sync FieldWorks Lite
     <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse />
   </Button>

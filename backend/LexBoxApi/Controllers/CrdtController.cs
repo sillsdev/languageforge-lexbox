@@ -95,26 +95,4 @@ public class CrdtController(
 
         return Ok(projectId);
     }
-
-    [HttpPost("sync/{projectId}")]
-    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
-    [RequestTimeout(300_000)]//5 minutes
-    public async Task<ActionResult> TriggerMerge(Guid projectId)
-    {
-        await permissionService.AssertCanSyncProject(projectId);
-        var started = await fwHeadlessClient.CrdtSync(projectId);
-        if (!started) return Problem("Failed to sync CRDT");
-        return Ok();
-    }
-
-    [HttpGet("await-sync-finished/{projectId}")]
-    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
-    [RequestTimeout(300_000)]//5 minutes
-    public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
-    {
-        await permissionService.AssertCanSyncProject(projectId);
-        var result = await fwHeadlessClient.AwaitStatus(projectId);
-        if (result is null) return Problem("Failed to get sync status");
-        return result;
-    }
 }

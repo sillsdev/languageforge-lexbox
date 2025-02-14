@@ -22,8 +22,17 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         {
             await using var scope = services.CreateAsyncScope();
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
-            var result = await syncWorker.Execute(stoppingToken);
-            logger.LogInformation("Sync job result: {Result}", result);
+            SyncJobResult result;
+            try
+            {
+                result = await syncWorker.Execute(stoppingToken);
+                logger.LogInformation("Sync job result: {Result}", result);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Sync job failed");
+                result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.Message);
+            }
             _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
             tcs?.TrySetResult(result);
         }
