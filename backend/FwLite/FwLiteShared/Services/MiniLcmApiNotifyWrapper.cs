@@ -16,13 +16,10 @@ public class MiniLcmApiNotifyWrapperFactory
 public partial class MiniLcmApiNotifyWrapper(
     IMiniLcmApi api,
     ProjectEventBus bus,
-    IProjectIdentifier project) : IMiniLcmApi, IMiniLcmReadApi, IMiniLcmWriteApi
+    IProjectIdentifier project) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface]
-    private readonly IMiniLcmReadApi _wrappedReadApi = api;
-
-    [BeaKona.AutoInterface]
-    private readonly IMiniLcmWriteApi _wrappedWriteApi = api;
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    private readonly IMiniLcmApi _api = api;
 
     public void NotifyEntryChanged(Entry entry)
     {
@@ -31,7 +28,7 @@ public partial class MiniLcmApiNotifyWrapper(
 
     public async Task NotifyEntryChangedAsync(Guid entryId)
     {
-        var entry = await _wrappedReadApi.GetEntry(entryId);
+        var entry = await _api.GetEntry(entryId);
         if (entry is null) return;
         bus.PublishEntryChangedEvent(project, entry);
     }
@@ -40,7 +37,7 @@ public partial class MiniLcmApiNotifyWrapper(
 
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
-        var result = await _wrappedWriteApi.CreateComplexFormComponent(complexFormComponent, position);
+        var result = await _api.CreateComplexFormComponent(complexFormComponent, position);
         await NotifyEntryChangedAsync(result.ComplexFormEntryId);
         await NotifyEntryChangedAsync(result.ComponentEntryId);
         return result;
@@ -48,12 +45,12 @@ public partial class MiniLcmApiNotifyWrapper(
 
     async Task IMiniLcmWriteApi.DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        await _wrappedWriteApi.DeleteComplexFormComponent(complexFormComponent);
+        await _api.DeleteComplexFormComponent(complexFormComponent);
         await NotifyEntryChangedAsync(complexFormComponent.ComplexFormEntryId);
         await NotifyEntryChangedAsync(complexFormComponent.ComponentEntryId);
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
     }
 }
