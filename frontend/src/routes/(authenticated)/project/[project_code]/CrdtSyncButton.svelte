@@ -34,7 +34,7 @@
         if (typeof syncResults === 'string') {
           return syncResults;
         }
-        notifySuccess(`Synced successfully (${syncResults.fwdataChanges} FwData changes. ${syncResults.crdtChanges} CRDT changes)`);
+        notifySuccess($t('project.crdt.sync_result', { fwdataChanges: syncResults.fwdataChanges, crdtChanges: syncResults.crdtChanges }));
         done = true;
         return;
       }
@@ -87,36 +87,45 @@
 </script>
 
 {#if hasHarmonyCommits}
-  <Button variant="btn-primary" class="gap-1" on:click={syncProject} loading={state === 'syncing'} customLoader>
-    Sync FieldWorks Lite
-    <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse />
+  <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={state === 'syncing'} active={state === 'syncing'} customLoader>
+    <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
+    {$t('project.crdt.sync_fwlite')}
+    <span style="transform: rotateY(180deg)">
+      <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse/>
+    </span>
   </Button>
 {:else}
   <Button variant="btn-primary" class="indicator" on:click={useInFwLite}>
-    <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)]">Beta</span>
+    <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     <span>
       {$t('project.crdt.try_fw_lite')}
     </span>
   </Button>
   <Modal bind:this={modal} showCloseButton={false} hideActions={state === 'syncing'} closeOnClickOutside={false}>
-    <h2 class="text-xl mb-2">
-      {$t('project.crdt.try_fw_lite')}
+    <h2 class="text-xl mb-6">
+      {#if state === 'syncing'}
+        {$t('project.crdt.making_available')}
+      {:else if state === 'done'}
+        {$t('project.crdt.now_available')}
+      {:else}
+        {$t('project.crdt.try_fw_lite')}
+      {/if}
     </h2>
     {#if state === 'syncing'}
-      <div class="text-center">
-        <p class="mb-2 label justify-center">
-          {$t('project.crdt.making_available')}
-        </p>
-        <span class="loading loading-lg" />
+      <div class="mb-6 prose max-w-none underline-links">
+        <Markdown md={$t('project.crdt.while_you_wait')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
       </div>
+      <p class="text-center">
+        <span class="loading loading-lg"></span>
+      </p>
     {:else if state === 'done'}
       <div class="prose max-w-none underline-links">
-        <Markdown md={$t('project.crdt.now_available')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <Markdown md={$t('project.crdt.to_start_using')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
         <p class="text-center">
           <span
             class="i-mdi-check-circle-outline text-7xl text-center text-success"
             transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
-          />
+          ></span>
         </p>
       </div>
     {:else}

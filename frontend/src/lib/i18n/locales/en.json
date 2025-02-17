@@ -264,26 +264,29 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     },
     "awaiting_approval": "Awaiting approval",
     "crdt": {
-      "try_fw_lite": "Try FieldWorks Lite",
+      "sync_fwlite": "Sync FieldWorks Lite",
+      "sync_result": "{fwdataChanges} changes synced to FieldWorks. {crdtChanges} changes synced to FieldWorks Lite.",
+      "try_fw_lite": "Try FieldWorks Lite?",
       "try_info": "This will make your project available in [FieldWorks Lite](https://lexbox.org/fw-lite). \
-This is still experimental and it will effect your FieldWorks project data. \
+This is still experimental and it will affect your FieldWorks project data. \
 However, **all your data is safe and backed up** here on Lexbox. \
-If you run into problems with your project please tell support that you are using FieldWorks Lite. \
-Steps to start using FieldWorks Lite: \n\
-1. Make the project available (click 'Yes' below) \n\
-1. Install [FieldWorks Lite](https://lexbox.org/fw-lite) \n\
-1. Login to lexbox from FieldWorks Lite \n\
-1. Wait for this process to finish making the project available \n\
-1. Open your project in FieldWorks lite, you will need to download it under the Lexbox server section, you may need to refresh the list first",
+If you run into problems with your project please tell support that you are using FieldWorks Lite. \n\n\
+Are you ready to try FieldWorks Lite?",
       "submit": "Yes, please!",
       "cancel": "Not yet",
       "finish": "Close",
-      "now_available": "Your project is now available in [FieldWorks Lite](https://lexbox.org/fw-lite)! \n\n\
-To start using it: \n\
-1. Install [FieldWorks Lite](https://lexbox.org/fw-lite) \n\
-1. Login to Lexbox from FieldWorks Lite \n\
-1. Open your project in FieldWorks lite, you will need to download it under the Lexbox server section, you may need to refresh the list first",
-      "making_available": "We're making your project available in FieldWorks Lite...",
+      "making_available": "Making your project available in FieldWorks Lite...",
+      "while_you_wait": "While you're waiting you can: \n\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite). \n\
+1. Login to Lexbox from FieldWorks Lite. \n\
+",
+      "now_available": "Your project is now available in FieldWorks Lite!",
+      "to_start_using": "To get started: \n\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite). \n\
+1. Login to Lexbox from FieldWorks Lite. \n\
+1. Download this project under the Lexbox server section (you may need to refresh the list of projects). \n\
+1. After working in FieldWorks Lite, come back here and click 'Sync FieldWorks Lite'. \n\
+1. Then you can download those changes into FieldWorks by doing a Send/Receive.",
       "reach_out_for_help": "Please reach out to us at \
 [lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org?subject={subject}), \
 so we can get this fixed!",
