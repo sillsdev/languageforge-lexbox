@@ -1,5 +1,4 @@
-﻿using FwLiteShared.Events;
-using FwLiteShared.Sync;
+﻿using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -11,10 +10,9 @@ public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
-    MiniLcmApiNotifyWrapperFactory apiWrapperFactory,
-    ProjectEventBus projectEventBus) : IDisposable
+    MiniLcmApiNotifyWrapperFactory apiWrapperFactory) : IDisposable
 {
-    private readonly IMiniLcmApi _wrappedApi = apiWrapperFactory.Create(api, projectEventBus, project);
+    private readonly IMiniLcmApi _wrappedApi = apiWrapperFactory.Create(api, project);
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
@@ -26,6 +24,7 @@ public class MiniLcmJsInvokable(
         return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
     }
 
+    //todo move info notify wrapper factory
     private void OnDataChanged()
     {
         // Do *not* check wrappedApi here
@@ -199,7 +198,6 @@ public class MiniLcmJsInvokable(
     {
         var createdEntry = await _wrappedApi.CreateEntry(entry);
         OnDataChanged();
-        projectEventBus.PublishEntryChangedEvent(project, createdEntry);
         return createdEntry;
     }
 
@@ -209,7 +207,6 @@ public class MiniLcmJsInvokable(
         //todo trigger sync on the test
         var result = await _wrappedApi.UpdateEntry(before, after);
         OnDataChanged();
-        projectEventBus.PublishEntryChangedEvent(project, result);
         return result;
     }
 

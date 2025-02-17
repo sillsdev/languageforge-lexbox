@@ -5,9 +5,9 @@ using MiniLcm.SyncHelpers;
 
 namespace FwLiteShared.Services;
 
-public class MiniLcmApiNotifyWrapperFactory
+public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus)
 {
-    public IMiniLcmApi Create(IMiniLcmApi api, ProjectEventBus bus, IProjectIdentifier project)
+    public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier project)
     {
         return new MiniLcmApiNotifyWrapper(api, bus, project);
     }
@@ -34,6 +34,20 @@ public partial class MiniLcmApiNotifyWrapper(
     }
 
     // ********** Overrides go here **********
+
+    async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
+    {
+        var result = await _api.CreateEntry(entry);
+        NotifyEntryChanged(result);
+        return result;
+    }
+
+    async Task<Entry> IMiniLcmWriteApi.UpdateEntry(Entry before, Entry after, IMiniLcmApi? api)
+    {
+        var result = await _api.UpdateEntry(before, after, api ?? this);
+        NotifyEntryChanged(result);
+        return result;
+    }
 
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
