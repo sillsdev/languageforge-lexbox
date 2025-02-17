@@ -48,6 +48,7 @@ export default defineConfig({
         searchForWorkspaceRoot(process.cwd())
       ]
     },
+    allowedHosts: true,
     proxy: inDocker ? undefined : {
       '/v1/traces': 'http://localhost:4318',
       '/api': lexboxServer,
