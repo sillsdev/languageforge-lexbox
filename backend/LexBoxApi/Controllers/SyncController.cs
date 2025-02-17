@@ -9,7 +9,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fw-lite/sync")]
-[FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
+[FeatureFlagRequired(FeatureFlag.FwLiteBeta, AllowAdmin = true)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
     IPermissionService permissionService,
@@ -34,7 +34,6 @@ public class SyncController(
     }
 
     [HttpGet("await-sync-finished/{projectId}")]
-    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
     public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);

@@ -68,11 +68,14 @@ public class TestingController(
         return Ok(configurationRoot.GetDebugView());
     }
 
+#endif
+
     [HttpPost("copyToNewProject")]
     [AdminRequired]
-    public async Task<ActionResult> CopyToNewProject(string newProjectCode, string existingProjectCode)
+    public async Task<ActionResult<Guid>> CopyToNewProject(string newProjectCode, string existingProjectCode)
     {
-        await projectService.CreateProject(new(null,
+        var id = Guid.NewGuid();
+        await projectService.CreateProject(new(id,
             newProjectCode,
             "Copy of " + existingProjectCode,
             newProjectCode,
@@ -82,10 +85,8 @@ public class TestingController(
             loggedInContext.User.Id,
             null));
         await hgService.CopyRepo(existingProjectCode, newProjectCode);
-        return Ok();
+        return Ok(id);
     }
-
-#endif
 
     [HttpPost("seedDatabase")]
     [AdminRequired]
