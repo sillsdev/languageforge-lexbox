@@ -23,7 +23,9 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
     private async Task TriggerSync(Guid projectId)
     {
         var result = await HttpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
-        result.EnsureSuccessStatusCode();
+        if (result.IsSuccessStatusCode) return;
+        var responseString = await result.Content.ReadAsStringAsync();
+        Assert.Fail($"trigger failed with error {result.ReasonPhrase}, body: {responseString}" );
     }
 
     private async Task<SyncResult?> AwaitSyncFinished(Guid projectId)
