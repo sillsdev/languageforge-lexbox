@@ -8,7 +8,7 @@ using Testing.Services;
 
 namespace Testing.FwHeadless;
 
-public class MergeFwDataWithHarmonyTests : ApiTestBase
+public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
     private async Task<Guid> CopyProjectToNewProject(string newProjectCode, string existingProjectCode)
     {
@@ -44,19 +44,19 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase
                     new ChangeEntity<ServerJsonChange>()
                     {
                         Change = JsonSerializer.Deserialize<ServerJsonChange>(
-$$"""
-{
-  "$type": "CreateEntryChange",
-  "LexemeForm": {
-    "en": "Apple"
-  },
-  "CitationForm": {
-    "en": "Apple"
-  },
-  "Note": {},
-  "EntityId": "{{entryId}}"
-}
-"""
+                            $$"""
+                              {
+                                "$type": "CreateEntryChange",
+                                "LexemeForm": {
+                                  "en": "Apple"
+                                },
+                                "CitationForm": {
+                                  "en": "Apple"
+                                },
+                                "Note": {},
+                                "EntityId": "{{entryId}}"
+                              }
+                              """
                         ) ?? throw new JsonException("unable to deserialize"),
                         Index = 0,
                         CommitId = Guid.NewGuid(),
@@ -72,14 +72,25 @@ $$"""
         result.EnsureSuccessStatusCode();
     }
 
-    [Fact]
-    public async Task TriggerSync_WorksTheFirstTime()
+    private Guid _projectId;
+
+    public async Task InitializeAsync()
     {
         await LoginAs("admin");
         var projectCode = Utils.NewProjectCode();
-        var projectId = await CopyProjectToNewProject(projectCode, "sena-3");
-        await TriggerSync(projectId);
-        var result = await AwaitSyncFinished(projectId);
+        _projectId = await CopyProjectToNewProject(projectCode, "sena-3");
+    }
+
+    public async Task DisposeAsync()
+    {
+        await HttpClient.DeleteAsync($"api/project/{_projectId}");
+    }
+
+    [Fact]
+    public async Task TriggerSync_WorksTheFirstTime()
+    {
+        await TriggerSync(_projectId);
+        var result = await AwaitSyncFinished(_projectId);
         result.Should().NotBeNull();
         result.CrdtChanges.Should().BeGreaterThan(100);
         result.FwdataChanges.Should().Be(0);
@@ -88,15 +99,12 @@ $$"""
     [Fact]
     public async Task TriggerSync_WorksWithSomeCommits()
     {
-        await LoginAs("admin");
-        var projectCode = Utils.NewProjectCode();
-        var projectId = await CopyProjectToNewProject(projectCode, "sena-3");
-        await TriggerSync(projectId);
-        await AwaitSyncFinished(projectId);
+        await TriggerSync(_projectId);
+        await AwaitSyncFinished(_projectId);
 
-        await AddTestCommit(projectId);
-        await TriggerSync(projectId);
-        var result = await AwaitSyncFinished(projectId);
+        await AddTestCommit(_projectId);
+        await TriggerSync(_projectId);
+        var result = await AwaitSyncFinished(_projectId);
         result.Should().NotBeNull();
         result.CrdtChanges.Should().Be(0);
         result.FwdataChanges.Should().BeGreaterThan(0);
