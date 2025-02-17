@@ -157,7 +157,7 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
         await Api.CreateComplexFormType(complexFormType);
         var afterFormType = complexFormType with { Name = new() { { "en", "updated" } } };
-        var actualFormType = await Api.UpdateComplexFormType(complexFormType, afterFormType, Api);
+        var actualFormType = await Api.UpdateComplexFormType(complexFormType, afterFormType);
         actualFormType.Should().BeEquivalentTo(afterFormType, options => options.Excluding(c => c.Id));
     }
 

@@ -12,33 +12,33 @@ public interface IMiniLcmWriteApi
     Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
-    Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi api);
+    Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null);
     // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
-    Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi api);
+    Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null);
     Task DeletePartOfSpeech(Guid id);
     #endregion
 
     #region SemanticDomain
     Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain);
     Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update);
-    Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi api);
+    Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null);
     Task DeleteSemanticDomain(Guid id);
     #endregion
 
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
     Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update);
-    Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi api);
+    Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null);
     Task DeleteComplexFormType(Guid id);
 
     #region Entry
     Task<Entry> CreateEntry(Entry entry);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 
-    Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi api);
+    Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null);
     Task DeleteEntry(Guid id);
     Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null);
     Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between);
@@ -57,7 +57,7 @@ public interface IMiniLcmWriteApi
     /// <returns></returns>
     Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
-    Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi api);
+    Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null);
     Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
@@ -82,7 +82,7 @@ public interface IMiniLcmWriteApi
         Guid senseId,
         ExampleSentence before,
         ExampleSentence after,
-        IMiniLcmApi api);
+        IMiniLcmApi? api = null);
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);

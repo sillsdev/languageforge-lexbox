@@ -5,27 +5,24 @@ using MiniLcm.SyncHelpers;
 
 namespace FwLiteShared.Services;
 
-public class MiniLcmApiNotifyWrapperFactory()
+public class MiniLcmApiNotifyWrapperFactory
 {
-    public IMiniLcmApi Create(IMiniLcmApi api, ProjectEventBus bus, IProjectIdentifier project, Func<Guid, Task<Entry?>> entryLookup)
+    public IMiniLcmApi Create(IMiniLcmApi api, ProjectEventBus bus, IProjectIdentifier project)
     {
-        return new MiniLcmApiNotifyWrapper(api, bus, project, entryLookup).AsIMiniLcmApi();
+        return new MiniLcmApiNotifyWrapper(api, bus, project);
     }
 }
 
-public partial class MiniLcmApiNotifyWrapper(IMiniLcmApi api, ProjectEventBus bus, IProjectIdentifier project, Func<Guid, Task<Entry?>> entryLookup) : IMiniLcmReadApi, IMiniLcmWriteApi, IDisposable
+public partial class MiniLcmApiNotifyWrapper(
+    IMiniLcmApi api,
+    ProjectEventBus bus,
+    IProjectIdentifier project) : IMiniLcmApi, IMiniLcmReadApi, IMiniLcmWriteApi
 {
     [BeaKona.AutoInterface]
-    private readonly IMiniLcmReadApi wrappedReadApi = api;
+    private readonly IMiniLcmReadApi _wrappedReadApi = api;
 
     [BeaKona.AutoInterface]
-    private readonly IMiniLcmWriteApi wrappedWriteApi = api;
-
-    public IMiniLcmApi AsIMiniLcmApi()
-    {
-        // AutoInterface doesn't know how to handle IMiniLcmApi so we had to specify the component interfaces separately, but this class is intended to function as an IMiniLcmApi implementation
-        return (IMiniLcmApi)this;
-    }
+    private readonly IMiniLcmWriteApi _wrappedWriteApi = api;
 
     public void NotifyEntryChanged(Entry entry)
     {
@@ -34,9 +31,7 @@ public partial class MiniLcmApiNotifyWrapper(IMiniLcmApi api, ProjectEventBus bu
 
     public async Task NotifyEntryChangedAsync(Guid entryId)
     {
-        // TODO: Passing in an entry lookup method allows this wrapper to remain ignorant... but should I just call the wrapped read API instead?
-        var entry = await entryLookup(entryId);
-        // var maybeThisIsSimpler = await wrappedReadApi.GetEntry(entryId);
+        var entry = await _wrappedReadApi.GetEntry(entryId);
         if (entry is null) return;
         bus.PublishEntryChangedEvent(project, entry);
     }
@@ -45,7 +40,7 @@ public partial class MiniLcmApiNotifyWrapper(IMiniLcmApi api, ProjectEventBus bu
 
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
-        var result = await wrappedWriteApi.CreateComplexFormComponent(complexFormComponent, position);
+        var result = await _wrappedWriteApi.CreateComplexFormComponent(complexFormComponent, position);
         await NotifyEntryChangedAsync(result.ComplexFormEntryId);
         await NotifyEntryChangedAsync(result.ComponentEntryId);
         return result;
@@ -53,7 +48,7 @@ public partial class MiniLcmApiNotifyWrapper(IMiniLcmApi api, ProjectEventBus bu
 
     async Task IMiniLcmWriteApi.DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        await wrappedWriteApi.DeleteComplexFormComponent(complexFormComponent);
+        await _wrappedWriteApi.DeleteComplexFormComponent(complexFormComponent);
         await NotifyEntryChangedAsync(complexFormComponent.ComplexFormEntryId);
         await NotifyEntryChangedAsync(complexFormComponent.ComponentEntryId);
     }
