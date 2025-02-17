@@ -54,10 +54,24 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     public bool QueueJob(Guid projectId)
     {
         //will only queue job if it's not already queued
-        var queued = _projectsQueuedOrRunning.TryAdd(projectId, new()) && _projectsToSync.Writer.TryWrite(projectId);
-        if (queued) logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
-        else logger.LogInformation("Project {ProjectId} is already queued", projectId);
-        return queued;
+        var addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
+        if (addedToQueue)
+        {
+            if (!_projectsToSync.Writer.TryWrite(projectId))
+            {
+                logger.LogError("Failed to queue sync job for project {ProjectId}, the channel is full", projectId);
+                _projectsQueuedOrRunning.TryRemove(projectId, out _);
+                return false;
+            }
+
+            logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
+        }
+        else
+        {
+            logger.LogInformation("Project {ProjectId} is already queued", projectId);
+        }
+
+        return addedToQueue;
     }
 }
 
