@@ -8,6 +8,7 @@ using Testing.Services;
 
 namespace Testing.FwHeadless;
 
+[Trait("Category", "Integration")]
 public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
     private async Task<Guid> CopyProjectToNewProject(string newProjectCode, string existingProjectCode)
