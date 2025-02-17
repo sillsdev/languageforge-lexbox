@@ -204,7 +204,6 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        //todo trigger sync on the test
         var result = await _wrappedApi.UpdateEntry(before, after);
         OnDataChanged();
         return result;
