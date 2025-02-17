@@ -1,4 +1,5 @@
 using FwLiteShared.Events;
+using LexCore.Utils;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -21,13 +22,51 @@ public partial class MiniLcmApiNotifyWrapper(
     [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
     private readonly IMiniLcmApi _api = api;
 
+    private PendingChangeNotifications? _pendingChanges;
+
+    private IAsyncDisposable BeginTrackingChanges()
+    {
+        if (_pendingChanges is not null) return Defer.NoopAsync;
+        return _pendingChanges = new PendingChangeNotifications(this);
+    }
+
+    private record PendingChangeNotifications(MiniLcmApiNotifyWrapper Wrapper): IAsyncDisposable
+    {
+        public HashSet<Guid> EntryIds { get; init; } = [];
+        public Dictionary<Guid, Entry> Entries { get; init; } = [];
+
+        public async ValueTask DisposeAsync()
+        {
+            Wrapper._pendingChanges = null;
+            foreach (var (id, entry) in Entries)
+            {
+                Wrapper.NotifyEntryChanged(entry);
+                EntryIds.Remove(id);
+            }
+            foreach (var entryId in EntryIds)
+            {
+                await Wrapper.NotifyEntryChangedAsync(entryId);
+            }
+        }
+    }
+
     public void NotifyEntryChanged(Entry entry)
     {
+        if (_pendingChanges is not null)
+        {
+            _pendingChanges.Entries[entry.Id] = entry;
+            return;
+        }
         bus.PublishEntryChangedEvent(project, entry);
     }
 
     public async Task NotifyEntryChangedAsync(Guid entryId)
     {
+        if (_pendingChanges is not null)
+        {
+            _pendingChanges.EntryIds.Add(entryId);
+            return;
+        }
         var entry = await _api.GetEntry(entryId);
         if (entry is null) return;
         bus.PublishEntryChangedEvent(project, entry);
@@ -37,6 +76,7 @@ public partial class MiniLcmApiNotifyWrapper(
 
     async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
     {
+        await using var _ = BeginTrackingChanges();
         var result = await _api.CreateEntry(entry);
         NotifyEntryChanged(result);
         return result;
@@ -44,6 +84,7 @@ public partial class MiniLcmApiNotifyWrapper(
 
     async Task<Entry> IMiniLcmWriteApi.UpdateEntry(Entry before, Entry after, IMiniLcmApi? api)
     {
+        await using var _ = BeginTrackingChanges();
         var result = await _api.UpdateEntry(before, after, api ?? this);
         NotifyEntryChanged(result);
         return result;
