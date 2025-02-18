@@ -37,7 +37,7 @@ type MailboxFactory = () => Promise<Mailbox>;
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   uniqueTestId: string,
-  tempUserFactory(options?: UserFactoryOptions): Promise<Readonly<TempUser>>,
+  tempUserFactory: (options?: UserFactoryOptions) => Promise<Readonly<TempUser>>,
   tempUser: Readonly<TempUser>,
   tempUserVerified: Readonly<TempUser>,
   tempUserInTestOrg: Readonly<TempUser>,
