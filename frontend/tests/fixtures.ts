@@ -1,4 +1,4 @@
-import {test as base, expect, type BrowserContext, type BrowserContextOptions} from '@playwright/test';
+import {test as base, expect, type BrowserContext, type BrowserContextOptions, type Page, type TestInfo} from '@playwright/test';
 import * as testEnv from './envVars';
 import {type UUID, randomUUID} from 'crypto';
 import {addUserToOrg, deleteUser, loginAs, registerUser, verifyTempUserEmail} from './utils/authHelpers';
@@ -28,14 +28,22 @@ export interface TempProject {
 
 export type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id: UUID}}}}
 
+type UserFactoryOptions = {
+  verified?: boolean
+}
+
+type MailboxFactory = () => Promise<Mailbox>;
+
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   uniqueTestId: string,
+  tempUserFactory(options?: UserFactoryOptions): Promise<Readonly<TempUser>>,
   tempUser: Readonly<TempUser>,
+  tempUserVerified: Readonly<TempUser>,
   tempUserInTestOrg: Readonly<TempUser>,
   tempProject: TempProject,
   tempDir: string,
-  mailboxFactory: () => Promise<Mailbox>,
+  mailboxFactory: MailboxFactory,
 }
 
 async function getNewMailbox(context: BrowserContext): Promise<Mailbox> {
@@ -47,6 +55,26 @@ async function getNewMailbox(context: BrowserContext): Promise<Mailbox> {
     const email = await mailbox.createEmailAddress();
     return new E2EMailbox(email, mailbox);
   }
+}
+
+let newUserCount = 1;
+async function buildNewUser(options: UserFactoryOptions, mailboxFactory: MailboxFactory, page: Page, testInfo: TestInfo): Promise<TempUser> {
+  const mailbox = await mailboxFactory();
+  const email = mailbox.email;
+  const name = `${newUserCount++} Test: ${testInfo.title} - ${email.replaceAll('@', '(at)')}`;
+  const password = email;
+  const tempUserId = await registerUser(page, name, email, password);
+  const tempUser = Object.freeze({
+    id: tempUserId,
+    name,
+    email,
+    password,
+    mailbox,
+  });
+  if (options.verified) {
+    await verifyTempUserEmail(page, tempUser);
+  }
+  return tempUser;
 }
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
@@ -94,47 +122,33 @@ export const test = base.extend<Fixtures>({
   mailboxFactory: async ({context}, use) => {
     await use(() => getNewMailbox(context));
   },
-  tempUser: async ({browser, page, mailboxFactory}, use, testInfo) => {
-    const mailbox = await mailboxFactory();
-    const email = mailbox.email;
-    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', '(at)')}`;
-    const password = email;
-    const tempUserId = await registerUser(page, name, email, password);
-    const tempUser = Object.freeze({
-      id: tempUserId,
-      name,
-      email,
-      password,
-      mailbox,
+  tempUserFactory: async ({browser, page, mailboxFactory}, use, testInfo) => {
+    const tempUsers: TempUser[] = [];
+    await use(async (options = {}) => {
+      const tempUser = await buildNewUser(options, mailboxFactory, page, testInfo);
+      tempUsers.push(tempUser);
+      return tempUser;
     });
-    await use(tempUser);
     const context = await browser.newContext();
     await loginAs(context.request, 'admin');
-    await deleteUser(context.request, tempUser.id);
+    for (const tempUser of tempUsers) {
+      await deleteUser(context.request, tempUser.id);
+    }
     await context.close();
   },
-  tempUserInTestOrg: async ({browser, page, mailboxFactory}, use, testInfo) => {
-    const mailbox = await mailboxFactory();
-    const email = mailbox.email;
-    const name = `Test: ${testInfo.title} - ${email.replaceAll('@', '(at)')}`;
-    const password = email;
-    const tempUserId = await registerUser(page, name, email, password);
-    const tempUser = Object.freeze({
-      id: tempUserId,
-      name,
-      email,
-      password,
-      mailbox,
-    });
-    const newPage = await verifyTempUserEmail(page, tempUser);
-    await loginAs(newPage.request, 'admin');
-    await addUserToOrg(newPage.request, tempUserId, testEnv.testOrgId, 'USER');
-    await loginAs(page.request, email, password);
+  tempUser: async ({tempUserFactory}, use) => {
+    const tempUser = await tempUserFactory();
     await use(tempUser);
-    const context = await browser.newContext();
-    await loginAs(context.request, 'admin');
-    await deleteUser(context.request, tempUser.id);
-    await context.close();
+  },
+  tempUserVerified: async ({tempUserFactory}, use) => {
+    const tempUser = await tempUserFactory({verified: true});
+    await use(tempUser);
+  },
+  tempUserInTestOrg: async ({tempUserFactory, page}, use) => {
+    const tempUser = await tempUserFactory({verified: true});
+    await loginAs(page.request, 'admin');
+    await addUserToOrg(page.request, tempUser.id, testEnv.testOrgId, 'USER');
+    await use(tempUser);
   },
   tempProject: async ({ page, uniqueTestId }, use, testInfo) => {
     const titleForCode =
