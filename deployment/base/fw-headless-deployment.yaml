@@ -61,7 +61,7 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
         ports:
-          - containerPort: 80
+          - containerPort: 8081
 
         volumeMounts:
         - name: fw-headless
