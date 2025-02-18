@@ -4,8 +4,11 @@ using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync;
 
-public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
+public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
+    [BeaKona.AutoInterface(typeof(IMiniLcmReadApi))]
+    private readonly IMiniLcmApi _api = api;
+
     public void Dispose()
     {
     }
@@ -13,11 +16,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public List<DryRunRecord> DryRunRecords { get; } = [];
 
     public record DryRunRecord(string Method, string Description);
-
-    public Task<WritingSystems> GetWritingSystems()
-    {
-        return api.GetWritingSystems();
-    }
 
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
@@ -31,7 +29,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateWritingSystem),
             $"Update writing system {type}, changes: {update.Summarize()}"));
-        var ws = await api.GetWritingSystems();
+        var ws = await _api.GetWritingSystems();
         return (type switch
         {
             WritingSystemType.Vernacular => ws.Vernacular,
@@ -39,20 +37,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         }).First(w => w.WsId == id);
     }
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update {after.Type} writing system {after.WsId}"));
         return Task.FromResult(after);
-    }
-
-    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
-    {
-        return api.GetPartsOfSpeech();
-    }
-
-    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
-    {
-        return api.GetPartOfSpeech(id);
     }
 
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -64,10 +52,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {id}"));
-        return GetPartOfSpeech(id)!;
+        return _api.GetPartOfSpeech(id)!;
     }
 
-    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {after.Id}"));
         return Task.FromResult(after);
@@ -77,16 +65,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeletePartOfSpeech), $"Delete part of speech {id}"));
         return Task.CompletedTask;
-    }
-
-    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
-    {
-        return api.GetSemanticDomains();
-    }
-
-    public Task<SemanticDomain?> GetSemanticDomain(Guid id)
-    {
-        return api.GetSemanticDomain(id);
     }
 
     public Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
@@ -99,10 +77,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {id}"));
-        return GetSemanticDomain(id)!;
+        return _api.GetSemanticDomain(id)!;
     }
 
-    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSemanticDomain), $"Update semantic domain {after.Id}"));
         return Task.FromResult(after);
@@ -114,17 +92,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
-    {
-        return api.GetComplexFormTypes();
-    }
-
-    public Task<ComplexFormType?> GetComplexFormType(Guid id)
-    {
-        return api.GetComplexFormType(id);
-    }
-
-
     public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormType),
@@ -135,10 +102,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateComplexFormType), $"Update complex form type {id}"));
-        return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
+        return await _api.GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
     }
 
-    public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateComplexFormType), $"Update complex form type {after.Id}"));
         return Task.FromResult(after);
@@ -150,21 +117,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
-    {
-        return api.GetEntries(options);
-    }
-
-    public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
-    {
-        return api.SearchEntries(query, options);
-    }
-
-    public Task<Entry?> GetEntry(Guid id)
-    {
-        return api.GetEntry(id);
-    }
-
     public Task<Entry> CreateEntry(Entry entry)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()}"));
@@ -174,10 +126,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update entry {id}"));
-        return GetEntry(id)!;
+        return _api.GetEntry(id)!;
     }
 
-    public Task<Entry> UpdateEntry(Entry before, Entry after)
+    public Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update entry {after.Id}"));
         return Task.FromResult(after);
@@ -194,12 +146,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(RemoveComplexFormType), $"Remove complex form type {complexFormTypeId}, from entry {entryId}"));
         await Task.CompletedTask;
     }
-
-    public Task<Sense?> GetSense(Guid entryId, Guid id)
-    {
-        return api.GetSense(entryId, id);
-    }
-
     public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss} between {position?.Previous} and {position?.Next}"));
@@ -210,17 +156,17 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSense),
             $"Update sense {senseId}, changes: {update.Summarize()}"));
-        var entry = await GetEntry(entryId) ??
+        var entry = await _api.GetEntry(entryId) ??
                     throw new NullReferenceException($"unable to find entry with id {entryId}");
         var sense = entry.Senses.First(s => s.Id == senseId);
         return sense;
     }
 
-    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateSense),
             $"Update sense {after.Id}"));
-        return await GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
+        return await _api.GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
     }
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
@@ -247,11 +193,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
-    {
-        return api.GetExampleSentence(entryId, senseId, id);
-    }
-
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence} between {position?.Previous} and {position?.Next}"));
@@ -265,14 +206,15 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence),
             $"Update example sentence {exampleSentenceId}, changes: {update.Summarize()}"));
-        var exampleSentence = await GetExampleSentence(entryId, senseId, exampleSentenceId);
+        var exampleSentence = await _api.GetExampleSentence(entryId, senseId, exampleSentenceId);
         return exampleSentence ?? throw new NullReferenceException($"unable to find example sentence with id {exampleSentenceId}");
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence before,
-        ExampleSentence after)
+        ExampleSentence after,
+        IMiniLcmApi? api)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateExampleSentence), $"Update example sentence {after.Id}"));
         return Task.FromResult(after);
