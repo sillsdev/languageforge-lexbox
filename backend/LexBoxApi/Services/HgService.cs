@@ -78,6 +78,36 @@ public partial class HgService : IHgService, IHostedService
         );
     }
 
+    /// <summary>
+    /// danger, this will replace the repo at the destination with the source
+    /// </summary>
+    public async Task CopyRepo(ProjectCode sourceCode, ProjectCode destCode)
+    {
+        var sourceFolder = new DirectoryInfo(PrefixRepoFilePath(sourceCode));
+        if (!sourceFolder.Exists)
+        {
+            throw new DirectoryNotFoundException($"Source repo {sourceCode} not found");
+        }
+        var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(destCode));
+        if (repoDirectory.Exists && (await GetTipHash(destCode) != AllZeroHash))
+        {
+            throw new InvalidOperationException($"Destination repo {destCode} already exists and is not empty");
+        }
+
+        await Task.Run(() =>
+            {
+                if (repoDirectory.Exists) repoDirectory.Delete(true);
+                repoDirectory.Create();
+                FileUtils.CopyFilesRecursively(
+                    sourceFolder,
+                    repoDirectory,
+                    Permissions
+                );
+            }
+        );
+        await InvalidateDirCache(destCode);
+    }
+
     public async Task DeleteRepo(ProjectCode code)
     {
         await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));

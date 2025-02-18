@@ -156,7 +156,7 @@ input[readonly]:focus {
   the microscopic size they have by default is not what we're looking for.
   If we ever want to use badges of different sizes, we can revisit this.
 */
-.badge {
+.badge:not(.badge-xs, .badge-sm, .badge-md, .badge-lg) {
   @apply btn-sm;
 }
 
@@ -223,4 +223,26 @@ img[src*="onestory-editor-logo"] {
   text-overflow: ellipsis;
   /* Ensures dangling letters are not clipped (e.g. "g") */
   line-height: 1.3em;
+}
+
+
+.details {
+    display: grid;
+    column-gap: 2rem;
+    grid-template-columns: 1fr;
+    @media screen(md) {
+        grid-template-columns: minmax(0, 1fr) 1fr;
+
+        .detail-item {
+            grid-column: auto;
+        }
+
+        > * {
+            grid-column: span 2;
+        }
+    }
+}
+
+.underline-links a {
+  @apply link hover:contrast-200;
 }

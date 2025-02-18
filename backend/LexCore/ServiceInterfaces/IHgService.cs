@@ -7,6 +7,7 @@ public record BackupExecutor(Func<Stream, CancellationToken, Task> ExecuteBackup
 public interface IHgService
 {
     Task InitRepo(ProjectCode code);
+    Task CopyRepo(ProjectCode sourceCode, ProjectCode destCode);
     Task<DateTimeOffset?> GetLastCommitTimeFromHg(ProjectCode projectCode);
     Task<Changeset[]> GetChangesets(ProjectCode projectCode);
     Task<ProjectType> DetermineProjectType(ProjectCode projectCode);

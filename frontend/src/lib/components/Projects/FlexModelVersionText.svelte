@@ -24,8 +24,7 @@
 <script lang="ts">
 
   export let modelVersion: number;
-  export let extraClass = '';
   $: fwModel = versionLookupTable[modelVersion] ?? 'Unknown FieldWorks version';
 </script>
 
-<span title="FieldWorks data model {modelVersion}" class={extraClass}>{fwModel}</span>
+<span title="FieldWorks data model {modelVersion}" class="text-secondary">{fwModel}</span>

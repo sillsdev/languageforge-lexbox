@@ -32,7 +32,7 @@
   import {_deleteProject} from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, PageBreadcrumb } from '$lib/layout';
+  import {AdminContent, FeatureFlagContent, PageBreadcrumb} from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
@@ -332,8 +332,12 @@
           <span class="i-mdi-dictionary text-2xl"/>
         </a>
       {/if}
+      {#if project.type === ProjectType.FlEx}
+        <FeatureFlagContent flag="FwLiteBeta">
+          <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
+        </FeatureFlagContent>
+      {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        <CrdtSyncButton projectId={project.id} />
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else if canAskToJoinProject}
@@ -440,6 +444,11 @@
             </Badge>
           </button>
         {/if}
+        {#if project.hasHarmonyCommits}
+          <Badge>
+            {$t('project_page.using_fw_lite')}
+          </Badge>
+        {/if}
       </BadgeList>
       <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
     </svelte:fragment>
@@ -478,32 +487,34 @@
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
-        <DetailItem title={$t('project_page.vernacular_langs')}>
-          <WritingSystemList writingSystems={vernacularLangTags} />
-          <AdminContent>
-            <IconButton
-              loading={loadingLanguageList}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateLanguageList}
-            />
-          </AdminContent>
-        </DetailItem>
-        <DetailItem title={$t('project_page.analysis_langs')}>
-          <WritingSystemList writingSystems={analysisLangTags} />
-          <AdminContent>
-            <IconButton
-              loading={loadingLanguageList}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateLanguageList}
-            />
-          </AdminContent>
-        </DetailItem>
+        <div class="space-y-2">
+          <DetailItem title={$t('project_page.vernacular_langs')} wrap>
+            <AdminContent>
+              <IconButton
+                loading={loadingLanguageList}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateLanguageList}
+              />
+            </AdminContent>
+            <WritingSystemList writingSystems={vernacularLangTags} />
+          </DetailItem>
+          <DetailItem title={$t('project_page.analysis_langs')} wrap>
+            <AdminContent>
+              <IconButton
+                loading={loadingLanguageList}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateLanguageList}
+              />
+            </AdminContent>
+            <WritingSystemList writingSystems={analysisLangTags} />
+          </DetailItem>
+        </div>
       {/if}
       <div>
         <EditableDetailItem
