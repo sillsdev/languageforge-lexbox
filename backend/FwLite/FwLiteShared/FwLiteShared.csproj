@@ -9,6 +9,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="BeaKona.AutoInterfaceGenerator" Version="1.0.42" />
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0"/>

@@ -92,10 +92,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetWritingSystem(id, type) ?? throw new NullReferenceException();
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        await WritingSystemSync.Sync(before, after, this);
+        await WritingSystemSync.Sync(before, after, api ?? this);
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
 
@@ -142,10 +142,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
     }
 
-    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after)
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api)
     {
         await validators.ValidateAndThrow(after);
-        await PartOfSpeechSync.Sync(before, after, this);
+        await PartOfSpeechSync.Sync(before, after, api ?? this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
 
@@ -180,10 +180,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetSemanticDomain(id) ?? throw new NullReferenceException();
     }
 
-    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after)
+    public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        await SemanticDomainSync.Sync(before, after, this);
+        await SemanticDomainSync.Sync(before, after, api ?? this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
 
@@ -221,10 +221,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
     }
 
-    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after)
+    public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        await ComplexFormTypeSync.Sync(before, after, this);
+        await ComplexFormTypeSync.Sync(before, after, api ?? this);
         return await GetComplexFormType(after.Id) ?? throw new NullReferenceException($"unable to find complex form type with id {after.Id}");
     }
 
@@ -501,10 +501,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
     }
 
-    public async Task<Entry> UpdateEntry(Entry before, Entry after)
+    public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        await EntrySync.Sync(before, after, this);
+        await EntrySync.Sync(before, after, api ?? this);
         return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
@@ -558,10 +558,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
-    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after)
+    public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        await SenseSync.Sync(entryId, before, after, this);
+        await SenseSync.Sync(entryId, before, after, api ?? this);
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
@@ -619,10 +619,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence before,
-        ExampleSentence after)
+        ExampleSentence after,
+        IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
-        await ExampleSentenceSync.Sync(entryId, senseId, before, after, this);
+        await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this);
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException();
     }
 

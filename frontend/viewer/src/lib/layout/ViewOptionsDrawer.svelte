@@ -12,6 +12,8 @@
   export let viewSettings: ViewSettings;
   export let features: LexboxFeatures;
   export let open = false;
+
+  const isWebComponent = !!document.querySelector('lexbox-svelte')?.shadowRoot;
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
@@ -40,11 +42,13 @@
       <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
     </div>
 
-    <div class="h-10">
-      <label class="flex gap-2 items-center text-sm">
-        <ThemeSwitch /> Dark mode
-      </label>
-    </div>
+    {#if !isWebComponent}
+      <div class="h-10">
+        <label class="flex gap-2 items-center text-sm">
+          <ThemeSwitch /> Dark mode
+        </label>
+      </div>
+    {/if}
 
     <div class="grow"></div>
     <DevContent>
