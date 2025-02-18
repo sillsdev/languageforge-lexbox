@@ -27,4 +27,4 @@
   $: fwModel = versionLookupTable[modelVersion] ?? 'Unknown FieldWorks version';
 </script>
 
-<span title="FLEx data model {modelVersion}" class="text-secondary">{fwModel}</span>
+<span title="FieldWorks data model {modelVersion}" class="text-secondary">{fwModel}</span>

@@ -125,7 +125,7 @@
     <div class="flex flex-col gap-8 lg:flex-col-reverse">
       <div class="flex gap-4 not-prose justify-center">
         <a href="https://software.sil.org/fieldworks/">
-          <img src={flexLogo} class="h-12" height="48" alt="FLEx Logo">
+          <img src={flexLogo} class="h-12" height="48" alt="FieldWorks Logo">
         </a>
         <a href="https://languageforge.org/">
           <img src={lfLogo} class="h-12" height="48" alt="Language Forge Logo">

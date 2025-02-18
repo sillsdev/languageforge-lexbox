@@ -152,7 +152,7 @@
     "link_expired": "클릭한 이메일이 만료되었습니다. 새 이메일을 요청하십시오.",
     "welcome_header": "### Language Depot에 오신 것을 환영합니다\n",
 
-    "welcome": "Language Depot은 [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+    "welcome": "Language Depot은 [FieldWorks](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) 및 [WeSay](https://software.sil.org/wesay/) 프로젝트를 호스팅하는 서비스입니다. \
 이 서비스는 태국 치앙마이에 있는 [파얍 대학교 언어학연구소](https://li.payap.ac.th/)와 [SIL Language Technology](https://software.sil.org/)의 언어학 커뮤니티를 위해 제공됩니다."
   },
@@ -389,14 +389,14 @@
       "log_header": "메시지"
     },
     "get_project": {
-      "instructions_header": "이 프로젝트를 {isEmpty, select, true { 설정 } other { 얻기 }}하려면 {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (예: FLEx) }} {mode, select, manual { 수동으로} other { }}",
+      "instructions_header": "이 프로젝트를 {isEmpty, select, true { 설정 } other { 얻기 }}하려면 {type, select, FL_EX { FieldWorks } WE_SAY { WeSay } other { (예: FieldWorks) }} {mode, select, manual { 수동으로} other { }}",
       "instructions_flex": "1. \"송수신\" 메뉴에서 \"동료로부터 프로젝트 가져오기...\"를 클릭하십시오\n\
 1. \"프로젝트 받기\" 대화 상자에서 \"인터넷\"을 클릭하십시오\n\
 1. \"인터넷을 통한 프로젝트 가져오기\" 대화 상자에서 Language Depot의 \"로그인\" ({login})과(와) \"비밀번호\"를 입력하고 \"로그인\"을 클릭하십시오\n\
 1. 나타나는 \"프로젝트 ID\" 필드에서 \"{code}\"를 선택하십시오\n\
 1. 컴퓨터에 폴더 이름을 입력하십시오 (예: \"{name}\")",
-      "instructions_flex_empty": "1. [FLEx 다운로드](https://software.sil.org/fieldworks/download/)\n\
-1. FLEx 응용 프로그램을 열고 \"새 프로젝트 생성...\"을 선택하십시오.\n\
+      "instructions_flex_empty": "1. [FieldWorks 다운로드](https://software.sil.org/fieldworks/download/)\n\
+1. FieldWorks 응용 프로그램을 열고 \"새 프로젝트 생성...\"을 선택하십시오.\n\
 1. 필수 정보를 입력하십시오: 프로젝트 이름, 폴더 이름 (예: \"{name}\"), 등을 입력한 후 \"완료\"를 클릭하십시오.\n\
 1. 새 프로젝트가 열리면 \"송수신\" -> \"처음으로 이 프로젝트 전송\"을 클릭하십시오.\n\
 1. \"확인 (주 프로젝트가 있습니다)\"을 클릭하십시오.\n\
@@ -469,7 +469,7 @@
   "project_type": {
     "type": "프로젝트 유형",
     "adaptIt": "Adapt It",
-    "flex": "FLEx",
+    "flex": "FieldWorks",
     "oneStoryEditor": "OneStory Editor",
     "other": "기타",
     "ourWord": "OurWord",
