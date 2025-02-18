@@ -71,23 +71,24 @@
 
   const fwLiteConfig = useFwLiteConfig();
   const lexboxApi = useLexboxApi();
-  void lexboxApi.supportedFeatures().then(f => {
-    features.set(f);
-  });
-  //not having write enabled at the start fixes an issue where the default viewSetting.hideEmptyFields would be incorrect
-  const features = initFeatures({write: true});
   setContext('saveEvents', saveEventDispatcher);
   setContext('saveHandler', saveHandler);
+
+  const currentView = initView(views[0]);
+  const viewSettings = initViewSettings();
 
   const permissions = writable<LexboxPermissions>({
     write: true,
     comment: true,
   });
 
-  $: readonly = !$permissions.write || !$features.write;
+  const features = initFeatures({});
+  void lexboxApi.supportedFeatures().then(f => {
+    features.set(f);
+    $viewSettings.showEmptyFields = !!($permissions.write && $features.write);
+  });
 
-  const currentView = initView(views[0]);
-  const viewSettings = initViewSettings({showEmptyFields: !!($permissions.write && $features.write)});
+  $: readonly = !$permissions.write || !$features.write;
 
   const state = initProjectViewState({
     rightToolbarCollapsed: false,
