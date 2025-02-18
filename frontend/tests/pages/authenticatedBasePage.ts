@@ -8,6 +8,7 @@ export class AuthenticatedBasePage extends BasePage {
   readonly emailVerificationAlert: EmailVerificationAlert;
 
   private drawerToggle: Locator;
+  protected main = this.page.locator('main').first();
 
   constructor(page: Page, locator: Locator | Locator[], url?: string) {
     const drawerToggle = page.locator('label .i-mdi-account-circle');

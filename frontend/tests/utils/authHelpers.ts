@@ -8,12 +8,15 @@ import {LoginPage} from '../pages/loginPage';
 import type {TempUser} from '../fixtures';
 import {EmailSubjects} from '../email/email-page';
 
-export async function loginAs(api: APIRequestContext, emailOrUsername: string, password: string = defaultPassword): Promise<void> {
+export async function loginAs(api: APIRequestContext, user: TempUser): Promise<void>
+export async function loginAs(api: APIRequestContext, emailOrUsername: string, password?: string): Promise<void>
+export async function loginAs(api: APIRequestContext, user: string | TempUser, password: string = defaultPassword): Promise<void> {
+  if (typeof user === 'object') return loginAs(api, user.email, user.password);
   const loginData = {
-    emailOrUsername: emailOrUsername,
+    emailOrUsername: user,
     password: password,
     preHashedPassword: false,
-  }
+  };
   const response = await api.post(`${serverBaseUrl}/api/login`, {data: loginData});
   expect(response.ok()).toBeTruthy();
 }

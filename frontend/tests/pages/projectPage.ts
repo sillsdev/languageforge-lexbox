@@ -1,19 +1,19 @@
-import type { Locator, Page } from '@playwright/test';
+import type {Locator, Page} from '@playwright/test';
 
-import { AddMemberModal } from '../components/addMemberModal';
-import { BasePage } from './basePage';
-import { DeleteProjectModal } from '../components/deleteProjectModal';
-import { ResetProjectModal } from '../components/resetProjectModal';
-import { ViewerPage } from './viewerPage';
+import {AddMemberModal} from '../components/addMemberModal';
+import {AuthenticatedBasePage} from './authenticatedBasePage';
+import {DeleteProjectModal} from '../components/deleteProjectModal';
+import {ResetProjectModal} from '../components/resetProjectModal';
+import {ViewerPage} from './viewerPage';
 
-export class ProjectPage extends BasePage {
-  get moreSettingsDiv(): Locator { return this.page.locator('.collapse').filter({ hasText: 'More settings' }); }
+export class ProjectPage extends AuthenticatedBasePage {
+  get moreSettingsDiv(): Locator { return this.main.locator('.collapse').filter({ hasText: 'More settings' }); }
   get deleteProjectButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Delete project'}); }
   get resetProjectButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Reset project'}); }
   get verifyRepoButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Verify repository'}); }
   get addMemberButton(): Locator { return this.page.getByRole('button', {name: 'Add/Invite Member'}); }
-  get askToJoinButton(): Locator { return this.page.getByRole('button', {name: 'Ask to join'}); }
-  get browseButton(): Locator { return this.page.getByRole('link', {name: 'Browse'}); }
+  get askToJoinButton(): Locator { return this.main.getByRole('button', {name: 'Ask to join'}); }
+  get browseButton(): Locator { return this.main.getByRole('link', {name: 'Browse'}); }
   get modal(): Locator { return this.page.locator('.modal-box'); }
 
   constructor(page: Page, private name: string, private code: string) {
@@ -26,7 +26,7 @@ export class ProjectPage extends BasePage {
 
   async clickAddMember(): Promise<AddMemberModal> {
     await this.addMemberButton.click();
-    return new AddMemberModal(this.page).waitFor()
+    return new AddMemberModal(this.page).waitFor();
   }
 
   async clickDeleteProject(): Promise<DeleteProjectModal> {
