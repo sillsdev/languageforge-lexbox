@@ -206,7 +206,7 @@ spec:
           - name: Tus__ResetUploadPath
             value: /tmp/tus-reset-upload
           - name: Services__fwHeadless__http__0
-            value: fw-headless
+            value: fw-headless:8081
 
 
       - name: otel-collector
