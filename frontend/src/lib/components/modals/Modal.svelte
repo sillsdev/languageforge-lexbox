@@ -26,6 +26,7 @@
   export let bottom = false;
   export let showCloseButton = true;
   export let closeOnClickOutside = true;
+  export let hideActions: boolean = false;
 
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
     $dialogResponse = null;
@@ -116,13 +117,13 @@
         </button>
       {/if}
       <slot {closing} {submitting} />
-      {#if $$slots.actions}
+      {#if $$slots.actions && !hideActions}
         <div class="modal-action">
           <div class="flex gap-4">
             <slot name="extraActions" />
           </div>
           <div class="flex gap-4">
-            <slot name="actions" {closing} {submitting} />
+            <slot name="actions" {closing} {submitting} {close} />
           </div>
         </div>
       {/if}

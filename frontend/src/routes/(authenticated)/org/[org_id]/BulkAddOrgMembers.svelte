@@ -69,7 +69,7 @@
       notFoundMembers = data?.bulkAddOrgMembers.bulkAddOrgMembersResult?.notFoundMembers ?? [];
       existingMembers = data?.bulkAddOrgMembers.bulkAddOrgMembersResult?.existingMembers ?? [];
       return error?.message;
-    }, { keepOpenOnSubmit: true });
+    });
 
     if (response === DialogResponse.Submit) {
       await invalidate(`org:${orgId}`);
@@ -78,7 +78,7 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} {schema} let:errors showDoneState>
     <span slot="title">
       {$t('org_page.bulk_add_members.modal_title')}
       <SupHelp helpLink={helpLinks.bulkAddCreate} />
@@ -142,7 +142,7 @@
       <p>Internal error: unknown step {currentStep}</p>
     {/if}
     <span slot="submitText">{$t('org_page.bulk_add_members.submit_button')}</span>
-    <span slot="closeText">{$t('org_page.bulk_add_members.finish_button')}</span>
+    <span slot="doneText">{$t('org_page.bulk_add_members.finish_button')}</span>
   </FormModal>
 
 <style lang="postcss">

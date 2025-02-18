@@ -393,6 +393,7 @@ type Project {
   changesets: [Changeset!]! @cost(weight: "10")
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean! @cost(weight: "10")
+  hasHarmonyCommits: Boolean! @cost(weight: "10")
   parentId: UUID
   name: String!
   description: String

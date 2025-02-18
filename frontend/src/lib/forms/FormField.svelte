@@ -38,7 +38,7 @@
   </label>
   <slot />
   {#if description}
-    <label for={id} class="label pb-0">
+    <label for={id} class="label pb-0 underline-links">
       <span class="label-text-alt description">
         <NewTabLinkMarkdown md={description} />
       </span>
@@ -46,9 +46,3 @@
   {/if}
   <FormFieldError {id} {error} />
 </div>
-
-<style lang="postcss">
-  :global(.form-control .label a) {
-    @apply link;
-  }
-</style>

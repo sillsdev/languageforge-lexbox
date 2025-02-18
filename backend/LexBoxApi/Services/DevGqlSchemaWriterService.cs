@@ -28,7 +28,6 @@ public class DevGqlSchemaWriterService : IHostedService
             .AddSingleton<IHostLifetime, ConsoleLifetime>()
             .AddScoped<IEmailService, EmailService>()
             .AddScoped<IHgService, HgService>()
-            .AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>()
             .AddScoped<LoggedInContext>()
             .AddScoped<LexBoxDbContext>()
             .AddScoped<IPermissionService, PermissionService>()

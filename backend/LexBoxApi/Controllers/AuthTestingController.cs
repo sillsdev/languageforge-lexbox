@@ -1,5 +1,6 @@
 ﻿using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
+using LexCore;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,5 +36,12 @@ public class AuthTestingController : ControllerBase
     public ForbidResult Forbidden()
     {
         return Forbid();
+    }
+
+    [HttpGet("requiresFwBetaFeatureFlag")]
+    [FeatureFlagRequired(FeatureFlag.FwLiteBeta)]
+    public ActionResult RequiresFwBetaFeatureFlag()
+    {
+        return Ok();
     }
 }

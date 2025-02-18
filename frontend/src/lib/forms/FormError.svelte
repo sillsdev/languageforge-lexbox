@@ -8,7 +8,7 @@
 </script>
 
 {#if error}
-  <span class="label text-lg text-error" class:justify-end={right}>
+  <span class="label text-lg text-error pl-0" class:justify-end={right}>
     {#if markdown}
       <NewTabLinkMarkdown md={error} />
     {:else}
