@@ -262,7 +262,36 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
-    "awaiting_approval": "Awaiting approval"
+    "awaiting_approval": "Awaiting approval",
+    "crdt": {
+      "sync_fwlite": "Sync FieldWorks Lite",
+      "sync_result": "{fwdataChanges} changes synced to FieldWorks. {crdtChanges} changes synced to FieldWorks Lite.",
+      "try_fw_lite": "Try FieldWorks Lite?",
+      "try_info": "This will make your project available in [FieldWorks Lite](https://lexbox.org/fw-lite). \
+This is still experimental and it will affect your FieldWorks project data. \
+However, **all your data is safe and backed up** here on Lexbox. \
+If you run into problems with your project please tell support that you are using FieldWorks Lite. \n\n\
+Are you ready to try FieldWorks Lite?",
+      "submit": "Yes, please!",
+      "cancel": "Not yet",
+      "finish": "Close",
+      "making_available": "Making your project available in FieldWorks Lite...",
+      "while_you_wait": "While you're waiting you can: \n\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite). \n\
+1. Login to Lexbox from FieldWorks Lite. \n\
+",
+      "now_available": "Your project is now available in FieldWorks Lite!",
+      "to_start_using": "To get started: \n\
+1. Install [FieldWorks Lite](https://lexbox.org/fw-lite). \n\
+1. Login to Lexbox from FieldWorks Lite. \n\
+1. Download this project under the Lexbox server section (you may need to refresh the list of projects). \n\
+1. After working in FieldWorks Lite, come back here and click 'Sync FieldWorks Lite'. \n\
+1. Then you can download those changes into FieldWorks by doing a Send/Receive.",
+      "reach_out_for_help": "Please reach out to us at \
+[lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org?subject={subject}), \
+so we can get this fixed!",
+      "email_subject": "FieldWorks Lite setup error ({projectCode})",
+    },
   },
   "org_page": {
     "organization": "Organization",
@@ -552,6 +581,7 @@ If you don't see a dialog or already closed it, click the button below:",
       "leave_success": "You have left project {projectName}.",
       "leave_project": "Leave Project"
     },
+    "using_fw_lite": "Using FieldWorks Lite"
   },
   "org_role": {
     "label": "Role",
@@ -759,6 +789,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "did_you_know": "Did you know?",
+    "close": "Close",
   },
   "viewer": {
     "about": "## What is this?\n\

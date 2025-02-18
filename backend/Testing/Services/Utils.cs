@@ -27,10 +27,17 @@ public static class Utils
         projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
         var id = Guid.NewGuid();
-        var shortId = id.ToString().Split("-")[0];
-        var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
+        var projectCode = NewProjectCode(projectName, id);
         var dir = GetNewProjectDir(projectCode, "");
         return new ProjectConfig(id, projectName, projectCode, dir, isConfidential, owningOrgId);
+    }
+
+    public static string NewProjectCode([CallerMemberName] string projectName = "", Guid? id = null)
+    {
+        id ??= Guid.NewGuid();
+        var shortId = id.Value.ToString().Split("-")[0];
+        var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
+        return projectCode;
     }
 
     public static async Task<LexboxProject> RegisterProjectInLexBox(

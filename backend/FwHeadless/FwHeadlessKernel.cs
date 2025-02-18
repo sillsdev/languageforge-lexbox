@@ -26,6 +26,10 @@ public static class FwHeadlessKernel
             .AddLcmCrdtClient()
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
+
+        services.AddSingleton<SyncHostedService>();
+        services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());
+
         services.AddScoped<CrdtSyncService>();
         services.AddScoped<ProjectContextFromIdService>();
         services.AddTransient<HttpClientAuthHandler>();

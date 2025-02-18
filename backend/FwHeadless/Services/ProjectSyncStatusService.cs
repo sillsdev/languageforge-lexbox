@@ -8,12 +8,12 @@ public class SyncJobStatusService()
 
     public void StartSyncing(Guid projectId)
     {
-        Status.AddOrUpdate(projectId, (_) => SyncJobStatus.Running, (_, _) => SyncJobStatus.Running);
+        Status.AddOrUpdate(projectId, SyncJobStatus.Running, (_, _) => SyncJobStatus.Running);
     }
 
     public void StopSyncing(Guid projectId)
     {
-        Status.Remove(projectId, out var _);
+        Status.Remove(projectId, out _);
     }
 
     public SyncJobStatus SyncStatus(Guid projectId)

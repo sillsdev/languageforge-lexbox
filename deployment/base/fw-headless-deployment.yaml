@@ -14,7 +14,7 @@ spec:
   ports:
   - name: http
     protocol: TCP
-    port: 80
+    port: 8081
 
 ---
 
@@ -54,13 +54,13 @@ spec:
             memory: 2400Mi
         startupProbe:
           httpGet:
-            port: 80
+            port: 8081
             path: /api/healthz
           failureThreshold: 30
           periodSeconds: 10
           timeoutSeconds: 5
         ports:
-          - containerPort: 80
+          - containerPort: 8081
 
         volumeMounts:
         - name: fw-headless
@@ -68,7 +68,7 @@ spec:
 
         env:
           - name: DOTNET_URLS
-            value: http://0.0.0.0:80
+            value: http://0.0.0.0:8081
           - name: ASPNETCORE_ENVIRONMENT
             valueFrom:
               configMapKeyRef:
