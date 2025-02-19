@@ -113,7 +113,7 @@
       {#if $$slots.filterSlot}
         <div class="join-item">
           <Dropdown>
-            <button class="btn btn-square join-item btn-sm gap-2">
+            <button class="btn btn-square join-item btn-sm gap-2" aria-label={$t('filter.aria_open_filters')}>
               <span class="i-mdi-filter-outline text-xl" />
             </button>
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
@@ -129,7 +129,7 @@
 </div>
 
 <style lang="postcss">
-  .filter-bar:has(.seach-input:focus) {
+  .filter-bar:has(:global(.seach-input):focus) {
     /* copied from .input:focus */
     outline-style: solid;
     outline-width: 2px;

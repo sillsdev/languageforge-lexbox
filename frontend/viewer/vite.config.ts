@@ -52,10 +52,13 @@ export default defineConfig(({ mode, command }) => {
     server: {
       origin: 'http://localhost:5173',
       host: true,
+      allowedHosts: true,
+      cors: true,
     },
     test: {
       environment: 'happy-dom',
       setupFiles: ['./vitest-setup.js'],
+      include: ['**/*.{test,spec,test.svelte}.?(c|m)[jt]s?(x)'],
     },
   }
 });

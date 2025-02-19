@@ -1,15 +1,14 @@
 <script lang="ts">
-  import {NewTabLinkRenderer} from '$lib/components/Markdown';
   import {tryGetErrorMessage} from '$lib/error/utils';
   import {Button, FormError} from '$lib/forms';
   import t from '$lib/i18n';
   import {Icon} from '$lib/icons';
   import {useNotifications} from '$lib/notify';
-  import Markdown from 'svelte-exmarkdown';
   import {bounceIn} from 'svelte/easing';
   import {scale} from 'svelte/transition';
   import type {Project} from './+page';
   import {Modal} from '$lib/components/modals';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
   export let project: Project;
   export let hasHarmonyCommits: boolean;
@@ -50,7 +49,6 @@
   }
 
   async function awaitSyncFinished(): Promise<SyncResult | string> {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       try {
         const response = await fetch(`/api/fw-lite/sync/await-sync-finished/${project.id}`, {signal: AbortSignal.timeout(30_000)});
@@ -113,14 +111,14 @@
     </h2>
     {#if state === 'syncing'}
       <div class="mb-6 prose max-w-none underline-links">
-        <Markdown md={$t('project.crdt.while_you_wait')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <NewTabLinkMarkdown md={$t('project.crdt.while_you_wait')} />
       </div>
       <p class="text-center">
         <span class="loading loading-lg"></span>
       </p>
     {:else if state === 'done'}
       <div class="prose max-w-none underline-links">
-        <Markdown md={$t('project.crdt.to_start_using')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <NewTabLinkMarkdown md={$t('project.crdt.to_start_using')} />
         <p class="text-center">
           <span
             class="i-mdi-check-circle-outline text-7xl text-center text-success"
@@ -130,11 +128,11 @@
       </div>
     {:else}
       <div class="prose max-w-none underline-links">
-        <Markdown md={$t('project.crdt.try_info')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <NewTabLinkMarkdown md={$t('project.crdt.try_info')} />
         {#if error}
-          <Markdown
+          <NewTabLinkMarkdown
             md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code }))})}`}
-            plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+          />
         {/if}
       </div>
       <FormError {error} right/>

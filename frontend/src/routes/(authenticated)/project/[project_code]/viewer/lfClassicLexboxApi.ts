@@ -64,7 +64,6 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
   private toQueryParams(options: IQueryOptions | undefined): string {
 
     if (!options) return '';
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
     const asc = options.order.ascending ?? true;
     const params = new URLSearchParams({
       SortField: options.order.field,
@@ -77,7 +76,6 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
       params.set('ExemplarValue', options.exemplar.value);
       params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
     }
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
   }
 

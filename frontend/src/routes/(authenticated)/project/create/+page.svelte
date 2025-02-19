@@ -17,8 +17,7 @@
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
   import { _getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg } from './+page';
-  import Markdown from 'svelte-exmarkdown';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
   import {projectUrl} from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
@@ -290,7 +289,7 @@
           {/each}
           <label for="group-extra-projects" class="label pb-0">
             <span class="label-text-alt">
-              <Markdown md={$t('project.create.maybe_related_description')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+              <NewTabLinkMarkdown md={$t('project.create.maybe_related_description')} />
             </span>
           </label>
         </div>

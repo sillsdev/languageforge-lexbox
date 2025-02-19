@@ -106,6 +106,7 @@
 
   const location = useLocation();
   $: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     $location;
     const searchParams = getSearchParams();
     $search = searchParams.get(ViewerSearchParam.Search) ?? '';
@@ -175,12 +176,14 @@
   // For some reason reactive syntax doesn't pick up every change, so we need to manually subscribe
   // and we need the extra call to updateEntryIdSearchParam in refreshSelection
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   $: { $state.userPickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
     updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? ($state.userPickedEntry ? $selectedEntry?.id : undefined), false);
   }
 
   $: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     $entries;
     refreshSelection();
   }
@@ -260,6 +263,7 @@
     spaceForEditorStyle = `--space-for-editor: ${availableHeight}px`;
   }, 20, { leading: false, trailing: true });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   $: editorElem && updateSpaceForEditor();
   onMount(() => {
     const abortController = new AbortController();

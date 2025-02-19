@@ -2,8 +2,7 @@
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
-  import Markdown from 'svelte-exmarkdown';
-  import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import type { HelpLink } from '$lib/components/help';
   import SupHelp from '$lib/components/help/SupHelp.svelte';
 
@@ -23,6 +22,7 @@
   onMount(autofocusIfRequested);
 
   function autofocusIfRequested(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     autofocus && elem.querySelector<HTMLElement>('input, select, textarea')?.focus();
   }
 </script>
@@ -40,7 +40,7 @@
   {#if description}
     <label for={id} class="label pb-0 underline-links">
       <span class="label-text-alt description">
-        <Markdown md={description} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+        <NewTabLinkMarkdown md={description} />
       </span>
     </label>
   {/if}

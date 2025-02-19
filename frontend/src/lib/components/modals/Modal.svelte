@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export const enum DialogResponse {
     Cancel = 'cancel',
     Submit = 'submit',
@@ -21,6 +21,7 @@
   let dialogResponse = writable<DialogResponse | null>(null);
   let open = writable(false);
   $: closing = $dialogResponse !== null && $open;
+  // eslint-disable-next-line svelte/valid-compile
   $: submitting = $dialogResponse === DialogResponse.Submit && $open;
   export let bottom = false;
   export let showCloseButton = true;
@@ -74,6 +75,7 @@
     $open = false;
   }
 
+  // eslint-disable-next-line svelte/valid-compile
   $: if ($dialogResponse === DialogResponse.Submit) {
     dispatch('submit');
   }

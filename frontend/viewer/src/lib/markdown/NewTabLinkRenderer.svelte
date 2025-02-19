@@ -5,7 +5,7 @@
 
 <a {href} {title} target="_blank" class="external-link link link-hover">
   <!-- &nbsp; prevents the link from ever being at the very beginning of a new line -->
-  <slot />&nbsp;<span class="i-mdi-open-in-new external-link-icon" />
+  <slot />&nbsp;<span class="i-mdi-open-in-new external-link-icon"></span>
 </a>
 
 <style>

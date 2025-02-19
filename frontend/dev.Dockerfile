@@ -8,7 +8,7 @@ RUN corepack enable && corepack prepare pnpm@9.11.0 --activate
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
-COPY viewer/package.json viewer/pnpm-lock.yaml viewer/.npmrc /app/viewer/
+COPY viewer/package.json viewer/.npmrc /app/viewer/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
@@ -17,4 +17,5 @@ COPY src /app/src
 COPY static /app/static
 ENV DockerDev=true
 ENV NODE_OPTIONS="--max-old-space-size=1024"
+RUN pnpm svelte-kit sync
 CMD [ "pnpm", "run", "-r", "--include-workspace-root", "lexbox-dev" ]

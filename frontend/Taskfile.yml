@@ -17,6 +17,7 @@ tasks:
     sources:
       - package.json
       - pnpm-lock.yaml
+      - pnpm-workspace.yaml
     cmds:
       - corepack enable || true
       - pnpm install

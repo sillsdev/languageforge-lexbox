@@ -1,10 +1,11 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import { fileURLToPath } from 'url';
+import {FlatCompat} from '@eslint/eslintrc';
+import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
+import svelteConfig from './svelte.config.js';
 
 // mimic CommonJS variables
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +30,7 @@ export default [
   // TypeScript and Svelte plugins don't seem to support the new config format yet
   // So, using backwards compatibility util: https://eslint.org/blog/2022/08/new-config-system-part-2/#backwards-compatibility-utility
   ...compat.config({
-    plugins: ['@typescript-eslint'],
+    plugins: ['@typescript-eslint', '@stylistic'],
     extends: ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'],
     overrides: [
       {
@@ -83,7 +84,7 @@ export default [
           'format': ['camelCase', 'PascalCase'],
         }
       ],
-      '@typescript-eslint/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
+      '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -108,6 +109,7 @@ export default [
       'svelte/no-store-async': 'error',
       'svelte/require-store-reactive-access': 'error',
       'svelte/mustache-spacing': 'error',
+      'svelte/valid-compile' : 'warn',
       'func-style': ['warn', 'declaration'],
       "no-restricted-imports": ["error", {
         "patterns": [{
@@ -124,6 +126,7 @@ export default [
         project: true,
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files
+        svelteConfig: svelteConfig,
       },
       globals: {
         ...globals.browser,

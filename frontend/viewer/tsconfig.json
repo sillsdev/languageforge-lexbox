@@ -17,7 +17,8 @@
     "paths": {
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"]
-    }
+    },
+    "verbatimModuleSyntax": true,
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/web-component.ts"],
   "references": [{ "path": "./tsconfig.node.json" }],

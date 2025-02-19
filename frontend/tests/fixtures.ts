@@ -37,7 +37,7 @@ type MailboxFactory = () => Promise<Mailbox>;
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   uniqueTestId: string,
-  tempUserFactory(options?: UserFactoryOptions): Promise<Readonly<TempUser>>,
+  tempUserFactory: (options?: UserFactoryOptions) => Promise<Readonly<TempUser>>,
   tempUser: Readonly<TempUser>,
   tempUserVerified: Readonly<TempUser>,
   tempUserInTestOrg: Readonly<TempUser>,
@@ -193,7 +193,6 @@ export const test = base.extend<Fixtures>({
     const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
   },
-  // eslint-disable-next-line no-empty-pattern
   tempDir: async ({ uniqueTestId }, use) => {
     const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${uniqueTestId}-`));
     await use(dirname);

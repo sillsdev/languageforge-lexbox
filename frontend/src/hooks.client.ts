@@ -14,7 +14,6 @@ export const handleError: HandleClientError = async ({ error, event }) => {
 
   // someone has to have subscribed to updated before `check` is allowed to be called
   // this seems to work and provide the correct value :shrug:
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   updated.subscribe(() => { })();
   const updateDetected = await updated.check();
   const autoReload = shouldTryAutoReload(updateDetected);
