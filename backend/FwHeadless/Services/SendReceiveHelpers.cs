@@ -55,7 +55,9 @@ public static class SendReceiveHelpers
 
     public static async Task<int> PendingMercurialCommits(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, IProgress? progress = null)
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
         projectCode ??= project.Name;
+        activity?.SetTag("app.project_code", projectCode);
         progress ??= new NullProgress();
 
         var fwdataInfo = new FileInfo(project.FilePath);

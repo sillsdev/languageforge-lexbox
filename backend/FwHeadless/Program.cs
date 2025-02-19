@@ -116,6 +116,8 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     SyncHostedService syncHostedService,
     Guid projectId)
 {
+    using var activity = FwHeadlessActivitySource.Value.StartActivity();
+    activity?.SetTag("app.project_id", projectId);
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
     if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
     if (syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.Ok(ProjectSyncStatus.QueuedToSync);
@@ -132,6 +134,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         // Can't sync if lexbox doesn't have this project
         return TypedResults.NotFound();
     }
+    activity?.SetTag("app.project_code", lexboxProject.Code);
     var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
     var fwDataProject = new FwDataProject("fw", projectFolder);
