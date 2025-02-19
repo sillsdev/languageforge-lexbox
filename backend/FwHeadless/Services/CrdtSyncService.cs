@@ -11,8 +11,10 @@ public class CrdtSyncService(
     DataModel dataModel,
     ILogger<CrdtSyncService> logger)
 {
-    public async Task Sync()
+    public async Task SyncHarmonyProject()
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", currentProjectService.ProjectData.Id);
         var lexboxRemoteServer = await httpSyncService.CreateProjectSyncable(
             currentProjectService.ProjectData,
             httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)

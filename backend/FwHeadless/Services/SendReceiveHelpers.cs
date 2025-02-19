@@ -81,7 +81,9 @@ public static class SendReceiveHelpers
 
     public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null, IProgress? progress = null)
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
         projectCode ??= project.Name;
+        activity?.SetTag("app.project_code", projectCode);
         var fwdataInfo = new FileInfo(project.FilePath);
         if (fwdataInfo.Directory is null) throw new InvalidOperationException(
             $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
@@ -104,7 +106,9 @@ public static class SendReceiveHelpers
 
     public static async Task<LfMergeBridgeResult> CloneProject(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", IProgress? progress = null)
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
         projectCode ??= project.Name;
+        activity?.SetTag("app.project_code", projectCode);
         var fwdataInfo = new FileInfo(project.FilePath);
         if (fwdataInfo.Directory is null) throw new InvalidOperationException($"Not allowed to Send/Receive root-level directories like C:\\ '{project.FilePath}'");
 

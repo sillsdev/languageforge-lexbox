@@ -36,7 +36,10 @@ builder.Services.AddLexData(
 builder.Services.AddFwHeadless();
 builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalOpenTelemetry(telemetryBuilder =>
 {
-    telemetryBuilder.WithTracing(b => b.AddNpgsql().AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true));
+    telemetryBuilder.WithTracing(b => b.AddNpgsql()
+        .AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true)
+        .AddSource(FwHeadlessActivitySource.ActivitySourceName)
+        .AddSource(FwLiteProjectSyncActivitySource.ActivitySourceName));
 });
 
 var app = builder.Build();
