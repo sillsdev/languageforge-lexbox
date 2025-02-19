@@ -5,5 +5,5 @@ namespace LcmCrdt;
 public static class LcmCrdtActivitySource
 {
     public const string ActivitySourceName = "LcmCrdt";
-    public static readonly ActivitySource Value = new(ActivitySourceName);
+    internal static readonly ActivitySource Value = new(ActivitySourceName);
 }

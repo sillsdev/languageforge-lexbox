@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using LexSyncReverseProxy.Otel;
 
-namespace exSyncReverseProxy.Otel;
+namespace LexSyncReverseProxy.Otel;
 
 public class LexBoxActivitySource
 {
+    private static readonly ActivitySource ActivitySource = new(OtelKernel.ServiceName);
     public static ActivitySource Get()
     {
-        return new ActivitySource(OtelKernel.ServiceName);
+        return ActivitySource;
     }
 }

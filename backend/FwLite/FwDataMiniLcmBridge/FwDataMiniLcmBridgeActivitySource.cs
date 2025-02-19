@@ -5,5 +5,5 @@ namespace FwDataMiniLcmBridge;
 public static class FwDataMiniLcmBridgeActivitySource
 {
     public const string ActivitySourceName = "FwDataMiniLcmBridge";
-    public static readonly ActivitySource Value = new(ActivitySourceName);
+    internal static readonly ActivitySource Value = new(ActivitySourceName);
 }
