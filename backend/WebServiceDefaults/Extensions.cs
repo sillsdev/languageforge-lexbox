@@ -85,6 +85,12 @@ public static class Extensions
         return builder;
     }
 
+    public static TBuilder ConfigureAdditionalOpenTelemetry<TBuilder>(this TBuilder builder, Action<OpenTelemetryBuilder> configure) where TBuilder : IHostApplicationBuilder
+    {
+        configure(builder.Services.AddOpenTelemetry());
+        return builder;
+    }
+
     private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {

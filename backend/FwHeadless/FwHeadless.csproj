@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.6" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.11.0-beta.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="1.2.22" />
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0027" />
     <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.*" />
@@ -24,7 +26,7 @@
 
   <ItemGroup>
       <!-- json files get imported by default because this is a web project, so exclude those here so they aren't imported again below -->
-      <Content Remove="Mercurial\contrib\asv.conf.json"/>
+      <Content Remove="Mercurial\contrib\asv.conf.json" />
       <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
       <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
   </ItemGroup>

@@ -15,6 +15,8 @@ using LexCore.Utils;
 using SIL.Harmony.Core;
 using SIL.Harmony;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using OpenTelemetry.Trace;
 using WebServiceDefaults;
 using AppVersion = LexCore.AppVersion;
 
@@ -32,7 +34,10 @@ builder.Services.AddLexData(
 );
 
 builder.Services.AddFwHeadless();
-builder.AddServiceDefaults(AppVersion.Get(typeof(Program)));
+builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalOpenTelemetry(telemetryBuilder =>
+{
+    telemetryBuilder.WithTracing(b => b.AddNpgsql().AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true));
+});
 
 var app = builder.Build();
 
