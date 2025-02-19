@@ -55,7 +55,7 @@ public static class Extensions
             })
             .WithMetrics(metrics =>
             {
-                metrics.AddRuntimeInstrumentation();
+                metrics.AddRuntimeInstrumentation().AddProcessInstrumentation();
             })
             .WithTracing(tracing =>
             {
