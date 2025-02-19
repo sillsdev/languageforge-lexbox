@@ -5,4 +5,3 @@ metadata:
 data:
   environment-name: "Staging"
   hg-domain: "hg-staging.languageforge.org"
-  enable-oauth: "true"
