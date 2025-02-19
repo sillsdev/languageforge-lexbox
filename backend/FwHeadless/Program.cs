@@ -137,7 +137,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
 
-    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
+    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.HybridDateTime.DateTime);
     var lastHgCommitDate = lexboxProject.LastCommit;
 
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
