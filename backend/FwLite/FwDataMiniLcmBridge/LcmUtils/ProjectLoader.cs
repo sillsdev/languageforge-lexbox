@@ -55,6 +55,8 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
 
     public virtual LcmCache LoadCache(FwDataProject project)
     {
+        using var activity = FwDataMiniLcmBridgeActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_code", project.Name);
         Init();
         if (!Directory.Exists(project.ProjectsPath)) Directory.CreateDirectory(project.ProjectsPath);
         if (!Directory.Exists(TemplatesFolder)) Directory.CreateDirectory(TemplatesFolder);

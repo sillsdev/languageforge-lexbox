@@ -38,8 +38,10 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
 {
     telemetryBuilder.WithTracing(b => b.AddNpgsql()
         .AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true)
-        .AddSource(FwHeadlessActivitySource.ActivitySourceName)
-        .AddSource(FwLiteProjectSyncActivitySource.ActivitySourceName));
+        .AddSource(FwHeadlessActivitySource.ActivitySourceName,
+            FwLiteProjectSyncActivitySource.ActivitySourceName,
+            FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
+            LcmCrdtActivitySource.ActivitySourceName));
 });
 
 var app = builder.Build();
