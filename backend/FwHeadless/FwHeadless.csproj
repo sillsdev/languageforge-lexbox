@@ -19,6 +19,7 @@
     <ProjectReference Include="../FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />
     <ProjectReference Include="../FixFwData/FixFwData.csproj" />
     <ProjectReference Include="../LexData/LexData.csproj" />
+    <ProjectReference Include="..\WebServiceDefaults\WebServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

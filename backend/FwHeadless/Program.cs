@@ -15,6 +15,8 @@ using LexCore.Utils;
 using SIL.Harmony.Core;
 using SIL.Harmony;
 using Microsoft.EntityFrameworkCore;
+using WebServiceDefaults;
+using AppVersion = LexCore.AppVersion;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,7 @@ builder.Services.AddLexData(
 );
 
 builder.Services.AddFwHeadless();
+builder.AddServiceDefaults(AppVersion.Get(typeof(Program)));
 
 var app = builder.Build();
 
@@ -58,7 +61,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/api/healthz");
+app.MapDefaultEndpoints();
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
