@@ -21,6 +21,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     {
         await foreach (var projectId in _projectsToSync.Reader.ReadAllAsync(stoppingToken))
         {
+            using var activity = FwHeadlessActivitySource.Value.StartActivity("SyncHostedService.ExecuteAsync");
             await using var scope = services.CreateAsyncScope();
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
             SyncJobResult result;
@@ -31,6 +32,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             }
             catch (Exception e)
             {
+                activity?.AddException(e);
                 logger.LogError(e, "Sync job failed");
                 result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.Message);
             }

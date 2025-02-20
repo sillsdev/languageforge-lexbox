@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FwHeadless;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
@@ -157,15 +158,28 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
     CancellationToken cancellationToken,
     Guid projectId)
 {
+    using var activity = FwHeadlessActivitySource.Value.StartActivity();
     if (!syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.NotFound();
     try
     {
         var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
-        if (result is null) return TypedResults.NotFound();
+        if (result is null)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
+            return TypedResults.NotFound();
+        }
+
+        activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return TypedResults.Ok(result);
     }
     catch (OperationCanceledException)
     {
+        activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
         return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+    }
+    catch (Exception e)
+    {
+        activity?.AddException(e);
+        throw;
     }
 }
