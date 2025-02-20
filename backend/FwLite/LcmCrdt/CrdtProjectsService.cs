@@ -24,10 +24,10 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return GetProject(name);
     }
 
-    IMiniLcmApi IProjectProvider.OpenProject(IProjectIdentifier project, bool saveChangesOnDispose = true)
+    public async ValueTask<IMiniLcmApi> OpenProject(IProjectIdentifier project, IServiceProvider serviceProvider, bool saveChangesOnDispose = true)
     {
-        //todo not sure if we should implement this, it's mostly there for the FwData version
-        throw new NotImplementedException();
+        if (project is not CrdtProject crdtProject) throw new ArgumentException("Project is not a crdt project");
+        return await serviceProvider.OpenCrdtProject(crdtProject);
     }
 
     private async Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
