@@ -126,13 +126,19 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     if (project is null)
     {
         // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
-        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
-        else return TypedResults.NotFound();
+        if (await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Unset, "Project never synced");
+            return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
+        }
+        activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
+        return TypedResults.NotFound();
     }
     var lexboxProject = await lexBoxDb.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Id == projectId);
     if (lexboxProject is null)
     {
         // Can't sync if lexbox doesn't have this project
+        activity?.SetStatus(ActivityStatusCode.Error, "Lexbox project not found");
         return TypedResults.NotFound();
     }
     activity?.SetTag("app.project_code", lexboxProject.Code);
