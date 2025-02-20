@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
@@ -98,10 +99,6 @@ public static class MiniLcmRoutes
         return api;
     }
 
-
-    //must match the route key in ProxyConstants
-    public const string ProjectCodeRouteKey = "project-code";
-
     //swagger docs pickup their controller name from the type that the callback is defined in, that's why this type exists.
     private static class MiniLcm
     {
@@ -152,10 +149,8 @@ public static class MiniLcmRoutes
         {
             ExemplarOptions? exemplarOptions = string.IsNullOrEmpty(ExemplarValue) || ExemplarWritingSystem is null
                 ? null
-                : new(ExemplarValue, ExemplarWritingSystem.Value);
-            var sortField = Enum.TryParse<SortField>(SortField, true, out var field)
-                ? field
-                : SortOptions.Default.Field;
+                : new(ExemplarValue, ExemplarWritingSystem);
+            var sortField = SortField ?? SortOptions.Default.Field;
             return new QueryOptions(new SortOptions(sortField,
                     SortWritingSystem ?? SortOptions.Default.WritingSystem,
                     Ascending ?? SortOptions.Default.Ascending),
@@ -164,17 +159,19 @@ public static class MiniLcmRoutes
                 Offset ?? QueryOptions.Default.Offset);
         }
 
-        public string? SortField { get; set; }
+        public SortField? SortField { get; set; } = SortOptions.Default.Field;
 
-        public WritingSystemId? SortWritingSystem { get; set; }
+        [DefaultValue(SortOptions.DefaultWritingSystem)]
+        public string? SortWritingSystem { get; set; } = SortOptions.Default.WritingSystem;
 
         [FromQuery]
+        [DefaultValue(true)]
         public bool? Ascending { get; set; }
 
         [FromQuery]
         public string? ExemplarValue { get; set; }
 
-        public WritingSystemId? ExemplarWritingSystem { get; set; }
+        public string? ExemplarWritingSystem { get; set; }
 
         [FromQuery]
         public int? Count { get; set; }

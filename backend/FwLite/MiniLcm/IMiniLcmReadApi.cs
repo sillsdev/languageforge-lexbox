@@ -48,7 +48,8 @@ public record QueryOptions(
 
 public record SortOptions(SortField Field, WritingSystemId WritingSystem, bool Ascending = true)
 {
-    public static SortOptions Default { get; } = new(SortField.Headword, "default");
+    public const string DefaultWritingSystem = "default";
+    public static SortOptions Default { get; } = new(SortField.Headword, DefaultWritingSystem);
 }
 
 public record ExemplarOptions(string Value, WritingSystemId WritingSystem);
