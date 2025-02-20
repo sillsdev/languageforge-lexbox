@@ -174,6 +174,7 @@ public static class MiniLcmRoutes
         public string? ExemplarWritingSystem { get; set; }
 
         [FromQuery]
+        [DefaultValue(QueryOptions.DefaultCount)]
         public int? Count { get; set; }
 
         [FromQuery]

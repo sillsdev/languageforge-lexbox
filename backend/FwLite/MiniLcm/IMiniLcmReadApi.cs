@@ -22,11 +22,12 @@ public interface IMiniLcmReadApi
 public record QueryOptions(
     SortOptions? Order = null,
     ExemplarOptions? Exemplar = null,
-    int Count = 1000,
+    int Count = QueryOptions.DefaultCount,
     int Offset = 0)
 {
     public static QueryOptions Default { get; } = new();
     public const int QueryAll = -1;
+    public const int DefaultCount = 1000;
     public SortOptions Order { get; init; } = Order ?? SortOptions.Default;
 
     public IEnumerable<T> ApplyPaging<T>(IEnumerable<T> enumerable)
