@@ -39,10 +39,11 @@ public static class FwLiteMauiKernel
         {
             List<LexboxServer> servers =
             [
-                new(new("https://staging.languagedepot.org"), "Lexbox Staging")
+                new(new("https://lexbox.org"), "Lexbox")
             ];
             if (env.IsDevelopment())
             {
+                servers.Add(new(new("https://staging.languagedepot.org"), "Lexbox Staging"));
                 servers.Add(new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"));
             }
 
