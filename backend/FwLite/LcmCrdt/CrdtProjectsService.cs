@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MiniLcm.Project;
@@ -110,13 +111,42 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         }
-        catch
+        catch(Exception e)
         {
-            logger.LogError("Failed to create project {Project}, deleting database", crdtProject.Name);
-            await db.Database.EnsureDeletedAsync();
+            logger.LogError(e, "Failed to create project {Project}, deleting database", crdtProject.Name);
+            await db.Database.CloseConnectionAsync();
+            EnsureDeleteProject(sqliteFile);
             throw;
         }
         return crdtProject;
+    }
+
+    private void EnsureDeleteProject(string sqliteFile)
+    {
+        _ = Task.Run(async () =>
+        {
+            var counter = 0;
+            while (File.Exists(sqliteFile) && counter < 10)
+            {
+                await Task.Delay(1000);
+                try
+                {
+                    File.Delete(sqliteFile);
+                    return;
+                }
+                catch (IOException)
+                {
+                    //inuse, try again
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
+                    return;
+                }
+                counter++;
+            }
+            logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
+        });
     }
 
     public async Task DeleteProject(string name)
