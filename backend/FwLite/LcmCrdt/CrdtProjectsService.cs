@@ -179,33 +179,6 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     public static async Task SampleProjectData(IServiceProvider provider, CrdtProject project)
     {
         var lexboxApi = provider.GetRequiredService<IMiniLcmApi>();
-        await lexboxApi.CreateEntry(new()
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = { Values = { { "en", "Apple" } } },
-            CitationForm = { Values = { { "en", "Apple" } } },
-            LiteralMeaning = { Values = { { "en", "Fruit" } } },
-            Senses =
-            [
-                new()
-                {
-                    Gloss = { Values = { { "en", "Fruit" } } },
-                    Definition =
-                    {
-                        Values =
-                        {
-                            {
-                                "en",
-                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
-                            }
-                        }
-                    },
-                    SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
-                }
-            ]
-        });
-
         await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
             new()
             {
@@ -252,5 +225,32 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 Font = "Arial",
                 Exemplars = WritingSystem.LatinExemplars
             });
+
+        await lexboxApi.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { Values = { { "en", "Apple" } } },
+            CitationForm = { Values = { { "en", "Apple" } } },
+            LiteralMeaning = { Values = { { "en", "Fruit" } } },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { Values = { { "en", "Fruit" } } },
+                    Definition =
+                    {
+                        Values =
+                        {
+                            {
+                                "en",
+                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+                            }
+                        }
+                    },
+                    SemanticDomains = [],
+                    ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
+                }
+            ]
+        });
     }
 }
