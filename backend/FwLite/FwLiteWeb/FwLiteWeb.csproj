@@ -6,6 +6,7 @@
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <SelfContained>true</SelfContained>
         <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
+        <LangVersion>preview</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 <!--        single file disabled as it's less efficient for updates-->

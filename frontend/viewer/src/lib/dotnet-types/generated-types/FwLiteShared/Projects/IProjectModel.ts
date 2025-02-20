@@ -13,5 +13,6 @@ export interface IProjectModel
 	lexbox: boolean;
 	server?: ILexboxServer;
 	id?: string;
+	apiEndpoint?: string;
 }
 /* eslint-enable */
