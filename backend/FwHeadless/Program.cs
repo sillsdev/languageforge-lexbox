@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FwHeadless;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
@@ -15,6 +16,10 @@ using LexCore.Utils;
 using SIL.Harmony.Core;
 using SIL.Harmony;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using OpenTelemetry.Trace;
+using WebServiceDefaults;
+using AppVersion = LexCore.AppVersion;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +35,15 @@ builder.Services.AddLexData(
 );
 
 builder.Services.AddFwHeadless();
+builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalOpenTelemetry(telemetryBuilder =>
+{
+    telemetryBuilder.WithTracing(b => b.AddNpgsql()
+        .AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true)
+        .AddSource(FwHeadlessActivitySource.ActivitySourceName,
+            FwLiteProjectSyncActivitySource.ActivitySourceName,
+            FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
+            LcmCrdtActivitySource.ActivitySourceName));
+});
 
 var app = builder.Build();
 
@@ -58,7 +72,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/api/healthz");
+app.MapDefaultEndpoints();
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
@@ -103,6 +117,8 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     SyncHostedService syncHostedService,
     Guid projectId)
 {
+    using var activity = FwHeadlessActivitySource.Value.StartActivity();
+    activity?.SetTag("app.project_id", projectId);
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
     if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
     if (syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.Ok(ProjectSyncStatus.QueuedToSync);
@@ -110,15 +126,22 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     if (project is null)
     {
         // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
-        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
-        else return TypedResults.NotFound();
+        if (await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Unset, "Project never synced");
+            return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
+        }
+        activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
+        return TypedResults.NotFound();
     }
     var lexboxProject = await lexBoxDb.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Id == projectId);
     if (lexboxProject is null)
     {
         // Can't sync if lexbox doesn't have this project
+        activity?.SetStatus(ActivityStatusCode.Error, "Lexbox project not found");
         return TypedResults.NotFound();
     }
+    activity?.SetTag("app.project_code", lexboxProject.Code);
     var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
     var fwDataProject = new FwDataProject("fw", projectFolder);
@@ -129,7 +152,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
 
-    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
+    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.HybridDateTime.DateTime);
     var lastHgCommitDate = lexboxProject.LastCommit;
 
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
@@ -141,15 +164,28 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
     CancellationToken cancellationToken,
     Guid projectId)
 {
+    using var activity = FwHeadlessActivitySource.Value.StartActivity();
     if (!syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.NotFound();
     try
     {
         var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
-        if (result is null) return TypedResults.NotFound();
+        if (result is null)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
+            return TypedResults.NotFound();
+        }
+
+        activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return TypedResults.Ok(result);
     }
     catch (OperationCanceledException)
     {
+        activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
         return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+    }
+    catch (Exception e)
+    {
+        activity?.AddException(e);
+        throw;
     }
 }

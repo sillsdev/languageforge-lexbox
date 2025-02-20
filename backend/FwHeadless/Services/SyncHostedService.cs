@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Channels;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
@@ -20,16 +21,18 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     {
         await foreach (var projectId in _projectsToSync.Reader.ReadAllAsync(stoppingToken))
         {
+            using var activity = FwHeadlessActivitySource.Value.StartActivity("SyncHostedService.ExecuteAsync");
             await using var scope = services.CreateAsyncScope();
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
             SyncJobResult result;
             try
             {
-                result = await syncWorker.Execute(stoppingToken);
+                result = await syncWorker.ExecuteSync(stoppingToken);
                 logger.LogInformation("Sync job result: {Result}", result);
             }
             catch (Exception e)
             {
+                activity?.AddException(e);
                 logger.LogError(e, "Sync job failed");
                 result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.Message);
             }
@@ -90,8 +93,10 @@ public class SyncWorker(
     IHttpClientFactory httpClientFactory
 )
 {
-    public async Task<SyncJobResult> Execute(CancellationToken stoppingToken)
+    public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken)
     {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
         logger.LogInformation("About to execute sync request for {projectId}", projectId);
 
         syncStatusService.StartSyncing(projectId);
@@ -101,14 +106,18 @@ public class SyncWorker(
         if (projectCode is null)
         {
             logger.LogError("Project ID {projectId} not found", projectId);
+            activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
             return new SyncJobResult(SyncJobResultEnum.ProjectNotFound, $"Project {projectId} not found");
         }
+
+        activity?.SetTag("app.project_code", projectCode);
 
         logger.LogInformation("Project code is {projectCode}", projectCode);
         //if we can't sync with lexbox fail fast
         if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
         {
             logger.LogError("Unable to authenticate with Lexbox");
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
             return new SyncJobResult(SyncJobResultEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
         }
 
@@ -133,16 +142,17 @@ public class SyncWorker(
 
         var miniLcmApi = await services.OpenCrdtProject(crdtProject);
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
-        await crdtSyncService.Sync();
+        await crdtSyncService.SyncHarmonyProject();
 
         var result = await syncService.Sync(miniLcmApi, fwdataApi);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",
             result.CrdtChanges,
             result.FwdataChanges);
 
-        await crdtSyncService.Sync();
+        await crdtSyncService.SyncHarmonyProject();
         var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
         logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+        activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return new SyncJobResult(SyncJobResultEnum.Success, null, result);
     }
 

@@ -46,6 +46,7 @@ public class MiniLcmImport(
 
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
+        using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         await ImportWritingSystems(importTo, importFrom);
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
@@ -86,6 +87,7 @@ public class MiniLcmImport(
             }
         }
 
+        activity?.SetTag("app.import.entries", entryCount);
         logger.LogInformation("Imported {Count} entries", entryCount);
     }
 

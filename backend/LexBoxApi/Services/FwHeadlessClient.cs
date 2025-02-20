@@ -45,7 +45,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
 
     public async Task<ProjectSyncStatus?> CrdtSyncStatus(Guid projectId)
     {
-        var response = await httpClient.PostAsync($"/api/crdt-sync-status?projectId={projectId}", null);
+        var response = await httpClient.GetAsync($"/api/crdt-sync-status?projectId={projectId}");
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<ProjectSyncStatus>();
         logger.LogError("Failed to get CRDT sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",

@@ -4,8 +4,9 @@ namespace LexBoxApi.Otel;
 
 public class LexBoxActivitySource
 {
-    public static ActivitySource Get()
+    private static readonly ActivitySource ActivitySource = new(OtelKernel.ServiceName);
+    internal static ActivitySource Get()
     {
-        return new ActivitySource(OtelKernel.ServiceName);
+        return ActivitySource;
     }
 }
