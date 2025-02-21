@@ -44,7 +44,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-        var projectModels = lexboxProjects.Select(p => new ProjectModel(p.Name,
+        var projectModels = lexboxProjects.Select(p => new ProjectModel(p.Code,
                 Crdt: p.IsCrdtProject,
                 Fwdata: false,
                 Lexbox: true,
