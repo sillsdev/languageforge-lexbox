@@ -101,3 +101,8 @@ export async function deleteUser(api: APIRequestContext, userId: string): Promis
   }
   `);
 }
+
+export async function preApproveOauthApp(api: APIRequestContext, clientId: string, scopes: string[]): Promise<void> {
+  const response = await api.post(`${serverBaseUrl}/api/Testing/pre-approve-oauth-app?clientId=${clientId}&scopes=${scopes.join(' ')}`);
+  if (!response.ok) throw new Error(await response.text());
+}
