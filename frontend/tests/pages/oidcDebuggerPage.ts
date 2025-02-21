@@ -2,7 +2,10 @@
 import type {Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {
-static readonly redirectUrl = 'https://oidcdebugger.com/debug';
+  static readonly redirectUrl = 'https://oidcdebugger.com/debug';
+  static readonly clientId = `oidc-debugger`;
+  static readonly scopes = `openid profile`;
+
   debuggerPage: BasePage = new BasePage(this.page, this.page.getByText('Success!'), OidcDebuggerPage.redirectUrl);
   constructor(page: Page) {
     super(page, page.getByText('OpenID Connect Debugger'), 'https://oidcdebugger.com');
@@ -11,8 +14,8 @@ static readonly redirectUrl = 'https://oidcdebugger.com/debug';
   async fillForm(baseURL: string) {
     await this.page.locator('#authorizeUri').fill(`${baseURL}/api/oauth/open-id-auth`);
     await this.page.locator('#redirectUri').fill(OidcDebuggerPage.redirectUrl);
-    await this.page.locator('#clientId').fill(`oidc-debugger`);
-    await this.page.locator('#scopes').fill(`openid profile`);
+    await this.page.locator('#clientId').fill(OidcDebuggerPage.clientId);
+    await this.page.locator('#scopes').fill(OidcDebuggerPage.scopes);
     await this.page.locator('#responseType-code').check();
     await this.page.locator('#use-pkce').check();
     await this.page.locator('#tokenUri').fill(`${baseURL}/api/oauth/token`);

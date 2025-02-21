@@ -24,7 +24,9 @@ public class TestingController(
     SeedingData seedingData,
     ProjectService projectService,
     LoggedInContext loggedInContext,
-    IOpenIddictAuthorizationManager? authorizationManager = null)
+    IOpenIddictAuthorizationManager? authorizationManager = null,
+    IOpenIddictApplicationManager? applicationManager = null
+    )
     : ControllerBase
 {
 #if DEBUG
@@ -122,10 +124,16 @@ public class TestingController(
     public async Task<ActionResult> PreApproveOauthApp(string clientId, string scopes)
     {
         if (authorizationManager is null) throw new InvalidOperationException("authorizationManager is null");
+        if (applicationManager is null) throw new InvalidOperationException("applicationManager is null");
+        var application = await applicationManager.FindByClientIdAsync(clientId);
+        if (application is null)
+            return NotFound("unable to find a registered application with the client id " + clientId);
+        var applicationId = await applicationManager.GetIdAsync(application);
+        if (applicationId is null) throw new InvalidOperationException("applicationId is null");
         await authorizationManager.CreateAsync(
             principal: User,
             subject: loggedInContext.User.Id.ToString(),
-            client: clientId,
+            client: applicationId,
             type: OpenIddictConstants.AuthorizationTypes.Permanent,
             scopes: [..scopes.Split(' ')]);
         return Ok();

@@ -1,9 +1,8 @@
 ﻿import {expect} from '@playwright/test';
 import {test} from './fixtures';
 import {LoginPage} from './pages/loginPage';
-import {defaultPassword} from './envVars';
 import {OidcDebuggerPage} from './pages/oidcDebuggerPage';
-import {loginAs, logout} from './utils/authHelpers';
+import {loginAs, logout, preApproveOauthApp} from './utils/authHelpers';
 import {OauthApprovalPage} from './pages/oauthApprovalPage';
 
 // we've got a matrix of flows to test
@@ -11,15 +10,23 @@ import {OauthApprovalPage} from './pages/oauthApprovalPage';
 // logged in already, not logged in
 
 //use https://oidcdebugger.com/ to test oauth
-const flows = [{approved: true, loggedIn: false}, {approved: false, loggedIn: false}, {approved: true, loggedIn: true}, {approved: false, loggedIn: true}];
+const flows = [
+  {approved: true, loggedIn: false},
+  {approved: false, loggedIn: false},
+  {approved: true, loggedIn: true},
+  {approved: false, loggedIn: true}
+];
 test.describe('oauth tests', () => {
   for (const flow of flows) {
     const name = `can login with oauth, ${flow.approved ? 'pre-approved' : 'not approved'}, ${flow.loggedIn ? 'logged in' : 'not logged in'}`;
     test(name, async ({page, baseURL, tempUser}) => {
       if (!baseURL) throw new Error('baseURL is not set');
-      if (flow.loggedIn) {
-        await loginAs(page.request, tempUser);
-      } else {
+
+      if (flow.approved || flow.loggedIn) await loginAs(page.request, tempUser);
+      if (flow.approved) {
+        await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
+      }
+      if (!flow.loggedIn) {
         await logout(page);
       }
 
@@ -33,7 +40,7 @@ test.describe('oauth tests', () => {
         await approvalPage.expectNotOnPage();
 
         const loginPage = await new LoginPage(page).waitFor();
-        await loginPage.fillForm('admin', defaultPassword);
+        await loginPage.fillForm(tempUser.email, tempUser.password);
         await loginPage.submit();
       }
       if (!flow.approved) {
