@@ -120,6 +120,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
@@ -152,6 +157,26 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task DeletePartOfSpeech(Guid id)
     {
         await AddChange(new DeleteChange<PartOfSpeech>(id));
+    }
+
+    public Task<Publication> CreatePublication(Publication pub)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Publication> UpdatePublication(Publication before, PartOfSpeech Publication, IMiniLcmApi? api = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeletePublication(Guid id)
+    {
+        throw new NotImplementedException();
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()

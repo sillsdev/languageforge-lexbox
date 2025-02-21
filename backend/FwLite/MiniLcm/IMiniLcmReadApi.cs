@@ -7,6 +7,7 @@ public interface IMiniLcmReadApi
 {
     Task<WritingSystems> GetWritingSystems();
     IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech();
+    IAsyncEnumerable<Publication> GetPublications();
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains();
     IAsyncEnumerable<ComplexFormType> GetComplexFormTypes();
     Task<ComplexFormType?> GetComplexFormType(Guid id);
@@ -15,6 +16,7 @@ public interface IMiniLcmReadApi
     Task<Entry?> GetEntry(Guid id);
     Task<Sense?> GetSense(Guid entryId, Guid id);
     Task<PartOfSpeech?> GetPartOfSpeech(Guid id);
+    Task<Publication?> GetPublication(Guid id);
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
 }

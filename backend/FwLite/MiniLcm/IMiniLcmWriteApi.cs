@@ -21,6 +21,12 @@ public interface IMiniLcmWriteApi
     Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null);
     Task DeletePartOfSpeech(Guid id);
     #endregion
+    #region Publication
+    Task<Publication> CreatePublication(Publication pub);
+    Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update);
+    Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null);
+    Task DeletePublication(Guid id);
+    #endregion
 
     #region SemanticDomain
     Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain);

@@ -67,6 +67,26 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task<Publication> CreatePublication(Publication pub)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Publication> UpdatePublication(Publication before, PartOfSpeech Publication, IMiniLcmApi? api = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeletePublication(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSemanticDomain),
@@ -258,5 +278,70 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));
         await Task.CompletedTask;
+    }
+
+    public Task<WritingSystems> GetWritingSystems()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ComplexFormType?> GetComplexFormType(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Entry?> GetEntry(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Sense?> GetSense(Guid entryId, Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

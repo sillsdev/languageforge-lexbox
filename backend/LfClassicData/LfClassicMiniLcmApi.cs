@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;
@@ -88,6 +88,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             yield return ToPartOfSpeech(item);
         }
+    }
+
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)

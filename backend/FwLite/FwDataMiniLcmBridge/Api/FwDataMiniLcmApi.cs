@@ -42,6 +42,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
 
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
+    private ICmPossibilityList Publications => Cache.LangProject.LexDbOA.PublicationTypesOA;
 
     public void Dispose()
     {
@@ -303,6 +304,53 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
+    public async Task<Publication> CreatePublication(Publication pub)
+    {
+        ICmPossibility? lcmPublication = null;
+        NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>
+            {
+                lcmPublication = Cache.ServiceLocator.GetInstance<ICmPossibilityFactory>().Create(pub.Id, Cache.LangProject.LexDbOA.PublicationTypesOA);
+                UpdateLcmMultiString(lcmPublication.Name, pub.Name);
+            }
+        );
+        return await Task.FromResult(FromLcmPossibility(lcmPublication ?? throw new InvalidOperationException("Failed to create publication")));
+    }
+
+	private Publication FromLcmPossibility(ICmPossibility lcmPossibility)
+	{
+		var possibility = new Publication
+		{
+			Id = lcmPossibility.Guid,
+			Name = FromLcmMultiString(lcmPossibility.Name)
+		};
+
+		// If T has additional properties that need to be set from lcmPossibility, do it here
+		// For example, if T has a property called Description and lcmPossibility has a corresponding property
+		// possibility.Description = FromLcmMultiString(lcmPossibility.Description);
+
+		return possibility;
+	}
+
+    public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeletePublication(Guid id)
+    {
+        NonUndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW(Cache.ServiceLocator.ActionHandler, () =>
+            {
+                Cache.ServiceLocator.GetObject(id).Delete();
+            }
+        );
+        return Task.CompletedTask;
+    }
+
     internal SemanticDomain FromLcmSemanticDomain(ICmSemanticDomain semanticDomain)
     {
         return new SemanticDomain
@@ -470,6 +518,22 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return VariantTypes.PossibilitiesOS
             .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
             .ToAsyncEnumerable();
+    }
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        return Publications.PossibilitiesOS
+            .Select(t => new Publication() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
+            .ToAsyncEnumerable();
+    }
+    public Task<Publication?> GetPublication(Guid id)
+    {
+        var publication = GetLcmPublication(id);
+        return Task.FromResult(publication);
+    }
+    internal Publication? GetLcmPublication(Guid id)
+    {
+        var possibility = Publications.PossibilitiesOS.FirstOrDefault(p => p.Guid == id);
+        return possibility == null ? null : new Publication() { Id = possibility.Guid, Name = FromLcmMultiString(possibility.Name) };
     }
 
     private PartOfSpeech FromLcmPartOfSpeech(IPartOfSpeech lcmPos)
