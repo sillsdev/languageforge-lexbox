@@ -2,19 +2,20 @@
   "solution": {
     "path": "LexBox.sln",
     "projects": [
-      "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
-      "backend\\harmony\\src\\SIL.Harmony.Core\\SIL.Harmony.Core.csproj",
-      "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj",
-      "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
-      "backend\\FwLite\\LcmCrdt.Tests\\LcmCrdt.Tests.csproj",
-      "backend\\FWLite\\FwLiteWeb\\FwLiteWeb.csproj",
-      "backend\\FwLite\\FwLiteMaui\\FwLiteMaui.csproj",
-      "backend\\FwLite\\FwLiteShared\\FwLiteShared.csproj",
-      "backend\\FWLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",
       "backend\\FwLite\\FwDataMiniLcmBridge.Tests\\FwDataMiniLcmBridge.Tests.csproj",
-      "backend\\FWLite\\FwLiteProjectSync\\FwLiteProjectSync.csproj",
-      "backend\\FWLite\\FwLiteProjectSync.Tests\\FwLiteProjectSync.Tests.csproj",
+      "backend\\FwLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",
+      "backend\\FwLite\\FwLiteMaui\\FwLiteMaui.csproj",
+      "backend\\FwLite\\FwLiteProjectSync.Tests\\FwLiteProjectSync.Tests.csproj",
+      "backend\\FwLite\\FwLiteProjectSync\\FwLiteProjectSync.csproj",
+      "backend\\FwLite\\FwLiteShared\\FwLiteShared.csproj",
+      "backend\\FwLite\\FwLiteWeb\\FwLiteWeb.csproj",
+      "backend\\FwLite\\LcmCrdt.Tests\\LcmCrdt.Tests.csproj",
+      "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
+      "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
+      "backend\\FwLite\\MiniLcm.Tests\\MiniLcm.Tests.csproj",
       "backend\\LfClassicData\\LfClassicData.csproj",
+      "backend\\harmony\\src\\SIL.Harmony.Core\\SIL.Harmony.Core.csproj",
+      "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj"
     ]
   }
 }
