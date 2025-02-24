@@ -5,6 +5,25 @@ namespace MiniLcm.Tests;
 
 public class MultiStringTests
 {
+    [Fact]
+    public void CanSerializeMultiString()
+    {
+        //lang=json
+        var expectedJson = """{"en":"test"}""";
+        var ms = new MultiString() { Values = { { "en", "test" } } };
+        var actualJson = JsonSerializer.Serialize(ms);
+        actualJson.Should().Be(expectedJson);
+    }
+
+    [Fact]
+    public void CanSerializeMultiString_WithMetadata()
+    {
+        //lang=json
+        var expectedJson = """{"en":"test","x-meta-en":{"RunCount":2}}""";
+        var ms = new MultiString() { Values = { { "en", "test" } }, Metadata = { {"en", new(){RunCount = 2}} }};
+        var actualJson = JsonSerializer.Serialize(ms);
+        actualJson.Should().Be(expectedJson);
+    }
 
     [Fact]
     public void CanDeserializeMultiString()
@@ -12,6 +31,22 @@ public class MultiStringTests
         //lang=json
         var json = """{"en": "test"}""";
         var expectedMs = new MultiString() { Values = { { "en", "test" } } };
+        var actualMs = JsonSerializer.Deserialize<MultiString>(json);
+        actualMs.Should().NotBeNull();
+        actualMs.Values.Should().ContainKey("en");
+        actualMs.Should().BeEquivalentTo(expectedMs);
+    }
+
+    [Fact]
+    public void CanDeserializeMultiString_WithMetadata()
+    {
+        //lang=json
+        var json = """{"en": "test", "x-meta-en": {"runCount": 2}}""";
+        var expectedMs = new MultiString()
+        {
+            Values = { { "en", "test" } },
+            Metadata = { { "en", new() { RunCount = 2 } } }
+        };
         var actualMs = JsonSerializer.Deserialize<MultiString>(json);
         actualMs.Should().NotBeNull();
         actualMs.Values.Should().ContainKey("en");
