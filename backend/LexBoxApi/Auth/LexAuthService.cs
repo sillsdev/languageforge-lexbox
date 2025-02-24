@@ -90,6 +90,15 @@ public class LexAuthService
     public async Task<LexAuthUser?> RefreshUser(string updatedValue = "all")
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
+        var context = _httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(context);
+        if (context.User.Identity?.AuthenticationType == AuthKernel.OAuthAuthenticationType)
+        {
+            // calling sign in will return a token in a cookie, that's not how oauth works so don't do that here, just notify the client with a header
+            context.Response.Headers[JwtUpdatedHeader] = updatedValue;
+            return null;
+        }
+
         var dbUser = await _lexBoxDbContext.Users
             .Include(u => u.Projects)
             .ThenInclude(p => p.Project)
