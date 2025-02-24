@@ -14,17 +14,17 @@ public class MultiString: IDictionary
 {
     public MultiString(int capacity)
     {
-        Values = new MultiStringDict(capacity);
+        Values = new MultiStringDict(this, capacity);
     }
     public MultiString()
     {
-        Values = new MultiStringDict();
+        Values = new MultiStringDict(this);
     }
 
     [JsonConstructor]
     public MultiString(IDictionary<WritingSystemId, string> values)
     {
-        Values = new MultiStringDict(values);
+        Values = new MultiStringDict(this, values);
     }
 
     public virtual MultiString Copy()
@@ -40,6 +40,7 @@ public class MultiString: IDictionary
 
     public virtual IDictionary<WritingSystemId, string> Values { get; }
     public virtual IDictionary<WritingSystemId, MultiStringValueMetadata> Metadata { get; } = new Dictionary<WritingSystemId, MultiStringValueMetadata>();
+    public bool IsReadonly(WritingSystemId ws) => Metadata.TryGetValue(ws, out var meta) && meta.RunCount > 1;
 
     public string this[WritingSystemId key]
     {
@@ -52,22 +53,32 @@ public class MultiString: IDictionary
 #pragma warning restore CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
         IDictionary
     {
-        public MultiStringDict(int capacity) : base(capacity)
+        private readonly MultiString _parent;
+        public MultiStringDict(MultiString parent, int capacity) : base(capacity)
         {
-
+            _parent = parent;
         }
-        public MultiStringDict()
+        public MultiStringDict(MultiString parent)
         {
+            _parent = parent;
         }
 
-        public MultiStringDict(IDictionary<WritingSystemId, string> dictionary) : base(dictionary)
+        public MultiStringDict(MultiString parent, IDictionary<WritingSystemId, string> dictionary) : base(dictionary)
         {
+            _parent = parent;
         }
 
         string IDictionary<WritingSystemId, string>.this[WritingSystemId key]
         {
             get => TryGetValue(key, out var value) ? value : string.Empty;
-            set => base[key] = value;
+            set
+            {
+                if (_parent.IsReadonly(key))
+                {
+                    throw new InvalidOperationException($"Cannot set readonly property {key}");
+                }
+                base[key] = value;
+            }
         }
 
         // this method gets called by json patch when applying to an object.
