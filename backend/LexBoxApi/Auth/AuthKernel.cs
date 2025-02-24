@@ -295,6 +295,8 @@ public static class AuthKernel
             })
             .AddValidation(options =>
             {
+                options.Configure(validationOptions =>
+                    validationOptions.TokenValidationParameters.AuthenticationType = OAuthAuthenticationType);
                 options.UseLocalServer();
                 options.UseAspNetCore();
                 options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());

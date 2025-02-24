@@ -96,7 +96,8 @@ public class LexAuthService
         {
             // calling sign in will return a token in a cookie, that's not how oauth works so don't do that here, just notify the client with a header
             context.Response.Headers[JwtUpdatedHeader] = updatedValue;
-            return null;
+            activity?.AddTag("app.user.refresh", "notified");
+            return _loggedInContext.User;
         }
 
         var dbUser = await _lexBoxDbContext.Users

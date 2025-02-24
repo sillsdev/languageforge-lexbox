@@ -267,7 +267,7 @@ public class OauthController(
         }
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
-            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+            authenticationType: AuthKernel.OAuthAuthenticationType,
             claims: lexAuthUser.GetClaims(),
             nameType: OpenIddictConstants.Claims.Name,
             roleType: OpenIddictConstants.Claims.Role);
