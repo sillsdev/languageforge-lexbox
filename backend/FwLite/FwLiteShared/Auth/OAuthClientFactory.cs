@@ -45,4 +45,9 @@ public class OAuthClientFactory(IServiceProvider provider,
         if (string.IsNullOrEmpty(originDomain)) throw new InvalidOperationException("No origin domain in project data");
         return GetClient(options.Value.GetServer(project));
     }
+
+    public OAuthClient GetClient(string authority)
+    {
+        return GetClient(options.Value.GetServerByAuthority(authority));
+    }
 }
