@@ -31,6 +31,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
     private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
     private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
+    private IQueryable<Publication> Publications => dataModel.QueryLatest<Publication>();
 
     private CommitMetadata NewMetadata()
     {
@@ -122,12 +123,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public IAsyncEnumerable<Publication> GetPublications()
     {
-        throw new NotImplementedException();
+        return Publications.AsAsyncEnumerable();
     }
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
+    }
+
+    public async Task<Publication?> GetPublication(Guid id)
+    {
+        return await Publications.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -159,24 +165,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
-    public Task<Publication> CreatePublication(Publication pub)
+    public async Task<Publication> CreatePublication(Publication pub)
+    {
+        await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
+        return await GetPublication(pub.Id) ?? throw new NullReferenceException();
+
+    }
+
+    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        var pub = await GetPublication(id);
+        if(pub is null) throw new NullReferenceException($"unable to find publication with id {id}");
+        await AddChanges(pub.ToChanges(update.Patch));
+        return await GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
+    }
+
+    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    public async Task DeletePublication(Guid id)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<Publication> UpdatePublication(Publication before, PartOfSpeech Publication, IMiniLcmApi? api = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeletePublication(Guid id)
-    {
-        throw new NotImplementedException();
+        await AddChange(new DeleteChange<Publication>(id));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()

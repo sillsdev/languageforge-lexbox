@@ -67,26 +67,6 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<Publication> CreatePublication(Publication pub)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Publication> UpdatePublication(Publication before, PartOfSpeech Publication, IMiniLcmApi? api = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeletePublication(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSemanticDomain),
@@ -280,68 +260,23 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         await Task.CompletedTask;
     }
 
-    public Task<WritingSystems> GetWritingSystems()
+    public async Task<Publication> CreatePublication(Publication pub)
     {
-        throw new NotImplementedException();
+        return await _api.CreatePublication(pub);
     }
 
-    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        throw new NotImplementedException();
+        return await _api.UpdatePublication(id, update);
     }
 
-    public IAsyncEnumerable<Publication> GetPublications()
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        return await _api.UpdatePublication(before, after, api);
     }
 
-    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    public Task DeletePublication(Guid id)
     {
-        throw new NotImplementedException();
-    }
-
-    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ComplexFormType?> GetComplexFormType(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Entry?> GetEntry(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Sense?> GetSense(Guid entryId, Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<SemanticDomain?> GetSemanticDomain(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
-    {
-        throw new NotImplementedException();
+        return _api.DeletePublication(id);
     }
 }
