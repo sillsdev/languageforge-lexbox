@@ -1,4 +1,6 @@
-﻿using MiniLcm.Tests.AutoFakerHelpers;
+﻿using FluentAssertions.Equivalency;
+using FluentAssertions.Execution;
+using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -21,17 +23,26 @@ public class EntityCopyMethodTests
     {
         var crdtConfig = new CrdtConfig();
         LcmCrdtKernel.ConfigureCrdt(crdtConfig);
-        Type[] types = [
-            //todo get via reflection or from crdt config
-            typeof(Entry),
-            typeof(Sense),
-            typeof(ExampleSentence),
-            typeof(WritingSystem),
-            typeof(PartOfSpeech),
-            typeof(SemanticDomain),
-            typeof(ComplexFormType)
-        ];
-        return types.Select(t => new object[] { t });
+        return crdtConfig.ObjectTypes.Select(t => new object[] { t });
+    }
+
+    private void AssertDeepCopy(IObjectWithId copy, IObjectWithId original)
+    {
+        //todo this does not detect a deep copy, but it should as that breaks stuff
+        copy.Should().BeEquivalentTo(original, options => options.IncludingAllRuntimeProperties().Using(new NotSameEquivalencyStep()));
+    }
+
+    [Fact]
+    public void AssertDeepCopy_FailsForShallowCopy()
+    {
+        var entry = new Entry();
+        var copy = entry.Copy();
+        copy.LexemeForm = entry.LexemeForm;
+        var act = () =>
+        {
+            AssertDeepCopy(copy, entry);
+        };
+        act.Should().Throw<Exception>();
     }
 
     [Theory]
@@ -41,7 +52,35 @@ public class EntityCopyMethodTests
         type.IsAssignableTo(typeof(IObjectWithId)).Should().BeTrue();
         var entity = (IObjectWithId) AutoFaker.Generate(type);
         var copy = entity.Copy();
-        //todo this does not detect a deep copy, but it should as that breaks stuff
-        copy.Should().BeEquivalentTo(entity, options => options.IncludingAllRuntimeProperties());
+        AssertDeepCopy(copy, entity);
     }
+
+    private class NotSameEquivalencyStep : IEquivalencyStep
+    {
+        public EquivalencyResult Handle(Comparands comparands,
+            IEquivalencyValidationContext context,
+            IValidateChildNodeEquivalency valueChildNodes)
+        {
+            if (comparands.Subject is null || comparands.Expectation is null)
+            {
+                // I guess both being null is okay.
+                return EquivalencyResult.ContinueWithNext;
+            }
+
+            if (comparands.RuntimeType.IsValueType || comparands.RuntimeType == typeof(string))
+            {
+                return EquivalencyResult.ContinueWithNext;
+            }
+
+            var assertionChain = AssertionChain.GetOrCreate();
+
+            assertionChain
+                .ForCondition(!ReferenceEquals(comparands.Subject, comparands.Expectation))
+                .BecauseOf(context.Reason)
+                .FailWith("Subject and Expectation for {0} should not reference the same instance in memory.", context.CurrentNode.Description);
+
+            return EquivalencyResult.ContinueWithNext;
+        }
+    }
+
 }
