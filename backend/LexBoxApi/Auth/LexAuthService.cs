@@ -127,6 +127,11 @@ public class LexAuthService
         return await GetUser(u => u.GoogleId == googleId);
     }
 
+    public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUserById(Guid id)
+    {
+        return await GetUser(u => u.Id == id);
+    }
+
     private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(Expression<Func<User, bool>> predicate)
     {
         var user = await _lexBoxDbContext.Users

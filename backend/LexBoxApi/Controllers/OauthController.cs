@@ -254,10 +254,21 @@ public class OauthController(
     {
         AssertOAuthSetup();
         var userId = GetUserId(user);
+        var (lexAuthUser, _) = await lexAuthService.GetUserById(userId);
+        if (lexAuthUser is null)
+        {
+            return Forbid(authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                properties: new AuthenticationProperties(new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.AccessDenied,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                        "User account is not found."
+                }));
+        }
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
             authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-            claims: user.Claims,
+            claims: lexAuthUser.GetClaims(),
             nameType: OpenIddictConstants.Claims.Name,
             roleType: OpenIddictConstants.Claims.Role);
 
