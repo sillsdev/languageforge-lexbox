@@ -28,7 +28,6 @@ public class EntityCopyMethodTests
 
     private void AssertDeepCopy(IObjectWithId copy, IObjectWithId original)
     {
-        //todo this does not detect a deep copy, but it should as that breaks stuff
         copy.Should().BeEquivalentTo(original, options => options.IncludingAllRuntimeProperties().Using(new NotSameEquivalencyStep()));
     }
 
