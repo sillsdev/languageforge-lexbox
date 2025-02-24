@@ -56,7 +56,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<OAuthService>());
         services.AddOptionsWithValidateOnStart<AuthConfig>().BindConfiguration("Auth").ValidateDataAnnotations();
         services.AddSingleton<LoggerAdapter>();
-        services.AddSingleton<HttpClientRefreshDelegate>();
+        services.AddTransient<HttpClientRefreshDelegate>();
         var httpClientBuilder = services.AddHttpClient(OAuthClient.AuthHttpClientName);
         httpClientBuilder.AddHttpMessageHandler<HttpClientRefreshDelegate>();
         if (environment.IsDevelopment())
