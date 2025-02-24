@@ -29,7 +29,7 @@ public class RefreshJwtAttribute: ObjectFieldDescriptorAttribute
                 return;
             }
 
-            await authService.RefreshUser(loggedInContext.User.Id);
+            await authService.RefreshUser();
         }
     }
 }

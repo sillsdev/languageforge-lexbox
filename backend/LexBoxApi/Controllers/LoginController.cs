@@ -208,7 +208,7 @@ public class LoginController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LexAuthUser>> RefreshJwt()
     {
-        var user = await lexAuthService.RefreshUser(loggedInContext.User.Id);
+        var user = await lexAuthService.RefreshUser();
         if (user == null) return Unauthorized();
         return user;
     }
