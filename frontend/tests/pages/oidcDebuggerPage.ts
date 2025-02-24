@@ -1,5 +1,5 @@
 ﻿import {BasePage} from './basePage';
-import type {Page} from '@playwright/test';
+import {expect, type Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {
   static readonly redirectUrl = 'https://oidcdebugger.com/debug';
@@ -30,7 +30,20 @@ export class OidcDebuggerPage extends BasePage {
     await this.debuggerPage.waitFor();
   }
 
+  async getPkceResult(): Promise<Record<string, string>> {
+    const str = await this.debuggerPage.page.getByTitle('PKCE result').innerText();
+    return Object.fromEntries<string>(str.split('\n').map(s => s.split('=', 2) as [string, string]));
+  }
+
+  async getDebuggerAccessToken(): Promise<string> {
+    const result = await this.getPkceResult();
+    expect(result.access_token).not.toBeFalsy();
+    return result.access_token;
+  }
+
   async getDebuggerIdToken(): Promise<string> {
-    return await this.debuggerPage.page.getByTitle('PKCE result').innerText();
+    const result = await this.getPkceResult();
+    expect(result.id_token).not.toBeFalsy();
+    return result.id_token;
   }
 }

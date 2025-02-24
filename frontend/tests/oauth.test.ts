@@ -1,9 +1,10 @@
-﻿import {expect} from '@playwright/test';
+﻿import {type APIRequestContext, type Browser, expect} from '@playwright/test';
 import {test} from './fixtures';
 import {LoginPage} from './pages/loginPage';
 import {OidcDebuggerPage} from './pages/oidcDebuggerPage';
-import {loginAs, logout, preApproveOauthApp} from './utils/authHelpers';
+import {addUserToProject, loginAs, logout, preApproveOauthApp} from './utils/authHelpers';
 import {OauthApprovalPage} from './pages/oauthApprovalPage';
+import {elawaProjectId, serverBaseUrl} from './envVars';
 
 // we've got a matrix of flows to test
 // pre approved, not approved yet,
@@ -16,11 +17,11 @@ const flows = [
   {approved: true, loggedIn: true},
   {approved: false, loggedIn: true}
 ];
+
 test.describe('oauth tests', () => {
   for (const flow of flows) {
     const name = `can login with oauth, ${flow.approved ? 'pre-approved' : 'not approved'}, ${flow.loggedIn ? 'logged in' : 'not logged in'}`;
-    test(name, async ({page, baseURL, tempUser}) => {
-      if (!baseURL) throw new Error('baseURL is not set');
+    test(name, async ({page, tempUser}) => {
 
       if (flow.approved || flow.loggedIn) await loginAs(page.request, tempUser);
       if (flow.approved) {
@@ -31,7 +32,7 @@ test.describe('oauth tests', () => {
       }
 
       const oauthTestPage = await new OidcDebuggerPage(page).goto();
-      await oauthTestPage.fillForm(baseURL);
+      await oauthTestPage.fillForm(serverBaseUrl);
       await oauthTestPage.submit();
       const approvalPage = new OauthApprovalPage(page);
 
@@ -52,8 +53,40 @@ test.describe('oauth tests', () => {
 
       await oauthTestPage.waitForDebuggerPage();
       const result = await oauthTestPage.getDebuggerIdToken();
-      console.log('result', result);
-      expect(result).toContain('id_token=');
+      expect(result).not.toBeFalsy();
     });
   }
+
+  async function addUserToProjectNewContext(browser: Browser, userId: string) {
+    const context = await browser.newContext();
+    await loginAs(context.request, 'admin');
+    await addUserToProject(context.request, userId, elawaProjectId, 'EDITOR');
+  }
+
+  async function userProjectCount(apiOrToken: APIRequestContext | string) {
+    if (typeof apiOrToken === 'string') {
+      const response = await fetch(`${serverBaseUrl}/api/AuthTesting/token-project-count`, {method: 'GET', headers: {'authorization': `Bearer ${apiOrToken}`}});
+      return parseInt(await response.text());
+    } else {
+      const response = await apiOrToken.get(`${serverBaseUrl}/api/AuthTesting/token-project-count`);
+      return parseInt(await response.text());
+    }
+  }
+
+  test('oauth generates a token from the db', async ({page, tempUserVerified, browser}) => {
+    await loginAs(page.request, tempUserVerified);
+    await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
+    await addUserToProjectNewContext(browser, tempUserVerified.id);
+    const userProjectCountBefore = await userProjectCount(page.request);
+    // the token hasn't been refreshed since the user was added to the project, so we shouldn't have any projects yet
+    expect(userProjectCountBefore).toBe(0);
+    const oauthTestPage = await new OidcDebuggerPage(page).goto();
+    await oauthTestPage.fillForm(serverBaseUrl);
+    await oauthTestPage.submit();
+    await oauthTestPage.waitForDebuggerPage();
+
+    const token = await oauthTestPage.getDebuggerAccessToken();
+    const userProjectCountAfter = await userProjectCount(token);
+    expect(userProjectCountAfter).toBe(userProjectCountBefore + 1);
+  });
 });
