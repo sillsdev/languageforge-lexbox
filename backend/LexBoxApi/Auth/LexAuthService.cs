@@ -19,7 +19,7 @@ namespace LexBoxApi.Auth;
 
 public class LexAuthService
 {
-    public const string JwtUpdatedHeader = "lexbox-jwt-updated";
+    public const string JwtUpdatedHeader = LexAuthConstants.JwtUpdatedHeader;
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
