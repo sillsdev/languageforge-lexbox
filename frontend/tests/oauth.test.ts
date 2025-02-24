@@ -89,4 +89,25 @@ test.describe('oauth tests', () => {
     const userProjectCountAfter = await userProjectCount(token);
     expect(userProjectCountAfter).toBe(userProjectCountBefore + 1);
   });
+
+
+  test('refresh jwt just sets a header and does not return a cookie', async ({ page, tempUserVerified }) => {
+    await loginAs(page.request, tempUserVerified);
+    await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
+
+    const oauthTestPage = await new OidcDebuggerPage(page).goto();
+    await oauthTestPage.fillForm(serverBaseUrl);
+    await oauthTestPage.submit();
+    await oauthTestPage.waitForDebuggerPage();
+
+    const token = await oauthTestPage.getDebuggerAccessToken();
+
+    const response = await fetch(`${serverBaseUrl}/api/login/refresh`, {
+      method: 'POST',
+      headers: {'authorization': `Bearer ${token}`}
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get('lexbox-jwt-updated')).toBe('all');
+    expect(response.headers.get('set-cookie')).toBeNull();
+  });
 });
