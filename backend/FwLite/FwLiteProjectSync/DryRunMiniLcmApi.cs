@@ -1,4 +1,5 @@
 using MiniLcm;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 
@@ -262,21 +263,25 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        return await _api.CreatePublication(pub);
+        DryRunRecords.Add(new DryRunRecord(nameof(CreatePublication), $"Create publication {pub.Id}"));
+        return await Task.FromResult(pub);
     }
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        return await _api.UpdatePublication(id, update);
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {id}"));
+        return await _api.GetPublication(id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        return await _api.UpdatePublication(before, after, api);
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {before.Id}"));
+        return await _api.GetPublication(before.Id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
     }
 
     public Task DeletePublication(Guid id)
     {
-        return _api.DeletePublication(id);
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePublication), $"Delete publication {id}"));
+        return Task.CompletedTask;
     }
 }
