@@ -119,6 +119,12 @@ public static class LcmCrdtKernel
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<List<ComplexFormType>>(json,
                             (JsonSerializerOptions?)null) ?? new());
+                builder
+                    .Property(e => e.PublishIn)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<Publication>>(json,
+                            (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>
             {
