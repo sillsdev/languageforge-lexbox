@@ -10,12 +10,12 @@ public class Publication : IPossibility
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid[] GetReferences()
     {
-        throw new NotImplementedException();
+        return [];
     }
 
     public void RemoveReference(Guid id, DateTimeOffset time)
     {
-        throw new NotImplementedException();
+        return;
     }
 
     public IObjectWithId Copy()
