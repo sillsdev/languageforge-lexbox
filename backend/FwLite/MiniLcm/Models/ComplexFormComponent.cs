@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public record ComplexFormComponent : IObjectWithId, IOrderable
+public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrderable
 {
     public static ComplexFormComponent FromEntries(Entry complexFormEntry,
         Entry componentEntry,
@@ -50,7 +50,7 @@ public record ComplexFormComponent : IObjectWithId, IOrderable
             DeletedAt = time;
     }
 
-    public IObjectWithId Copy()
+    public ComplexFormComponent Copy()
     {
         return new ComplexFormComponent
         {

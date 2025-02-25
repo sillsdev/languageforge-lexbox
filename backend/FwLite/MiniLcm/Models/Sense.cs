@@ -4,7 +4,7 @@ using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
-public class Sense : IObjectWithId, IOrderable
+public class Sense : IObjectWithId<Sense>, IOrderable
 {
     public virtual Guid Id { get; set; }
     [MiniLcmInternal]
@@ -35,7 +35,7 @@ public class Sense : IObjectWithId, IOrderable
         SemanticDomains = [..SemanticDomains.Where(sd => sd.Id != id)];
     }
 
-    public IObjectWithId Copy()
+    public Sense Copy()
     {
         return new Sense
         {
@@ -45,10 +45,10 @@ public class Sense : IObjectWithId, IOrderable
             DeletedAt = DeletedAt,
             Definition = Definition.Copy(),
             Gloss = Gloss.Copy(),
-            PartOfSpeech = PartOfSpeech,
+            PartOfSpeech = PartOfSpeech?.Copy(),
             PartOfSpeechId = PartOfSpeechId,
-            SemanticDomains = [..SemanticDomains],
-            ExampleSentences = [..ExampleSentences.Select(s => (ExampleSentence)s.Copy())]
+            SemanticDomains = [..SemanticDomains.Select(s => s.Copy())],
+            ExampleSentences = [..ExampleSentences.Select(s => s.Copy())]
         };
     }
 }
