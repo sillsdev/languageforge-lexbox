@@ -1,4 +1,4 @@
-namespace MiniLcm.Models;
+﻿namespace MiniLcm.Models;
 
 public record Entry : IObjectWithId<Entry>
 {
@@ -60,8 +60,8 @@ public record Entry : IObjectWithId<Entry>
             ComplexFormTypes =
             [
                 ..ComplexFormTypes.Select(cft => (ComplexFormType)cft.Copy())
-            ]
-            ,PublishIn = [ ..PublishIn.Select(p => (Publication)p.Copy())]
+            ],
+            PublishIn = [ ..PublishIn.Select(p => (Publication)p.Copy())]
         };
     }
 
