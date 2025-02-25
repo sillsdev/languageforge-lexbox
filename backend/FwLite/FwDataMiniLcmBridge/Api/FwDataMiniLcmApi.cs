@@ -560,7 +560,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 ComplexForms = [
                     ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                     ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
-                ]
+                ],
+                // Add all the possibilities in the project which are not excluded by the entry's DoNotPublishIn field
+                PublishIn = Publications.PossibilitiesOS.Where(
+                    p => entry.DoNotPublishInRC.All(ep => ep.Guid != p.Guid)).Select(FromLcmPossibility).ToList(),
             };
         }
         catch (Exception e)
@@ -791,6 +794,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     {
                         var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
                         AddComplexFormComponent(complexLexEntry, complexForm);
+                    }
+                    // Subtract entry.Publications from Publications to get the publications that the entry should not be published in
+                    var doNotPublishIn = Publications.PossibilitiesOS.Where(p => entry.PublishIn.All(ep => ep.Id != p.Guid));
+                    foreach (var publication in doNotPublishIn)
+                    {
+                        lexEntry.DoNotPublishInRC.Add(publication);
                     }
                 });
         }
