@@ -190,6 +190,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await AddChange(new DeleteChange<Publication>(id));
     }
 
+    public Task AddPublication(Guid entryId, Guid publicationId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemovePublication(Guid entryId, Guid publicationId)
+    {
+        throw new NotImplementedException();
+    }
+
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
     {
         return SemanticDomains.AsAsyncEnumerable();

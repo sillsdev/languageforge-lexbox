@@ -284,4 +284,16 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(DeletePublication), $"Delete publication {id}"));
         return Task.CompletedTask;
     }
+
+    public Task AddPublication(Guid entryId, Guid publicationId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddPublication), $"Add publication {publicationId} to entry {entryId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemovePublication(Guid entryId, Guid publicationId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemovePublication), $"Remove publication {publicationId} from entry {entryId}"));
+        return Task.CompletedTask;
+    }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Frozen;
 using System.Globalization;
 using System.Text;
-using FluentValidation;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Logging;
@@ -317,7 +316,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     }
 
 	private Publication FromLcmPossibility(ICmPossibility lcmPossibility)
-	{
+    {
 		var possibility = new Publication
 		{
 			Id = lcmPossibility.Guid,
@@ -518,18 +517,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public IAsyncEnumerable<Publication> GetPublications()
     {
         return Publications.PossibilitiesOS
-            .Select(t => new Publication() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
+            .Select(FromLcmPossibility)
             .ToAsyncEnumerable();
     }
     public Task<Publication?> GetPublication(Guid id)
     {
         var publication = GetLcmPublication(id);
-        return Task.FromResult(publication);
+        return Task.FromResult(publication is null ? null : FromLcmPossibility(publication));
     }
-    internal Publication? GetLcmPublication(Guid id)
+
+    internal ICmPossibility? GetLcmPublication(Guid id)
     {
-        var possibility = Publications.PossibilitiesOS.FirstOrDefault(p => p.Guid == id);
-        return possibility == null ? null : new Publication() { Id = possibility.Guid, Name = FromLcmMultiString(possibility.Name) };
+        return Publications.PossibilitiesOS.FirstOrDefault(p => p.Guid == id);
     }
 
     private PartOfSpeech FromLcmPartOfSpeech(IPartOfSpeech lcmPos)
@@ -998,6 +997,45 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
 
         return result;
+    }
+
+    public Task AddPublication(Guid entryId, Guid publicationId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Publication",
+            "Remove Publication",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                AddPublication(EntriesRepository.GetObject(entryId), publicationId);
+            });
+        return Task.CompletedTask;
+    }
+
+    internal void AddPublication(ILexEntry entry, Guid publicationId)
+    {
+        var lcmPublication = GetLcmPublication(publicationId);
+        if (lcmPublication is null) throw new NotFoundException("unable to find publication with id " + publicationId, nameof(Publication));
+        entry.DoNotPublishInRC.Remove(lcmPublication);
+    }
+
+    public Task RemovePublication(Guid entryId, Guid publicationId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Publication",
+            "Add Publication",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                RemovePublication(EntriesRepository.GetObject(entryId), publicationId);
+            });
+        return Task.CompletedTask;
+    }
+
+    internal void RemovePublication(ILexEntry entry, Guid publicationId)
+    {
+        var lcmPublication = GetLcmPublication(publicationId);
+        if (lcmPublication is null)
+            throw new NotFoundException("unable to find publication with id " + publicationId, nameof(Publication));
+        entry.DoNotPublishInRC.Add(lcmPublication);
     }
 
     private void UpdateLcmMultiString(ITsMultiString multiString, MultiString newMultiString)

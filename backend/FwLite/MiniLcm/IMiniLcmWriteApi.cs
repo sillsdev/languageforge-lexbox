@@ -51,6 +51,8 @@ public interface IMiniLcmWriteApi
     Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
     Task AddComplexFormType(Guid entryId, Guid complexFormTypeId);
     Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);
+    Task AddPublication(Guid entryId, Guid publicationId);
+    Task RemovePublication(Guid entryId, Guid publicationId);
     #endregion
 
     #region Sense
