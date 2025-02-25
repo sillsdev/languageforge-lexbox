@@ -150,6 +150,7 @@ public static class LcmCrdtKernel
                                 Array.Empty<string>());
             })
             .Add<PartOfSpeech>()
+            .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
             .Add<ComplexFormComponent>(builder =>

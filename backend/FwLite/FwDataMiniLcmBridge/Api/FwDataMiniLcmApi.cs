@@ -324,10 +324,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 			Name = FromLcmMultiString(lcmPossibility.Name)
 		};
 
-		// If T has additional properties that need to be set from lcmPossibility, do it here
-		// For example, if T has a property called Description and lcmPossibility has a corresponding property
-		// possibility.Description = FromLcmMultiString(lcmPossibility.Description);
-
 		return possibility;
 	}
 

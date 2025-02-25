@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Sync;
+using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -48,6 +48,12 @@ public class MiniLcmJsInvokable(
     public ValueTask<PartOfSpeech[]> GetPartsOfSpeech()
     {
         return _wrappedApi.GetPartsOfSpeech().ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public ValueTask<Publication[]> GetPublications()
+    {
+        return _wrappedApi.GetPublications().ToArrayAsync();
     }
 
     [JSInvokable]
