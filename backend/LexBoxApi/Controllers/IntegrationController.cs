@@ -72,6 +72,7 @@ public class IntegrationController(
             {
                 Projects = user.Projects.Where(p => p.ProjectId == projectId).ToArray(),
                 Audience = LexboxAudience.SendAndReceive,
+                Scopes = [LexboxAuthScope.SendAndReceive]
             });
 
         //refresh long lived token used to get new tokens
@@ -79,6 +80,7 @@ public class IntegrationController(
         {
             Projects = [],
             Audience = LexboxAudience.SendAndReceiveRefresh,
+            Scopes = [LexboxAuthScope.SendAndReceiveRefresh]
         });
         return new RefreshResponse(projectToken, projectTokenExpiresAt, flexToken, flexTokenExpiresAt);
     }
