@@ -6,6 +6,7 @@
 import type {IMiniLcmFeatures} from './IMiniLcmFeatures';
 import type {IWritingSystems} from '../../MiniLcm/Models/IWritingSystems';
 import type {IPartOfSpeech} from '../../MiniLcm/Models/IPartOfSpeech';
+import type {IPublication} from '../../MiniLcm/Models/IPublication';
 import type {ISemanticDomain} from '../../MiniLcm/Models/ISemanticDomain';
 import type {IComplexFormType} from '../../MiniLcm/Models/IComplexFormType';
 import type {IEntry} from '../../MiniLcm/Models/IEntry';
@@ -21,6 +22,7 @@ export interface IMiniLcmJsInvokable
 	supportedFeatures() : Promise<IMiniLcmFeatures>;
 	getWritingSystems() : Promise<IWritingSystems>;
 	getPartsOfSpeech() : Promise<IPartOfSpeech[]>;
+	getPublications() : Promise<IPublication[]>;
 	getSemanticDomains() : Promise<ISemanticDomain[]>;
 	getComplexFormTypes() : Promise<IComplexFormType[]>;
 	getComplexFormType(id: string) : Promise<IComplexFormType>;
