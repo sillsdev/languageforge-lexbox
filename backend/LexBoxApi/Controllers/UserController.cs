@@ -229,6 +229,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("currentUser")]
+    [RequireScope(LexboxAuthScope.profile, LexboxAuthScope.LexboxApi)]
     public ActionResult<LexAuthUser> CurrentUser()
     {
         return _loggedInContext.User;
