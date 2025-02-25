@@ -124,6 +124,54 @@ public record LexAuthUser
     [JsonPropertyName(LexAuthConstants.AudienceClaimType)]
     public LexboxAudience Audience { get; set; } = LexboxAudience.LexboxApi;
 
+    [JsonPropertyName(LexAuthConstants.ScopeClaimType)]
+    public string? ScopeString
+    {
+        get;
+        set
+        {
+            field = value;
+            _scopes = null;
+        }
+    }
+
+    private LexboxAuthScope[]? _scopes;
+
+    [JsonIgnore]
+    public IReadOnlyList<LexboxAuthScope> Scopes
+    {
+        get => _scopes ??= ToScopes(ScopeString);
+        set
+        {
+            //I don't like all the allocations here, but I'm not sure how to avoid more
+            var strings = new string[value.Count];
+            for (var i = 0; i < strings.Length; i++)
+            {
+                strings[i] =  value[i].ToString().ToLower();
+            }
+
+            ScopeString = string.Join(' ', strings);
+            _scopes = value.ToArray();
+        }
+    }
+
+    private static LexboxAuthScope[] ToScopes(string? scopeString)
+    {
+        if (scopeString is null) return [];
+        var scopeSpan = scopeString.AsSpan();
+        Span<LexboxAuthScope> result = stackalloc LexboxAuthScope[scopeSpan.Count(' ') + 1];
+        var i = 0;
+        foreach (var range in scopeSpan.Split(' '))
+        {
+            var scope = scopeSpan[range];
+            if (Enum.TryParse<LexboxAuthScope>(scope, true, out var parsedScope))
+            {
+                result[i++] = parsedScope;
+            }
+        }
+        return result[..i].ToArray();
+    }
+
     [JsonPropertyName(LexAuthConstants.EmailClaimType)]
     public string? Email { get; set; }
 
@@ -264,6 +312,31 @@ public record LexAuthUser
     {
         if (FeatureFlags is null) return false;
         return FeatureFlags.Contains(feature);
+    }
+
+    public bool HasScope(LexboxAuthScope scope)
+    {
+        //previously Audience was abused as a scope, so we should check that in case it's what we're looking for
+        if (ScopeString is null) return ToScope(Audience) == scope;
+        return HasScope(ScopeString, scope);
+    }
+
+    public static bool HasScope(string scopeString, LexboxAuthScope scope)
+    {
+        return scopeString.Contains(scope.ToString(), StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    private LexboxAuthScope? ToScope(LexboxAudience audience)
+    {
+        return audience switch
+        {
+            LexboxAudience.LexboxApi => LexboxAuthScope.LexboxApi,
+            LexboxAudience.RegisterAccount => LexboxAuthScope.RegisterAccount,
+            LexboxAudience.ForgotPassword => LexboxAuthScope.ForgotPassword,
+            LexboxAudience.SendAndReceive => LexboxAuthScope.SendAndReceive,
+            LexboxAudience.SendAndReceiveRefresh => LexboxAuthScope.SendAndReceiveRefresh,
+            _ => null
+        };
     }
 }
 

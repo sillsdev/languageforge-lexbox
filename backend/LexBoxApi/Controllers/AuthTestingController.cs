@@ -25,8 +25,15 @@ public class AuthTestingController : ControllerBase
     }
 
     [HttpGet("requires-forgot-password")]
-    [RequireAudience(LexboxAudience.ForgotPassword, true)]
-    public OkResult RequiresForgotPasswordAudience()
+    [RequireScope(LexboxAuthScope.ForgotPassword, true)]
+    public OkResult RequiresForgotPassword()
+    {
+        return Ok();
+    }
+
+    [HttpGet("requiresSendReceiveScope")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, true)]
+    public OkResult RequiresSendReceiveScope()
     {
         return Ok();
     }

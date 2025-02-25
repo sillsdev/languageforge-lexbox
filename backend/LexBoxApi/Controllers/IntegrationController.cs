@@ -55,7 +55,7 @@ public class IntegrationController(
     [HttpGet("getProjectToken")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     //todo make exclusive to prevent calling with normal jwt, currently used for testing
-    [RequireAudience(LexboxAudience.SendAndReceiveRefresh)]
+    [RequireScope(LexboxAuthScope.SendAndReceiveRefresh)]
     public async Task<ActionResult<RefreshResponse>> GetProjectToken(string projectCode)
     {
         var projectId = await projectService.LookupProjectId(projectCode);

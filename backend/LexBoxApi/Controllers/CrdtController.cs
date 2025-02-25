@@ -5,6 +5,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
 using LexCore;
+using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
@@ -19,6 +20,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/crdt")]
+[RequireScope(LexboxAuthScope.SendAndReceive)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class CrdtController(
     LexBoxDbContext dbContext,

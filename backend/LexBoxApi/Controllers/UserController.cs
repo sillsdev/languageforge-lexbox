@@ -83,7 +83,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("acceptInvitation")]
-    [RequireAudience(LexboxAudience.RegisterAccount, true)]
+    [RequireScope(LexboxAuthScope.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> HandleInviteLink()
@@ -119,7 +119,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("acceptInvitation")]
-    [RequireAudience(LexboxAudience.RegisterAccount, true)]
+    [RequireScope(LexboxAuthScope.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
     [ProducesDefaultResponseType]
@@ -192,7 +192,8 @@ public class UserController : ControllerBase
     private void UpdateUserMemberships(LexAuthUser? jwtUser, User userEntity)
     {
         // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
-        if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
+        if (jwtUser?.HasScope(LexboxAuthScope.RegisterAccount) != true) return;
+        if (jwtUser.Projects.Length > 0)
         {
             foreach (var p in jwtUser.Projects)
             {
@@ -202,7 +203,7 @@ public class UserController : ControllerBase
                 }
             }
         }
-        if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
+        if (jwtUser.Orgs.Length > 0)
         {
             foreach (var o in jwtUser.Orgs)
             {

@@ -42,6 +42,7 @@ public class TestingController(
     }
 
     [HttpGet("claims")]
+    [AllowAnonymous]
     public Dictionary<string, string> Claims()
     {
         return User.Claims.ToLookup(c => c.Type, c => c.Value).ToDictionary(k => k.Key, v => string.Join(";", v));
