@@ -92,7 +92,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     public IAsyncEnumerable<Publication> GetPublications()
     {
-        throw new NotImplementedException();
+        return AsyncEnumerable.Empty<Publication>();
     }
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
@@ -102,6 +102,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             _partsOfSpeechCacheByGuid = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Id);
         }
         return _partsOfSpeechCacheByGuid.GetValueOrDefault(id);
+    }
+
+    public Task<Publication?> GetPublication(Guid id)
+    {
+        return Task.FromResult<Publication?>(null);
     }
 
     public async ValueTask<PartOfSpeech?> GetPartOfSpeech(string key)
