@@ -24,7 +24,7 @@ public class Publication : IPossibility
         {
             Id = Id,
             DeletedAt = DeletedAt,
-            Name = Name
+            Name = Name.Copy()
         };
     }
     public virtual MultiString Name { get; set; } = new();
