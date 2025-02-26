@@ -24,14 +24,15 @@ test.describe('oauth tests', () => {
     const name = `can login with oauth, ${flow.approved ? 'pre-approved' : 'not approved'}, ${flow.loggedIn ? 'logged in' : 'not logged in'}`;
     test(name, async ({page, tempUser}) => {
 
-      if (flow.approved || flow.loggedIn){
+      if (flow.approved || flow.loggedIn) {
         await loginAs(page.request, tempUser);
         if (flow.approved) {
           await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
         }
-        if (!flow.loggedIn) {
-          await logout(page);
-        }
+      }
+      // tempUsers are currently always automatically logged in 😔
+      if (!flow.loggedIn) {
+        await logout(page);
       }
 
       const oauthTestPage = await new OidcDebuggerPage(page).goto();
