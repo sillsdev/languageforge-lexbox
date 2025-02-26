@@ -26,6 +26,8 @@ public record Entry : IObjectWithId<Entry>
 
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
+    public virtual List<Publication> PublishIn { get; set; } = [];
+
     public string Headword()
     {
         //order by code to ensure the headword is stable
@@ -58,7 +60,8 @@ public record Entry : IObjectWithId<Entry>
             ComplexFormTypes =
             [
                 ..ComplexFormTypes.Select(cft => cft.Copy())
-            ]
+            ],
+            PublishIn = [ ..PublishIn.Select(p => (Publication)p.Copy())]
         };
     }
 

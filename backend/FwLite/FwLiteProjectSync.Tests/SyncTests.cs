@@ -75,13 +75,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     internal static EquivalencyOptions<Entry> SyncExclusions(EquivalencyOptions<Entry> options)
     {
-        return options
+        options = options
             .For(e => e.Senses).Exclude(s => s.Order)
             .For(e => e.Senses).For(s => s.ExampleSentences).Exclude(s => s.Order)
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
             .For(e => e.ComplexForms).Exclude(c => c.Order);
+        //todo enable this once we support publications in crdts
+        if (!Publication.SupportsCrdts) options = options.Excluding(e => e.PublishIn);
+        return options;
     }
 
     [Fact]

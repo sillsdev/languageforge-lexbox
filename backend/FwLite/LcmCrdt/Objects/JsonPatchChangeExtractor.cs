@@ -154,6 +154,11 @@ public static class JsonPatchChangeExtractor
         if (patch.Operations.Count > 0)
             yield return new JsonPatchChange<PartOfSpeech>(pos.Id, patch);
     }
+    public static IEnumerable<IChange> ToChanges(this Publication pub, JsonPatchDocument<Publication> patch)
+    {
+        if (patch.Operations.Count > 0)
+            yield return new JsonPatchChange<Publication>(pub.Id, patch);
+    }
 
     public static IEnumerable<IChange> ToChanges(this SemanticDomain semDom, JsonPatchDocument<SemanticDomain> patch)
     {

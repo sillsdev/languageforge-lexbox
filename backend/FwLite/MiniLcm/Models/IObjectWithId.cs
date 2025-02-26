@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MiniLcm.Models;
 
@@ -8,6 +8,7 @@ namespace MiniLcm.Models;
 [JsonDerivedType(typeof(ExampleSentence), nameof(ExampleSentence))]
 [JsonDerivedType(typeof(WritingSystem), nameof(WritingSystem))]
 [JsonDerivedType(typeof(PartOfSpeech), nameof(PartOfSpeech))]
+[JsonDerivedType(typeof(Publication), nameof(Publication))]
 [JsonDerivedType(typeof(SemanticDomain), nameof(SemanticDomain))]
 [JsonDerivedType(typeof(ComplexFormType), nameof(ComplexFormType))]
 [JsonDerivedType(typeof(ComplexFormComponent), nameof(ComplexFormComponent))]

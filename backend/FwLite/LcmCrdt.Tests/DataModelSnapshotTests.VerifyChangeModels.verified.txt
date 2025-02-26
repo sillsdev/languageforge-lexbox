@@ -29,6 +29,10 @@
       TypeDiscriminator: jsonPatch:ComplexFormType
     },
     {
+      DerivedType: JsonPatchChange<Publication>,
+      TypeDiscriminator: jsonPatch:Publication
+    },
+    {
       DerivedType: DeleteChange<Entry>,
       TypeDiscriminator: delete:Entry
     },
@@ -59,6 +63,10 @@
     {
       DerivedType: DeleteChange<ComplexFormComponent>,
       TypeDiscriminator: delete:ComplexFormComponent
+    },
+    {
+      DerivedType: DeleteChange<Publication>,
+      TypeDiscriminator: delete:Publication
     },
     {
       DerivedType: SetPartOfSpeechChange,
@@ -99,6 +107,10 @@
     {
       DerivedType: CreateWritingSystemChange,
       TypeDiscriminator: CreateWritingSystemChange
+    },
+    {
+      DerivedType: CreatePublicationChange,
+      TypeDiscriminator: CreatePublicationChange
     },
     {
       DerivedType: AddComplexFormTypeChange,

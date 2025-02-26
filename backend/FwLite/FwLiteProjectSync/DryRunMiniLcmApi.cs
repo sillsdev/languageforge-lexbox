@@ -1,4 +1,5 @@
 using MiniLcm;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 
@@ -258,5 +259,41 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));
         await Task.CompletedTask;
+    }
+
+    public async Task<Publication> CreatePublication(Publication pub)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreatePublication), $"Create publication {pub.Id}"));
+        return await Task.FromResult(pub);
+    }
+
+    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {id}"));
+        return await _api.GetPublication(id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
+    }
+
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePublication), $"Update publication {before.Id}"));
+        return await _api.GetPublication(before.Id) ?? throw new NotFoundException("Publication not found", nameof(Publication));
+    }
+
+    public Task DeletePublication(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePublication), $"Delete publication {id}"));
+        return Task.CompletedTask;
+    }
+
+    public Task AddPublication(Guid entryId, Guid publicationId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddPublication), $"Add publication {publicationId} to entry {entryId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemovePublication(Guid entryId, Guid publicationId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemovePublication), $"Remove publication {publicationId} from entry {entryId}"));
+        return Task.CompletedTask;
     }
 }

@@ -18,6 +18,7 @@ import type {
   IMiniLcmFeatures,
   IMiniLcmJsInvokable
 } from '$lib/dotnet-types';
+import type { IPublication } from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 
 // components
 
@@ -299,6 +300,10 @@ class IMiniLcmJsInvokable_HubProxy implements IMiniLcmJsInvokable {
     updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence): Promise<IExampleSentence> {
       throw new Error('Method not implemented.');
     }
+
+  getPublications(): Promise<IPublication[]> {
+    throw new Error('Method not implemented.');
+  }
 
     dispose(): Promise<void> {
       throw new Error('Method not implemented.');
