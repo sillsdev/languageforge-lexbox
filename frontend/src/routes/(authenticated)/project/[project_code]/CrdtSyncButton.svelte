@@ -89,7 +89,7 @@
     <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     {$t('project.crdt.sync_fwlite')}
     <span style="transform: rotateY(180deg)">
-      <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse/>
+      <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse />
     </span>
   </Button>
 {:else}
@@ -110,21 +110,21 @@
       {/if}
     </h2>
     {#if state === 'syncing'}
-      <div class="mb-6 prose max-w-none underline-links">
-        <NewTabLinkMarkdown md={$t('project.crdt.while_you_wait')} />
-      </div>
-      <p class="text-center">
+      <p class="text-center my-6">
         <span class="loading loading-lg"></span>
       </p>
+      <div class="prose max-w-none underline-links">
+        <NewTabLinkMarkdown md={$t('project.crdt.while_you_wait')} />
+      </div>
     {:else if state === 'done'}
+      <p class="text-center my-6">
+        <span
+          class="i-mdi-check-circle-outline text-7xl text-center text-success"
+          transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
+        ></span>
+      </p>
       <div class="prose max-w-none underline-links">
         <NewTabLinkMarkdown md={$t('project.crdt.to_start_using')} />
-        <p class="text-center">
-          <span
-            class="i-mdi-check-circle-outline text-7xl text-center text-success"
-            transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
-          ></span>
-        </p>
       </div>
     {:else}
       <div class="prose max-w-none underline-links">
