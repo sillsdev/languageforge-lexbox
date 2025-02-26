@@ -63,7 +63,7 @@ tasks:
       - pwsh -Command "mv ../artifacts/publish/FwLiteWeb/release_win-x64/appsettings.sdk.json ../artifacts/publish/FwLiteWeb/release_win-x64/appsettings.Production.json"
       - pwsh -Command "mkdir ../artifacts/publish/FwLiteWeb/release_win-x64/fw-lite-projects"
       - pwsh -Command "mkdir ../artifacts/publish/FwLiteWeb/release_win-x64/fw-projects"
-      - pwsh -Command "Compress-Archive -Path ../artifacts/publish/FwLiteWeb/release_win-x64 -DestinationPath ../artifacts/publish/FwLiteWeb/release_win-x64.zip"
+      - pwsh -Command "Compress-Archive -Force -Path ../artifacts/publish/FwLiteWeb/release_win-x64 -DestinationPath ../artifacts/publish/FwLiteWeb/release_win-x64.zip"
 
 
   publish-web-all:
