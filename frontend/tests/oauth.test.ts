@@ -23,12 +23,14 @@ test.describe('oauth tests', () => {
     const name = `can login with oauth, ${flow.approved ? 'pre-approved' : 'not approved'}, ${flow.loggedIn ? 'logged in' : 'not logged in'}`;
     test(name, async ({page, tempUser}) => {
 
-      if (flow.approved || flow.loggedIn) await loginAs(page.request, tempUser);
-      if (flow.approved) {
-        await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
-      }
-      if (!flow.loggedIn) {
-        await logout(page);
+      if (flow.approved || flow.loggedIn){
+        await loginAs(page.request, tempUser);
+        if (flow.approved) {
+          await preApproveOauthApp(page.request, OidcDebuggerPage.clientId, OidcDebuggerPage.scopes);
+        }
+        if (!flow.loggedIn) {
+          await logout(page);
+        }
       }
 
       const oauthTestPage = await new OidcDebuggerPage(page).goto();
@@ -51,8 +53,8 @@ test.describe('oauth tests', () => {
         await approvalPage.clickAuthorize();
       }
 
-      await oauthTestPage.waitForDebuggerPage();
-      const result = await oauthTestPage.getDebuggerIdToken();
+      const successPage = await oauthTestPage.waitForSuccessPage();
+      const result = await successPage.getDebuggerIdToken();
       expect(result).not.toBeFalsy();
     });
   }
@@ -83,9 +85,9 @@ test.describe('oauth tests', () => {
     const oauthTestPage = await new OidcDebuggerPage(page).goto();
     await oauthTestPage.fillForm(serverBaseUrl);
     await oauthTestPage.submit();
-    await oauthTestPage.waitForDebuggerPage();
+    const successPage = await oauthTestPage.waitForSuccessPage();
 
-    const token = await oauthTestPage.getDebuggerAccessToken();
+    const token = await successPage.getDebuggerAccessToken();
     const userProjectCountAfter = await userProjectCount(token);
     expect(userProjectCountAfter).toBe(userProjectCountBefore + 1);
   });
@@ -98,9 +100,9 @@ test.describe('oauth tests', () => {
     const oauthTestPage = await new OidcDebuggerPage(page).goto();
     await oauthTestPage.fillForm(serverBaseUrl);
     await oauthTestPage.submit();
-    await oauthTestPage.waitForDebuggerPage();
+    const successPage = await oauthTestPage.waitForSuccessPage();
 
-    const token = await oauthTestPage.getDebuggerAccessToken();
+    const token = await successPage.getDebuggerAccessToken();
 
     const response = await fetch(`${serverBaseUrl}/api/login/refresh`, {
       method: 'POST',

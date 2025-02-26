@@ -1,12 +1,12 @@
 ﻿import {BasePage} from './basePage';
-import {expect, type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {
   static readonly redirectUrl = 'https://oidcdebugger.com/debug';
   static readonly clientId = `oidc-debugger`;
   static readonly scopes = `openid profile`;
 
-  debuggerPage: BasePage = new BasePage(this.page, this.page.getByText('Success!'), OidcDebuggerPage.redirectUrl);
+  successPage: OidcDebuggerSuccessPage = new OidcDebuggerSuccessPage(this.page);
   constructor(page: Page) {
     super(page, page.getByText('OpenID Connect Debugger'), 'https://oidcdebugger.com');
   }
@@ -26,12 +26,19 @@ export class OidcDebuggerPage extends BasePage {
     await this.page.getByRole('link', {name: 'Send Request'}).click();
   }
 
-  async waitForDebuggerPage() {
-    await this.debuggerPage.waitFor();
+  async waitForSuccessPage() {
+    return await this.successPage.waitFor();
+  }
+}
+
+export class OidcDebuggerSuccessPage extends BasePage {
+
+  constructor(page: Page) {
+    super(page, page.getByText('Success!'), OidcDebuggerPage.redirectUrl);
   }
 
   async getPkceResult(): Promise<Record<string, string>> {
-    const str = await this.debuggerPage.page.getByTitle('PKCE result').innerText();
+    const str = await this.page.getByTitle('PKCE result').innerText();
     return Object.fromEntries<string>(str.split('\n').map(s => s.split('=', 2) as [string, string]));
   }
 
