@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm.Models;
 
-public class PartOfSpeech : IObjectWithId
+public class PartOfSpeech : IObjectWithId<PartOfSpeech>
 {
     public Guid Id { get; set; }
     public virtual MultiString Name { get; set; } = new();
@@ -18,12 +18,12 @@ public class PartOfSpeech : IObjectWithId
     {
     }
 
-    public IObjectWithId Copy()
+    public PartOfSpeech Copy()
     {
         return new PartOfSpeech
         {
             Id = Id,
-            Name = Name,
+            Name = Name.Copy(),
             DeletedAt = DeletedAt,
             Predefined = Predefined
         };

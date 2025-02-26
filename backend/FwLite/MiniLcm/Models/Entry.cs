@@ -48,18 +48,18 @@ public record Entry : IObjectWithId<Entry>
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),
             Note = Note.Copy(),
-            Senses = [..Senses.Select(s => (Sense)s.Copy())],
+            Senses = [..Senses.Select(s => s.Copy())],
             Components =
             [
-                ..Components.Select(c => (ComplexFormComponent)c.Copy())
+                ..Components.Select(c => c.Copy())
             ],
             ComplexForms =
             [
-                ..ComplexForms.Select(c => (ComplexFormComponent)c.Copy())
+                ..ComplexForms.Select(c => c.Copy())
             ],
             ComplexFormTypes =
             [
-                ..ComplexFormTypes.Select(cft => (ComplexFormType)cft.Copy())
+                ..ComplexFormTypes.Select(cft => cft.Copy())
             ],
             PublishIn = [ ..PublishIn.Select(p => (Publication)p.Copy())]
         };
