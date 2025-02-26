@@ -16,13 +16,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CanCreateEntry_AutoFaker()
     {
-        var entry = await AutoFaker.EntryReadyForCreation(Api, createComplexFormTypes:false);
-        //todo limitation of fwdata prevents us from specifying the complex form type ahead of time
-        foreach (var entryComplexFormType in entry.ComplexFormTypes)
-        {
-            entryComplexFormType.Id = Guid.Empty;
-            await Api.CreateComplexFormType(entryComplexFormType);
-        }
+        var entry = await AutoFaker.EntryReadyForCreation(Api);
         var createdEntry = await Api.CreateEntry(entry);
         createdEntry.Should().BeEquivalentTo(entry, options => options
             .For(e => e.Components).Exclude(e => e.Id)
