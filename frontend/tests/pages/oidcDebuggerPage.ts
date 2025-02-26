@@ -1,12 +1,12 @@
 ﻿import {BasePage} from './basePage';
-import {expect, type Locator, type Page} from '@playwright/test';
+import {expect, type Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {
   static readonly redirectUrl = 'https://oidcdebugger.com/debug';
   static readonly clientId = `oidc-debugger`;
   static readonly scopes = `openid profile`;
 
-  successPage: OidcDebuggerSuccessPage = new OidcDebuggerSuccessPage(this.page);
+  readonly successPage = new OidcDebuggerSuccessPage(this.page);
   constructor(page: Page) {
     super(page, page.getByText('OpenID Connect Debugger'), 'https://oidcdebugger.com');
   }
@@ -26,7 +26,7 @@ export class OidcDebuggerPage extends BasePage {
     await this.page.getByRole('link', {name: 'Send Request'}).click();
   }
 
-  async waitForSuccessPage() {
+  async waitForSuccessPage(): Promise<OidcDebuggerSuccessPage> {
     return await this.successPage.waitFor();
   }
 }

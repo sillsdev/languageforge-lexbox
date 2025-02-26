@@ -265,10 +265,18 @@ public class OauthController(
                         "User account is not found."
                 }));
         }
+
+        var lexAuthClaims = lexAuthUser.GetClaims();
+        IEnumerable<Claim> allClaims = [
+            .. lexAuthClaims,
+            // include claims the oauth client sent / is expecting that we don't already have
+            .. user.Claims.Where(claim => !lexAuthClaims.Any(c => c.Type == claim.Type))
+        ];
+
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
             authenticationType: AuthKernel.OAuthAuthenticationType,
-            claims: lexAuthUser.GetClaims(),
+            claims: allClaims,
             nameType: OpenIddictConstants.Claims.Name,
             roleType: OpenIddictConstants.Claims.Role);
 

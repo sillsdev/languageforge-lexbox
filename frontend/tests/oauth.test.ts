@@ -5,6 +5,7 @@ import {OidcDebuggerPage} from './pages/oidcDebuggerPage';
 import {addUserToProject, loginAs, logout, preApproveOauthApp} from './utils/authHelpers';
 import {OauthApprovalPage} from './pages/oauthApprovalPage';
 import {elawaProjectId, serverBaseUrl} from './envVars';
+import {jwtDecode, type JwtPayload} from 'jwt-decode';
 
 // we've got a matrix of flows to test
 // pre approved, not approved yet,
@@ -54,8 +55,12 @@ test.describe('oauth tests', () => {
       }
 
       const successPage = await oauthTestPage.waitForSuccessPage();
-      const result = await successPage.getDebuggerIdToken();
-      expect(result).not.toBeFalsy();
+      const idToken = await successPage.getDebuggerIdToken();
+      expect(idToken).not.toBeFalsy();
+      const idTokenUser = jwtDecode<JwtPayload & {name: string}>(idToken);
+      expect(idTokenUser).toBeTruthy();
+      expect(idTokenUser.sub).toBe(tempUser.id);
+      expect(idTokenUser.name).toBe(tempUser.name);
     });
   }
 
