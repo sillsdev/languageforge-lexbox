@@ -21,6 +21,10 @@
       TypeDiscriminator: PartOfSpeech
     },
     {
+      DerivedType: Publication,
+      TypeDiscriminator: Publication
+    },
+    {
       DerivedType: SemanticDomain,
       TypeDiscriminator: SemanticDomain
     },
