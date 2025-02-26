@@ -17,6 +17,15 @@ public static class EntryFakerHelper
         if (createComponents) await CreateComplexFormComponentEntry(entry, true, entry.Components, api);
         if (createComplexForms) await CreateComplexFormComponentEntry(entry, false, entry.ComplexForms, api);
         if (createComplexFormTypes) await CreateComplexFormTypes(entry.ComplexFormTypes, api);
+        if (Publication.SupportsCrdts)
+        {
+            await CreatePublications(entry.PublishIn, api);
+        }
+        else
+        {
+            entry.PublishIn = [];
+        }
+
         foreach (var sense in entry.Senses)
         {
             sense.EntryId = entry.Id;
@@ -103,6 +112,14 @@ public static class EntryFakerHelper
             foreach (var complexFormType in complexFormTypes)
             {
                 await api.CreateComplexFormType(complexFormType);
+            }
+        }
+
+        static async Task CreatePublications(IList<Publication> publications, IMiniLcmApi api)
+        {
+            foreach (var publication in publications)
+            {
+                await api.CreatePublication(publication);
             }
         }
     }
