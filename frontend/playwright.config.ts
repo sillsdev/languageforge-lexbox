@@ -1,8 +1,8 @@
 import * as testEnv from './tests/envVars';
 
-import { defineConfig, devices } from '@playwright/test';
+import {defineConfig, devices} from '@playwright/test';
 
-import type { PlaywrightTestConfig } from '@playwright/test';
+import type {PlaywrightTestConfig} from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -27,7 +27,7 @@ const config: PlaywrightTestConfig = {
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   outputDir: 'test-results',
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
