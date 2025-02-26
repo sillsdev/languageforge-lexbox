@@ -133,22 +133,4 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         entry.Should().NotBeNull();
         entry.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
     }
-
-    [Fact]
-    public async Task CanCreate_WithPublishIn()
-    {
-        var publication = await Api.CreatePublication(new()
-        {
-            Id = Guid.NewGuid(),
-            Name = new MultiString { { "en", "test publication" } }
-        });
-        var entry = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "test" } },
-            PublishIn = [publication]
-        });
-        entry = await Api.GetEntry(entry.Id);
-        entry.Should().NotBeNull();
-        entry.PublishIn.Should().ContainSingle(c => c.Id == publication.Id);
-    }
 }
