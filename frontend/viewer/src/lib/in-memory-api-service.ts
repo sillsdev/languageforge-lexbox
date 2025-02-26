@@ -15,10 +15,11 @@ import {
   type IWritingSystems,
   type WritingSystemType
 } from '$lib/dotnet-types';
-import {entries, partsOfSpeech, projectName, writingSystems} from './entry-data';
+import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from './writing-system-service';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
+import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -277,6 +278,10 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   updateExampleSentence(_entryId: string, _senseId: string, _before: IExampleSentence, _after: IExampleSentence): Promise<IExampleSentence> {
+    throw new Error('Method not implemented.');
+  }
+
+  getPublications(): Promise<IPublication[]> {
     throw new Error('Method not implemented.');
   }
 

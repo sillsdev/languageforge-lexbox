@@ -113,7 +113,7 @@
     <td class="p-0" slot="actions" let:project>
       {#if project.isDraft || !project.deletedDate}
         <Dropdown>
-          <button class="btn btn-ghost btn-square">
+          <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
             <span class="i-mdi-dots-vertical text-lg" />
           </button>
           <ul slot="content" class="menu">

@@ -1312,7 +1312,7 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("SIL.Harmony.Core.ServerCommit", b =>
                 {
-                    b.HasOne("LexCore.Entities.FlexProjectMetadata", null)
+                    b.HasOne("LexCore.Entities.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)

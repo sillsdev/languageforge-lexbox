@@ -39,20 +39,24 @@
 
     return () => {
       abortController.abort();
-    }
+    };
   });
-  window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
+  const serviceProvider = window.lexbox.ServiceProvider;
+  serviceProvider.setService(DotnetService.FwLiteConfig, {
     appVersion: 'lexbox-viewer',
     feedbackUrl: '',
     os: FwLitePlatform.Web,
-    useDevAssets: true,//has no effect, but is required
+    useDevAssets: true, //has no effect, but is required
+  });
+  serviceProvider.setService(DotnetService.JsEventListener, {
+    nextEventAsync: () => new Promise((_) => {}),
   });
   const { currentTheme } = getSettings();
 </script>
 
 <svelte:options customElement={{ tag: 'lexbox-svelte' }} />
 
-<svelte:element this="style">
+<svelte:element this={'style'}>
   {css}
 </svelte:element>
 

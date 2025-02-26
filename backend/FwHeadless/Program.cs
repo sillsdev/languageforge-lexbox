@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FwHeadless;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
@@ -15,6 +16,10 @@ using LexCore.Utils;
 using SIL.Harmony.Core;
 using SIL.Harmony;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using OpenTelemetry.Trace;
+using WebServiceDefaults;
+using AppVersion = LexCore.AppVersion;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +35,15 @@ builder.Services.AddLexData(
 );
 
 builder.Services.AddFwHeadless();
+builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalOpenTelemetry(telemetryBuilder =>
+{
+    telemetryBuilder.WithTracing(b => b.AddNpgsql()
+        .AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true)
+        .AddSource(FwHeadlessActivitySource.ActivitySourceName,
+            FwLiteProjectSyncActivitySource.ActivitySourceName,
+            FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
+            LcmCrdtActivitySource.ActivitySourceName));
+});
 
 var app = builder.Build();
 
@@ -58,75 +72,38 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/api/healthz");
+app.MapDefaultEndpoints();
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
+app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 
 app.Run();
 
-static async Task<Results<Ok<SyncResult>, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
-    ILogger<Program> logger,
-    IServiceProvider services,
-    SendReceiveService srService,
-    IOptions<FwHeadlessConfig> config,
-    FwDataFactory fwDataFactory,
-    CrdtProjectsService projectsService,
+static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
+    SyncHostedService syncHostedService,
     ProjectLookupService projectLookupService,
-    SyncJobStatusService syncStatusService,
-    CrdtFwdataProjectSyncService syncService,
+    ILogger<Program> logger,
     CrdtHttpSyncService crdtHttpSyncService,
     IHttpClientFactory httpClientFactory,
-    Guid projectId,
-    bool dryRun = false)
+    Guid projectId)
 {
-    logger.LogInformation("About to execute sync request for {projectId}", projectId);
-    if (dryRun)
-    {
-        logger.LogInformation("Dry run, not actually syncing");
-        return TypedResults.Ok(new SyncResult(0, 0));
-    }
-
-    syncStatusService.StartSyncing(projectId);
-    using var stopSyncing = Defer.Action(() => syncStatusService.StopSyncing(projectId));
-
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
     {
         logger.LogError("Project ID {projectId} not found", projectId);
         return TypedResults.NotFound();
     }
+
     logger.LogInformation("Project code is {projectCode}", projectCode);
     //if we can't sync with lexbox fail fast
     if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
     {
+        logger.LogError("Unable to authenticate with Lexbox");
         return TypedResults.Problem("Unable to authenticate with Lexbox");
     }
-
-    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{projectCode}-{projectId}");
-    if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
-
-    var crdtFile = Path.Join(projectFolder, "crdt.sqlite");
-
-    var fwDataProject = new FwDataProject("fw", projectFolder);
-    logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
-    logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
-
-    var fwdataApi = await SetupFwData(fwDataProject, srService, projectCode, logger, fwDataFactory);
-    using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
-    var crdtProject = await SetupCrdtProject(crdtFile, projectLookupService, projectId, projectsService, projectFolder, fwdataApi.ProjectId, config.Value.LexboxUrl);
-
-    var miniLcmApi = await services.OpenCrdtProject(crdtProject);
-    var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
-    await crdtSyncService.Sync();
-
-    var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
-    logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-
-    await crdtSyncService.Sync();
-    var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
-    logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
-    return TypedResults.Ok(result);
+    syncHostedService.QueueJob(projectId);
+    return TypedResults.Ok();
 }
 
 static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
@@ -137,23 +114,34 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     SyncJobStatusService syncJobStatusService,
     IServiceProvider services,
     LexBoxDbContext lexBoxDb,
+    SyncHostedService syncHostedService,
     Guid projectId)
 {
+    using var activity = FwHeadlessActivitySource.Value.StartActivity();
+    activity?.SetTag("app.project_id", projectId);
     var jobStatus = syncJobStatusService.SyncStatus(projectId);
     if (jobStatus == SyncJobStatus.Running) return TypedResults.Ok(ProjectSyncStatus.Syncing);
+    if (syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.Ok(ProjectSyncStatus.QueuedToSync);
     var project = projectContext.MaybeProject;
     if (project is null)
     {
         // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
-        if (await projectLookupService.ProjectExists(projectId)) return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
-        else return TypedResults.NotFound();
+        if (await projectLookupService.ProjectExists(projectId))
+        {
+            activity?.SetStatus(ActivityStatusCode.Unset, "Project never synced");
+            return TypedResults.Ok(ProjectSyncStatus.NeverSynced);
+        }
+        activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
+        return TypedResults.NotFound();
     }
     var lexboxProject = await lexBoxDb.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Id == projectId);
     if (lexboxProject is null)
     {
         // Can't sync if lexbox doesn't have this project
+        activity?.SetStatus(ActivityStatusCode.Error, "Lexbox project not found");
         return TypedResults.NotFound();
     }
+    activity?.SetTag("app.project_code", lexboxProject.Code);
     var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
     var fwDataProject = new FwDataProject("fw", projectFolder);
@@ -164,59 +152,40 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
 
-    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.DateTime);
+    var lastCrdtCommitDate = await lcmCrdtDbContext.Set<Commit>().MaxAsync(commit => commit.HybridDateTime.DateTime);
     var lastHgCommitDate = lexboxProject.LastCommit;
 
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
-static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
-    SendReceiveService srService,
-    string projectCode,
-    ILogger<Program> logger,
-    FwDataFactory fwDataFactory)
+static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
+    SyncHostedService syncHostedService,
+    SyncJobStatusService syncJobStatusService,
+    CancellationToken cancellationToken,
+    Guid projectId)
 {
-    if (File.Exists(fwDataProject.FilePath))
+    using var activity = FwHeadlessActivitySource.Value.StartActivity();
+    if (!syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.NotFound();
+    try
     {
-        var srResult = await srService.SendReceive(fwDataProject, projectCode);
-        logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
-    }
-    else
-    {
-        var srResult = await srService.Clone(fwDataProject, projectCode);
-        logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
-    }
-
-    var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
-    return fwdataApi;
-}
-
-static async Task<CrdtProject> SetupCrdtProject(string crdtFile,
-    ProjectLookupService projectLookupService,
-    Guid projectId,
-    CrdtProjectsService projectsService,
-    string projectFolder,
-    Guid fwProjectId,
-    string lexboxUrl)
-{
-    if (File.Exists(crdtFile))
-    {
-        return new CrdtProject("crdt", crdtFile);
-    }
-    else
-    {
-        if (await projectLookupService.IsCrdtProject(projectId))
+        var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
+        if (result is null)
         {
-            //todo determine what to do in this case, maybe we just download the project?
-            throw new InvalidOperationException("Project already exists, not sure why it's not on the server");
+            activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
+            return TypedResults.NotFound();
         }
-        return await projectsService.CreateProject(new("crdt",
-            SeedNewProjectData: false,
-            Id: projectId,
-            Path: projectFolder,
-            FwProjectId: fwProjectId,
-            Domain: new Uri(lexboxUrl)));
+
+        activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
+        return TypedResults.Ok(result);
     }
-
+    catch (OperationCanceledException)
+    {
+        activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
+        return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+    }
+    catch (Exception e)
+    {
+        activity?.AddException(e);
+        throw;
+    }
 }
-

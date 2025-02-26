@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using System.Diagnostics;
+using System.Text.Json;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
@@ -27,8 +28,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
+        using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         if (crdtApi is CrdtMiniLcmApi crdt && crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, $"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
             throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
         }
         var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project);
@@ -41,6 +44,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
                 new ProjectSnapshot(
                     await fwdataApi.GetAllEntries().ToArrayAsync(),
                     await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
+                    await fwdataApi.GetPublications().ToArrayAsync(),
                     await fwdataApi.GetSemanticDomains().ToArrayAsync(),
                     await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
                     await fwdataApi.GetWritingSystems()));
@@ -111,11 +115,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
     public record ProjectSnapshot(
         Entry[] Entries,
         PartOfSpeech[] PartsOfSpeech,
+        Publication[] Publications,
         SemanticDomain[] SemanticDomains,
         ComplexFormType[] ComplexFormTypes,
         WritingSystems WritingSystems)
     {
-        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], new WritingSystems());
+        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], [], new WritingSystems());
     }
 
     private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)

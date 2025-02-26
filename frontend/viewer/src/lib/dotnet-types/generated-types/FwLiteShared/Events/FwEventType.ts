@@ -5,7 +5,6 @@
 
 export enum FwEventType {
 	EntryChanged = "EntryChanged",
-	NewProject = "NewProject",
 	AuthenticationChanged = "AuthenticationChanged",
 	ProjectEvent = "ProjectEvent"
 }

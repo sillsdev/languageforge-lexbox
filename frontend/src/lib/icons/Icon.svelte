@@ -19,5 +19,5 @@
 </script>
 
 {#if icon}
-  <span class="{icon} {size} {color ?? ''} shrink-0 {spinReverse ? 'transform rotate-180' : ''}" class:pale style:transform class:animate-spin={spin} />
+  <span class="{icon} {size} {color ?? ''} shrink-0" class:rotate-180={spinReverse} class:pale style:transform class:animate-spin={spin}></span>
 {/if}

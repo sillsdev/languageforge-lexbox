@@ -8,6 +8,7 @@ import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {ISense} from './ISense';
 import type {IComplexFormComponent} from './IComplexFormComponent';
 import type {IComplexFormType} from './IComplexFormType';
+import type {IPublication} from './IPublication';
 
 export interface IEntry extends IObjectWithId
 {
@@ -21,5 +22,6 @@ export interface IEntry extends IObjectWithId
 	components: IComplexFormComponent[];
 	complexForms: IComplexFormComponent[];
 	complexFormTypes: IComplexFormType[];
+	publishIn: IPublication[];
 }
 /* eslint-enable */

@@ -26,7 +26,7 @@ type RegisterResponseErrors = {
 
 type ApiLexboxAudience = 'LexboxApi' | 'Unknown';
 
-export const allPossibleFlags = Object.values(FeatureFlag) as FeatureFlag[];
+export const allPossibleFlags = Object.values(FeatureFlag);
 
 type JwtTokenUser = {
   sub: string
@@ -215,7 +215,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
   }
 }
 
-export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag): boolean {
+export function hasFeatureFlag(user: LexAuthUser, flag: FeatureFlag | keyof typeof FeatureFlag): boolean {
   const searchTerm = flag.replaceAll('_', '').toLowerCase();
   return !!user.featureFlags.find(f => f.toLowerCase() === searchTerm);
 }
@@ -247,6 +247,7 @@ function stringToUuid(str: string): string {
 }
 
 export function logout(cookies?: Cookies): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   cookies && deleteCookie(AUTH_COOKIE_NAME, cookies);
   if (browser && window.location.pathname !== '/login') {
     redirect(307, '/login');

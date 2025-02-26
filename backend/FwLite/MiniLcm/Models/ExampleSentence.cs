@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public class ExampleSentence : IObjectWithId, IOrderable
+public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
 {
     public virtual Guid Id { get; set; }
     [MiniLcmInternal]
@@ -25,7 +25,7 @@ public class ExampleSentence : IObjectWithId, IOrderable
             DeletedAt = time;
     }
 
-    public IObjectWithId Copy()
+    public ExampleSentence Copy()
     {
         return new ExampleSentence()
         {

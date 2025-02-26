@@ -71,9 +71,9 @@
         </menu>
       </Popover>
       {#if first}
-        <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 1)}} variant="fill-light" color="info" icon={mdiArrowDownBold}></Button>
+        <Button on:click={() => count > 2 ? toggle() : dispatch('move', 1)} variant="fill-light" color="info" icon={mdiArrowDownBold}></Button>
       {:else if last}
-        <Button on:click={() => {count > 2 ? toggle() : dispatch('move', 0)}} variant="fill-light" color="info" icon={mdiArrowUpBold}></Button>
+        <Button on:click={() => count > 2 ? toggle() : dispatch('move', 0)} variant="fill-light" color="info" icon={mdiArrowUpBold}></Button>
       {:else}
         <Button on:click={toggle} variant="fill-light" color="info" icon={mdiArrowUpDownBold}></Button>
       {/if}

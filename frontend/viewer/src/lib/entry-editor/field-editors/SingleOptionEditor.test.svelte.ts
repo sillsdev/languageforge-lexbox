@@ -1,12 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import {readable} from 'svelte/store'
-import {beforeEach, describe, expect, expectTypeOf, test} from 'vitest'
+import {beforeAll, beforeEach, describe, expect, expectTypeOf, test} from 'vitest'
 
 import {render, screen} from '@testing-library/svelte'
 import userEvent, {type UserEvent} from '@testing-library/user-event'
-import {getState} from '../../utils/test-utils'
 import SingleOptionEditor from './SingleOptionEditor.svelte'
 import type {ComponentProps} from 'svelte'
+import {WritingSystemService} from '$lib/writing-system-service'
+import {views} from '$lib/views/view-data'
+import {writingSystems} from '$lib/demo-entry-data'
+import {polyfillMockAnimations} from '../../../test-utils'
 
 type Option = { id: string };
 
@@ -14,51 +16,50 @@ const value = '2';
 const options: Option[] = ['1', '2', '3', '4', '5'].map(id => ({id}));
 
 const context = new Map<string, unknown>([
-  ['writingSystems', readable({
-    analysis: [],
-    vernacular: [{
-      id: 'test',
-    }],
-  })],
-  ['currentView', readable({
-    fields: {'test': {show: true}},
-  })],
+  ['writingSystems', readable(new WritingSystemService(writingSystems))],
+  ['currentView', readable(views[0])],
 ]);
 
+
 const reusedProps: Pick<ComponentProps<SingleOptionEditor<string, {id: string}>>, 'id' | 'wsType' | 'name' | 'readonly'> = {
-  id: 'test',
+  id: 'partOfSpeechId',
   wsType: 'vernacular',
   name: 'test',
   readonly: false,
 };
 
+beforeAll(() => {
+  polyfillMockAnimations();
+});
+
 describe('SingleOptionEditor', () => {
 
   let user: UserEvent;
-  let component: SingleOptionEditor<string, {id: string}>;
+
+  const props = $state({
+    ...reusedProps,
+    valueIsId: true,
+    value,
+    options,
+    getOptionLabel: (option: {id: string}) => option.id,
+  } as const);
 
   beforeEach(() => {
     user = userEvent.setup();
-    ({component} = render(SingleOptionEditor<string, {id: string}>, {
+    render(SingleOptionEditor<string, {id: string}>, {
       context,
-      props: {
-        ...reusedProps,
-        valueIsId: true,
-        value,
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    }));
+      props,
+    });
   });
 
   test('can change selection', async () => {
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByRole('option', {name: '5'}));
-    expect(getState(component).value).toBe('5');
+    expect(props.value).toBe('5');
 
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByRole('option', {name: '3'}));
-    expect(getState(component).value).toBe('3');
+    expect(props.value).toBe('3');
   });
 });
 

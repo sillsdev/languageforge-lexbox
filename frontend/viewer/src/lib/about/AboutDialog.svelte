@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, Dialog } from 'svelte-ux';
-  import Markdown from 'svelte-exmarkdown';
-  import NewTabLinkRenderer from './NewTabLinkRenderer.svelte';
+  import NewTabLinkMarkdown from '../markdown/NewTabLinKMarkdown.svelte';
   import { onMount } from 'svelte';
 
   export let open: boolean;
@@ -17,7 +16,7 @@
 
 <Dialog bind:open>
   <div class="m-6 prose">
-    <Markdown md={text} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+    <NewTabLinkMarkdown md={text} />
   </div>
   <div class="flex-grow"></div>
   <div slot="actions">

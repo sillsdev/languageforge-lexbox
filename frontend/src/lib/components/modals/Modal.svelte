@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export const enum DialogResponse {
     Cancel = 'cancel',
     Submit = 'submit',
@@ -21,10 +21,12 @@
   let dialogResponse = writable<DialogResponse | null>(null);
   let open = writable(false);
   $: closing = $dialogResponse !== null && $open;
+  // eslint-disable-next-line svelte/valid-compile
   $: submitting = $dialogResponse === DialogResponse.Submit && $open;
   export let bottom = false;
   export let showCloseButton = true;
   export let closeOnClickOutside = true;
+  export let hideActions: boolean = false;
 
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
     $dialogResponse = null;
@@ -73,6 +75,7 @@
     $open = false;
   }
 
+  // eslint-disable-next-line svelte/valid-compile
   $: if ($dialogResponse === DialogResponse.Submit) {
     dispatch('submit');
   }
@@ -114,13 +117,13 @@
         </button>
       {/if}
       <slot {closing} {submitting} />
-      {#if $$slots.actions}
+      {#if $$slots.actions && !hideActions}
         <div class="modal-action">
           <div class="flex gap-4">
             <slot name="extraActions" />
           </div>
           <div class="flex gap-4">
-            <slot name="actions" {closing} {submitting} />
+            <slot name="actions" {closing} {submitting} {close} />
           </div>
         </div>
       {/if}

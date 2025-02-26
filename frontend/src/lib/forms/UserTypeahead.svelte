@@ -38,15 +38,16 @@
   }>();
 
   let selectedUser = writable<UserTypeaheadResult | null>(null);
-  $: dispatch('selectedUserChange', $selectedUser);
 
   function selectUser(user: UserTypeaheadResult): void {
     $selectedUser = user;
+    dispatch('selectedUserChange', $selectedUser);
     value = getInputValue(user);
   }
 
   $: if ($selectedUser && value !== getInputValue($selectedUser)) {
     $selectedUser = null;
+    dispatch('selectedUserChange', $selectedUser);
   }
 
   function formatResult(user: UserTypeaheadResult): string {

@@ -45,10 +45,8 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
   // NOTE: If more properties are needed, copy from loadAdminDashboardUsers to save time
 
   const users = result.then(users => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const count = users.data?.users?.totalCount ?? 0;
     if (0 < count && count <= limit) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return users.data?.users?.items ?? [];
     } else {
       return [];

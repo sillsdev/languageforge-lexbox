@@ -41,6 +41,7 @@ public static class AuthKernel
         services.AddScoped<LexAuthService>();
         services.AddSingleton<IAuthorizationHandler, AudienceRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
+        services.AddSingleton<IAuthorizationHandler, FeatureFlagRequirementHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.
@@ -54,6 +55,7 @@ public static class AuthKernel
             options.AddPolicy(AllowAnyAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
             //we still need this policy, without it the default policy is used which requires the default audience
             options.AddPolicy(RequireAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
+            options.AddPolicy(FeatureFlagRequiredAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
 
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()

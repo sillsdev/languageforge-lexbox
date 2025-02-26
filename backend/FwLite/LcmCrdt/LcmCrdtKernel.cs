@@ -119,6 +119,12 @@ public static class LcmCrdtKernel
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<List<ComplexFormType>>(json,
                             (JsonSerializerOptions?)null) ?? new());
+                builder
+                    .Property(e => e.PublishIn)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<Publication>>(json,
+                            (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>
             {
@@ -150,6 +156,7 @@ public static class LcmCrdtKernel
                                 Array.Empty<string>());
             })
             .Add<PartOfSpeech>()
+            .Add<Publication>()
             .Add<SemanticDomain>()
             .Add<ComplexFormType>()
             .Add<ComplexFormComponent>(builder =>
@@ -179,6 +186,7 @@ public static class LcmCrdtKernel
             .Add<JsonPatchChange<PartOfSpeech>>()
             .Add<JsonPatchChange<SemanticDomain>>()
             .Add<JsonPatchChange<ComplexFormType>>()
+            .Add<JsonPatchChange<Publication>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<ExampleSentence>>()
@@ -187,6 +195,7 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<SemanticDomain>>()
             .Add<DeleteChange<ComplexFormType>>()
             .Add<DeleteChange<ComplexFormComponent>>()
+            .Add<DeleteChange<Publication>>()
             .Add<SetPartOfSpeechChange>()
             .Add<AddSemanticDomainChange>()
             .Add<RemoveSemanticDomainChange>()
@@ -197,6 +206,7 @@ public static class LcmCrdtKernel
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
+            .Add<CreatePublicationChange>()
             .Add<AddComplexFormTypeChange>()
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()

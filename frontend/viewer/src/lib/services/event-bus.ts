@@ -16,7 +16,6 @@ export class EventBus {
 
   private async eventLoop(jsEventListener: IJsEventListener) {
     let event: IFwEvent;
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       event = await jsEventListener.nextEventAsync();
       if (!event) return;
@@ -41,6 +40,7 @@ export class EventBus {
   }
 
   public onEntryUpdated(projectName: string, callback: (entry: IEntry) => void): () => void {
+    // eslint-disable-next-line func-style
     const onEventCallback = (event: IFwEvent) => {
       const projectEvent = event as IProjectEvent;
       if (projectEvent.project.name !== projectName) return;

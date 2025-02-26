@@ -77,7 +77,7 @@ jobs:
           kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (cert-manager, webhook)' -n cert-manager
           kubectl apply -k ./deployment/gha
           kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
-          kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+          kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db, fw-headless)' -n languagedepot
       - name: forward ingress
         run: |
           kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
@@ -97,7 +97,6 @@ jobs:
 
       ##playwright tests
       - name: Setup and run playwright tests
-        if: ${{ !cancelled() }}
         uses: ./.github/actions/playwright-tests
         with:
           lexbox-hostname: 'localhost:6579'
@@ -108,7 +107,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p k8s-logs
-          for app in lexbox ui hg db; do
+          for app in lexbox ui hg db fw-headless; do
             kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt
             kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
           done

@@ -24,6 +24,7 @@ export function defaultEntry(): IEntry {
     complexForms: [],
     complexFormTypes: [],
     components: [],
+    publishIn: [],
   };
 }
 

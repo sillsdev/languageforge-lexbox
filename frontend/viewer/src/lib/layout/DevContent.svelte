@@ -7,6 +7,7 @@
 
   globalThis.enableDevMode = (enable = true) => {
     isDev.set(enable);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     enable ? localStorage.setItem('devMode', 'true') : localStorage.removeItem('devMode');
   };
   isDev.set(localStorage.getItem('devMode') === 'true');

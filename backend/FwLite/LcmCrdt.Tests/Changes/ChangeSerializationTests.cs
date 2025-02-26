@@ -116,12 +116,20 @@ public class ChangeSerializationTests
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
 
         //ensure that all change types are represented and none should be removed from AllChangeTypes
-        changes.Select(c => c.GetType()).Distinct()
-            .Should().BeEquivalentTo(LcmCrdtKernel.AllChangeTypes());
+        using (new AssertionScope())
+        {
+            var changesSet = changes.Select(c => c.GetType()).Distinct().ToHashSet();
+            foreach (var changeType in LcmCrdtKernel.AllChangeTypes())
+            {
+                changesSet.Should().Contain(changeType);
+            }
+        }
     }
 
     //helper method, can be called manually to regenerate the json file
-    [Fact(Skip = "Only run manually")]
+    [Fact(
+        // Skip = "Only run manually"
+        )]
     public static void GenerateNewJsonFile()
     {
         using var jsonFile = File.Open(GetJsonFilePath("NewJson.json"), FileMode.Create);

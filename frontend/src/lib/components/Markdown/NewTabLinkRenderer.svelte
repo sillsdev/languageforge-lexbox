@@ -10,7 +10,7 @@
 
 <style>
   .external-link-icon {
-    margin-bottom: -0.7%;
+    margin-bottom: -0.4%;
     font-size: 0.9em;
   }
 </style>

@@ -17,6 +17,7 @@ import type {
 } from 'viewer/mini-lcm-api';
 
 import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
+import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   for (const entry of entries) {
@@ -64,7 +65,6 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
   private toQueryParams(options: IQueryOptions | undefined): string {
 
     if (!options) return '';
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
     const asc = options.order.ascending ?? true;
     const params = new URLSearchParams({
       SortField: options.order.field,
@@ -77,7 +77,6 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
       params.set('ExemplarValue', options.exemplar.value);
       params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
     }
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
   }
 
@@ -229,6 +228,11 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
   updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence): Promise<IExampleSentence> {
     throw new Error('Method not implemented.');
   }
+
+  getPublications(): Promise<IPublication[]> {
+    throw new Error('Method not implemented.');
+  }
+
 
   dispose(): Promise<void> {
     throw new Error('Method not implemented.');

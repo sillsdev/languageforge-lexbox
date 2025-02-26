@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using FwDataMiniLcmBridge;
 using Humanizer;
 using LcmCrdt;
@@ -46,12 +46,19 @@ public class MiniLcmImport(
 
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
+        using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         await ImportWritingSystems(importTo, importFrom);
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
         {
             await importTo.CreatePartOfSpeech(partOfSpeech);
             logger.LogInformation("Imported part of speech {Id}", partOfSpeech.Id);
+        }
+
+        await foreach (var publication in importFrom.GetPublications())
+        {
+            await importTo.CreatePublication(publication);
+            logger.LogInformation("Imported part of speech {Id}", publication.Id);
         }
 
         await foreach (var complexFormType in importFrom.GetComplexFormTypes())
@@ -86,6 +93,7 @@ public class MiniLcmImport(
             }
         }
 
+        activity?.SetTag("app.import.entries", entryCount);
         logger.LogInformation("Imported {Count} entries", entryCount);
     }
 

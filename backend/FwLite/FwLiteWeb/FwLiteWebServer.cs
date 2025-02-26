@@ -32,12 +32,17 @@ public static class FwLiteWebServer
 
         builder.ConfigureDev<AuthConfig>(config =>
             config.LexboxServers = [
+                ..config.LexboxServers,
+                new(new("https://lexbox.org"), "Lexbox"),
+                new (new("https://staging.languagedepot.org"), "Lexbox Staging"),
                 new (new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
                 new (new("https://localhost:3050"), "Lexbox Local"),
-                new (new("https://staging.languagedepot.org"), "Lexbox Staging")
             ]);
         builder.ConfigureProd<AuthConfig>(config =>
-            config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
+            config.LexboxServers = [
+                ..config.LexboxServers,
+                new(new("https://lexbox.org"), "Lexbox")
+            ]);
         builder.Services.Configure<FwLiteConfig>(config =>
         {
             config.AppVersion = VersionHelper.DisplayVersion(typeof(FwLiteWebServer).Assembly);

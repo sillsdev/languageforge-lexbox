@@ -7,6 +7,19 @@ namespace LcmCrdt.Tests;
 public class OpenProjectTests
 {
     [Fact]
+    public async Task CanCreateExampleProject()
+    {
+        var sqliteConnectionString = "ExampleProject.sqlite";
+        if (File.Exists(sqliteConnectionString)) File.Delete(sqliteConnectionString);
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+        builder.Services.AddTestLcmCrdtClient();
+        using var host = builder.Build();
+        var services = host.Services;
+        var asyncScope = services.CreateAsyncScope();
+        var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
+        await crdtProjectsService.CreateExampleProject("ExampleProject");
+    }
+    [Fact]
     public async Task OpeningAProjectWorks()
     {
         var sqliteConnectionString = "OpeningAProjectWorks.sqlite";

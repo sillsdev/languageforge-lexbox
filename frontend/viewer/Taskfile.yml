@@ -14,8 +14,8 @@ tasks:
     aliases: [ sc, svelte-check ]
     deps: [ install ]
     cmds:
-      - pnpm run check
-      - pnpm run lint
+      - pnpm run --filter viewer check
+      - pnpm run --filter viewer lint
   build-app:
     deps: [ install ]
     cmd: pnpm run build-app

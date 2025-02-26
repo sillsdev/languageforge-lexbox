@@ -69,6 +69,8 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
 
     public async ValueTask<ProjectData> SetupProjectContext(CrdtProject project)
     {
+        using var activity = LcmCrdtActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_code", project.Name);
         if (_project != null && project != _project) throw new InvalidOperationException("Can't setup project context for a different project");
         _project = project;
         return await RefreshProjectData();

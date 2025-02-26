@@ -1,7 +1,6 @@
-<script lang="ts">
+<script lang="ts"
+  generics="TValue extends string | object | undefined, TOption extends object | TValue">
   import {makeHasHadValueTracker} from '$lib/utils';
-
-  /* eslint-disable @typescript-eslint/no-duplicate-type-constituents, @typescript-eslint/no-redundant-type-constituents */
   import { createEventDispatcher } from 'svelte';
   import MapBind from '../../utils/MapBind.svelte';
 
@@ -10,10 +9,8 @@
   import { useWritingSystemService } from '../../writing-system-service';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
-
-  type TValue = $$Generic;
-  type TOption = $$Generic;
-  type Id = TValue extends undefined ? string | undefined : string;
+  
+  type Id = string | undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = {
@@ -71,7 +68,7 @@
 
   function defaultGetValueId(value: TValue): Id {
     if (value === undefined || value === null) return undefined as Id;
-    if (typeof value === 'string') return value as Id;
+    if (typeof value === 'string') return value;
     if (typeof value === 'object' && !!value && 'id' in value) return value.id as Id;
     throw new Error('Default getValueId not implemented for ' + typeof value);
   }

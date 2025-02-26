@@ -20,7 +20,7 @@ export class CreateProjectPage extends BasePage {
 
   async fillForm(values: Pick<ProjectConfig, 'code'> & Partial<ProjectConfig>): Promise<ProjectConfig> {
     let code = values.code;
-    const { customCode = false, name = code, type = 'FLEx', purpose = 'Software Developer', description = name, organization = '' } = values;
+    const { customCode = false, name = code, type = 'FieldWorks', purpose = 'Software Developer', description = name, organization = '' } = values;
     await this.page.getByLabel('Name').fill(name);
     await this.page.getByLabel('Description').fill(description ?? name);
     if (organization) await this.page.getByLabel('Organization').selectOption({ label: organization })

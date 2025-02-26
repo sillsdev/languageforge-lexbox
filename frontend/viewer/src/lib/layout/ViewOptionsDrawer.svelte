@@ -12,6 +12,8 @@
   export let viewSettings: ViewSettings;
   export let features: LexboxFeatures;
   export let open = false;
+
+  const isWebComponent = !!document.querySelector('lexbox-svelte')?.shadowRoot;
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
@@ -40,28 +42,26 @@
       <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
     </div>
 
-    <div class="h-10">
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label class="flex gap-2 items-center text-sm">
-        <ThemeSwitch /> Dark mode
-      </label>
-    </div>
+    {#if !isWebComponent}
+      <div class="h-10">
+        <label class="flex gap-2 items-center text-sm">
+          <ThemeSwitch /> Dark mode
+        </label>
+      </div>
+    {/if}
 
     <div class="grow"></div>
     <DevContent>
       <div class="flex flex-col gap-4">
         Debug
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={features.write}/>
           Write
         </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={features.history}/>
           History
         </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={$generateExternalChanges}
                   color="warning"/>

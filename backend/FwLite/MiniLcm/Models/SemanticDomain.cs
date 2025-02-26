@@ -1,6 +1,6 @@
 namespace MiniLcm.Models;
 
-public class SemanticDomain : IObjectWithId
+public class SemanticDomain : IObjectWithId<SemanticDomain>
 {
     public virtual Guid Id { get; set; }
     public virtual MultiString Name { get; set; } = new();
@@ -17,13 +17,13 @@ public class SemanticDomain : IObjectWithId
     {
     }
 
-    public IObjectWithId Copy()
+    public SemanticDomain Copy()
     {
         return new SemanticDomain
         {
             Id = Id,
             Code = Code,
-            Name = Name,
+            Name = Name.Copy(),
             DeletedAt = DeletedAt,
             Predefined = Predefined
         };
