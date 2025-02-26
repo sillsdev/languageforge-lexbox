@@ -28,7 +28,7 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-      <Content Include="README-sdk.md" CopyToPublishDirectory="PreserveNewest" />
+      <Content Include="*.md" CopyToPublishDirectory="PreserveNewest" />
 
       <None Include="$(Pkgicu_net)\contentFiles\any\any\icu.net.dll.config">
           <Link>icu.net.dll.config</Link>
