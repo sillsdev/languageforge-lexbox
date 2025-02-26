@@ -291,6 +291,8 @@ Are you ready to try FieldWorks Lite?",
 [lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org?subject={subject}), \
 so we can get this fixed!",
       "email_subject": "FieldWorks Lite setup error ({projectCode})",
+      "sync_failed": "Sync failed, please contact support",
+      "sync_trigger_failed": "Failed to sync: {statusText} ({status})",
     },
   },
   "org_page": {

@@ -37,7 +37,10 @@
         done = true;
         return;
       }
-      const error = `Failed to sync: ${response.statusText} (${response.status})`;
+      const error = $t('project.crdt.sync_trigger_failed', {
+        status: response.status,
+        statusText: response.statusText,
+      });
       notifyWarning(error);
       console.error(error, await response.text());
       return error;
@@ -53,7 +56,7 @@
       try {
         const response = await fetch(`/api/fw-lite/sync/await-sync-finished/${project.id}`, {signal: AbortSignal.timeout(30_000)});
         if (response.status === 500) {
-          return 'Sync failed, please contact support';
+          return $t('project.crdt.sync_failed');
         }
         if (response.status === 200) {
           const result = await response.json() as SyncResult;
