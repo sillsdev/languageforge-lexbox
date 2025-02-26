@@ -1,7 +1,8 @@
 import {vi} from 'vitest';
 
 export function polyfillMockAnimations() {
-  Element.prototype.animate = vi.fn().mockImplementation(() => ({
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  Element.prototype.animate ??= vi.fn().mockImplementation(() => ({
     finished: Promise.resolve(),
     cancel() {},
   }));
