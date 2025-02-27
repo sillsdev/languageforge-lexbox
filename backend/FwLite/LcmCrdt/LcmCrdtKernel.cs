@@ -123,7 +123,7 @@ public static class LcmCrdtKernel
                     .Property(e => e.PublishIn)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<Publication>>(json,
+                        json => string.IsNullOrWhiteSpace(json) ? new() : JsonSerializer.Deserialize<List<Publication>>(json,
                             (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>
