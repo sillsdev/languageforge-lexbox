@@ -135,7 +135,7 @@ export const _entries: IEntry[] = [
         'exampleSentences': []
       }
     ], 'note': {},
-    complexForms: [], complexFormTypes: [], components: []
+    complexForms: [], complexFormTypes: [], components: [], publishIn: []
   },
   {
     'id': '34779c06-5a73-4fe9-8325-b110b23f9294',
@@ -196,7 +196,8 @@ export const _entries: IEntry[] = [
     'note': {},
     complexForms: [],
     complexFormTypes: [],
-    components: []
+    components: [],
+    publishIn: []
   },
 ];
 

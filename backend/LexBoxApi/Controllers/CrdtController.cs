@@ -2,6 +2,7 @@
 using SIL.Harmony.Core;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.GraphQL;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
 using LexCore;
@@ -28,7 +29,7 @@ public class CrdtController(
     IPermissionService permissionService,
     LoggedInContext loggedInContext,
     ProjectService projectService,
-    FwHeadlessClient fwHeadlessClient) : ControllerBase
+    LexAuthService lexAuthService) : ControllerBase
 {
     private DbSet<ServerCommit> ServerCommits => dbContext.Set<ServerCommit>();
 
@@ -76,10 +77,15 @@ public class CrdtController(
     [HttpGet("listProjects")]
     public async Task<ActionResult<FwLiteProject[]>> ListProjects()
     {
-        return await projectService.UserProjects(loggedInContext.User.Id)
+        var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
             .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, ServerCommits.Any(c => c.ProjectId == p.Id)))
             .ToArrayAsync();
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()))
+        {
+            await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
+        }
+        return myProjects;
     }
 
     [HttpGet("lookupProjectId")]

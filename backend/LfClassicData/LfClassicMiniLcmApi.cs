@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;
@@ -90,6 +90,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         }
     }
 
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        return AsyncEnumerable.Empty<Publication>();
+    }
+
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         if (_partsOfSpeechCacheByGuid is null)
@@ -97,6 +102,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             _partsOfSpeechCacheByGuid = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Id);
         }
         return _partsOfSpeechCacheByGuid.GetValueOrDefault(id);
+    }
+
+    public Task<Publication?> GetPublication(Guid id)
+    {
+        return Task.FromResult<Publication?>(null);
     }
 
     public async ValueTask<PartOfSpeech?> GetPartOfSpeech(string key)

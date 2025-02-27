@@ -19,6 +19,7 @@ public static class LexAuthConstants
     public const string UpdatedDateClaimType = "date";
     public const string LocaleClaimType = "loc";
     public const string ScopeClaimType = "scope";
+    public const string JwtUpdatedHeader = "lexbox-jwt-updated";
 }
 
 /// <summary>

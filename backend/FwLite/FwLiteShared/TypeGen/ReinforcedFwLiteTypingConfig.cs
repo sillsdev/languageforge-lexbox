@@ -13,6 +13,7 @@ using Reinforced.Typings.Ast.Dependency;
 using Reinforced.Typings.Ast.TypeNames;
 using Reinforced.Typings.Fluent;
 using Reinforced.Typings.Visitors.TypeScript;
+using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 
@@ -56,16 +57,11 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsThirdParty<MultiString>().WithName("IMultiString").Imports([
             new() { From = "$lib/dotnet-types/i-multi-string", Target = "type {IMultiString}" }
         ]);
+        var config = new CrdtConfig();
+        LcmCrdtKernel.ConfigureCrdt(config);
         builder.ExportAsInterfaces([
-                typeof(Entry),
-                typeof(Sense),
-                typeof(ExampleSentence),
-                typeof(WritingSystem),
+                ..config.ObjectTypes,
                 typeof(WritingSystems),
-                typeof(PartOfSpeech),
-                typeof(SemanticDomain),
-                typeof(ComplexFormType),
-                typeof(ComplexFormComponent),
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
                 typeof(IObjectWithId)
             ],

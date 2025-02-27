@@ -29,6 +29,7 @@ public static class AuthKernel
     public const string DefaultScheme = "JwtOrCookie";
     public const string JwtOverBasicAuthUsername = "bearer";
     public const string AuthCookieName = LexAuthConstants.AuthCookieName;
+    public const string OAuthAuthenticationType = "OAuth";
 
     public static void AddLexBoxAuth(IServiceCollection services,
         IConfigurationRoot configuration,
@@ -259,7 +260,11 @@ public static class AuthKernel
                 options.SetTokenEndpointUris("api/oauth/token");
                 options.SetIntrospectionEndpointUris("api/oauth/introspect");
                 options.SetUserinfoEndpointUris("api/oauth/userinfo");
-                options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
+                options.Configure(serverOptions =>
+                {
+                    serverOptions.TokenValidationParameters.AuthenticationType = OAuthAuthenticationType;
+                    serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor);
+                });
 
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
                 options.SetRefreshTokenLifetime(TimeSpan.FromDays(14));
@@ -301,6 +306,8 @@ public static class AuthKernel
             })
             .AddValidation(options =>
             {
+                options.Configure(validationOptions =>
+                    validationOptions.TokenValidationParameters.AuthenticationType = OAuthAuthenticationType);
                 options.UseLocalServer();
                 options.UseAspNetCore();
                 options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());

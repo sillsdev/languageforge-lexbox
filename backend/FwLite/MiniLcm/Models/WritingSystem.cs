@@ -37,7 +37,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>
             Name = Name,
             Abbreviation = Abbreviation,
             Font = Font,
-            Exemplars = Exemplars,
+            Exemplars = [..Exemplars],
             DeletedAt = DeletedAt,
             Type = Type,
             Order = Order

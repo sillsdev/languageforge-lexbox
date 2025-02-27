@@ -20,10 +20,11 @@ export class BasePage {
 
   get urlPattern(): RegExp | undefined {
     if (!this.url) return undefined;
-    return new RegExp(regexEscape(this.url) + '($|\\?|#)');
+    if (this.url instanceof RegExp) return this.url;
+    return new RegExp(regexEscape(this.url) + '($|\\?|#|\\/)');
   }
 
-  constructor(readonly page: Page, locator: Locator | Locator[], protected url?: string) {
+  constructor(readonly page: Page, locator: Locator | Locator[], protected url?: string | RegExp) {
     if (Array.isArray(locator)) {
       this.locators = locator;
     } else {
@@ -63,6 +64,11 @@ export class BasePage {
     await BasePage.waitForHydration(this.page); // wait for, e.g., onclick handlers to be attached
     await Promise.all(this.locators.map(l => expect(l).toBeVisible({ timeout: this.locatorTimeout })));
     return this;
+  }
+
+  async expectNotOnPage(): Promise<void> {
+    if (!this.urlPattern) throw new Error(`Can't check for not on page, because it doesn't have a configured url.`);
+    await expect(this.page).not.toHaveURL(this.urlPattern);
   }
 
   static async waitForHydration(page: Page): Promise<void> {

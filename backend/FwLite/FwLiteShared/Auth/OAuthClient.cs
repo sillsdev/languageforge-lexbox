@@ -158,9 +158,9 @@ public class OAuthClient
         _lexboxProjectService.InvalidateProjectsCache(_lexboxServer);
     }
 
-    private async ValueTask<AuthenticationResult?> GetAuth()
+    private async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)
     {
-        if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn)
+        if (DateTimeOffset.UtcNow.AddMinutes(5) < _authResult?.ExpiresOn && !forceRefresh)
         {
             return _authResult;
         }
@@ -171,7 +171,9 @@ public class OAuthClient
         if (account is null) return null;
         try
         {
-            _authResult = await _application.AcquireTokenSilent(DefaultScopes, account).ExecuteAsync();
+            _authResult = await _application.AcquireTokenSilent(DefaultScopes, account)
+                .WithForceRefresh(forceRefresh)
+                .ExecuteAsync();
         }
         catch (MsalUiRequiredException)
         {
@@ -220,7 +222,7 @@ public class OAuthClient
         return auth?.AccessToken;
     }
 
-    /// <summary>]
+    /// <summary>
     /// will return null if no auth token is available
     /// </summary>
     public async ValueTask<HttpClient?> CreateHttpClient()
@@ -233,5 +235,18 @@ public class OAuthClient
         client.BaseAddress = _lexboxServer.Authority;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
         return client;
+    }
+
+    public async Task RefreshToken()
+    {
+        var auth = await GetAuth(true);
+        if (auth is null)
+        {
+            _logger.LogWarning("Unable to refresh token");
+        }
+        else
+        {
+            _logger.LogInformation("Refreshed token");
+        }
     }
 }

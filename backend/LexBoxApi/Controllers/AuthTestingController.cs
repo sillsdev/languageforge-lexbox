@@ -9,7 +9,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-public class AuthTestingController : ControllerBase
+public class AuthTestingController(LoggedInContext loggedInContext) : ControllerBase
 {
     [HttpGet("requires-auth")]
     public OkObjectResult RequiresAuth()
@@ -50,5 +50,11 @@ public class AuthTestingController : ControllerBase
     public ActionResult RequiresFwBetaFeatureFlag()
     {
         return Ok();
+    }
+
+    [HttpGet("token-project-count")]
+    public ActionResult<int> TokenProjectCount()
+    {
+        return loggedInContext.User.Projects.Length;
     }
 }
