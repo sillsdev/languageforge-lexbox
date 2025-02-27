@@ -337,7 +337,7 @@
           <CrdtSyncButton {project} hasHarmonyCommits={project.hasHarmonyCommits} />
         </FeatureFlagContent>
       {/if}
-      {#if project.type === ProjectType.FlEx && $isDev}
+      {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else if canAskToJoinProject}
