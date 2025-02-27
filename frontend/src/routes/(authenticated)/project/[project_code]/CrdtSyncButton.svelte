@@ -11,13 +11,14 @@
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
   export let project: Project;
+  export let isEmpty: boolean;
   type SyncResult = {crdtChanges: number, fwdataChanges: number};
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
   let syncing = false;
   let done = false;
-  $: state = done ? 'done' : syncing ? 'syncing' : 'idle';
+  $: state = isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle';
   let error: string | undefined = undefined;
 
   async function triggerSync(): Promise<string | undefined> {
@@ -129,6 +130,10 @@
       <div class="prose max-w-none underline-links">
         <NewTabLinkMarkdown md={$t('project.crdt.to_start_using')} />
       </div>
+    {:else if state === 'empty'}
+      <div class="prose max-w-none">
+        {$t('project.crdt.empty_project')}
+      </div>
     {:else}
       <div class="prose max-w-none underline-links">
         <NewTabLinkMarkdown md={$t('project.crdt.try_info')} />
@@ -147,6 +152,10 @@
         </Button>
         <Button on:click={close}>
           {$t('project.crdt.cancel')}
+        </Button>
+      {:else if state === 'empty'}
+        <Button on:click={close}>
+          {$t('common.close')}
         </Button>
       {:else if state === 'done'}
         <Button variant="btn-primary" on:click={close}>

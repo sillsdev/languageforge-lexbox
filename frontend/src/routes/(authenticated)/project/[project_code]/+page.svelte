@@ -334,7 +334,7 @@
       {/if}
       {#if project.type === ProjectType.FlEx}
         <FeatureFlagContent flag="FwLiteBeta">
-          <CrdtSyncButton {project} />
+          <CrdtSyncButton {project} {isEmpty} />
         </FeatureFlagContent>
       {/if}
       {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
