@@ -110,65 +110,66 @@
       {$t('project.crdt.try_fw_lite')}
     </span>
   </Button>
-  <Modal bind:this={modal} showCloseButton={false} hideActions={state === 'syncing'} closeOnClickOutside={false}>
-    <h2 class="text-xl mb-6">
-      {#if state === 'syncing'}
-        {$t('project.crdt.making_available')}
-      {:else if state === 'done'}
-        {$t('project.crdt.now_available')}
-      {:else}
-        {$t('project.crdt.try_fw_lite')}
-      {/if}
-    </h2>
-    {#if state === 'syncing'}
-      <p class="text-center my-6">
-        <span class="loading loading-lg"></span>
-      </p>
-      <div class="prose max-w-none underline-links">
-        <NewTabLinkMarkdown md={$t('project.crdt.while_you_wait')} />
-      </div>
-    {:else if state === 'done'}
-      <p class="text-center my-6">
-        <span
-          class="i-mdi-check-circle-outline text-7xl text-center text-success"
-          transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
-        ></span>
-      </p>
-      <div class="prose max-w-none underline-links">
-        <NewTabLinkMarkdown md={$t('project.crdt.to_start_using')} />
-      </div>
-    {:else if state === 'empty'}
-      <div class="prose max-w-none">
-        {$t('project.crdt.empty_project')}
-      </div>
-    {:else}
-      <div class="prose max-w-none underline-links">
-        <NewTabLinkMarkdown md={$t('project.crdt.try_info')} />
-        {#if error}
-          <NewTabLinkMarkdown
-            md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code }))})}`}
-          />
-        {/if}
-      </div>
-      <FormError {error} right/>
-    {/if}
-    <svelte:fragment slot="actions" let:close>
-      {#if state === 'idle'}
-        <Button variant="btn-primary" on:click={onSubmit}>
-          {$t('project.crdt.submit')}
-        </Button>
-        <Button on:click={close}>
-          {$t('project.crdt.cancel')}
-        </Button>
-      {:else if state === 'empty'}
-        <Button on:click={close}>
-          {$t('common.close')}
-        </Button>
-      {:else if state === 'done'}
-        <Button variant="btn-primary" on:click={close}>
-          {$t('project.crdt.finish')}
-        </Button>
-      {/if}
-    </svelte:fragment>
-  </Modal>
 {/if}
+
+<Modal bind:this={modal} showCloseButton={false} hideActions={state === 'syncing'} closeOnClickOutside={false}>
+  <h2 class="text-xl mb-6">
+    {#if state === 'syncing'}
+      {$t('project.crdt.making_available')}
+    {:else if state === 'done'}
+      {$t('project.crdt.now_available')}
+    {:else}
+      {$t('project.crdt.try_fw_lite')}
+    {/if}
+  </h2>
+  {#if state === 'syncing'}
+    <p class="text-center my-6">
+      <span class="loading loading-lg"></span>
+    </p>
+    <div class="prose max-w-none underline-links">
+      <NewTabLinkMarkdown md={$t('project.crdt.while_you_wait')} />
+    </div>
+  {:else if state === 'done'}
+    <p class="text-center my-6">
+      <span
+        class="i-mdi-check-circle-outline text-7xl text-center text-success"
+        transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
+      ></span>
+    </p>
+    <div class="prose max-w-none underline-links">
+      <NewTabLinkMarkdown md={$t('project.crdt.to_start_using')} />
+    </div>
+  {:else if state === 'empty'}
+    <div class="prose max-w-none">
+      {$t('project.crdt.empty_project')}
+    </div>
+  {:else}
+    <div class="prose max-w-none underline-links">
+      <NewTabLinkMarkdown md={$t('project.crdt.try_info')} />
+      {#if error}
+        <NewTabLinkMarkdown
+          md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code }))})}`}
+        />
+      {/if}
+    </div>
+    <FormError {error} right/>
+  {/if}
+  <svelte:fragment slot="actions" let:close>
+    {#if state === 'idle'}
+      <Button variant="btn-primary" on:click={onSubmit}>
+        {$t('project.crdt.submit')}
+      </Button>
+      <Button on:click={close}>
+        {$t('project.crdt.cancel')}
+      </Button>
+    {:else if state === 'empty'}
+      <Button on:click={close}>
+        {$t('common.close')}
+      </Button>
+    {:else if state === 'done'}
+      <Button variant="btn-primary" on:click={close}>
+        {$t('project.crdt.finish')}
+      </Button>
+    {/if}
+  </svelte:fragment>
+</Modal>
