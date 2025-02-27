@@ -1,5 +1,5 @@
-import type { Options } from 'vite-plugin-graphql-codegen';
-import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript';
+import type {Options} from 'vite-plugin-graphql-codegen';
+import type {TypeScriptPluginConfig} from '@graphql-codegen/typescript';
 
 //https://the-guild.dev/graphql/codegen/docs/guides/svelte
 //config passed into vite instead of via codegen file, works the same though
@@ -29,7 +29,10 @@ const clientGeneration: Record<string, ConfiguredOutput> = {
   './src/lib/gql/generated/': {
     preset: 'client',
     config: generationConfig,
-    plugins: []
+    plugins: [],
+    presetConfig: {
+      fragmentMasking: false,
+    }
   }
 };
 
@@ -41,7 +44,7 @@ export const gqlOptions: Options = {
     ignoreNoDocuments: true, // for better experience with the watcher
     // verbose: true,
     generates: {
-      ...clientGeneration
+      ...clientGeneration,
     }
   }
 };
