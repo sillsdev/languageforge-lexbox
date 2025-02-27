@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {tryGetErrorMessage} from '$lib/error/utils';
+  import {getErrorMessage} from '$lib/error/utils';
   import {Button, FormError} from '$lib/forms';
   import t from '$lib/i18n';
   import {Icon} from '$lib/icons';
@@ -45,7 +45,7 @@
       console.error(error, await response.text());
       return error;
     } catch (error) {
-      return tryGetErrorMessage(error);
+      return getErrorMessage(error);
     } finally {
       syncing = false;
     }
@@ -66,7 +66,7 @@
         if (error instanceof DOMException && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
           continue;
         }
-        return tryGetErrorMessage(error) ?? 'Unknown error';
+        return getErrorMessage(error);
       }
 
     }
