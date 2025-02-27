@@ -9,6 +9,7 @@
   import {_refreshProjectRepoInfo, type Project} from './+page';
   import {Modal} from '$lib/components/modals';
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import {Duration} from '$lib/util/time';
 
   export let project: Project;
   export let isEmpty: boolean;
@@ -34,7 +35,13 @@
           return syncResults;
         }
         await _refreshProjectRepoInfo(project.code);
-        notifySuccess($t('project.crdt.sync_result', { fwdataChanges: syncResults.fwdataChanges, crdtChanges: syncResults.crdtChanges }));
+        notifySuccess(
+          $t('project.crdt.sync_result', {
+            fwdataChanges: syncResults.fwdataChanges,
+            crdtChanges: syncResults.crdtChanges,
+          }),
+          Duration.Persistent,
+        );
         done = true;
         return;
       }
@@ -42,7 +49,7 @@
         status: response.status,
         statusText: response.statusText,
       });
-      notifyWarning(error);
+      notifyWarning(error, Duration.Persistent);
       console.error(error, await response.text());
       return error;
     } catch (error) {
@@ -79,7 +86,7 @@
 
   async function syncProject(): Promise<void> {
     let error = await triggerSync();
-    if (error) notifyWarning(error);
+    if (error) notifyWarning(error, Duration.Persistent);
   }
 
   async function useInFwLite(): Promise<void> {
