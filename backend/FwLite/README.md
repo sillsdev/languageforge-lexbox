@@ -44,12 +44,14 @@ graph
 Reference [CreateComplexFormType](./LcmCrdt/Changes/CreateComplexFormType.cs) for a simple example of creating a new object.
 Reference [AddComplexFormTypeChange](./LcmCrdt/Changes/Entries/AddComplexFormTypeChange.cs) for an example of editing an existing object.
 2. Register that change class in [LcmCrdtKernel.ConfigureCrdt](./LcmCrdt/LcmCrdtKernel.cs)
-3. Add the change to [UseChangesTests.GetAllChanges](./LcmCrdt.Tests/Changes/UseChangesTests.cs)
+3. Add an instance of the change to [UseChangesTests.GetAllChanges](./LcmCrdt.Tests/Changes/UseChangesTests.cs) to demonstrate that it works.
 
 Things to watch out for
 
-#### any constructor parameter names must match the field/property they are assigned to
-Example: this will not work as the json serializer must match the property name with the argument name
+#### Constructor parameter names must match the field/property they are assigned to
+The JSON deserializer maps PascalCase property names to camelCase constructor parameter names. So, they need to be the same.
+
+For example, this will not work:
 ```c#
 public class MyChange
 {
@@ -62,13 +64,13 @@ public class MyChange
 
 ```
 In this case, `string userName` should be changed to `string name` to match the property.
-One place this is important is that all changes extend either `CreateChange` or `EditChange`, which takes an `Guid entityId` argument in it's primary constructor.
-The property that is assigned to is also called `entityId` and so the constructor argument in your change must also be `entityId`.
+One place this is important is that all changes extend either `CreateChange` or `EditChange`, which both take a `Guid entityId` argument in their primary constructors.
+The property that is assigned to is also called `EntityId`, so the constructor argument in **your** change must also be called `entityId`.
 There is a test to guard from mistakes which would prevent deserialization of changes in [ChangeSerializationTests.CanRoundTripChanges](./LcmCrdt.Tests/Changes/ChangeSerializationTests.cs)
 
-#### any id references should be checked to see if the object being referenced is deleted
+#### Referenced objects should be checked to see if they have been deleted
 Due to syncing, a change could reference an object which has been deleted.
-For example, [AddComplexFormTypeChange](./LcmCrdt/Changes/Entries/AddComplexFormTypeChange.cs) 
-will ensure that the complex form type exists inside the `ApplyChange` method, if it doesn't exist then it won't add to type.
+For example, [AddComplexFormTypeChange.ApplyChange](./LcmCrdt/Changes/Entries/AddComplexFormTypeChange.cs) 
+ensures that the complex form type actually exists. If it doesn't exist or has been deleted then it is not added to the entry.
 In some cases this may mean that the object being modified is actually deleted.
-For example, in [CreateSenseChange](./LcmCrdt/Changes/CreateSenseChange.cs) if the Entry is deleted then the sense is also deleted
+For example, in [CreateSenseChange](./LcmCrdt/Changes/CreateSenseChange.cs) if the Entry is deleted then the sense is also deleted.
