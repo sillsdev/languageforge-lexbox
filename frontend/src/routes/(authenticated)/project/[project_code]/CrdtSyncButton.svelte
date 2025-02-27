@@ -6,12 +6,11 @@
   import {useNotifications} from '$lib/notify';
   import {bounceIn} from 'svelte/easing';
   import {scale} from 'svelte/transition';
-  import type {Project} from './+page';
+  import {_refreshProjectRepoInfo, type Project} from './+page';
   import {Modal} from '$lib/components/modals';
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
   export let project: Project;
-  export let hasHarmonyCommits: boolean;
   type SyncResult = {crdtChanges: number, fwdataChanges: number};
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -33,6 +32,7 @@
         if (typeof syncResults === 'string') {
           return syncResults;
         }
+        await _refreshProjectRepoInfo(project.code);
         notifySuccess($t('project.crdt.sync_result', { fwdataChanges: syncResults.fwdataChanges, crdtChanges: syncResults.crdtChanges }));
         done = true;
         return;
@@ -87,7 +87,7 @@
   let modal: Modal;
 </script>
 
-{#if hasHarmonyCommits}
+{#if project.hasHarmonyCommits}
   <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={state === 'syncing'} active={state === 'syncing'} customLoader>
     <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     {$t('project.crdt.sync_fwlite')}
