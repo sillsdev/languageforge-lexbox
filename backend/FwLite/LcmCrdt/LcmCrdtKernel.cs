@@ -240,6 +240,7 @@ public static class LcmCrdtKernel
     private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services, CrdtProject project)
     {
         await services.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
+        await services.GetRequiredService<LcmCrdtDbContext>().Database.MigrateAsync();
         return services.GetRequiredService<IMiniLcmApi>();
     }
 }
