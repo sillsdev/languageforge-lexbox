@@ -190,7 +190,7 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripJwtFromUserThroughLexAuthService()
     {
-        var jwt = _lexAuthService.GenerateJwt(_user, TimeSpan.Zero);
+        var jwt = _lexAuthService.GenerateJwt(_user, TimeSpan.FromMinutes(5));
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
@@ -254,7 +254,7 @@ public class LexAuthUserTests
                 .Select(i => new AuthUserProject(i % 2 == 0 ? ProjectRole.Manager : ProjectRole.Editor, Guid.NewGuid()))
                 .ToArray()
         };
-        var jwt = _lexAuthService.GenerateJwt(user, TimeSpan.Zero);
+        var jwt = _lexAuthService.GenerateJwt(user, TimeSpan.FromMinutes(5));
         jwt.Length.Should().BeLessThan(LexAuthUser.MaxJwtLength);
     }
 
