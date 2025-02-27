@@ -34,7 +34,7 @@ public class EmailService(
         var (lexAuthUser, user) = await lexAuthService.GetUser(emailAddress);
         // we want to silently return if the user doesn't exist, so we don't leak information.
         if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(lexAuthUser with { Scopes = [LexboxAuthScope.ForgotPassword]}, true);
+        var (jwt, lifetime) = lexAuthService.GenerateEmailJwt(lexAuthUser with { Scopes = [LexboxAuthScope.ForgotPassword]});
 
         var email = StartUserEmail(user);
         if (email is null) return;
@@ -67,12 +67,11 @@ public class EmailService(
     /// </param>
     public async Task SendVerifyAddressEmail(User user, string? newEmail = null)
     {
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser(user)
-        {
-            EmailVerificationRequired = null,
-            Email = newEmail ?? user.Email,
-        },
-            useEmailLifetime: true
+        var (jwt, lifetime) = lexAuthService.GenerateEmailJwt(new LexAuthUser(user)
+            {
+                EmailVerificationRequired = null,
+                Email = newEmail ?? user.Email,
+            }
         );
         var email = StartUserEmail(user, newEmail) ?? throw new ArgumentNullException("emailAddress");
         var httpContext = httpContextAccessor.HttpContext;
@@ -157,7 +156,7 @@ public class EmailService(
         bool isProjectInvitation)
     {
         language ??= User.DefaultLocalizationCode;
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true);
+        var (jwt, lifetime) = lexAuthService.GenerateEmailJwt(authUser);
         var email = StartUserEmail(name: "", emailAddress);
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
