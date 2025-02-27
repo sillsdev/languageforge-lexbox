@@ -7,7 +7,6 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         return Api.CreateEntry(new() { LexemeForm = { { "en", headword } }, });
     }
 
-
     // ReSharper disable InconsistentNaming
     const string Ru_A= "\u0410";
     const string Ru_a = "\u0430";
@@ -31,5 +30,24 @@ public abstract class SortingTestsBase : MiniLcmTestBase
         }
         var entries = await Api.GetEntries().Select(e => e.Headword()).ToArrayAsync();
         entries.Should().Equal(headwordList);
+    }
+
+    [Theory]
+    [InlineData("lwl-Zxxx-x-minority2-audio")]
+    //note this test does not ensure the sorting works, just that it doesn't crash when creating or querying the data
+    public async Task CanUseValidWritingSystems(string wsId)
+    {
+        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = wsId,
+                Name = "custom",
+                Abbreviation = "Cs",
+                Font = "Arial"
+            });
+        await Api.GetEntries(new QueryOptions(new SortOptions(SortField.Headword, wsId)))
+            .ToArrayAsync();
     }
 }

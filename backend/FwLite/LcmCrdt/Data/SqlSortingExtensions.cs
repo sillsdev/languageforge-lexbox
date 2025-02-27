@@ -23,6 +23,7 @@ public static class SqlSortingExtensions
     internal static string CollationName(WritingSystem ws)
     {
         //don't use ':' in the name, it won't work
-        return $"NOCASE_WS_{ws.WsId}";
+        //'-' is not allowed in a collation name according to linq2db, blocked on bug https://github.com/linq2db/linq2db/issues/4849
+        return $"NOCASE_WS_{ws.WsId.Code.Replace("-", "_")}";
     }
 }
