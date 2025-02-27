@@ -93,7 +93,7 @@ public class LexAuthUserOutOfSyncExtensionsTests
 
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
         editorUser.IsOutOfSyncWithProject(project).Should().BeFalse(); // might be out of sync, but we can't tell
-        editorUser.IsOutOfSyncWithMyProjects([]).Should().BeTrue();
+        editorUser.IsOutOfSyncWithMyProjects(Array.Empty<Project>()).Should().BeTrue();
     }
 
     [Fact]

@@ -97,6 +97,7 @@ jobs:
 
       ##playwright tests
       - name: Setup and run playwright tests
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/playwright-tests
         with:
           lexbox-hostname: 'localhost:6579'

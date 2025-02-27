@@ -5,11 +5,18 @@ namespace LexBoxApi.GraphQL;
 
 public static class LexAuthUserOutOfSyncExtensions
 {
-    public static bool IsOutOfSyncWithMyProjects(this LexAuthUser user, List<Project> myProjects)
+    public static bool IsOutOfSyncWithMyProjects(this LexAuthUser user, IReadOnlyCollection<Project> myProjects)
     {
         if (user.IsAdmin) return false; // admins don't have projects in their token
         if (user.Projects.Length != myProjects.Count) return true; // different number of projects
         return myProjects.Any(proj => user.IsOutOfSyncWithProject(proj, isMyProject: true));
+    }
+
+    public static bool IsOutOfSyncWithMyProjects(this LexAuthUser user, ICollection<Guid> projectIds)
+    {
+        if (user.IsAdmin) return false; // admins don't have projects in their token
+        if (user.Projects.Length != projectIds.Count) return true; // different number of projects
+        return user.Projects.Select(p => p.ProjectId).Intersect(projectIds).Count() != projectIds.Count;
     }
 
     public static bool IsOutOfSyncWithMyOrgs(this LexAuthUser user, List<Organization> myOrgs)
