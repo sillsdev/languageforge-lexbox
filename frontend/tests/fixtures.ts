@@ -24,6 +24,7 @@ export interface TempProject {
   id: UUID
   code: string
   name: string
+  createdAt: number
 }
 
 export type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id: UUID}}}}
@@ -189,7 +190,8 @@ export const test = base.extend<Fixtures>({
       }
 `);
     const id = gqlResponse.data.createProject.createProjectResponse.id;
-    await use({id, code, name});
+    const createdAt = Date.now();
+    await use({id, code, name, createdAt});
     const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
   },
