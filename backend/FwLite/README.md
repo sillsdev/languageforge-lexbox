@@ -17,3 +17,23 @@ from repo root you will be able to develop the UI as well. From this folder it w
 ```bash
 task web-for-develop
 ```
+
+## High level project flow diagram
+
+```mermaid
+graph
+    subgraph Lexbox
+        Harmony[(Harmony)]
+        Mercurial[(Mercurial)]
+        sync("Sync FieldWorks lite \n (manually triggered)")
+        Harmony <---> sync
+        Mercurial <---> sync
+    end
+    subgraph User machine's/phone
+        FieldWorksLite[FieldWorks Lite]
+        ClassicFieldWorks[Classic FieldWorks]
+    end
+
+    FieldWorksLite <-- " Live Sync " --> Harmony
+    ClassicFieldWorks <-- " Send and Receive " --> Mercurial
+```
