@@ -34,7 +34,7 @@ public class EmailService(
         var (lexAuthUser, user) = await lexAuthService.GetUser(emailAddress);
         // we want to silently return if the user doesn't exist, so we don't leak information.
         if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(lexAuthUser with { Audience = LexboxAudience.ForgotPassword, Scopes = [LexboxAuthScope.ForgotPassword]}, true);
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(lexAuthUser with { Scopes = [LexboxAuthScope.ForgotPassword]}, true);
 
         var email = StartUserEmail(user);
         if (email is null) return;
@@ -135,13 +135,12 @@ public class EmailService(
         return new LexAuthUser
         {
             Id = Guid.NewGuid(),
-            Audience = LexboxAudience.RegisterAccount,
             Scopes = [LexboxAuthScope.RegisterAccount],
             Name = "",
             Email = emailAddress,
             EmailVerificationRequired = null,
             Role = UserRole.user,
-            UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+            UpdatedDate = LexAuthUser.NewUserUpdatedTimestamp,
             CanCreateProjects = canCreateProjects ? true : null,
             Locale = language,
             Locked = null,

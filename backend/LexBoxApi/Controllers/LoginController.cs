@@ -39,15 +39,12 @@ public class LoginController(
         string returnTo)
     {
         var user = loggedInContext.User;
-        // A RegisterAccount token means there's no user account yet, so checking UpdatedDate makes no sense
-        if (user.Audience != LexboxAudience.RegisterAccount)
+        var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
+        if (userUpdatedDate != user.UpdatedDate)
         {
-            var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
-            if (userUpdatedDate != user.UpdatedDate)
-            {
-                return await EmailLinkExpired();
-            }
+            return await EmailLinkExpired();
         }
+
 
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
@@ -98,7 +95,7 @@ public class LoginController(
             authUser = new LexAuthUser()
             {
                 Id = Guid.NewGuid(),
-                Audience = LexboxAudience.RegisterAccount,
+                Scopes = [LexboxAuthScope.RegisterAccount],
                 Name = googleName ?? "",
                 Email = googleEmail,
                 EmailVerificationRequired = null,

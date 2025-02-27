@@ -14,6 +14,7 @@ public record LexAuthUser
     // from testing done in November 2023, we started getting errors at 10,200 chars. See HeaderTests.CheckCloudflareHeaderSizeLimit.
     public const int MaxJwtLength = 9000;
     public const int MaxProjectCount = 170;
+    public const long NewUserUpdatedTimestamp = -1;
     public static readonly JsonTypeInfo LexAuthUserTypeInfo =
         JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));
 

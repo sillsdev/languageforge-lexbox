@@ -71,7 +71,6 @@ public class IntegrationController(
             user with
             {
                 Projects = user.Projects.Where(p => p.ProjectId == projectId).ToArray(),
-                Audience = LexboxAudience.SendAndReceive,
                 Scopes = [LexboxAuthScope.SendAndReceive]
             });
 
@@ -79,7 +78,6 @@ public class IntegrationController(
         var (flexToken, flexTokenExpiresAt, _) = authService.GenerateJwt(user with
         {
             Projects = [],
-            Audience = LexboxAudience.SendAndReceiveRefresh,
             Scopes = [LexboxAuthScope.SendAndReceiveRefresh]
         });
         return new RefreshResponse(projectToken, projectTokenExpiresAt, flexToken, flexTokenExpiresAt);
