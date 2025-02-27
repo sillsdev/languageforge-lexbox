@@ -73,9 +73,10 @@ export async function load(event: PageLoadEvent) {
 						isConfidential
             isLanguageForgeProject
             hasHarmonyCommits
-						organizations {
-							id
-						}
+            organizations {
+              id
+              name
+            }
             users {
               id
               role
@@ -116,10 +117,6 @@ export async function load(event: PageLoadEvent) {
                   isDefault
                 }
               }
-            }
-            organizations {
-              id
-              name
             }
 					}
 				}
