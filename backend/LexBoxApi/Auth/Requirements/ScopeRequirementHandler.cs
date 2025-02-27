@@ -8,10 +8,10 @@ public class ScopeRequirementHandler(ILogger<ScopeRequirementHandler> logger): A
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RequireScopeAttribute requirement)
     {
-        bool hasScope = false;
+        bool scopeClaimExists = false;
         foreach (var claim in context.User.FindAll(LexAuthConstants.ScopeClaimType))
         {
-            hasScope = true;
+            scopeClaimExists = true;
             foreach (var validScope in requirement.ValidScopes)
             {
                 if (LexAuthUser.HasScope(claim.Value, validScope))
@@ -23,7 +23,7 @@ public class ScopeRequirementHandler(ILogger<ScopeRequirementHandler> logger): A
         }
 
         //fallback to checking the audience if we didn't find a scope, matching LexAuthUser.HasScope
-        if (!hasScope)
+        if (!scopeClaimExists)
         {
             foreach (var claim in context.User.FindAll(LexAuthConstants.AudienceClaimType))
             {
