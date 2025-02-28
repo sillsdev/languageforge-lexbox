@@ -12,8 +12,8 @@ using LexCore.Utils;
 using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using LexBoxApi.Services.Email;
+using System.Diagnostics;
 
 namespace LexBoxApi.GraphQL;
 
@@ -534,7 +534,15 @@ public class ProjectMutations
 
         using var transaction = await dbContext.Database.BeginTransactionAsync();
         await dbContext.SaveChangesAsync();
-        await hgService.SoftDeleteRepo(projectCode, timestamp);
+        try
+        {
+            await hgService.SoftDeleteRepo(projectCode, timestamp);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // If the repo doesn't exist, we don't need to delete it
+            Activity.Current?.AddTag("app.hg.delete", "not-found");
+        }
         projectService.InvalidateProjectConfidentialityCache(projectId);
         projectService.InvalidateProjectCodeCache(projectCode);
         await transaction.CommitAsync();
