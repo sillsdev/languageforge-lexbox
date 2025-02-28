@@ -17,6 +17,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
             $"api/Testing/copyToNewProject?newProjectCode={newProjectCode}&existingProjectCode={existingProjectCode}",
             null);
         result.EnsureSuccessStatusCode();
+        await Utils.WaitForHgRefreshIntervalAsync();
         return await result.Content.ReadFromJsonAsync<Guid>();
     }
 
