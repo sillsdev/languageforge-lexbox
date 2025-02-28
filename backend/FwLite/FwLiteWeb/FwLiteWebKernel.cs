@@ -3,6 +3,7 @@ using FwLiteProjectSync;
 using SIL.Harmony;
 using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteWeb.Routes;
 using LcmCrdt;
 using FwLiteWeb.Services;
 using Microsoft.AspNetCore.Http.Json;
@@ -20,6 +21,7 @@ public static class FwLiteWebKernel
         services.AddSingleton<IRedirectUrlProvider, ServerRedirectUrlProvider>();
         services.AddFwDataBridge();
         services.AddFwLiteProjectSync();
+        services.AddMiniLcmRouteServices();
         services.AddFwLiteShared(environment);
         if (environment.IsDevelopment())
         {

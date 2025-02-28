@@ -24,11 +24,12 @@ public interface IMiniLcmReadApi
 public record QueryOptions(
     SortOptions? Order = null,
     ExemplarOptions? Exemplar = null,
-    int Count = 1000,
+    int Count = QueryOptions.DefaultCount,
     int Offset = 0)
 {
     public static QueryOptions Default { get; } = new();
     public const int QueryAll = -1;
+    public const int DefaultCount = 1000;
     public SortOptions Order { get; init; } = Order ?? SortOptions.Default;
 
     public IEnumerable<T> ApplyPaging<T>(IEnumerable<T> enumerable)
@@ -50,7 +51,8 @@ public record QueryOptions(
 
 public record SortOptions(SortField Field, WritingSystemId WritingSystem, bool Ascending = true)
 {
-    public static SortOptions Default { get; } = new(SortField.Headword, "default");
+    public const string DefaultWritingSystem = "default";
+    public static SortOptions Default { get; } = new(SortField.Headword, DefaultWritingSystem);
 }
 
 public record ExemplarOptions(string Value, WritingSystemId WritingSystem);

@@ -14,7 +14,16 @@ public record ProjectModel(
     bool Fwdata,
     bool Lexbox = false,
     LexboxServer? Server = null,
-    Guid? Id = null);
+    Guid? Id = null)
+{
+    public string? ApiEndpoint =>
+        (this) switch
+        {
+            { Crdt: true } => $"/api/mini-lcm/{ProjectDataFormat.Harmony}/{Name}",
+            { Fwdata: true } => $"/api/mini-lcm/{ProjectDataFormat.FwData}/{Name}",
+            _ => null
+        };
+}
 
 public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService,

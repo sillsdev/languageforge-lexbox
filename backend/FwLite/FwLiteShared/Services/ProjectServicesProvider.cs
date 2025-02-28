@@ -59,7 +59,7 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public Task<ProjectScope> OpenFwDataProject(string projectName)
+    public async Task<ProjectScope> OpenFwDataProject(string projectName)
     {
         var serviceScope = serviceProvider.CreateAsyncScope();
         var scopedServices = serviceScope.ServiceProvider;
@@ -68,7 +68,7 @@ public class ProjectServicesProvider(
         var project = FwDataProjectProvider.GetProject(projectName) ??
                       throw new InvalidOperationException($"FwData Project {projectName} not found");
         var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices,
-            FwDataProjectProvider.OpenProject(project),
+            await FwDataProjectProvider.OpenProject(project, scopedServices),
             project);
         var scope = new ProjectScope(Defer.Async(() =>
         {
@@ -76,7 +76,7 @@ public class ProjectServicesProvider(
             return Task.CompletedTask;
         }), serviceScope, this, projectName, miniLcm, null);
         _projectScopes.TryAdd(scope, scope);
-        return Task.FromResult(scope);
+        return scope;
     }
 }
 

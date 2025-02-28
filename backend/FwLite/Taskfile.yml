@@ -53,6 +53,19 @@ tasks:
     dir: ./FwLiteMaui
     cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
 
+  build-mini-lcm-sdk:
+    label: Build MiniLcm SDK
+    desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
+    dir: ./FwLiteWeb
+    deps: [ ui:build-viewer-app ]
+    cmds:
+      - dotnet publish -r win-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
+      - pwsh -Command "mv ../artifacts/publish/FwLiteWeb/release_win-x64/appsettings.sdk.json ../artifacts/publish/FwLiteWeb/release_win-x64/appsettings.Production.json"
+      - pwsh -Command "mkdir ../artifacts/publish/FwLiteWeb/release_win-x64/fw-lite-projects"
+      - pwsh -Command "mkdir ../artifacts/publish/FwLiteWeb/release_win-x64/fw-projects"
+      - pwsh -Command "Compress-Archive -Force -Path ../artifacts/publish/FwLiteWeb/release_win-x64 -DestinationPath ../artifacts/publish/FwLiteWeb/release_win-x64.zip"
+
+
   publish-web-all:
     cmds:
       - task: publish-web-win
