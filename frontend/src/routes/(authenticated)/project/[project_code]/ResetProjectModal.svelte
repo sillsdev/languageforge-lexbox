@@ -9,6 +9,7 @@
   import { _refreshProjectRepoInfo } from './+page';
   import { scale } from 'svelte/transition';
   import { bounceIn } from 'svelte/easing';
+  import {getErrorMessage} from '$lib/error/utils';
 
   enum ResetSteps {
     Download,
@@ -58,14 +59,18 @@
 
   let { form, errors, enhance, reset, submitting } = lexSuperForm(verify, async () => {
     const url = `/api/project/resetProject/${code}`;
-    const resetResponse = await fetch(url, { method: 'post' });
-    //we should do the reset via a mutation, but this is easier for now
-    //we need to refresh the status so if the admin closes the dialog they can resume back where they left off.
-    await _refreshProjectRepoInfo(code);
-    if (resetResponse.ok) {
-      nextStep();
-    } else {
-      error = resetResponse.statusText;
+    try {
+      const resetResponse = await fetch(url, { method: 'post' });
+      //we should do the reset via a mutation, but this is easier for now
+      //we need to refresh the status so if the admin closes the dialog they can resume back where they left off.
+      await _refreshProjectRepoInfo(code);
+      if (resetResponse.ok) {
+        nextStep();
+      } else {
+        error = resetResponse.statusText;
+      }
+    } catch (e) {
+      error = getErrorMessage(e);
     }
   });
 
