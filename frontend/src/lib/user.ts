@@ -42,6 +42,7 @@ type JwtTokenUser = {
   mkproj?: boolean | undefined,
   creat?: boolean | undefined,
   aud: ApiLexboxAudience,
+  scope?: string,
   loc: string,
 }
 
@@ -61,6 +62,7 @@ export type LexAuthUser = {
   canCreateProjects: boolean
   createdByAdmin: boolean
   audience: ApiLexboxAudience
+  scope: string
   locale: string
 }
 
@@ -164,6 +166,7 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     featureFlags: responseUser.featureFlags ?? [],
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
     audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
+    scope: ''
   }
   return { user }
 }
@@ -212,6 +215,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     locale: user.loc,
     audience,
     emailOrUsername: (email ?? username) as string,
+    scope: user.scope ?? ''
   }
 }
 

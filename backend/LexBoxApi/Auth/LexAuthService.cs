@@ -154,23 +154,31 @@ public class LexAuthService
         return (user == null ? null : new LexAuthUser(user), user);
     }
 
-    public (string token, DateTime expiresAt, TimeSpan lifetime) GenerateJwt(LexAuthUser user,
-        bool useEmailLifetime = false)
+    public (string token, TimeSpan lifetime) GenerateEmailJwt(LexAuthUser user)
     {
-        var options = _userOptions.Value;
-        var lifetime = (user.Audience, useEmailLifetime) switch
-        {
-            (_, true) => options.EmailJwtLifetime,
-            (LexboxAudience.SendAndReceive, _) => options.SendReceiveJwtLifetime,
-            (LexboxAudience.SendAndReceiveRefresh, _) => options.SendReceiveRefreshJwtLifetime,
-            _ => options.Lifetime
-        };
-        return GenerateToken(user, user.Audience, lifetime);
+        var lifetime = _userOptions.Value.EmailJwtLifetime;
+        var token = GenerateJwt(user, lifetime);
+        return (token, lifetime);
     }
 
-    private (string token, DateTime expiresAt, TimeSpan lifetime) GenerateToken(LexAuthUser user,
-        LexboxAudience audience,
-        TimeSpan tokenLifetime)
+    public (string token, DateTime expiresAt) GenerateSendReceiveJwt(
+        LexAuthUser user,
+        bool useRefreshLifetime)
+    {
+        var options = _userOptions.Value;
+        var token = GenerateJwt(user,
+            useRefreshLifetime ? options.SendReceiveRefreshJwtLifetime : options.SendReceiveJwtLifetime,
+            out var expiresAt
+        );
+        return (token, expiresAt);
+    }
+
+    public string GenerateJwt(LexAuthUser user, TimeSpan tokenLifetime)
+    {
+        return GenerateJwt(user, tokenLifetime, out _);
+    }
+
+    public string GenerateJwt(LexAuthUser user, TimeSpan tokenLifetime, out DateTime expiresAt)
     {
         var jwtDate = DateTime.UtcNow;
         var options = _userOptions.Value;
@@ -180,7 +188,7 @@ public class LexAuthService
         identity.AddClaims(user.GetClaims().Where(c => c.Type != JwtRegisteredClaimNames.Aud));
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.CreateJwtSecurityToken(
-            audience: audience.ToString(),
+            audience: user.Audience.ToString(),
             issuer: LexboxAudience.LexboxApi.ToString(),
             subject: identity,
             notBefore: jwtDate,
@@ -192,7 +200,7 @@ public class LexAuthService
         );
         JwtTicketDataFormat.FixUpArrayClaims(jwt);
         var token = handler.WriteToken(jwt);
-
-        return (token, jwt.ValidTo.ToUniversalTime(), tokenLifetime);
+        expiresAt = jwt.ValidTo.ToUniversalTime();
+        return token;
     }
 }

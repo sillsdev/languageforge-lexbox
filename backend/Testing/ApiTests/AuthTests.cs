@@ -82,7 +82,7 @@ public class AuthTests : ApiTestBase
     }
 
     [Fact]
-    public async Task NoOneCanCallForgotPasswordApi()
+    public async Task DefaultLoginCanNotCallExclusiveScopeApi()
     {
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-forgot-password");

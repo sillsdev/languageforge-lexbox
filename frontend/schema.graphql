@@ -217,9 +217,12 @@ type LeaveProjectPayload {
 type LexAuthUser {
   isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
   hasFeature(feature: FeatureFlag!): Boolean!
+  hasScope(scope: LexboxAuthScope!): Boolean!
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
+  scopeString: String
+  scopes: [LexboxAuthScope!]!
   email: String
   username: String
   name: String!
@@ -1210,6 +1213,17 @@ enum FeatureFlag {
 
 enum LexboxAudience {
   UNKNOWN
+  LEXBOX_API
+  REGISTER_ACCOUNT
+  FORGOT_PASSWORD
+  SEND_AND_RECEIVE
+  SEND_AND_RECEIVE_REFRESH
+}
+
+enum LexboxAuthScope {
+  OPENID
+  PROFILE
+  EMAIL
   LEXBOX_API
   REGISTER_ACCOUNT
   FORGOT_PASSWORD

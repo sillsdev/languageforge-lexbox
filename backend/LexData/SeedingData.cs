@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using LexCore;
+using LexCore.Auth;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -296,7 +297,8 @@ public class SeedingData(
                 OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
                 OpenIddictConstants.Permissions.ResponseTypes.Code,
                 OpenIddictConstants.Permissions.Scopes.Email,
-                OpenIddictConstants.Permissions.Scopes.Profile
+                OpenIddictConstants.Permissions.Scopes.Profile,
+                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.SendAndReceive.ToString().ToLower()
             },
             // port is dynamic due to the nature of the native app
             RedirectUris = {

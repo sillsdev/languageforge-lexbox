@@ -37,16 +37,20 @@ public class TestingController(
     [ProducesDefaultResponseType]
     public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail,
         UserRole userRole,
-        LexboxAudience audience = LexboxAudience.LexboxApi)
+        LexboxAudience audience = LexboxAudience.LexboxApi,
+        string? scopes = nameof(LexboxAuthScope.LexboxApi))
     {
         var user = await lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FindByEmailOrUsername(usernameOrEmail);
         if (user is null) return NotFound();
-        var (token, _, _) = lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole, Audience = audience });
+        var lexAuthUser = new LexAuthUser(user) { Role = userRole, Audience = audience };
+        if (!string.IsNullOrEmpty(scopes)) lexAuthUser.ScopeString = scopes.ToLower();
+        var token = lexAuthService.GenerateJwt(lexAuthUser, TimeSpan.FromMinutes(30));
         return token;
     }
 
     [HttpGet("claims")]
+    [AllowAnonymous]
     public Dictionary<string, string> Claims()
     {
         return User.Claims.ToLookup(c => c.Type, c => c.Value).ToDictionary(k => k.Key, v => string.Join(";", v));
