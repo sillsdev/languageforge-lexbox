@@ -1,4 +1,5 @@
-﻿using MiniLcm.Models;
+﻿using MiniLcm.Exceptions;
+using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using Spart.Parsers;
 using SystemTextJsonPatch.Operations;
@@ -83,5 +84,36 @@ public class MultiStringDiffTests
             new Operation<Placeholder>("add", "/test/fr", null, "monde"),
             new Operation<Placeholder>("remove", "/test/es", null)
         ]);
+    }
+
+    [Fact]
+    public void DiffAttemptToUpdateReadonlyFails()
+    {
+        var before = new MultiString();
+        before.Values.Add("en", "hello");
+        before.Metadata.Add("en", new(){RunCount = 2});
+        var after = new MultiString();
+        after.Values.Add("en", "world");
+        var act = () =>
+        {
+            MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after).ToArray();
+        };
+        act.Should().Throw<MultiStringReadonlyException>();
+    }
+
+    [Fact]
+    public void DiffWithoutChangeToReadonlyStringWorks()
+    {
+        var before = new MultiString();
+        before.Values.Add("en", "hello");
+        before.Values.Add("es", "hola");
+        before.Metadata.Add("en", new(){RunCount = 2});
+        var after = new MultiString();
+        after.Values.Add("en", "hello");
+        var act = () =>
+        {
+            MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after).ToArray();
+        };
+        act.Should().NotThrow();
     }
 }

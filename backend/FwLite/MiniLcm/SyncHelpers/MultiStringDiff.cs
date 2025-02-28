@@ -1,4 +1,5 @@
-﻿using MiniLcm.Models;
+﻿using MiniLcm.Exceptions;
+using MiniLcm.Models;
 using SystemTextJsonPatch.Operations;
 
 namespace MiniLcm.SyncHelpers;
@@ -14,8 +15,15 @@ public static class MultiStringDiff
         {
             if (after.Values.TryGetValue(key, out var afterValue))
             {
+
                 if (!beforeValue.Equals(afterValue))
+                {
+                    if (before.IsReadonly(key) || after.IsReadonly(key))
+                    {
+                        throw new MultiStringReadonlyException(path, key);
+                    }
                     yield return new Operation<T>("replace", $"/{path}/{key}", null, afterValue);
+                }
             }
             else
             {
