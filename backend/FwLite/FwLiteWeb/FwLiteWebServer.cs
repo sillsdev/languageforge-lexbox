@@ -116,7 +116,7 @@ public static class FwLiteWebServer
         app.MapTest();
         app.MapImport();
         app.MapAuthRoutes();
-        app.MapMiniLcmRoutes();
+        app.MapMiniLcmRoutes("/api/mini-lcm");
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()

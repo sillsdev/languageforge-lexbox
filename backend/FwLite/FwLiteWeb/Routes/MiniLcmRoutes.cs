@@ -17,7 +17,7 @@ public static class MiniLcmRoutes
         services.AddTransient<MiniLcmHolder>();
     }
 
-    //this is a hack to allow the ioc container to something, but then in the EndpointFilter we actually set the api service based on the request
+    //this is a hack to allow the ioc container to inject something, but then in the EndpointFilter we actually set the api service based on the request
     private class MiniLcmHolder
     {
         internal IMiniLcmApi MiniLcmApi
@@ -27,9 +27,9 @@ public static class MiniLcmRoutes
         } = null!;
     }
 
-    public static IEndpointConventionBuilder MapMiniLcmRoutes(this IEndpointRouteBuilder app)
+    public static IEndpointConventionBuilder MapMiniLcmRoutes(this IEndpointRouteBuilder app, [StringSyntax("route")] string prefix)
     {
-        var api = app.MapGroup("/api/mini-lcm/{projectType}/{projectCode}")
+        var api = app.MapGroup(prefix + "/{projectType}/{projectCode}")
             .WithOpenApi(operation =>
             {
                 operation.Parameters.Add(new()
@@ -110,7 +110,7 @@ public static class MiniLcmRoutes
         }
 
         public static IAsyncEnumerable<Entry> GetEntries([FromServices] MiniLcmHolder holder,
-            [AsParameters] ClassicQueryOptions options)
+            [AsParameters] MiniLcmQueryOptions options)
         {
             var api = holder.MiniLcmApi;
             return api.GetEntries(options.ToQueryOptions());
@@ -118,7 +118,7 @@ public static class MiniLcmRoutes
 
         public static IAsyncEnumerable<Entry> SearchEntries([FromServices] MiniLcmHolder holder,
             [FromRoute] string search,
-            [AsParameters] ClassicQueryOptions options)
+            [AsParameters] MiniLcmQueryOptions options)
         {
             var api = holder.MiniLcmApi;
             return api.SearchEntries(search, options.ToQueryOptions());
@@ -150,7 +150,7 @@ public static class MiniLcmRoutes
         }
     }
 
-    private class ClassicQueryOptions
+    private class MiniLcmQueryOptions
     {
         public QueryOptions ToQueryOptions()
         {
