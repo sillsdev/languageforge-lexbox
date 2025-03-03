@@ -6,6 +6,7 @@
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <SelfContained>true</SelfContained>
         <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
+        <LangVersion>preview</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 <!--        single file disabled as it's less efficient for updates-->
@@ -27,6 +28,7 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Include="*.md" CopyToPublishDirectory="PreserveNewest" />
 
       <None Include="$(Pkgicu_net)\contentFiles\any\any\icu.net.dll.config">
           <Link>icu.net.dll.config</Link>

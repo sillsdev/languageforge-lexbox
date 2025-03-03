@@ -7,5 +7,5 @@ public interface IProjectProvider
     ProjectDataFormat DataFormat { get; }
     IEnumerable<IProjectIdentifier> ListProjects();
     IProjectIdentifier? GetProject(string name);
-    IMiniLcmApi OpenProject(IProjectIdentifier project, bool saveChangesOnDispose = true);
+    ValueTask<IMiniLcmApi> OpenProject(IProjectIdentifier project, IServiceProvider serviceProvider, bool saveChangesOnDispose = true);
 }
