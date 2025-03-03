@@ -205,6 +205,7 @@ public class LoginController(
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [RequireScope(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive, LexboxAuthScope.SendAndReceiveRefresh, LexboxAuthScope.openid)]
     public async Task<ActionResult<LexAuthUser>> RefreshJwt()
     {
         var user = await lexAuthService.RefreshUser();

@@ -53,8 +53,9 @@ public class AuthTestingController(LoggedInContext loggedInContext) : Controller
     }
 
     [HttpGet("token-project-count")]
-    public ActionResult<int> TokenProjectCount()
+    [AllowAnonymous]
+    public ActionResult<int?> TokenProjectCount()
     {
-        return loggedInContext.User.Projects.Length;
+        return loggedInContext.MaybeUser?.Projects.Length;
     }
 }
