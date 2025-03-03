@@ -1,0 +1,69 @@
+﻿name: Setup and run lexbox k8s
+inputs:
+  lexbox-api-tag:
+    required: true
+  ingress-controller-port:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install Task
+      uses: arduino/setup-task@v2
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - run: task setup-local-env
+    - name: setup k8s
+      uses: helm/kind-action@v1.10.0
+      with:
+        config: deployment/gha/kind.yaml
+    - name: Verify k8s
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+    - name: Update image lexbox-api version
+      uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+      with:
+        cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+    # It's also possible that hgweb, fw-headless, and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
+    - name: Pull fw-headless if updated
+      id: fw-headless_image
+      continue-on-error: true
+      run: docker pull ghcr.io/sillsdev/lexbox-fw-headless:${{ inputs.lexbox-api-tag }}
+    - name: Update image fw-headless version
+      if: ${{ steps.fw-headless_image.outcome == 'success' }}
+      uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+      with:
+        cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+    - name: Pull hgweb if updated
+      id: hgweb_image
+      continue-on-error: true
+      run: docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}
+    - name: Update image hgweb version
+      if: ${{ steps.hgweb_image.outcome == 'success' }}
+      uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+      with:
+        cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-hgweb").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+    - name: Pull ui if updated
+      id: ui_image
+      continue-on-error: true
+      run: docker pull ghcr.io/sillsdev/lexbox-ui:${{ inputs.lexbox-api-tag }}
+    - name: Update image ui version
+      if: ${{ steps.ui_image.outcome == 'success' }}
+      uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+      with:
+        cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+    - name: deploy
+      run: |
+        kubectl create namespace languagedepot
+        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
+        kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (cert-manager, webhook)' -n cert-manager
+        kubectl apply -k ./deployment/gha
+        kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
+        kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db, fw-headless)' -n languagedepot
+    - name: forward ingress
+      run: |
+        kubectl port-forward service/ingress-nginx-controller ${{inputs.ingress-controller-port}}:80 -n languagedepot &
+        kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
+    - name: verify ingress
+      run: curl -v http://localhost:${{inputs.ingress-controller-port}}
