@@ -58,6 +58,7 @@ public static class AuthKernel
             options.AddPolicy(AllowAnyAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
             //we still need this policy, without it the default policy is used which requires the default audience
             options.AddPolicy(RequireScopeAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
+            options.AddPolicy(FeatureFlagRequiredAttribute.PolicyName, builder => builder.RequireDefaultLexboxAuth());
             options.AddPolicy(ProxyKernel.UserHasAccessToProjectPolicy,
                 policyBuilder =>
                 {
