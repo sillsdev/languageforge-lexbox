@@ -76,7 +76,7 @@ public class BackgroundSyncService(
             {
                 //todo, this might not be required, but I can't remember why I added it
                 await Task.Delay(100, stoppingToken);
-                await SyncProject(project, false, stoppingToken);
+                await SyncProject(project, stoppingToken);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -90,27 +90,18 @@ public class BackgroundSyncService(
         var crdtProjects = crdtProjectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
-            await SyncProject(crdtProject, true, stoppingToken);
+            await SyncProject(crdtProject, stoppingToken);
         }
     }
 
-    private async Task<SyncResults> SyncProject(CrdtProject crdtProject,
-        bool applyMigrations = false,
-        CancellationToken cancellationToken = default)
+    private async Task<SyncResults> SyncProject(CrdtProject crdtProject, CancellationToken cancellationToken = default)
     {
         try
         {
             await using var serviceScope = serviceProvider.CreateAsyncScope();
             var services = serviceScope.ServiceProvider;
             var currentProjectService = services.GetRequiredService<CurrentProjectService>();
-            //not using SetupProjectContext because it will try to fetch project data, which might fail due to missing migrations
-            //we fetch the project data after the migrations
-            currentProjectService.SetupProjectContextForNewDb(crdtProject);
-            if (applyMigrations)
-            {
-                await services.GetRequiredService<LcmCrdtDbContext>().Database.MigrateAsync(cancellationToken);
-            }
-            await currentProjectService.RefreshProjectData();
+            await currentProjectService.SetupProjectContext(crdtProject);
             var syncService = services.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }
