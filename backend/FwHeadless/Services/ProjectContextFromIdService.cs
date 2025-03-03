@@ -1,10 +1,11 @@
 using LcmCrdt;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
 // TODO: Pick better name
-public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, CrdtProjectsService projectsService, ProjectLookupService projectLookupService)
+public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, CrdtProjectsService projectsService, ProjectLookupService projectLookupService, IMemoryCache memoryCache)
 {
     public async Task PopulateProjectContext(HttpContext context, Func<Task> next)
     {
@@ -17,7 +18,7 @@ public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, Crdt
                 var crdtFile = Path.Join(projectFolder, "crdt.sqlite");
                 if (File.Exists(crdtFile))
                 {
-                    var project = new CrdtProject("crdt", crdtFile);
+                    var project = new CrdtProject("crdt", crdtFile, memoryCache);
                     await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
                 }
             }

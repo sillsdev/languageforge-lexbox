@@ -52,10 +52,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var name = Path.GetFileNameWithoutExtension(file);
-            return new CrdtProject(name, file)
-            {
-                Data = CurrentProjectService.LookupProjectData(memoryCache, name)
-            };
+            return new CrdtProject(name, file, memoryCache);
         });
     }
 
@@ -105,6 +102,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
                 Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
+            crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             if (request.SeedNewProjectData)
