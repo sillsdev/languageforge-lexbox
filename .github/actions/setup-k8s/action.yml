@@ -18,6 +18,7 @@ runs:
       with:
         config: deployment/gha/kind.yaml
     - name: Verify k8s
+      shell: bash
       run: |
         kubectl cluster-info
         kubectl get nodes
@@ -28,6 +29,7 @@ runs:
     # It's also possible that hgweb, fw-headless, and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
     - name: Pull fw-headless if updated
       id: fw-headless_image
+      shell: bash
       continue-on-error: true
       run: docker pull ghcr.io/sillsdev/lexbox-fw-headless:${{ inputs.lexbox-api-tag }}
     - name: Update image fw-headless version
@@ -37,6 +39,7 @@ runs:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
     - name: Pull hgweb if updated
       id: hgweb_image
+      shell: bash
       continue-on-error: true
       run: docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}
     - name: Update image hgweb version
@@ -46,6 +49,7 @@ runs:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-hgweb").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
     - name: Pull ui if updated
       id: ui_image
+      shell: bash
       continue-on-error: true
       run: docker pull ghcr.io/sillsdev/lexbox-ui:${{ inputs.lexbox-api-tag }}
     - name: Update image ui version
@@ -54,6 +58,7 @@ runs:
       with:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
     - name: deploy
+      shell: bash
       run: |
         kubectl create namespace languagedepot
         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
@@ -62,8 +67,10 @@ runs:
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db, fw-headless)' -n languagedepot
     - name: forward ingress
+      shell: bash
       run: |
         kubectl port-forward service/ingress-nginx-controller ${{inputs.ingress-controller-port}}:80 -n languagedepot &
         kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
     - name: verify ingress
+      shell: bash
       run: curl -v http://localhost:${{inputs.ingress-controller-port}}
