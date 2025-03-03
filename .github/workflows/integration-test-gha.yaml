@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-      - uses: ./actions/setup-k8s
+      - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}
           ingress-controller-port: '6579'
@@ -62,14 +62,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./actions/setup-k8s
+      - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}
           ingress-controller-port: '6579'
 
       ##playwright tests
       - name: Setup and run playwright tests
-        uses: ./actions/playwright-tests
+        uses: ./.github/actions/playwright-tests
         with:
           lexbox-hostname: 'localhost:6579'
           lexbox-default-password: 'pass'
