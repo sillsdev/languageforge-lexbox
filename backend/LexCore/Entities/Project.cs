@@ -36,11 +36,12 @@ public class Project : EntityBase
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {
         var age = DateTimeOffset.UtcNow.Subtract(CreatedDate);
-        if (age.TotalSeconds < 40)
+        if (age.TotalSeconds < 6) // slightly longer than the refreshinterval (5s) in hgweb.hgrc
         {
             // The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
             // See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
-            return Array.Empty<Changeset>();
+            // Update: Although we've greatly improved stability here, we're still at the will of the hgweb refresh interval.
+            return [];
         }
         else
         {
