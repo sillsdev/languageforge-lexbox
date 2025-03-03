@@ -4,6 +4,8 @@ inputs:
     required: true
   ingress-controller-port:
     required: true
+  repo-token:
+    required: true
 
 runs:
   using: composite
@@ -11,8 +13,9 @@ runs:
     - name: Install Task
       uses: arduino/setup-task@v2
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token: ${{ inputs.repo-token }}
     - run: task setup-local-env
+      shell: bash
     - name: setup k8s
       uses: helm/kind-action@v1.10.0
       with:

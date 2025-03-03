@@ -29,6 +29,7 @@ jobs:
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}
           ingress-controller-port: '6579'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build
         run: dotnet restore LexBoxOnly.slnf && dotnet build --no-restore LexBoxOnly.slnf
@@ -66,6 +67,7 @@ jobs:
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}
           ingress-controller-port: '6579'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       ##playwright tests
       - name: Setup and run playwright tests
