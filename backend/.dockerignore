@@ -6,8 +6,8 @@ FwLite/FwLiteWeb
 FwLite/FwLiteMaui
 FwLite/FwLiteShared
 **/artifacts/publish
-CrdtMerge/Mercurial
-CrdtMerge/MercurialExtensions
+FwHeadless/Mercurial
+FwHeadless/MercurialExtensions
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
