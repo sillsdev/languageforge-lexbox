@@ -72,5 +72,5 @@ There is a test to guard from mistakes which would prevent deserialization of ch
 Due to syncing, a change could reference an object which has been deleted.
 For example, [AddComplexFormTypeChange.ApplyChange](./LcmCrdt/Changes/Entries/AddComplexFormTypeChange.cs) 
 ensures that the complex form type actually exists. If it doesn't exist or has been deleted then it is not added to the entry.
-In some cases this may mean that the object being modified is actually deleted.
+In some cases this may mean that the object being modified/created is actually deleted.
 For example, in [CreateSenseChange](./LcmCrdt/Changes/CreateSenseChange.cs) if the Entry is deleted then the sense is also deleted.
