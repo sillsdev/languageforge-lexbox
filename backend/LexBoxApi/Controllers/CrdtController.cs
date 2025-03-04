@@ -103,4 +103,10 @@ public class CrdtController(
 
         return Ok(projectId);
     }
+
+    [HttpGet("checkConnection")]
+    public ActionResult CheckConnection()
+    {
+        return Ok();
+    }
 }

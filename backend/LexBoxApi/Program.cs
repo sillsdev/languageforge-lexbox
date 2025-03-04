@@ -11,6 +11,7 @@ using LexBoxApi.ErrorHandling;
 using LexBoxApi.Hub;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
+using LexCore.Auth;
 using LexCore.Exceptions;
 using LexData;
 using LexSyncReverseProxy;
@@ -185,7 +186,8 @@ app.MapTus("/api/tus-test",
 app.MapTus($"/api/project/upload-zip/{{{ProxyConstants.HgProjectCodeRouteKey}}}",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetResetZipUploadConfig())
     .RequireAuthorization(new AdminRequiredAttribute());
-app.MapHub<CrdtProjectChangeHub>("/api/hub/crdt/project-changes").RequireAuthorization();
+app.MapHub<CrdtProjectChangeHub>("/api/hub/crdt/project-changes")
+    .RequireAuthorization(new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive));
 // /api routes should never make it to this point, they should be handled by the controllers, so return 404
 app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 
