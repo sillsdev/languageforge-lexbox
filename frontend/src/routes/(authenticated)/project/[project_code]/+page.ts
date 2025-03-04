@@ -601,6 +601,7 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
                 id
                 resetStatus
                 lastCommit
+                hasHarmonyCommits
                 ...Changesets
             }
         }
