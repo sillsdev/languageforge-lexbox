@@ -34,20 +34,36 @@ const lexboxServer: ProxyOptions = {
       if (!availableTarget) console.warn(`Request before target (${lexboxServer.target}) was confirmed to be available.`);
     });
 
-    while (!availableTarget) {
-      for (const target of targets) {
-        const isAvailable = await checkTargetAvailability(target);
-        if (isAvailable) {
-          options.target = availableTarget = target;
-          console.log('Will proxy to available target:', target);
-          return;
+    await new Promise<void>(resolve => {
+      const initActiveTarget = setInterval(async () => {
+        const bestTarget = await getBestAvailableTarget();
+        if (bestTarget) {
+          options.target = availableTarget = bestTarget;
+          console.log('Will proxy to best available target:', bestTarget);
+          clearInterval(initActiveTarget);
+          monitorActiveTarget(options);
+          resolve();
         }
-      }
-      console.warn('No target available, retrying in 5s');
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-    }
+      }, 5_000);
+    })
   },
 };
+
+function monitorActiveTarget(options) {
+  setInterval(async () => {
+    const bestTarget = await getBestAvailableTarget();
+    if (bestTarget && options.target !== bestTarget) {
+      console.log('Switching to new best available proxy target:', bestTarget);
+      options.target = bestTarget;
+    }
+  }, 30_000);
+}
+
+async function getBestAvailableTarget() {
+  for (const target of targets) {
+    if (await checkTargetAvailability(target)) return target;
+  }
+}
 
 export default defineConfig({
   plugins: [
