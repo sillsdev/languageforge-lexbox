@@ -100,7 +100,7 @@ tasks:
     aliases:
       - web
       - web-for-develop
-    deps: [ ui:viewer-dev, fw-lite:web, ui:https-oauth-authority ]
+    deps: [ fw-lite:web, ui:fw-lite-infr]
 
   fw-lite-win:
-    deps: [fw-lite:maui-windows, ui:viewer-dev, ui:https-oauth-authority]
+    deps: [fw-lite:maui-windows, ui:fw-lite-infr]
