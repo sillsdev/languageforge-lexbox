@@ -22,7 +22,7 @@ public static class FwLiteWebServer
     public static WebApplication SetupAppServer(WebApplicationOptions options, Action<WebApplicationBuilder>? configure = null)
     {
         var builder = WebApplication.CreateBuilder(options);
-        if (!builder.Environment.IsDevelopment() && options.Args?.Contains("--urls") != true)
+        if (!builder.Environment.IsDevelopment() && options.Args?.Contains("--urls") != true && string.IsNullOrEmpty(builder.Configuration["http_ports"]))
             builder.WebHost.UseUrls("http://127.0.0.1:0");
         if (builder.Environment.IsDevelopment())
         {
@@ -68,10 +68,14 @@ public static class FwLiteWebServer
         var app = builder.Build();
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
 // Configure the HTTP request pipeline.
+        app.UseSwagger();
+        app.UseSwaggerUI(o =>
+        {
+            o.ConfigObject.DisplayRequestDuration = true;
+            o.EnableTryItOutByDefault();
+        });
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
             app.UseDirectoryBrowser();
         }
 
@@ -112,6 +116,7 @@ public static class FwLiteWebServer
         app.MapTest();
         app.MapImport();
         app.MapAuthRoutes();
+        app.MapMiniLcmRoutes("/api/mini-lcm");
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()

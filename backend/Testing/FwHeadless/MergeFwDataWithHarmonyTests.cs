@@ -17,6 +17,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
             $"api/Testing/copyToNewProject?newProjectCode={newProjectCode}&existingProjectCode={existingProjectCode}",
             null);
         result.EnsureSuccessStatusCode();
+        await Utils.WaitForHgRefreshIntervalAsync();
         return await result.Content.ReadFromJsonAsync<Guid>();
     }
 
@@ -30,9 +31,21 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 
     private async Task<SyncResult?> AwaitSyncFinished(Guid projectId)
     {
-        var result = await HttpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}");
-        result.EnsureSuccessStatusCode();
-        return await result.Content.ReadFromJsonAsync<SyncResult>();
+        var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(60);
+        while (giveUpAt > DateTime.UtcNow)
+        {
+            try
+            {
+                var result = await HttpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}", new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
+                result.EnsureSuccessStatusCode();
+                return await result.Content.ReadFromJsonAsync<SyncResult>();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+        Assert.Fail("timed out waiting for sync to finish");
+        return null;
     }
 
     private async Task AddTestCommit(Guid projectId)
