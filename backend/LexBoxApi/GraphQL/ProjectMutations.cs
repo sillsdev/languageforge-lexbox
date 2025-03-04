@@ -513,7 +513,8 @@ public class ProjectMutations
         IPermissionService permissionService,
         ProjectService projectService,
         LexBoxDbContext dbContext,
-        IHgService hgService)
+        IHgService hgService,
+        ILogger<ProjectMutations> _logger)
     {
         await permissionService.AssertCanManageProject(projectId);
 
@@ -538,10 +539,11 @@ public class ProjectMutations
         {
             await hgService.SoftDeleteRepo(projectCode, timestamp);
         }
-        catch (DirectoryNotFoundException)
+        catch (DirectoryNotFoundException e)
         {
             // If the repo doesn't exist, we don't need to delete it
             Activity.Current?.AddTag("app.hg.delete", "not-found");
+            _logger.LogWarning(e, "Failed to soft-delete repo while soft-deleting project {ProjectCode}", projectCode);
         }
         projectService.InvalidateProjectConfidentialityCache(projectId);
         projectService.InvalidateProjectCodeCache(projectCode);
