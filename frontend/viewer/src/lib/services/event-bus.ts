@@ -41,12 +41,13 @@ export class EventBus {
 
   public onEntryUpdated(projectName: string, callback: (entry: IEntry) => void): () => void {
     // eslint-disable-next-line func-style
-    const onEventCallback = (event: IFwEvent) => {
-      const projectEvent = event as IProjectEvent;
-      if (projectEvent.project.name !== projectName) return;
-      if (projectEvent.event.type !== FwEventType.EntryChanged) return;
+    const onEventCallback = (event: IFwEvent | IProjectEvent) => {
+      if (!('project' in event)) return;
 
-      const entryChangedEvent = projectEvent.event as IEntryChangedEvent;
+      if (event.project.name !== projectName) return;
+      if (event.event.type !== FwEventType.EntryChanged) return;
+
+      const entryChangedEvent = event.event as IEntryChangedEvent;
       callback(entryChangedEvent.entry);
     };
     this._onEvent.add(onEventCallback);
