@@ -62,6 +62,10 @@
     return superForm.form;
   }
 
+  export function close(): void {
+    modal?.close();
+  }
+
   async function openModal(onSubmit: SubmitCallback): Promise<DialogResponse> {
     const result = await modal.openModal();
     if (result == DialogResponse.Cancel) return result;
