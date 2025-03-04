@@ -1,0 +1,18 @@
+{
+  "RY27RL": {
+    "translation": "Dictionaries",
+    "message": "Dictionaries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        102
+      ],
+      [
+        "src/home/HomeView.svelte",
+        109
+      ]
+    ]
+  }
+}
