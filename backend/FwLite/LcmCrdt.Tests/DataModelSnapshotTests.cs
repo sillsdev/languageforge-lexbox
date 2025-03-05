@@ -49,8 +49,9 @@ public class DataModelSnapshotTests : IAsyncLifetime
     {
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        await CrdtProjectsService.InitProjectDb(_crdtDbContext,
-            new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
+        var projectData = new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid());
+        await CrdtProjectsService.InitProjectDb(_crdtDbContext, projectData);
+        _crdtProject.Data = projectData;
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(_crdtProject);
     }
 

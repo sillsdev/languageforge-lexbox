@@ -1,7 +1,14 @@
-﻿namespace LcmCrdt;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace LcmCrdt;
 
 public class CrdtProject(string name, string dbPath) : IProjectIdentifier
 {
+    public CrdtProject(string name, string dbPath, IMemoryCache memoryCache) : this(name, dbPath)
+    {
+        Data = CurrentProjectService.LookupProjectData(memoryCache, this);
+    }
+
     public string Name { get; } = name;
     public ProjectDataFormat DataFormat => ProjectDataFormat.Harmony;
     public string DbPath { get; } = dbPath;
