@@ -75,7 +75,7 @@
     {:else if !projects.length}
       <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
         {#if status.loggedIn}
-          No projects
+          {$t`No projects`}
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
@@ -90,7 +90,7 @@
                       loading={downloading === project.name}>
               <div slot="actions" class="pointer-events-none">
                 <Button disabled icon={mdiBookSyncOutline} class="p-2">
-                  Synced
+                  {$t`Synced`}
                 </Button>
               </div>
             </ListItem>
@@ -102,7 +102,7 @@
                     loading={downloading === project.name}>
             <div slot="actions" class="pointer-events-none">
               <Button icon={mdiBookArrowDownOutline} class="p-2">
-                Download
+                {$t`Download`}
               </Button>
             </div>
           </ListItem>

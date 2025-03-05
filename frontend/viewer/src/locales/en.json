@@ -63,6 +63,18 @@
     ],
     "translation": "Dictionaries"
   },
+  "mzI/c+": {
+    "message": "Download",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        105
+      ]
+    ],
+    "translation": "Download"
+  },
   "YirHq7": {
     "message": "Feedback",
     "placeholders": {},
@@ -175,6 +187,18 @@
     ],
     "translation": "Logout"
   },
+  "BWz+2z": {
+    "message": "No projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        78
+      ]
+    ],
+    "translation": "No projects"
+  },
   "Xp1CO/": {
     "message": "Project name...",
     "placeholders": {},
@@ -202,6 +226,18 @@
       ]
     ],
     "translation": "Refresh Projects"
+  },
+  "N2FcBE": {
+    "message": "Synced",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        93
+      ]
+    ],
+    "translation": "Synced"
   },
   "JXRN33": {
     "message": "Synced with {0}",
