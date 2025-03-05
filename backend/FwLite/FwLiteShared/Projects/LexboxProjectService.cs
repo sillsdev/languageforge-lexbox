@@ -1,9 +1,11 @@
 ﻿using System.Net.Http.Json;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
@@ -16,8 +18,26 @@ public class LexboxProjectService(
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
     BackgroundSyncService backgroundSyncService,
     IOptions<AuthConfig> options,
-    IMemoryCache cache)
+    IMemoryCache cache,
+    GlobalEventBus globalEventBus) : IHostedService
 {
+    private IDisposable? onAuthChangedSubscription;
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        onAuthChangedSubscription = globalEventBus.OnAuthenticationChanged.Subscribe((@event) =>
+        {
+            InvalidateProjectsCache(@event.Server);
+        });
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        onAuthChangedSubscription?.Dispose();
+        return Task.CompletedTask;
+    }
+
     public record LexboxProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
 
     public LexboxServer[] Servers()

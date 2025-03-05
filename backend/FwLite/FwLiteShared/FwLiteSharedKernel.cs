@@ -27,6 +27,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
         services.AddSingleton<LexboxProjectService>();
+        services.AddSingleton<IHostedService>(s => s.GetRequiredService<LexboxProjectService>());
         services.AddSingleton<CombinedProjectsService>();
         services.AddSingleton<GlobalEventBus>();
         services.AddSingleton<ProjectEventBus>();
