@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using FwLiteProjectSync;
 using OpenTelemetry.Trace;
@@ -25,9 +26,22 @@ public class OtelSampler(ILogger<OtelSampler> logger) : Sampler
             logger.LogTrace("sampling params {Sampling}, current activity {Activity}", Format(samplingParameters), Format(parent));
         if (parent is null) return false;
 
-        if (parent.OperationName == nameof(MiniLcmImport.ImportProject) && samplingParameters.Name == SqliteTraceName)
+        if (samplingParameters.Name == SqliteTraceName && IsImportProjectSpan(parent))
         {
             return true;
+        }
+        return false;
+    }
+
+    private bool IsImportProjectSpan(Activity? activity)
+    {
+        while (activity is not null)
+        {
+            if (activity.OperationName == nameof(MiniLcmImport.ImportProject))
+            {
+                return true;
+            }
+            activity = activity.Parent;
         }
         return false;
     }
