@@ -9,9 +9,8 @@
     mdiFaceAgent,
     mdiRefresh,
     mdiTestTube,
-    mdiTranslate,
   } from '@mdi/js';
-  import { AppBar, Button, ListItem, MenuButton, TextField } from 'svelte-ux';
+  import { AppBar, Button, ListItem, TextField } from 'svelte-ux';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
@@ -25,10 +24,8 @@
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
-  import { t, locale } from 'svelte-i18n-lingui';
-  import {messages as fr} from '../locales/fr';
-  import {messages as es} from '../locales/es';
-  import {messages as en} from '../locales/en';
+  import { t } from 'svelte-i18n-lingui';
+  import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -100,23 +97,6 @@
   const supportsTroubleshooting = useTroubleshootingService();
   let showTroubleshooting = false;
 
-  function setLanguage(lang: string) {
-    let messages;
-    switch (lang) {
-      case 'en':
-        messages = en;
-        break;
-      case 'fr':
-        messages = fr;
-        break;
-      case 'es':
-        messages = es;
-        break;
-      default:
-        messages = en;
-    }
-    locale.set(lang, messages);
-  }
 </script>
 
 <AppBar title={$t`Dictionaries`} class="bg-secondary min-h-12 shadow-md justify-between" menuIcon={null}>
@@ -124,20 +104,20 @@
     <picture>
       <source srcset={logoLight} media="(prefers-color-scheme: dark)" />
       <source srcset={logoDark} media="(prefers-color-scheme: light)" />
-      <img src={logoDark} alt="Lexbox logo" class="h-6" />
+      <img src={logoDark} alt={$t`Lexbox logo`} class="h-6" />
     </picture>
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex gap-2">
     <Button href={fwLiteConfig.feedbackUrl} target="_blank" size="sm" variant="outline" icon={mdiChatQuestion}>
-      Feedback
+      {$t`Feedback`}
     </Button>
     {#if supportsTroubleshooting}
       <Button
         size="sm"
         variant="outline"
         icon={mdiFaceAgent}
-        title="Troubleshoot"
+        title={$t`Troubleshoot`}
         iconOnly={false}
         on:click={() => (showTroubleshooting = !showTroubleshooting)}
       ></Button>
@@ -146,30 +126,21 @@
     <DevContent>
       <Button href="/sandbox" size="sm" variant="outline" icon={mdiTestTube}>Sandbox</Button>
     </DevContent>
-    <MenuButton
-      options={[
-        { value: 'en', label: 'en' },
-        { value: 'fr', label: 'fr' },
-        { value: 'es', label: 'es' },
-      ]}
-      value="en"
-      icon={mdiTranslate}
-      on:change={(e) => setLanguage(e.detail.value)}
-    />
+    <LocalizationPicker/>
   </div>
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
   <div class="flex-grow hidden md:block"></div>
   <div class="project-list">
     {#await projectsPromise}
-      <p>loading...</p>
+      <p>{$t`loading...`}</p>
     {:then projects}
       <div class="space-y-4 md:space-y-8">
         <div>
           <div class="flex flex-row">
-            <p class="sub-title">Local</p>
+            <p class="sub-title">{$t`Local`}</p>
             <div class="flex-grow"></div>
-            <Button icon={mdiRefresh} title="Refresh Projects" on:click={() => refreshProjects()} />
+            <Button icon={mdiRefresh} title={$t`Refresh Projects`} on:click={() => refreshProjects()} />
           </div>
           <div>
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
@@ -178,14 +149,14 @@
                 <ListItem
                   title={project.name}
                   icon={mdiBookEditOutline}
-                  subheading={!server ? 'Local only' : 'Synced with ' + server.displayName}
+                  subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                   loading={deletingProject === project.name}
                 >
                   <div slot="actions">
                     {#if $isDev}
                       <Button
                         icon={mdiDelete}
-                        title="Delete"
+                        title={$t`Delete`}
                         class="p-2"
                         on:click={(e) => {
                           e.preventDefault();
@@ -200,7 +171,7 @@
             {/each}
             <DevContent>
               <AnchorListItem href={`/testing/project-view`}>
-                <ListItem title="Test Project" icon={mdiTestTube}>
+                <ListItem title={$t`Test Project`} icon={mdiTestTube}>
                   <div slot="actions" class="pointer-events-none">
                     <Button icon={mdiChevronRight} class="p-2" />
                   </div>
@@ -209,7 +180,7 @@
             </DevContent>
             {#if !projects.some((p) => p.name === exampleProjectName) || $isDev}
               <ListItem
-                title="Create Example Project"
+                title={$t`Create Example Project`}
                 on:click={() => createExampleProject()}
                 loading={createProjectLoading}
               >
@@ -217,7 +188,7 @@
                   {#if $isDev}
                     <TextField
                       bind:value={customExampleProjectName}
-                      placeholder="Project name..."
+                      placeholder={$t`Project name...`}
                       on:click={(e) => e.stopPropagation()}
                     />
                   {/if}
@@ -230,18 +201,18 @@
         <ServersList localProjects={projects} {refreshProjects} />
         {#if projects.some((p) => p.fwdata)}
           <div>
-            <p class="sub-title">Classic FieldWorks Projects</p>
+            <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
                 <AnchorListItem href={`/fwdata/${project.name}`}>
                   <ListItem title={project.name}>
-                    <img slot="avatar" src={flexLogo} alt="FieldWorks logo" class="h-6" />
+                    <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6" />
                     <div slot="actions">
                       <DevContent invisible>
                         <Button
                           loading={importing === project.name}
                           icon={mdiBookArrowLeftOutline}
-                          title="Import"
+                          title={$t`Import`}
                           disabled={!!importing}
                           on:click={async (e) => {
                             e.preventDefault();
