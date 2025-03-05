@@ -71,11 +71,11 @@ spec:
               service:
                 pipelines:
                   traces:
-                    exporters: [otlp, otlp/aspire]
+                    exporters: [otlp/aspire]
                   metrics:
-                    exporters: [otlp/metrics, otlp/aspire]
+                    exporters: [otlp/aspire]
                   logs:
-                    exporters: [otlp, otlp/aspire]
+                    exporters: [otlp/aspire]
       - name: aspire
         image: mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest
         env:

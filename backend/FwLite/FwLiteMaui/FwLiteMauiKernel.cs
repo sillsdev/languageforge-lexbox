@@ -45,6 +45,7 @@ public static class FwLiteMauiKernel
             {
                 servers.Add(new(new("https://staging.languagedepot.org"), "Lexbox Staging"));
                 servers.Add(new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"));
+                servers.Add(new(new("https://localhost:3050"), "Lexbox Local"));
             }
 
             config.LexboxServers = servers.ToArray();

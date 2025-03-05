@@ -280,5 +280,24 @@
     "ComponentEntryId": "e0d469cd-9d2f-44f5-8147-102f683c18ed",
     "ComponentSenseId": "7a1c054f-472a-473f-afed-16f75fe9a90f",
     "EntityId": "01b98e0e-c95f-430d-9512-9db44fdf7b2a"
+  },
+  {
+    "$type": "jsonPatch:Publication",
+    "PatchDocument": [],
+    "EntityId": "da783ead-7895-42f5-958f-263816a3a1ef"
+  },
+  {
+    "$type": "delete:Publication",
+    "EntityId": "39673695-493d-93c1-50df-2f022c344665"
+  },
+  {
+    "$type": "CreatePublicationChange",
+    "Name": {
+      "mdy": "Small Soft Shoes",
+      "knc": "real-time",
+      "tre": "capacitor",
+      "xnu": "Multi-channelled"
+    },
+    "EntityId": "a024fdbe-52a4-6447-aae3-50fd8b815f10"
   }
 ]

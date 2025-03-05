@@ -27,11 +27,16 @@ public class UpdateDiffTests
         var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
-            .Excluding(x => x.DeletedAt).Excluding(x => x.Senses)
-            .Excluding(x => x.Components)
-            .Excluding(x => x.ComplexForms)
-            .Excluding(x => x.ComplexFormTypes));
+        before.Should().BeEquivalentTo(after, options =>
+        {
+            var equivalencyOptions = options.Excluding(x => x.Id)
+                .Excluding(x => x.DeletedAt).Excluding(x => x.Senses)
+                .Excluding(x => x.Components)
+                .Excluding(x => x.ComplexForms)
+                .Excluding(x => x.ComplexFormTypes);
+            equivalencyOptions = Publication.SupportsCrdts ? equivalencyOptions : equivalencyOptions.Excluding(x => x.PublishIn);
+            return equivalencyOptions;
+        });
     }
 
     [Fact]

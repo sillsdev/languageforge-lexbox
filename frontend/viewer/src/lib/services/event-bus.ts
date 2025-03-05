@@ -42,12 +42,9 @@ export class EventBus {
   public onEntryUpdated(projectName: string, callback: (entry: IEntry) => void): () => void {
     // eslint-disable-next-line func-style
     const onEventCallback = (event: IFwEvent) => {
-      const projectEvent = event as IProjectEvent;
-      if (projectEvent.project.name !== projectName) return;
-      if (projectEvent.event.type !== FwEventType.EntryChanged) return;
-
-      const entryChangedEvent = projectEvent.event as IEntryChangedEvent;
-      callback(entryChangedEvent.entry);
+      if (isEventForProject(event, projectName) && isEntryChangedEvent(event.event)) {
+        callback(event.event.entry);
+      }
     };
     this._onEvent.add(onEventCallback);
     return () => this._onEvent.delete(onEventCallback);
@@ -62,4 +59,16 @@ let changeEventBus: EventBus | undefined = undefined;
 
 export function useEventBus(): EventBus {
   return changeEventBus ??= new EventBus();
+}
+
+function isEntryChangedEvent(event: IFwEvent): event is IEntryChangedEvent {
+  return event.type === FwEventType.EntryChanged;
+}
+
+function isProjectEvent(event: IFwEvent): event is IProjectEvent {
+  return event.type === FwEventType.ProjectEvent;
+}
+
+function isEventForProject(event: IFwEvent, projectName: string): event is IProjectEvent {
+  return isProjectEvent(event) && event.project.name === projectName;
 }

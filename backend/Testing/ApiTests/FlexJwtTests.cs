@@ -38,13 +38,13 @@ public class FlexJwtTests : ApiTestBase
         projectToken.Should().NotBeNullOrEmpty();
         var user = ParseUserToken(projectToken);
         user.Projects.Should().ContainSingle();
-        user.Audience.Should().Be(LexboxAudience.SendAndReceive);
+        user.Scopes.Should().Contain(LexboxAuthScope.SendAndReceive);
 
         var flexToken = json.GetProperty("flexToken").GetString();
         flexToken.Should().NotBeNullOrEmpty();
         var flexUser = ParseUserToken(flexToken);
         flexUser.Projects.Should().BeEmpty();
-        flexUser.Audience.Should().Be(LexboxAudience.SendAndReceiveRefresh);
+        flexUser.Scopes.Should().Contain(LexboxAuthScope.SendAndReceiveRefresh);
 
         json.GetProperty("projectTokenExpiresAt").GetDateTime().Should().NotBe(default);
         json.GetProperty("flexTokenExpiresAt").GetDateTime().Should().NotBe(default);

@@ -37,6 +37,11 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config, FwDataFa
         return EnumerateProjects().OfType<FwDataProject>().FirstOrDefault(p => p.Name == name);
     }
 
+    ValueTask<IMiniLcmApi> IProjectProvider.OpenProject(IProjectIdentifier project, IServiceProvider serviceProvider, bool saveChangesOnDispose = true)
+    {
+        return ValueTask.FromResult(OpenProject(project, saveChangesOnDispose));
+    }
+
     public IMiniLcmApi OpenProject(IProjectIdentifier project, bool saveOnDispose = true)
     {
         if (project is not FwDataProject fwDataProject) throw new ArgumentException("Project is not a fwdata project");

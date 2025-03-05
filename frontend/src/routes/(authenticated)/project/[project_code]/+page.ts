@@ -38,6 +38,19 @@ export type ProjectUser = NonNullable<Project['users']>[number];
 export type User = ProjectUser['user'];
 export type Org = Pick<Organization, 'id' | 'name'>;
 
+graphql(`
+  fragment Changesets on Project {
+    changesets {
+      node
+      rev
+      parents
+      date
+      user
+      desc
+    }
+  }
+`);
+
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   const user = (await event.parent()).user;
@@ -60,9 +73,10 @@ export async function load(event: PageLoadEvent) {
 						isConfidential
             isLanguageForgeProject
             hasHarmonyCommits
-						organizations {
-							id
-						}
+            organizations {
+              id
+              name
+            }
             users {
               id
               role
@@ -104,10 +118,6 @@ export async function load(event: PageLoadEvent) {
                 }
               }
             }
-            organizations {
-              id
-              name
-            }
 					}
 				}
 			`),
@@ -120,14 +130,7 @@ export async function load(event: PageLoadEvent) {
           projectByCode(code: $projectCode) {
             id
             code
-            changesets {
-              node
-              rev
-              parents
-              date
-              user
-              desc
-            }
+            ...Changesets
           }
         }
       `),
@@ -598,13 +601,8 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
                 id
                 resetStatus
                 lastCommit
-                changesets {
-                  node
-                  parents
-                  date
-                  user
-                  desc
-                }
+                hasHarmonyCommits
+                ...Changesets
             }
         }
     `), { projectCode }, { requestPolicy: 'network-only' });

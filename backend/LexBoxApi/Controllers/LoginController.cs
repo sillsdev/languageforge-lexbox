@@ -33,21 +33,18 @@ public class LoginController(
     /// and logs in using that jwt with a cookie
     /// </summary>
     [HttpGet("loginRedirect")]
-    [AllowAnyAudience]
+    [RequireScope(LexboxAuthScope.LexboxApi, LexboxAuthScope.ForgotPassword, LexboxAuthScope.RegisterAccount)]
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
     {
         var user = loggedInContext.User;
-        // A RegisterAccount token means there's no user account yet, so checking UpdatedDate makes no sense
-        if (user.Audience != LexboxAudience.RegisterAccount)
+        var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
+        if (userUpdatedDate != user.UpdatedDate)
         {
-            var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
-            if (userUpdatedDate != user.UpdatedDate)
-            {
-                return await EmailLinkExpired();
-            }
+            return await EmailLinkExpired();
         }
+
 
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
@@ -98,7 +95,7 @@ public class LoginController(
             authUser = new LexAuthUser()
             {
                 Id = Guid.NewGuid(),
-                Audience = LexboxAudience.RegisterAccount,
+                Scopes = [LexboxAuthScope.RegisterAccount],
                 Name = googleName ?? "",
                 Email = googleEmail,
                 EmailVerificationRequired = null,
@@ -191,10 +188,12 @@ public class LoginController(
         {
             return Unauthorized(error.ToString());
         }
-        else if (user is null)
+
+        if (user is null)
         {
             return Unauthorized();
         }
+        user = user with { Scopes = [LexboxAuthScope.LexboxApi] };
 
         await userService.UpdateUserLastActive(user.Id);
         await userService.UpdatePasswordStrength(user.Id, loginRequest);
@@ -206,9 +205,10 @@ public class LoginController(
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [RequireScope(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive, LexboxAuthScope.SendAndReceiveRefresh, LexboxAuthScope.openid)]
     public async Task<ActionResult<LexAuthUser>> RefreshJwt()
     {
-        var user = await lexAuthService.RefreshUser(loggedInContext.User.Id);
+        var user = await lexAuthService.RefreshUser();
         if (user == null) return Unauthorized();
         return user;
     }
@@ -245,7 +245,7 @@ public class LoginController(
         int? PasswordStrength);
 
     [HttpPost("resetPassword")]
-    [RequireAudience(LexboxAudience.ForgotPassword)]
+    [RequireScope(LexboxAuthScope.ForgotPassword)]
     [RequireCurrentUserInfo]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -262,7 +262,7 @@ public class LoginController(
         await lexBoxDbContext.SaveChangesAsync();
         await emailService.SendPasswordChangedEmail(user);
         //the old jwt is only valid for calling forgot password endpoints, we need to generate a new one
-        if (lexAuthUser.Audience == LexboxAudience.ForgotPassword)
+        if (!lexAuthUser.HasScope(LexboxAuthScope.LexboxApi))
             await RefreshJwt();
         return Ok();
     }

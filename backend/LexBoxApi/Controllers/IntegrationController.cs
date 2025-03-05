@@ -55,7 +55,7 @@ public class IntegrationController(
     [HttpGet("getProjectToken")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     //todo make exclusive to prevent calling with normal jwt, currently used for testing
-    [RequireAudience(LexboxAudience.SendAndReceiveRefresh)]
+    [RequireScope(LexboxAuthScope.SendAndReceiveRefresh)]
     public async Task<ActionResult<RefreshResponse>> GetProjectToken(string projectCode)
     {
         var projectId = await projectService.LookupProjectId(projectCode);
@@ -67,19 +67,19 @@ public class IntegrationController(
     {
         var user = loggedInContext.User;
         //generates a short lived token only useful for S&R of this one project
-        var (projectToken, projectTokenExpiresAt, _) = authService.GenerateJwt(
+        var (projectToken, projectTokenExpiresAt) = authService.GenerateSendReceiveJwt(
             user with
             {
                 Projects = user.Projects.Where(p => p.ProjectId == projectId).ToArray(),
-                Audience = LexboxAudience.SendAndReceive,
-            });
+                Scopes = [LexboxAuthScope.SendAndReceive]
+            }, false);
 
         //refresh long lived token used to get new tokens
-        var (flexToken, flexTokenExpiresAt, _) = authService.GenerateJwt(user with
+        var (flexToken, flexTokenExpiresAt) = authService.GenerateSendReceiveJwt(user with
         {
             Projects = [],
-            Audience = LexboxAudience.SendAndReceiveRefresh,
-        });
+            Scopes = [LexboxAuthScope.SendAndReceiveRefresh]
+        }, true);
         return new RefreshResponse(projectToken, projectTokenExpiresAt, flexToken, flexTokenExpiresAt);
     }
 }

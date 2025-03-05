@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
@@ -44,6 +44,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
                 new ProjectSnapshot(
                     await fwdataApi.GetAllEntries().ToArrayAsync(),
                     await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
+                    await fwdataApi.GetPublications().ToArrayAsync(),
                     await fwdataApi.GetSemanticDomains().ToArrayAsync(),
                     await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
                     await fwdataApi.GetWritingSystems()));
@@ -114,11 +115,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
     public record ProjectSnapshot(
         Entry[] Entries,
         PartOfSpeech[] PartsOfSpeech,
+        Publication[] Publications,
         SemanticDomain[] SemanticDomains,
         ComplexFormType[] ComplexFormTypes,
         WritingSystems WritingSystems)
     {
-        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], new WritingSystems());
+        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], [], new WritingSystems());
     }
 
     private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)

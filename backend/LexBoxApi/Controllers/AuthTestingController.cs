@@ -9,7 +9,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-public class AuthTestingController : ControllerBase
+public class AuthTestingController(LoggedInContext loggedInContext) : ControllerBase
 {
     [HttpGet("requires-auth")]
     public OkObjectResult RequiresAuth()
@@ -25,8 +25,15 @@ public class AuthTestingController : ControllerBase
     }
 
     [HttpGet("requires-forgot-password")]
-    [RequireAudience(LexboxAudience.ForgotPassword, true)]
-    public OkResult RequiresForgotPasswordAudience()
+    [RequireScope(LexboxAuthScope.ForgotPassword, true)]
+    public OkResult RequiresForgotPassword()
+    {
+        return Ok();
+    }
+
+    [HttpGet("requiresSendReceiveScope")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, true)]
+    public OkResult RequiresSendReceiveScope()
     {
         return Ok();
     }
@@ -43,5 +50,12 @@ public class AuthTestingController : ControllerBase
     public ActionResult RequiresFwBetaFeatureFlag()
     {
         return Ok();
+    }
+
+    [HttpGet("token-project-count")]
+    [AllowAnonymous]
+    public ActionResult<int?> TokenProjectCount()
+    {
+        return loggedInContext.MaybeUser?.Projects.Length;
     }
 }

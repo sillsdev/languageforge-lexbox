@@ -106,6 +106,7 @@ public partial class HgService : IHgService, IHostedService
             }
         );
         await InvalidateDirCache(destCode);
+        await WaitForRepoReady(destCode);
     }
 
     public async Task DeleteRepo(ProjectCode code)
@@ -174,12 +175,8 @@ public partial class HgService : IHgService, IHostedService
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
         await InvalidateDirCache(code);
-        // If someone uploaded an *empty* repo, we don't want to wait forever for a non-empty state
-        var changelogPath = Path.Join(PrefixRepoFilePath(code), ".hg", "store", "00changelog.i");
-        var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
-        await WaitForRepoEmptyState(code, expectedState);
+        await WaitForRepoReady(code);
     }
-
 
     public async Task<string[]> CleanupResetBackups(bool dryRun = false)
     {
@@ -473,6 +470,14 @@ public partial class HgService : IHgService, IHostedService
         var content = await ExecuteHgCommandServerCommand(code, "reposizeinkb", token);
         var sizeStr = await content.ReadAsStringAsync();
         return int.TryParse(sizeStr, out var size) ? size : null;
+    }
+
+    private async Task WaitForRepoReady(ProjectCode code)
+    {
+        // If someone uploaded an *empty* repo, we don't want to wait forever for a non-empty state
+        var changelogPath = Path.Join(PrefixRepoFilePath(code), ".hg", "store", "00changelog.i");
+        var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
+        await WaitForRepoEmptyState(code, expectedState);
     }
 
     private async Task WaitForRepoEmptyState(ProjectCode code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)

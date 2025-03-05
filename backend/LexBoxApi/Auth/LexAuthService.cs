@@ -19,18 +19,21 @@ namespace LexBoxApi.Auth;
 
 public class LexAuthService
 {
-    public const string JwtUpdatedHeader = "lexbox-jwt-updated";
+    public const string JwtUpdatedHeader = LexAuthConstants.JwtUpdatedHeader;
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly LoggedInContext _loggedInContext;
 
     public LexAuthService(IOptions<JwtOptions> userOptions,
         LexBoxDbContext lexBoxDbContext,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        LoggedInContext loggedInContext)
     {
         _userOptions = userOptions;
         _lexBoxDbContext = lexBoxDbContext;
         _httpContextAccessor = httpContextAccessor;
+        _loggedInContext = loggedInContext;
     }
 
     public static TokenValidationParameters TokenValidationParameters(JwtOptions jwtOptions)
@@ -84,15 +87,25 @@ public class LexAuthService
         return (lexAuthUser, null);
     }
 
-    public async Task<LexAuthUser?> RefreshUser(Guid userId, string updatedValue = "all")
+    public async Task<LexAuthUser?> RefreshUser(string updatedValue = "all")
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
+        var context = _httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(context);
+        if (context.User.Identity?.AuthenticationType == AuthKernel.OAuthAuthenticationType)
+        {
+            // calling sign in will return a token in a cookie, that's not how oauth works so don't do that here, just notify the client with a header
+            context.Response.Headers[JwtUpdatedHeader] = updatedValue;
+            activity?.AddTag("app.user.refresh", "notified");
+            return _loggedInContext.User;
+        }
+
         var dbUser = await _lexBoxDbContext.Users
             .Include(u => u.Projects)
             .ThenInclude(p => p.Project)
             .Include(u => u.Organizations)
             .ThenInclude(o => o.Organization)
-            .FirstOrDefaultAsync(user => user.Id == userId);
+            .FirstOrDefaultAsync(user => user.Id == _loggedInContext.User.Id);
         if (dbUser is null)
         {
             activity?.AddTag("app.user.refresh", "user-not-found");
@@ -105,10 +118,9 @@ public class LexAuthService
         }
 
         var jwtUser = new LexAuthUser(dbUser);
-        var context = _httpContextAccessor.HttpContext;
-        ArgumentNullException.ThrowIfNull(context);
         await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
             new AuthenticationProperties { IsPersistent = true });
+
         dbUser.LastActive = DateTimeOffset.UtcNow;
         await _lexBoxDbContext.SaveChangesAsync();
         context.Response.Headers[JwtUpdatedHeader] = updatedValue;
@@ -127,6 +139,11 @@ public class LexAuthService
         return await GetUser(u => u.GoogleId == googleId);
     }
 
+    public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUserById(Guid id)
+    {
+        return await GetUser(u => u.Id == id);
+    }
+
     private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(Expression<Func<User, bool>> predicate)
     {
         var user = await _lexBoxDbContext.Users
@@ -137,23 +154,31 @@ public class LexAuthService
         return (user == null ? null : new LexAuthUser(user), user);
     }
 
-    public (string token, DateTime expiresAt, TimeSpan lifetime) GenerateJwt(LexAuthUser user,
-        bool useEmailLifetime = false)
+    public (string token, TimeSpan lifetime) GenerateEmailJwt(LexAuthUser user)
     {
-        var options = _userOptions.Value;
-        var lifetime = (user.Audience, useEmailLifetime) switch
-        {
-            (_, true) => options.EmailJwtLifetime,
-            (LexboxAudience.SendAndReceive, _) => options.SendReceiveJwtLifetime,
-            (LexboxAudience.SendAndReceiveRefresh, _) => options.SendReceiveRefreshJwtLifetime,
-            _ => options.Lifetime
-        };
-        return GenerateToken(user, user.Audience, lifetime);
+        var lifetime = _userOptions.Value.EmailJwtLifetime;
+        var token = GenerateJwt(user, lifetime);
+        return (token, lifetime);
     }
 
-    private (string token, DateTime expiresAt, TimeSpan lifetime) GenerateToken(LexAuthUser user,
-        LexboxAudience audience,
-        TimeSpan tokenLifetime)
+    public (string token, DateTime expiresAt) GenerateSendReceiveJwt(
+        LexAuthUser user,
+        bool useRefreshLifetime)
+    {
+        var options = _userOptions.Value;
+        var token = GenerateJwt(user,
+            useRefreshLifetime ? options.SendReceiveRefreshJwtLifetime : options.SendReceiveJwtLifetime,
+            out var expiresAt
+        );
+        return (token, expiresAt);
+    }
+
+    public string GenerateJwt(LexAuthUser user, TimeSpan tokenLifetime)
+    {
+        return GenerateJwt(user, tokenLifetime, out _);
+    }
+
+    public string GenerateJwt(LexAuthUser user, TimeSpan tokenLifetime, out DateTime expiresAt)
     {
         var jwtDate = DateTime.UtcNow;
         var options = _userOptions.Value;
@@ -163,7 +188,7 @@ public class LexAuthService
         identity.AddClaims(user.GetClaims().Where(c => c.Type != JwtRegisteredClaimNames.Aud));
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.CreateJwtSecurityToken(
-            audience: audience.ToString(),
+            audience: user.Audience.ToString(),
             issuer: LexboxAudience.LexboxApi.ToString(),
             subject: identity,
             notBefore: jwtDate,
@@ -175,7 +200,7 @@ public class LexAuthService
         );
         JwtTicketDataFormat.FixUpArrayClaims(jwt);
         var token = handler.WriteToken(jwt);
-
-        return (token, jwt.ValidTo.ToUniversalTime(), tokenLifetime);
+        expiresAt = jwt.ValidTo.ToUniversalTime();
+        return token;
     }
 }

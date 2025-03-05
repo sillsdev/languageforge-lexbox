@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
@@ -10,6 +11,7 @@ using LexData.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
 
 namespace LexBoxApi.Controllers;
 
@@ -21,7 +23,10 @@ public class TestingController(
     IHgService hgService,
     SeedingData seedingData,
     ProjectService projectService,
-    LoggedInContext loggedInContext)
+    LoggedInContext loggedInContext,
+    IOpenIddictAuthorizationManager? authorizationManager = null,
+    IOpenIddictApplicationManager? applicationManager = null
+    )
     : ControllerBase
 {
 #if DEBUG
@@ -32,16 +37,20 @@ public class TestingController(
     [ProducesDefaultResponseType]
     public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail,
         UserRole userRole,
-        LexboxAudience audience = LexboxAudience.LexboxApi)
+        LexboxAudience audience = LexboxAudience.LexboxApi,
+        string? scopes = nameof(LexboxAuthScope.LexboxApi))
     {
         var user = await lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FindByEmailOrUsername(usernameOrEmail);
         if (user is null) return NotFound();
-        var (token, _, _) = lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole, Audience = audience });
+        var lexAuthUser = new LexAuthUser(user) { Role = userRole, Audience = audience };
+        if (!string.IsNullOrEmpty(scopes)) lexAuthUser.ScopeString = scopes.ToLower();
+        var token = lexAuthService.GenerateJwt(lexAuthUser, TimeSpan.FromMinutes(30));
         return token;
     }
 
     [HttpGet("claims")]
+    [AllowAnonymous]
     public Dictionary<string, string> Claims()
     {
         return User.Claims.ToLookup(c => c.Type, c => c.Value).ToDictionary(k => k.Key, v => string.Join(";", v));
@@ -113,5 +122,24 @@ public class TestingController(
     public async Task<string[]> TestCleanupResetBackups(bool dryRun = true)
     {
         return await hgService.CleanupResetBackups(dryRun);
+    }
+
+    [HttpPost("pre-approve-oauth-app")]
+    public async Task<ActionResult> PreApproveOauthApp(string clientId, string scopes)
+    {
+        if (authorizationManager is null) throw new InvalidOperationException("authorizationManager is null");
+        if (applicationManager is null) throw new InvalidOperationException("applicationManager is null");
+        var application = await applicationManager.FindByClientIdAsync(clientId);
+        if (application is null)
+            return NotFound("unable to find a registered application with the client id " + clientId);
+        var applicationId = await applicationManager.GetIdAsync(application);
+        if (applicationId is null) throw new InvalidOperationException("applicationId is null");
+        await authorizationManager.CreateAsync(
+            principal: User,
+            subject: loggedInContext.User.Id.ToString(),
+            client: applicationId,
+            type: OpenIddictConstants.AuthorizationTypes.Permanent,
+            scopes: [..scopes.Split(' ')]);
+        return Ok();
     }
 }

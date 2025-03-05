@@ -7,6 +7,8 @@ using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Controllers;
 using LexCore.Auth;
 using LexData;
+using LexSyncReverseProxy;
+using LexSyncReverseProxy.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,6 +29,7 @@ public static class AuthKernel
     public const string DefaultScheme = "JwtOrCookie";
     public const string JwtOverBasicAuthUsername = "bearer";
     public const string AuthCookieName = LexAuthConstants.AuthCookieName;
+    public const string OAuthAuthenticationType = "OAuth";
 
     public static void AddLexBoxAuth(IServiceCollection services,
         IConfigurationRoot configuration,
@@ -39,9 +42,9 @@ public static class AuthKernel
         }
 
         services.AddScoped<LexAuthService>();
-        services.AddSingleton<IAuthorizationHandler, AudienceRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
         services.AddSingleton<IAuthorizationHandler, FeatureFlagRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.
@@ -54,8 +57,17 @@ public static class AuthKernel
             //don't use RequireDefaultLexboxAuth here because that only allows the default audience
             options.AddPolicy(AllowAnyAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
             //we still need this policy, without it the default policy is used which requires the default audience
-            options.AddPolicy(RequireAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
-            options.AddPolicy(FeatureFlagRequiredAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
+            options.AddPolicy(RequireScopeAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
+            options.AddPolicy(FeatureFlagRequiredAttribute.PolicyName, builder => builder.RequireDefaultLexboxAuth());
+            options.AddPolicy(ProxyKernel.UserHasAccessToProjectPolicy,
+                policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser()
+                        .AddRequirements(
+                            new UserHasAccessToProjectRequirement(),
+                            new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
+                        );
+                });
 
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()
@@ -242,13 +254,18 @@ public static class AuthKernel
             .AddServer(options =>
             {
                 options.RegisterScopes("openid", "profile", "email");
+                options.RegisterScopes([..Enum.GetNames<LexboxAuthScope>().Select(s => s.ToLower())]);
                 //todo add application claims
                 options.RegisterClaims("aud", "email", "exp", "iss", "iat", "sub", "name");
                 options.SetAuthorizationEndpointUris("api/oauth/open-id-auth");
                 options.SetTokenEndpointUris("api/oauth/token");
                 options.SetIntrospectionEndpointUris("api/oauth/introspect");
                 options.SetUserinfoEndpointUris("api/oauth/userinfo");
-                options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
+                options.Configure(serverOptions =>
+                {
+                    serverOptions.TokenValidationParameters.AuthenticationType = OAuthAuthenticationType;
+                    serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor);
+                });
 
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
                 options.SetRefreshTokenLifetime(TimeSpan.FromDays(14));
@@ -290,6 +307,8 @@ public static class AuthKernel
             })
             .AddValidation(options =>
             {
+                options.Configure(validationOptions =>
+                    validationOptions.TokenValidationParameters.AuthenticationType = OAuthAuthenticationType);
                 options.UseLocalServer();
                 options.UseAspNetCore();
                 options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());
@@ -305,7 +324,7 @@ public static class AuthKernel
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
     {
         return builder.RequireAuthenticatedUser()
-            .AddRequirements(new RequireAudienceAttribute(LexboxAudience.LexboxApi, true));
+            .AddRequirements(new RequireScopeAttribute(LexboxAuthScope.LexboxApi, true));
     }
 
     public static bool IsJwtRequest(this HttpRequest request)

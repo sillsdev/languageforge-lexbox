@@ -37,9 +37,12 @@ tasks:
       - git submodule init
       - git submodule update --recursive
       - git config --local submodule.recurse true
+      - cmd: setup-k8s
+      - docker build -t local-dev-init data/
+  setup-k8s:
+    cmds:
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
       - kubectl --context=docker-desktop apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
-      - docker build -t local-dev-init data/
   setup-win:
     platforms: [ windows ]
     cmds:
@@ -97,7 +100,7 @@ tasks:
     aliases:
       - web
       - web-for-develop
-    deps: [ ui:viewer-dev, fw-lite:web, ui:https-oauth-authority ]
+    deps: [ fw-lite:web, ui:fw-lite-infr]
 
   fw-lite-win:
-    deps: [fw-lite:maui-windows, ui:viewer-dev, ui:https-oauth-authority]
+    deps: [fw-lite:maui-windows, ui:fw-lite-infr]

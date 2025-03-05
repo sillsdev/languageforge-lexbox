@@ -29,7 +29,7 @@ public class LexQueries
 
         if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
         {
-            await lexAuthService.RefreshUser(userId, LexAuthConstants.ProjectsClaimType);
+            await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
         }
 
         return myProjects.AsQueryable();
@@ -134,7 +134,7 @@ public class LexQueries
         if (project is null) return project;
 
         var updatedUser = loggedInContext.User.IsOutOfSyncWithProject(project)
-            ? await lexAuthService.RefreshUser(loggedInContext.User.Id, LexAuthConstants.ProjectsClaimType)
+            ? await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType)
             : null;
 
         await permissionService.AssertCanViewProject(code, updatedUser);
@@ -164,7 +164,7 @@ public class LexQueries
 
         if (loggedInContext.User.IsOutOfSyncWithMyOrgs(myOrgs))
         {
-            await lexAuthService.RefreshUser(userId, LexAuthConstants.OrgsClaimType);
+            await lexAuthService.RefreshUser(LexAuthConstants.OrgsClaimType);
         }
         return myOrgs.AsQueryable();
     }
@@ -206,7 +206,7 @@ public class LexQueries
         if (org is null) return org;
 
         var updatedUser = loggedInContext.User.IsOutOfSyncWithOrg(org)
-            ? await lexAuthService.RefreshUser(loggedInContext.User.Id, LexAuthConstants.OrgsClaimType)
+            ? await lexAuthService.RefreshUser(LexAuthConstants.OrgsClaimType)
             : null;
 
         // Site admins and org admins can see everything

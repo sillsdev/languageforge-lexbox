@@ -18,15 +18,16 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     public async ValueTask<ProjectData> GetProjectData(bool forceRefresh = false)
     {
         var key = CacheKey(Project);
-        if (!memoryCache.TryGetValue(key, out object? result) || forceRefresh)
+        ProjectData? result = LookupProjectData(memoryCache, Project);
+        if (result is null || forceRefresh)
         {
             result = await DbContext.ProjectData.AsNoTracking().FirstAsync();
             memoryCache.Set(key, result);
-            memoryCache.Set(CacheKey(((ProjectData)result).Id), result);
+            memoryCache.Set(CacheKey(result.Id), result);
         }
         if (result is null) throw new InvalidOperationException("Project data not found");
 
-        return (ProjectData)result;
+        return result;
     }
 
     public void ValidateProjectScope()
@@ -36,7 +37,7 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
 
     private static string CacheKey(CrdtProject project)
     {
-        return project.Name + "|ProjectData";
+        return project.DbPath + "|ProjectData";
     }
 
     private static string CacheKey(Guid projectId)
@@ -44,9 +45,9 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         return $"ProjectData|{projectId}";
     }
 
-    public static ProjectData? LookupProjectData(IMemoryCache memoryCache, string projectName)
+    public static ProjectData? LookupProjectData(IMemoryCache memoryCache, CrdtProject project)
     {
-        return memoryCache.Get<ProjectData>(projectName + "|ProjectData");
+        return memoryCache.Get<ProjectData>(CacheKey(project));
     }
 
     public static ProjectData? LookupProjectById(IMemoryCache memoryCache, Guid projectId)
@@ -73,6 +74,8 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         activity?.SetTag("app.project_code", project.Name);
         if (_project != null && project != _project) throw new InvalidOperationException("Can't setup project context for a different project");
         _project = project;
+        //the first time this is called ProjectData will be null, after that it will be populated, so we can skip migration
+        if (LookupProjectData(memoryCache, project) is null) await MigrateDb();
         return await RefreshProjectData();
     }
 
@@ -85,6 +88,11 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     {
         var projectData = await GetProjectData(true);
         return projectData;
+    }
+
+    private async Task MigrateDb()
+    {
+        await DbContext.Database.MigrateAsync();
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)

@@ -97,6 +97,9 @@
       Note (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
+      PublishIn (List<Publication>) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
     Navigations: 
       ComplexForms (List<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
@@ -167,6 +170,28 @@
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: PartOfSpeech
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: Publication
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      DeletedAt (DateTimeOffset?)
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      Publication {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Publication
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: SemanticDomain

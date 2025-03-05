@@ -37,8 +37,13 @@ public class SyncController(
     public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        var result = await fwHeadlessClient.AwaitStatus(projectId);
+        var result = await fwHeadlessClient.AwaitStatus(projectId, HttpContext.RequestAborted);
         if (result is null) return Problem("Failed to get sync status");
-        return result;
+        if (result is { Result: SyncJobResultEnum.Success, SyncResult: not null })
+        {
+            return result.SyncResult;
+        }
+
+        return Problem(result.Error ?? "Unknown error");
     }
 }

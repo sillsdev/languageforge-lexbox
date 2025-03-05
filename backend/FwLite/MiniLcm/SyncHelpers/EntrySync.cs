@@ -24,6 +24,7 @@ public static class EntrySync
             changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
             changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
             changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
+            //todo sync publications
             return changes + (updateObjectInput is null ? 0 : 1);
         }
         catch (Exception e)

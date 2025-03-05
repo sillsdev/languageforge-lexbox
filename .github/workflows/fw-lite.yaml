@@ -7,6 +7,7 @@ on:
       - 'backend/harmony/**'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - 'FwLiteOnly.slnf'
     branches:
       - develop
       - main
@@ -16,6 +17,7 @@ on:
       - 'backend/harmony/**'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - 'FwLiteOnly.slnf'
     branches:
       - develop
       - main

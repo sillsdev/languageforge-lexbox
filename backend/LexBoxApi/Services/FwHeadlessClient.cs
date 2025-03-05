@@ -1,4 +1,5 @@
-﻿using LexCore.Sync;
+﻿using System.Net;
+using LexCore.Sync;
 
 namespace LexBoxApi.Services;
 
@@ -15,32 +16,26 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             projectId);
         return false;
     }
-
-    public async Task<SyncResult?> AwaitStatus(Guid projectId)
+    public async Task<SyncJobResult?> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetAsync($"/api/await-sync-finished?projectId={projectId}");
+        var response = await httpClient.GetAsync($"/api/await-sync-finished?projectId={projectId}", cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             logger.LogError("Failed to get sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId,
-                await response.Content.ReadAsStringAsync());
+                await response.Content.ReadAsStringAsync(cancellationToken));
             return null;
         }
-        var jobResult = await response.Content.ReadFromJsonAsync<SyncJobResult>();
+        var jobResult = await response.Content.ReadFromJsonAsync<SyncJobResult>(cancellationToken);
         if (jobResult is null)
         {
             logger.LogError("Failed to get sync status");
             return null;
         }
 
-        if (jobResult.Result == SyncJobResultEnum.Success)
-        {
-            return jobResult.SyncResult;
-        }
-        logger.LogError("Sync failed: {JobResult}", jobResult);
-        return null;
+        return jobResult;
     }
 
     public async Task<ProjectSyncStatus?> CrdtSyncStatus(Guid projectId)
