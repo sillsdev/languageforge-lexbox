@@ -367,6 +367,9 @@ importers:
       '@lingui/format-json':
         specifier: ^5.2.0
         version: 5.2.0(typescript@5.7.3)
+      '@lingui/vite-plugin':
+        specifier: ^5.2.0
+        version: 5.2.0(typescript@5.7.3)(vite@6.1.0(@types/node@20.17.17)(jiti@2.4.2)(yaml@2.7.0))
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
@@ -1466,6 +1469,12 @@ packages:
     engines: {node: '>=20.0.0'}
     bundledDependencies:
       - '@messageformat/date-skeleton'
+
+  '@lingui/vite-plugin@5.2.0':
+    resolution: {integrity: sha512-jMpf6JJY1s3t4eFRBseTyuQNxy6ERRwg+uLi8EZ/qcaQgQW+GK6qWX/Qg5xQ8k1mJpaP6ihanMQMrkS6d5oR/A==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      vite: ^3 || ^4 || ^5.0.9 || ^6
 
   '@mdi/js@7.4.47':
     resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
@@ -7286,6 +7295,15 @@ snapshots:
     dependencies:
       '@messageformat/parser': 5.1.1
       js-sha256: 0.10.1
+
+  '@lingui/vite-plugin@5.2.0(typescript@5.7.3)(vite@6.1.0(@types/node@20.17.17)(jiti@2.4.2)(yaml@2.7.0))':
+    dependencies:
+      '@lingui/cli': 5.2.0(typescript@5.7.3)
+      '@lingui/conf': 5.2.0(typescript@5.7.3)
+      vite: 6.1.0(@types/node@20.17.17)(jiti@2.4.2)(yaml@2.7.0)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   '@mdi/js@7.4.47': {}
 

@@ -26,14 +26,14 @@
     "test:watch": "vitest",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint .",
-    "i18n:extract": "lingui extract",
-    "i18n:compile": "lingui compile --typescript"
+    "i18n:extract": "lingui extract"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.8.0",
     "@iconify-json/mdi": "^1.1.66",
     "@lingui/cli": "^5.2.0",
     "@lingui/format-json": "^5.2.0",
+    "@lingui/vite-plugin": "^5.2.0",
     "@mdi/js": "^7.4.47",
     "@stylistic/eslint-plugin": "catalog:",
     "@sveltejs/vite-plugin-svelte": "catalog:",
