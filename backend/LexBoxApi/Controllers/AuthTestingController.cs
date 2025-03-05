@@ -25,8 +25,15 @@ public class AuthTestingController(LoggedInContext loggedInContext) : Controller
     }
 
     [HttpGet("requires-forgot-password")]
-    [RequireAudience(LexboxAudience.ForgotPassword, true)]
-    public OkResult RequiresForgotPasswordAudience()
+    [RequireScope(LexboxAuthScope.ForgotPassword, true)]
+    public OkResult RequiresForgotPassword()
+    {
+        return Ok();
+    }
+
+    [HttpGet("requiresSendReceiveScope")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, true)]
+    public OkResult RequiresSendReceiveScope()
     {
         return Ok();
     }
@@ -46,8 +53,9 @@ public class AuthTestingController(LoggedInContext loggedInContext) : Controller
     }
 
     [HttpGet("token-project-count")]
-    public ActionResult<int> TokenProjectCount()
+    [AllowAnonymous]
+    public ActionResult<int?> TokenProjectCount()
     {
-        return loggedInContext.User.Projects.Length;
+        return loggedInContext.MaybeUser?.Projects.Length;
     }
 }

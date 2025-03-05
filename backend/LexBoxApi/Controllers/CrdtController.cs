@@ -21,6 +21,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/crdt")]
+[RequireScope(LexboxAuthScope.SendAndReceive)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class CrdtController(
     LexBoxDbContext dbContext,
@@ -101,5 +102,11 @@ public class CrdtController(
         }
 
         return Ok(projectId);
+    }
+
+    [HttpGet("checkConnection")]
+    public ActionResult CheckConnection()
+    {
+        return Ok();
     }
 }

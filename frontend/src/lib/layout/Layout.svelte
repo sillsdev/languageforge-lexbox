@@ -35,7 +35,7 @@
 
 <svelte:window on:keydown={closeOnEscape} />
 
-{#if user?.audience === 'LexboxApi'}
+{#if user?.audience === 'LexboxApi' || user?.scope?.includes('lexboxapi')}
   <div class="drawer drawer-end grow">
     <input id="drawer-toggle" type="checkbox" bind:checked={menuToggle} class="drawer-toggle" />
 

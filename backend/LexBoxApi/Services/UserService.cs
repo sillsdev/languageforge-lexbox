@@ -47,11 +47,16 @@ public class UserService(LexBoxDbContext dbContext, IEmailService emailService)
         return clamped;
     }
 
+    /// <summary>
+    /// returns LexAuthUser.NewUserUpdatedTimestamp if the user does not exist
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public async Task<long> GetUserUpdatedDate(Guid id)
     {
         return (await dbContext.Users.Where(u => u.Id == id)
-            .Select(u => u.UpdatedDate)
-            .SingleOrDefaultAsync()).ToUnixTimeSeconds();
+            .Select(u => (DateTimeOffset?) u.UpdatedDate)
+            .SingleOrDefaultAsync())?.ToUnixTimeSeconds() ?? LexAuthUser.NewUserUpdatedTimestamp;
     }
 
     public static (string name, string? email, string? username) ExtractNameAndAddressFromUsernameOrEmail(string usernameOrEmail)

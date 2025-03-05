@@ -74,9 +74,11 @@ test.describe('oauth tests', () => {
   async function userProjectCount(apiOrToken: APIRequestContext | string) {
     if (typeof apiOrToken === 'string') {
       const response = await fetch(`${serverBaseUrl}/api/AuthTesting/token-project-count`, {method: 'GET', headers: {'authorization': `Bearer ${apiOrToken}`}});
+      expect(response.status).toBe(200);
       return parseInt(await response.text());
     } else {
       const response = await apiOrToken.get(`${serverBaseUrl}/api/AuthTesting/token-project-count`);
+      expect(response.status()).toBe(200);
       return parseInt(await response.text());
     }
   }

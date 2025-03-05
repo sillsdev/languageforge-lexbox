@@ -1,4 +1,5 @@
 ﻿using LcmCrdt.Utils;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Refit;
 using SIL.Harmony;
@@ -6,43 +7,50 @@ using SIL.Harmony.Core;
 
 namespace LcmCrdt.RemoteSync;
 
-public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
+public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings, IMemoryCache cache)
 {
-    //todo replace with a IMemoryCache check
-    private bool? _isHealthy;
-    private DateTimeOffset _lastHealthCheck = DateTimeOffset.MinValue;
+    private static readonly TimeSpan HealthyCacheTime = TimeSpan.FromMinutes(30);
+    private bool? CachedIsHealthy(string authority)
+    {
+        return cache.Get<bool?>("ServerHealth|" + authority);
+    }
+
+    private void SetCachedIsHealthy(string authority, bool healthy)
+    {
+        cache.Set("ServerHealth|" + authority, healthy, DateTimeOffset.UtcNow + HealthyCacheTime);
+    }
+
 
     //todo pull this out into a service wrapped around auth helpers so that any service making requests can use it
-    public async ValueTask<bool> ShouldSync(ISyncHttp syncHttp)
+    internal async ValueTask<bool> ShouldSync(ISyncHttp syncHttp, string authority)
     {
-        if (_isHealthy is not null && _lastHealthCheck + TimeSpan.FromMinutes(30) > DateTimeOffset.UtcNow)
-            return _isHealthy.Value;
+        var isHealthy = CachedIsHealthy(authority);
+        if (isHealthy is not null)
+            return isHealthy.Value;
         try
         {
             var responseMessage = await syncHttp.HealthCheck();
-            _isHealthy = responseMessage.IsSuccessStatusCode;
-            if (!_isHealthy.Value)
+            isHealthy = responseMessage.IsSuccessStatusCode;
+            if (!isHealthy.Value)
             {
-                logger.LogWarning("Health check failed, response status code {StatusCode}", responseMessage.StatusCode);
+                logger.LogWarning("Health check failed for {Authority}, response status code {StatusCode}", authority, responseMessage.StatusCode);
             }
-            _lastHealthCheck = responseMessage.Headers.Date ?? DateTimeOffset.UtcNow;
         }
         catch (HttpRequestException e)
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogDebug(e, "Failed to check health of remote server");
+                logger.LogDebug(e, "Failed to check health of remote server: {Authority}", authority);
             }
             else
             {
-                logger.LogWarning("Failed to check health of remote server");
+                logger.LogWarning("Failed to check health of remote server: {Authority}", authority);
             }
 
-            _isHealthy = false;
-            _lastHealthCheck = DateTimeOffset.UtcNow;
+            isHealthy = false;
         }
-
-        return _isHealthy.Value;
+        SetCachedIsHealthy(authority, isHealthy.Value);
+        return isHealthy.Value;
     }
 
     /// <summary>
@@ -53,7 +61,7 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
     /// <returns></returns>
     public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project, HttpClient client)
     {
-        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this);
+        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this, client.BaseAddress?.Authority ?? string.Empty);
     }
 
     public async ValueTask<bool> TestAuth(HttpClient client)
@@ -64,11 +72,11 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
     }
 }
 
-internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid clientId, CrdtHttpSyncService httpSyncService) : ISyncable
+internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid clientId, CrdtHttpSyncService httpSyncService, string authority) : ISyncable
 {
     public ValueTask<bool> ShouldSync()
     {
-        return httpSyncService.ShouldSync(restSyncClient);
+        return httpSyncService.ShouldSync(restSyncClient, authority);
     }
 
     async Task ISyncable.AddRangeFromSync(IEnumerable<Commit> commits)
@@ -108,7 +116,7 @@ internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid cl
 
 public interface ISyncHttp
 {
-    [Get("/api/AuthTesting/requires-auth")]
+    [Get("/api/crdt/checkConnection")]
     Task<HttpResponseMessage> HealthCheck();
 
     [Post("/api/crdt/{id}/add")]

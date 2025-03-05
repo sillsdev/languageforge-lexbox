@@ -63,6 +63,11 @@ public class SyncService(
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
         var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
         var syncResults = await dataModel.SyncWith(remoteModel);
+        if (!syncResults.IsSynced)
+        {
+            logger.LogWarning("Did not sync with server, {ProjectName}", project.Name);
+            return syncResults;
+        }
         await UpdateSyncDate(syncDate);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);

@@ -31,6 +31,7 @@ describe('jwtToUser', () => {
       'iat': 1721377515,
       'iss': 'LexboxApi',
       'aud': 'LexboxApi' as const,
+      'scope': 'lexboxapi'
     };
     const user = jwtToUser(jwtUser);
     expect(user).toEqual({
@@ -72,6 +73,7 @@ describe('jwtToUser', () => {
       'locale': 'en',
       'emailOrUsername': 'editor@test.com',
       'audience': 'LexboxApi',
+      'scope': 'lexboxapi'
     });
   });
 });

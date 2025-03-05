@@ -36,13 +36,6 @@ public static class ProxyKernel
         services.AddHttpForwarder();
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
-        services.AddAuthorizationBuilder()
-            .AddPolicy("UserHasAccessToProject",
-                policyBuilder =>
-                {
-                    policyBuilder.RequireAuthenticatedUser()
-                        .AddRequirements(new UserHasAccessToProjectRequirement());
-                });
     }
 
     public static void MapSyncProxy(this IEndpointRouteBuilder app,

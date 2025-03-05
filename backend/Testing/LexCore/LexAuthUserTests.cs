@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using LexCore;
+using Xunit.Abstractions;
 
 namespace Testing.LexCore;
 
@@ -42,7 +43,7 @@ public class LexAuthUserTests
         Locked = false,
         EmailVerificationRequired = false,
         CanCreateProjects = true,
-        UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+        UpdatedDate = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds(),
         CreatedByAdmin = false,
         Locale = "en",
         Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ],
@@ -50,7 +51,9 @@ public class LexAuthUserTests
         {
             new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99"))
         },
-        FeatureFlags = [FeatureFlag.FwLiteBeta]
+        FeatureFlags = [FeatureFlag.FwLiteBeta],
+        Audience = LexboxAudience.LexboxApi,
+        Scopes = [LexboxAuthScope.LexboxApi, LexboxAuthScope.email]
     };
 
     private static readonly JwtBearerOptions JwtBearerOptions = new()
@@ -187,7 +190,7 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripJwtFromUserThroughLexAuthService()
     {
-        var (jwt, _, _) = _lexAuthService.GenerateJwt(_user);
+        var jwt = _lexAuthService.GenerateJwt(_user, TimeSpan.FromMinutes(5));
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
@@ -199,24 +202,47 @@ public class LexAuthUserTests
     private const string knownGoodJwt =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyYzEyNDA1NyIsInN1YiI6ImYwZGI0YzVlLTlkNGItNDEyMS05ZGMwLWI3MDcwNzEzYWU0YSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsIm5hbWUiOiJ0ZXN0Iiwicm9sZSI6InVzZXIiLCJwcm9qIjoibTo0MmY1NjZjMGE0ZDI0OGI1YTFlMTU5YzgyMjg5ZmY5OSIsIm5iZiI6MTcwMjM3Mzk2OCwiZXhwIjoxNzAyMzc0MDI4LCJpYXQiOjE3MDIzNzM5NjksImlzcyI6IkxleGJveEFwaSIsImF1ZCI6IkxleGJveEFwaSJ9.YsAkP5oIX4nNkrSNSe-PNMR1pMaJassnNDJ3vmjMYQU";
 
-    [Fact]
-    public void CanParseFromKnownGoodJwt()
+    private const string knownGoodJwt2 =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MzBmMjEzOSIsInN1YiI6ImYwZGI0YzVlLTlkNGItNDEyMS05ZGMwLWI3MDcwNzEzYWU0YSIsImRhdGUiOjE2NzI1MzEyMDAsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsInVzZXIiOiJ0ZXN0IiwibmFtZSI6InRlc3QiLCJyb2xlIjoidXNlciIsIm9yZ3MiOlt7IlJvbGUiOiJBZG1pbiIsIk9yZ0lkIjoiMjkyYzgwZTYtYTgxNS00Y2QxLTllYTItMzRiZDAxMjc0ZGU2In1dLCJmZWF0IjpbIkZ3TGl0ZUJldGEiXSwicHJvaiI6Im06NDJmNTY2YzBhNGQyNDhiNWExZTE1OWM4MjI4OWZmOTkiLCJsb2NrIjpmYWxzZSwidW52ZXIiOmZhbHNlLCJta3Byb2oiOnRydWUsImNyZWF0IjpmYWxzZSwibG9jIjoiZW4iLCJuYmYiOjE3NDA0NTMyMTYsImV4cCI6MTc0MDQ1MzI3NiwiaWF0IjoxNzQwNDUzMjE2LCJpc3MiOiJMZXhib3hBcGkiLCJhdWQiOiJMZXhib3hBcGkifQ.6L_tw1Q9OUIoxiKUxQHJdA2t_Abm8t84rg0fQIdQB40";
+    [Theory]
+    [InlineData(knownGoodJwt, 1)]//version is arbitrary, just used to determine how to test
+    [InlineData(knownGoodJwt2, 2)]
+    public void CanParseFromKnownGoodJwt(string jwt, int version)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var outputJwt = tokenHandler.ReadJwtToken(knownGoodJwt);
+        var outputJwt = tokenHandler.ReadJwtToken(jwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         newUser.Should().NotBeNull();
-        newUser.UpdatedDate.Should().Be(0);
-        //old jwt doesn't have updated date or orgs, we're ok with that so we correct the values to make the equivalence work
-        newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];
-        newUser.UpdatedDate = _user.UpdatedDate;
-        newUser.FeatureFlags = _user.FeatureFlags;
-        // ditto for Username
-        newUser.Username = _user.Username;
-        // ditto for Locked, EmailVerificationRequired, CanCreateProjects, and CreatedByAdmin
-        newUser.Should().BeEquivalentTo(_user,
-            user => user.Excluding(u => u.Locked).Excluding(u => u.EmailVerificationRequired).Excluding(u => u.CanCreateProjects).Excluding(u => u.CreatedByAdmin));
+        using var _ = new AssertionScope();
+        newUser.Id.Should().Be(_user.Id);
+        newUser.Email.Should().Be(_user.Email);
+        newUser.Name.Should().Be(_user.Name);
+        newUser.Role.Should().Be(_user.Role);
+        newUser.Projects.Should().BeEquivalentTo(_user.Projects);
+        newUser.Audience.Should().Be(_user.Audience);
+        newUser.HasScope(LexboxAuthScope.LexboxApi).Should().BeTrue();
+
+        if (version == 1)
+        {
+            newUser.UpdatedDate.Should().Be(0);
+            return;
+        }
+
+        newUser.UpdatedDate.Should().Be(_user.UpdatedDate);
+        newUser.Username.Should().Be(_user.Username);
+        newUser.Orgs.Should().BeEquivalentTo(_user.Orgs);
+        newUser.FeatureFlags.Should().BeEquivalentTo(_user.FeatureFlags);
+        newUser.Locked.Should().Be(_user.Locked);
+        newUser.EmailVerificationRequired.Should().Be(_user.EmailVerificationRequired);
+        newUser.CanCreateProjects.Should().Be(_user.CanCreateProjects);
+        newUser.CreatedByAdmin.Should().Be(_user.CreatedByAdmin);
+        newUser.Locale.Should().Be(_user.Locale);
+        newUser.IsAdmin.Should().Be(_user.IsAdmin);
+        if (version == 2)
+        {
+            //nothing yet as it matches prod
+        }
     }
 
     [Fact]
@@ -228,14 +254,14 @@ public class LexAuthUserTests
                 .Select(i => new AuthUserProject(i % 2 == 0 ? ProjectRole.Manager : ProjectRole.Editor, Guid.NewGuid()))
                 .ToArray()
         };
-        var (jwt, _, _) = _lexAuthService.GenerateJwt(user);
+        var jwt = _lexAuthService.GenerateJwt(user, TimeSpan.FromMinutes(5));
         jwt.Length.Should().BeLessThan(LexAuthUser.MaxJwtLength);
     }
 
     [Fact]
     public void CanRoundTripThroughRefresh()
     {
-        var (forgotJwt, _, _) = _lexAuthService.GenerateJwt(_user with { Audience = LexboxAudience.ForgotPassword });
+        var (forgotJwt, _) = _lexAuthService.GenerateEmailJwt(_user with { Audience = LexboxAudience.ForgotPassword });
         //simulate parsing the token into a claims principal
         var tokenHandler = new JwtSecurityTokenHandler();
         var forgotPrincipal =
@@ -253,5 +279,17 @@ public class LexAuthUserTests
             new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(redirectJwt).Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(loggedInPrincipal);
         newUser.Should().BeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
+    }
+
+    [Fact]
+    public void HasScopeShouldOnlyFallbackToAudienceIfThereIsNoScope()
+    {
+        var user = _user with { ScopeString = null, Audience = LexboxAudience.LexboxApi };
+        user.HasScope(LexboxAuthScope.LexboxApi).Should().BeTrue();
+        user.HasScope(LexboxAuthScope.RegisterAccount).Should().BeFalse();
+
+        user = user with { Scopes = [LexboxAuthScope.openid], Audience = LexboxAudience.LexboxApi };
+        user.HasScope(LexboxAuthScope.LexboxApi).Should().BeFalse("there is a scope so we don't fallback to the audience");
+        user.HasScope(LexboxAuthScope.openid).Should().BeTrue();
     }
 }
