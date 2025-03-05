@@ -137,7 +137,11 @@ public class OAuthLoginRequest(IPublicClientApplication app, string clientReturn
         Uri redirectUri,
         CancellationToken cancellationToken)
     {
-        cancellationToken.Register(_resultTcs.SetCanceled);
+        cancellationToken.Register(() =>
+        {
+            if (!_resultTcs.Task.IsCompleted)
+                _resultTcs.SetCanceled();
+        });
         State = HttpUtility.ParseQueryString(authorizationUri.Query).Get("state");
         //triggers step 1 to finish awaiting
         _authUriTcs.SetResult(authorizationUri);
