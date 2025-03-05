@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using FwDataMiniLcmBridge;
 using FwLiteShared;
 using FwLiteShared.Auth;
@@ -22,7 +22,7 @@ public static class ProjectRoutes
         group.MapGet("/remoteProjects",
             async (CombinedProjectsService combinedProjectsService) =>
             {
-                return (await combinedProjectsService.RemoteProjects(false)).ToDictionary(p => p.Server.Authority.Authority, p => p.Projects);
+                return (await combinedProjectsService.RemoteProjects()).ToDictionary(p => p.Server.Authority.Authority, p => p.Projects);
             });
         group.MapGet("/localProjects",
             (CombinedProjectsService combinedProjectsService) => combinedProjectsService.LocalProjects());

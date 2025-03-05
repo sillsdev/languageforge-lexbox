@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Auth;
+using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,21 +35,21 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     [JSInvokable]
     public bool SupportsFwData() => FwDataProjectProvider is not null;
     [JSInvokable]
-    public async Task<ServerProjects[]> RemoteProjects(bool forceRefresh)
+    public async Task<ServerProjects[]> RemoteProjects()
     {
         var lexboxServers = lexboxProjectService.Servers();
         ServerProjects[] serverProjects = new ServerProjects[lexboxServers.Length];
         for (var i = 0; i < lexboxServers.Length; i++)
         {
             var server = lexboxServers[i];
-            var projectModels = await ServerProjects(server, forceRefresh);
+            var projectModels = await ServerProjects(server);
             serverProjects[i] = new ServerProjects(server, projectModels);
         }
 
         return serverProjects;
     }
 
-    private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh)
+    private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh = false)
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
