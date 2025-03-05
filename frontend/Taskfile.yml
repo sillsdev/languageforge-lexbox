@@ -21,6 +21,13 @@ tasks:
     cmds:
       - corepack enable || true
       - pnpm install
+
+  fw-lite-infr:
+    desc: The extra UI stuff the FW Lite Maui app needs to run. I.e. if you want to debug Maui, run this first, otherwise use a task that depends on this.
+    aliases:
+      - fi
+    deps: [ viewer-dev, https-oauth-authority ]
+
   playwright-tests:
     aliases: [ pt ]
     cmd: pnpm run test {{.CLI_ARGS}}
