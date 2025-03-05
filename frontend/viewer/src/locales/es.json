@@ -1,6 +1,17 @@
 {
+  "dhBPPx": {
+    "message": "{0} Server",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        48
+      ]
+    ],
+    "translation": "{0} Servidor"
+  },
   "Q01cKL": {
-    "translation": "Proyectos Clásicos de FieldWorks",
     "message": "Classic FieldWorks Projects",
     "placeholders": {},
     "comments": [],
@@ -9,10 +20,10 @@
         "src/home/HomeView.svelte",
         204
       ]
-    ]
+    ],
+    "translation": "Proyectos Clásicos de FieldWorks"
   },
   "0widty": {
-    "translation": "Crear Proyecto de Ejemplo",
     "message": "Create Example Project",
     "placeholders": {},
     "comments": [],
@@ -21,10 +32,10 @@
         "src/home/HomeView.svelte",
         183
       ]
-    ]
+    ],
+    "translation": "Crear Proyecto de Ejemplo"
   },
   "cnGeoo": {
-    "translation": "Eliminar",
     "message": "Delete",
     "placeholders": {},
     "comments": [],
@@ -33,7 +44,8 @@
         "src/home/HomeView.svelte",
         159
       ]
-    ]
+    ],
+    "translation": "Eliminar"
   },
   "RY27RL": {
     "message": "Dictionaries",
@@ -52,7 +64,6 @@
     "translation": "Diccionarios"
   },
   "YirHq7": {
-    "translation": "Comentarios",
     "message": "Feedback",
     "placeholders": {},
     "comments": [],
@@ -61,10 +72,10 @@
         "src/home/HomeView.svelte",
         113
       ]
-    ]
+    ],
+    "translation": "Comentarios"
   },
   "uKNYWn": {
-    "translation": "Logotipo de FieldWorks",
     "message": "FieldWorks logo",
     "placeholders": {},
     "comments": [],
@@ -73,10 +84,10 @@
         "src/home/HomeView.svelte",
         209
       ]
-    ]
+    ],
+    "translation": "Logotipo de FieldWorks"
   },
   "l3s5ri": {
-    "translation": "Importar",
     "message": "Import",
     "placeholders": {},
     "comments": [],
@@ -85,10 +96,10 @@
         "src/home/HomeView.svelte",
         215
       ]
-    ]
+    ],
+    "translation": "Importar"
   },
   "Cb8zzH": {
-    "translation": "Logotipo de Lexbox",
     "message": "Lexbox logo",
     "placeholders": {},
     "comments": [],
@@ -97,10 +108,10 @@
         "src/home/HomeView.svelte",
         107
       ]
-    ]
+    ],
+    "translation": "Logotipo de Lexbox"
   },
   "+yD+Wu": {
-    "translation": "cargando...",
     "message": "loading...",
     "placeholders": {},
     "comments": [],
@@ -109,10 +120,10 @@
         "src/home/HomeView.svelte",
         136
       ]
-    ]
+    ],
+    "translation": "cargando..."
   },
   "d5zxa4": {
-    "translation": "Local",
     "message": "Local",
     "placeholders": {},
     "comments": [],
@@ -121,10 +132,10 @@
         "src/home/HomeView.svelte",
         141
       ]
-    ]
+    ],
+    "translation": "Local"
   },
   "OgyJSr": {
-    "translation": "Solo local",
     "message": "Local only",
     "placeholders": {},
     "comments": [],
@@ -133,10 +144,38 @@
         "src/home/HomeView.svelte",
         152
       ]
-    ]
+    ],
+    "translation": "Solo local"
+  },
+  "z7IcPF": {
+    "message": "Login to see projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/auth/LoginButton.svelte",
+        70
+      ],
+      [
+        "src/lib/auth/LoginButton.svelte",
+        78
+      ]
+    ],
+    "translation": "Inicie sesión para ver proyectos"
+  },
+  "nOhz3x": {
+    "message": "Logout",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/auth/LoginButton.svelte",
+        59
+      ]
+    ],
+    "translation": "Cerrar sesión"
   },
   "Xp1CO/": {
-    "translation": "Nombre del proyecto...",
     "message": "Project name...",
     "placeholders": {},
     "comments": [],
@@ -145,22 +184,26 @@
         "src/home/HomeView.svelte",
         191
       ]
-    ]
+    ],
+    "translation": "Nombre del proyecto..."
   },
   "TG4hr2": {
-    "translation": "Actualizar Proyectos",
     "message": "Refresh Projects",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
+        "src/home/Server.svelte",
+        56
+      ],
+      [
         "src/home/HomeView.svelte",
         143
       ]
-    ]
+    ],
+    "translation": "Actualizar Proyectos"
   },
   "JXRN33": {
-    "translation": "Sincronizado con {0}",
     "message": "Synced with {0}",
     "placeholders": {},
     "comments": [],
@@ -169,10 +212,10 @@
         "src/home/HomeView.svelte",
         152
       ]
-    ]
+    ],
+    "translation": "Sincronizado con {0}"
   },
   "/OCqal": {
-    "translation": "Proyecto de Prueba",
     "message": "Test Project",
     "placeholders": {},
     "comments": [],
@@ -181,10 +224,10 @@
         "src/home/HomeView.svelte",
         174
       ]
-    ]
+    ],
+    "translation": "Proyecto de Prueba"
   },
   "et+mIi": {
-    "translation": "Solucionar problemas",
     "message": "Troubleshoot",
     "placeholders": {},
     "comments": [],
@@ -193,6 +236,7 @@
         "src/home/HomeView.svelte",
         120
       ]
-    ]
+    ],
+    "translation": "Solucionar problemas"
   }
 }

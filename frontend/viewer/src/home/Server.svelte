@@ -7,6 +7,7 @@
   import {Button, ListItem, Settings} from 'svelte-ux';
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
+  import {t} from 'svelte-i18n-lingui';
 
   const projectsService = useProjectsService();
 
@@ -44,7 +45,7 @@
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
       {#if server}
-        {server.displayName} Server
+        {$t`${server.displayName} Server`}
       {:else}
         <div class="h-2 w-28 bg-surface-content/50 rounded-full animate-pulse"></div>
       {/if}
@@ -52,7 +53,7 @@
     <div class="flex-grow"></div>
     {#if status?.loggedIn}
       <Button icon={mdiRefresh}
-              title="Refresh Projects"
+              title={$t`Refresh Projects`}
               disabled={loading}
               on:click={() => dispatch('refreshProjects')}/>
       <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
