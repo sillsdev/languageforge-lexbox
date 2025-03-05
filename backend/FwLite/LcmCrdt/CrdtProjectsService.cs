@@ -94,8 +94,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         activity?.SetTag("app.project_id", request.Id);
         if (!ProjectName().IsMatch(request.Name))
         {
-            activity?.SetStatus(ActivityStatusCode.Error, "Project name is invalid");
-            throw new InvalidOperationException("Project name is invalid");
+            var nameIsInvalid = $"Project name '{request.Name}' is invalid";
+            activity?.SetStatus(ActivityStatusCode.Error, nameIsInvalid);
+            throw new InvalidOperationException(nameIsInvalid);
         }
 
         //poor man's sanitation
@@ -103,8 +104,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile))
         {
-            activity?.SetStatus(ActivityStatusCode.Error, "Project already exists");
-            throw new InvalidOperationException("Project already exists");
+            var alreadyExists = $"Project already exists at '{sqliteFile}'";
+            activity?.SetStatus(ActivityStatusCode.Error, alreadyExists);
+            throw new InvalidOperationException(alreadyExists);
         }
 
         var crdtProject = new CrdtProject(name, sqliteFile);
