@@ -1,6 +1,41 @@
 {
+  "Q01cKL": {
+    "translation": "",
+    "message": "Classic FieldWorks Projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        204
+      ]
+    ]
+  },
+  "0widty": {
+    "translation": "",
+    "message": "Create Example Project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        183
+      ]
+    ]
+  },
+  "cnGeoo": {
+    "translation": "",
+    "message": "Delete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        159
+      ]
+    ]
+  },
   "RY27RL": {
-    "translation": "Dictionnaires",
     "message": "Dictionaries",
     "placeholders": {},
     "comments": [],
@@ -12,6 +47,151 @@
       [
         "src/home/HomeView.svelte",
         109
+      ]
+    ],
+    "translation": "Dictionnaires"
+  },
+  "YirHq7": {
+    "translation": "",
+    "message": "Feedback",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        113
+      ]
+    ]
+  },
+  "uKNYWn": {
+    "translation": "",
+    "message": "FieldWorks logo",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        209
+      ]
+    ]
+  },
+  "l3s5ri": {
+    "translation": "",
+    "message": "Import",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        215
+      ]
+    ]
+  },
+  "Cb8zzH": {
+    "translation": "",
+    "message": "Lexbox logo",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        107
+      ]
+    ]
+  },
+  "+yD+Wu": {
+    "translation": "",
+    "message": "loading...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        136
+      ]
+    ]
+  },
+  "d5zxa4": {
+    "translation": "",
+    "message": "Local",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        141
+      ]
+    ]
+  },
+  "OgyJSr": {
+    "translation": "",
+    "message": "Local only",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        152
+      ]
+    ]
+  },
+  "Xp1CO/": {
+    "translation": "",
+    "message": "Project name...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        191
+      ]
+    ]
+  },
+  "TG4hr2": {
+    "translation": "",
+    "message": "Refresh Projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        143
+      ]
+    ]
+  },
+  "JXRN33": {
+    "translation": "",
+    "message": "Synced with {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        152
+      ]
+    ]
+  },
+  "/OCqal": {
+    "translation": "",
+    "message": "Test Project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        174
+      ]
+    ]
+  },
+  "et+mIi": {
+    "translation": "",
+    "message": "Troubleshoot",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        120
       ]
     ]
   }
