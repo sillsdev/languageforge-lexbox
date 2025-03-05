@@ -42,7 +42,8 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
         .AddSource(FwHeadlessActivitySource.ActivitySourceName,
             FwLiteProjectSyncActivitySource.ActivitySourceName,
             FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
-            LcmCrdtActivitySource.ActivitySourceName));
+            LcmCrdtActivitySource.ActivitySourceName)
+        .SetSampler<OtelSampler>());
 });
 
 var app = builder.Build();

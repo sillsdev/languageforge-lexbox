@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using SIL.Harmony;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,11 +87,25 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
 
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
-        if (!ProjectName().IsMatch(request.Name)) throw new InvalidOperationException("Project name is invalid");
+        using var activity = LcmCrdtActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", request.Id);
+        if (!ProjectName().IsMatch(request.Name))
+        {
+            var nameIsInvalid = $"Project name '{request.Name}' is invalid";
+            activity?.SetStatus(ActivityStatusCode.Error, nameIsInvalid);
+            throw new InvalidOperationException(nameIsInvalid);
+        }
+
         //poor man's sanitation
         var name = Path.GetFileName(request.Name);
         var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
-        if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
+        if (File.Exists(sqliteFile))
+        {
+            var alreadyExists = $"Project already exists at '{sqliteFile}'";
+            activity?.SetStatus(ActivityStatusCode.Error, alreadyExists);
+            throw new InvalidOperationException(alreadyExists);
+        }
+
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
@@ -112,6 +127,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         catch(Exception e)
         {
             logger.LogError(e, "Failed to create project {Project}, deleting database", crdtProject.Name);
+            activity?.AddException(e);
             await db.Database.CloseConnectionAsync();
             EnsureDeleteProject(sqliteFile);
             throw;
