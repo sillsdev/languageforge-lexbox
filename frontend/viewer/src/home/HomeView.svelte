@@ -147,16 +147,17 @@
           <div>
             {#each projects.filter(p => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
+              {@const loading = deletingProject === project.name}
               <AnchorListItem href={`/project/${project.name}`}>
                 <ListItem title={project.name}
                           icon={mdiBookEditOutline}
                           subheading={!server ? 'Local only' : ('Synced with ' + server.displayName)}
-                          loading={deletingProject === project.name}>
+                          {loading}>
                   <div slot="actions">
                     {#if $isDev}
                       <Button icon={mdiDelete} title="Delete" class="p-2" on:click={(e) => {
                         e.preventDefault();
-                        void deleteProject(project.name);
+                        if (!loading) void deleteProject(project.name);
                       }} />
                     {/if}
                     <Button icon={mdiChevronRight} class="p-2 pointer-events-none"/>
@@ -174,7 +175,11 @@
               </AnchorListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem title="Create Example Project" on:click={() => createExampleProject()} loading={createProjectLoading}>
+              <ListItem
+                title="Create Example Project"
+                on:click={() => {if(!createProjectLoading) void createExampleProject()}}
+                loading={createProjectLoading}
+              >
                 <div slot="actions" class="flex flex-nowrap gap-2">
                   {#if $isDev}
                     <TextField bind:value={customExampleProjectName} placeholder="Project name..." on:click={(e) => e.stopPropagation()} />

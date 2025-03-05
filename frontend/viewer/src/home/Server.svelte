@@ -23,13 +23,21 @@
 
   async function downloadCrdtProject(project: Project, server: ILexboxServer | undefined) {
     if (!server) throw new Error('Server is undefined');
+    else if (matchesProject(localProjects, project)) return;
+
     downloading = project.name;
     if (project.id == null) throw new Error('Project id is null');
     try {
       await projectsService.downloadProject(project.id, project.name, server);
+      localProjects.push({
+        ...project,
+        server,
+      });
       dispatch('refreshAll');
     } finally {
-      downloading = '';
+      setTimeout(() => {
+        downloading = '';
+      }, 100);
     }
   }
 
@@ -95,10 +103,12 @@
             </ListItem>
           </AnchorListItem>
         {:else}
+          {@const loading = downloading === project.name}
           <ListItem icon={mdiCloud}
                     title={project.name}
-                    on:click={() => void downloadCrdtProject(project, server)}
-                    loading={downloading === project.name}>
+                    class={loading ? 'pointer-events-none' : ''}
+                    on:click={() => {if (!loading) void downloadCrdtProject(project, server)}}
+                    {loading}>
             <div slot="actions" class="pointer-events-none">
               <Button icon={mdiBookArrowDownOutline} class="p-2">
                 Download
