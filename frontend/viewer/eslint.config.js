@@ -117,7 +117,9 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: true,
+        projectService: {
+          allowDefaultProject: ['lingui.config.ts'],
+        },
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files
       },

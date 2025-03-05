@@ -1,9 +1,10 @@
 ﻿import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
-import {formatter} from "@lingui/format-json";
-import {defineConfig} from "@lingui/cli";
+
+import {defineConfig} from '@lingui/cli';
+import {formatter} from '@lingui/format-json';
 
 export default defineConfig({
-  format: formatter({style: "lingui"}),
+  format: formatter({style: 'lingui'}),
   locales: ['en', 'es', 'fr'],
   sourceLocale: 'en',
   catalogs: [
