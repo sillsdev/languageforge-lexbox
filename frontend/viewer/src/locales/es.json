@@ -1,6 +1,6 @@
 {
   "Q01cKL": {
-    "translation": "",
+    "translation": "Proyectos Clásicos de FieldWorks",
     "message": "Classic FieldWorks Projects",
     "placeholders": {},
     "comments": [],
@@ -12,7 +12,7 @@
     ]
   },
   "0widty": {
-    "translation": "",
+    "translation": "Crear Proyecto de Ejemplo",
     "message": "Create Example Project",
     "placeholders": {},
     "comments": [],
@@ -24,7 +24,7 @@
     ]
   },
   "cnGeoo": {
-    "translation": "",
+    "translation": "Eliminar",
     "message": "Delete",
     "placeholders": {},
     "comments": [],
@@ -52,7 +52,7 @@
     "translation": "Diccionarios"
   },
   "YirHq7": {
-    "translation": "",
+    "translation": "Comentarios",
     "message": "Feedback",
     "placeholders": {},
     "comments": [],
@@ -64,7 +64,7 @@
     ]
   },
   "uKNYWn": {
-    "translation": "",
+    "translation": "Logotipo de FieldWorks",
     "message": "FieldWorks logo",
     "placeholders": {},
     "comments": [],
@@ -76,7 +76,7 @@
     ]
   },
   "l3s5ri": {
-    "translation": "",
+    "translation": "Importar",
     "message": "Import",
     "placeholders": {},
     "comments": [],
@@ -88,7 +88,7 @@
     ]
   },
   "Cb8zzH": {
-    "translation": "",
+    "translation": "Logotipo de Lexbox",
     "message": "Lexbox logo",
     "placeholders": {},
     "comments": [],
@@ -100,7 +100,7 @@
     ]
   },
   "+yD+Wu": {
-    "translation": "",
+    "translation": "cargando...",
     "message": "loading...",
     "placeholders": {},
     "comments": [],
@@ -112,7 +112,7 @@
     ]
   },
   "d5zxa4": {
-    "translation": "",
+    "translation": "Local",
     "message": "Local",
     "placeholders": {},
     "comments": [],
@@ -124,7 +124,7 @@
     ]
   },
   "OgyJSr": {
-    "translation": "",
+    "translation": "Solo local",
     "message": "Local only",
     "placeholders": {},
     "comments": [],
@@ -136,7 +136,7 @@
     ]
   },
   "Xp1CO/": {
-    "translation": "",
+    "translation": "Nombre del proyecto...",
     "message": "Project name...",
     "placeholders": {},
     "comments": [],
@@ -148,7 +148,7 @@
     ]
   },
   "TG4hr2": {
-    "translation": "",
+    "translation": "Actualizar Proyectos",
     "message": "Refresh Projects",
     "placeholders": {},
     "comments": [],
@@ -160,7 +160,7 @@
     ]
   },
   "JXRN33": {
-    "translation": "",
+    "translation": "Sincronizado con {0}",
     "message": "Synced with {0}",
     "placeholders": {},
     "comments": [],
@@ -172,7 +172,7 @@
     ]
   },
   "/OCqal": {
-    "translation": "",
+    "translation": "Proyecto de Prueba",
     "message": "Test Project",
     "placeholders": {},
     "comments": [],
@@ -184,7 +184,7 @@
     ]
   },
   "et+mIi": {
-    "translation": "",
+    "translation": "Solucionar problemas",
     "message": "Troubleshoot",
     "placeholders": {},
     "comments": [],
