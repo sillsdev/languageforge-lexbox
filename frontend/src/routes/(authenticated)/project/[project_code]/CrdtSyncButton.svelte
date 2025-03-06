@@ -96,11 +96,11 @@
 </script>
 
 {#if project.hasHarmonyCommits}
-  <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={modalState === 'syncing'} active={modalState === 'syncing'} customLoader>
+  <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={syncing} active={syncing} customLoader>
     <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     {$t('project.crdt.sync_fwlite')}
     <span style="transform: rotateY(180deg)">
-      <Icon icon="i-mdi-sync" spin={modalState === 'syncing'} spinReverse />
+      <Icon icon="i-mdi-sync" spin={syncing} spinReverse />
     </span>
   </Button>
 {:else}
