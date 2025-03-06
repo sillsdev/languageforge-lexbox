@@ -10,11 +10,11 @@
     mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
-  import { AppBar, Button, ListItem, TextField } from 'svelte-ux';
+  import {AppBar, Button, ListItem, TextField} from 'svelte-ux';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
-  import DevContent, { isDev } from '$lib/layout/DevContent.svelte';
+  import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
     useFwLiteConfig,
     useImportFwdataService,
@@ -24,7 +24,7 @@
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
-  import { t } from 'svelte-i18n-lingui';
+  import {t} from 'svelte-i18n-lingui';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
 
   const projectsService = useProjectsService();
