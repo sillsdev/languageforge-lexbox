@@ -24,6 +24,7 @@ using MiniLcm.Validators;
 using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
+using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
@@ -33,6 +34,19 @@ public static class LcmCrdtKernel
     {
         AvoidTrimming();
         LinqToDBForEFTools.Initialize();
+        EntryFilter.Mapper.AddMap(nameof(Entry.LexemeForm), (entry, key) => Json.Value(entry.LexemeForm, ms => ms[key]));
+        EntryFilter.Mapper.AddMap(nameof(Entry.CitationForm), (entry, key) => Json.Value(entry.CitationForm, ms => ms[key]));
+        EntryFilter.Mapper.AddMap(nameof(Entry.Note), (entry, key) => Json.Value(entry.Note, ms => ms[key]));
+        EntryFilter.Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}",
+            (entry, key) => entry.Senses.Select(s => Json.Value(s.Gloss, ms => ms[key])));
+        EntryFilter.Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}",
+            (entry, key) => entry.Senses.Select(s => Json.Value(s.Definition, ms => ms[key])));
+        EntryFilter.Mapper.Configuration.DisableCollectionNullChecks = true;
+        EntryFilter.Mapper.AddMap(nameof(Entry.ComplexFormTypes), EntryFilter.ConvertNullToEmptyList<ComplexFormType>);
+        EntryFilter.Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}",
+            entry => entry.Senses.Select(s => s.SemanticDomains),
+            EntryFilter.ConvertNullToEmptyList<SemanticDomain>);
+
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
