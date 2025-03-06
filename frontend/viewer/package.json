@@ -26,7 +26,7 @@
     "test:watch": "vitest",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint .",
-    "i18n:extract": "lingui extract"
+    "i18n:extract": "lingui extract && lingui extract"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.8.0",
