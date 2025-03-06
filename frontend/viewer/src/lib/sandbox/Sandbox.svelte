@@ -13,6 +13,7 @@
   import OverrideFields from '$lib/OverrideFields.svelte';
   import type {FieldIds} from '$lib/entry-editor/field-data';
   import {dndzone} from 'svelte-dnd-action';
+  import {delay} from '$lib/utils/time';
 
 
   const crdtOptions: MenuOption[] = [
@@ -47,6 +48,14 @@
 
   function updateFields(e: CustomEvent<{ items: ({ id: FieldIds })[] }>) {
     senseFields = e.detail.items;
+  }
+  let count = 0;
+  let loading = false;
+  async function incrementAsync() {
+    loading = true;
+    await delay(1000);
+    count++;
+    loading = false;
   }
 </script>
 
@@ -86,6 +95,15 @@
       </Button>
       <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
       </Button>
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <div class="flex flex-col gap-2">
+      Button
+      <Button variant="fill" disabled={loading} {loading} on:click={incrementAsync}>
+        Increment Async
+      </Button>
+      click count: {count}
     </div>
   </div>
   <div class="border grid" style="grid-template-columns: auto 1fr">
