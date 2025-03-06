@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
@@ -13,24 +12,7 @@ public class DbStartupService : IHostedService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DbStartupService> _logger;
-    private static bool _migrateExecuted = false;
-
-    public static bool IsMigrationRequest(string[] args)
-    {
-        return args is ["migrate", ..];
-    }
-
-    public static async Task RunMigrationRequest(string[] args)
-    {
-        var builder = Host.CreateApplicationBuilder(args);
-        builder.Services.AddLogging();
-        builder.Services.AddSingleton<IHostLifetime, ConsoleLifetime>();
-        builder.Services.AddLexData(true);
-        var host = builder.Build();
-        await host.StartAsync();
-        await host.StopAsync();
-        if (!_migrateExecuted) throw new ApplicationException("database migrations not executed");
-    }
+    public static bool MigrateExecuted { get; private set; } = false;
 
     public DbStartupService(IServiceProvider serviceProvider, ILogger<DbStartupService> logger)
     {
@@ -68,7 +50,7 @@ public class DbStartupService : IHostedService
             await seedingData.SeedOAuth(cancellationToken);
         }
 
-        _migrateExecuted = true;
+        MigrateExecuted = true;
         var elapsedTime = Stopwatch.GetElapsedTime(startTime);
         _logger.LogInformation($"Migrations applied successfully ({elapsedTime:s\\.fff} sec)");
     }

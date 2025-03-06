@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
-using OpenIddict.EntityFrameworkCore.Models;
 
 namespace LexData;
 
@@ -17,8 +16,10 @@ public class SeedingData(
     IOptions<DbConfig> dbConfig,
     IHostEnvironment environment,
     ILogger<SeedingData> logger,
-    IOpenIddictApplicationManager? applicationManager = null)
+    IOpenIddictApplicationManager applicationManager)
 {
+    public static bool OAuthSeeded { get; private set; } = false;
+
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
     private static readonly Guid MangerId = new Guid("703701a8-005c-4747-91f2-ac7650455118");
@@ -252,7 +253,6 @@ public class SeedingData(
 
     public async Task SeedOAuth(CancellationToken token = default)
     {
-        if (applicationManager is null) return;
         var dbApps = await applicationManager.ListAsync(cancellationToken: token)
             .ToDictionaryAwaitAsync(async app => await applicationManager.GetClientIdAsync(app, token) ?? throw new InvalidOperationException("ClientId is null"), token);
         var seedApps = OAuthApps;
@@ -260,7 +260,8 @@ public class SeedingData(
         {
             var dbApp = dbApps.GetValueOrDefault(clientId);
             var seedApp = seedApps.GetValueOrDefault(clientId);
-            await ((dbApp, seedApp) switch {
+            await ((dbApp, seedApp) switch
+            {
                 { dbApp: null, seedApp: not null } => CreateApp(seedApp, token),
                 { dbApp: not null, seedApp: null } => applicationManager.DeleteAsync(dbApp, token),
                 { dbApp: not null, seedApp: not null } => UpdateApp(dbApp, seedApp, token),
@@ -278,6 +279,8 @@ public class SeedingData(
             await applicationManager.PopulateAsync(dbApp, seedApp, token);
             await applicationManager.UpdateAsync(dbApp, token);
         }
+
+        OAuthSeeded = true;
     }
     private Dictionary<string, OpenIddictApplicationDescriptor> OAuthApps => Enumerable.ToDictionary(
     [

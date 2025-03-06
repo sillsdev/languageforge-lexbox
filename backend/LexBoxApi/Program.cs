@@ -26,9 +26,9 @@ using Microsoft.OpenApi.Models;
 using tusdotnet;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
-if (DbStartupService.IsMigrationRequest(args))
+if (MigrationKernel.IsMigrationRequest(args))
 {
-    await DbStartupService.RunMigrationRequest(args);
+    await MigrationKernel.RunMigrationRequest(args);
     return;
 }
 
