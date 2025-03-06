@@ -127,4 +127,17 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
+
+    [Fact]
+    public async Task CanFilterGlossEqualsFruit()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=Fruit" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+    [Fact]
+    public async Task CanFilterLexemeContainsAAndNoComplexFormTypes()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]=*a, ComplexFormTypes=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana);
+    }
 }
