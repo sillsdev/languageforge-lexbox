@@ -69,12 +69,12 @@ public class DbStartupService : IHostedService
             return false;
         }
         catch (NpgsqlException e) when (e.InnerException is IOException
-                                        {
-                                            InnerException: SocketException
-                                            {
-                                                SocketErrorCode: SocketError.ConnectionReset
-                                            }
-                                        })
+        {
+            InnerException: SocketException
+            {
+                SocketErrorCode: SocketError.ConnectionReset
+            }
+        })
         {
             return false;
         }

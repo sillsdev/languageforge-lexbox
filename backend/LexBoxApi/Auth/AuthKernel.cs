@@ -107,7 +107,7 @@ public static class AuthKernel
                             context.RequestServices.GetService<IOptions<OpenIdOptions>>()?.Value.Enable == true)
                         {
                             //todo this breaks CanUseBearerAuth test
-                            //fow now this will use oauth
+                            //for now this will use oauth
                             return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
                         }
 
