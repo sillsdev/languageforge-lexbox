@@ -166,7 +166,6 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
     Guid projectId)
 {
     using var activity = FwHeadlessActivitySource.Value.StartActivity();
-    if (!syncHostedService.IsJobQueuedOrRunning(projectId)) return TypedResults.NotFound();
     try
     {
         var result = await syncHostedService.AwaitSyncFinished(projectId, cancellationToken);
