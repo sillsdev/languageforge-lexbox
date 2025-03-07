@@ -32,7 +32,7 @@ public class OpenProjectTests
         var asyncScope = services.CreateAsyncScope();
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
         var exception = new Exception("Test exception");
-        var projectRequest = new CreateProjectRequest("CleaningUpAFailedCreateWorks", AfterCreate: (_, _) => throw exception, SeedNewProjectData: true);
+        var projectRequest = new CreateProjectRequest("CleaningUpAFailedCreateWorks", "CleaningUpAFailedCreateWorks", AfterCreate: (_, _) => throw exception, SeedNewProjectData: true);
 
 
         var act = async () => await crdtProjectsService.CreateProject(projectRequest);
@@ -58,7 +58,12 @@ public class OpenProjectTests
         var services = host.Services;
         var asyncScope = services.CreateAsyncScope();
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-        var crdtProject = await crdtProjectsService.CreateProject(new(Name: "OpeningAProjectWorks", Path: "", SeedNewProjectData: true));
+        var crdtProject = await crdtProjectsService.CreateProject(new(
+            Name: "OpeningAProjectWorks",
+            Code: "opening-a-project-works",
+            Path: "",
+            SeedNewProjectData: true
+            ));
 
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
         miniLcmApi.ProjectData.Name.Should().Be("OpeningAProjectWorks");

@@ -33,7 +33,7 @@ public static class ProjectRoutes
                     return Results.BadRequest("Project name is required");
                 if (projectService.ProjectExists(name))
                     return Results.BadRequest("Project already exists");
-                if (!CrdtProjectsService.ProjectName().IsMatch(name))
+                if (!CrdtProjectsService.ProjectCode().IsMatch(name))
                     return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
                 await projectService.CreateExampleProject(name);
                 return TypedResults.Ok();
@@ -56,10 +56,10 @@ public static class ProjectRoutes
                 string serverAuthority
             ) =>
             {
-                if (!CrdtProjectsService.ProjectName().IsMatch(projectName))
+                if (!CrdtProjectsService.ProjectCode().IsMatch(projectName))
                     return Results.BadRequest("Project name is invalid");
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await combinedProjectsService.DownloadProject(projectId, projectName, server);
+                await combinedProjectsService.DownloadProject(projectId, server);
                 return TypedResults.Ok();
             });
         return group;

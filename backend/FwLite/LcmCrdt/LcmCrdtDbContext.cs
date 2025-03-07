@@ -1,11 +1,8 @@
-﻿using System.Data.Common;
-using System.Text.Json;
+﻿using System.Text.Json;
 using LcmCrdt.Data;
-using Microsoft.Data.Sqlite;
 using SIL.Harmony;
 using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 

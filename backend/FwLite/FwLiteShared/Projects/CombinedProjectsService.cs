@@ -10,6 +10,7 @@ namespace FwLiteShared.Projects;
 
 public record ProjectModel(
     string Name,
+    string Code,
     bool Crdt,
     bool Fwdata,
     bool Lexbox = false,
@@ -19,8 +20,8 @@ public record ProjectModel(
     public string? ApiEndpoint =>
         (this) switch
         {
-            { Crdt: true } => $"/api/mini-lcm/{ProjectDataFormat.Harmony}/{Name}",
-            { Fwdata: true } => $"/api/mini-lcm/{ProjectDataFormat.FwData}/{Name}",
+            { Crdt: true } => $"/api/mini-lcm/{ProjectDataFormat.Harmony}/{Code}",
+            { Fwdata: true } => $"/api/mini-lcm/{ProjectDataFormat.FwData}/{Code}",
             _ => null
         };
 }
@@ -53,7 +54,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-        var projectModels = lexboxProjects.Select(p => new ProjectModel(p.Code,
+        var projectModels = lexboxProjects.Select(p => new ProjectModel(
+                p.Name,
+                p.Code,
                 Crdt: p.IsCrdtProject,
                 Fwdata: false,
                 Lexbox: true,
@@ -77,13 +80,14 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         await crdtProjectsService.EnsureProjectDataCacheIsLoaded();
         var crdtProjects = crdtProjectsService.ListProjects();
         //todo get project Id and use that to specify the Id in the model. Also pull out server
-        var projects = crdtProjects.ToDictionary(p => p.Name,
-            p => new ProjectModel(p.Name,
+        var projects = crdtProjects.ToDictionary(p => p.Name, // actually the code
+            p => new ProjectModel(p.Data!.Name,
+                p.Name,
                 true,
                 false,
                 p.Data?.OriginDomain is not null,
                 lexboxProjectService.GetServer(p.Data),
-                p.Data?.Id));
+                p.Data?.Id ?? throw new NullReferenceException("Project Data/Id is null")));
         //basically populate projects and indicate if they are lexbox or fwdata
         if (FwDataProjectProvider is not null)
         {
@@ -95,7 +99,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 }
                 else
                 {
-                    projects.Add(p.Name, new ProjectModel(p.Name, false, true));
+                    projects.Add(p.Name, new ProjectModel(p.Name, p.Name, false, true));
                 }
             }
         }
@@ -105,11 +109,15 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public async Task DownloadProject(Guid lexboxProjectId, string projectName, LexboxServer server)
+    public async Task DownloadProject(Guid projectId, LexboxServer server)
     {
+        var serverProjects = await ServerProjects(server, false);
+        var project = serverProjects.FirstOrDefault(p => p.Id == projectId)
+            ?? throw new InvalidOperationException($"Project {projectId} not found on server {server.Authority}");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
-        await crdtProjectsService.CreateProject(new(projectName,
-            lexboxProjectId,
+        await crdtProjectsService.CreateProject(new(project.Name,
+            project.Code,
+            project.Id ?? throw new ArgumentNullException(nameof(project.Id)),
             server.Authority,
             async (provider, project) =>
             {
@@ -127,8 +135,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public async Task DeleteProject(string name)
+    public async Task DeleteProject(Guid projectId)
     {
-        await crdtProjectsService.DeleteProject(name);
+        await crdtProjectsService.DeleteProject(projectId);
     }
 }
