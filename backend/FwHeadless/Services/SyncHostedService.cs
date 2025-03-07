@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Channels;
 using FwDataMiniLcmBridge;
@@ -8,11 +8,12 @@ using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using LexCore.Sync;
 using LexCore.Utils;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
-public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedService> logger) : BackgroundService
+public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedService> logger, IMemoryCache memoryCache) : BackgroundService
 {
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
     private readonly ConcurrentDictionary<Guid, TaskCompletionSource<SyncJobResult>> _projectsQueuedOrRunning = new();
@@ -38,6 +39,8 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             }
             _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
             tcs?.TrySetResult(result);
+            // Give clients a bit more time to poll the status
+            CacheRecentSyncResult(projectId, result);
         }
     }
 
@@ -50,8 +53,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     {
         if (_projectsQueuedOrRunning.TryGetValue(projectId, out var tcs))
             return await tcs.Task.WaitAsync(cancellationToken);
-
-        return null;
+        return TryGetRecentSyncResult(projectId);
     }
 
     public bool QueueJob(Guid projectId)
@@ -75,6 +77,16 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         }
 
         return addedToQueue;
+    }
+
+    private void CacheRecentSyncResult(Guid projectId, SyncJobResult result)
+    {
+        memoryCache.Set($"SyncResult|{projectId}", result, TimeSpan.FromSeconds(5));
+    }
+
+    private SyncJobResult? TryGetRecentSyncResult(Guid projectId)
+    {
+        return memoryCache.Get<SyncJobResult>($"SyncResult|{projectId}");
     }
 }
 
