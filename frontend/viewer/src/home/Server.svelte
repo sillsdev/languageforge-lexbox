@@ -7,6 +7,7 @@
   import {Button, ListItem, Settings} from 'svelte-ux';
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
+  import {t} from 'svelte-i18n-lingui';
 
   const projectsService = useProjectsService();
 
@@ -44,7 +45,7 @@
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
       {#if server}
-        {server.displayName} Server
+        {$t`${server.displayName} Server`}
       {:else}
         <div class="h-2 w-28 bg-surface-content/50 rounded-full animate-pulse"></div>
       {/if}
@@ -52,7 +53,7 @@
     <div class="flex-grow"></div>
     {#if status?.loggedIn}
       <Button icon={mdiRefresh}
-              title="Refresh Projects"
+              title={$t`Refresh Projects`}
               disabled={loading}
               on:click={() => dispatch('refreshProjects')}/>
       <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
@@ -74,7 +75,7 @@
     {:else if !projects.length}
       <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
         {#if status.loggedIn}
-          No projects
+          {$t`No projects`}
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
@@ -89,7 +90,7 @@
                       loading={downloading === project.name}>
               <div slot="actions" class="pointer-events-none">
                 <Button disabled icon={mdiBookSyncOutline} class="p-2">
-                  Synced
+                  {$t`Synced`}
                 </Button>
               </div>
             </ListItem>
@@ -101,7 +102,7 @@
                     loading={downloading === project.name}>
             <div slot="actions" class="pointer-events-none">
               <Button icon={mdiBookArrowDownOutline} class="p-2">
-                Download
+                {$t`Download`}
               </Button>
             </div>
           </ListItem>

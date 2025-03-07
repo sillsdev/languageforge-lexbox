@@ -1,0 +1,278 @@
+{
+  "dhBPPx": {
+    "message": "{0} Server",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        48
+      ]
+    ],
+    "translation": "{0} Server"
+  },
+  "Q01cKL": {
+    "message": "Classic FieldWorks Projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        204
+      ]
+    ],
+    "translation": "Classic FieldWorks Projects"
+  },
+  "0widty": {
+    "message": "Create Example Project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        183
+      ]
+    ],
+    "translation": "Create Example Project"
+  },
+  "cnGeoo": {
+    "message": "Delete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        159
+      ]
+    ],
+    "translation": "Delete"
+  },
+  "RY27RL": {
+    "message": "Dictionaries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        102
+      ],
+      [
+        "src/home/HomeView.svelte",
+        109
+      ]
+    ],
+    "translation": "Dictionaries"
+  },
+  "mzI/c+": {
+    "message": "Download",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        105
+      ]
+    ],
+    "translation": "Download"
+  },
+  "YirHq7": {
+    "message": "Feedback",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        113
+      ]
+    ],
+    "translation": "Feedback"
+  },
+  "uKNYWn": {
+    "message": "FieldWorks logo",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        209
+      ]
+    ],
+    "translation": "FieldWorks logo"
+  },
+  "l3s5ri": {
+    "message": "Import",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        215
+      ]
+    ],
+    "translation": "Import"
+  },
+  "Cb8zzH": {
+    "message": "Lexbox logo",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        107
+      ]
+    ],
+    "translation": "Lexbox logo"
+  },
+  "+yD+Wu": {
+    "message": "loading...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        136
+      ]
+    ],
+    "translation": "loading..."
+  },
+  "d5zxa4": {
+    "message": "Local",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        141
+      ]
+    ],
+    "translation": "Local"
+  },
+  "OgyJSr": {
+    "message": "Local only",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        152
+      ]
+    ],
+    "translation": "Local only"
+  },
+  "z7IcPF": {
+    "message": "Login to see projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/auth/LoginButton.svelte",
+        70
+      ],
+      [
+        "src/lib/auth/LoginButton.svelte",
+        78
+      ]
+    ],
+    "translation": "Login to see projects"
+  },
+  "nOhz3x": {
+    "message": "Logout",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/auth/LoginButton.svelte",
+        59
+      ]
+    ],
+    "translation": "Logout"
+  },
+  "BWz+2z": {
+    "message": "No projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        78
+      ]
+    ],
+    "translation": "No projects"
+  },
+  "Xp1CO/": {
+    "message": "Project name...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        191
+      ]
+    ],
+    "translation": "Project name..."
+  },
+  "TG4hr2": {
+    "message": "Refresh Projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        56
+      ],
+      [
+        "src/home/HomeView.svelte",
+        143
+      ]
+    ],
+    "translation": "Refresh Projects"
+  },
+  "N2FcBE": {
+    "message": "Synced",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        93
+      ]
+    ],
+    "translation": "Synced"
+  },
+  "JXRN33": {
+    "message": "Synced with {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        152
+      ]
+    ],
+    "translation": "Synced with {0}"
+  },
+  "/OCqal": {
+    "message": "Test Project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        174
+      ]
+    ],
+    "translation": "Test Project"
+  },
+  "et+mIi": {
+    "message": "Troubleshoot",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        120
+      ]
+    ],
+    "translation": "Troubleshoot"
+  }
+}

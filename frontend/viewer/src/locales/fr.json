@@ -1,0 +1,278 @@
+{
+  "dhBPPx": {
+    "message": "{0} Server",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        48
+      ]
+    ],
+    "translation": "{0} Serveur"
+  },
+  "Q01cKL": {
+    "message": "Classic FieldWorks Projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        204
+      ]
+    ],
+    "translation": "Projets Classiques de FieldWorks"
+  },
+  "0widty": {
+    "message": "Create Example Project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        183
+      ]
+    ],
+    "translation": "Créer un Projet d'Exemple"
+  },
+  "cnGeoo": {
+    "message": "Delete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        159
+      ]
+    ],
+    "translation": "Supprimer"
+  },
+  "RY27RL": {
+    "message": "Dictionaries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        102
+      ],
+      [
+        "src/home/HomeView.svelte",
+        109
+      ]
+    ],
+    "translation": "Dictionnaires"
+  },
+  "mzI/c+": {
+    "message": "Download",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        105
+      ]
+    ],
+    "translation": "Télécharger"
+  },
+  "YirHq7": {
+    "message": "Feedback",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        113
+      ]
+    ],
+    "translation": "Retour d'information"
+  },
+  "uKNYWn": {
+    "message": "FieldWorks logo",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        209
+      ]
+    ],
+    "translation": "Logo FieldWorks"
+  },
+  "l3s5ri": {
+    "message": "Import",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        215
+      ]
+    ],
+    "translation": "Importer"
+  },
+  "Cb8zzH": {
+    "message": "Lexbox logo",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        107
+      ]
+    ],
+    "translation": "Logo Lexbox"
+  },
+  "+yD+Wu": {
+    "message": "loading...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        136
+      ]
+    ],
+    "translation": "chargement..."
+  },
+  "d5zxa4": {
+    "message": "Local",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        141
+      ]
+    ],
+    "translation": "Local"
+  },
+  "OgyJSr": {
+    "message": "Local only",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        152
+      ]
+    ],
+    "translation": "Uniquement local"
+  },
+  "z7IcPF": {
+    "message": "Login to see projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/auth/LoginButton.svelte",
+        70
+      ],
+      [
+        "src/lib/auth/LoginButton.svelte",
+        78
+      ]
+    ],
+    "translation": "Connectez-vous pour voir les projets"
+  },
+  "nOhz3x": {
+    "message": "Logout",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/auth/LoginButton.svelte",
+        59
+      ]
+    ],
+    "translation": "Se déconnecter"
+  },
+  "BWz+2z": {
+    "message": "No projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        78
+      ]
+    ],
+    "translation": "Aucun projet"
+  },
+  "Xp1CO/": {
+    "message": "Project name...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        191
+      ]
+    ],
+    "translation": "Nom du projet..."
+  },
+  "TG4hr2": {
+    "message": "Refresh Projects",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        56
+      ],
+      [
+        "src/home/HomeView.svelte",
+        143
+      ]
+    ],
+    "translation": "Actualiser les Projets"
+  },
+  "N2FcBE": {
+    "message": "Synced",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        93
+      ]
+    ],
+    "translation": "Synchronisé"
+  },
+  "JXRN33": {
+    "message": "Synced with {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        152
+      ]
+    ],
+    "translation": "Synchronisé avec {0}"
+  },
+  "/OCqal": {
+    "message": "Test Project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        174
+      ]
+    ],
+    "translation": "Projet de Test"
+  },
+  "et+mIi": {
+    "message": "Troubleshoot",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/HomeView.svelte",
+        120
+      ]
+    ],
+    "translation": "Résoudre les problèmes"
+  }
+}

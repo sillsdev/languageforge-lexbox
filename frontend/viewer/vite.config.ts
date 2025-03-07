@@ -1,6 +1,7 @@
 import {defineConfig} from 'vite';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import {svelteTesting} from '@testing-library/svelte/vite';
+import {lingui} from '@lingui/vite-plugin';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -42,13 +43,17 @@ export default defineConfig(({ mode, command }) => {
     resolve: {
       alias: [{find: "$lib", replacement: "/src/lib"}]
     },
-    plugins: [svelte({
-      onwarn: (warning, handler) => {
-        // we don't have control over these warnings and there are lots
-        if (warning.filename?.includes('node_modules/svelte-ux')) return;
-        handler(warning);
-      },
-    }), svelteTesting()],
+    plugins: [
+      svelte({
+        onwarn: (warning, handler) => {
+          // we don't have control over these warnings and there are lots
+          if (warning.filename?.includes('node_modules/svelte-ux')) return;
+          handler(warning);
+        },
+      }),
+      svelteTesting(),
+      lingui()
+    ],
     server: {
       origin: 'http://localhost:5173',
       host: true,
