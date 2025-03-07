@@ -127,9 +127,7 @@ public class ChangeSerializationTests
     }
 
     //helper method, can be called manually to regenerate the json file
-    [Fact(
-        // Skip = "Only run manually"
-        )]
+    [Fact(Skip = "Only run manually")]
     public static void GenerateNewJsonFile()
     {
         using var jsonFile = File.Open(GetJsonFilePath("NewJson.json"), FileMode.Create);
