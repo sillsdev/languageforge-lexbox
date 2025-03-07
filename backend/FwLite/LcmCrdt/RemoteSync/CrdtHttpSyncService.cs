@@ -67,7 +67,7 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
     public async ValueTask<bool> TestAuth(HttpClient client)
     {
         logger.LogInformation("Testing auth, client base url: {ClientBaseUrl}", client.BaseAddress);
-        var syncable = await CreateProjectSyncable(new ProjectData("test", Guid.Empty, null, Guid.Empty), client);
+        var syncable = await CreateProjectSyncable(new ProjectData("test", "test", Guid.Empty, null, Guid.Empty), client);
         return await syncable.ShouldSync();
     }
 }

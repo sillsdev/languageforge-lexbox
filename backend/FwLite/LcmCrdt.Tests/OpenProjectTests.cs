@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace LcmCrdt.Tests;
@@ -30,7 +29,12 @@ public class OpenProjectTests
         var services = host.Services;
         var asyncScope = services.CreateAsyncScope();
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-        var crdtProject = await crdtProjectsService.CreateProject(new(Name: "OpeningAProjectWorks", Path: "", SeedNewProjectData: true));
+        var crdtProject = await crdtProjectsService.CreateProject(new(
+            Name: "OpeningAProjectWorks",
+            Code: "opening-a-project-works",
+            Path: "",
+            SeedNewProjectData: true
+            ));
 
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
         miniLcmApi.ProjectData.Name.Should().Be("OpeningAProjectWorks");

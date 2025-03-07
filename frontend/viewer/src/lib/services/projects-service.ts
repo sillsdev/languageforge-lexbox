@@ -15,7 +15,7 @@ export class ProjectService implements ICombinedProjectsService {
   remoteProjects(): Promise<IServerProjects[]> {
       throw new Error('Method not implemented.');
   }
-  downloadProject(_lexboxProjectId: string, _projectName: string, _server: ILexboxServer): Promise<void> {
+  downloadProject(_projectId: string, _server: ILexboxServer): Promise<void> {
       throw new Error('Method not implemented.');
   }
   deleteProject(_name: string): Promise<void> {
