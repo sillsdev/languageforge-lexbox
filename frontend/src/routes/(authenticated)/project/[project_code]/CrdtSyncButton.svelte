@@ -19,7 +19,7 @@
 
   let syncing = false;
   let done = false;
-  $: state = isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle';
+  $: modalState = isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle';
   let error: string | undefined = undefined;
 
   async function triggerSync(): Promise<string | undefined> {
@@ -96,11 +96,11 @@
 </script>
 
 {#if project.hasHarmonyCommits}
-  <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={state === 'syncing'} active={state === 'syncing'} customLoader>
+  <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={syncing} active={syncing} customLoader>
     <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     {$t('project.crdt.sync_fwlite')}
     <span style="transform: rotateY(180deg)">
-      <Icon icon="i-mdi-sync" spin={state === 'syncing'} spinReverse />
+      <Icon icon="i-mdi-sync" spin={syncing} spinReverse />
     </span>
   </Button>
 {:else}
@@ -112,24 +112,24 @@
   </Button>
 {/if}
 
-<Modal bind:this={modal} showCloseButton={false} hideActions={state === 'syncing'} closeOnClickOutside={false}>
+<Modal bind:this={modal} showCloseButton={false} hideActions={modalState === 'syncing'} closeOnClickOutside={false}>
   <h2 class="text-xl mb-6">
-    {#if state === 'syncing'}
+    {#if modalState === 'syncing'}
       {$t('project.crdt.making_available')}
-    {:else if state === 'done'}
+    {:else if modalState === 'done'}
       {$t('project.crdt.now_available')}
     {:else}
       {$t('project.crdt.try_fw_lite')}
     {/if}
   </h2>
-  {#if state === 'syncing'}
+  {#if modalState === 'syncing'}
     <p class="text-center my-6">
       <span class="loading loading-lg"></span>
     </p>
     <div class="prose max-w-none underline-links">
       <NewTabLinkMarkdown md={$t('project.crdt.while_you_wait')} />
     </div>
-  {:else if state === 'done'}
+  {:else if modalState === 'done'}
     <p class="text-center my-6">
       <span
         class="i-mdi-check-circle-outline text-7xl text-center text-success"
@@ -139,7 +139,7 @@
     <div class="prose max-w-none underline-links">
       <NewTabLinkMarkdown md={$t('project.crdt.to_start_using')} />
     </div>
-  {:else if state === 'empty'}
+  {:else if modalState === 'empty'}
     <div class="prose max-w-none">
       {$t('project.crdt.empty_project')}
     </div>
@@ -155,18 +155,18 @@
     <FormError {error} right/>
   {/if}
   <svelte:fragment slot="actions" let:close>
-    {#if state === 'idle'}
+    {#if modalState === 'idle'}
       <Button variant="btn-primary" on:click={onSubmit}>
         {$t('project.crdt.submit')}
       </Button>
       <Button on:click={close}>
         {$t('project.crdt.cancel')}
       </Button>
-    {:else if state === 'empty'}
+    {:else if modalState === 'empty'}
       <Button on:click={close}>
         {$t('common.close')}
       </Button>
-    {:else if state === 'done'}
+    {:else if modalState === 'done'}
       <Button variant="btn-primary" on:click={close}>
         {$t('project.crdt.finish')}
       </Button>
