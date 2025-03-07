@@ -12,30 +12,42 @@ using MiniLcm.Push;
 
 namespace FwLiteShared.Projects;
 
-public class LexboxProjectService(
-    OAuthClientFactory clientFactory,
-    ILogger<LexboxProjectService> logger,
-    IHttpMessageHandlerFactory httpMessageHandlerFactory,
-    BackgroundSyncService backgroundSyncService,
-    IOptions<AuthConfig> options,
-    IMemoryCache cache,
-    GlobalEventBus globalEventBus) : IHostedService
+public class LexboxProjectService : IDisposable
 {
-    private IDisposable? onAuthChangedSubscription;
+    private readonly OAuthClientFactory clientFactory;
+    private readonly ILogger<LexboxProjectService> logger;
+    private readonly IHttpMessageHandlerFactory httpMessageHandlerFactory;
+    private readonly BackgroundSyncService backgroundSyncService;
+    private readonly IOptions<AuthConfig> options;
+    private readonly IMemoryCache cache;
+    private readonly GlobalEventBus globalEventBus;
+    private readonly IDisposable onAuthChangedSubscription;
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public LexboxProjectService(
+        OAuthClientFactory clientFactory,
+        ILogger<LexboxProjectService> logger,
+        IHttpMessageHandlerFactory httpMessageHandlerFactory,
+        BackgroundSyncService backgroundSyncService,
+        IOptions<AuthConfig> options,
+        IMemoryCache cache,
+        GlobalEventBus globalEventBus)
     {
+        this.clientFactory = clientFactory;
+        this.logger = logger;
+        this.httpMessageHandlerFactory = httpMessageHandlerFactory;
+        this.backgroundSyncService = backgroundSyncService;
+        this.options = options;
+        this.cache = cache;
+        this.globalEventBus = globalEventBus;
         onAuthChangedSubscription = globalEventBus.OnAuthenticationChanged.Subscribe((@event) =>
         {
             InvalidateProjectsCache(@event.Server);
         });
-        return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public void Dispose()
     {
-        onAuthChangedSubscription?.Dispose();
-        return Task.CompletedTask;
+        onAuthChangedSubscription.Dispose();
     }
 
     public record LexboxProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
