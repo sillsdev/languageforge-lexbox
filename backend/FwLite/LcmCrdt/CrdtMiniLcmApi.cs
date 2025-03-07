@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using FluentValidation;
+using Gridify;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -15,6 +16,7 @@ using MiniLcm.Validators;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using MiniLcm.Culture;
+using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
@@ -355,7 +357,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
-        //todo filter on exemplar options and limit results, and sort
         var queryable = Entries;
         if (predicate is not null) queryable = queryable.Where(predicate);
         if (options.Exemplar is not null)
@@ -364,6 +365,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             if (ws is null)
                 throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
             queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
+        }
+
+        if (options.Filter?.GridifyFilter != null)
+        {
+            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, EntryFilter.Mapper);
         }
 
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));
