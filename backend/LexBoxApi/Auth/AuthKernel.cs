@@ -33,7 +33,7 @@ public static class AuthKernel
 
     public static void AddLexBoxAuth(IServiceCollection services,
         IConfigurationRoot configuration,
-        IWebHostEnvironment environment)
+        IHostEnvironment environment)
     {
         if (environment.IsDevelopment())
         {
@@ -107,7 +107,7 @@ public static class AuthKernel
                             context.RequestServices.GetService<IOptions<OpenIdOptions>>()?.Value.Enable == true)
                         {
                             //todo this breaks CanUseBearerAuth test
-                            //fow now this will use oauth
+                            //for now this will use oauth
                             return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
                         }
 
@@ -241,7 +241,7 @@ public static class AuthKernel
         services.AddOptions<AuthenticationOptions>().ValidateOnStart();
     }
 
-    private static void AddOpenId(IServiceCollection services, IWebHostEnvironment environment)
+    public static void AddOpenId(IServiceCollection services, IHostEnvironment environment)
     {
         services.Add(ScopeRequestFixer.Descriptor.ServiceDescriptor);
         //openid server

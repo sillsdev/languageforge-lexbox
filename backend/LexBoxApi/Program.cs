@@ -1,8 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AppAny.Quartz.EntityFrameworkCore.Migrations;
-using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using HotChocolate.AspNetCore;
 using LexBoxApi;
 using LexBoxApi.Auth;
@@ -26,9 +24,9 @@ using Microsoft.OpenApi.Models;
 using tusdotnet;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
-if (DbStartupService.IsMigrationRequest(args))
+if (MigrationKernel.IsMigrationRequest(args))
 {
-    await DbStartupService.RunMigrationRequest(args);
+    await MigrationKernel.RunMigrationRequest(args);
     return;
 }
 
@@ -71,7 +69,7 @@ builder.Services.AddSwaggerGen(options =>
         if (docName == LexBoxKernel.OpenApiPublicDocumentName) return false;
         return true;
     });
-    options.SwaggerDoc(LexBoxKernel.OpenApiPublicDocumentName, new() { Title = "Lexbox Public Api",  });
+    options.SwaggerDoc(LexBoxKernel.OpenApiPublicDocumentName, new() { Title = "Lexbox Public Api" });
     options.SwaggerDoc(LexBoxKernel.SwaggerDocumentName, new OpenApiInfo
     {
         Title = "LexBoxApi",

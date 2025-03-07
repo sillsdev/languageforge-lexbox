@@ -1,3 +1,4 @@
+using LexBoxApi.Auth;
 using LexData;
 using LexData.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -43,12 +44,14 @@ public class TestingServicesFixture : IAsyncLifetime, ICollectionFixture<Testing
                 "Password=972b722e63f549938d07bd8c4ee5086c",
                 "Include Error Detail=true");
         });
-        services.AddSingleton<IHostEnvironment>(new HostingEnvironment
+        var environment = new HostingEnvironment
         {
             EnvironmentName = Environments.Development
-        });
+        };
+        services.AddSingleton<IHostEnvironment>(environment);
         services.AddSingleton<IConfiguration>(new ConfigurationManager());
         services.AddLexData(true, dbContextLifeTime: ServiceLifetime.Singleton);
+        AuthKernel.AddOpenId(services, environment);
         services.AddLogging(builder => builder.AddDebug());
     }
 
