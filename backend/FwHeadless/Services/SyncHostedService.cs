@@ -37,10 +37,10 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
                 logger.LogError(e, "Sync job failed");
                 result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.Message);
             }
-            _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
-            tcs?.TrySetResult(result);
             // Give clients a bit more time to poll the status
             CacheRecentSyncResult(projectId, result);
+            _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
+            tcs?.TrySetResult(result);
         }
     }
 
@@ -81,7 +81,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
 
     private void CacheRecentSyncResult(Guid projectId, SyncJobResult result)
     {
-        memoryCache.Set($"SyncResult|{projectId}", result, TimeSpan.FromSeconds(5));
+        memoryCache.Set($"SyncResult|{projectId}", result, TimeSpan.FromSeconds(30));
     }
 
     private SyncJobResult? TryGetRecentSyncResult(Guid projectId)
