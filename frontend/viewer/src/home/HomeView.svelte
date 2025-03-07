@@ -20,7 +20,7 @@
     useImportFwdataService,
     useProjectsService, useTroubleshootingService
   } from '$lib/services/service-provider';
-  import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
+  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
 
@@ -148,45 +148,46 @@
             {#each projects.filter(p => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.name}
-              <AnchorListItem href={`/project/${project.name}`}>
+              <ButtonListItem href={`/project/${project.name}`}>
                 <ListItem title={project.name}
                           icon={mdiBookEditOutline}
                           subheading={!server ? 'Local only' : ('Synced with ' + server.displayName)}
                           {loading}>
                   <div slot="actions">
                     {#if $isDev}
-                      <Button icon={mdiDelete} title="Delete" class="p-2" on:click={(e) => {
+                      <Button icon={mdiDelete} title="Delete" class="p-2" disabled={loading} on:click={(e) => {
                         e.preventDefault();
-                        if (!loading) void deleteProject(project.name);
+                        void deleteProject(project.name);
                       }} />
                     {/if}
                     <Button icon={mdiChevronRight} class="p-2 pointer-events-none"/>
                   </div>
                 </ListItem>
-              </AnchorListItem>
+              </ButtonListItem>
             {/each}
             <DevContent>
-              <AnchorListItem href={`/testing/project-view`}>
+              <ButtonListItem href={`/testing/project-view`}>
                 <ListItem title="Test Project" icon={mdiTestTube}>
                   <div slot="actions" class="pointer-events-none">
                     <Button icon={mdiChevronRight} class="p-2"/>
                   </div>
                 </ListItem>
-              </AnchorListItem>
+              </ButtonListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem
-                title="Create Example Project"
-                on:click={() => {if(!createProjectLoading) void createExampleProject()}}
-                loading={createProjectLoading}
-              >
-                <div slot="actions" class="flex flex-nowrap gap-2">
-                  {#if $isDev}
-                    <TextField bind:value={customExampleProjectName} placeholder="Project name..." on:click={(e) => e.stopPropagation()} />
-                  {/if}
-                  <Button icon={mdiBookPlusOutline} class="pointer-events-none p-2"/>
-                </div>
-              </ListItem>
+              <ButtonListItem on:click={() => createExampleProject()} disabled={createProjectLoading}>
+                <ListItem
+                  title="Create Example Project"
+                  loading={createProjectLoading}
+                >
+                  <div slot="actions" class="flex flex-nowrap gap-2">
+                    {#if $isDev}
+                      <TextField bind:value={customExampleProjectName} placeholder="Project name..." on:click={(e) => e.stopPropagation()} />
+                    {/if}
+                    <Button icon={mdiBookPlusOutline} class="pointer-events-none p-2"/>
+                  </div>
+                </ListItem>
+              </ButtonListItem>
             {/if}
           </div>
         </div>
@@ -196,7 +197,7 @@
             <p class="sub-title">Classic FieldWorks Projects</p>
             <div>
               {#each projects.filter(p => p.fwdata) as project (project.id ?? project.name)}
-                <AnchorListItem href={`/fwdata/${project.name}`}>
+                <ButtonListItem href={`/fwdata/${project.name}`}>
                   <ListItem title={project.name}>
                     <img slot="avatar" src={flexLogo} alt="FieldWorks logo" class="h-6"/>
                     <div slot="actions">
@@ -215,7 +216,7 @@
                       </DevContent>
                     </div>
                   </ListItem>
-                </AnchorListItem>
+                </ButtonListItem>
               {/each}
             </div>
           </div>

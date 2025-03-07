@@ -5,7 +5,7 @@
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {Button, ListItem, Settings} from 'svelte-ux';
-  import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
+  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
 
   const projectsService = useProjectsService();
@@ -29,15 +29,13 @@
     if (project.id == null) throw new Error('Project id is null');
     try {
       await projectsService.downloadProject(project.id, project.name, server);
-      localProjects.push({
+      dispatch('refreshAll');
+      localProjects.push({ // the refresh will take a moment
         ...project,
         server,
       });
-      dispatch('refreshAll');
     } finally {
-      setTimeout(() => {
-        downloading = '';
-      }, 100);
+      downloading = '';
     }
   }
 
@@ -91,7 +89,7 @@
       {#each projects as project}
         {@const localProject = matchesProject(localProjects, project)}
         {#if localProject?.crdt}
-          <AnchorListItem href={`/project/${project.name}`}>
+          <ButtonListItem href={`/project/${project.name}`}>
             <ListItem icon={mdiCloud}
                       title={project.name}
                       loading={downloading === project.name}>
@@ -101,20 +99,20 @@
                 </Button>
               </div>
             </ListItem>
-          </AnchorListItem>
+          </ButtonListItem>
         {:else}
           {@const loading = downloading === project.name}
-          <ListItem icon={mdiCloud}
-                    title={project.name}
-                    class={loading ? 'pointer-events-none' : ''}
-                    on:click={() => {if (!loading) void downloadCrdtProject(project, server)}}
-                    {loading}>
-            <div slot="actions" class="pointer-events-none">
-              <Button icon={mdiBookArrowDownOutline} class="p-2">
-                Download
-              </Button>
-            </div>
-          </ListItem>
+          <ButtonListItem on:click={() => downloadCrdtProject(project, server)} disabled={loading}>
+            <ListItem icon={mdiCloud}
+                      title={project.name}
+                      {loading}>
+              <div slot="actions" class="pointer-events-none">
+                <Button icon={mdiBookArrowDownOutline} class="p-2">
+                  Download
+                </Button>
+              </div>
+            </ListItem>
+          </ButtonListItem>
         {/if}
       {/each}
     {/if}

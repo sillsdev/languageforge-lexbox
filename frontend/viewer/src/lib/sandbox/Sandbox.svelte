@@ -14,6 +14,7 @@
   import type {FieldIds} from '$lib/entry-editor/field-data';
   import {dndzone} from 'svelte-dnd-action';
   import {delay} from '$lib/utils/time';
+  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
 
 
   const crdtOptions: MenuOption[] = [
@@ -103,6 +104,13 @@
       <Button variant="fill" disabled={loading} {loading} on:click={incrementAsync}>
         Increment Async
       </Button>
+      click count: {count}
+    </div>
+    <div class="flex flex-col gap-2">
+      ButtonListItem
+      <ButtonListItem disabled={loading} on:click={incrementAsync}>
+        Increment Async
+      </ButtonListItem>
       click count: {count}
     </div>
   </div>
