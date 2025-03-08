@@ -22,22 +22,22 @@ public class BackgroundSyncService(
 
     public void TriggerSync(Guid projectId, Guid? ignoredClientId = null)
     {
-        var projectData = CurrentProjectService.LookupProjectById(memoryCache, projectId);
-        if (projectData is null)
+        var crdtProject = crdtProjectsService.GetProject(projectId);
+        if (crdtProject is null)
         {
             logger.LogWarning("Received project update for unknown project {ProjectId}", projectId);
             return;
         }
-        if (ignoredClientId == projectData.ClientId)
+
+        if (crdtProject.Data is null)
         {
-            logger.LogInformation("Received project update for {ProjectId} triggered by my own change, ignoring", projectId);
+            logger.LogWarning("Data missing for project {ProjectId}", projectId);
             return;
         }
 
-        var crdtProject = crdtProjectsService.GetProject(projectData.Name);
-        if (crdtProject is null)
+        if (ignoredClientId == crdtProject.Data.ClientId)
         {
-            logger.LogWarning("Received project update for unknown project {ProjectName}", projectData.Name);
+            logger.LogInformation("Received project update for {ProjectId} triggered by my own change, ignoring", projectId);
             return;
         }
 

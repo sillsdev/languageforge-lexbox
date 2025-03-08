@@ -23,6 +23,7 @@
   import AnchorListItem from '$lib/utils/AnchorListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
+  import ProjectTitle from './ProjectTitle.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -58,10 +59,10 @@
   }
 
   let deletingProject: undefined | string = undefined;
-  async function deleteProject(projectName: string) {
+  async function deleteProject(projectId: string) {
     try {
-      deletingProject = projectName;
-      await projectsService.deleteProject(projectName);
+      deletingProject = projectId;
+      await projectsService.deleteProject(projectId);
       await refreshProjects();
     } finally {
       deletingProject = undefined;
@@ -137,26 +138,28 @@
     {:then projects}
       <div class="space-y-4 md:space-y-8">
         <div>
-          <div class="flex flex-row">
+          <div class="flex flex-row items-end">
             <p class="sub-title">Local</p>
             <div class="flex-grow"></div>
             <Button icon={mdiRefresh}
                     title="Refresh Projects"
+                    class="mb-2"
                     on:click={() => refreshProjects()}/>
           </div>
           <div>
             {#each projects.filter(p => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
-              <AnchorListItem href={`/project/${project.name}`}>
-                <ListItem title={project.name}
-                          icon={mdiBookEditOutline}
+              <AnchorListItem href={`/project/${project.id}`}>
+                <ListItem icon={mdiBookEditOutline}
                           subheading={!server ? 'Local only' : ('Synced with ' + server.displayName)}
-                          loading={deletingProject === project.name}>
+                          loading={deletingProject === project.id}>
+                  <ProjectTitle slot="title" {project}/>
                   <div slot="actions">
                     {#if $isDev}
                       <Button icon={mdiDelete} title="Delete" class="p-2" on:click={(e) => {
                         e.preventDefault();
-                        void deleteProject(project.name);
+                        if (!project.id) throw new Error(`Project ${project.name} does not have an id`);
+                        void deleteProject(project.id);
                       }} />
                     {/if}
                     <Button icon={mdiChevronRight} class="p-2 pointer-events-none"/>

@@ -13,8 +13,8 @@ export interface ICombinedProjectsService
 	remoteProjects() : Promise<IServerProjects[]>;
 	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IProjectModel[]>;
 	localProjects() : Promise<IProjectModel[]>;
-	downloadProject(lexboxProjectId: string, projectName: string, server: ILexboxServer) : Promise<void>;
+	downloadProject(projectId: string, server: ILexboxServer) : Promise<void>;
 	createProject(name: string) : Promise<void>;
-	deleteProject(name: string) : Promise<void>;
+	deleteProject(projectId: string) : Promise<void>;
 }
 /* eslint-enable */

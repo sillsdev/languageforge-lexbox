@@ -55,7 +55,7 @@ public class Sena3Fixture : IAsyncLifetime
         var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
 
         var crdtProject = await services.GetRequiredService<CrdtProjectsService>()
-            .CreateProject(new(projectName, FwProjectId: fwDataMiniLcmApi.ProjectId, SeedNewProjectData: false));
+            .CreateProject(new(projectName, projectName, FwProjectId: fwDataMiniLcmApi.ProjectId, SeedNewProjectData: false));
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.OpenCrdtProject(crdtProject);
         return (crdtMiniLcmApi, fwDataMiniLcmApi, services, cleanup);
     }

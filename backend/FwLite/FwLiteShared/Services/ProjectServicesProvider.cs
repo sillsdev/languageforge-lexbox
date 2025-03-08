@@ -38,12 +38,20 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public async Task<ProjectScope> OpenCrdtProject(string projectName)
+    public Task<ProjectData> GetCrdtProjectData(Guid projectId)
+    {
+        var crdtProject = crdtProjectsService.GetProject(projectId)
+            ?? throw new InvalidOperationException($"Crdt Project {projectId} not found");
+        return Task.FromResult(crdtProject.Data ?? throw new InvalidOperationException($"Project data for {crdtProject.Name} not found"));
+    }
+
+    [JSInvokable]
+    public async Task<ProjectScope> OpenCrdtProject(Guid projectId)
     {
         var serviceScope = serviceProvider.CreateAsyncScope();
         var scopedServices = serviceScope.ServiceProvider;
-        var project = crdtProjectsService.GetProject(projectName) ??
-                      throw new InvalidOperationException($"Crdt Project {projectName} not found");
+        var project = crdtProjectsService.GetProject(projectId)
+            ?? throw new InvalidOperationException($"Crdt Project {projectId} not found");
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
         var projectData = await currentProjectService.SetupProjectContext(project);
         await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
@@ -51,9 +59,9 @@ public class ProjectServicesProvider(
         var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
         var scope = new ProjectScope(Defer.Async(() =>
         {
-            logger.LogInformation("Disposing project scope {ProjectName}", projectName);
+            logger.LogInformation("Disposing project scope {ProjectName}", projectData.Name);
             return Task.CompletedTask;
-        }), serviceScope, this, projectName, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
+        }), serviceScope, this, projectData.Name, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
         _projectScopes.TryAdd(scope, scope);
         return scope;
     }
