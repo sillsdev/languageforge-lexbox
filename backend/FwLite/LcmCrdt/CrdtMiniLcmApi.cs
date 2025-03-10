@@ -10,6 +10,7 @@ using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
@@ -20,10 +21,16 @@ using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, IMiniLcmCultureProvider cultureProvider, MiniLcmValidators validators) : IMiniLcmApi
+public class CrdtMiniLcmApi(
+    DataModel dataModel,
+    CurrentProjectService projectService,
+    IMiniLcmCultureProvider cultureProvider,
+    MiniLcmValidators validators,
+    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
+    private LcmCrdtConfig LcmConfig => config.Value;
 
     private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
     private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
@@ -369,7 +376,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         if (options.Filter?.GridifyFilter != null)
         {
-            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, EntryFilter.Mapper);
+            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
         }
 
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));

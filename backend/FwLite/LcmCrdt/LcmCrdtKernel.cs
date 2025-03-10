@@ -34,18 +34,7 @@ public static class LcmCrdtKernel
     {
         AvoidTrimming();
         LinqToDBForEFTools.Initialize();
-        EntryFilter.Mapper.AddMap(nameof(Entry.LexemeForm), (entry, key) => Json.Value(entry.LexemeForm, ms => ms[key]));
-        EntryFilter.Mapper.AddMap(nameof(Entry.CitationForm), (entry, key) => Json.Value(entry.CitationForm, ms => ms[key]));
-        EntryFilter.Mapper.AddMap(nameof(Entry.Note), (entry, key) => Json.Value(entry.Note, ms => ms[key]));
-        EntryFilter.Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}",
-            (entry, key) => entry.Senses.Select(s => Json.Value(s.Gloss, ms => ms[key])));
-        EntryFilter.Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}",
-            (entry, key) => entry.Senses.Select(s => Json.Value(s.Definition, ms => ms[key])));
-        EntryFilter.Mapper.Configuration.DisableCollectionNullChecks = true;
-        EntryFilter.Mapper.AddMap(nameof(Entry.ComplexFormTypes), EntryFilter.ConvertNullToEmptyList<ComplexFormType>);
-        EntryFilter.Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}",
-            entry => entry.Senses.Select(s => s.SemanticDomains),
-            EntryFilter.ConvertNullToEmptyList<SemanticDomain>);
+
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
@@ -118,10 +107,10 @@ public static class LcmCrdtKernel
             .Add<Entry>(builder =>
             {
                 builder.HasMany(e => e.Components)
-                        .WithOne()
-                        .HasPrincipalKey(entry => entry.Id)
-                        .HasForeignKey(c => c.ComplexFormEntryId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                    .WithOne()
+                    .HasPrincipalKey(entry => entry.Id)
+                    .HasForeignKey(c => c.ComplexFormEntryId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasMany(e => e.ComplexForms)
                     .WithOne()
                     .HasPrincipalKey(entry => entry.Id)
@@ -138,7 +127,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => string.IsNullOrWhiteSpace(json) ? new() : JsonSerializer.Deserialize<List<Publication>>(json,
-                            (JsonSerializerOptions?)null) ?? new());
+                                (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>
             {

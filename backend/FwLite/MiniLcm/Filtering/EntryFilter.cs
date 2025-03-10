@@ -7,20 +7,22 @@ namespace MiniLcm.Filtering;
 
 public class EntryFilter
 {
-    //todo don't share this between IMiniLcm instances
-    public static readonly GridifyMapper<Entry> Mapper = new(true);
-    static EntryFilter()
+    public static GridifyMapper<Entry> NewMapper()
     {
-        Mapper.AddMap(nameof(Entry.ComplexFormTypes));
-        Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}");
-        Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}");
-        Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}");
-        Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", (entry, key) => entry.Senses.Select(s => s.Gloss[key]));
-        Mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", (entry, key) => entry.Senses.Select(s => s.Definition[key]));
-        Mapper.AddMap(nameof(Entry.Senses));
-        Mapper.AddMap(nameof(Entry.LexemeForm), (entry, key) => entry.LexemeForm[key]);
-        Mapper.AddMap(nameof(Entry.CitationForm), (entry, key) => entry.CitationForm[key]);
-        Mapper.AddMap(nameof(Entry.Note), (entry, key) => entry.Note[key]);
+        var mapper = new GridifyMapper<Entry>(false);
+        mapper.AddMap(nameof(Entry.ComplexFormTypes));
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}");
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}");
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}");
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}",
+            (entry, key) => entry.Senses.Select(s => s.Gloss[key]));
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}",
+            (entry, key) => entry.Senses.Select(s => s.Definition[key]));
+        mapper.AddMap(nameof(Entry.Senses));
+        mapper.AddMap(nameof(Entry.LexemeForm), (entry, key) => entry.LexemeForm[key]);
+        mapper.AddMap(nameof(Entry.CitationForm), (entry, key) => entry.CitationForm[key]);
+        mapper.AddMap(nameof(Entry.Note), (entry, key) => entry.Note[key]);
+        return mapper;
     }
 
     //used by the database for json columns which are lists, we want to treat null as an empty list
