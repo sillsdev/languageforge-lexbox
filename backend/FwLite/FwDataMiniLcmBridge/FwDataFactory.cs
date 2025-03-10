@@ -4,6 +4,7 @@ using LexCore.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm.Validators;
 using SIL.LCModel;
 
@@ -14,7 +15,8 @@ public class FwDataFactory(
     IMemoryCache cache,
     ILogger<FwDataFactory> logger,
     IProjectLoader projectLoader,
-    MiniLcmValidators validators) : IDisposable, IHostedService
+    MiniLcmValidators validators,
+    IOptions<FwDataBridgeConfig> config) : IDisposable, IHostedService
 {
     private bool _shuttingDown = false;
     public FwDataFactory(ILogger<FwDataMiniLcmApi> fwdataLogger,
@@ -22,7 +24,8 @@ public class FwDataFactory(
         ILogger<FwDataFactory> logger,
         IProjectLoader projectLoader,
         IHostApplicationLifetime lifetime,
-        MiniLcmValidators validators) : this(fwdataLogger, cache, logger, projectLoader, validators)
+        MiniLcmValidators validators,
+        IOptions<FwDataBridgeConfig> config) : this(fwdataLogger, cache, logger, projectLoader, validators, config)
     {
         lifetime.ApplicationStopping.Register(() =>
         {
@@ -36,7 +39,7 @@ public class FwDataFactory(
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
-        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, validators);
+        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, validators, config);
     }
 
     private HashSet<string> _projects = [];

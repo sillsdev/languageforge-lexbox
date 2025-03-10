@@ -24,6 +24,7 @@ using MiniLcm.Validators;
 using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
+using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
@@ -33,6 +34,8 @@ public static class LcmCrdtKernel
     {
         AvoidTrimming();
         LinqToDBForEFTools.Initialize();
+
+
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
@@ -104,10 +107,10 @@ public static class LcmCrdtKernel
             .Add<Entry>(builder =>
             {
                 builder.HasMany(e => e.Components)
-                        .WithOne()
-                        .HasPrincipalKey(entry => entry.Id)
-                        .HasForeignKey(c => c.ComplexFormEntryId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                    .WithOne()
+                    .HasPrincipalKey(entry => entry.Id)
+                    .HasForeignKey(c => c.ComplexFormEntryId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasMany(e => e.ComplexForms)
                     .WithOne()
                     .HasPrincipalKey(entry => entry.Id)
@@ -124,7 +127,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => string.IsNullOrWhiteSpace(json) ? new() : JsonSerializer.Deserialize<List<Publication>>(json,
-                            (JsonSerializerOptions?)null) ?? new());
+                                (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>
             {

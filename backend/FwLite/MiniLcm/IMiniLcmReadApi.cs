@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using MiniLcm.Filtering;
 using MiniLcm.Models;
 
 namespace MiniLcm;
@@ -25,7 +26,8 @@ public record QueryOptions(
     SortOptions? Order = null,
     ExemplarOptions? Exemplar = null,
     int Count = QueryOptions.DefaultCount,
-    int Offset = 0)
+    int Offset = 0,
+    EntryFilter? Filter = null)
 {
     public static QueryOptions Default { get; } = new();
     public const int QueryAll = -1;
