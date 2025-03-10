@@ -17,8 +17,11 @@ public static class MigrationKernel
         builder.Services.AddLogging();
         builder.Services.AddSingleton<IHostLifetime, ConsoleLifetime>();
         builder.Services.AddLexData(true);
-        // ensures OAuth applications are (re-)seeded
-        AuthKernel.AddOpenId(builder.Services, builder.Environment);
+        // Required for (re-)seeding OAuth applications
+        builder.Services.AddOpenIddict().AddCore(options =>
+        {
+            options.UseEntityFrameworkCore().UseDbContext<LexBoxDbContext>();
+        });
         var host = builder.Build();
         await host.StartAsync();
         await host.StopAsync();
