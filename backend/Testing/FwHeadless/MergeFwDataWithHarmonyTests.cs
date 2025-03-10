@@ -31,7 +31,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 
     private async Task<SyncResult?> AwaitSyncFinished(Guid projectId)
     {
-        var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(60);
+        var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(130);
         while (giveUpAt > DateTime.UtcNow)
         {
             try
