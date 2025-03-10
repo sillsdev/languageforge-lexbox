@@ -21,12 +21,10 @@ export function  useDismiss(): () => void {
 
 let errorHandlersSetup = false;
 function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
-  if (!browser) {
+  if (!browser || errorHandlersSetup) {
     return;
   }
-  if (errorHandlersSetup && !dev) {
-    throw new Error('error handlers already setup. This should only be called once.');
-  }
+
   errorHandlersSetup = true;
 
   const { updated } = getStores();
