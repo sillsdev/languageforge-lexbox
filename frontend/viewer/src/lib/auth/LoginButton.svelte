@@ -1,6 +1,7 @@
 ﻿<script context="module" lang="ts">
     import type {IAuthService, IServerStatus} from '$lib/dotnet-types';
     import {type Readable, writable, type Writable} from 'svelte/store';
+    import {t} from 'svelte-i18n-lingui';
 
     let shouldUseSystemWebViewStore: Writable<boolean> | undefined = undefined;
 
@@ -55,7 +56,7 @@
       <Button on:click={toggle} {loading} variant="fill" color="primary" icon={mdiAccountCircle}>
         {status.loggedInAs}
         <Menu {open} on:close={toggleOff} placement="bottom-end">
-          <MenuItem icon={mdiLogout} on:click={() => logout(server)}>Logout</MenuItem>
+          <MenuItem icon={mdiLogout} on:click={() => logout(server)}>{$t`Logout`}</MenuItem>
         </Menu>
       </Button>
     </Toggle>
@@ -66,7 +67,7 @@
                 color="primary"
                 on:click={() => login(server)}
                 icon={mdiLogin}>
-            Login to see projects
+          {$t`Login to see projects`}
         </Button>
     {:else}
         <Button {loading}
@@ -74,7 +75,7 @@
                 color="primary"
                 href="/api/auth/login/{server.id}"
                 icon={mdiLogin}>
-              Login to see projects
+          {$t`Login to see projects`}
         </Button>
     {/if}
 {/if}

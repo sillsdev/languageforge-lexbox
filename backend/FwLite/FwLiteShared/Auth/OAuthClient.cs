@@ -135,7 +135,6 @@ public class OAuthClient
 
     public async Task<OAuthService.SignInResult> SignIn(string returnUrl, CancellationToken cancellation = default)
     {
-        InvalidateProjectCache();
         await ConfigureCache();
         return await _oAuthService.SubmitLoginRequest(_application, returnUrl, _lexboxServer, cancellation);
     }
@@ -149,13 +148,7 @@ public class OAuthClient
         {
             await _application.RemoveAsync(account);
         }
-        InvalidateProjectCache();
-        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer.Id));
-    }
-
-    private void InvalidateProjectCache()
-    {
-        _lexboxProjectService.InvalidateProjectsCache(_lexboxServer);
+        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
     }
 
     private async ValueTask<AuthenticationResult?> GetAuth(bool forceRefresh = false)

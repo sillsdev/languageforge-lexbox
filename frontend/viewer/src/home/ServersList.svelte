@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type {ILexboxServer} from '$lib/dotnet-types';
   import {type Project} from '$lib/services/projects-service';
   import {useAuthService, useProjectsService} from '$lib/services/service-provider';
@@ -13,10 +13,10 @@
   let remoteProjects: { [server: string]: Project[] } = {};
   let loadingRemoteProjects = false;
 
-  async function fetchRemoteProjects(force: boolean = false): Promise<void> {
+  async function fetchRemoteProjects(): Promise<void> {
     loadingRemoteProjects = true;
     try {
-      let result = await projectsService.remoteProjects(force);
+      let result = await projectsService.remoteProjects();
       for (let serverProjects of result) {
         remoteProjects[serverProjects.server.id] = serverProjects.projects;
       }

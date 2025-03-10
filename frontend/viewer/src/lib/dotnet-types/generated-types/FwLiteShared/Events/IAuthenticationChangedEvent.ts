@@ -4,11 +4,12 @@
 //     the code is regenerated.
 
 import type {IFwEvent} from './IFwEvent';
+import type {ILexboxServer} from '../Auth/ILexboxServer';
 import type {FwEventType} from './FwEventType';
 
 export interface IAuthenticationChangedEvent extends IFwEvent
 {
-	serverId: string;
+	server: ILexboxServer;
 	type: FwEventType;
 	isGlobal: boolean;
 }
