@@ -1,6 +1,5 @@
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -11,9 +10,11 @@ public static class DataKernel
     public static void AddLexData(this IServiceCollection services,
         bool autoApplyMigrations,
         bool useOpenIddict = true,
+        bool useSeeding = true,
         ServiceLifetime dbContextLifeTime = ServiceLifetime.Scoped)
     {
-        services.AddScoped<SeedingData>();
+        if (useSeeding)
+            services.AddScoped<SeedingData>();
         services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();

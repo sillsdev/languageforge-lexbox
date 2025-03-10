@@ -2,7 +2,6 @@ using System.Diagnostics;
 using FwHeadless;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
-using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
@@ -10,9 +9,7 @@ using LexCore.Sync;
 using LexData;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
-using MiniLcm;
 using Scalar.AspNetCore;
-using LexCore.Utils;
 using SIL.Harmony.Core;
 using SIL.Harmony;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +28,8 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddLexData(
     autoApplyMigrations: false,
-    useOpenIddict: false
+    useOpenIddict: false,
+    useSeeding: false
 );
 
 builder.Services.AddFwHeadless();
