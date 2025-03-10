@@ -26,7 +26,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         var result = await HttpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
         if (result.IsSuccessStatusCode) return;
         var responseString = await result.Content.ReadAsStringAsync();
-        Assert.Fail($"trigger failed with error {result.ReasonPhrase}, body: {responseString}" );
+        Assert.Fail($"trigger failed with error {result.ReasonPhrase}, body: {responseString}");
     }
 
     private async Task<SyncResult?> AwaitSyncFinished(Guid projectId)
@@ -110,6 +110,10 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         result.Should().NotBeNull();
         result.CrdtChanges.Should().BeGreaterThan(100);
         result.FwdataChanges.Should().Be(0);
+
+        // there should be a short grace period during which the result remains available
+        var result2 = await AwaitSyncFinished(_projectId);
+        result2.Should().BeEquivalentTo(result);
     }
 
     [Fact]
