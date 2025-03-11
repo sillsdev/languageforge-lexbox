@@ -35,6 +35,8 @@
 		WithElementRef<HTMLAnchorAttributes> & {
 			variant?: ButtonVariant;
 			size?: ButtonSize;
+			loading?: boolean;
+			icon?: `i-mdi-${string}`;
 		};
 </script>
 
@@ -48,10 +50,21 @@
 		ref = $bindable(null),
 		href = undefined,
 		type = 'button',
+    loading = false,
+    icon = undefined,
 		children,
 		...restProps
 	}: ButtonProps = $props();
 </script>
+
+{#snippet content()}
+  {#if loading}
+    <span class="i-mdi-loading animate-spin text-xl"></span>
+  {:else if icon}
+    <span class="{icon} text-xl"></span>
+  {/if}
+  {@render children?.()}
+{/snippet}
 
 {#if href}
 	<a
@@ -60,7 +73,7 @@
 		{href}
 		{...restProps}
 	>
-		{@render children?.()}
+    {@render content()}
 	</a>
 {:else}
 	<button
@@ -69,6 +82,6 @@
 		{type}
 		{...restProps}
 	>
-		{@render children?.()}
+    {@render content()}
 	</button>
 {/if}
