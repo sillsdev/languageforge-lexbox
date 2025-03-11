@@ -91,10 +91,10 @@
       LexemeForm (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      LiteralMeaning (MultiString) Required
+      LiteralMeaning (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      Note (MultiString) Required
+      Note (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
       PublishIn (List<Publication>) Required
@@ -126,11 +126,11 @@
       Order (double) Required
       Reference (string)
       SenseId (Guid) Required FK Index
-      Sentence (MultiString) Required
+      Sentence (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
-      Translation (MultiString) Required
+      Translation (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
     Keys: 
@@ -221,7 +221,7 @@
   EntityType: Sense
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
-      Definition (MultiString) Required
+      Definition (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
       DeletedAt (DateTimeOffset?)

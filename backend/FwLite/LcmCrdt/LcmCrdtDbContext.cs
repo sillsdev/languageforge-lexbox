@@ -35,6 +35,9 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         builder.Properties<MultiString>()
             .HaveColumnType("jsonb")
             .HaveConversion<MultiStringDbConverter>();
+        builder.Properties<RichMultiString>()
+            .HaveColumnType("jsonb")
+            .HaveConversion<RichMultiStringDbConverter>();
         builder.Properties<WritingSystemId>()
             .HaveConversion<WritingSystemIdConverter>();
     }
@@ -42,6 +45,9 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
         mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
         json => JsonSerializer.Deserialize<MultiString>(json, (JsonSerializerOptions?)null) ?? new());
+    private class RichMultiStringDbConverter() : ValueConverter<RichMultiString, string>(
+        mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
+        json => JsonSerializer.Deserialize<RichMultiString>(json, (JsonSerializerOptions?)null) ?? new());
 
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,

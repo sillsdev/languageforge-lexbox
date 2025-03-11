@@ -138,12 +138,38 @@ public class EntryValidatorTests
     private void SetProperty(Entry entry, string propName, string content)
     {
         var propInfo = typeof(Entry).GetProperty(propName);
-        propInfo?.SetValue(entry, new MultiString(){{"en", content}});
+        if (propInfo is null) return;
+        if (propInfo.PropertyType == typeof(MultiString))
+        {
+            propInfo.SetValue(entry, new MultiString() { { "en", content } });
+            return;
+        }
+
+        if (propInfo.PropertyType == typeof(RichMultiString))
+        {
+            propInfo.SetValue(entry, new RichMultiString() { { "en", content } });
+            return;
+        }
+
+        throw new NotImplementedException($"Property type {propInfo.PropertyType} not supported");
     }
 
     private void MakePropertyEmpty(Entry entry, string propName)
     {
         var propInfo = typeof(Entry).GetProperty(propName);
-        propInfo?.SetValue(entry, new MultiString());
+        if (propInfo is null) return;
+        if (propInfo.PropertyType == typeof(MultiString))
+        {
+            propInfo.SetValue(entry, new MultiString());
+            return;
+        }
+
+        if (propInfo.PropertyType == typeof(RichMultiString))
+        {
+            propInfo.SetValue(entry, new RichMultiString());
+            return;
+        }
+
+        throw new NotImplementedException($"Property type {propInfo.PropertyType} not supported");
     }
 }

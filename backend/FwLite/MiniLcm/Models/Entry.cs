@@ -9,10 +9,10 @@ public record Entry : IObjectWithId<Entry>
 
     public virtual MultiString CitationForm { get; set; } = new();
 
-    public virtual MultiString LiteralMeaning { get; set; } = new();
+    public virtual RichMultiString LiteralMeaning { get; set; } = new();
     public virtual List<Sense> Senses { get; set; } = [];
 
-    public virtual MultiString Note { get; set; } = new();
+    public virtual RichMultiString Note { get; set; } = new();
 
     /// <summary>
     /// Components making up this complex entry

@@ -7,8 +7,8 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
     public virtual Guid Id { get; set; }
     [MiniLcmInternal]
     public double Order { get; set; }
-    public virtual MultiString Sentence { get; set; } = new();
-    public virtual MultiString Translation { get; set; } = new();
+    public virtual RichMultiString Sentence { get; set; } = new();
+    public virtual RichMultiString Translation { get; set; } = new();
     public virtual string? Reference { get; set; } = null;
 
     public Guid SenseId { get; set; }
