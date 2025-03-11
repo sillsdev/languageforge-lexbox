@@ -31,7 +31,7 @@
         const view = views.find((view) => view.label === detail.value);
         if (view)  activeView = view;
       }}
-      classes={{root: 'view-select w-auto', options: 'view-select-options'}}
+      classes={{root: 'view-select w-auto', options: 'view-select-options', field: { container: 'border-surface-content/20' }}}
       clearable={false}
       labelPlacement="top"
       clearSearchOnOpen={false}

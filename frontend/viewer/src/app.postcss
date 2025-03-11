@@ -74,6 +74,13 @@
   }
 }
 
+@layer base {
+  :root {
+    /* keeps svelte-ux working */
+    --color: hsl(var(--primary));
+  }
+}
+
 /* The search bar dialog is somewhat unique. It should be considered when making global changes here. */
 .dialog {
     /*using 100vh or dvh still caused the action items to get clipped*/

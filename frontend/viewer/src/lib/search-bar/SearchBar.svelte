@@ -121,7 +121,7 @@
       }}
       placeholder={`Find ${fieldName({id: 'entry'}, $currentView.i18nKey).toLowerCase()}...`}
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
+      classes={{ prepend: 'text-sm', append: 'flex-row-reverse', container: 'border-surface-content/20' }}
       icon={mdiBookSearchOutline}>
       <div slot="append" class="flex p-1">
         {#if $loading}
