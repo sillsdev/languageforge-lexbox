@@ -1,5 +1,11 @@
 import type {IEntry, IExampleSentence, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {get, writable, type Readable} from 'svelte/store';
+import {type ClassValue, clsx} from 'clsx';
+import {twMerge} from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -65,7 +71,7 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
   };
 }
 
-export function makeHasHadValueTracker(): { store: Readable<boolean>, pushAndGet(currValueOrHasValue?: unknown): boolean } {
+export function makeHasHadValueTracker(): {store: Readable<boolean>, pushAndGet(currValueOrHasValue?: unknown): boolean} {
   const hasHadValueStore = writable<boolean>();
   function pushAndGet(currValueOrHasValue?: unknown) {
     hasHadValueStore.update(hasHadValue => {
@@ -75,5 +81,5 @@ export function makeHasHadValueTracker(): { store: Readable<boolean>, pushAndGet
     return get(hasHadValueStore);
   }
 
-  return { store: hasHadValueStore, pushAndGet };
+  return {store: hasHadValueStore, pushAndGet};
 }
