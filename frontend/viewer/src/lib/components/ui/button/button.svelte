@@ -81,6 +81,7 @@
 		class={cn(buttonVariants({ variant, size }), className)}
 		{type}
 		{...restProps}
+    disabled={restProps.disabled || loading}
 	>
     {@render content()}
 	</button>
