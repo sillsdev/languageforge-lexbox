@@ -1,11 +1,31 @@
 ﻿using System.Collections;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using HtmlAgilityPack;
 
 namespace MiniLcm.Models;
 
+[JsonConverter(typeof(RichMultiStringConverter))]
 public class RichMultiString : Dictionary<WritingSystemId, string>, IDictionary
 {
+    public static bool IsValidRichString(string value)
+    {
+        var doc = new HtmlDocument();
+        doc.LoadHtml(value);
+        if (doc.ParseErrors.Any()) return false;
+        if (doc.DocumentNode.ChildNodes.Count == 0) return false;
+        foreach (var childNode in doc.DocumentNode.ChildNodes)
+        {
+            if (childNode.NodeType != HtmlNodeType.Element) return false;
+            foreach (var childNodeChildNode in childNode.ChildNodes)
+            {
+                if (childNodeChildNode.NodeType != HtmlNodeType.Text) return false;
+            }
+        }
+
+        return true;
+    }
+
     public RichMultiString(IDictionary<WritingSystemId, string> dictionary) : base(dictionary)
     {
     }
@@ -21,7 +41,14 @@ public class RichMultiString : Dictionary<WritingSystemId, string>, IDictionary
     public new string this[WritingSystemId key]
     {
         get => TryGetValue(key, out var value) ? value : string.Empty;
-        set => base[key] = value;
+        set
+        {
+            if (!IsValidRichString(value))
+            {
+                throw new ArgumentException($"Invalid rich string {value}");
+            }
+            base[key] = value;
+        }
     }
 
     public override string ToString()
@@ -40,6 +67,10 @@ public class RichMultiString : Dictionary<WritingSystemId, string>, IDictionary
         var valStr = value as string ??
                      throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string",
                          nameof(value));
+        if (!IsValidRichString(valStr))
+        {
+            throw new ArgumentException($"Invalid rich string {valStr}");
+        }
         if (key is WritingSystemId keyWs)
         {
             Add(keyWs, valStr);
@@ -64,7 +95,7 @@ public class RichMultiStringConverter : JsonConverter<RichMultiString>
         var ms = new RichMultiString();
         foreach (var (key, value) in dict)
         {
-            if (string.IsNullOrEmpty(value)) continue;
+            if (string.IsNullOrWhiteSpace(value)) continue;
             ms[key] = value;
         }
 
@@ -73,6 +104,6 @@ public class RichMultiStringConverter : JsonConverter<RichMultiString>
 
     public override void Write(Utf8JsonWriter writer, RichMultiString value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, value.Values, options);
+        JsonSerializer.Serialize(writer, value, options);
     }
 }
