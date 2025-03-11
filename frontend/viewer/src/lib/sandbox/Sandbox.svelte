@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Button, type MenuOption} from 'svelte-ux';
+  import {Button as UxButton, type MenuOption} from 'svelte-ux';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
   import {DotnetService, type ISense} from '$lib/dotnet-types';
   import {tryUseService} from '$lib/services/service-provider';
@@ -15,6 +15,7 @@
   import {dndzone} from 'svelte-dnd-action';
   import {delay} from '$lib/utils/time';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
+  import {Button} from '$lib/components/ui/button';
 
 
   const crdtOptions: MenuOption[] = [
@@ -60,79 +61,96 @@
   }
 </script>
 
-
-<div class="grid grid-cols-3 gap-6 p-6">
-  <div class="flex flex-col gap-2 border p-4 justify-between">
-    MultiOptionEditor configurations
-    <OptionSandbox/>
+<div class="p-6">
+  <h2 class="mb-4">
+    Shadcn Sandbox
+  </h2>
+  <div class="grid grid-cols-3 gap-6">
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <Button onclick={incrementAsync} {loading} icon="i-mdi-ab-testing">Shadcn FTW {count}</Button>
+    </div>
   </div>
+</div>
 
-  <div class="flex flex-col gap-2 border p-4 justify-between">
-    <div class="flex flex-col gap-2">
-      Lower level editor
-      <div class="mb-4">
-        String values and MenuOptions
-        <CrdtMultiOptionField bind:value={crdtValue} options={crdtOptions}/>
+<hr class="border-t border-gray-200 my-6"/>
+
+<div class="p-6">
+  <h2 class="mb-4">
+    Svelte-UX Sandbox
+  </h2>
+  <div class="grid grid-cols-3 gap-6">
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      MultiOptionEditor configurations
+      <OptionSandbox/>
+    </div>
+
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div class="flex flex-col gap-2">
+        Lower level editor
+        <div class="mb-4">
+          String values and MenuOptions
+          <CrdtMultiOptionField bind:value={crdtValue} options={crdtOptions}/>
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <p>selected: {crdtValue.join('|')}</p>
+        <UxButton variant="fill" on:click={() => crdtValue = ['c']}>Select Charlie only</UxButton>
       </div>
     </div>
-    <div class="flex flex-col">
-      <p>selected: {crdtValue.join('|')}</p>
-      <Button variant="fill" on:click={() => crdtValue = ['c']}>Select Charlie only</Button>
-    </div>
-  </div>
 
-  <div class="flex flex-col gap-2 border p-4 justify-between">
-    <div class="flex flex-col gap-2">
-      Notifications
-      <Button variant="fill" on:click={() => testingService?.throwException()}>Throw Exception</Button>
-      <Button variant="fill" on:click={() => testingService?.throwExceptionAsync()}>Throw Exception Async</Button>
-      <Button variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple
-        Notification
-      </Button>
-      <Button variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
-        label: 'Action',
-        callback: () => alert('Action clicked')
-      })}>Notification with action
-      </Button>
-      <Button variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
-      </Button>
-    </div>
-  </div>
-  <div class="flex flex-col gap-2 border p-4 justify-between">
-    <div class="flex flex-col gap-2">
-      Button
-      <Button variant="fill" disabled={loading} {loading} on:click={incrementAsync}>
-        Increment Async
-      </Button>
-      click count: {count}
-    </div>
-    <div class="flex flex-col gap-2">
-      ButtonListItem
-      <ButtonListItem disabled={loading} on:click={incrementAsync}>
-        Increment Async
-      </ButtonListItem>
-      click count: {count}
-    </div>
-  </div>
-  <div class="border grid" style="grid-template-columns: auto 1fr">
-    <div class="col-span-2">
-      <h3>Override Fields</h3>
-    </div>
-    <div>
-      <p>Shown:</p>
-      <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} on:consider={updateFields}
-           on:finalize={updateFields}>
-        {#each senseFields as field (field)}
-          <div class="p-2 border m-3">{field.id}</div>
-        {/each}
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div class="flex flex-col gap-2">
+        Notifications
+        <UxButton variant="fill" on:click={() => testingService?.throwException()}>Throw Exception</UxButton>
+        <UxButton variant="fill" on:click={() => testingService?.throwExceptionAsync()}>Throw Exception Async</UxButton>
+        <UxButton variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple
+          Notification
+        </UxButton>
+        <UxButton variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
+          label: 'Action',
+          callback: () => alert('Action clicked')
+        })}>Notification with action
+        </UxButton>
+        <UxButton variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
+        </UxButton>
       </div>
     </div>
-    <div class="editor-grid border p-4">
-      <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
-        <SenseEditor
-          sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
-      </OverrideFields>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div class="flex flex-col gap-2">
+        Button
+        <UxButton variant="fill" disabled={loading} {loading} on:click={incrementAsync}>
+          Increment Async
+        </UxButton>
+        click count: {count}
+      </div>
+      <div class="flex flex-col gap-2">
+        ButtonListItem
+        <ButtonListItem disabled={loading} on:click={incrementAsync}>
+          Increment Async
+        </ButtonListItem>
+        click count: {count}
+      </div>
     </div>
-  </div>
+    <div class="border grid" style="grid-template-columns: auto 1fr">
+      <div class="col-span-2">
+        <h3>Override Fields</h3>
+      </div>
+      <div>
+        <p>Shown:</p>
+        <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} on:consider={updateFields}
+            on:finalize={updateFields}>
+          {#each senseFields as field (field)}
+            <div class="p-2 border m-3">{field.id}</div>
+          {/each}
+        </div>
+      </div>
+      <div class="editor-grid border p-4">
+        <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+          <SenseEditor
+            sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+        </OverrideFields>
+      </div>
+    </div>
 
+  </div>
 </div>
