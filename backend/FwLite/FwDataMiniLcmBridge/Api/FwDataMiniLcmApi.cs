@@ -482,7 +482,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var updateProxy = new UpdateComplexFormTypeProxy(type, null, this);
+                var updateProxy = new UpdateComplexFormTypeProxy(type, this);
                 update.Apply(updateProxy);
             });
         return Task.FromResult(ToComplexFormType(type));
