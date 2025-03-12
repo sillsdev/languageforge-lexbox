@@ -1,21 +1,22 @@
 <script lang="ts">
-  import {Button as UxButton, type MenuOption} from 'svelte-ux';
-  import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
+  import OverrideFields from '$lib/OverrideFields.svelte';
+  import {Button} from '$lib/components/ui/button';
+  import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type ISense} from '$lib/dotnet-types';
-  import {tryUseService} from '$lib/services/service-provider';
-  import {AppNotification} from '$lib/notifications/notifications';
+  import type {FieldIds} from '$lib/entry-editor/field-data';
   import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
+  import {AppNotification} from '$lib/notifications/notifications';
   import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
-  import {initWritingSystemService} from '$lib/writing-system-service';
-  import {writable} from 'svelte/store';
-  import {initView, initViewSettings} from '$lib/views/view-service';
-  import OverrideFields from '$lib/OverrideFields.svelte';
-  import type {FieldIds} from '$lib/entry-editor/field-data';
-  import {dndzone} from 'svelte-dnd-action';
-  import {delay} from '$lib/utils/time';
+  import {tryUseService} from '$lib/services/service-provider';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
-  import {Button} from '$lib/components/ui/button';
+  import {delay} from '$lib/utils/time';
+  import {initView, initViewSettings} from '$lib/views/view-service';
+  import {initWritingSystemService} from '$lib/writing-system-service';
+  import {dndzone} from 'svelte-dnd-action';
+  import {Button as UxButton, type MenuOption} from 'svelte-ux';
+  import {writable} from 'svelte/store';
+  import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
 
 
   const crdtOptions: MenuOption[] = [
@@ -68,6 +69,10 @@
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <Button onclick={incrementAsync} {loading} icon="i-mdi-ab-testing">Shadcn FTW {count}</Button>
+      <label>
+        Yes?!
+        <Checkbox bind:checked={loading}></Checkbox>
+      </label>
     </div>
   </div>
 </div>
