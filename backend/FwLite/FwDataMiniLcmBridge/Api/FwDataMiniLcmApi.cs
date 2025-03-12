@@ -959,7 +959,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             if (entryRef.ComponentLexemesRS.Remove(lexComponent)) return;
         }
-        throw new InvalidOperationException("Complex form component not found, searched for " + lexComponent.ObjectIdName.Text);
+        //not throwing to match CRDT behavior
     }
 
     internal void AddComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)

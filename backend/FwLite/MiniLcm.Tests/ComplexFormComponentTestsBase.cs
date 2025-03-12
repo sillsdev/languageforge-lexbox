@@ -64,16 +64,6 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         complexFormEntry.Components.Should().BeEmpty();
         componentEntry.ComplexForms.Should().BeEmpty();
     }
-    [Fact]
-    public async Task RemoveComplexFormComponent_ThrowsWhenComponentDoesNotExist()
-    {
-        var component = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
-        component.ComplexFormEntryId.Should().Be(_complexFormEntryId);
-        component.ComponentEntryId.Should().Be(_componentEntryId);
-        await Api.DeleteComplexFormComponent(component);
-        var act = async () => await Api.DeleteComplexFormComponent(component);
-        await act.Should().ThrowAsync<InvalidOperationException>();
-    }
 
     [Fact]
     public async Task GetEntries_Works()
