@@ -9,6 +9,7 @@ import LogoutIcon from './LogoutIcon.svelte';
 import PencilIcon from './PencilIcon.svelte';
 import TrashIcon from './TrashIcon.svelte';
 import UserAddOutline from './UserAddOutline.svelte';
+import type {IconClass} from '../../../viewer/src/lib/icon-class';
 
 export {
   Icon,
@@ -25,4 +26,4 @@ export {
 }
 
 type DaisySize = 'xs' | 'sm' | 'md' | 'lg';
-export type IconString = `i-mdi-${string}` | `loading loading-spinner${'' | ` loading-${DaisySize}`}`;
+export type IconString = IconClass | `loading loading-spinner${'' | ` loading-${DaisySize}`}`;

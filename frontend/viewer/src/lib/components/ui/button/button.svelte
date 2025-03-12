@@ -2,6 +2,7 @@
 	import type { WithElementRef } from 'bits-ui';
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 	import { type VariantProps, tv } from 'tailwind-variants';
+  import type {IconClass} from '$lib/icon-class';
 
 	export const buttonVariants = tv({
 		base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
@@ -36,7 +37,7 @@
 			variant?: ButtonVariant;
 			size?: ButtonSize;
 			loading?: boolean;
-			icon?: `i-mdi-${string}`;
+			icon?: IconClass;
 		};
 </script>
 
