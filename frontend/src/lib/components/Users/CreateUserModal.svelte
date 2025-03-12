@@ -24,7 +24,7 @@
 
 <Modal bind:this={createUserModal} bottom closeOnClickOutside={!formTainted}>
   <div class="alert alert-info gap-4 mb-4">
-    <Icon icon="i-mdi-info-outline" size="text-2xl" />
+    <Icon icon="i-mdi-information-outline" size="text-2xl" />
     <div>
       <h3 class="text-lg">{$t('common.did_you_know')}</h3>
       <div>

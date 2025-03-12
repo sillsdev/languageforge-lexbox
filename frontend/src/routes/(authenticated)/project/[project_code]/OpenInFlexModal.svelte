@@ -19,7 +19,7 @@
   <div class="prose open-with-flex-modal max-w-none">
     <h3>{$t('project_page.open_with_flex.button')}</h3>
     <div class="alert alert-info mb-4 not-prose">
-      <span class="i-mdi-info-outline text-xl"></span>
+      <span class="i-mdi-information-outline text-xl"></span>
       <NewTabLinkMarkdown md={$t('project_page.open_with_flex.supported_version')} />
     </div>
     <div class="not-prose">
