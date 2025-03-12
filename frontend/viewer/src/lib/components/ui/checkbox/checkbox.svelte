@@ -1,8 +1,7 @@
 <script lang="ts">
   import {cn} from '$lib/utils.js';
   import {Checkbox as CheckboxPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
-  import Check from 'lucide-svelte/icons/check';
-  import Minus from 'lucide-svelte/icons/minus';
+  import {Icon} from '../icon';
 
   let {
     ref = $bindable(null),
@@ -26,9 +25,9 @@
   {#snippet children({ checked, indeterminate })}
     <div class="flex size-4 items-center justify-center text-current">
       {#if indeterminate}
-        <Minus class="size-3.5" />
+        <Icon icon="i-mdi-minus" class="size-3.5" />
       {:else}
-        <Check class={cn('size-3.5', !checked && 'text-transparent')} />
+        <Icon icon="i-mdi-check" class={cn('size-3.5', !checked && 'text-transparent')} />
       {/if}
     </div>
   {/snippet}

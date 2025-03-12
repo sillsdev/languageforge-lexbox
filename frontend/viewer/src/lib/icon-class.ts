@@ -1,3 +1,8 @@
+/**
+ * Note these do not include icon aliases, which do work if used,
+ * but don't get rendered inline by the iconify plugin, which can be confusing.
+ * So, it's kind of nice that they're not included here.
+ */
 export type IconClass =
     | 'i-mdi-ab-testing'
     | 'i-mdi-abacus'

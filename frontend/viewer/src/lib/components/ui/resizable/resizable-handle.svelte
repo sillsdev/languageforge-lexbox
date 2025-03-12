@@ -1,8 +1,8 @@
 <script lang="ts">
   import {cn} from '$lib/utils.js';
   import type {WithoutChildrenOrChild} from 'bits-ui';
-  import GripVertical from 'lucide-svelte/icons/grip-vertical';
   import * as ResizablePrimitive from 'paneforge';
+  import {Icon} from '../icon';
 
   let {
     ref = $bindable(null),
@@ -24,7 +24,7 @@
 >
   {#if withHandle}
     <div class="bg-border z-10 flex h-4 w-3 items-center justify-center rounded-sm border">
-      <GripVertical class="size-2.5" />
+      <Icon icon="i-mdi-drag-vertical" class="size-2.5" />
     </div>
   {/if}
 </ResizablePrimitive.PaneResizer>

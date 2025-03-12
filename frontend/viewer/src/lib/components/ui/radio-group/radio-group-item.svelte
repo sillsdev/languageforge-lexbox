@@ -1,7 +1,7 @@
 <script lang="ts">
   import {cn} from '$lib/utils.js';
   import {RadioGroup as RadioGroupPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
-  import Circle from 'lucide-svelte/icons/circle';
+  import {Icon} from '../icon';
 
   let {
     ref = $bindable(null),
@@ -21,7 +21,7 @@
   {#snippet children({ checked })}
     <div class="flex items-center justify-center">
       {#if checked}
-        <Circle class="size-2.5 fill-current text-current" />
+        <Icon icon="i-mdi-circle" class="size-3 text-current" />
       {/if}
     </div>
   {/snippet}

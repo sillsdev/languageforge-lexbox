@@ -42,6 +42,7 @@
 
 <script lang="ts">
   import {cn} from '$lib/utils.js';
+  import {Icon} from '../icon';
 
   let {
     class: className,
@@ -59,9 +60,9 @@
 
 {#snippet content()}
   {#if loading}
-    <span class="i-mdi-loading animate-spin text-xl"></span>
+    <Icon icon="i-mdi-loading" class="animate-spin" />
   {:else if icon}
-    <span class="{icon} text-xl"></span>
+    <Icon {icon} />
   {/if}
   {@render children?.()}
 {/snippet}
