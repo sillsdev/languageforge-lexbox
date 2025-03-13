@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Gridify;
 using Gridify.Syntax;
 using MiniLcm.Models;
@@ -30,7 +30,7 @@ public class EntryFilter
     //used by the database for json columns which are lists, we want to treat null as an empty list
     public static object ConvertNullToEmptyList<T>(string value)
     {
-        if (value is "null" or "") return new List<T>();
+        if (value is "null" or "" or "[]") return new List<T>();
         throw new Exception($"Invalid value {value} for {typeof(T).Name}");
     }
 
