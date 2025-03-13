@@ -33,12 +33,12 @@ public class RichSpan
     public string? ForeColor;
 
     /// <summary>
-    /// RGB or color name
+    /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     public string? BackColor;
 
     /// <summary>
-    /// RGB or color name
+    /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     public string? UnderColor;
 
@@ -57,6 +57,10 @@ public class RichSpan
     public int? LineHeight;
     public RichTextSizeUnit? LineHeightUnit;
     public RichTextLineHeightType? LineHeightType;
+
+    /// <summary>
+    /// RGB, like #ffffff, or #00000000 for transparent
+    /// </summary>
     public string? ParaColor;
 
     public RichTextSpellingMode? SpellCheck;

@@ -143,7 +143,22 @@ public static class RichTextMapping
         span.ForeColor = GetNullableColorProp(textProps, FwTextPropType.ktptForeColor);
         span.BackColor = GetNullableColorProp(textProps, FwTextPropType.ktptBackColor);
         span.UnderColor = GetNullableColorProp(textProps, FwTextPropType.ktptUnderColor);
+        span.ParaColor = GetNullableColorProp(textProps, FwTextPropType.ktptParaColor);
         span.Align = GetNullableRichTextAlign(textProps, FwTextPropType.ktptAlign);
+        span.SpellCheck = GetNullableRichTextSpellCheck(textProps, FwTextPropType.ktptSpellCheck);
+    }
+
+    private static RichTextSpellingMode? GetNullableRichTextSpellCheck(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out _, out var value))
+            return value switch
+            {
+                (int)SpellingModes.ksmNormalCheck => RichTextSpellingMode.Normal,
+                (int)SpellingModes.ksmDoNotCheck => RichTextSpellingMode.DoNotCheck,
+                (int)SpellingModes.ksmForceCheck => RichTextSpellingMode.ForceCheck,
+                _ => (RichTextSpellingMode)value
+            };
+        return null;
     }
 
     public static void WriteToTextProps(RichSpan span,
