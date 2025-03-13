@@ -95,6 +95,7 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntDashed, 0, span => span.Underline.Should().Be(RichTextUnderline.Dashed));
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntSingle, 0, span => span.Underline.Should().Be(RichTextUnderline.Single));
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntDouble, 0, span => span.Underline.Should().Be(RichTextUnderline.Double));
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntStrikethrough, 0, span => span.Underline.Should().Be(RichTextUnderline.Strikethrough));
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntSquiggle, 0, span => span.Underline.Should().Be(RichTextUnderline.Squiggle));
 
             //may show up as ObjData

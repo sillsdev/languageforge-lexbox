@@ -232,6 +232,7 @@ public static class RichTextMapping
                 (int)FwUnderlineType.kuntDashed => RichTextUnderline.Dashed,
                 (int)FwUnderlineType.kuntSingle => RichTextUnderline.Single,
                 (int)FwUnderlineType.kuntDouble => RichTextUnderline.Double,
+                (int)FwUnderlineType.kuntStrikethrough => RichTextUnderline.Strikethrough,
                 (int)FwUnderlineType.kuntSquiggle => RichTextUnderline.Squiggle,
                 _ => (RichTextUnderline)value
             };
