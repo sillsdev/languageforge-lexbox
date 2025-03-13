@@ -30,4 +30,30 @@ public static class MultiStringDiff
             yield return new Operation<T>("add", $"/{path}/{key}", null, after.Values[key]);
         }
     }
+
+    public static IEnumerable<Operation<T>> GetMultiStringDiff<T>(string path,
+        RichMultiString before,
+        RichMultiString after) where T : class
+    {
+        var afterKeys = after.Keys.ToHashSet();
+        foreach (var (key, beforeValue) in before)
+        {
+            if (after.TryGetValue(key, out var afterValue))
+            {
+                if (!beforeValue.Equals(afterValue))
+                    yield return new Operation<T>("replace", $"/{path}/{key}", null, afterValue);
+            }
+            else
+            {
+                yield return new Operation<T>("remove", $"/{path}/{key}", null);
+            }
+
+            afterKeys.Remove(key);
+        }
+
+        foreach (var key in afterKeys)
+        {
+            yield return new Operation<T>("add", $"/{path}/{key}", null, after[key]);
+        }
+    }
 }

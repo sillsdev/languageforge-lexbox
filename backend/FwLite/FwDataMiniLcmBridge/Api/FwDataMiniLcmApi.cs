@@ -681,7 +681,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = sentence.Reference.Text,
-            Translation = translation is null ? new MultiString() : FromLcmMultiString(translation),
+            Translation = translation is null ? new() : FromLcmMultiString(translation),
         };
     }
 
@@ -692,6 +692,19 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
             result.Values.Add(GetWritingSystemId(ws), tsString.Text);
+        }
+
+        return result;
+    }
+
+    private RichMultiString FromLcmMultiString(IMultiString multiString)
+    {
+        var result = new RichMultiString(multiString.StringCount);
+        for (var i = 0; i < multiString.StringCount; i++)
+        {
+            var tsString = multiString.GetStringFromIndex(i, out var ws);
+
+            result.Add(GetWritingSystemId(ws), tsString.Text);
         }
 
         return result;
@@ -1041,6 +1054,15 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private void UpdateLcmMultiString(ITsMultiString multiString, MultiString newMultiString)
     {
         foreach (var (ws, value) in newMultiString.Values)
+        {
+            var writingSystemHandle = GetWritingSystemHandle(ws);
+            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+        }
+    }
+
+    private void UpdateLcmMultiString(ITsMultiString multiString, RichMultiString newMultiString)
+    {
+        foreach (var (ws, value) in newMultiString)
         {
             var writingSystemHandle = GetWritingSystemHandle(ws);
             multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));

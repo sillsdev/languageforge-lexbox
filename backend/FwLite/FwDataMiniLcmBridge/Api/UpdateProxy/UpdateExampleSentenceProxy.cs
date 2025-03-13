@@ -12,18 +12,18 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
         set => throw new NotImplementedException();
     }
 
-    public override MultiString Sentence
+    public override RichMultiString Sentence
     {
-        get => new UpdateMultiStringProxy(sentence.Example, lexboxLcmApi);
+        get => new UpdateRichMultiStringProxy(sentence.Example, lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 
-    public override MultiString Translation
+    public override RichMultiString Translation
     {
         get
         {
             var firstTranslation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
-            return firstTranslation is null ? new MultiString() : new UpdateMultiStringProxy(firstTranslation, lexboxLcmApi);
+            return firstTranslation is null ? new RichMultiString() : new UpdateRichMultiStringProxy(firstTranslation, lexboxLcmApi);
         }
         set => throw new NotImplementedException();
     }

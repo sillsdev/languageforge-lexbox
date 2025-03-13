@@ -26,7 +26,8 @@ public class ChangeSerializationTests
     {
         Config =
         {
-            Overrides = [new WritingSystemIdOverride(), new MultiStringOverride()]
+            Overrides = [new WritingSystemIdOverride(), new MultiStringOverride(),new RichMultiStringOverride()
+            ]
         }
     };
 

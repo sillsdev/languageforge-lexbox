@@ -19,16 +19,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         Id = Guid.NewGuid(),
         LexemeForm = { Values = { { "en", "Apple" } } },
-        Note = { Values = { { "en", "this is a test note" } } },
+        Note = { { "en", "this is a test note" } },
         Senses =
         [
             new Sense
             {
                 Gloss = { Values = { { "en", "Apple" } } },
-                Definition = { Values = { { "en", "a round fruit with a hard, crisp skin" } } },
+                Definition = { { "en", "a round fruit with a hard, crisp skin" } },
                 ExampleSentences =
                 [
-                    new ExampleSentence { Sentence = { Values = { { "en", "I went to the store to buy an apple." } } } }
+                    new ExampleSentence { Sentence = { { "en", "I went to the store to buy an apple." } } }
                 ]
             }
         ]

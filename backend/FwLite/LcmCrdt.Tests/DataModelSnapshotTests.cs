@@ -23,6 +23,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
         Overrides =
         [
             new MultiStringOverride(),
+            new RichMultiStringOverride(),
             new WritingSystemIdOverride(),
             new OrderableOverride(),
         ]

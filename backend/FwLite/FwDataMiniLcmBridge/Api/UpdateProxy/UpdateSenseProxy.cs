@@ -13,9 +13,9 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         set => throw new NotImplementedException();
     }
 
-    public override MultiString Definition
+    public override RichMultiString Definition
     {
-        get => new UpdateMultiStringProxy(sense.Definition, lexboxLcmApi);
+        get => new UpdateRichMultiStringProxy(sense.Definition, lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 

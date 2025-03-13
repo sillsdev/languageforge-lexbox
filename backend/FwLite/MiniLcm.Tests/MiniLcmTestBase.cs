@@ -12,6 +12,7 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
         Overrides =
         [
             new MultiStringOverride(["en"]),
+            new RichMultiStringOverride(["en"]),
             new ObjectWithIdOverride(),
             new OrderableOverride(),
         ]

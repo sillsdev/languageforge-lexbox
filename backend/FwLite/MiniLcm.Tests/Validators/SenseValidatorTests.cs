@@ -60,15 +60,42 @@ public class SenseValidatorTests
         _validator.TestValidate(sense).ShouldHaveValidationErrorFor(fieldName);
     }
 
+
     private void SetProperty(Sense sense, string propName, string content)
     {
         var propInfo = typeof(Sense).GetProperty(propName);
-        propInfo?.SetValue(sense, new MultiString(){{"en", content}});
+        if (propInfo is null) return;
+        if (propInfo.PropertyType == typeof(MultiString))
+        {
+            propInfo.SetValue(sense, new MultiString() { { "en", content } });
+            return;
+        }
+
+        if (propInfo.PropertyType == typeof(RichMultiString))
+        {
+            propInfo.SetValue(sense, new RichMultiString() { { "en", content } });
+            return;
+        }
+
+        throw new NotImplementedException($"Property type {propInfo.PropertyType} not supported");
     }
 
     private void MakePropertyEmpty(Sense sense, string propName)
     {
         var propInfo = typeof(Sense).GetProperty(propName);
-        propInfo?.SetValue(sense, new MultiString());
+        if (propInfo is null) return;
+        if (propInfo.PropertyType == typeof(MultiString))
+        {
+            propInfo.SetValue(sense, new MultiString());
+            return;
+        }
+
+        if (propInfo.PropertyType == typeof(RichMultiString))
+        {
+            propInfo.SetValue(sense, new RichMultiString());
+            return;
+        }
+
+        throw new NotImplementedException($"Property type {propInfo.PropertyType} not supported");
     }
 }

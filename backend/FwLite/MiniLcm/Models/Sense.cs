@@ -11,7 +11,7 @@ public class Sense : IObjectWithId<Sense>, IOrderable
     public double Order { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid EntryId { get; set; }
-    public virtual MultiString Definition { get; set; } = new();
+    public virtual RichMultiString Definition { get; set; } = new();
     public virtual MultiString Gloss { get; set; } = new();
 
     [JsonConverter(typeof(SensePoSConverter))]

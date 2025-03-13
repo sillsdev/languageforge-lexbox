@@ -10,7 +10,7 @@ public class ExampleSentenceValidatorTests
     [Fact]
     public void Succeeds_WhenDeletedAtIsNull()
     {
-        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new MultiString(){{"en", "sentence"}}, DeletedAt = null };
+        var example = new ExampleSentence() { Id = Guid.NewGuid(), Sentence = new(){{"en", "sentence"}}, DeletedAt = null };
         _validator.TestValidate(example).ShouldNotHaveAnyValidationErrors();
     }
 
@@ -54,12 +54,12 @@ public class ExampleSentenceValidatorTests
     private void SetProperty(ExampleSentence example, string propName, string content)
     {
         var propInfo = typeof(ExampleSentence).GetProperty(propName);
-        propInfo?.SetValue(example, new MultiString(){{"en", content}});
+        propInfo?.SetValue(example, new RichMultiString(){{"en", content}});
     }
 
     private void MakePropertyEmpty(ExampleSentence example, string propName)
     {
         var propInfo = typeof(ExampleSentence).GetProperty(propName);
-        propInfo?.SetValue(example, new MultiString());
+        propInfo?.SetValue(example, new RichMultiString());
     }
 }

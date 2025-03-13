@@ -52,7 +52,7 @@ public class SerializationTests(ITestOutputHelper output)
                         {
                             Id = Guid.NewGuid(),
                             SenseId = senseId,
-                            Sentence = { Values = { { "en", "this is only a test" } } }
+                            Sentence = { { "en", "this is only a test" } }
                         }
                     }
                 }
