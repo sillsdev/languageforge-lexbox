@@ -256,7 +256,7 @@ public class RichTextTests(ITestOutputHelper output)
             .Except(testedTypes)
             .ToArray();
         if (notTested.Length > 0) output.WriteLine($"Not tested: {string.Join(", ", notTested)}");
-        notTested.Should().BeEmpty();
+        notTested.Should().BeEmpty("values should be tested, {0} are not", notTested.Length);
 
         //all these types are duplicated so must be in both string and int tested types
         HashSet<FwTextPropType> duplicatedTypes =
