@@ -62,6 +62,6 @@
 
 <div class="app contents" class:dark={$currentTheme.dark}>
   <ProjectLoader readyToLoadProject={!loading} {projectName} let:onProjectLoaded>
-    <ProjectView {projectName} isConnected showHomeButton={false} {about}  on:loaded={e => onProjectLoaded(e.detail)} />
+    <ProjectView {projectName} isConnected showHomeButton={false} {about}  onloaded={onProjectLoaded} />
   </ProjectLoader>
 </div>

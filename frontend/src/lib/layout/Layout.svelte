@@ -47,7 +47,7 @@
           <div class="flex gap-2 items-center">
             <DevContent>
               <a href="/sandbox" class="btn btn-sm btn-neutral glass">
-                <Icon size="text-2xl" icon="i-mdi-box-variant" />
+                <Icon size="text-2xl" icon="i-mdi-package-variant" />
               </a>
             </DevContent>
             <a href={helpLinks.helpList} target="_blank" rel="external"

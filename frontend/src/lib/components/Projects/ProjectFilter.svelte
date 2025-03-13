@@ -125,7 +125,7 @@
           </div>
         {:else}
           <div class="alert alert-info gap-2">
-            <Icon icon="i-mdi-info-outline" size="text-2xl" />
+            <Icon icon="i-mdi-information-outline" size="text-2xl" />
             <div>
               <span class="mr-1">{$t('project.filter.select_user_from_table')}</span>
               <span class="btn btn-sm btn-square pointer-events-none">

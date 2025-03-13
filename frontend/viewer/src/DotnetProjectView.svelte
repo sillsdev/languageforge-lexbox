@@ -50,5 +50,5 @@
 </script>
 
 <ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
-  <ProjectView {projectName} isConnected on:loaded={e => onProjectLoaded(e.detail)}></ProjectView>
+  <ProjectView {projectName} isConnected onloaded={onProjectLoaded}></ProjectView>
 </ProjectLoader>

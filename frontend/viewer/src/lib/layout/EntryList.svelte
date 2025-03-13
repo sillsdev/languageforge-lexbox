@@ -67,7 +67,7 @@
         bind:value={search}
         placeholder={`Filter ${fieldName({id: 'entries'}, $currentView.i18nKey).toLowerCase()}...`}
         clearable
-        classes={{ append: 'flex-row-reverse' }}
+        classes={{ append: 'flex-row-reverse', container: 'border-surface-content/20' }}
         icon={mdiBookSearchOutline}>
         <div slot="append" class="flex p-1">
           {#if loading}

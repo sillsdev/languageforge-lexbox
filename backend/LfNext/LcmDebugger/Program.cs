@@ -10,8 +10,10 @@ builder.Services.AddFwDataBridge();
 var app = builder.Build();
 
 var fieldWorksProjectList = app.Services.GetRequiredService<FieldWorksProjectList>();
-var fwDataProject = fieldWorksProjectList.GetProject("fruit") ?? throw new InvalidOperationException("Could not find project");
+var fwDataProject = fieldWorksProjectList.GetProject("sena-3") ?? throw new InvalidOperationException("Could not find project");
 var fwDataFactory = app.Services.GetRequiredService<FwDataFactory>();
 var miniLcmApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
 var entries = await miniLcmApi.GetEntries().ToArrayAsync();
-var complexEntryTypesOa = miniLcmApi.Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
+
+
+fwDataFactory.Dispose();
