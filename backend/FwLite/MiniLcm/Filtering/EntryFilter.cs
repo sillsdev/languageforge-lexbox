@@ -7,21 +7,22 @@ namespace MiniLcm.Filtering;
 
 public class EntryFilter
 {
-    public static GridifyMapper<Entry> NewMapper()
+    public static GridifyMapper<T> NewMapper<T>(EntryFilterMapProvider<T> provider)
     {
-        var mapper = new GridifyMapper<Entry>(false);
-        mapper.AddMap(nameof(Entry.ComplexFormTypes));
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}");
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}");
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}");
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}",
-            (entry, key) => entry.Senses.Select(s => s.Gloss[key]));
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}",
-            (entry, key) => entry.Senses.Select(s => s.Definition[key]));
-        mapper.AddMap(nameof(Entry.Senses));
-        mapper.AddMap(nameof(Entry.LexemeForm), (entry, key) => entry.LexemeForm[key]);
-        mapper.AddMap(nameof(Entry.CitationForm), (entry, key) => entry.CitationForm[key]);
-        mapper.AddMap(nameof(Entry.Note), (entry, key) => entry.Note[key]);
+        var mapper = new GridifyMapper<T>(false);
+        mapper.Configuration.DisableCollectionNullChecks = true;
+        mapper.AddMap(nameof(Entry.Senses), provider.EntrySenses);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}", provider.EntrySensesSemanticDomains, provider.EntrySensesSemanticDomainsConverter);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition);
+
+        mapper.AddMap(nameof(Entry.Note), provider.EntryNote);
+        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm);
+        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm);
+        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning);
+        mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
         return mapper;
     }
 
