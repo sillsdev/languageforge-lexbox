@@ -7,7 +7,7 @@ namespace FwDataMiniLcmBridge.Api;
 
 public static class RichTextMapping
 {
-    public static readonly FwTextPropType[] IntProps =
+    public static readonly FrozenSet<FwTextPropType> IntProps =
     [
         FwTextPropType.ktptFontSize,
         FwTextPropType.ktptOffset,
@@ -113,18 +113,28 @@ public static class RichTextMapping
 
     public static void WriteToSpan(RichSpan span, ITsTextProps textProps, Func<int?, WritingSystemId?> wsIdLookup)
     {
-        foreach (var propType in IntProps)
+        for (int i = 0; i < textProps.IntPropCount; i++)
         {
-            MapToDelegateInt(propType).Invoke(span) = GetNullableIntProp(textProps, propType);
+            var value = textProps.GetIntProp(i, out var propTypeInt, out var variation);
+            var propType = (FwTextPropType)propTypeInt;
+            if (IntProps.Contains(propType))
+            {
+                MapToDelegateInt(propType).Invoke(span) = value;
+            }
         }
 
-        foreach (var propType in StringProps)
+        for (int i = 0; i < textProps.StrPropCount; i++)
         {
-            MapToDelegateString(propType).Invoke(span) = textProps.GetStrPropValue((int)propType);
+            var value = textProps.GetStrProp(i, out var propTypeInt);
+            var propType = (FwTextPropType)propTypeInt;
+            if (StringProps.Contains(propType))
+            {
+                MapToDelegateString(propType).Invoke(span) = value;
+            }
         }
 
         //todo map other complex props
-        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? throw new NullReferenceException("no writing system id");
+        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? default;
         span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
     }
 
