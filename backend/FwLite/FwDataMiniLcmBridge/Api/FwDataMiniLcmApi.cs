@@ -894,16 +894,19 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
+        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
+        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
         //there could be multiple valid refs, but we have no way of selecting which one to use so just use the first as that's what LCM does
-        var entryRef = lexComplexForm.ComplexFormEntryRefs.FirstOrDefault();
+        //we want to prefer the component which has the same guid as the previous or next component, if it exists
+        var entryRef = lexComplexForm.ComplexFormEntryRefs
+            .FirstOrDefault(entryRef => entryRef.ComponentLexemesRS.Any(o => o.Guid == previousComponentId || o.Guid == nextComponentId))
+            ?? lexComplexForm.ComplexFormEntryRefs.FirstOrDefault();
         if (entryRef is null || entryRef.ComponentLexemesRS.Count == 0)
         {
             lexComplexForm.AddComponent(lexComponent);
             return;
         }
 
-        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
-        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
 
         // Prevents adding duplicates (which ComponentLexemesRS.Insert is susceptible to)
         if (entryRef.ComponentLexemesRS.Contains(lexComponent))
@@ -986,11 +989,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
-        foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
+        foreach (var entryRef in lexEntry.ComplexFormEntryRefs.Reverse())
         {
             var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
             if (lexEntryType is null) continue;
-            entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
+            if (entryRef.ComplexEntryTypesRS.Remove(lexEntryType)) break;
         }
     }
 
