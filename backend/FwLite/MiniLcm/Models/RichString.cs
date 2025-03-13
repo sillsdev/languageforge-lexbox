@@ -28,7 +28,7 @@ public class RichSpan
     public RichTextSizeUnit? OffsetUnit;
 
     /// <summary>
-    /// RGB or color name
+    /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     public string? ForeColor;
 

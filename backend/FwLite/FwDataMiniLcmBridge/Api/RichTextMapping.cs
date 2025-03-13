@@ -140,6 +140,9 @@ public static class RichTextMapping
         span.Bold = GetNullableToggleProp(textProps, FwTextPropType.ktptBold);
         span.Superscript = GetNullableSuperscriptProp(textProps, FwTextPropType.ktptSuperscript);
         span.Underline = GetNullableUnderlineProp(textProps, FwTextPropType.ktptUnderline);
+        span.ForeColor = GetNullableColorProp(textProps, FwTextPropType.ktptForeColor);
+        span.BackColor = GetNullableColorProp(textProps, FwTextPropType.ktptBackColor);
+        span.UnderColor = GetNullableColorProp(textProps, FwTextPropType.ktptUnderColor);
     }
 
     public static void WriteToTextProps(RichSpan span,
@@ -217,6 +220,19 @@ public static class RichTextMapping
                 _ => (RichTextUnderline)value
             };
         return null;
+    }
+
+    private static string? GetNullableColorProp(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (!textProps.TryGetIntValue(type, out _, out var value))
+        {
+            return null;
+        }
+        if (value == (int)FwTextColor.kclrTransparent) return "#00000000";
+        int blue = (value >> 16) & 0xff;
+        int green = (value >> 8) & 0xff;
+        int red = value & 0xff;
+        return $"#{red:x2}{green:x2}{blue:x2}";
     }
 
     public static readonly FrozenDictionary<FwTextPropType, string> PropTypeMap = FrozenDictionary

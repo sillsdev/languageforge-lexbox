@@ -1,4 +1,5 @@
-﻿using FluentAssertions.Execution;
+﻿using System.Globalization;
+using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
@@ -95,6 +96,56 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntSingle, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Single));
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntDouble, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Double));
             yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntSquiggle, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Squiggle));
+
+            //may show up as ObjData
+            yield return (FwTextPropType.ktptFontSize, null, 0, (props, span) => span.FontSize.Should().BeNull());
+            yield return (FwTextPropType.ktptFontSize, 23, 0, (props, span) => span.FontSize.Should().Be(23));
+
+            //may show up as CustomBullet
+            yield return (FwTextPropType.ktptOffset, null, 0, (props, span) => span.Offset.Should().BeNull());
+            yield return (FwTextPropType.ktptOffset, 23, 0, (props, span) => span.Offset.Should().Be(23));
+
+            //colors
+            //SIL blue
+            var silBlueInt = 12147200;
+            var silBlueHex = "#005ab9";
+            yield return (FwTextPropType.ktptForeColor, null, 0, (props, span) => span.ForeColor.Should().BeNull());
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrWhite, 0, (props, span) => span.ForeColor.Should().Be("#ffffff"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrBlack, 0, (props, span) => span.ForeColor.Should().Be("#000000"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrRed, 0, (props, span) => span.ForeColor.Should().Be("#ff0000"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrGreen, 0, (props, span) => span.ForeColor.Should().Be("#00ff00"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrBlue, 0, (props, span) => span.ForeColor.Should().Be("#0000ff"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrYellow, 0, (props, span) => span.ForeColor.Should().Be("#ffff00"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrMagenta, 0, (props, span) => span.ForeColor.Should().Be("#ff00ff"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrCyan, 0, (props, span) => span.ForeColor.Should().Be("#00ffff"));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrTransparent, 0, (props, span) => span.ForeColor.Should().Be("#00000000"));
+            yield return (FwTextPropType.ktptForeColor, silBlueInt, 0, (props, span) => span.ForeColor.Should().Be(silBlueHex));
+
+            yield return (FwTextPropType.ktptBackColor, null, 0, (props, span) => span.BackColor.Should().BeNull());
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrWhite, 0, (props, span) => span.BackColor.Should().Be("#ffffff"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrBlack, 0, (props, span) => span.BackColor.Should().Be("#000000"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrRed, 0, (props, span) => span.BackColor.Should().Be("#ff0000"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrGreen, 0, (props, span) => span.BackColor.Should().Be("#00ff00"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrBlue, 0, (props, span) => span.BackColor.Should().Be("#0000ff"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrYellow, 0, (props, span) => span.BackColor.Should().Be("#ffff00"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrMagenta, 0, (props, span) => span.BackColor.Should().Be("#ff00ff"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrCyan, 0, (props, span) => span.BackColor.Should().Be("#00ffff"));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrTransparent, 0, (props, span) => span.BackColor.Should().Be("#00000000"));
+            yield return (FwTextPropType.ktptBackColor, silBlueInt, 0, (props, span) => span.BackColor.Should().Be(silBlueHex));
+
+            yield return (FwTextPropType.ktptUnderColor, null, 0, (props, span) => span.UnderColor.Should().BeNull());
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrWhite, 0, (props, span) => span.UnderColor.Should().Be("#ffffff"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrBlack, 0, (props, span) => span.UnderColor.Should().Be("#000000"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrRed, 0, (props, span) => span.UnderColor.Should().Be("#ff0000"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrGreen, 0, (props, span) => span.UnderColor.Should().Be("#00ff00"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrBlue, 0, (props, span) => span.UnderColor.Should().Be("#0000ff"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrYellow, 0, (props, span) => span.UnderColor.Should().Be("#ffff00"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrMagenta, 0, (props, span) => span.UnderColor.Should().Be("#ff00ff"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrCyan, 0, (props, span) => span.UnderColor.Should().Be("#00ffff"));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrTransparent, 0, (props, span) => span.UnderColor.Should().Be("#00000000"));
+            yield return (FwTextPropType.ktptUnderColor, silBlueInt, 0, (props, span) => span.UnderColor.Should().Be(silBlueHex));
+
+
         }
 
         return GetData().Select(x =>
