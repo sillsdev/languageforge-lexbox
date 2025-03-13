@@ -1,4 +1,6 @@
 using System.Globalization;
+using MiniLcm.Models;
+using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -68,5 +70,51 @@ internal static class LcmHelpers
                     exemplars.Add(char.ToUpperInvariant(value[0]));
             }
         }
+    }
+
+    internal static WritingSystemId GetWritingSystemId(this LcmCache cache, int ws)
+    {
+        return cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
+    }
+
+    internal static int GetWritingSystemHandle(this LcmCache cache, WritingSystemId ws, WritingSystemType? type = null)
+    {
+        var wsContainer = cache.ServiceLocator.WritingSystems;
+        if (ws == "default")
+        {
+            return type switch
+            {
+                WritingSystemType.Analysis => wsContainer.DefaultAnalysisWritingSystem.Handle,
+                WritingSystemType.Vernacular => wsContainer.DefaultVernacularWritingSystem.Handle,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+
+        var lcmWs = cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
+        if (lcmWs is not null && type is not null)
+        {
+            var validWs = type switch
+            {
+                WritingSystemType.Analysis => wsContainer.AnalysisWritingSystems,
+                WritingSystemType.Vernacular => wsContainer.VernacularWritingSystems,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+            if (!validWs.Contains(lcmWs))
+            {
+                throw new InvalidOperationException($"Writing system {ws} is not of the requested type: {type}.");
+            }
+        }
+        if (lcmWs is null)
+        {
+            throw new NullReferenceException($"unable to find writing system with id {ws}");
+        }
+
+        return lcmWs.Handle;
+    }
+
+    internal static string? PickText(this ICmObject obj, ITsMultiString multiString, string ws)
+    {
+        var wsHandle = obj.Cache.GetWritingSystemHandle(ws);
+        return multiString.get_String(wsHandle)?.Text ?? null;
     }
 }

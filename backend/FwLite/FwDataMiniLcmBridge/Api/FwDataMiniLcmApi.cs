@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
+using Gridify;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Models;
@@ -18,8 +20,15 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project, MiniLcmValidators validators) : IMiniLcmApi, IMiniLcmSaveApi
+public class FwDataMiniLcmApi(
+    Lazy<LcmCache> cacheLazy,
+    bool onCloseSave,
+    ILogger<FwDataMiniLcmApi> logger,
+    FwDataProject project,
+    MiniLcmValidators validators,
+    IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
+    private FwDataBridgeConfig Config => config.Value;
     internal LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
@@ -62,43 +71,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal WritingSystemId GetWritingSystemId(int ws)
     {
-        return Cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
+        return Cache.GetWritingSystemId(ws);
     }
 
     internal int GetWritingSystemHandle(WritingSystemId ws, WritingSystemType? type = null)
     {
-        var lcmWs = GetLcmWritingSystem(ws, type) ?? throw new NullReferenceException($"Unable to find writing system with id {ws}");
-        return lcmWs.Handle;
-    }
-
-
-    internal CoreWritingSystemDefinition? GetLcmWritingSystem(WritingSystemId ws, WritingSystemType? type = null)
-    {
-        if (ws == "default")
-        {
-            return type switch
-            {
-                WritingSystemType.Analysis => WritingSystemContainer.DefaultAnalysisWritingSystem,
-                WritingSystemType.Vernacular => WritingSystemContainer.DefaultVernacularWritingSystem,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-        }
-
-        var lcmWs = Cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
-        if (lcmWs is not null && type is not null)
-        {
-            var validWs = type switch
-            {
-                WritingSystemType.Analysis => WritingSystemContainer.AnalysisWritingSystems,
-                WritingSystemType.Vernacular => WritingSystemContainer.VernacularWritingSystems,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-            if (!validWs.Contains(lcmWs))
-            {
-                throw new InvalidOperationException($"Writing system {ws} is not of the requested type: {type}.");
-            }
-        }
-        return lcmWs;
+        return Cache.GetWritingSystemHandle(ws, type);
     }
 
     public Task<WritingSystems> GetWritingSystems()
@@ -707,6 +685,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
         options ??= QueryOptions.Default;
         if (predicate is not null) entries = entries.Where(predicate);
+        if (!string.IsNullOrEmpty(options.Filter?.GridifyFilter))
+        {
+            var query = new GridifyQuery(){Filter = options.Filter.GridifyFilter};
+            var filter = query.GetFilteringExpression(config.Value.Mapper).Compile();
+            entries = entries.Where(filter);
+        }
 
         if (options.Exemplar is not null)
         {

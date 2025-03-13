@@ -9,6 +9,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Gridify.EntityFramework" Version="2.15.0" />
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="linq2db.AspNet" Version="5.4.1"/>
         <PackageReference Include="linq2db.EntityFrameworkCore" Version="8.1.0" />

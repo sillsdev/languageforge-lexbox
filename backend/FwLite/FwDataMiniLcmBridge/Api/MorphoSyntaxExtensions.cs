@@ -50,4 +50,8 @@ public static class MorphoSyntaxExtensions
                 return null;
         }
     }
+    public static Guid? GetPartOfSpeechId(this IMoMorphSynAnalysis msa)
+    {
+        return msa.GetPartOfSpeech()?.Guid;
+    }
 }
