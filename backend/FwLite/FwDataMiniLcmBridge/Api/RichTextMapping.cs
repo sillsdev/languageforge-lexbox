@@ -136,6 +136,10 @@ public static class RichTextMapping
         //todo map other complex props
         span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? default;
         span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
+        span.Italic = GetNullableToggleProp(textProps, FwTextPropType.ktptItalic);
+        span.Bold = GetNullableToggleProp(textProps, FwTextPropType.ktptBold);
+        span.Superscript = GetNullableSuperscriptProp(textProps, FwTextPropType.ktptSuperscript);
+        span.Underline = GetNullableUnderlineProp(textProps, FwTextPropType.ktptUnderline);
     }
 
     public static void WriteToTextProps(RichSpan span,
@@ -170,6 +174,48 @@ public static class RichTextMapping
     {
         if (textProps.TryGetIntValue(type, out _, out var value))
             return value;
+        return null;
+    }
+
+    private static RichTextToggle? GetNullableToggleProp(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out _, out var value))
+            return value switch
+            {
+                (int)FwTextToggleVal.kttvForceOn => RichTextToggle.On,
+                (int)FwTextToggleVal.kttvOff => RichTextToggle.Off,
+                (int)FwTextToggleVal.kttvInvert => RichTextToggle.Invert,
+                _ => (RichTextToggle)value
+            };
+        return null;
+    }
+
+    private static RichTextSuperscript? GetNullableSuperscriptProp(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out _, out var value))
+            return value switch
+            {
+                (int)FwSuperscriptVal.kssvOff => RichTextSuperscript.None,
+                (int)FwSuperscriptVal.kssvSuper => RichTextSuperscript.Superscript,
+                (int)FwSuperscriptVal.kssvSub => RichTextSuperscript.Subscript,
+                _ => (RichTextSuperscript)value
+            };
+        return null;
+    }
+
+    private static RichTextUnderline? GetNullableUnderlineProp(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out _, out var value))
+            return value switch
+            {
+                (int)FwUnderlineType.kuntNone => RichTextUnderline.None,
+                (int)FwUnderlineType.kuntDotted => RichTextUnderline.Dotted,
+                (int)FwUnderlineType.kuntDashed => RichTextUnderline.Dashed,
+                (int)FwUnderlineType.kuntSingle => RichTextUnderline.Single,
+                (int)FwUnderlineType.kuntDouble => RichTextUnderline.Double,
+                (int)FwUnderlineType.kuntSquiggle => RichTextUnderline.Squiggle,
+                _ => (RichTextUnderline)value
+            };
         return null;
     }
 

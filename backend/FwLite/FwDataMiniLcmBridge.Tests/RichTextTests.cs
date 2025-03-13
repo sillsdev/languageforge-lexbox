@@ -61,39 +61,71 @@ public class RichTextTests(ITestOutputHelper output)
         textProps.GetIntPropValues((int)FwTextPropType.ktptBaseWs, out _).Should().Be(FakeWsHandleEn);
     }
 
-    public static IEnumerable<object[]> IntPropTypeIsMappedCorrectlyData()
+    public static IEnumerable<object?[]> IntPropTypeIsMappedCorrectlyData()
     {
-        IEnumerable<(FwTextPropType propType, int value, int variation, Action<ITsTextProps, RichSpan> assert)> GetData()
+        IEnumerable<(FwTextPropType propType, object? value, int variation, Action<ITsTextProps, RichSpan> assert)> GetData()
         {
             yield return (FwTextPropType.ktptWs, FakeWsHandleEn, 0, (props, span) => span.Ws.Should().Be((WritingSystemId)"en"));
+            //may show up as FontFamily in test output
             yield return (FwTextPropType.ktptBaseWs, FakeWsHandleEn, 0, (props, span) => span.WsBase.Should().Be((WritingSystemId)"en"));
-            yield return (FwTextPropType.ktptItalic, (int)FwTextToggleVal.kttvOff, 0, (props, span) => span.Italic.Should().Be(RichTextToggle.Off));
-            yield return (FwTextPropType.ktptItalic, (int)FwTextToggleVal.kttvForceOn, 0, (props, span) => span.Italic.Should().Be(RichTextToggle.On));
-            yield return (FwTextPropType.ktptItalic, (int)FwTextToggleVal.kttvInvert, 0, (props, span) => span.Italic.Should().Be(RichTextToggle.Invert));
+
+            //may show up as CharStyle in test output
+            yield return (FwTextPropType.ktptItalic, null, 0, (props, span) => span.Italic.Should().BeNull());
+            yield return (FwTextPropType.ktptItalic, FwTextToggleVal.kttvOff, 0, (props, span) => span.Italic.Should().Be(RichTextToggle.Off));
+            yield return (FwTextPropType.ktptItalic, FwTextToggleVal.kttvForceOn, 0, (props, span) => span.Italic.Should().Be(RichTextToggle.On));
+            yield return (FwTextPropType.ktptItalic, FwTextToggleVal.kttvInvert, 0, (props, span) => span.Italic.Should().Be(RichTextToggle.Invert));
+
+            //may show up as ParaStyle in test output
+            yield return (FwTextPropType.ktptBold, null, 0, (props, span) => span.Bold.Should().BeNull());
+            yield return (FwTextPropType.ktptBold, FwTextToggleVal.kttvOff, 0, (props, span) => span.Bold.Should().Be(RichTextToggle.Off));
+            yield return (FwTextPropType.ktptBold, FwTextToggleVal.kttvForceOn, 0, (props, span) => span.Bold.Should().Be(RichTextToggle.On));
+            yield return (FwTextPropType.ktptBold, FwTextToggleVal.kttvInvert, 0, (props, span) => span.Bold.Should().Be(RichTextToggle.Invert));
+
+            //may show up as TabList in test output
+            yield return (FwTextPropType.ktptSuperscript, null, 0, (props, span) => span.Superscript.Should().BeNull());
+            yield return (FwTextPropType.ktptSuperscript, FwSuperscriptVal.kssvOff, 0, (props, span) => span.Superscript.Should().Be(RichTextSuperscript.None));
+            yield return (FwTextPropType.ktptSuperscript, FwSuperscriptVal.kssvSuper, 0, (props, span) => span.Superscript.Should().Be(RichTextSuperscript.Superscript));
+            yield return (FwTextPropType.ktptSuperscript, FwSuperscriptVal.kssvSub, 0, (props, span) => span.Superscript.Should().Be(RichTextSuperscript.Subscript));
+
+            //may show up as Tags in the test output
+            yield return (FwTextPropType.ktptUnderline, null, 0, (props, span) => span.Underline.Should().BeNull());
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntNone, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.None));
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntDotted, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Dotted));
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntDashed, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Dashed));
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntSingle, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Single));
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntDouble, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Double));
+            yield return (FwTextPropType.ktptUnderline, FwUnderlineType.kuntSquiggle, 0, (props, span) => span.Underline.Should().Be(RichTextUnderline.Squiggle));
         }
-        return GetData().Select(x => new object[] { x.propType, x.value, x.variation, x.assert });
+
+        return GetData().Select(x =>
+            new object?[] { x.propType, x.value, x.variation, x.assert });
     }
 
     [Theory]
     [MemberData(nameof(IntPropTypeIsMappedCorrectlyData))]
-    public void IntPropTypeIsMappedCorrectly(FwTextPropType propType, int value, int variation, Action<ITsTextProps, RichSpan> assert)
+    //by making value an object and converting to an int we can see enum names in the test labels
+    public void IntPropTypeIsMappedCorrectly(FwTextPropType propType, object? value, int variation, Action<ITsTextProps, RichSpan> assert)
     {
         var span = new RichSpan() { Text = "test" };
         var builder = TsStringUtils.MakePropsBldr();
-        builder.SetIntPropValues((int)propType, variation, value);
+        if (value is not null)
+            builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
         var textProps = builder.GetTextProps();
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
         assert(textProps, span);
     }
-    public static IEnumerable<object[]> StringPropTypeIsMappedCorrectlyData()
+
+    public static IEnumerable<object?[]> StringPropTypeIsMappedCorrectlyData()
     {
-        IEnumerable<(FwTextPropType propType, string value, Action<ITsTextProps, RichSpan> assert)> GetData()
+        IEnumerable<(FwTextPropType propType, string? value, Action<ITsTextProps, RichSpan> assert)> GetData()
         {
+            yield return (FwTextPropType.ktptNamedStyle, null, (props, span) => span.NamedStyle.Should().BeNull());
             yield return (FwTextPropType.ktptNamedStyle, "Strong", (props, span) => span.NamedStyle.Should().Be("Strong"));
+            yield return (FwTextPropType.ktptCharStyle, null, (props, span) => span.CharStyle.Should().BeNull());
             yield return (FwTextPropType.ktptCharStyle, "SomeString", (props, span) => span.CharStyle.Should().Be("SomeString"));
         }
-        return GetData().Select(x => new object[] { x.propType, x.value, x.assert });
+        return GetData().Select(x => new object?[] { x.propType, x.value, x.assert });
     }
 
     [Theory]
@@ -113,8 +145,8 @@ public class RichTextTests(ITestOutputHelper output)
     public void AllPropTypesAreTested()
     {
         var testedStringTypes = StringPropTypeIsMappedCorrectlyData()
-            .Select(arr => (FwTextPropType)arr[0]).ToArray();
-        var testedIntTypes = IntPropTypeIsMappedCorrectlyData().Select(arr => (FwTextPropType)arr[0]).ToArray();
+            .Select(arr => (FwTextPropType)arr[0]!).ToArray();
+        var testedIntTypes = IntPropTypeIsMappedCorrectlyData().Select(arr => (FwTextPropType)arr[0]!).ToArray();
         var testedTypes = testedStringTypes
             .Union(testedIntTypes);
 
