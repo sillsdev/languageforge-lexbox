@@ -156,8 +156,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
         foreach (var entry in EntriesRepository.AllInstances())
         {
-            LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
-            LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
+            if (entry.CitationForm is not null)
+                LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
+            if (entry.LexemeFormOA is {Form: not null })
+                LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
         }
 
         foreach (var ws in wsExemplars.Keys)
@@ -550,7 +552,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
                 Senses = entry.AllSenses.Select(FromLexSense).ToList(),
@@ -685,8 +687,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
-    private MultiString FromLcmMultiString(ITsMultiString multiString)
+    private MultiString FromLcmMultiString(ITsMultiString? multiString)
     {
+        if (multiString is null) return new MultiString();
         var result = new MultiString(multiString.StringCount);
         for (var i = 0; i < multiString.StringCount; i++)
         {
