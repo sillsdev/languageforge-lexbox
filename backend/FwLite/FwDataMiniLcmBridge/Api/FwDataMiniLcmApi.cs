@@ -330,7 +330,7 @@ public class FwDataMiniLcmApi(
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
-            Code = GetSemanticDomainCode(semanticDomain),
+            Code = LcmHelpers.GetSemanticDomainCode(semanticDomain),
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -340,7 +340,7 @@ public class FwDataMiniLcmApi(
         return
             SemanticDomainRepository
             .AllInstances()
-            .OrderBy(GetSemanticDomainCode)
+            .OrderBy(LcmHelpers.GetSemanticDomainCode)
             .ToAsyncEnumerable()
             .Select(FromLcmSemanticDomain);
     }
@@ -349,13 +349,6 @@ public class FwDataMiniLcmApi(
     {
         var semDom = GetLcmSemanticDomain(id);
         return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
-    }
-
-    private string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
-    {
-        var abbr = semanticDomain.Abbreviation;
-        // UiString can be null even though there is an abbreviation available
-        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)

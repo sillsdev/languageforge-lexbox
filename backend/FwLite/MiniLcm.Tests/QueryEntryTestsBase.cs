@@ -1,4 +1,4 @@
-namespace MiniLcm.Tests;
+﻿namespace MiniLcm.Tests;
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
@@ -87,6 +87,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.SemanticDomains=null" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
+    }
+
+    [Fact]
+    public async Task CanFilterSemanticDomainCodeContains()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.SemanticDomains.Code=*Fruit" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
     }
 
     [Fact]

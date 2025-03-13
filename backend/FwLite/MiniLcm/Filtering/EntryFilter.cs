@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Gridify;
 using Gridify.Syntax;
 using MiniLcm.Models;
@@ -13,6 +13,7 @@ public class EntryFilter
         mapper.Configuration.DisableCollectionNullChecks = true;
         mapper.AddMap(nameof(Entry.Senses), provider.EntrySenses);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}", provider.EntrySensesSemanticDomains, provider.EntrySensesSemanticDomainsConverter);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition);

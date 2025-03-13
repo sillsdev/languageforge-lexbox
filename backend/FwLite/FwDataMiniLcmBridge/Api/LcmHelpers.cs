@@ -117,4 +117,11 @@ internal static class LcmHelpers
         var wsHandle = obj.Cache.GetWritingSystemHandle(ws);
         return multiString.get_String(wsHandle)?.Text ?? null;
     }
+
+    internal static string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
+    {
+        var abbr = semanticDomain.Abbreviation;
+        // UiString can be null even though there is an abbreviation available
+        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+    }
 }
