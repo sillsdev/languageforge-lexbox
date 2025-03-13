@@ -143,6 +143,7 @@ public static class RichTextMapping
         span.ForeColor = GetNullableColorProp(textProps, FwTextPropType.ktptForeColor);
         span.BackColor = GetNullableColorProp(textProps, FwTextPropType.ktptBackColor);
         span.UnderColor = GetNullableColorProp(textProps, FwTextPropType.ktptUnderColor);
+        span.Align = GetNullableRichTextAlign(textProps, FwTextPropType.ktptAlign);
     }
 
     public static void WriteToTextProps(RichSpan span,
@@ -233,6 +234,25 @@ public static class RichTextMapping
         int green = (value >> 8) & 0xff;
         int red = value & 0xff;
         return $"#{red:x2}{green:x2}{blue:x2}";
+    }
+
+    private static RichTextAlign? GetNullableRichTextAlign(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out _, out var value))
+        {
+            return value switch
+            {
+                (int)FwTextAlign.ktalLeading => RichTextAlign.Leading,
+                (int)FwTextAlign.ktalLeft => RichTextAlign.Left,
+                (int)FwTextAlign.ktalCenter => RichTextAlign.Center,
+                (int)FwTextAlign.ktalRight => RichTextAlign.Right,
+                (int)FwTextAlign.ktalTrailing => RichTextAlign.Trailing,
+                (int)FwTextAlign.ktalJustify => RichTextAlign.Justify,
+                _ => (RichTextAlign)value
+            };
+        }
+
+        return null;
     }
 
     public static readonly FrozenDictionary<FwTextPropType, string> PropTypeMap = FrozenDictionary
