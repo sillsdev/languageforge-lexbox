@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Tests;
+namespace MiniLcm.Tests;
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
@@ -53,7 +53,9 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 },
                 new()
                 {
-                    Gloss = { { "en", "boat" } }
+                    Gloss = { { "en", "boat" } },
+                    PartOfSpeechId = nounPos.Id,
+                    SemanticDomains = [semanticDomain],
                 }
             ]
         });
