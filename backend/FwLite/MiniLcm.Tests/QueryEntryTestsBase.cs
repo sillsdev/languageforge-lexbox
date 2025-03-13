@@ -2,18 +2,18 @@
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
-    private string Apple = "Apple";
-    private string Peach = "Peach";
-    private string Banana = "Banana";
+    private readonly string Apple = "Apple";
+    private readonly string Peach = "Peach";
+    private readonly string Banana = "Banana";
 
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
         var nounPos = new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "Noun" } } };
         await Api.CreatePartOfSpeech(nounPos);
-        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Code = "1. Fruit"};
+        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Code = "1. Fruit" };
         await Api.CreateSemanticDomain(semanticDomain);
-        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new(){ { "en", "Very complex" } } };
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
         await Api.CreateEntry(new Entry() { LexemeForm = { { "en", Apple } } });
         await Api.CreateEntry(new Entry()
@@ -44,8 +44,16 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                         new ExampleSentence()
                         {
                             Sentence = { { "en", "when a kid hands you a banana phone you answer it" } }
-                        }
+                        },
+                        new ExampleSentence()
+                        {
+                            Sentence = { { "en", "a banana peel can be slippery" } }
+                        },
                     ]
+                },
+                new()
+                {
+                    Gloss = { { "en", "boat" } }
                 }
             ]
         });
