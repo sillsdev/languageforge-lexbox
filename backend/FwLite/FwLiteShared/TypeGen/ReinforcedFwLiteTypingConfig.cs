@@ -7,6 +7,7 @@ using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Attributes;
+using MiniLcm.Filtering;
 using MiniLcm.Models;
 using Reinforced.Typings;
 using Reinforced.Typings.Ast.Dependency;
@@ -78,7 +79,7 @@ public static class ReinforcedFwLiteTypingConfig
             .WithPublicProperties()
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
         builder.ExportAsEnum<SortField>().UseString();
-        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions)],
+        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties());
     }
 

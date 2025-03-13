@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 import type {IExemplarOptions} from './IExemplarOptions';
+import type {IEntryFilter} from './Filtering/IEntryFilter';
 import type {ISortOptions} from './ISortOptions';
 
 export interface IQueryOptions
@@ -11,6 +12,7 @@ export interface IQueryOptions
 	exemplar?: IExemplarOptions;
 	count: number;
 	offset: number;
+	filter?: IEntryFilter;
 	order: ISortOptions;
 }
 /* eslint-enable */
