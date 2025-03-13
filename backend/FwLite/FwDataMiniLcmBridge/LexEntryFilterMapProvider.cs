@@ -12,6 +12,8 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     private static object? EmptyToNull<T>(IEnumerable<T> list) => !list.Any() ? null : list;
     public override Expression<Func<ILexEntry, object?>> EntrySensesSemanticDomains => e => e.AllSenses.Select(s => EmptyToNull(s.SemanticDomainsRC));
     public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentences => e => EmptyToNull(e.AllSenses.SelectMany(s => s.ExamplesOS));
+    public override Expression<Func<ILexEntry, string, object?>> EntrySensesExampleSentencesSentence => (entry, ws) =>
+        entry.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => example.PickText(example.Example, ws));
 
     public override Expression<Func<ILexEntry, object?>> EntrySensesPartOfSpeechId =>
         e => e.AllSenses.Select(s =>
