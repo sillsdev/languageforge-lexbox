@@ -1,9 +1,11 @@
 ﻿using System.Globalization;
+using System.Text;
 using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
+using SIL.LCModel.Utils;
 using Xunit.Abstractions;
 
 namespace FwDataMiniLcmBridge.Tests;
@@ -182,6 +184,8 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptSpellCheck, 2345, 0, span => span.SpellCheck.Should().Be((RichTextSpellingMode)2345));
 
 
+            yield return (FwTextPropType.ktptMarginTop, null, 0, span => span.MarginTop.Should().BeNull());
+            yield return (FwTextPropType.ktptMarginTop, 2345, 0, span => span.MarginTop.Should().Be(2345));
         }
 
         return GetData().Select(x =>
@@ -203,21 +207,69 @@ public class RichTextTests(ITestOutputHelper output)
         assert(span);
     }
 
+    private static string GetRawObjDataString(FwObjDataTypes dataType, Guid guid)
+    {
+        var guidObjData = TsStringUtils.GetObjData(guid, dataType);
+        var builder = TsStringUtils.MakePropsBldr();
+        builder.SetStrPropValueRgch((int)FwTextPropType.ktptObjData, guidObjData, guidObjData.Length);
+        return builder.GetStrPropValue((int)FwTextPropType.ktptObjData);
+    }
+
     public static IEnumerable<object?[]> StringPropTypeIsMappedCorrectlyData()
     {
-        IEnumerable<(FwTextPropType propType, string? value, Action<ITsTextProps, RichSpan> assert)> GetData()
+        IEnumerable<(FwTextPropType propType, string? value, Action<RichSpan> assert)> GetData()
         {
-            yield return (FwTextPropType.ktptNamedStyle, null, (props, span) => span.NamedStyle.Should().BeNull());
-            yield return (FwTextPropType.ktptNamedStyle, "Strong", (props, span) => span.NamedStyle.Should().Be("Strong"));
-            yield return (FwTextPropType.ktptCharStyle, null, (props, span) => span.CharStyle.Should().BeNull());
-            yield return (FwTextPropType.ktptCharStyle, "SomeString", (props, span) => span.CharStyle.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptFontFamily, null, span => span.FontFamily.Should().BeNull());
+            yield return (FwTextPropType.ktptFontFamily, "SIL Charis", span => span.FontFamily.Should().Be("SIL Charis"));
+            yield return (FwTextPropType.ktptNamedStyle, null, span => span.NamedStyle.Should().BeNull());
+            yield return (FwTextPropType.ktptNamedStyle, "Strong", span => span.NamedStyle.Should().Be("Strong"));
+            yield return (FwTextPropType.ktptCharStyle, null, span => span.CharStyle.Should().BeNull());
+            yield return (FwTextPropType.ktptCharStyle, "SomeString", span => span.CharStyle.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptParaStyle, null, span => span.ParaStyle.Should().BeNull());
+            yield return (FwTextPropType.ktptParaStyle, "SomeString", span => span.ParaStyle.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptTabList, null, span => span.TabList.Should().BeNull());
+            yield return (FwTextPropType.ktptTabList, "SomeString", span => span.TabList.Should().Be("SomeString"));
+
+            var tagsString = "\uFBA7\u3B88\u10C7\u4e14\uE09E\u0D3F\u06DA\u0D0A"
+                             + "\u3ECA\uC4F0\uBC03\u4175\uAAB5\uF313\uB7EC\u81F4";
+            Guid expectedGuid1 = new Guid("3B88FBA7-10C7-4e14-9EE0-3F0DDA060A0D");
+            Guid expectedGuid2 = new Guid("C4F03ECA-BC03-4175-B5AA-13F3ECB7F481");
+            yield return (FwTextPropType.ktptTags, null, span => span.Tags.Should().BeNull());
+            yield return (FwTextPropType.ktptTags, tagsString, span => span.Tags.Should().Equal([expectedGuid1, expectedGuid2]));
+
+            yield return (FwTextPropType.ktptObjData, null, span => span.ObjData.Should().BeNull());
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtExternalPathName) + "https://google.com", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.ExternalPathName, DataString = "https://google.com" }));
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtEmbeddedObjectData) + "<some-xml>value</some-xml>", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.EmbeddedObjectData, DataString = "<some-xml>value</some-xml>" }));
+            FwObjDataTypes[] guidTypes =
+            [
+                FwObjDataTypes.kodtNameGuidHot,
+                FwObjDataTypes.kodtOwnNameGuidHot,
+                FwObjDataTypes.kodtContextString,
+                FwObjDataTypes.kodtGuidMoveableObjDisp,
+            ];
+            foreach (var type in guidTypes)
+            {
+                var richType = type switch
+                {
+                    FwObjDataTypes.kodtNameGuidHot => RichTextObjectDataType.NameGuid,
+                    FwObjDataTypes.kodtOwnNameGuidHot => RichTextObjectDataType.OwnNameGuid,
+                    FwObjDataTypes.kodtContextString => RichTextObjectDataType.ContextString,
+                    FwObjDataTypes.kodtGuidMoveableObjDisp => RichTextObjectDataType.GuidMoveableObjDisp,
+                    _ => throw new ArgumentException("Unknown guid type")
+                };
+                var guid = Guid.NewGuid();
+                var rawObjDataString = GetRawObjDataString(type, guid);
+                var dataString = rawObjDataString.Substring(1);
+
+                yield return (FwTextPropType.ktptObjData, rawObjDataString, span => span.ObjData.Should().BeEquivalentTo(new { Type = richType, DataString = dataString }));
+            }
         }
         return GetData().Select(x => new object?[] { x.propType, x.value, x.assert });
     }
 
     [Theory]
     [MemberData(nameof(StringPropTypeIsMappedCorrectlyData))]
-    public void StringPropTypeIsMappedCorrectly(FwTextPropType propType, string value, Action<ITsTextProps, RichSpan> assert)
+    public void StringPropTypeIsMappedCorrectly(FwTextPropType propType, string value, Action<RichSpan> assert)
     {
         var span = new RichSpan() { Text = "test" };
         var builder = TsStringUtils.MakePropsBldr();
@@ -225,7 +277,7 @@ public class RichTextTests(ITestOutputHelper output)
         var textProps = builder.GetTextProps();
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
-        assert(textProps, span);
+        assert(span);
     }
 
     [Fact]

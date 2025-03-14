@@ -184,7 +184,7 @@ public abstract class RichTextObjectData
 {
     public static RichTextObjectData? FromString(string rawString)
     {
-        if (!Enum.IsDefined(typeof(RichTextObjectDataType), rawString[0])) return null;
+        if (!Enum.IsDefined(typeof(RichTextObjectDataType), (int) rawString[0])) return null;
         //todo implement other types, eg links or guid references
         return new RichTextObjectDataRaw(rawString);
     }
@@ -199,6 +199,7 @@ public class RichTextObjectDataRaw(string rawString) : RichTextObjectData
 
 public enum RichTextObjectDataType
 {
+    //note these numbers must match the enum values in FwObjDataTypes
     Unknown = 0,
     PictureEven = 1,
     PictureOdd = 2,

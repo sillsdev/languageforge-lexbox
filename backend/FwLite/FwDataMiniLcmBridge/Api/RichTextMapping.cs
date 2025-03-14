@@ -146,6 +146,7 @@ public static class RichTextMapping
         span.ParaColor = GetNullableColorProp(textProps, FwTextPropType.ktptParaColor);
         span.Align = GetNullableRichTextAlign(textProps, FwTextPropType.ktptAlign);
         span.SpellCheck = GetNullableRichTextSpellCheck(textProps, FwTextPropType.ktptSpellCheck);
+        span.ObjData = GetRichObjectData(textProps);
     }
 
     private static RichTextSpellingMode? GetNullableRichTextSpellCheck(ITsTextProps textProps, FwTextPropType type)
@@ -269,5 +270,13 @@ public static class RichTextMapping
         }
 
         return null;
+    }
+
+    private static RichTextObjectData? GetRichObjectData(ITsTextProps textProps)
+    {
+        var rawDataString = textProps.GetStrPropValue((int)FwTextPropType.ktptObjData);
+        if (string.IsNullOrEmpty(rawDataString))
+            return null;
+        return RichTextObjectData.FromString(rawDataString);
     }
 }
