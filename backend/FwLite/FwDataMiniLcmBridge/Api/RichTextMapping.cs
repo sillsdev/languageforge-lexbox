@@ -85,7 +85,7 @@ public static class RichTextMapping
             FwTextPropType.ktptKeepWithNext => span => ref span.KeepWithNext,
             FwTextPropType.ktptKeepTogether => span => ref span.KeepTogether,
             FwTextPropType.ktptHyphenate => span => ref span.Hyphenate,
-            FwTextPropType.ktptWidowOrphanControl => span => ref span.WindowOrphan,
+            FwTextPropType.ktptWidowOrphanControl => span => ref span.WidowOrphan,
             FwTextPropType.ktptMaxLines => span => ref span.MaxLines,
             FwTextPropType.ktptCellBorderWidth => span => ref span.CellBorderWidth,
             FwTextPropType.ktptCellSpacing => span => ref span.CellSpacing,
@@ -134,7 +134,7 @@ public static class RichTextMapping
         }
 
         //todo map other complex props
-        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? default;
+        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? "en";//per Jason if there's no ws use en
         span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
         span.Italic = GetNullableToggleProp(textProps, FwTextPropType.ktptItalic);
         span.Bold = GetNullableToggleProp(textProps, FwTextPropType.ktptBold);

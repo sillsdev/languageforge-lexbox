@@ -79,7 +79,7 @@ public class RichSpan
     public int? SetRowDefaults;
     public int? RelLineHeight;
 
-    public int? WindowOrphan;
+    public int? WidowOrphan;
 
 
     public int? PadBottom;
