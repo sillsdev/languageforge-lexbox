@@ -13,6 +13,7 @@ namespace FwDataMiniLcmBridge.Tests;
 public class RichTextTests(ITestOutputHelper output)
 {
     private const int FakeWsHandleFr = 346;
+    private const int FakeWsHandleEn = 2345;
 
     private ITsPropsBldr MakeFilledProps()
     {
@@ -44,11 +45,21 @@ public class RichTextTests(ITestOutputHelper output)
         var span = new RichSpan() { Text = "test", Ws = "fr", WsBase = "fr", NamedStyle = "Strong" };
         var builder = TsStringUtils.MakePropsBldr();
 
-        RichTextMapping.WriteToTextProps(span, builder, ws => ws == "fr" ? FakeWsHandleFr : throw new ArgumentException("no ws handle"));
+        RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
         var textProps = builder.GetTextProps();
         textProps.GetStrPropValue((int)FwTextPropType.ktptNamedStyle).Should().Be("Strong");
         textProps.GetIntPropValues((int)FwTextPropType.ktptWs, out _).Should().Be(FakeWsHandleFr);
         textProps.GetIntPropValues((int)FwTextPropType.ktptBaseWs, out _).Should().Be(FakeWsHandleFr);
+    }
+
+    private int WsHandleLookup(WritingSystemId ws)
+    {
+        return ws.Code switch
+        {
+            "fr" => FakeWsHandleFr,
+            "en" => FakeWsHandleEn,
+            _ => throw new ArgumentException("no ws handle for " + ws.Code)
+        };
     }
 
     public static IEnumerable<object?[]> IntPropTypeIsMappedCorrectlyData()
@@ -293,6 +304,28 @@ public class RichTextTests(ITestOutputHelper output)
         assert(span);
     }
 
+    [Theory]
+    [MemberData(nameof(IntPropTypeIsMappedCorrectlyData))]
+    public void IntPropsRoundTripProperly(FwTextPropType propType, object? value, int variation, Action<RichSpan> assert)
+    {
+        var span = new RichSpan() { Text = "test" };
+        var builder = TsStringUtils.MakePropsBldr();
+        if (value is not null)
+            builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
+        var textProps = builder.GetTextProps();
+        RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
+
+        //test
+        builder = TsStringUtils.MakePropsBldr();
+        RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
+
+        //verify
+        var spanFromProps = new RichSpan(){Text = "test"};
+        RichTextMapping.WriteToSpan(spanFromProps, builder.GetTextProps(), WsIdLookup);
+        assert(spanFromProps);
+        spanFromProps.Should().BeEquivalentTo(span);
+    }
+
     private static string GetRawObjDataString(FwObjDataTypes dataType, Guid guid)
     {
         var guidObjData = TsStringUtils.GetObjData(guid, dataType);
@@ -392,6 +425,30 @@ public class RichTextTests(ITestOutputHelper output)
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
         assert(span);
+    }
+
+    [Theory]
+    [MemberData(nameof(StringPropTypeIsMappedCorrectlyData))]
+    public void StringPropsRoundTripProperly(FwTextPropType propType,
+        string value,
+        Action<RichSpan> assert)
+    {
+        var span = new RichSpan() { Text = "test" };
+        var builder = TsStringUtils.MakePropsBldr();
+        builder.SetStrPropValue((int)propType, value);
+        var textProps = builder.GetTextProps();
+        RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
+
+
+        //test
+        builder = TsStringUtils.MakePropsBldr();
+        RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
+
+        //verify
+        var spanFromProps = new RichSpan() { Text = "test" };
+        RichTextMapping.WriteToSpan(spanFromProps, builder.GetTextProps(), WsIdLookup);
+        assert(spanFromProps);
+        spanFromProps.Should().BeEquivalentTo(span);
     }
 
     [Fact]

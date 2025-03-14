@@ -1,8 +1,10 @@
 ﻿using System.Collections.Frozen;
+using System.Globalization;
 using System.Text;
 using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
+using SIL.LCModel.Utils;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -144,7 +146,6 @@ public static class RichTextMapping
             }
         }
 
-        //todo map other complex props
         span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? "en";//per Jason if there's no ws use en
         span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
         span.Italic = GetNullableToggleProp(textProps, FwTextPropType.ktptItalic);
@@ -181,6 +182,16 @@ public static class RichTextMapping
         return null;
     }
 
+    private static int ReverseSizeUnit(RichTextSizeUnit? unit)
+    {
+        return unit switch
+        {
+            null => (int)FwTextPropVar.ktpvDefault,
+            RichTextSizeUnit.Relative => (int)FwTextPropVar.ktpvRelative,
+            _ => (int)FwTextPropVar.ktpvMilliPoint,
+        };
+    }
+
     private static RichTextEditable? GetNullableRichTextEditable(ITsTextProps textProps)
     {
         if (textProps.TryGetIntValue(FwTextPropType.ktptEditable, out _, out var value))
@@ -194,6 +205,18 @@ public static class RichTextMapping
             };
         }
         return null;
+    }
+
+    private static int? ReverseEditable(RichTextEditable? editable)
+    {
+        return editable switch
+        {
+            null => null,
+            RichTextEditable.NotEditable => (int)TptEditable.ktptNotEditable,
+            RichTextEditable.IsEditable => (int)TptEditable.ktptIsEditable,
+            RichTextEditable.SemiEditable => (int)TptEditable.ktptSemiEditable,
+            _ => (int?)editable
+        };
     }
 
     private static Guid[]? GetNullableRichTextTags(ITsTextProps textProps)
@@ -215,6 +238,11 @@ public static class RichTextMapping
         return null;
     }
 
+    private static string ReverseTags(Guid[] tags)
+    {
+        return string.Join("", tags.Select(MiscUtils.GetObjDataFromGuid));
+    }
+
     private static RichTextSpellingMode? GetNullableRichTextSpellCheck(ITsTextProps textProps, FwTextPropType type)
     {
         if (textProps.TryGetIntValue(type, out _, out var value))
@@ -228,6 +256,18 @@ public static class RichTextMapping
         return null;
     }
 
+    private static int? ReverseSpellCheck(RichTextSpellingMode? spellCheck)
+    {
+        return spellCheck switch
+        {
+            null => null,
+            RichTextSpellingMode.Normal => (int)SpellingModes.ksmNormalCheck,
+            RichTextSpellingMode.DoNotCheck => (int)SpellingModes.ksmDoNotCheck,
+            RichTextSpellingMode.ForceCheck => (int)SpellingModes.ksmForceCheck,
+            _ => (int?)spellCheck
+        };
+    }
+
     public static void WriteToTextProps(RichSpan span,
         ITsPropsBldr builder,
         Func<WritingSystemId, int> wsHandleLookup)
@@ -237,6 +277,7 @@ public static class RichTextMapping
             var prop = MapToDelegateInt(propType).Invoke(span);
             if (prop is not null)
             {
+                //todo set default based on propType
                 builder.SetIntPropValues((int)propType, (int)FwTextPropVar.ktpvDefault, prop.Value);
             }
         }
@@ -250,10 +291,42 @@ public static class RichTextMapping
             }
         }
 
-        //todo map other complex props
         builder.SetIntPropValues((int)FwTextPropType.ktptWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.Ws));
         if (span.WsBase is not null)
             builder.SetIntPropValues((int)FwTextPropType.ktptBaseWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.WsBase.Value));
+        SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));
+        SetInt(builder, FwTextPropType.ktptBold, ReverseMapToggle(span.Bold));
+        SetInt(builder, FwTextPropType.ktptSuperscript, ReverseSuperscript(span.Superscript));
+        SetInt(builder, FwTextPropType.ktptUnderline, ReverseUnderline(span.Underline));
+        SetInt(builder, FwTextPropType.ktptForeColor, ReverseColor(span.ForeColor));
+        SetInt(builder, FwTextPropType.ktptBackColor, ReverseColor(span.BackColor));
+        SetInt(builder, FwTextPropType.ktptUnderColor, ReverseColor(span.UnderColor));
+        SetInt(builder, FwTextPropType.ktptParaColor, ReverseColor(span.ParaColor));
+        SetInt(builder, FwTextPropType.ktptBorderColor, ReverseColor(span.BorderColor));
+        SetInt(builder, FwTextPropType.ktptAlign, ReverseAlign(span.Align));
+        SetInt(builder, FwTextPropType.ktptSpellCheck, ReverseSpellCheck(span.SpellCheck));
+
+
+        SetInt(builder, FwTextPropType.ktptFontSize, span.FontSize, ReverseSizeUnit(span.FontSizeUnit));
+        SetInt(builder, FwTextPropType.ktptOffset, span.Offset, ReverseSizeUnit(span.OffsetUnit));
+        SetInt(builder, FwTextPropType.ktptLineHeight, span.LineHeight, ReverseSizeUnit(span.LineHeightUnit));
+        SetInt(builder, FwTextPropType.ktptEditable, ReverseEditable(span.Editable));
+
+        if (span.Tags is not null)
+        {
+            builder.SetStrPropValue((int)FwTextPropType.ktptTags, ReverseTags(span.Tags));
+        }
+
+        if (span.ObjData is not null)
+        {
+            builder.SetStrPropValue((int)FwTextPropType.ktptObjData, span.ObjData.RawString);
+        }
+    }
+
+    private static void SetInt(ITsPropsBldr builder, FwTextPropType type, int? value, int variation = 0)
+    {
+        if (value is not null)
+            builder.SetIntPropValues((int)type, variation, value.Value);
     }
 
     private static int? GetNullableIntProp(ITsTextProps textProps, FwTextPropType type)
@@ -276,6 +349,18 @@ public static class RichTextMapping
         return null;
     }
 
+    private static int? ReverseMapToggle(RichTextToggle? toggle)
+    {
+        return toggle switch
+        {
+            null => null,
+            RichTextToggle.On => (int)FwTextToggleVal.kttvForceOn,
+            RichTextToggle.Off => (int)FwTextToggleVal.kttvOff,
+            RichTextToggle.Invert => (int)FwTextToggleVal.kttvInvert,
+            _ => (int?)toggle
+        };
+    }
+
     private static RichTextSuperscript? GetNullableSuperscriptProp(ITsTextProps textProps, FwTextPropType type)
     {
         if (textProps.TryGetIntValue(type, out _, out var value))
@@ -287,6 +372,18 @@ public static class RichTextMapping
                 _ => (RichTextSuperscript)value
             };
         return null;
+    }
+
+    private static int? ReverseSuperscript(RichTextSuperscript? superscript)
+    {
+        return superscript switch
+        {
+            null => null,
+            RichTextSuperscript.None => (int)FwSuperscriptVal.kssvOff,
+            RichTextSuperscript.Superscript => (int)FwSuperscriptVal.kssvSuper,
+            RichTextSuperscript.Subscript => (int)FwSuperscriptVal.kssvSub,
+            _ => (int?)superscript
+        };
     }
 
     private static RichTextUnderline? GetNullableUnderlineProp(ITsTextProps textProps, FwTextPropType type)
@@ -306,6 +403,22 @@ public static class RichTextMapping
         return null;
     }
 
+    private static int? ReverseUnderline(RichTextUnderline? underline)
+    {
+        return underline switch
+        {
+            null => null,
+            RichTextUnderline.None => (int)FwUnderlineType.kuntNone,
+            RichTextUnderline.Single => (int)FwUnderlineType.kuntSingle,
+            RichTextUnderline.Double => (int)FwUnderlineType.kuntDouble,
+            RichTextUnderline.Dotted => (int)FwUnderlineType.kuntDotted,
+            RichTextUnderline.Dashed => (int)FwUnderlineType.kuntDashed,
+            RichTextUnderline.Strikethrough => (int)FwUnderlineType.kuntStrikethrough,
+            RichTextUnderline.Squiggle => (int)FwUnderlineType.kuntSquiggle,
+            _ => (int?)underline
+        };
+    }
+
     private static string? GetNullableColorProp(ITsTextProps textProps, FwTextPropType type)
     {
         if (!textProps.TryGetIntValue(type, out _, out var value))
@@ -317,6 +430,15 @@ public static class RichTextMapping
         int green = (value >> 8) & 0xff;
         int red = value & 0xff;
         return $"#{red:x2}{green:x2}{blue:x2}";
+    }
+
+    private static int? ReverseColor(string? rgb)
+    {
+        if (string.IsNullOrEmpty(rgb))
+            return null;
+        if (rgb == "#00000000")
+            return (int)FwTextColor.kclrTransparent;
+        return (int)ColorUtil.ConvertRGBtoBGR(uint.Parse(rgb.AsSpan()[1..], NumberStyles.HexNumber));
     }
 
     private static RichTextAlign? GetNullableRichTextAlign(ITsTextProps textProps, FwTextPropType type)
@@ -336,6 +458,21 @@ public static class RichTextMapping
         }
 
         return null;
+    }
+
+    private static int? ReverseAlign(RichTextAlign? align)
+    {
+        return align switch
+        {
+            null => null,
+            RichTextAlign.Leading => (int)FwTextAlign.ktalLeading,
+            RichTextAlign.Left => (int)FwTextAlign.ktalLeft,
+            RichTextAlign.Center => (int)FwTextAlign.ktalCenter,
+            RichTextAlign.Right => (int)FwTextAlign.ktalRight,
+            RichTextAlign.Trailing => (int)FwTextAlign.ktalTrailing,
+            RichTextAlign.Justify => (int)FwTextAlign.ktalJustify,
+            _ => (int?)align
+        };
     }
 
     private static RichTextObjectData? GetRichObjectData(ITsTextProps textProps)

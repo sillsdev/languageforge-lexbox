@@ -188,11 +188,14 @@ public abstract class RichTextObjectData
         //todo implement other types, eg links or guid references
         return new RichTextObjectDataRaw(rawString);
     }
+    public abstract string RawString { get; }
     public abstract RichTextObjectDataType Type { get; }
 }
 
+//todo don't use this if you want to write new data objects, we should make a new class for each type so we don't need to fiddle with the raw string in the frontend
 public class RichTextObjectDataRaw(string rawString) : RichTextObjectData
 {
+    public override string RawString => rawString;
     public override RichTextObjectDataType Type => (RichTextObjectDataType)rawString[0];
     public string DataString => rawString[1..];
 }
