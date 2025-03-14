@@ -53,6 +53,8 @@ public static class RichTextMapping
         FwTextPropType.ktptFontVariations,
         FwTextPropType.ktptParaStyle,
         FwTextPropType.ktptTabList,
+        FwTextPropType.ktptCustomBullet,
+        FwTextPropType.ktptBulNumFontInfo
     ];
 
     public delegate ref T MapPropTypeToRichSpan<T>(RichSpan span);
@@ -108,6 +110,8 @@ public static class RichTextMapping
             FwTextPropType.ktptFontVariations => span => ref span.FontVariations,
             FwTextPropType.ktptParaStyle => span => ref span.ParaStyle,
             FwTextPropType.ktptTabList => span => ref span.TabList,
+            FwTextPropType.ktptCustomBullet => span => ref span.CustomBullet,
+            FwTextPropType.ktptBulNumFontInfo => span => ref span.BulNumFontInfo,
             _ => throw new ArgumentException($"property type {type} is not a string")
         };
     }
@@ -149,16 +153,15 @@ public static class RichTextMapping
         span.SpellCheck = GetNullableRichTextSpellCheck(textProps, FwTextPropType.ktptSpellCheck);
         span.Tags = GetNullableRichTextTags(textProps);
         span.ObjData = GetRichObjectData(textProps);
+        span.BorderColor = GetNullableColorProp(textProps, FwTextPropType.ktptBorderColor);
     }
 
     private static Guid[]? GetNullableRichTextTags(ITsTextProps textProps)
     {
         if (textProps.TryGetStringValue(FwTextPropType.ktptTags, out var value))
         {
-            if (value is null)
+            if (string.IsNullOrEmpty(value))
                 return null;
-            if (value.Length == 0)
-                return [];
             const int guidLength = 16;
             var bytes = Encoding.Unicode.GetBytes(value).AsSpan();
             Guid[] guids = new Guid[bytes.Length / guidLength];

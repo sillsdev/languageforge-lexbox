@@ -116,6 +116,7 @@ public class RichSpan
 
     //can be a number of different things depending on the string
     public RichTextObjectData? ObjData;
+    //note an empty array will be converted to null on round trip to FW
     public Guid[]? Tags;
 }
 

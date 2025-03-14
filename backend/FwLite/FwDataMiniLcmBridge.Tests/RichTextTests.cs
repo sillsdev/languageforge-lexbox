@@ -12,13 +12,13 @@ namespace FwDataMiniLcmBridge.Tests;
 
 public class RichTextTests(ITestOutputHelper output)
 {
-    private const int FakeWsHandleEn = 346;
+    private const int FakeWsHandleFr = 346;
 
     private ITsPropsBldr MakeFilledProps()
     {
         var builder = TsStringUtils.MakePropsBldr();
-        builder.SetIntPropValues((int)FwTextPropType.ktptWs, 0, FakeWsHandleEn);
-        builder.SetIntPropValues((int)FwTextPropType.ktptBaseWs, 0, FakeWsHandleEn);
+        builder.SetIntPropValues((int)FwTextPropType.ktptWs, 0, FakeWsHandleFr);
+        builder.SetIntPropValues((int)FwTextPropType.ktptBaseWs, 0, FakeWsHandleFr);
 
         builder.SetStrPropValue((int)FwTextPropType.ktptNamedStyle, "Strong");
         return builder;
@@ -33,22 +33,22 @@ public class RichTextTests(ITestOutputHelper output)
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
 
         span.Text.Should().Be("test");
-        span.Ws.Code.Should().Be("en");
-        span.WsBase.GetValueOrDefault().Code.Should().Be("en");
+        span.Ws.Code.Should().Be("fr");
+        span.WsBase.GetValueOrDefault().Code.Should().Be("fr");
         span.NamedStyle.Should().Be("Strong");
     }
 
     [Fact]
     public void CanMapSpanToTextProps()
     {
-        var span = new RichSpan() { Text = "test", Ws = "en", WsBase = "en", NamedStyle = "Strong" };
+        var span = new RichSpan() { Text = "test", Ws = "fr", WsBase = "fr", NamedStyle = "Strong" };
         var builder = TsStringUtils.MakePropsBldr();
 
-        RichTextMapping.WriteToTextProps(span, builder, ws => ws == "en" ? FakeWsHandleEn : throw new ArgumentException("no ws handle"));
+        RichTextMapping.WriteToTextProps(span, builder, ws => ws == "fr" ? FakeWsHandleFr : throw new ArgumentException("no ws handle"));
         var textProps = builder.GetTextProps();
         textProps.GetStrPropValue((int)FwTextPropType.ktptNamedStyle).Should().Be("Strong");
-        textProps.GetIntPropValues((int)FwTextPropType.ktptWs, out _).Should().Be(FakeWsHandleEn);
-        textProps.GetIntPropValues((int)FwTextPropType.ktptBaseWs, out _).Should().Be(FakeWsHandleEn);
+        textProps.GetIntPropValues((int)FwTextPropType.ktptWs, out _).Should().Be(FakeWsHandleFr);
+        textProps.GetIntPropValues((int)FwTextPropType.ktptBaseWs, out _).Should().Be(FakeWsHandleFr);
     }
 
     public static IEnumerable<object?[]> IntPropTypeIsMappedCorrectlyData()
@@ -56,8 +56,8 @@ public class RichTextTests(ITestOutputHelper output)
         IEnumerable<(FwTextPropType propType, object? value, int variation, Action<RichSpan> assert)> GetData()
         {
             //may show up as FontFamily in test output
-            yield return (FwTextPropType.ktptWs, null, 0, span => span.Ws.Should().Be(default(WritingSystemId)));
-            yield return (FwTextPropType.ktptWs, FakeWsHandleEn, 0, span => span.Ws.Should().Be((WritingSystemId)"en"));
+            yield return (FwTextPropType.ktptWs, null, 0, span => span.Ws.Should().Be((WritingSystemId)"en"));//default is en
+            yield return (FwTextPropType.ktptWs, FakeWsHandleFr, 0, span => span.Ws.Should().Be((WritingSystemId)"fr"));
 
             //may show up as CharStyle in test output
             yield return (FwTextPropType.ktptItalic, null, 0, span => span.Italic.Should().BeNull());
@@ -136,7 +136,7 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptUnderColor, silBlueInt, 0, span => span.UnderColor.Should().Be(silBlueHex));
 
             yield return (FwTextPropType.ktptBaseWs, null, 0, span => span.WsBase.Should().BeNull());
-            yield return (FwTextPropType.ktptBaseWs, FakeWsHandleEn, 0, span => span.WsBase.Should().Be((WritingSystemId)"en"));
+            yield return (FwTextPropType.ktptBaseWs, FakeWsHandleFr, 0, span => span.WsBase.Should().Be((WritingSystemId)"fr"));
 
             yield return (FwTextPropType.ktptAlign, null, 0, span => span.Align.Should().BeNull());
             yield return (FwTextPropType.ktptAlign, FwTextAlign.ktalLeading, 0, span => span.Align.Should().Be(RichTextAlign.Leading));
@@ -186,6 +186,49 @@ public class RichTextTests(ITestOutputHelper output)
 
             yield return (FwTextPropType.ktptMarginTop, null, 0, span => span.MarginTop.Should().BeNull());
             yield return (FwTextPropType.ktptMarginTop, 2345, 0, span => span.MarginTop.Should().Be(2345));
+
+            yield return (FwTextPropType.ktptRightToLeft, null, 0, span => span.RightToLeft.Should().BeNull());
+            yield return (FwTextPropType.ktptRightToLeft, 2345, 0, span => span.RightToLeft.Should().Be(2345));
+            yield return (FwTextPropType.ktptDirectionDepth, null, 0, span => span.DirectionDepth.Should().BeNull());
+            yield return (FwTextPropType.ktptDirectionDepth, 2345, 0, span => span.DirectionDepth.Should().Be(2345));
+
+            //padding
+            yield return (FwTextPropType.ktptPadLeading, null, 0, span => span.PadLeading.Should().BeNull());
+            yield return (FwTextPropType.ktptPadLeading, 2345, 0, span => span.PadLeading.Should().Be(2345));
+            yield return (FwTextPropType.ktptPadTrailing, null, 0, span => span.PadTrailing.Should().BeNull());
+            yield return (FwTextPropType.ktptPadTrailing, 2345, 0, span => span.PadTrailing.Should().Be(2345));
+            yield return (FwTextPropType.ktptPadTop, null, 0, span => span.PadTop.Should().BeNull());
+            yield return (FwTextPropType.ktptPadTop, 2345, 0, span => span.PadTop.Should().Be(2345));
+            yield return (FwTextPropType.ktptPadBottom, null, 0, span => span.PadBottom.Should().BeNull());
+            yield return (FwTextPropType.ktptPadBottom, 2345, 0, span => span.PadBottom.Should().Be(2345));
+
+            //border
+            yield return (FwTextPropType.ktptBorderTop, null, 0, span => span.BorderTop.Should().BeNull());
+            yield return (FwTextPropType.ktptBorderTop, 2345, 0, span => span.BorderTop.Should().Be(2345));
+            yield return (FwTextPropType.ktptBorderBottom, null, 0, span => span.BorderBottom.Should().BeNull());
+            yield return (FwTextPropType.ktptBorderBottom, 2345, 0, span => span.BorderBottom.Should().Be(2345));
+            yield return (FwTextPropType.ktptBorderLeading, null, 0, span => span.BorderLeading.Should().BeNull());
+            yield return (FwTextPropType.ktptBorderLeading, 2345, 0, span => span.BorderLeading.Should().Be(2345));
+            yield return (FwTextPropType.ktptBorderTrailing, null, 0, span => span.BorderTrailing.Should().BeNull());
+            yield return (FwTextPropType.ktptBorderTrailing, 2345, 0, span => span.BorderTrailing.Should().Be(2345));
+
+            yield return (FwTextPropType.ktptBorderColor, null, 0, span => span.BorderColor.Should().BeNull());
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrWhite, 0, span => span.BorderColor.Should().Be("#ffffff"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrBlack, 0, span => span.BorderColor.Should().Be("#000000"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrRed, 0, span => span.BorderColor.Should().Be("#ff0000"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrGreen, 0, span => span.BorderColor.Should().Be("#00ff00"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrBlue, 0, span => span.BorderColor.Should().Be("#0000ff"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrYellow, 0, span => span.BorderColor.Should().Be("#ffff00"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrMagenta, 0, span => span.BorderColor.Should().Be("#ff00ff"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrCyan, 0, span => span.BorderColor.Should().Be("#00ffff"));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrTransparent, 0, span => span.BorderColor.Should().Be("#00000000"));
+            yield return (FwTextPropType.ktptBorderColor, silBlueInt, 0, span => span.BorderColor.Should().Be(silBlueHex));
+
+
+            yield return (FwTextPropType.ktptBulNumScheme, null, 0, span => span.BulNumScheme.Should().BeNull());
+            yield return (FwTextPropType.ktptBulNumScheme, 2345, 0, span => span.BulNumScheme.Should().Be(2345));
+            yield return (FwTextPropType.ktptBulNumStartAt, null, 0, span => span.BulNumStartAt.Should().BeNull());
+            yield return (FwTextPropType.ktptBulNumStartAt, 2345, 0, span => span.BulNumStartAt.Should().Be(2345));
         }
 
         return GetData().Select(x =>
@@ -235,7 +278,7 @@ public class RichTextTests(ITestOutputHelper output)
             Guid expectedGuid1 = new Guid("3B88FBA7-10C7-4e14-9EE0-3F0DDA060A0D");
             Guid expectedGuid2 = new Guid("C4F03ECA-BC03-4175-B5AA-13F3ECB7F481");
             yield return (FwTextPropType.ktptTags, null, span => span.Tags.Should().BeNull());
-            yield return (FwTextPropType.ktptTags, "", span => span.Tags.Should().Equal([]));
+            yield return (FwTextPropType.ktptTags, "", span => span.Tags.Should().BeNull());
             yield return (FwTextPropType.ktptTags, tagsString, span => span.Tags.Should().Equal([expectedGuid1, expectedGuid2]));
 
             //obj data
@@ -273,6 +316,19 @@ public class RichTextTests(ITestOutputHelper output)
 
                 yield return (FwTextPropType.ktptObjData, rawObjDataString, span => span.ObjData.Should().BeEquivalentTo(new { Type = richType, DataString = dataString }));
             }
+
+            yield return (FwTextPropType.ktptCustomBullet, null, span => span.CustomBullet.Should().BeNull());
+            yield return (FwTextPropType.ktptCustomBullet, "*", span => span.CustomBullet.Should().Be("*"));
+            yield return (FwTextPropType.ktptFontVariations, null, span => span.FontVariations.Should().BeNull());
+            yield return (FwTextPropType.ktptFontVariations, "156=1,896=2,84=21", span => span.FontVariations.Should().Be("156=1,896=2,84=21"));
+
+
+            yield return (FwTextPropType.ktptBulNumTxtBef, null, span => span.BulNumTxtBef.Should().BeNull());
+            yield return (FwTextPropType.ktptBulNumTxtBef, "SomeString", span => span.BulNumTxtBef.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptBulNumTxtAft, null, span => span.BulNumTxtAft.Should().BeNull());
+            yield return (FwTextPropType.ktptBulNumTxtAft, "SomeString", span => span.BulNumTxtAft.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptBulNumFontInfo, null, span => span.BulNumFontInfo.Should().BeNull());
+            yield return (FwTextPropType.ktptBulNumFontInfo, "SomeString", span => span.BulNumFontInfo.Should().Be("SomeString"));
 
         }
         return GetData().Select(x => new object?[] { x.propType, x.value, x.assert });
@@ -347,8 +403,8 @@ public class RichTextTests(ITestOutputHelper output)
 
     private WritingSystemId? WsIdLookup(int? handle)
     {
-        if (handle == FakeWsHandleEn)
-            return "en";
+        if (handle == FakeWsHandleFr)
+            return "fr";
         return null;
     }
 }
