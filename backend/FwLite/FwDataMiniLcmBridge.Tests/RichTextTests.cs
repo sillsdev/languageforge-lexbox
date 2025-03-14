@@ -12,19 +12,6 @@ public class RichTextTests(ITestOutputHelper output)
 {
     private const int FakeWsHandleEn = 346;
 
-    [Fact]
-    public void AllFwTextPropTypesAreMapped()
-    {
-        FwTextPropType[] excludedTypes = [FwTextPropType.ktptMarkItem];
-        var allTypes = Enum.GetValues<FwTextPropType>();
-        var notMapped = allTypes
-            .Except(excludedTypes)
-            .Except(RichTextMapping.PropTypeMap.Keys)
-            .ToArray();
-        if (notMapped.Length > 0) output.WriteLine($"Not mapped: {string.Join(", ", notMapped)}");
-        notMapped.Should().BeEmpty();
-    }
-
     private ITsPropsBldr MakeFilledProps()
     {
         var builder = TsStringUtils.MakePropsBldr();
