@@ -667,7 +667,12 @@ public class FwDataMiniLcmApi(
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
-            result.Values.Add(GetWritingSystemId(ws), tsString.Text);
+            var wsId = GetWritingSystemId(ws);
+            result.Values.Add(wsId, tsString.Text);
+            if (tsString.RunCount > 1)
+            {
+                result.Metadata.Add(wsId, new() { RunCount = tsString.RunCount });
+            }
         }
 
         return result;
