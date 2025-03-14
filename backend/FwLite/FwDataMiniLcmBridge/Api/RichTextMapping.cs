@@ -41,7 +41,8 @@ public static class RichTextMapping
         FwTextPropType.ktptCellSpacing,
         FwTextPropType.ktptCellPadding,
         FwTextPropType.ktptSetRowDefaults,
-        FwTextPropType.ktptRelLineHeight
+        FwTextPropType.ktptRelLineHeight,
+        FwTextPropType.ktptTableRule,
     ];
 
     public static readonly FwTextPropType[] StringProps = [
@@ -54,7 +55,9 @@ public static class RichTextMapping
         FwTextPropType.ktptParaStyle,
         FwTextPropType.ktptTabList,
         FwTextPropType.ktptCustomBullet,
-        FwTextPropType.ktptBulNumFontInfo
+        FwTextPropType.ktptBulNumFontInfo,
+        FwTextPropType.ktptWsStyle,
+        FwTextPropType.ktptFieldName,
     ];
 
     public delegate ref T MapPropTypeToRichSpan<T>(RichSpan span);
@@ -95,6 +98,7 @@ public static class RichTextMapping
             FwTextPropType.ktptCellPadding => span => ref span.CellPadding,
             FwTextPropType.ktptSetRowDefaults => span => ref span.SetRowDefaults,
             FwTextPropType.ktptRelLineHeight => span => ref span.RelLineHeight,
+            FwTextPropType.ktptTableRule => span => ref span.TableRule,
             _ => throw new ArgumentException($"property type {type} is not an integer")
         };
     }
@@ -112,6 +116,8 @@ public static class RichTextMapping
             FwTextPropType.ktptTabList => span => ref span.TabList,
             FwTextPropType.ktptCustomBullet => span => ref span.CustomBullet,
             FwTextPropType.ktptBulNumFontInfo => span => ref span.BulNumFontInfo,
+            FwTextPropType.ktptWsStyle => span => ref span.WsStyle,
+            FwTextPropType.ktptFieldName => span => ref span.FieldName,
             _ => throw new ArgumentException($"property type {type} is not a string")
         };
     }

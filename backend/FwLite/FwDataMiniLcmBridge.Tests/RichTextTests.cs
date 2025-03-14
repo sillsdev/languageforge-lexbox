@@ -251,6 +251,15 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptEditable, TptEditable.ktptSemiEditable, 0, span => span.Editable.Should().Be(RichTextEditable.SemiEditable));
             yield return (FwTextPropType.ktptEditable, 2345, 0, span => span.Editable.Should().Be((RichTextEditable)2345));
 
+            yield return (FwTextPropType.ktptSetRowDefaults, null, 0, span => span.SetRowDefaults.Should().BeNull());
+            yield return (FwTextPropType.ktptSetRowDefaults, 2345, 0, span => span.SetRowDefaults.Should().Be(2345));
+            yield return (FwTextPropType.ktptRelLineHeight, null, 0, span => span.RelLineHeight.Should().BeNull());
+            yield return (FwTextPropType.ktptRelLineHeight, 2345, 0, span => span.RelLineHeight.Should().Be(2345));
+            yield return (FwTextPropType.ktptTableRule, null, 0, span => span.TableRule.Should().BeNull());
+            yield return (FwTextPropType.ktptTableRule, 2345, 0, span => span.TableRule.Should().Be(2345));
+            yield return (FwTextPropType.ktptWidowOrphanControl, null, 0, span => span.WidowOrphan.Should().BeNull());
+            yield return (FwTextPropType.ktptWidowOrphanControl, 2345, 0, span => span.WidowOrphan.Should().Be(2345));
+
         }
 
         return GetData().Select(x =>
@@ -351,6 +360,10 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptBulNumTxtAft, "SomeString", span => span.BulNumTxtAft.Should().Be("SomeString"));
             yield return (FwTextPropType.ktptBulNumFontInfo, null, span => span.BulNumFontInfo.Should().BeNull());
             yield return (FwTextPropType.ktptBulNumFontInfo, "SomeString", span => span.BulNumFontInfo.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptWsStyle, null, span => span.WsStyle.Should().BeNull());
+            yield return (FwTextPropType.ktptWsStyle, "SomeString", span => span.WsStyle.Should().Be("SomeString"));
+            yield return (FwTextPropType.ktptFieldName, null, span => span.FieldName.Should().BeNull());
+            yield return (FwTextPropType.ktptFieldName, "SomeString", span => span.FieldName.Should().Be("SomeString"));
 
         }
         return GetData().Select(x => new object?[] { x.propType, x.value, x.assert });

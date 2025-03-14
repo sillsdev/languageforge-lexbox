@@ -110,7 +110,7 @@ public class RichSpan
 
     public string? TabList;
 
-    //not used anymore?
+    //not used anymore? mapping is simple enough might as well.
     public int? TableRule;
     public string? FieldName;
 
