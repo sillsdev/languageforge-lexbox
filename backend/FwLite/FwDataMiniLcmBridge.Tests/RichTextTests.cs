@@ -235,11 +235,21 @@ public class RichTextTests(ITestOutputHelper output)
             Guid expectedGuid1 = new Guid("3B88FBA7-10C7-4e14-9EE0-3F0DDA060A0D");
             Guid expectedGuid2 = new Guid("C4F03ECA-BC03-4175-B5AA-13F3ECB7F481");
             yield return (FwTextPropType.ktptTags, null, span => span.Tags.Should().BeNull());
+            yield return (FwTextPropType.ktptTags, "", span => span.Tags.Should().Equal([]));
             yield return (FwTextPropType.ktptTags, tagsString, span => span.Tags.Should().Equal([expectedGuid1, expectedGuid2]));
 
+            //obj data
+            FwObjDataTypes invalidType = (FwObjDataTypes)100;
             yield return (FwTextPropType.ktptObjData, null, span => span.ObjData.Should().BeNull());
+            yield return (FwTextPropType.ktptObjData, ((char)invalidType) + "shouldNotBeRoundTripped", span => span.ObjData.Should().BeNull());
             yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtExternalPathName) + "https://google.com", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.ExternalPathName, DataString = "https://google.com" }));
             yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtEmbeddedObjectData) + "<some-xml>value</some-xml>", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.EmbeddedObjectData, DataString = "<some-xml>value</some-xml>" }));
+
+            //LCM says this is only used in tests, so we'll just round trip the string and not worry about the format
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtPictEvenHot) + "someStringData", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.PictureEven, DataString = "someStringData" }));
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtPictOddHot) + "someStringData", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.PictureOdd, DataString = "someStringData" }));
+
+            //guid referenced objects
             FwObjDataTypes[] guidTypes =
             [
                 FwObjDataTypes.kodtNameGuidHot,
@@ -263,6 +273,7 @@ public class RichTextTests(ITestOutputHelper output)
 
                 yield return (FwTextPropType.ktptObjData, rawObjDataString, span => span.ObjData.Should().BeEquivalentTo(new { Type = richType, DataString = dataString }));
             }
+
         }
         return GetData().Select(x => new object?[] { x.propType, x.value, x.assert });
     }
@@ -321,6 +332,17 @@ public class RichTextTests(ITestOutputHelper output)
         //ensure that these types are all tested in both string and int tests
         duplicatedTypes.Except(testedStringTypes).Should().BeEmpty();
         duplicatedTypes.Except(testedIntTypes).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AllObjDataTypesAreTested()
+    {
+        var testedObjDataTypes = StringPropTypeIsMappedCorrectlyData()
+            .Where(x => ((FwTextPropType?)x[0]) == FwTextPropType.ktptObjData && x[1] != null)
+            .Select(x => (string)x[1]!)
+            .Select(dataString => (FwObjDataTypes)dataString[0])
+            .ToArray();
+        Enum.GetValues<FwObjDataTypes>().Except(testedObjDataTypes).Should().BeEmpty();
     }
 
     private WritingSystemId? WsIdLookup(int? handle)
