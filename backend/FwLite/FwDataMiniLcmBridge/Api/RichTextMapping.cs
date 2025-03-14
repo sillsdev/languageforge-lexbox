@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Text;
 using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -146,7 +147,29 @@ public static class RichTextMapping
         span.ParaColor = GetNullableColorProp(textProps, FwTextPropType.ktptParaColor);
         span.Align = GetNullableRichTextAlign(textProps, FwTextPropType.ktptAlign);
         span.SpellCheck = GetNullableRichTextSpellCheck(textProps, FwTextPropType.ktptSpellCheck);
+        span.Tags = GetNullableRichTextTags(textProps);
         span.ObjData = GetRichObjectData(textProps);
+    }
+
+    private static Guid[]? GetNullableRichTextTags(ITsTextProps textProps)
+    {
+        if (textProps.TryGetStringValue(FwTextPropType.ktptTags, out var value))
+        {
+            if (value is null)
+                return null;
+            if (value.Length == 0)
+                return [];
+            const int guidLength = 16;
+            var bytes = Encoding.Unicode.GetBytes(value).AsSpan();
+            Guid[] guids = new Guid[bytes.Length / guidLength];
+            for (int i = 0; i < guids.Length; i++)
+            {
+                guids[i] = new Guid(bytes.Slice(i * guidLength, guidLength));
+            }
+            return guids;
+        }
+
+        return null;
     }
 
     private static RichTextSpellingMode? GetNullableRichTextSpellCheck(ITsTextProps textProps, FwTextPropType type)
