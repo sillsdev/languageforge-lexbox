@@ -34,7 +34,7 @@ public class RichTextTests(ITestOutputHelper output)
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
 
         span.Text.Should().Be("test");
-        span.Ws.Code.Should().Be("fr");
+        span.Ws.Should().Be((WritingSystemId)"fr");
         span.WsBase.GetValueOrDefault().Code.Should().Be("fr");
         span.NamedStyle.Should().Be("Strong");
     }
@@ -67,7 +67,7 @@ public class RichTextTests(ITestOutputHelper output)
         IEnumerable<(FwTextPropType propType, object? value, int variation, Action<RichSpan> assert)> GetData()
         {
             //may show up as FontFamily in test output
-            yield return (FwTextPropType.ktptWs, null, 0, span => span.Ws.Should().Be((WritingSystemId)"en"));//default is en
+            yield return (FwTextPropType.ktptWs, null, 0, span => span.Ws.Should().BeNull());
             yield return (FwTextPropType.ktptWs, FakeWsHandleFr, 0, span => span.Ws.Should().Be((WritingSystemId)"fr"));
 
             //may show up as CharStyle in test output
@@ -312,16 +312,18 @@ public class RichTextTests(ITestOutputHelper output)
         var builder = TsStringUtils.MakePropsBldr();
         if (value is not null)
             builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
-        var textProps = builder.GetTextProps();
-        RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
+        var expectedProps = builder.GetTextProps();
+        RichTextMapping.WriteToSpan(span, expectedProps, WsIdLookup);
 
         //test
         builder = TsStringUtils.MakePropsBldr();
         RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
+        var actualProps = builder.GetTextProps();
+        actualProps.Should().BeEquivalentTo(expectedProps);
 
         //verify
         var spanFromProps = new RichSpan(){Text = "test"};
-        RichTextMapping.WriteToSpan(spanFromProps, builder.GetTextProps(), WsIdLookup);
+        RichTextMapping.WriteToSpan(spanFromProps, actualProps, WsIdLookup);
         assert(spanFromProps);
         spanFromProps.Should().BeEquivalentTo(span);
     }
@@ -433,20 +435,31 @@ public class RichTextTests(ITestOutputHelper output)
         string value,
         Action<RichSpan> assert)
     {
-        var span = new RichSpan() { Text = "test" };
         var builder = TsStringUtils.MakePropsBldr();
         builder.SetStrPropValue((int)propType, value);
-        var textProps = builder.GetTextProps();
-        RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
+        var expectedProps = builder.GetTextProps();
 
+        var span = new RichSpan() { Text = "test" };
+        RichTextMapping.WriteToSpan(span, expectedProps, WsIdLookup);
 
         //test
         builder = TsStringUtils.MakePropsBldr();
         RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
+        var actualProps = builder.GetTextProps();
+        if ((span.ObjData is null && propType == FwTextPropType.ktptObjData) || propType == FwTextPropType.ktptTags && value == string.Empty)
+        {
+            //there's a test which ensures that ObjData is null when the string in props is invalid
+            //there's also a test which ensures that Tags is null when the string in props is invalid
+            //but those won't be round tripped, so we need to remove it from the expectedProps
+            var updateBuilder = expectedProps.GetBldr();
+            updateBuilder.SetStrPropValue((int)propType, null);
+            expectedProps = updateBuilder.GetTextProps();
+        }
+        actualProps.Should().BeEquivalentTo(expectedProps);
 
         //verify
         var spanFromProps = new RichSpan() { Text = "test" };
-        RichTextMapping.WriteToSpan(spanFromProps, builder.GetTextProps(), WsIdLookup);
+        RichTextMapping.WriteToSpan(spanFromProps, actualProps, WsIdLookup);
         assert(spanFromProps);
         spanFromProps.Should().BeEquivalentTo(span);
     }

@@ -146,7 +146,7 @@ public static class RichTextMapping
             }
         }
 
-        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs)) ?? "en";//per Jason if there's no ws use en
+        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs));
         span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
         span.Italic = GetNullableToggleProp(textProps, FwTextPropType.ktptItalic);
         span.Bold = GetNullableToggleProp(textProps, FwTextPropType.ktptBold);
@@ -291,7 +291,8 @@ public static class RichTextMapping
             }
         }
 
-        builder.SetIntPropValues((int)FwTextPropType.ktptWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.Ws));
+        if (span.Ws is not null)
+            builder.SetIntPropValues((int)FwTextPropType.ktptWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.Ws.Value));
         if (span.WsBase is not null)
             builder.SetIntPropValues((int)FwTextPropType.ktptBaseWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.WsBase.Value));
         SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));

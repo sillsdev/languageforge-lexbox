@@ -9,7 +9,7 @@ public class RichSpan
 {
     public required string Text { get; init; }
 
-    public WritingSystemId Ws;
+    public WritingSystemId? Ws;
     public WritingSystemId? WsBase;
 
     public RichTextToggle? Italic;
