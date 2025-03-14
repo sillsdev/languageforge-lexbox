@@ -161,6 +161,24 @@ public static class RichTextMapping
         span.ObjData = GetRichObjectData(textProps);
         span.BorderColor = GetNullableColorProp(textProps, FwTextPropType.ktptBorderColor);
         span.Editable = GetNullableRichTextEditable(textProps);
+        span.FontSizeUnit = GetNullableSizeUnit(textProps, FwTextPropType.ktptFontSize);
+        span.OffsetUnit = GetNullableSizeUnit(textProps, FwTextPropType.ktptOffset);
+        span.LineHeightUnit = GetNullableSizeUnit(textProps, FwTextPropType.ktptLineHeight);
+    }
+
+    private static RichTextSizeUnit? GetNullableSizeUnit(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out var variation, out var value))
+        {
+            return variation switch
+            {
+                FwTextPropVar.ktpvDefault => null,
+                FwTextPropVar.ktpvMilliPoint => RichTextSizeUnit.MilliPoint,
+                FwTextPropVar.ktpvRelative => RichTextSizeUnit.Relative,
+                _ => (RichTextSizeUnit?)variation
+            };
+        }
+        return null;
     }
 
     private static RichTextEditable? GetNullableRichTextEditable(ITsTextProps textProps)

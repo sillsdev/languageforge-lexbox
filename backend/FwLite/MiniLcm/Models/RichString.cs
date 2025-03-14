@@ -56,7 +56,6 @@ public class RichSpan
     public int? TabDef;
     public int? LineHeight;
     public RichTextSizeUnit? LineHeightUnit;
-    public RichTextLineHeightType? LineHeightType;
 
     /// <summary>
     /// RGB, like #ffffff, or #00000000 for transparent

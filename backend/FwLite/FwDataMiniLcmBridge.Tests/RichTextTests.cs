@@ -90,10 +90,18 @@ public class RichTextTests(ITestOutputHelper output)
             //may show up as ObjData
             yield return (FwTextPropType.ktptFontSize, null, 0, span => span.FontSize.Should().BeNull());
             yield return (FwTextPropType.ktptFontSize, 23, 0, span => span.FontSize.Should().Be(23));
+            yield return (FwTextPropType.ktptFontSize, null, (int)FwTextPropVar.ktpvDefault, span => span.FontSizeUnit.Should().BeNull());
+            yield return (FwTextPropType.ktptFontSize, 12, (int)FwTextPropVar.ktpvDefault, span => span.FontSizeUnit.Should().BeNull());
+            yield return (FwTextPropType.ktptFontSize, 12, (int)FwTextPropVar.ktpvMilliPoint, span => span.FontSizeUnit.Should().Be(RichTextSizeUnit.MilliPoint));
+            yield return (FwTextPropType.ktptFontSize, 12, (int)FwTextPropVar.ktpvRelative, span => span.FontSizeUnit.Should().Be(RichTextSizeUnit.Relative));
 
             //may show up as CustomBullet
             yield return (FwTextPropType.ktptOffset, null, 0, span => span.Offset.Should().BeNull());
             yield return (FwTextPropType.ktptOffset, 23, 0, span => span.Offset.Should().Be(23));
+            yield return (FwTextPropType.ktptOffset, null, (int)FwTextPropVar.ktpvDefault, span => span.OffsetUnit.Should().BeNull());
+            yield return (FwTextPropType.ktptOffset, 12, (int)FwTextPropVar.ktpvDefault, span => span.OffsetUnit.Should().BeNull());
+            yield return (FwTextPropType.ktptOffset, 12, (int)FwTextPropVar.ktpvMilliPoint, span => span.OffsetUnit.Should().Be(RichTextSizeUnit.MilliPoint));
+            yield return (FwTextPropType.ktptOffset, 12, (int)FwTextPropVar.ktpvRelative, span => span.OffsetUnit.Should().Be(RichTextSizeUnit.Relative));
 
             //colors
             //SIL blue
@@ -163,6 +171,10 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptTabDef, 2345, 0, span => span.TabDef.Should().Be(2345));
             yield return (FwTextPropType.ktptLineHeight, null, 0, span => span.LineHeight.Should().BeNull());
             yield return (FwTextPropType.ktptLineHeight, 2345, 0, span => span.LineHeight.Should().Be(2345));
+            yield return (FwTextPropType.ktptLineHeight, null, (int)FwTextPropVar.ktpvDefault, span => span.LineHeightUnit.Should().BeNull());
+            yield return (FwTextPropType.ktptLineHeight, 12, (int)FwTextPropVar.ktpvDefault, span => span.LineHeightUnit.Should().BeNull());
+            yield return (FwTextPropType.ktptLineHeight, 12, (int)FwTextPropVar.ktpvMilliPoint, span => span.LineHeightUnit.Should().Be(RichTextSizeUnit.MilliPoint));
+            yield return (FwTextPropType.ktptLineHeight, 12, (int)FwTextPropVar.ktpvRelative, span => span.LineHeightUnit.Should().Be(RichTextSizeUnit.Relative));
 
 
             yield return (FwTextPropType.ktptParaColor, null, 0, span => span.ParaColor.Should().BeNull());
