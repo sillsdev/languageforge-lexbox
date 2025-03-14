@@ -154,6 +154,22 @@ public static class RichTextMapping
         span.Tags = GetNullableRichTextTags(textProps);
         span.ObjData = GetRichObjectData(textProps);
         span.BorderColor = GetNullableColorProp(textProps, FwTextPropType.ktptBorderColor);
+        span.Editable = GetNullableRichTextEditable(textProps);
+    }
+
+    private static RichTextEditable? GetNullableRichTextEditable(ITsTextProps textProps)
+    {
+        if (textProps.TryGetIntValue(FwTextPropType.ktptEditable, out _, out var value))
+        {
+            return value switch
+            {
+                (int)TptEditable.ktptNotEditable => RichTextEditable.NotEditable,
+                (int)TptEditable.ktptIsEditable => RichTextEditable.IsEditable,
+                (int)TptEditable.ktptSemiEditable => RichTextEditable.SemiEditable,
+                _ => (RichTextEditable?)value
+            };
+        }
+        return null;
     }
 
     private static Guid[]? GetNullableRichTextTags(ITsTextProps textProps)

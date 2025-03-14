@@ -229,6 +229,28 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptBulNumScheme, 2345, 0, span => span.BulNumScheme.Should().Be(2345));
             yield return (FwTextPropType.ktptBulNumStartAt, null, 0, span => span.BulNumStartAt.Should().BeNull());
             yield return (FwTextPropType.ktptBulNumStartAt, 2345, 0, span => span.BulNumStartAt.Should().Be(2345));
+
+            yield return (FwTextPropType.ktptKeepWithNext, null, 0, span => span.KeepWithNext.Should().BeNull());
+            yield return (FwTextPropType.ktptKeepWithNext, 2345, 0, span => span.KeepWithNext.Should().Be(2345));
+            yield return (FwTextPropType.ktptKeepTogether, null, 0, span => span.KeepTogether.Should().BeNull());
+            yield return (FwTextPropType.ktptKeepTogether, 2345, 0, span => span.KeepTogether.Should().Be(2345));
+            yield return (FwTextPropType.ktptHyphenate, null, 0, span => span.Hyphenate.Should().BeNull());
+            yield return (FwTextPropType.ktptHyphenate, 2345, 0, span => span.Hyphenate.Should().Be(2345));
+            yield return (FwTextPropType.ktptMaxLines, null, 0, span => span.MaxLines.Should().BeNull());
+            yield return (FwTextPropType.ktptMaxLines, 2345, 0, span => span.MaxLines.Should().Be(2345));
+            yield return (FwTextPropType.ktptCellBorderWidth, null, 0, span => span.CellBorderWidth.Should().BeNull());
+            yield return (FwTextPropType.ktptCellBorderWidth, 2345, 0, span => span.CellBorderWidth.Should().Be(2345));
+            yield return (FwTextPropType.ktptCellSpacing, null, 0, span => span.CellSpacing.Should().BeNull());
+            yield return (FwTextPropType.ktptCellSpacing, 2345, 0, span => span.CellSpacing.Should().Be(2345));
+            yield return (FwTextPropType.ktptCellPadding, null, 0, span => span.CellPadding.Should().BeNull());
+            yield return (FwTextPropType.ktptCellPadding, 2345, 0, span => span.CellPadding.Should().Be(2345));
+
+            yield return (FwTextPropType.ktptEditable, null, 0, span => span.Editable.Should().BeNull());
+            yield return (FwTextPropType.ktptEditable, TptEditable.ktptIsEditable, 0, span => span.Editable.Should().Be(RichTextEditable.IsEditable));
+            yield return (FwTextPropType.ktptEditable, TptEditable.ktptNotEditable, 0, span => span.Editable.Should().Be(RichTextEditable.NotEditable));
+            yield return (FwTextPropType.ktptEditable, TptEditable.ktptSemiEditable, 0, span => span.Editable.Should().Be(RichTextEditable.SemiEditable));
+            yield return (FwTextPropType.ktptEditable, 2345, 0, span => span.Editable.Should().Be((RichTextEditable)2345));
+
         }
 
         return GetData().Select(x =>
