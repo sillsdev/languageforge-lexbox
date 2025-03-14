@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MiniLcm.Project;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace LcmCrdt;
 
@@ -129,13 +130,13 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             logger.LogError(e, "Failed to create project {Project}, deleting database", crdtProject.Name);
             activity?.AddException(e);
             await db.Database.CloseConnectionAsync();
-            EnsureDeleteProject(sqliteFile);
+            EnsureDeleteProject(sqliteFile, db.Database);
             throw;
         }
         return crdtProject;
     }
 
-    private void EnsureDeleteProject(string sqliteFile)
+    private void EnsureDeleteProject(string sqliteFile, DatabaseFacade db)
     {
         _ = Task.Run(async () =>
         {
@@ -145,7 +146,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 await Task.Delay(1000);
                 try
                 {
-                    File.Delete(sqliteFile);
+                    await db.EnsureDeletedAsync();
                     return;
                 }
                 catch (IOException)
