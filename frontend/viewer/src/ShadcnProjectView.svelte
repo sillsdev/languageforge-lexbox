@@ -15,7 +15,7 @@
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import * as Resizable from '$lib/components/ui/resizable';
-  import ProjectSidebar from '$lib/ProjectSidebar.svelte';
+  import ProjectSidebar, {type View} from '$lib/ProjectSidebar.svelte';
   import BrowseView from './browse/BrowseView.svelte';
   import TasksView from './tasks/TasksView.svelte';
 
@@ -32,7 +32,7 @@
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
-  let currentView: 'browse' | 'tasks' = $state('browse');
+  let currentView: View = $state('browse');
 
   onMount(() => {
     onloaded(true);

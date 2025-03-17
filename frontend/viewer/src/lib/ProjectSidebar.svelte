@@ -1,14 +1,28 @@
+<script lang="ts" module>
+  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity';
+</script>
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import * as Resizable from '$lib/components/ui/resizable';
   import { Icon } from '$lib/components/ui/icon';
   import { Button } from '$lib/components/ui/button';
+  import type {IconClass} from './icon-class';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
-    currentView: 'browse' | 'tasks';
+    currentView: View;
   }>();
 </script>
+
+{#snippet ViewButton(view: View, icon: IconClass, label: string)}
+
+<Sidebar.MenuSubItem>
+  <Sidebar.MenuSubButton onclick={() => (currentView = view)} isActive={currentView === view}>
+    <Icon {icon} />
+    <span>{label}</span>
+  </Sidebar.MenuSubButton>
+</Sidebar.MenuSubItem>
+{/snippet}
 
 <Resizable.Pane>
   <Sidebar.Root collapsible="none">
@@ -29,30 +43,10 @@
               <span>Dictionary</span>
             </Sidebar.MenuButton>
             <Sidebar.MenuSub>
-              <Sidebar.MenuSubItem>
-                <Sidebar.MenuSubButton>
-                  <Icon icon="i-mdi-view-dashboard" />
-                  <span>Dashboard</span>
-                </Sidebar.MenuSubButton>
-              </Sidebar.MenuSubItem>
-              <Sidebar.MenuSubItem>
-                <Sidebar.MenuSubButton onclick={() => (currentView = 'browse')} isActive={currentView === 'browse'}>
-                  <Icon icon="i-mdi-folder-open" />
-                  <span>Browse</span>
-                </Sidebar.MenuSubButton>
-              </Sidebar.MenuSubItem>
-              <Sidebar.MenuSubItem>
-                <Sidebar.MenuSubButton onclick={() => (currentView = 'tasks')} isActive={currentView === 'tasks'}>
-                  <Icon icon="i-mdi-checkbox-marked" />
-                  <span>Tasks</span>
-                </Sidebar.MenuSubButton>
-              </Sidebar.MenuSubItem>
-              <Sidebar.MenuSubItem>
-                <Sidebar.MenuSubButton>
-                  <Icon icon="i-mdi-chart-line" />
-                  <span>Activity</span>
-                </Sidebar.MenuSubButton>
-              </Sidebar.MenuSubItem>
+              {@render ViewButton('dashboard', 'i-mdi-view-dashboard', 'Dashboard')}
+              {@render ViewButton('browse', 'i-mdi-folder-open', 'Browse')}
+              {@render ViewButton('tasks', 'i-mdi-checkbox-marked', 'Tasks')}
+              {@render ViewButton('activity', 'i-mdi-chart-line', 'Activity')}
             </Sidebar.MenuSub>
           </Sidebar.MenuItem>
         </Sidebar.Menu>
