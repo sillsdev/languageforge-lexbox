@@ -16,6 +16,8 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import * as Resizable from '$lib/components/ui/resizable';
   import ProjectSidebar from '$lib/ProjectSidebar.svelte';
+  import BrowseView from './browse/BrowseView.svelte';
+  import TasksView from './tasks/TasksView.svelte';
 
   const {
     onloaded,
@@ -30,6 +32,7 @@
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
+  let currentView: 'browse' | 'tasks' = $state('browse');
 
   onMount(() => {
     onloaded(true);
@@ -40,11 +43,15 @@
 <div class="h-screen flex">
   <Sidebar.Provider style="--sidebar-width: 100%;">
     <Resizable.PaneGroup direction="horizontal">
-      <ProjectSidebar {projectName} />
+      <ProjectSidebar {projectName} bind:currentView />
       <Resizable.Pane defaultSize={85}>
         <Sidebar.Inset>
           <div class="p-4">
-            project view {projectName}
+            {#if currentView === 'browse'}
+              <BrowseView />
+            {:else if currentView === 'tasks'}
+              <TasksView />
+            {/if}
           </div>
         </Sidebar.Inset>
       </Resizable.Pane>
