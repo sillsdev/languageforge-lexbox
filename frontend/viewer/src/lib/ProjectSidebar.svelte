@@ -16,6 +16,10 @@
 
 
   const config = useFwLiteConfig();
+  let isSynchronizing = $state(false);
+  setInterval(() => {
+    isSynchronizing = !isSynchronizing;
+  }, 2000);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -57,6 +61,19 @@
       </Sidebar.Group>
     </Sidebar.Content>
     <Sidebar.Footer>
+      <Sidebar.Group>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <div class="flex items-center gap-2">
+                <Icon icon="i-mdi-sync" />
+                <span>Synchronize</span>
+                <div class="size-2 rounded-full mt-1" class:bg-red-500={isSynchronizing} class:bg-green-500={!isSynchronizing}></div>
+              </div>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.Group>
       <Sidebar.Group>
         <Sidebar.Menu>
           <Sidebar.MenuItem>
