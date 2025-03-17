@@ -14,7 +14,6 @@
 
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import * as Resizable from '$lib/components/ui/resizable';
   import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
@@ -41,20 +40,17 @@
 </script>
 
 <div class="h-screen flex">
-  <Sidebar.Provider style="--sidebar-width: 100%;">
-    <Resizable.PaneGroup direction="horizontal">
+  <Sidebar.Provider>
       <ProjectSidebar {projectName} bind:currentView />
-      <Resizable.Pane defaultSize={85}>
-        <Sidebar.Inset>
-          <div class="p-4">
-            {#if currentView === 'browse'}
-              <BrowseView />
-            {:else if currentView === 'tasks'}
-              <TasksView />
-            {/if}
-          </div>
-        </Sidebar.Inset>
-      </Resizable.Pane>
-    </Resizable.PaneGroup>
+      <Sidebar.Inset class="flex-1">
+        <div class="p-4">
+          <Sidebar.Trigger/>
+          {#if currentView === 'browse'}
+            <BrowseView />
+          {:else if currentView === 'tasks'}
+            <TasksView />
+          {/if}
+        </div>
+      </Sidebar.Inset>
   </Sidebar.Provider>
 </div>
