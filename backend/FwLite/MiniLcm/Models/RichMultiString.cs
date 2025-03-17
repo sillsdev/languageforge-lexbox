@@ -5,6 +5,7 @@ using HtmlAgilityPack;
 
 namespace MiniLcm.Models;
 
+//todo, migrate to the new format, use RichString instead of string
 [JsonConverter(typeof(RichMultiStringConverter))]
 public class RichMultiString : Dictionary<WritingSystemId, string>, IDictionary
 {
@@ -43,10 +44,13 @@ public class RichMultiString : Dictionary<WritingSystemId, string>, IDictionary
         get => TryGetValue(key, out var value) ? value : string.Empty;
         set
         {
-            if (!IsValidRichString(value))
-            {
-                throw new ArgumentException($"Invalid rich string {value}");
-            }
+            // disabled so we can merge this PR without figuring out how to migrate data to the new format
+//             if (!IsValidRichString(value))
+//             {
+//                 throw new ArgumentException($"""
+//                                              Invalid rich string "{value}"
+//                                              """);
+//             }
             base[key] = value;
         }
     }
@@ -67,10 +71,10 @@ public class RichMultiString : Dictionary<WritingSystemId, string>, IDictionary
         var valStr = value as string ??
                      throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string",
                          nameof(value));
-        if (!IsValidRichString(valStr))
-        {
-            throw new ArgumentException($"Invalid rich string {valStr}");
-        }
+        // if (!IsValidRichString(valStr))
+        // {
+        //     throw new ArgumentException($"Invalid rich string {valStr}");
+        // }
         if (key is WritingSystemId keyWs)
         {
             Add(keyWs, valStr);
@@ -104,6 +108,6 @@ public class RichMultiStringConverter : JsonConverter<RichMultiString>
 
     public override void Write(Utf8JsonWriter writer, RichMultiString value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, value, options);
+        JsonSerializer.Serialize(writer, value, typeof(Dictionary<WritingSystemId, string>), options);
     }
 }

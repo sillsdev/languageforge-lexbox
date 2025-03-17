@@ -23,7 +23,7 @@ public class RichMultiStringTests
         RichMultiString.IsValidRichString(value).Should().BeFalse();
     }
 
-    [Fact]
+    [Fact(Skip = "disabled until we can migrate data to the new format")]
     public void CreatingARichMultiStringWithPlainTextFails()
     {
         //lang=json
@@ -63,6 +63,16 @@ public class RichMultiStringTests
         var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
         actualMs.Should().NotBeNull();
         actualMs.Should().NotContainKey("en");
+    }
+
+    [Fact]
+    public void RichMultiString_SerializesToJson()
+    {
+        //lang=json
+        var expectedJson = """{"en":"test"}""";
+        var ms = new RichMultiString() { { "en", "test" } };
+        var actualJson = JsonSerializer.Serialize(ms);
+        actualJson.Should().Be(expectedJson);
     }
 
     [Fact]
