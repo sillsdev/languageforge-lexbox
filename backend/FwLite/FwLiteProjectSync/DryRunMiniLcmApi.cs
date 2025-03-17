@@ -40,7 +40,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(UpdateEntry), $"Update {after.Type} writing system {after.WsId}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateWritingSystem), $"Update {after.Type} writing system {after.WsId}"));
         return Task.FromResult(after);
     }
 

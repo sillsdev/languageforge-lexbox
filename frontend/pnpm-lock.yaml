@@ -49,7 +49,7 @@ catalogs:
       specifier: ^6.0.3
       version: 6.0.3
     tailwindcss:
-      specifier: ^3.4.3
+      specifier: ^3.4.17
       version: 3.4.17
     tslib:
       specifier: ^2.6.2
@@ -356,7 +356,7 @@ importers:
         version: 4.34.1
     devDependencies:
       '@egoist/tailwindcss-icons':
-        specifier: ^1.8.0
+        specifier: ^1.9.0
         version: 1.9.0(tailwindcss@3.4.17)
       '@iconify-json/mdi':
         specifier: ^1.1.66
@@ -379,8 +379,11 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: 'catalog:'
         version: 5.0.3(svelte@5.20.0)(vite@6.1.0(@types/node@20.17.17)(jiti@2.4.2)(yaml@2.7.0))
+      '@tailwindcss/container-queries':
+        specifier: ^0.1.1
+        version: 0.1.1(tailwindcss@3.4.17)
       '@tailwindcss/typography':
-        specifier: ^0.5.13
+        specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17)
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -403,6 +406,12 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 3.0.5(vitest@3.0.5)
+      bits-ui:
+        specifier: ^1.3.10
+        version: 1.3.10(svelte@5.20.0)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       eslint:
         specifier: 'catalog:'
         version: 9.20.1(jiti@2.4.2)
@@ -412,6 +421,12 @@ importers:
       happy-dom:
         specifier: ^17.1.0
         version: 17.1.0
+      mode-watcher:
+        specifier: ^0.5.1
+        version: 0.5.1(svelte@5.20.0)
+      paneforge:
+        specifier: 1.0.0-next.4
+        version: 1.0.0-next.4(svelte@5.20.0)
       svelte:
         specifier: 'catalog:'
         version: 5.20.0
@@ -421,9 +436,21 @@ importers:
       svelte-eslint-parser:
         specifier: 'catalog:'
         version: 1.0.0-next.13(svelte@5.20.0)
+      svelte-sonner:
+        specifier: ^0.3.28
+        version: 0.3.28(svelte@5.20.0)
+      tailwind-merge:
+        specifier: ^3.0.2
+        version: 3.0.2
+      tailwind-variants:
+        specifier: ^1.0.0
+        version: 1.0.0(tailwindcss@3.4.17)
       tailwindcss:
         specifier: 'catalog:'
         version: 3.4.17
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.17)
       tslib:
         specifier: 'catalog:'
         version: 2.8.1
@@ -433,6 +460,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.7.3
+      vaul-svelte:
+        specifier: 1.0.0-next.6
+        version: 1.0.0-next.6(svelte@5.20.0)
       vite:
         specifier: 'catalog:'
         version: 6.1.0(@types/node@20.17.17)(jiti@2.4.2)(yaml@2.7.0)
@@ -1388,6 +1418,9 @@ packages:
   '@inquirer/type@1.5.5':
     resolution: {integrity: sha512-MzICLu4yS7V8AA61sANROZ9vT1H3ooca5dSmI1FjZkzq7o/koMsRfQSzRtFo+F3Ao4Sf1C0bpLKejpKB/+j6MA==}
     engines: {node: '>=18'}
+
+  '@internationalized/date@3.7.0':
+    resolution: {integrity: sha512-VJ5WS3fcVx0bejE/YHfbDKR/yawZgKqn/if+oEeLqNwBtPzVB06olkfcnojTmEMX+gTpH+FlQ69SHNitJ8/erQ==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2367,6 +2400,9 @@ packages:
       svelte: ^5.0.0
       vite: ^6.0.0
 
+  '@swc/helpers@0.5.15':
+    resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
   '@tailwindcss/container-queries@0.1.1':
     resolution: {integrity: sha512-p18dswChx6WnTSaJCSGx6lTmrGzNNvm2FtXmiO6AuA1V4U5REyoqwmT6kgAsIMdjo07QdAfYXHJ4hnMtfHzWgA==}
     peerDependencies:
@@ -2876,6 +2912,12 @@ packages:
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  bits-ui@1.3.10:
+    resolution: {integrity: sha512-Mg6ENVlI/dwHX9hR1cSiAp5gqzwzowPbXPRW32RxFdUKakuL8qYyewwr446VC7UkZLEpNeoHn7HICcBscJhYdw==}
+    engines: {node: '>=18', pnpm: '>=8.7.0'}
+    peerDependencies:
+      svelte: ^5.11.0
 
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
@@ -3902,6 +3944,9 @@ packages:
   ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
 
+  inline-style-parser@0.2.4:
+    resolution: {integrity: sha512-0aO8FkhNZlj/ZIbNi7Lxxr12obT7cL1moPfE4tg1LkX7LlLfC6DeX4l2ZEud1ukP9jNQyNnfzQVqwbwmAATY4Q==}
+
   inquirer@7.3.3:
     resolution: {integrity: sha512-JG3eIAj5V9CwcGvuOmoo6LB9kbAYT8HXffUl6memuszlwDC/qvFAJw49XJ5NROSFNPxp3iQg1GqkFhaY/CR0IA==}
     engines: {node: '>=8.0.0'}
@@ -4607,6 +4652,11 @@ packages:
   mlly@1.7.4:
     resolution: {integrity: sha512-qmdSIPC4bDJXgZTCR7XosJiNKySV7O215tsPtDN9iEO/7q/76b/ijtgRu/+epFXSJhijtTCCGp3DWS549P3xKw==}
 
+  mode-watcher@0.5.1:
+    resolution: {integrity: sha512-adEC6T7TMX/kzQlaO/MtiQOSFekZfQu4MC+lXyoceQG+U5sKpJWZ4yKXqw846ExIuWJgedkOIPqAYYRk/xHm+w==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0-next.1
+
   module-details-from-path@1.0.3:
     resolution: {integrity: sha512-ySViT69/76t8VhE1xXHK6Ch4NcDd26gx0MzKXLO+F7NOtnqH68d9zF94nT8ZWSxXh8ELOERsnJO/sWt1xZYw5A==}
 
@@ -4766,6 +4816,11 @@ packages:
 
   package-manager-detector@0.2.9:
     resolution: {integrity: sha512-+vYvA/Y31l8Zk8dwxHhL3JfTuHPm6tlxM2A3GeQyl7ovYnSp1+mzAxClxaOr0qO1TtPxbQxetI7v5XqKLJZk7Q==}
+
+  paneforge@1.0.0-next.4:
+    resolution: {integrity: sha512-xB7iqIx6sT+XDRx/Eps+lddN3X7zRy8RIqXXFimGuFF6d+3s4YoXrk8SdNwEK5U/mqwupeKX0BbSfy0z9W9feA==}
+    peerDependencies:
+      svelte: ^5.20.0
 
   param-case@2.1.1:
     resolution: {integrity: sha512-eQE845L6ot89sk2N8liD8HAuH4ca6Vvr7VWAWwt7+kvvG5aBcPmmphQ68JsEG2qa9n1TykS2DLeMt363AAH8/w==}
@@ -5203,6 +5258,11 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
+  runed@0.23.4:
+    resolution: {integrity: sha512-9q8oUiBYeXIDLWNK5DfCWlkL0EW3oGbk845VdKlPeia28l751VpfesaB/+7pI6rnbx1I6rqoZ2fZxptOJLxILA==}
+    peerDependencies:
+      svelte: ^5.7.0
+
   rxjs@6.6.7:
     resolution: {integrity: sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==}
     engines: {npm: '>=2.0.0'}
@@ -5367,6 +5427,9 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  style-to-object@1.0.8:
+    resolution: {integrity: sha512-xT47I/Eo0rwJmaXC4oilDGDWLohVhR6o/xAQcPQN8q6QBuZVL8qMYL85kLmST5cPjAorwvqIA4qXTRQoYHaL6g==}
+
   sucrase@3.35.0:
     resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -5476,6 +5539,17 @@ packages:
   svelte-routing@2.13.0:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
 
+  svelte-sonner@0.3.28:
+    resolution: {integrity: sha512-K3AmlySeFifF/cKgsYNv5uXqMVNln0NBAacOYgmkQStLa/UoU0LhfAACU6Gr+YYC8bOCHdVmFNoKuDbMEsppJg==}
+    peerDependencies:
+      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0-next.1
+
+  svelte-toolbelt@0.7.1:
+    resolution: {integrity: sha512-HcBOcR17Vx9bjaOceUvxkY3nGmbBmCBBbuWLLEWO6jtmWH8f/QoWmbyUfQZrpDINH39en1b8mptfPQT9VKQ1xQ==}
+    engines: {node: '>=18', pnpm: '>=8.7.0'}
+    peerDependencies:
+      svelte: ^5.0.0
+
   svelte-turnstile@0.9.0:
     resolution: {integrity: sha512-fyU2Ym2qSHzNTPvbOkZTQh7n8Fd8Uk+SvT05aRP3E/pK+x8DjL/Bl2NjVjqXD0MspkwEsmLhMI5DGsG3vZ++eA==}
     peerDependencies:
@@ -5514,8 +5588,25 @@ packages:
     resolution: {integrity: sha512-c7AfkZ9udatCuAy9RSfiGPpeOKKUAUK5e1cXadLOGUjasdxqYqAK0jTNkM/FSEyJ3a5Ra27j/tw/PS0qLmaF/A==}
     engines: {node: '>=18'}
 
+  tabbable@6.2.0:
+    resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
+
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
+
+  tailwind-merge@3.0.2:
+    resolution: {integrity: sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==}
+
+  tailwind-variants@1.0.0:
+    resolution: {integrity: sha512-2WSbv4ulEEyuBKomOunut65D8UZwxrHoRfYnxGcQNnHqlSCp2+B7Yz2W+yrNDrxRodOXtGD/1oCcKGNBnUqMqA==}
+    engines: {node: '>=16.x', pnpm: '>=7.x'}
+    peerDependencies:
+      tailwindcss: '*'
+
+  tailwindcss-animate@1.0.7:
+    resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || insiders'
 
   tailwindcss@3.4.17:
     resolution: {integrity: sha512-w33E2aCvSDP0tW9RZuNXadXlkHXqFzSkQew/aIa2i/Sj8fThxwovwlXHSPXTbAHwEIhBFXAedUhP2tueAKP8Og==}
@@ -5750,6 +5841,12 @@ packages:
   value-or-promise@1.0.12:
     resolution: {integrity: sha512-Z6Uz+TYwEqE7ZN50gwn+1LCVo9ZVrpxRPOhOLnncYkY1ZzOYtrX8Fwf/rFktZ8R5mJms6EZf5TqNOMeZmnPq9Q==}
     engines: {node: '>=12'}
+
+  vaul-svelte@1.0.0-next.6:
+    resolution: {integrity: sha512-leEKb9Qoj7JOrC0wLnqoczLhHZcwo7UHKBJ7SWBRhdFn0o+x9W1XioUK2OeiZHb5Bp7LyYKtUUjVWO3uJULUCw==}
+    engines: {node: '>=18', pnpm: '>=8.7.0'}
+    peerDependencies:
+      svelte: ^5.0.0
 
   vfile-message@4.0.2:
     resolution: {integrity: sha512-jRDZ1IMLttGj41KcZvlrYAaI3CfqpLpfpf+Mfig13viT6NKvRzWZ+lXz0Y5D60w6uJIBAOGq9mSHf0gktF0duw==}
@@ -7164,6 +7261,10 @@ snapshots:
     dependencies:
       mute-stream: 1.0.0
 
+  '@internationalized/date@3.7.0':
+    dependencies:
+      '@swc/helpers': 0.5.15
+
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -8435,6 +8536,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@swc/helpers@0.5.15':
+    dependencies:
+      tslib: 2.8.1
+
   '@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.17)':
     dependencies:
       tailwindcss: 3.4.17
@@ -9028,6 +9133,17 @@ snapshots:
   bignumber.js@9.1.2: {}
 
   binary-extensions@2.3.0: {}
+
+  bits-ui@1.3.10(svelte@5.20.0):
+    dependencies:
+      '@floating-ui/core': 1.6.9
+      '@floating-ui/dom': 1.6.13
+      '@internationalized/date': 3.7.0
+      esm-env: 1.2.2
+      runed: 0.23.4(svelte@5.20.0)
+      svelte: 5.20.0
+      svelte-toolbelt: 0.7.1(svelte@5.20.0)
+      tabbable: 6.2.0
 
   bl@4.1.0:
     dependencies:
@@ -10176,6 +10292,8 @@ snapshots:
 
   ini@1.3.8: {}
 
+  inline-style-parser@0.2.4: {}
+
   inquirer@7.3.3:
     dependencies:
       ansi-escapes: 4.3.2
@@ -11238,6 +11356,10 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.5.4
 
+  mode-watcher@0.5.1(svelte@5.20.0):
+    dependencies:
+      svelte: 5.20.0
+
   module-details-from-path@1.0.3: {}
 
   moo@0.5.2: {}
@@ -11379,6 +11501,11 @@ snapshots:
   package-json-from-dist@1.0.1: {}
 
   package-manager-detector@0.2.9: {}
+
+  paneforge@1.0.0-next.4(svelte@5.20.0):
+    dependencies:
+      svelte: 5.20.0
+      svelte-toolbelt: 0.7.1(svelte@5.20.0)
 
   param-case@2.1.1:
     dependencies:
@@ -11823,6 +11950,11 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
+  runed@0.23.4(svelte@5.20.0):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.20.0
+
   rxjs@6.6.7:
     dependencies:
       tslib: 1.14.1
@@ -11966,6 +12098,10 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
+  style-to-object@1.0.8:
+    dependencies:
+      inline-style-parser: 0.2.4
+
   sucrase@3.35.0:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.8
@@ -12100,6 +12236,17 @@ snapshots:
 
   svelte-routing@2.13.0: {}
 
+  svelte-sonner@0.3.28(svelte@5.20.0):
+    dependencies:
+      svelte: 5.20.0
+
+  svelte-toolbelt@0.7.1(svelte@5.20.0):
+    dependencies:
+      clsx: 2.1.1
+      runed: 0.23.4(svelte@5.20.0)
+      style-to-object: 1.0.8
+      svelte: 5.20.0
+
   svelte-turnstile@0.9.0(svelte@5.20.0):
     dependencies:
       svelte: 5.20.0
@@ -12197,7 +12344,20 @@ snapshots:
       timeout-signal: 2.0.0
       whatwg-mimetype: 4.0.0
 
+  tabbable@6.2.0: {}
+
   tailwind-merge@2.6.0: {}
+
+  tailwind-merge@3.0.2: {}
+
+  tailwind-variants@1.0.0(tailwindcss@3.4.17):
+    dependencies:
+      tailwind-merge: 3.0.2
+      tailwindcss: 3.4.17
+
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.17):
+    dependencies:
+      tailwindcss: 3.4.17
 
   tailwindcss@3.4.17:
     dependencies:
@@ -12431,6 +12591,12 @@ snapshots:
   valid-data-url@3.0.1: {}
 
   value-or-promise@1.0.12: {}
+
+  vaul-svelte@1.0.0-next.6(svelte@5.20.0):
+    dependencies:
+      runed: 0.23.4(svelte@5.20.0)
+      svelte: 5.20.0
+      svelte-toolbelt: 0.7.1(svelte@5.20.0)
 
   vfile-message@4.0.2:
     dependencies:

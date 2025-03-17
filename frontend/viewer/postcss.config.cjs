@@ -1,5 +1,5 @@
 const path = require('path');
-const tailwindConfig = path.join(__dirname, 'tailwind.config.cjs');
+const tailwindConfig = path.join(__dirname, 'tailwind.config.ts');
 
 module.exports = {
   plugins: {

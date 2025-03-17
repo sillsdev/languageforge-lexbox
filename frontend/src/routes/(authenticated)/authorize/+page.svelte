@@ -15,7 +15,7 @@
     <form method="post" action="/api/oauth/open-id-auth" class="flex flex-col items-center">
       <div class="mb-6 grid gap-x-3 gap-y-1 items-center" style="grid-template-columns: auto 1fr">
         <div class="row-span-2">
-          <Icon icon="i-mdi-approval" color="text-success" size="text-5xl" />
+          <Icon icon="i-mdi-check-decagram" color="text-success" size="text-5xl" />
         </div>
         <h2 class="text-3xl">
           Authorize "{data.appName}"

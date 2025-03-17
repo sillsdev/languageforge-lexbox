@@ -10,22 +10,11 @@ public record UpdateEntryProxy : Entry
     private readonly ILexEntry _lcmEntry;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
 
-    private readonly Lazy<UpdateComplexFormComponentProxy[]> _lazyComplexForms;
-
     public UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
         _lcmEntry = lcmEntry;
         Id = lcmEntry.Guid;
         _lexboxLcmApi = lexboxLcmApi;
-        _lazyComplexForms = new(() =>
-        {
-            return _lcmEntry.ComplexFormEntries.Select(complexEntry =>
-                    new UpdateComplexFormComponentProxy(complexEntry, _lcmEntry, _lexboxLcmApi))
-                .Concat(
-                    _lcmEntry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry =>
-                        new UpdateComplexFormComponentProxy(complexEntry, sense, _lexboxLcmApi)))
-                ).ToArray();
-        });
     }
 
     public override MultiString LexemeForm
@@ -66,14 +55,7 @@ public record UpdateEntryProxy : Entry
 
     public override IList<ComplexFormType> ComplexFormTypes
     {
-        get =>
-            new UpdateListProxy<ComplexFormType>(
-                complexFormType => _lexboxLcmApi.AddComplexFormType(_lcmEntry, complexFormType.Id),
-                complexFormType => _lexboxLcmApi.RemoveComplexFormType(_lcmEntry, complexFormType.Id),
-                i => new UpdateComplexFormTypeProxy(_lcmEntry.ComplexFormEntryRefs.Single().ComplexEntryTypesRS[i], _lcmEntry, _lexboxLcmApi),
-                _lcmEntry.ComplexFormEntryRefs.SingleOrDefault()
-                    ?.ComplexEntryTypesRS.Count ?? 0
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 

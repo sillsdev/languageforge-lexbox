@@ -37,5 +37,11 @@
     },
     "dotnet.defaultSolution": "LexBox.sln",
     "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
-    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "iconify.prefixes": [
+      "i-"
+    ],
+    "iconify.preview.exclude": [
+      "**/icon-class.ts"
+    ]
 }
