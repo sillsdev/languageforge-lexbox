@@ -13,6 +13,10 @@
 </script>
 
 <script lang="ts">
+  import * as Sidebar from '$lib/components/ui/sidebar';
+  import * as Resizable from '$lib/components/ui/resizable';
+  import ProjectSidebar from '$lib/ProjectSidebar.svelte';
+
   const {
     onloaded,
     projectName,
@@ -30,6 +34,20 @@
   onMount(() => {
     onloaded(true);
   });
+
 </script>
 
-Shadcn project view: {projectName}
+<div class="h-screen flex">
+  <Sidebar.Provider style="--sidebar-width: 100%;">
+    <Resizable.PaneGroup direction="horizontal">
+      <ProjectSidebar {projectName} />
+      <Resizable.Pane defaultSize={85}>
+        <Sidebar.Inset>
+          <div class="p-4">
+            project view {projectName}
+          </div>
+        </Sidebar.Inset>
+      </Resizable.Pane>
+    </Resizable.PaneGroup>
+  </Sidebar.Provider>
+</div>
