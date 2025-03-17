@@ -8,18 +8,22 @@
   import { Button } from '$lib/components/ui/button';
   import type {IconClass} from '../lib/icon-class';
   import {useFwLiteConfig} from '../lib/services/service-provider';
+  import ProjectDropdown from './ProjectDropdown.svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
     currentView: View;
   }>();
 
-
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
   setInterval(() => {
     isSynchronizing = !isSynchronizing;
   }, 2000);
+
+  function handleProjectSelect(selectedProjectName: string) {
+    console.log('selectedProjectName', selectedProjectName);
+  }
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -36,10 +40,10 @@
   <Sidebar.Root collapsible="none">
     <Sidebar.Header>
       <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-2">
-          <Icon icon="i-mdi-book" class="size-6" />
-          <span class="font-semibold">{projectName}</span>
-        </div>
+        <ProjectDropdown
+          {projectName}
+          onSelect={handleProjectSelect}
+        />
         <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus">Create Entry</Button>
       </div>
     </Sidebar.Header>
