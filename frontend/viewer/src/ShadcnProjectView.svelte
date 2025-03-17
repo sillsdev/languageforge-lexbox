@@ -15,9 +15,9 @@
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import * as Resizable from '$lib/components/ui/resizable';
-  import ProjectSidebar, {type View} from '$lib/ProjectSidebar.svelte';
-  import BrowseView from './browse/BrowseView.svelte';
-  import TasksView from './tasks/TasksView.svelte';
+  import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
+  import BrowseView from './project/browse/BrowseView.svelte';
+  import TasksView from './project/tasks/TasksView.svelte';
 
   const {
     onloaded,

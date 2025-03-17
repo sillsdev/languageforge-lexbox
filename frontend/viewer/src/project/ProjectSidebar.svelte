@@ -6,8 +6,8 @@
   import * as Resizable from '$lib/components/ui/resizable';
   import { Icon } from '$lib/components/ui/icon';
   import { Button } from '$lib/components/ui/button';
-  import type {IconClass} from './icon-class';
-  import {useFwLiteConfig} from './services/service-provider';
+  import type {IconClass} from '../lib/icon-class';
+  import {useFwLiteConfig} from '../lib/services/service-provider';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
