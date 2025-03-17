@@ -17,7 +17,7 @@
   import {Button as UxButton, type MenuOption} from 'svelte-ux';
   import {writable} from 'svelte/store';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
-
+  import * as Resizable from '$lib/components/ui/resizable';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -74,6 +74,22 @@
         <Checkbox bind:checked={loading}></Checkbox>
       </label>
     </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Resizable Example</h3>
+    <Resizable.PaneGroup direction="horizontal" class="h-[200px] border rounded-lg">
+      <Resizable.Pane defaultSize={20} class="bg-muted p-4">
+        Left Pane
+      </Resizable.Pane>
+      <Resizable.Handle withHandle />
+      <Resizable.Pane defaultSize={30} class="bg-muted p-4">
+        Middle Pane
+      </Resizable.Pane>
+      <Resizable.Handle withHandle />
+      <Resizable.Pane class="bg-muted p-4">
+        Right Pane
+      </Resizable.Pane>
+    </Resizable.PaneGroup>
   </div>
 </div>
 

@@ -12,5 +12,14 @@
     }
     return node;
   };
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const headerRemove = document.head.removeChild;
+  document.head.removeChild = function newRemove<T extends Node>(node: T): T {
+    if (node.nodeName === 'STYLE') {
+      return (document.getElementById('svelte-app')?.removeChild(node) ?? node);
+    } else {
+      return headerRemove.call(document.head, node) as T;
+    }
+  };
 }
 
