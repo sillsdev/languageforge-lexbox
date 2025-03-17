@@ -35,7 +35,7 @@
   </Sidebar.MenuSubItem>
 {/snippet}
 
-<Sidebar.Root collapsible="icons">
+<Sidebar.Root variant="inset">
   <Sidebar.Header>
     <div class="flex flex-col gap-2">
       <ProjectDropdown
@@ -120,4 +120,5 @@
       </div>
     </Sidebar.Group>
   </Sidebar.Footer>
+  <Sidebar.Rail/>
 </Sidebar.Root>
