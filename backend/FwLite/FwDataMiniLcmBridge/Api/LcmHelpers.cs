@@ -1,4 +1,5 @@
 using System.Globalization;
+using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -68,5 +69,10 @@ internal static class LcmHelpers
                     exemplars.Add(char.ToUpperInvariant(value[0]));
             }
         }
+    }
+
+    internal static IMoStemAllomorph CreateLexemeForm(this LcmCache cache)
+    {
+        return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
     }
 }

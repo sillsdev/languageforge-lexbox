@@ -29,7 +29,11 @@ public record UpdateEntryProxy : Entry
 
     public override MultiString LexemeForm
     {
-        get => new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
+        get
+        {
+            _lcmEntry.LexemeFormOA ??= _lexboxLcmApi.Cache.CreateLexemeForm();
+            return new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
+        }
         set => throw new NotImplementedException();
     }
 

@@ -580,7 +580,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             return new Entry()
             {
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
             }.Headword();
         }
@@ -770,7 +770,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 {
                     var lexEntry = LexEntryFactory.Create(entry.Id,
                         Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-                    lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+                    lexEntry.LexemeFormOA = Cache.CreateLexemeForm();
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
