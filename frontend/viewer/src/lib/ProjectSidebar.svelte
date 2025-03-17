@@ -96,9 +96,11 @@
       </Sidebar.Group>
 
 
-      <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-close">Close Dictionary</Button>
       <Sidebar.Group>
         <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Button variant="default" size="sm" class="px-3" icon="i-mdi-close">Close Dictionary</Button>
+          </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton>
               <Icon icon="i-mdi-cog" />
