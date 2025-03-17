@@ -30,6 +30,6 @@
 </div>
 
 <DevContent>
-  <Button onclick={() => globalThis.enableShadcn(!$useShadcn)} class="fixed bottom-2 left-2" icon="i-mdi-ab-testing"
+  <Button onclick={() => globalThis.enableShadcn(!$useShadcn)} class="fixed bottom-2 {!$useShadcn ? 'left-2' : 'right-2'}" icon="i-mdi-ab-testing"
   ></Button>
 </DevContent>

@@ -27,13 +27,12 @@
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
-
-<Sidebar.MenuSubItem>
-  <Sidebar.MenuSubButton onclick={() => (currentView = view)} isActive={currentView === view}>
-    <Icon {icon} />
-    <span>{label}</span>
-  </Sidebar.MenuSubButton>
-</Sidebar.MenuSubItem>
+  <Sidebar.MenuSubItem>
+    <Sidebar.MenuSubButton onclick={() => (currentView = view)} isActive={currentView === view}>
+      <Icon {icon} />
+      <span>{label}</span>
+    </Sidebar.MenuSubButton>
+  </Sidebar.MenuSubItem>
 {/snippet}
 
 <Resizable.Pane>
@@ -56,7 +55,7 @@
             </Sidebar.MenuButton>
             <Sidebar.MenuSub>
               {@render ViewButton('dashboard', 'i-mdi-view-dashboard', 'Dashboard')}
-              {@render ViewButton('browse', 'i-mdi-folder-open', 'Browse')}
+              {@render ViewButton('browse', 'i-mdi-book-alphabet', 'Browse')}
               {@render ViewButton('tasks', 'i-mdi-checkbox-marked', 'Tasks')}
               {@render ViewButton('activity', 'i-mdi-chart-line', 'Activity')}
             </Sidebar.MenuSub>
@@ -68,18 +67,42 @@
       <Sidebar.Group>
         <Sidebar.Menu>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton>
+            <Sidebar.MenuButton class="justify-between">
               <div class="flex items-center gap-2">
                 <Icon icon="i-mdi-sync" />
                 <span>Synchronize</span>
-                <div class="size-2 rounded-full mt-1" class:bg-red-500={isSynchronizing} class:bg-green-500={!isSynchronizing}></div>
               </div>
+              <div class="size-2 rounded-full" class:bg-red-500={isSynchronizing} class:bg-green-500={!isSynchronizing}></div>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-account" />
+              <span>Account</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.Group>
+
+
+      <Sidebar.Group>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-cog" />
+              <span>Settings</span>
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Group>
       <Sidebar.Group>
         <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-close" />
+              <span>Close Dictionary</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton>
               <Icon icon="i-mdi-help-circle" />
@@ -95,23 +118,8 @@
         </Sidebar.Menu>
         <div class="text-xs text-muted-foreground py-2 m-auto">
           <div>Version {config.appVersion}</div>
-          <div>Made with ❤️ from Thailand</div>
+          <div>Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸</div>
         </div>
-      </Sidebar.Group>
-
-
-      <Sidebar.Group>
-        <Sidebar.Menu>
-          <Sidebar.MenuItem>
-            <Button variant="default" size="sm" class="px-3" icon="i-mdi-close">Close Dictionary</Button>
-          </Sidebar.MenuItem>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton>
-              <Icon icon="i-mdi-cog" />
-              <span>Settings</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
       </Sidebar.Group>
     </Sidebar.Footer>
   </Sidebar.Root>
