@@ -7,11 +7,15 @@
   import { Icon } from '$lib/components/ui/icon';
   import { Button } from '$lib/components/ui/button';
   import type {IconClass} from './icon-class';
+  import {useFwLiteConfig} from './services/service-provider';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
     currentView: View;
   }>();
+
+
+  const config = useFwLiteConfig();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -32,7 +36,7 @@
           <Icon icon="i-mdi-book" class="size-6" />
           <span class="font-semibold">{projectName}</span>
         </div>
-        <Button variant="default" size="sm" class="px-3 max-w-72" icon="i-mdi-plus">Create Entry</Button>
+        <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus">Create Entry</Button>
       </div>
     </Sidebar.Header>
     <Sidebar.Content>
@@ -53,6 +57,29 @@
       </Sidebar.Group>
     </Sidebar.Content>
     <Sidebar.Footer>
+      <Sidebar.Group>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-help-circle" />
+              <span>Troubleshoot</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-message" />
+              <span>Feedback</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+        <div class="text-xs text-muted-foreground py-2 m-auto">
+          <div>Version {config.appVersion}</div>
+          <div>Made with ❤️ from Thailand</div>
+        </div>
+      </Sidebar.Group>
+
+
+      <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-close">Close Dictionary</Button>
       <Sidebar.Group>
         <Sidebar.Menu>
           <Sidebar.MenuItem>
