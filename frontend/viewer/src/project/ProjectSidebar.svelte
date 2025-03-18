@@ -10,6 +10,7 @@
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
+  import ThemePicker from '$lib/ThemePicker.svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -50,10 +51,16 @@
 <Sidebar.Root variant="inset">
   <Sidebar.Header>
     <div class="flex flex-col gap-2">
-      <ProjectDropdown
-        {projectName}
-        onSelect={handleProjectSelect}
-      />
+      <div class="flex flex-row items-center gap-2">
+        <ProjectDropdown
+          {projectName}
+          onSelect={handleProjectSelect}
+        />
+        <div class="flex-1" />
+        <ThemePicker button={{variant: 'ghost', size: 'icon'}}>
+          <div class="size-3 rounded-full bg-primary"></div>
+        </ThemePicker>
+      </div>
       <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus">{$t`Create Entry`}</Button>
     </div>
   </Sidebar.Header>
