@@ -141,9 +141,9 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         return TypedResults.NotFound();
     }
     activity?.SetTag("app.project_code", lexboxProject.Code);
-    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
+    var projectFolder = config.Value.GetProjectFolder(lexboxProject.Code, projectId);
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
-    var fwDataProject = new FwDataProject("fw", projectFolder);
+    var fwDataProject = config.Value.GetFwDataProject(lexboxProject.Code, projectId);
     var pendingHgCommits = srService.PendingCommitCount(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
 
     var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
