@@ -56,7 +56,7 @@
           {projectName}
           onSelect={handleProjectSelect}
         />
-        <div class="flex-1" />
+        <div class="flex-1" ></div>
         <ThemePicker button={{variant: 'ghost', size: 'icon'}}>
           <div class="size-3 rounded-full bg-primary"></div>
         </ThemePicker>
