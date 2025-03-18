@@ -9,6 +9,7 @@
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
+  import {onDestroy} from 'svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -17,9 +18,13 @@
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
-  setInterval(() => {
+  let intervalId = setInterval(() => {
     isSynchronizing = !isSynchronizing;
   }, 2000);
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   function handleProjectSelect(selectedProjectName: string) {
     console.log('selectedProjectName', selectedProjectName);
