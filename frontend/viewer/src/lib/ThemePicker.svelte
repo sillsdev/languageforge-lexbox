@@ -6,7 +6,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {setMode, mode, userPrefersMode, resetMode, theme, setTheme} from 'mode-watcher';
   import {cn} from '$lib/utils';
-  const { children, button = {} } = $props<WithChildren<{button?: ButtonProps}>>();
+  const { children, button = {} }: WithChildren<{ button?: ButtonProps }> = $props();
 
   const themes = ['green', 'blue', 'rose', 'orange', 'violet', 'stone'];
 </script>
