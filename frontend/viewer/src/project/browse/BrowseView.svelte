@@ -11,7 +11,7 @@
   <div class="flex-1 flex items-center justify-center text-muted-foreground">
     <div class="text-center">
       <Icon icon="i-mdi-folder-outline" class="size-12 mx-auto mb-2 opacity-50" />
-      <p>No entires to display</p>
+      <p>No entries to display</p>
     </div>
   </div>
 </div>
