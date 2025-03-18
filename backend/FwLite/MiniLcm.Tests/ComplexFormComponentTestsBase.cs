@@ -1,13 +1,14 @@
-﻿using MiniLcm.Models;
+﻿using FluentAssertions.Execution;
+using MiniLcm.Models;
 
 namespace MiniLcm.Tests;
 
 public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
 {
-    private readonly Guid _complexFormEntryId = Guid.NewGuid();
-    private readonly Guid _componentEntryId = Guid.NewGuid();
-    private readonly Guid _componentSenseId1 = Guid.NewGuid();
-    private readonly Guid _componentSenseId2 = Guid.NewGuid();
+    protected readonly Guid _complexFormEntryId = Guid.NewGuid();
+    protected readonly Guid _componentEntryId = Guid.NewGuid();
+    protected readonly Guid _componentSenseId1 = Guid.NewGuid();
+    protected readonly Guid _componentSenseId2 = Guid.NewGuid();
     private Entry _complexFormEntry = null!;
     private Entry _componentEntry = null!;
 
@@ -48,6 +49,31 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         component.ComponentSenseId.Should().BeNull();
         component.ComplexFormHeadword.Should().Be("complex form");
         component.ComponentHeadword.Should().Be("component");
+    }
+
+    [Fact]
+    public async Task RemoveComplexFormComponent_Works()
+    {
+        var component = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        component.ComplexFormEntryId.Should().Be(_complexFormEntryId);
+        component.ComponentEntryId.Should().Be(_componentEntryId);
+        await Api.DeleteComplexFormComponent(component);
+        var entries = await Api.GetEntries().ToArrayAsync();
+        var complexFormEntry = entries.Should().ContainSingle(e => e.Id == _complexFormEntryId).Subject;
+        var componentEntry = entries.Should().ContainSingle(e => e.Id == _componentEntryId).Subject;
+        complexFormEntry.Components.Should().BeEmpty();
+        componentEntry.ComplexForms.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetEntries_Works()
+    {
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));
+        var entries = await Api.GetEntries().ToArrayAsync();
+        var complexFormEntry = entries.Should().ContainSingle(e => e.Id == _complexFormEntryId).Subject;
+        var componentEntry = entries.Should().ContainSingle(e => e.Id == _componentEntryId).Subject;
+        complexFormEntry.Components.Should().ContainSingle(r => r.ComponentEntryId == _componentEntryId);
+        componentEntry.ComplexForms.Should().ContainSingle(r => r.ComplexFormEntryId == _complexFormEntryId);
     }
 
     [Fact]

@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
+using Gridify;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Models;
@@ -18,8 +20,15 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project, MiniLcmValidators validators) : IMiniLcmApi, IMiniLcmSaveApi
+public class FwDataMiniLcmApi(
+    Lazy<LcmCache> cacheLazy,
+    bool onCloseSave,
+    ILogger<FwDataMiniLcmApi> logger,
+    FwDataProject project,
+    MiniLcmValidators validators,
+    IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
+    private FwDataBridgeConfig Config => config.Value;
     internal LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
@@ -62,43 +71,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal WritingSystemId GetWritingSystemId(int ws)
     {
-        return Cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
+        return Cache.GetWritingSystemId(ws);
     }
 
     internal int GetWritingSystemHandle(WritingSystemId ws, WritingSystemType? type = null)
     {
-        var lcmWs = GetLcmWritingSystem(ws, type) ?? throw new NullReferenceException($"Unable to find writing system with id {ws}");
-        return lcmWs.Handle;
-    }
-
-
-    internal CoreWritingSystemDefinition? GetLcmWritingSystem(WritingSystemId ws, WritingSystemType? type = null)
-    {
-        if (ws == "default")
-        {
-            return type switch
-            {
-                WritingSystemType.Analysis => WritingSystemContainer.DefaultAnalysisWritingSystem,
-                WritingSystemType.Vernacular => WritingSystemContainer.DefaultVernacularWritingSystem,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-        }
-
-        var lcmWs = Cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
-        if (lcmWs is not null && type is not null)
-        {
-            var validWs = type switch
-            {
-                WritingSystemType.Analysis => WritingSystemContainer.AnalysisWritingSystems,
-                WritingSystemType.Vernacular => WritingSystemContainer.VernacularWritingSystems,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-            if (!validWs.Contains(lcmWs))
-            {
-                throw new InvalidOperationException($"Writing system {ws} is not of the requested type: {type}.");
-            }
-        }
-        return lcmWs;
+        return Cache.GetWritingSystemHandle(ws, type);
     }
 
     public Task<WritingSystems> GetWritingSystems()
@@ -484,7 +462,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var updateProxy = new UpdateComplexFormTypeProxy(type, null, this);
+                var updateProxy = new UpdateComplexFormTypeProxy(type, this);
                 update.Apply(updateProxy);
             });
         return Task.FromResult(ToComplexFormType(type));
@@ -592,21 +570,19 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
     {
-        return entry.ComplexFormEntryRefs.SingleOrDefault()
-            ?.ComplexEntryTypesRS
-            .Select(ToComplexFormType)
-            .ToList() ?? [];
+        return entry.ComplexFormEntryRefs
+            .SelectMany(r => r.ComplexEntryTypesRS, (_, type) => ToComplexFormType(type))
+            .ToList();
     }
     private IEnumerable<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
     {
-        return entry.ComplexFormEntryRefs.SingleOrDefault()
-            ?.ComponentLexemesRS
-            .Select(o => o switch
+        return entry.ComplexFormEntryRefs.SelectMany(r => r.ComponentLexemesRS,
+            (_, o) => o switch
             {
                 ILexEntry component => ToEntryReference(component, entry),
                 ILexSense s => ToSenseReference(s, entry),
                 _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
-            }) ?? [];
+            });
     }
 
     private Variants? ToVariants(ILexEntry entry)
@@ -712,6 +688,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
         options ??= QueryOptions.Default;
         if (predicate is not null) entries = entries.Where(predicate);
+        if (!string.IsNullOrEmpty(options.Filter?.GridifyFilter))
+        {
+            var query = new GridifyQuery(){Filter = options.Filter.GridifyFilter};
+            var filter = query.GetFilteringExpression(config.Value.Mapper).Compile();
+            entries = entries.Where(filter);
+        }
 
         if (options.Exemplar is not null)
         {
@@ -899,15 +881,19 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        var entryRef = lexComplexForm.ComplexFormEntryRefs.SingleOrDefault();
+        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
+        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
+        //there could be multiple valid refs, but we have no way of selecting which one to use so just use the first as that's what LCM does
+        //we want to prefer the component which has the same guid as the previous or next component, if it exists
+        var entryRef = lexComplexForm.ComplexFormEntryRefs
+            .FirstOrDefault(entryRef => entryRef.ComponentLexemesRS.Any(o => o.Guid == previousComponentId || o.Guid == nextComponentId))
+            ?? lexComplexForm.ComplexFormEntryRefs.FirstOrDefault();
         if (entryRef is null || entryRef.ComponentLexemesRS.Count == 0)
         {
             lexComplexForm.AddComponent(lexComponent);
             return;
         }
 
-        var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
-        var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
 
         // Prevents adding duplicates (which ComponentLexemesRS.Insert is susceptible to)
         if (entryRef.ComponentLexemesRS.Contains(lexComponent))
@@ -959,35 +945,43 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             lexComponent = entry;
         }
 
-        var entryRef = lexEntry.ComplexFormEntryRefs.Single();
-        if (!entryRef.ComponentLexemesRS.Remove(lexComponent))
+        foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
-            throw new InvalidOperationException("Complex form component not found, searched for " + lexComponent.ObjectIdName.Text);
+            if (entryRef.ComponentLexemesRS.Remove(lexComponent)) return;
         }
+        //not throwing to match CRDT behavior
     }
 
     internal void AddComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
-        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
+        //do the same thing as LCM, use the first when adding if there's more than one
+        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.FirstOrDefault();
         if (entryRef is null)
         {
-            entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
-            lexEntry.EntryRefsOS.Add(entryRef);
-            entryRef.RefType = LexEntryRefTags.krtComplexForm;
-            entryRef.HideMinorEntry = 0;
+            entryRef = AddComplexFormLexEntryRef(lexEntry);
         }
 
         var lexEntryType = ComplexFormTypesFlattened.Single(c => c.Guid == complexFormTypeId);
         entryRef.ComplexEntryTypesRS.Add(lexEntryType);
     }
 
+    internal ILexEntryRef AddComplexFormLexEntryRef(ILexEntry lexEntry)
+    {
+        var entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+        lexEntry.EntryRefsOS.Add(entryRef);
+        entryRef.RefType = LexEntryRefTags.krtComplexForm;
+        entryRef.HideMinorEntry = 0;
+        return entryRef;
+    }
+
     internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
-        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
-        if (entryRef is null) return;
-        var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
-        if (lexEntryType is null) return;
-        entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
+        foreach (var entryRef in lexEntry.ComplexFormEntryRefs.Reverse())
+        {
+            var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
+            if (lexEntryType is null) continue;
+            if (entryRef.ComplexEntryTypesRS.Remove(lexEntryType)) break;
+        }
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)

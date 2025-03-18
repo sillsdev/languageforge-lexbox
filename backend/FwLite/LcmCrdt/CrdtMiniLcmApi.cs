@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using FluentValidation;
+using Gridify;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -9,19 +10,27 @@ using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using MiniLcm.Culture;
+using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, IMiniLcmCultureProvider cultureProvider, MiniLcmValidators validators) : IMiniLcmApi
+public class CrdtMiniLcmApi(
+    DataModel dataModel,
+    CurrentProjectService projectService,
+    IMiniLcmCultureProvider cultureProvider,
+    MiniLcmValidators validators,
+    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
+    private LcmCrdtConfig LcmConfig => config.Value;
 
     private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
     private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
@@ -355,7 +364,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
-        //todo filter on exemplar options and limit results, and sort
         var queryable = Entries;
         if (predicate is not null) queryable = queryable.Where(predicate);
         if (options.Exemplar is not null)
@@ -364,6 +372,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             if (ws is null)
                 throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
             queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
+        }
+
+        if (options.Filter?.GridifyFilter != null)
+        {
+            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
         }
 
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));

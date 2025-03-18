@@ -99,7 +99,7 @@
 
 </script>
 
-<AppBar title={$t`Dictionaries`} class="bg-secondary min-h-12 shadow-md justify-between" menuIcon={null}>
+<AppBar title={$t`Dictionaries`} class="bg-primary/25 min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
     <picture>
       <source srcset={logoLight} media="(prefers-color-scheme: dark)" />

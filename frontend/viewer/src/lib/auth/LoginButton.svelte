@@ -14,11 +14,12 @@
 </script>
 
 <script lang="ts">
-    import {mdiAccountCircle, mdiLogin, mdiLogout} from '@mdi/js';
-    import {Button, Menu, MenuItem, Toggle} from 'svelte-ux';
+    import {mdiLogout} from '@mdi/js';
+    import {Menu, MenuItem, Toggle} from 'svelte-ux';
     import type {ILexboxServer} from '$lib/dotnet-types';
     import {useAuthService} from '$lib/services/service-provider';
     import {createEventDispatcher} from 'svelte';
+    import {Button} from '$lib/components/ui/button';
 
     const authService = useAuthService();
     const shouldUseSystemWebView = useSystemWebView(authService);
@@ -53,7 +54,7 @@
 
 {#if status.loggedIn}
     <Toggle let:on={open} let:toggle let:toggleOff>
-      <Button on:click={toggle} {loading} variant="fill" color="primary" icon={mdiAccountCircle}>
+      <Button onclick={toggle} {loading} icon="i-mdi-account-circle">
         {status.loggedInAs}
         <Menu {open} on:close={toggleOff} placement="bottom-end">
           <MenuItem icon={mdiLogout} on:click={() => logout(server)}>{$t`Logout`}</MenuItem>
@@ -63,18 +64,16 @@
 {:else}
     {#if $shouldUseSystemWebView}
         <Button {loading}
-                variant="fill-light"
-                color="primary"
-                on:click={() => login(server)}
-                icon={mdiLogin}>
+                variant="secondary"
+                onclick={() => login(server)}
+                icon="i-mdi-login">
           {$t`Login to see projects`}
         </Button>
     {:else}
         <Button {loading}
-                variant="fill-light"
-                color="primary"
+                variant="secondary"
                 href="/api/auth/login/{server.id}"
-                icon={mdiLogin}>
+                icon="i-mdi-login">
           {$t`Login to see projects`}
         </Button>
     {/if}
