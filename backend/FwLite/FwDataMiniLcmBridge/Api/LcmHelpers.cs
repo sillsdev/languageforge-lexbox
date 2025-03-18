@@ -117,4 +117,9 @@ internal static class LcmHelpers
         var wsHandle = obj.Cache.GetWritingSystemHandle(ws);
         return multiString.get_String(wsHandle)?.Text ?? null;
     }
+
+    internal static IMoStemAllomorph CreateLexemeForm(this LcmCache cache)
+    {
+        return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+    }
 }

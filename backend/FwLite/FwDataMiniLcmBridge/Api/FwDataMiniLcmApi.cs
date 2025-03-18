@@ -134,8 +134,10 @@ public class FwDataMiniLcmApi(
 
         foreach (var entry in EntriesRepository.AllInstances())
         {
-            LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
-            LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
+            if (entry.CitationForm is not null)
+                LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
+            if (entry.LexemeFormOA is {Form: not null })
+                LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
         }
 
         foreach (var ws in wsExemplars.Keys)
@@ -528,7 +530,7 @@ public class FwDataMiniLcmApi(
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
                 Senses = entry.AllSenses.Select(FromLexSense).ToList(),
@@ -556,7 +558,7 @@ public class FwDataMiniLcmApi(
         {
             return new Entry()
             {
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
             }.Headword();
         }
@@ -661,8 +663,9 @@ public class FwDataMiniLcmApi(
         };
     }
 
-    private MultiString FromLcmMultiString(ITsMultiString multiString)
+    private MultiString FromLcmMultiString(ITsMultiString? multiString)
     {
+        if (multiString is null) return new MultiString();
         var result = new MultiString(multiString.StringCount);
         for (var i = 0; i < multiString.StringCount; i++)
         {
@@ -749,7 +752,7 @@ public class FwDataMiniLcmApi(
                 {
                     var lexEntry = LexEntryFactory.Create(entry.Id,
                         Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-                    lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+                    lexEntry.LexemeFormOA = Cache.CreateLexemeForm();
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);

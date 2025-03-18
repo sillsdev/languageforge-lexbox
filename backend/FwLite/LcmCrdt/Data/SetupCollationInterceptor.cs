@@ -12,15 +12,20 @@ namespace LcmCrdt.Data;
 
 public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider) : IDbConnectionInterceptor, ISaveChangesInterceptor
 {
+    private static string? WsTableName = null;
     private WritingSystem[] GetWritingSystems(LcmCrdtDbContext dbContext, DbConnection connection)
     {
-        //todo this needs to be invalidated when the writing systems change
         return cache.GetOrCreate(CacheKey(connection),
             entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 try
                 {
+                    WsTableName ??= dbContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
+                    if (!HasTable(dbContext, WsTableName))
+                    {
+                        return [];
+                    }
 
                     return dbContext.WritingSystems.ToArray();
                 }
@@ -29,6 +34,13 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                     return [];
                 }
             }) ?? [];
+    }
+
+    private bool HasTable(DbContext context, string tableName)
+    {
+        if (!context.Database.IsSqlite()) throw new InvalidOperationException($"HasTable only works with sqlite, update it to support {context.Database.ProviderName}");
+        var result = context.Database.SqlQuery<int>($"SELECT 1 FROM sqlite_master WHERE type='table' AND name={tableName}").ToArray();
+        return result.Length > 0 && result[0] > 0;
     }
 
     private static string CacheKey(DbConnection connection)
