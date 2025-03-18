@@ -4,7 +4,7 @@
   import {Label} from '$lib/components/ui/label/index.js';
   import type {WithChildren} from 'bits-ui';
   import {Icon} from '$lib/components/ui/icon';
-  import {setMode, mode, theme, setTheme} from 'mode-watcher';
+  import {setMode, mode, userPrefersMode, resetMode, theme, setTheme} from 'mode-watcher';
   import {cn} from '$lib/utils';
   const { children, button = {} } = $props<WithChildren<{button?: ButtonProps}>>();
 
@@ -66,7 +66,7 @@
             variant="outline"
             size="sm"
             onclick={() => setMode('light')}
-            class={cn($mode === 'light' && 'border-primary border-2')}
+            class={cn($userPrefersMode === 'light' && 'border-primary border-2')}
             icon="i-mdi-white-balance-sunny"
           >
             Light
@@ -75,10 +75,19 @@
             variant="outline"
             size="sm"
             onclick={() => setMode('dark')}
-            class={cn($mode === 'dark' && 'border-primary border-2')}
+            class={cn($userPrefersMode === 'dark' && 'border-primary border-2')}
             icon="i-mdi-weather-night"
           >
             Dark
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onclick={() => resetMode()}
+            class={cn($userPrefersMode === 'system' && 'border-primary border-2')}
+            icon="i-mdi-laptop"
+          >
+            System
           </Button>
         </div>
       </div>
