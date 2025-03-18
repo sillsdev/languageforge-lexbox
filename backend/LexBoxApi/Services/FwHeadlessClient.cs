@@ -50,4 +50,17 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             await response.Content.ReadAsStringAsync());
         return null;
     }
+
+    public async Task<bool> DeleteRepo(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.DeleteAsync($"/api/manage/repo/{projectId}", cancellationToken);
+        if (response.IsSuccessStatusCode)
+            return true;
+        logger.LogError("Failed to delete repo: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
+    }
 }

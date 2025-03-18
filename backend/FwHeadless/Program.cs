@@ -77,6 +77,23 @@ app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 
+// DELETE endpoint to remove a project if it exists
+app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectLookupService projectLookupService, IOptions<FwHeadlessConfig> config) =>
+{
+    var projectCode = await projectLookupService.GetProjectCode(projectId);
+    if (projectCode is null)
+    {
+        return Results.Ok(new { message = "Project not found" });
+    }
+    // Delete associated project folder if it exists
+    var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
+    if (Directory.Exists(fwDataProject.ProjectFolder))
+    {
+        Directory.Delete(fwDataProject.ProjectFolder, true);
+    }
+    return Results.Ok(new { message = "Repo deleted" });
+});
+
 app.Run();
 
 static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(

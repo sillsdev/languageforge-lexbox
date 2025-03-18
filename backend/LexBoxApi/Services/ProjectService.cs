@@ -17,7 +17,13 @@ using Path = System.IO.Path; // Resolves ambiguous reference with HotChocolate.P
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService)
+public class ProjectService(
+    LexBoxDbContext dbContext,
+    IHgService hgService,
+    IOptions<HgConfig> hgConfig,
+    IMemoryCache memoryCache,
+    IEmailService emailService,
+    FwHeadlessClient fwHeadless)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -162,6 +168,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
         await ResetLexEntryCount(input.Code);
         await hgService.ResetRepo(input.Code);
+        await fwHeadless.DeleteRepo(await LookupProjectId(input.Code));
     }
 
     public async Task FinishReset(string code, Stream? zipFile = null)
