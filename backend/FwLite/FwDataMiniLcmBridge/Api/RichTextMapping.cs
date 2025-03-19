@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using MiniLcm.Models;
+using Mono.Unix.Native;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
 using SIL.LCModel.Utils;
@@ -133,7 +134,15 @@ public static class RichTextMapping
             if (IntProps.Contains(propType))
             {
                 MapToDelegateInt(propType).Invoke(span) = value;
+                //these types have values mapped from variation to unit
+                if (propType is FwTextPropType.ktptFontSize or FwTextPropType.ktptOffset or FwTextPropType.ktptLineHeight)
+                {
+                    SetFromInt(span, textProps, propType, wsIdLookup);
+                }
+                continue;
             }
+
+            SetFromInt(span, textProps, propType, wsIdLookup);
         }
 
         for (int i = 0; i < textProps.StrPropCount; i++)
@@ -143,29 +152,154 @@ public static class RichTextMapping
             if (StringProps.Contains(propType))
             {
                 MapToDelegateString(propType).Invoke(span) = value;
+                continue;
+            }
+
+            if (propType == FwTextPropType.ktptTags)
+            {
+                span.Tags = GetNullableRichTextTags(textProps);
+                continue;
+            }
+
+            if (propType == FwTextPropType.ktptObjData)
+            {
+                span.ObjData = GetRichObjectData(textProps);
+                continue;
+            }
+
+            throw new ArgumentException($"property type {propType} is not a string");
+        }
+    }
+
+    private static void SetFromInt(RichSpan span, ITsTextProps textProps, FwTextPropType type, Func<int?, WritingSystemId?> wsIdLookup)
+    {
+        switch (type)
+        {
+            case FwTextPropType.ktptWs:
+                span.Ws = wsIdLookup(GetNullableIntProp(textProps, type));
+                break;
+            case FwTextPropType.ktptBaseWs:
+                span.WsBase = wsIdLookup(GetNullableIntProp(textProps, type));
+                break;
+            case FwTextPropType.ktptItalic:
+                span.Italic = GetNullableToggleProp(textProps, type);
+                break;
+            case FwTextPropType.ktptBold:
+                span.Bold = GetNullableToggleProp(textProps, type);
+                break;
+            case FwTextPropType.ktptSuperscript:
+                span.Superscript = GetNullableSuperscriptProp(textProps);
+                break;
+            case FwTextPropType.ktptUnderline:
+                span.Underline = GetNullableUnderlineProp(textProps);
+                break;
+            case FwTextPropType.ktptForeColor:
+                span.ForeColor = GetNullableColorProp(textProps, type);
+                break;
+            case FwTextPropType.ktptBackColor:
+                span.BackColor = GetNullableColorProp(textProps, type);
+                break;
+            case FwTextPropType.ktptUnderColor:
+                span.UnderColor = GetNullableColorProp(textProps, type);
+                break;
+            case FwTextPropType.ktptParaColor:
+                span.ParaColor = GetNullableColorProp(textProps, type);
+                break;
+            case FwTextPropType.ktptAlign:
+                span.Align = GetNullableRichTextAlign(textProps);
+                break;
+            case FwTextPropType.ktptSpellCheck:
+                span.SpellCheck = GetNullableRichTextSpellCheck(textProps, type);
+                break;
+            case FwTextPropType.ktptBorderColor:
+                span.BorderColor = GetNullableColorProp(textProps, type);
+                break;
+            case FwTextPropType.ktptEditable:
+                span.Editable = GetNullableRichTextEditable(textProps);
+                break;
+            case FwTextPropType.ktptFontSize:
+                span.FontSizeUnit = GetNullableSizeUnit(textProps, type);
+                break;
+            case FwTextPropType.ktptOffset:
+                span.OffsetUnit = GetNullableSizeUnit(textProps, type);
+                break;
+            case FwTextPropType.ktptLineHeight:
+                span.LineHeightUnit = GetNullableSizeUnit(textProps, type);
+                break;
+            default:
+                throw new ArgumentException($"property type {type} is not an integer");
+        }
+    }
+
+    public static void WriteToTextProps(RichSpan span,
+        ITsPropsBldr builder,
+        Func<WritingSystemId, int> wsHandleLookup)
+    {
+        foreach (var propType in IntProps)
+        {
+            var prop = MapToDelegateInt(propType).Invoke(span);
+            if (prop is not null)
+            {
+                //todo set default based on propType
+                builder.SetIntPropValues((int)propType, (int)FwTextPropVar.ktpvDefault, prop.Value);
             }
         }
 
-        span.Ws = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptWs));
-        span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
-        span.Italic = GetNullableToggleProp(textProps, FwTextPropType.ktptItalic);
-        span.Bold = GetNullableToggleProp(textProps, FwTextPropType.ktptBold);
-        span.Superscript = GetNullableSuperscriptProp(textProps);
-        span.Underline = GetNullableUnderlineProp(textProps);
-        span.ForeColor = GetNullableColorProp(textProps, FwTextPropType.ktptForeColor);
-        span.BackColor = GetNullableColorProp(textProps, FwTextPropType.ktptBackColor);
-        span.UnderColor = GetNullableColorProp(textProps, FwTextPropType.ktptUnderColor);
-        span.ParaColor = GetNullableColorProp(textProps, FwTextPropType.ktptParaColor);
-        span.Align = GetNullableRichTextAlign(textProps);
-        span.SpellCheck = GetNullableRichTextSpellCheck(textProps, FwTextPropType.ktptSpellCheck);
-        span.Tags = GetNullableRichTextTags(textProps);
-        span.ObjData = GetRichObjectData(textProps);
-        span.BorderColor = GetNullableColorProp(textProps, FwTextPropType.ktptBorderColor);
-        span.Editable = GetNullableRichTextEditable(textProps);
-        span.FontSizeUnit = GetNullableSizeUnit(textProps, FwTextPropType.ktptFontSize);
-        span.OffsetUnit = GetNullableSizeUnit(textProps, FwTextPropType.ktptOffset);
-        span.LineHeightUnit = GetNullableSizeUnit(textProps, FwTextPropType.ktptLineHeight);
+        foreach (var propType in StringProps)
+        {
+            var prop = MapToDelegateString(propType).Invoke(span);
+            if (prop is not null)
+            {
+                builder.SetStrPropValue((int)propType, prop);
+            }
+        }
+
+        if (span.Ws is not null)
+            SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws.Value));
+        if (span.WsBase is not null)
+            SetInt(builder, FwTextPropType.ktptBaseWs, wsHandleLookup(span.WsBase.Value));
+        SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));
+        SetInt(builder, FwTextPropType.ktptBold, ReverseMapToggle(span.Bold));
+        SetInt(builder, FwTextPropType.ktptSuperscript, ReverseSuperscript(span.Superscript));
+        SetInt(builder, FwTextPropType.ktptUnderline, ReverseUnderline(span.Underline));
+        SetInt(builder, FwTextPropType.ktptForeColor, ReverseColor(span.ForeColor));
+        SetInt(builder, FwTextPropType.ktptBackColor, ReverseColor(span.BackColor));
+        SetInt(builder, FwTextPropType.ktptUnderColor, ReverseColor(span.UnderColor));
+        SetInt(builder, FwTextPropType.ktptParaColor, ReverseColor(span.ParaColor));
+        SetInt(builder, FwTextPropType.ktptBorderColor, ReverseColor(span.BorderColor));
+        SetInt(builder, FwTextPropType.ktptAlign, ReverseAlign(span.Align));
+        SetInt(builder, FwTextPropType.ktptSpellCheck, ReverseSpellCheck(span.SpellCheck));
+
+
+        SetInt(builder, FwTextPropType.ktptFontSize, span.FontSize, ReverseSizeUnit(span.FontSizeUnit));
+        SetInt(builder, FwTextPropType.ktptOffset, span.Offset, ReverseSizeUnit(span.OffsetUnit));
+        SetInt(builder, FwTextPropType.ktptLineHeight, span.LineHeight, ReverseSizeUnit(span.LineHeightUnit));
+        SetInt(builder, FwTextPropType.ktptEditable, ReverseEditable(span.Editable));
+
+        if (span.Tags is not null)
+        {
+            builder.SetStrPropValue((int)FwTextPropType.ktptTags, ReverseTags(span.Tags));
+        }
+
+        if (span.ObjData is not null)
+        {
+            builder.SetStrPropValue((int)FwTextPropType.ktptObjData, span.ObjData.RawString);
+        }
     }
+
+    private static void SetInt(ITsPropsBldr builder, FwTextPropType type, int? value, int variation = 0)
+    {
+        if (value is not null)
+            builder.SetIntPropValues((int)type, variation, value.Value);
+    }
+
+    private static int? GetNullableIntProp(ITsTextProps textProps, FwTextPropType type)
+    {
+        if (textProps.TryGetIntValue(type, out _, out var value))
+            return value;
+        return null;
+    }
+
 
     private static RichTextSizeUnit? GetNullableSizeUnit(ITsTextProps textProps, FwTextPropType type)
     {
@@ -267,76 +401,6 @@ public static class RichTextMapping
             _ => (int?)spellCheck
         };
     }
-
-    public static void WriteToTextProps(RichSpan span,
-        ITsPropsBldr builder,
-        Func<WritingSystemId, int> wsHandleLookup)
-    {
-        foreach (var propType in IntProps)
-        {
-            var prop = MapToDelegateInt(propType).Invoke(span);
-            if (prop is not null)
-            {
-                //todo set default based on propType
-                builder.SetIntPropValues((int)propType, (int)FwTextPropVar.ktpvDefault, prop.Value);
-            }
-        }
-
-        foreach (var propType in StringProps)
-        {
-            var prop = MapToDelegateString(propType).Invoke(span);
-            if (prop is not null)
-            {
-                builder.SetStrPropValue((int)propType, prop);
-            }
-        }
-
-        if (span.Ws is not null)
-            SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws.Value));
-        if (span.WsBase is not null)
-            SetInt(builder, FwTextPropType.ktptBaseWs, wsHandleLookup(span.WsBase.Value));
-        SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));
-        SetInt(builder, FwTextPropType.ktptBold, ReverseMapToggle(span.Bold));
-        SetInt(builder, FwTextPropType.ktptSuperscript, ReverseSuperscript(span.Superscript));
-        SetInt(builder, FwTextPropType.ktptUnderline, ReverseUnderline(span.Underline));
-        SetInt(builder, FwTextPropType.ktptForeColor, ReverseColor(span.ForeColor));
-        SetInt(builder, FwTextPropType.ktptBackColor, ReverseColor(span.BackColor));
-        SetInt(builder, FwTextPropType.ktptUnderColor, ReverseColor(span.UnderColor));
-        SetInt(builder, FwTextPropType.ktptParaColor, ReverseColor(span.ParaColor));
-        SetInt(builder, FwTextPropType.ktptBorderColor, ReverseColor(span.BorderColor));
-        SetInt(builder, FwTextPropType.ktptAlign, ReverseAlign(span.Align));
-        SetInt(builder, FwTextPropType.ktptSpellCheck, ReverseSpellCheck(span.SpellCheck));
-
-
-        SetInt(builder, FwTextPropType.ktptFontSize, span.FontSize, ReverseSizeUnit(span.FontSizeUnit));
-        SetInt(builder, FwTextPropType.ktptOffset, span.Offset, ReverseSizeUnit(span.OffsetUnit));
-        SetInt(builder, FwTextPropType.ktptLineHeight, span.LineHeight, ReverseSizeUnit(span.LineHeightUnit));
-        SetInt(builder, FwTextPropType.ktptEditable, ReverseEditable(span.Editable));
-
-        if (span.Tags is not null)
-        {
-            builder.SetStrPropValue((int)FwTextPropType.ktptTags, ReverseTags(span.Tags));
-        }
-
-        if (span.ObjData is not null)
-        {
-            builder.SetStrPropValue((int)FwTextPropType.ktptObjData, span.ObjData.RawString);
-        }
-    }
-
-    private static void SetInt(ITsPropsBldr builder, FwTextPropType type, int? value, int variation = 0)
-    {
-        if (value is not null)
-            builder.SetIntPropValues((int)type, variation, value.Value);
-    }
-
-    private static int? GetNullableIntProp(ITsTextProps textProps, FwTextPropType type)
-    {
-        if (textProps.TryGetIntValue(type, out _, out var value))
-            return value;
-        return null;
-    }
-
     private static RichTextToggle? GetNullableToggleProp(ITsTextProps textProps, FwTextPropType type)
     {
         if (textProps.TryGetIntValue(type, out _, out var value))

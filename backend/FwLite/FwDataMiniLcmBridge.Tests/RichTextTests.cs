@@ -52,6 +52,26 @@ public class RichTextTests(ITestOutputHelper output)
         textProps.GetIntPropValues((int)FwTextPropType.ktptBaseWs, out _).Should().Be(FakeWsHandleFr);
     }
 
+    [Fact]
+    public void MappingInvalidIntPropTypeThrows()
+    {
+        var builder = MakeFilledProps();
+        builder.SetIntPropValues(35462, 0, 0);
+        var span = new RichSpan(){Text = "test"};
+        var act = () => RichTextMapping.WriteToSpan(span, builder.GetTextProps(), WsIdLookup);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void MappingInvalidStringPropTypeThrows()
+    {
+        var builder = MakeFilledProps();
+        builder.SetStrPropValue(35462, "test");
+        var span = new RichSpan(){Text = "test"};
+        var act = () => RichTextMapping.WriteToSpan(span, builder.GetTextProps(), WsIdLookup);
+        act.Should().Throw<ArgumentException>();
+    }
+
     private int WsHandleLookup(WritingSystemId ws)
     {
         return ws.Code switch
