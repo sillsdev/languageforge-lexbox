@@ -30,14 +30,6 @@
   function handleProjectSelect(selectedProjectName: string) {
     console.log('selectedProjectName', selectedProjectName);
   }
-  let greenTheme = $state(false);
-  $effect(() => {
-    if (greenTheme) {
-      document.documentElement.classList.add('theme-green');
-    } else {
-      document.documentElement.classList.remove('theme-green');
-    }
-  });
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -77,14 +69,6 @@
             {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           </Sidebar.MenuSub>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => {
-            greenTheme = !greenTheme;
-            console.log('greenTheme', greenTheme);
-          }}>
-            <span>{$t`Theme Green`}</span>
-          </Sidebar.MenuButton>
         </Sidebar.MenuItem>
       </Sidebar.Menu>
     </Sidebar.Group>
