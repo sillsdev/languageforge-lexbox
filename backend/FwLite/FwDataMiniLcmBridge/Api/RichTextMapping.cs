@@ -150,13 +150,13 @@ public static class RichTextMapping
         span.WsBase = wsIdLookup(GetNullableIntProp(textProps, FwTextPropType.ktptBaseWs));
         span.Italic = GetNullableToggleProp(textProps, FwTextPropType.ktptItalic);
         span.Bold = GetNullableToggleProp(textProps, FwTextPropType.ktptBold);
-        span.Superscript = GetNullableSuperscriptProp(textProps, FwTextPropType.ktptSuperscript);
-        span.Underline = GetNullableUnderlineProp(textProps, FwTextPropType.ktptUnderline);
+        span.Superscript = GetNullableSuperscriptProp(textProps);
+        span.Underline = GetNullableUnderlineProp(textProps);
         span.ForeColor = GetNullableColorProp(textProps, FwTextPropType.ktptForeColor);
         span.BackColor = GetNullableColorProp(textProps, FwTextPropType.ktptBackColor);
         span.UnderColor = GetNullableColorProp(textProps, FwTextPropType.ktptUnderColor);
         span.ParaColor = GetNullableColorProp(textProps, FwTextPropType.ktptParaColor);
-        span.Align = GetNullableRichTextAlign(textProps, FwTextPropType.ktptAlign);
+        span.Align = GetNullableRichTextAlign(textProps);
         span.SpellCheck = GetNullableRichTextSpellCheck(textProps, FwTextPropType.ktptSpellCheck);
         span.Tags = GetNullableRichTextTags(textProps);
         span.ObjData = GetRichObjectData(textProps);
@@ -292,9 +292,9 @@ public static class RichTextMapping
         }
 
         if (span.Ws is not null)
-            builder.SetIntPropValues((int)FwTextPropType.ktptWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.Ws.Value));
+            SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws.Value));
         if (span.WsBase is not null)
-            builder.SetIntPropValues((int)FwTextPropType.ktptBaseWs, (int)FwTextPropVar.ktpvDefault, wsHandleLookup(span.WsBase.Value));
+            SetInt(builder, FwTextPropType.ktptBaseWs, wsHandleLookup(span.WsBase.Value));
         SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));
         SetInt(builder, FwTextPropType.ktptBold, ReverseMapToggle(span.Bold));
         SetInt(builder, FwTextPropType.ktptSuperscript, ReverseSuperscript(span.Superscript));
@@ -362,9 +362,9 @@ public static class RichTextMapping
         };
     }
 
-    private static RichTextSuperscript? GetNullableSuperscriptProp(ITsTextProps textProps, FwTextPropType type)
+    private static RichTextSuperscript? GetNullableSuperscriptProp(ITsTextProps textProps)
     {
-        if (textProps.TryGetIntValue(type, out _, out var value))
+        if (textProps.TryGetIntValue(FwTextPropType.ktptSuperscript, out _, out var value))
             return value switch
             {
                 (int)FwSuperscriptVal.kssvOff => RichTextSuperscript.None,
@@ -387,9 +387,9 @@ public static class RichTextMapping
         };
     }
 
-    private static RichTextUnderline? GetNullableUnderlineProp(ITsTextProps textProps, FwTextPropType type)
+    private static RichTextUnderline? GetNullableUnderlineProp(ITsTextProps textProps)
     {
-        if (textProps.TryGetIntValue(type, out _, out var value))
+        if (textProps.TryGetIntValue(FwTextPropType.ktptUnderline, out _, out var value))
             return value switch
             {
                 (int)FwUnderlineType.kuntNone => RichTextUnderline.None,
@@ -442,9 +442,9 @@ public static class RichTextMapping
         return (int)ColorUtil.ConvertRGBtoBGR(uint.Parse(rgb.AsSpan()[1..], NumberStyles.HexNumber));
     }
 
-    private static RichTextAlign? GetNullableRichTextAlign(ITsTextProps textProps, FwTextPropType type)
+    private static RichTextAlign? GetNullableRichTextAlign(ITsTextProps textProps)
     {
-        if (textProps.TryGetIntValue(type, out _, out var value))
+        if (textProps.TryGetIntValue(FwTextPropType.ktptAlign, out _, out var value))
         {
             return value switch
             {
