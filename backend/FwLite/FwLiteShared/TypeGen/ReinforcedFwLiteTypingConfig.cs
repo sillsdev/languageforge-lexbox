@@ -54,9 +54,11 @@ public static class ReinforcedFwLiteTypingConfig
     private static void ConfigureMiniLcmTypes(ConfigurationBuilder builder)
     {
         builder.Substitute(typeof(WritingSystemId), new RtSimpleTypeName("string"));
-        //todo generate a multistring type rather than just substituting it everywhere
         builder.ExportAsThirdParty<MultiString>().WithName("IMultiString").Imports([
             new() { From = "$lib/dotnet-types/i-multi-string", Target = "type {IMultiString}" }
+        ]);
+        builder.ExportAsThirdParty<RichMultiString>().WithName("IRichMultiString").Imports([
+            new() { From = "$lib/dotnet-types/i-multi-string", Target = "type {IRichMultiString}" }
         ]);
         var config = new CrdtConfig();
         LcmCrdtKernel.ConfigureCrdt(config);

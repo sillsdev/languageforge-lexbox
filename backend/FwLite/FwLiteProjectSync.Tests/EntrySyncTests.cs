@@ -16,6 +16,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         Overrides =
         [
             new MultiStringOverride(),
+            new RichMultiStringOverride(),
             new ObjectWithIdOverride(),
             new OrderableOverride(),
         ]

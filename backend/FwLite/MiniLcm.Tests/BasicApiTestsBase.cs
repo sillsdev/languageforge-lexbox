@@ -20,10 +20,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             },
             Note =
             {
-                Values =
-                {
-                    { "en", "this is a test note from Kevin" }
-                }
+                { "en", "this is a test note from Kevin" }
             },
             CitationForm =
             {
@@ -34,10 +31,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             },
             LiteralMeaning =
             {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
+                { "en", "Kevin" }
             },
             Senses =
             [
@@ -52,10 +46,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                     },
                     Definition =
                     {
-                        Values =
-                        {
-                            { "en", "Kevin" }
-                        }
+                        { "en", "Kevin" }
                     },
                     ExampleSentences =
                     [
@@ -63,10 +54,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                         {
                             Sentence =
                             {
-                                Values =
-                                {
-                                    { "en", "Kevin is a good guy" }
-                                }
+                                { "en", "Kevin is a good guy" }
                             }
                         }
                     ]
@@ -93,10 +81,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                     },
                     Definition =
                     {
-                        Values =
-                        {
-                            { "en", "a round fruit, red or yellow" }
-                        }
+                        { "en", "a round fruit, red or yellow" }
                     },
                 }
             ],
@@ -200,10 +185,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             },
             Note =
             {
-                Values =
-                {
-                    { "en", "this is a test note from Kevin" }
-                }
+                { "en", "this is a test note from Kevin" }
             },
             CitationForm =
             {
@@ -214,10 +196,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             },
             LiteralMeaning =
             {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
+                { "en", "Kevin" }
             },
             Senses =
             [
@@ -232,10 +211,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                     },
                     Definition =
                     {
-                        Values =
-                        {
-                            { "en", "Kevin" }
-                        }
+                        { "en", "Kevin" }
                     },
                     ExampleSentences =
                     [
@@ -243,10 +219,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                         {
                             Sentence =
                             {
-                                Values =
-                                {
-                                    { "en", "Kevin is a good guy" }
-                                }
+                                { "en", "Kevin is a good guy" }
                             }
                         }
                     ]
@@ -255,14 +228,14 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         });
         entry.Should().NotBeNull();
         entry.LexemeForm.Values["en"].Should().Be("Kevin");
-        entry.LiteralMeaning.Values["en"].Should().Be("Kevin");
-        entry.CitationForm.Values["en"].Should().Be("Kevin");
-        entry.Note.Values["en"].Should().Be("this is a test note from Kevin");
+        entry.LiteralMeaning["en"].Should().Be("Kevin");
+        entry.CitationForm["en"].Should().Be("Kevin");
+        entry.Note["en"].Should().Be("this is a test note from Kevin");
         var sense = entry.Senses.Should().ContainSingle().Subject;
         sense.Gloss.Values["en"].Should().Be("Kevin");
-        sense.Definition.Values["en"].Should().Be("Kevin");
+        sense.Definition["en"].Should().Be("Kevin");
         var example = sense.ExampleSentences.Should().ContainSingle().Subject;
-        example.Sentence.Values["en"].Should().Be("Kevin is a good guy");
+        example.Sentence["en"].Should().Be("Kevin is a good guy");
     }
 
     [Fact]
@@ -291,7 +264,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var updatedEntry = await Api.UpdateEntry(entry.Id,
             new UpdateObjectInput<Entry>()
                 .Set(e => e.Note["en"], "updated"));
-        updatedEntry.Note.Values["en"].Should().Be("updated");
+        updatedEntry.Note["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -310,12 +283,9 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
                             { "en", "test" }
-                        }
                     }
                 }
             }
@@ -324,7 +294,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
                 .Set(e => e.Definition["en"], "updated"));
-        updatedSense.Definition.Values["en"].Should().Be("updated");
+        updatedSense.Definition["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -401,12 +371,9 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     }
                 }
             }
@@ -440,7 +407,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 {
                     SemanticDomains =
                         [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
-                    Definition = new MultiString { Values = { { "en", "test" } } }
+                    Definition = new() { { "en", "test" } }
                 }
             ]
         });
@@ -474,12 +441,9 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 new Sense()
                 {
                     SemanticDomains = [newSemanticDomain],
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     }
                 }
             }
@@ -507,23 +471,17 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     },
                     ExampleSentences = new List<ExampleSentence>
                     {
                         new ExampleSentence()
                         {
-                            Sentence = new MultiString
+                            Sentence = new()
                             {
-                                Values =
-                                {
-                                    { "en", "test" }
-                                }
+                                { "en", "test" }
                             }
                         }
                     }
@@ -536,7 +494,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             entry.Senses[0].ExampleSentences[0].Id,
             new UpdateObjectInput<ExampleSentence>()
                 .Set(e => e.Sentence["en"], "updated"));
-        updatedExample.Sentence.Values["en"].Should().Be("updated");
+        updatedExample.Sentence["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -555,30 +513,21 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             {
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     },
                     ExampleSentences = new List<ExampleSentence>
                     {
                         new ExampleSentence()
                         {
-                            Sentence = new MultiString
+                            Sentence = new()
                             {
-                                Values =
-                                {
-                                    { "en", "test" }
-                                }
+                                { "en", "test" }
                             },
                             Translation =
                             {
-                                Values =
-                                {
-                                    { "en", "test" }
-                                }
+                                { "en", "test" }
                             }
                         }
                     }
@@ -591,7 +540,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             entry.Senses[0].ExampleSentences[0].Id,
             new UpdateObjectInput<ExampleSentence>()
                 .Set(e => e.Translation["en"], "updated"));
-        updatedExample.Translation.Values["en"].Should().Be("updated");
+        updatedExample.Translation["en"].Should().Be("updated");
     }
 
     [Fact]
