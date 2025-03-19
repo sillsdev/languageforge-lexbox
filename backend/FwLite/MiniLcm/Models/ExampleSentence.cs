@@ -9,6 +9,7 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
     public double Order { get; set; }
     public virtual RichMultiString Sentence { get; set; } = new();
     public virtual RichMultiString Translation { get; set; } = new();
+    //todo this should be a RichString
     public virtual string? Reference { get; set; } = null;
 
     public Guid SenseId { get; set; }
