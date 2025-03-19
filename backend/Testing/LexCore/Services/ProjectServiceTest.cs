@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
 using FluentAssertions;
+using LexCore.Config;
+using Microsoft.Extensions.Options;
 using Testing.Fixtures;
 
 namespace Testing.LexCore.Services;
@@ -32,19 +34,21 @@ public class ProjectServiceTest
         }
     };
 
-    private LexBoxDbContext _lexBoxDbContext;
+    private readonly LexBoxDbContext _lexBoxDbContext;
 
     public ProjectServiceTest(TestingServicesFixture testing)
     {
-        var serviceProvider = testing.ConfigureServices(s =>
-        {
-            s.AddScoped<IHgService>(_ => Mock.Of<IHgService>(service => service.GetProjectWritingSystems(It.IsAny<ProjectCode>(), It.IsAny<CancellationToken>()) == Task.FromResult(_writingSystems)));
-            s.AddScoped<IEmailService>(_ => Mock.Of<IEmailService>());
-            s.AddSingleton<IMemoryCache>(_ => Mock.Of<IMemoryCache>());
-            s.AddScoped<ProjectService>();
-        });
-        _projectService = serviceProvider.GetRequiredService<ProjectService>();
+        var hgService = Mock.Of<IHgService>(service => service.GetProjectWritingSystems(It.IsAny<ProjectCode>(), It.IsAny<CancellationToken>()) == Task.FromResult(_writingSystems));
+        var serviceProvider = testing.ConfigureServices();
         _lexBoxDbContext = serviceProvider.GetRequiredService<LexBoxDbContext>();
+        _projectService = new ProjectService(
+            _lexBoxDbContext,
+            hgService,
+            serviceProvider.GetRequiredService<IOptions<HgConfig>>(),
+            Mock.Of<IMemoryCache>(),
+            Mock.Of<IEmailService>(),
+            null!
+        );
     }
 
     [Fact]
