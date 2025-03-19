@@ -4,13 +4,13 @@
 //     the code is regenerated.
 
 import type {IObjectWithId} from './IObjectWithId';
-import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
+import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 
 export interface IExampleSentence extends IObjectWithId
 {
 	id: string;
-	sentence: IMultiString;
-	translation: IMultiString;
+	sentence: IRichMultiString;
+	translation: IRichMultiString;
 	reference?: string;
 	senseId: string;
 	deletedAt?: string;

@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 import type {IObjectWithId} from './IObjectWithId';
+import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {IPartOfSpeech} from './IPartOfSpeech';
 import type {ISemanticDomain} from './ISemanticDomain';
@@ -14,7 +15,7 @@ export interface ISense extends IObjectWithId
 	id: string;
 	deletedAt?: string;
 	entryId: string;
-	definition: IMultiString;
+	definition: IRichMultiString;
 	gloss: IMultiString;
 	partOfSpeech?: IPartOfSpeech;
 	partOfSpeechId?: string;

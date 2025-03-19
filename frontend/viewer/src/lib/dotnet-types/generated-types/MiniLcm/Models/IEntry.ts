@@ -5,6 +5,7 @@
 
 import type {IObjectWithId} from './IObjectWithId';
 import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
+import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {ISense} from './ISense';
 import type {IComplexFormComponent} from './IComplexFormComponent';
 import type {IComplexFormType} from './IComplexFormType';
@@ -16,9 +17,9 @@ export interface IEntry extends IObjectWithId
 	deletedAt?: string;
 	lexemeForm: IMultiString;
 	citationForm: IMultiString;
-	literalMeaning: IMultiString;
+	literalMeaning: IRichMultiString;
 	senses: ISense[];
-	note: IMultiString;
+	note: IRichMultiString;
 	components: IComplexFormComponent[];
 	complexForms: IComplexFormComponent[];
 	complexFormTypes: IComplexFormType[];
