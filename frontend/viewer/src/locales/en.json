@@ -6,10 +6,46 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        48
+        54
       ]
     ],
     "translation": "{0} Server"
+  },
+  "AeXO77": {
+    "message": "Account",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        80
+      ]
+    ],
+    "translation": "Account"
+  },
+  "XJOV1Y": {
+    "message": "Activity",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        59
+      ]
+    ],
+    "translation": "Activity"
+  },
+  "O2UpM1": {
+    "message": "Browse",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        57
+      ]
+    ],
+    "translation": "Browse"
   },
   "Q01cKL": {
     "message": "Classic FieldWorks Projects",
@@ -18,10 +54,34 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        204
+        206
       ]
     ],
     "translation": "Classic FieldWorks Projects"
+  },
+  "Iy+nsd": {
+    "message": "Close Dictionary",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        101
+      ]
+    ],
+    "translation": "Close Dictionary"
+  },
+  "x/7uW0": {
+    "message": "Create Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        45
+      ]
+    ],
+    "translation": "Create Entry"
   },
   "0widty": {
     "message": "Create Example Project",
@@ -30,10 +90,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        183
+        185
       ]
     ],
     "translation": "Create Example Project"
+  },
+  "7p5kLi": {
+    "message": "Dashboard",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        56
+      ]
+    ],
+    "translation": "Dashboard"
   },
   "cnGeoo": {
     "message": "Delete",
@@ -42,7 +114,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        159
+        160
       ]
     ],
     "translation": "Delete"
@@ -63,6 +135,18 @@
     ],
     "translation": "Dictionaries"
   },
+  "VrH1k+": {
+    "message": "Dictionary",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        53
+      ]
+    ],
+    "translation": "Dictionary"
+  },
   "mzI/c+": {
     "message": "Download",
     "placeholders": {},
@@ -70,7 +154,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        105
+        112
       ]
     ],
     "translation": "Download"
@@ -80,6 +164,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        113
+      ],
       [
         "src/home/HomeView.svelte",
         113
@@ -94,7 +182,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        209
+        211
       ]
     ],
     "translation": "FieldWorks logo"
@@ -106,7 +194,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        215
+        217
       ]
     ],
     "translation": "Import"
@@ -154,7 +242,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        152
+        153
       ]
     ],
     "translation": "Local only"
@@ -170,7 +258,7 @@
       ],
       [
         "src/lib/auth/LoginButton.svelte",
-        78
+        77
       ]
     ],
     "translation": "Login to see projects"
@@ -182,10 +270,22 @@
     "origin": [
       [
         "src/lib/auth/LoginButton.svelte",
-        59
+        60
       ]
     ],
     "translation": "Logout"
+  },
+  "nK30Fy": {
+    "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        119
+      ]
+    ],
+    "translation": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
   },
   "BWz+2z": {
     "message": "No projects",
@@ -194,7 +294,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        78
+        84
       ]
     ],
     "translation": "No projects"
@@ -206,7 +306,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        191
+        192
       ]
     ],
     "translation": "Project name..."
@@ -218,7 +318,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        56
+        62
       ],
       [
         "src/home/HomeView.svelte",
@@ -227,6 +327,18 @@
     ],
     "translation": "Refresh Projects"
   },
+  "Tz0i8g": {
+    "message": "Settings",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        91
+      ]
+    ],
+    "translation": "Settings"
+  },
   "N2FcBE": {
     "message": "Synced",
     "placeholders": {},
@@ -234,7 +346,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        93
+        99
       ]
     ],
     "translation": "Synced"
@@ -246,10 +358,34 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        152
+        153
       ]
     ],
     "translation": "Synced with {0}"
+  },
+  "UNnBU9": {
+    "message": "Synchronize",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        72
+      ]
+    ],
+    "translation": "Synchronize"
+  },
+  "GtycJ/": {
+    "message": "Tasks",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        58
+      ]
+    ],
+    "translation": "Tasks"
   },
   "/OCqal": {
     "message": "Test Project",
@@ -258,7 +394,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        174
+        175
       ]
     ],
     "translation": "Test Project"
@@ -269,10 +405,26 @@
     "comments": [],
     "origin": [
       [
+        "src/project/ProjectSidebar.svelte",
+        107
+      ],
+      [
         "src/home/HomeView.svelte",
         120
       ]
     ],
     "translation": "Troubleshoot"
+  },
+  "YYdC3A": {
+    "message": "Version {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        118
+      ]
+    ],
+    "translation": "Version {0}"
   }
 }

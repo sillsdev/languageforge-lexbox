@@ -18,6 +18,7 @@
   import {settings} from 'svelte-ux';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
+  import {ModeWatcher} from 'mode-watcher';
 
   export let url = '';
 
@@ -68,7 +69,7 @@
 
   setupGlobalErrorHandlers();
 </script>
-
+<ModeWatcher/>
 <Router {url}>
   <nav>
   </nav>

@@ -6,10 +6,46 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        48
+        54
       ]
     ],
     "translation": "{0} Servidor"
+  },
+  "AeXO77": {
+    "message": "Account",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        80
+      ]
+    ],
+    "translation": "Cuenta"
+  },
+  "XJOV1Y": {
+    "message": "Activity",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        59
+      ]
+    ],
+    "translation": "Actividad"
+  },
+  "O2UpM1": {
+    "message": "Browse",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        57
+      ]
+    ],
+    "translation": "Explorar"
   },
   "Q01cKL": {
     "message": "Classic FieldWorks Projects",
@@ -18,10 +54,34 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        204
+        206
       ]
     ],
     "translation": "Proyectos Clásicos de FieldWorks"
+  },
+  "Iy+nsd": {
+    "message": "Close Dictionary",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        101
+      ]
+    ],
+    "translation": "Cerrar Diccionario"
+  },
+  "x/7uW0": {
+    "message": "Create Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        45
+      ]
+    ],
+    "translation": "Crear Entrada"
   },
   "0widty": {
     "message": "Create Example Project",
@@ -30,10 +90,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        183
+        185
       ]
     ],
     "translation": "Crear Proyecto de Ejemplo"
+  },
+  "7p5kLi": {
+    "message": "Dashboard",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        56
+      ]
+    ],
+    "translation": "Panel de Control"
   },
   "cnGeoo": {
     "message": "Delete",
@@ -42,7 +114,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        159
+        160
       ]
     ],
     "translation": "Eliminar"
@@ -63,6 +135,18 @@
     ],
     "translation": "Diccionarios"
   },
+  "VrH1k+": {
+    "message": "Dictionary",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        53
+      ]
+    ],
+    "translation": "Diccionario"
+  },
   "mzI/c+": {
     "message": "Download",
     "placeholders": {},
@@ -70,7 +154,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        105
+        112
       ]
     ],
     "translation": "Descargar"
@@ -80,6 +164,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        113
+      ],
       [
         "src/home/HomeView.svelte",
         113
@@ -94,7 +182,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        209
+        211
       ]
     ],
     "translation": "Logotipo de FieldWorks"
@@ -106,7 +194,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        215
+        217
       ]
     ],
     "translation": "Importar"
@@ -154,7 +242,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        152
+        153
       ]
     ],
     "translation": "Solo local"
@@ -170,7 +258,7 @@
       ],
       [
         "src/lib/auth/LoginButton.svelte",
-        78
+        77
       ]
     ],
     "translation": "Inicie sesión para ver proyectos"
@@ -182,10 +270,22 @@
     "origin": [
       [
         "src/lib/auth/LoginButton.svelte",
-        59
+        60
       ]
     ],
     "translation": "Cerrar sesión"
+  },
+  "nK30Fy": {
+    "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        119
+      ]
+    ],
+    "translation": "Hecho con ❤️ desde 🇦🇹 🇹🇭 🇺🇸"
   },
   "BWz+2z": {
     "message": "No projects",
@@ -194,7 +294,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        78
+        84
       ]
     ],
     "translation": "Ningún proyecto"
@@ -206,7 +306,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        191
+        192
       ]
     ],
     "translation": "Nombre del proyecto..."
@@ -218,7 +318,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        56
+        62
       ],
       [
         "src/home/HomeView.svelte",
@@ -227,6 +327,18 @@
     ],
     "translation": "Actualizar Proyectos"
   },
+  "Tz0i8g": {
+    "message": "Settings",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        91
+      ]
+    ],
+    "translation": "Configuración"
+  },
   "N2FcBE": {
     "message": "Synced",
     "placeholders": {},
@@ -234,7 +346,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        93
+        99
       ]
     ],
     "translation": "Sincronizado"
@@ -246,10 +358,34 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        152
+        153
       ]
     ],
     "translation": "Sincronizado con {0}"
+  },
+  "UNnBU9": {
+    "message": "Synchronize",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        72
+      ]
+    ],
+    "translation": "Sincronizar"
+  },
+  "GtycJ/": {
+    "message": "Tasks",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        58
+      ]
+    ],
+    "translation": "Tareas"
   },
   "/OCqal": {
     "message": "Test Project",
@@ -258,7 +394,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        174
+        175
       ]
     ],
     "translation": "Proyecto de Prueba"
@@ -269,10 +405,26 @@
     "comments": [],
     "origin": [
       [
+        "src/project/ProjectSidebar.svelte",
+        107
+      ],
+      [
         "src/home/HomeView.svelte",
         120
       ]
     ],
     "translation": "Solucionar problemas"
+  },
+  "YYdC3A": {
+    "message": "Version {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        118
+      ]
+    ],
+    "translation": "Versión {0}"
   }
 }

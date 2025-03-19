@@ -13,6 +13,11 @@
 </script>
 
 <script lang="ts">
+  import * as Sidebar from '$lib/components/ui/sidebar';
+  import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
+  import BrowseView from './project/browse/BrowseView.svelte';
+  import TasksView from './project/tasks/TasksView.svelte';
+
   const {
     onloaded,
     projectName,
@@ -26,10 +31,26 @@
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
+  let currentView: View = $state('browse');
 
   onMount(() => {
     onloaded(true);
   });
+
 </script>
 
-Shadcn project view: {projectName}
+<div class="h-screen flex">
+  <Sidebar.Provider>
+      <ProjectSidebar {projectName} bind:currentView />
+      <Sidebar.Inset class="flex-1">
+        <div class="p-4">
+          <Sidebar.Trigger/>
+          {#if currentView === 'browse'}
+            <BrowseView />
+          {:else if currentView === 'tasks'}
+            <TasksView />
+          {/if}
+        </div>
+      </Sidebar.Inset>
+  </Sidebar.Provider>
+</div>
