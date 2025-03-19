@@ -5,6 +5,7 @@
   import { Icon } from '$lib/components/ui/icon';
   import { cn } from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
+  import {tick} from 'svelte';
 
   let { projectName, onSelect } = $props<{
     projectName: string;
@@ -22,6 +23,7 @@
 
   let open = $state(false);
   let loading = $state(false);
+  let triggerRef = $state<HTMLButtonElement>(null!);
 
   // Simulate loading delay
   function handleOpen(isOpen: boolean) {
@@ -37,26 +39,42 @@
   function handleSelect(project: { id: string; name: string }) {
     onSelect(project.name);
     open = false;
+    closeAndFocusTrigger();
+  }
+
+  // We want to refocus the trigger button when the user selects
+  // an item from the list so users can continue navigating the
+  // rest of the form with the keyboard.
+  function closeAndFocusTrigger() {
+    open = false;
+    void tick().then(() => {
+      triggerRef.focus();
+    });
   }
 </script>
 
 <Popover.Root bind:open onOpenChange={handleOpen}>
-  <Popover.Trigger>
-    <Button
-      variant="ghost"
-      role="combobox"
-      aria-expanded={open}
-      class="w-full justify-between"
-    >
-      <div class="flex items-center gap-2">
-        <Icon icon="i-mdi-book" class="size-4" />
-        {projectName}
-      </div>
-      <Icon
-        icon="i-mdi-chevron-down"
-        class={cn('ml-2 size-4 shrink-0 opacity-50', open && 'rotate-180')}
-      />
-    </Button>
+  <Popover.Trigger bind:ref={triggerRef}>
+    {#snippet child({ props })}
+      <Button
+        variant="ghost"
+        role="combobox"
+        aria-expanded={open}
+        class="w-full justify-between overflow-hidden gap-0"
+        {...props}
+      >
+        <div class="flex items-center gap-2 overflow-hidden">
+          <Icon icon="i-mdi-book" class="size-4" />
+          <span class="x-ellipsis">
+            {projectName}
+          </span>
+        </div>
+        <Icon
+          icon="i-mdi-chevron-down"
+          class={cn('ml-2 size-4 shrink-0 opacity-50', open && 'rotate-180')}
+        />
+      </Button>
+    {/snippet}
   </Popover.Trigger>
   <Popover.Content class="w-full p-0">
     <Command.Root>
