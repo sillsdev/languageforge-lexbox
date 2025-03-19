@@ -503,24 +503,12 @@ public class RichTextTests(ITestOutputHelper output)
         notTested.Should().BeEmpty("values should be tested, {0} are not", notTested.Length);
 
         //all these types are duplicated so must be in both string and int tested types
-        HashSet<FwTextPropType> duplicatedTypes =
-        [
-            // ReSharper disable DuplicateKeyCollectionInitialization
-            FwTextPropType.ktptWs, FwTextPropType.ktptFontFamily,
-
-            FwTextPropType.ktptItalic, FwTextPropType.ktptCharStyle,
-
-            FwTextPropType.ktptBold, FwTextPropType.ktptParaStyle,
-
-            FwTextPropType.ktptSuperscript, FwTextPropType.ktptTabList,
-
-            FwTextPropType.ktptUnderline, FwTextPropType.ktptTags,
-
-            FwTextPropType.ktptFontSize, FwTextPropType.ktptObjData,
-
-            FwTextPropType.ktptOffset, FwTextPropType.ktptCustomBullet
-            // ReSharper restore DuplicateKeyCollectionInitialization
-        ];
+        HashSet<FwTextPropType> duplicatedTypes = [..Enum.GetValues<FwTextPropType>().GroupBy(t => t)
+                //filter duplicates and ints which just have 2 names
+                .Where(g => g.Count() > 1 && g.Key is not (FwTextPropType.ktptMarginLeading
+                    or FwTextPropType.ktptMarginTrailing or FwTextPropType.ktptSpaceBefore
+                    or FwTextPropType.ktptSpaceAfter))
+                .Select(g => g.Key)];
 
         //ensure that these types are all tested in both string and int tests
         duplicatedTypes.Except(testedStringTypes).Should().BeEmpty();
@@ -542,6 +530,8 @@ public class RichTextTests(ITestOutputHelper output)
     {
         if (handle == FakeWsHandleFr)
             return "fr";
+        if (handle == FakeWsHandleEn)
+            return "en";
         return null;
     }
 }
