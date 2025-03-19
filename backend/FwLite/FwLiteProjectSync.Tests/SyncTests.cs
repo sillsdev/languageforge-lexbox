@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
-using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -15,16 +14,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     private readonly CrdtFwdataProjectSyncService _syncService;
 
     private readonly Guid _complexEntryId = Guid.NewGuid();
-    private Entry _testEntry = new Entry
+    private readonly Entry _testEntry = new()
     {
         Id = Guid.NewGuid(),
-        LexemeForm = { Values = { { "en", "Apple" } } },
+        LexemeForm = { { "en", "Apple" } },
         Note = { { "en", "this is a test note" } },
         Senses =
         [
             new Sense
             {
-                Gloss = { Values = { { "en", "Apple" } } },
+                Gloss = { { "en", "Apple" } },
                 Definition = { { "en", "a round fruit with a hard, crisp skin" } },
                 ExampleSentences =
                 [

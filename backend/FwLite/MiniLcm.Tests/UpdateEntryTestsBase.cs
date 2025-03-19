@@ -15,15 +15,15 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry
         {
             Id = Entry1Id,
-            LexemeForm = { Values = { { "en", "Kevin" } } },
+            LexemeForm = { { "en", "Kevin" } },
             Note = { { "en", "this is a test note from Kevin" } },
-            CitationForm = { Values = { { "en", "Kevin" } } },
+            CitationForm = { { "en", "Kevin" } },
             LiteralMeaning = { { "en", "Kevin" } },
             Senses =
             [
                 new Sense
                 {
-                    Gloss = { Values = { { "en", "Kevin" } } },
+                    Gloss = { { "en", "Kevin" } },
                     Definition = { { "en", "Kevin" } },
                     ExampleSentences =
                     [
@@ -35,12 +35,12 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new()
         {
             Id = Entry2Id,
-            LexemeForm = { Values = { { "en", "apple" } } },
+            LexemeForm = { { "en", "apple" } },
             Senses =
             [
                 new Sense
                 {
-                    Gloss = { Values = { { "en", "fruit" } } },
+                    Gloss = { { "en", "fruit" } },
                     Definition = { { "en", "a round fruit, red or yellow" } },
                 }
             ],
