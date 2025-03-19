@@ -1,6 +1,5 @@
 ﻿using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus;
-using Soenneker.Utils.AutoBogus.Config;
 
 namespace MiniLcm.Tests.AutoFakerHelpers;
 
