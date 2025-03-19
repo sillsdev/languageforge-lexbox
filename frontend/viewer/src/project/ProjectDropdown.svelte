@@ -4,6 +4,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Icon } from '$lib/components/ui/icon';
   import { cn } from '$lib/utils';
+  import {t} from 'svelte-i18n-lingui';
 
   let { projectName, onSelect } = $props<{
     projectName: string;
@@ -59,14 +60,14 @@
   </Popover.Trigger>
   <Popover.Content class="w-full p-0">
     <Command.Root>
-      <Command.Input placeholder="Search projects..." />
+      <Command.Input placeholder={$t`Search Dictionaries`} />
       <Command.List>
-        <Command.Empty>No projects found.</Command.Empty>
+        <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
         {#if loading}
           <Command.Loading>
             <div class="flex items-center justify-center p-4">
               <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
-              <span class="ml-2">Loading projects...</span>
+              <span class="ml-2">{$t`Loading Dictionaries...`}</span>
             </div>
           </Command.Loading>
         {:else}
