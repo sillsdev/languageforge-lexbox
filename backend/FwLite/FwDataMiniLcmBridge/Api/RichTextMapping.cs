@@ -240,8 +240,7 @@ public static class RichTextMapping
             var prop = MapToDelegateInt(propType).Invoke(span);
             if (prop is not null)
             {
-                //todo set default based on propType
-                builder.SetIntPropValues((int)propType, (int)FwTextPropVar.ktpvDefault, prop.Value);
+                builder.SetIntPropValues((int)propType, DefaultVariation(propType), prop.Value);
             }
         }
 
@@ -287,10 +286,45 @@ public static class RichTextMapping
         }
     }
 
-    private static void SetInt(ITsPropsBldr builder, FwTextPropType type, int? value, int variation = 0)
+    private static int DefaultVariation(FwTextPropType type)
+    {
+        return type switch
+        {
+            FwTextPropType.ktptItalic => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptBold => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptSuperscript => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptUnderline => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptAlign => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptSpellCheck => (int)FwTextPropVar.ktpvEnum,
+
+            FwTextPropType.ktptBulNumScheme => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptKeepTogether => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptKeepWithNext => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptRightToLeft => (int)FwTextPropVar.ktpvEnum,
+            FwTextPropType.ktptWidowOrphanControl => (int)FwTextPropVar.ktpvEnum,
+
+            FwTextPropType.ktptSpaceBefore => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptSpaceAfter => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptBorderBottom => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptBorderLeading => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptBorderTrailing => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptBorderTop => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptFirstIndent => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptLeadingIndent => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptMarginTop => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptMarginTrailing => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptPadTop => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptPadBottom => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptPadLeading => (int)FwTextPropVar.ktpvMilliPoint,
+            FwTextPropType.ktptPadTrailing => (int)FwTextPropVar.ktpvMilliPoint,
+            _ => (int)FwTextPropVar.ktpvDefault
+        };
+    }
+
+    private static void SetInt(ITsPropsBldr builder, FwTextPropType type, int? value, int? variation = null)
     {
         if (value is not null)
-            builder.SetIntPropValues((int)type, variation, value.Value);
+            builder.SetIntPropValues((int)type, variation ?? DefaultVariation(type), value.Value);
     }
 
     private static int? GetNullableIntProp(ITsTextProps textProps, FwTextPropType type)
