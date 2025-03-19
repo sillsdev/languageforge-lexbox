@@ -81,9 +81,9 @@ public class RichSpan
     public int? WidowOrphan;
 
 
+    public int? PadTop;
     public int? PadBottom;
     public int? PadLeading;
-    public int? PadTop;
     public int? PadTrailing;
 
     public string? ParaStyle;
