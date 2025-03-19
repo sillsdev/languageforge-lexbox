@@ -383,12 +383,12 @@ public class RichTextTests(ITestOutputHelper output)
             FwObjDataTypes invalidType = (FwObjDataTypes)100;
             yield return (FwTextPropType.ktptObjData, null, span => span.ObjData.Should().BeNull());
             yield return (FwTextPropType.ktptObjData, ((char)invalidType) + "shouldNotBeRoundTripped", span => span.ObjData.Should().BeNull());
-            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtExternalPathName) + "https://google.com", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.ExternalPathName, DataString = "https://google.com" }));
-            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtEmbeddedObjectData) + "<some-xml>value</some-xml>", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.EmbeddedObjectData, DataString = "<some-xml>value</some-xml>" }));
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtExternalPathName) + "https://google.com", span => span.ObjData.Should().BeEquivalentTo(new RichTextObjectData { Type = RichTextObjectDataType.ExternalPathName, Value = "https://google.com" }));
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtEmbeddedObjectData) + "<some-xml>value</some-xml>", span => span.ObjData.Should().BeEquivalentTo(new RichTextObjectData { Type = RichTextObjectDataType.EmbeddedObjectData, Value = "<some-xml>value</some-xml>" }));
 
             //LCM says this is only used in tests, so we'll just round trip the string and not worry about the format
-            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtPictEvenHot) + "someStringData", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.PictureEven, DataString = "someStringData" }));
-            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtPictOddHot) + "someStringData", span => span.ObjData.Should().BeEquivalentTo(new { Type = RichTextObjectDataType.PictureOdd, DataString = "someStringData" }));
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtPictEvenHot) + "someStringData", span => span.ObjData.Should().BeEquivalentTo(new RichTextObjectData { Type = RichTextObjectDataType.PictureEven, Value = "someStringData" }));
+            yield return (FwTextPropType.ktptObjData, ((char)FwObjDataTypes.kodtPictOddHot) + "someStringData", span => span.ObjData.Should().BeEquivalentTo(new RichTextObjectData { Type = RichTextObjectDataType.PictureOdd, Value = "someStringData" }));
 
             //guid referenced objects
             FwObjDataTypes[] guidTypes =
@@ -412,7 +412,7 @@ public class RichTextTests(ITestOutputHelper output)
                 var rawObjDataString = GetRawObjDataString(type, guid);
                 var dataString = rawObjDataString.Substring(1);
 
-                yield return (FwTextPropType.ktptObjData, rawObjDataString, span => span.ObjData.Should().BeEquivalentTo(new { Type = richType, DataString = dataString }));
+                yield return (FwTextPropType.ktptObjData, rawObjDataString, span => span.ObjData.Should().BeEquivalentTo(new RichTextObjectData() { Type = richType, Value = dataString }));
             }
 
             yield return (FwTextPropType.ktptCustomBullet, null, span => span.CustomBullet.Should().BeNull());

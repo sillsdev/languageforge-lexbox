@@ -282,7 +282,7 @@ public static class RichTextMapping
 
         if (span.ObjData is not null)
         {
-            builder.SetStrPropValue((int)FwTextPropType.ktptObjData, span.ObjData.RawString);
+            builder.SetStrPropValue((int)FwTextPropType.ktptObjData, ReverseObjectData(span.ObjData));
         }
     }
 
@@ -579,6 +579,41 @@ public static class RichTextMapping
         var rawDataString = textProps.GetStrPropValue((int)FwTextPropType.ktptObjData);
         if (string.IsNullOrEmpty(rawDataString))
             return null;
-        return RichTextObjectData.FromString(rawDataString);
+        FwObjDataTypes dataType = (FwObjDataTypes)rawDataString[0];
+        if (!Enum.IsDefined(typeof(FwObjDataTypes), dataType)) return null;
+        //todo implement other types, eg links or guid references
+        return new RichTextObjectData
+        {
+            Value = rawDataString[1..],
+            Type = dataType switch
+            {
+                FwObjDataTypes.kodtPictEvenHot => RichTextObjectDataType.PictureEven,
+                FwObjDataTypes.kodtPictOddHot => RichTextObjectDataType.PictureOdd,
+                FwObjDataTypes.kodtNameGuidHot => RichTextObjectDataType.NameGuid,
+                FwObjDataTypes.kodtExternalPathName => RichTextObjectDataType.ExternalPathName,
+                FwObjDataTypes.kodtOwnNameGuidHot => RichTextObjectDataType.OwnNameGuid,
+                FwObjDataTypes.kodtEmbeddedObjectData => RichTextObjectDataType.EmbeddedObjectData,
+                FwObjDataTypes.kodtContextString => RichTextObjectDataType.ContextString,
+                FwObjDataTypes.kodtGuidMoveableObjDisp => RichTextObjectDataType.GuidMoveableObjDisp,
+                _ => throw new ArgumentException("Unknown object data type " + dataType)
+            }
+        };
+    }
+
+    private static string ReverseObjectData(RichTextObjectData data)
+    {
+        var lcmType = data.Type switch
+        {
+            RichTextObjectDataType.PictureEven => FwObjDataTypes.kodtPictEvenHot,
+            RichTextObjectDataType.PictureOdd => FwObjDataTypes.kodtPictOddHot,
+            RichTextObjectDataType.NameGuid => FwObjDataTypes.kodtNameGuidHot,
+            RichTextObjectDataType.ExternalPathName => FwObjDataTypes.kodtExternalPathName,
+            RichTextObjectDataType.OwnNameGuid => FwObjDataTypes.kodtOwnNameGuidHot,
+            RichTextObjectDataType.EmbeddedObjectData => FwObjDataTypes.kodtEmbeddedObjectData,
+            RichTextObjectDataType.ContextString => FwObjDataTypes.kodtContextString,
+            RichTextObjectDataType.GuidMoveableObjDisp => FwObjDataTypes.kodtGuidMoveableObjDisp,
+            _ => throw new ArgumentException("Unknown object data type " + data.Type)
+        };
+        return (char)lcmType + data.Value;
     }
 }

@@ -180,24 +180,14 @@ public enum RichTextUnderline
     Squiggle = 6
 }
 
-public abstract class RichTextObjectData
+public class RichTextObjectData
 {
-    public static RichTextObjectData? FromString(string rawString)
-    {
-        if (!Enum.IsDefined(typeof(RichTextObjectDataType), (int) rawString[0])) return null;
-        //todo implement other types, eg links or guid references
-        return new RichTextObjectDataRaw(rawString);
-    }
-    public abstract string RawString { get; }
-    public abstract RichTextObjectDataType Type { get; }
-}
+    public required string Value { get; init; }
+    public required RichTextObjectDataType Type { get; init; }
 
-//todo don't use this if you want to write new data objects, we should make a new class for each type so we don't need to fiddle with the raw string in the frontend
-public class RichTextObjectDataRaw(string rawString) : RichTextObjectData
-{
-    public override string RawString => rawString;
-    public override RichTextObjectDataType Type => (RichTextObjectDataType)rawString[0];
-    public string DataString => rawString[1..];
+    public bool IsGuidType =>
+        Type is RichTextObjectDataType.NameGuid or RichTextObjectDataType.OwnNameGuid
+            or RichTextObjectDataType.GuidMoveableObjDisp or RichTextObjectDataType.ContextString;
 }
 
 public enum RichTextObjectDataType
