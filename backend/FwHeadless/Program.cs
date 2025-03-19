@@ -78,18 +78,27 @@ app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 
 // DELETE endpoint to remove a project if it exists
-app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectLookupService projectLookupService, IOptions<FwHeadlessConfig> config) =>
+app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
+    ProjectLookupService projectLookupService,
+    IOptions<FwHeadlessConfig> config,
+    ILogger<Program> logger) =>
 {
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
     {
+        logger.LogInformation("DELETE repo request for non-existent project {ProjectId}", projectId);
         return Results.Ok(new { message = "Project not found" });
     }
     // Delete associated project folder if it exists
     var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
     if (Directory.Exists(fwDataProject.ProjectFolder))
     {
+        logger.LogInformation("Deleting repository for project {ProjectCode} ({ProjectId})", projectCode, projectId);
         Directory.Delete(fwDataProject.ProjectFolder, true);
+    }
+    else
+    {
+        logger.LogInformation("Repository for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
     }
     return Results.Ok(new { message = "Repo deleted" });
 });
