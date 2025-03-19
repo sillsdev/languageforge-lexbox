@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import * as Popover from '$lib/components/ui/popover';
   import {Button, type ButtonProps} from '$lib/components/ui/button';
   import {Label} from '$lib/components/ui/label/index.js';
