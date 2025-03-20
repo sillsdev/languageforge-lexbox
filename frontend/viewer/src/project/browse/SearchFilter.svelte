@@ -9,7 +9,7 @@
 </script>
 
 <Collapsible.Root>
-  <div class="relative ml-8">
+  <div class="relative">
     <Icon icon="i-mdi-magnify" class="absolute top-1/2 -translate-y-1/2 left-3 size-5" />
     <Input bind:value={search} placeholder={$t`Filter`} class="pl-10 pr-10" />
     <Collapsible.Trigger class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'absolute top-1/2 -translate-y-1/2 right-1' })}>
