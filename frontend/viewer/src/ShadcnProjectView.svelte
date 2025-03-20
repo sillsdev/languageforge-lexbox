@@ -54,7 +54,7 @@
   <Sidebar.Provider bind:open>
       <ProjectSidebar {projectName} bind:currentView />
       <Sidebar.Inset class="flex-1 relative">
-        <Sidebar.Trigger class={cn('absolute left-3 z-30 top-7')}/>
+        <Sidebar.Trigger class={cn('absolute top-1/2 -translate-y-1/2 z-30 left-0 md:-left-4 ')} icon={open ? 'i-mdi-chevron-left' : 'i-mdi-chevron-right'}/>
         {#if currentView === 'browse'}
           <BrowseView />
         {:else if currentView === 'tasks'}
