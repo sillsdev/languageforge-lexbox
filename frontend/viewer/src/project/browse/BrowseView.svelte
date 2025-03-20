@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '$lib/components/ui/resizable';
   import type { IEntry } from '$lib/dotnet-types';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-  import { t } from 'svelte-i18n-lingui';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
   import ViewPicker from './ViewPicker.svelte';
@@ -13,10 +11,6 @@
   const defaultLayout = [30, 70]; // Default split: 30% for list, 70% for details
   const isMobile = new IsMobile();
   let search = $state('');
-
-  function handleSelectEntry(entry: IEntry) {
-    selectedEntry = entry;
-  }
 </script>
 
 <div class="flex flex-col h-full p-4">
@@ -34,10 +28,10 @@
             <SearchFilter bind:search />
             <ViewPicker />
         </div>
-        <EntriesList 
-          {search} 
-          {selectedEntry} 
-          onSelectEntry={handleSelectEntry} 
+        <EntriesList
+          {search}
+          {selectedEntry}
+          onSelectEntry={e => selectedEntry = e}
         />
       </ResizablePane>
     {/if}
