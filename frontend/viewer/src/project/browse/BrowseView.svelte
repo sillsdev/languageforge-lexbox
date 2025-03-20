@@ -6,32 +6,31 @@
   import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import {SidebarTrigger} from '$lib/components/ui/sidebar';
+  import { SidebarTrigger } from '$lib/components/ui/sidebar';
   import EntryRow from './EntryRow.svelte';
+  import SearchFilter from './SearchFilter.svelte';
+  import { Input } from '$lib/components/ui/input';
+  import { resource } from 'runed';
 
   const miniLcmApi = useMiniLcmApi();
   //todo not the best way to do this, but it works until we can make writingSystems a state field in the ws service
   const writingSystemService = $derived(useWritingSystemRunes());
 
-  let entries = $state<IEntry[]>([]);
   let selectedEntry = $state<IEntry | undefined>(undefined);
-  let loading = $state(true);
   const defaultLayout = [30, 70]; // Default split: 30% for list, 70% for details
   const isMobile = new IsMobile();
+  let search = $state('');
 
-  $effect(() => {
-    async function loadEntries() {
-      try {
-        entries = await miniLcmApi.getEntries(undefined);
-        if (!isMobile.current) selectedEntry = entries[0];
-      } catch (error) {
-        console.error('Failed to load entries:', error);
-      } finally {
-        loading = false;
+  const entriesResource = resource(
+    () => search,
+    async (search) => {
+      if (search) {
+        return miniLcmApi.searchEntries(search);
       }
-    }
-    void loadEntries();
-  });
+      return miniLcmApi.getEntries(undefined);
+    },
+  );
+  const entries = $derived(entriesResource.current ?? []);
 </script>
 
 <div class="flex flex-col h-full p-4">
@@ -42,24 +41,32 @@
 
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-hidden">
     {#if !isMobile.current || !selectedEntry}
-      <ResizablePane defaultSize={defaultLayout[0]} collapsible collapsedSize={0} minSize={15} class="min-h-0 flex flex-col">
+      <ResizablePane
+        defaultSize={defaultLayout[0]}
+        collapsible
+        collapsedSize={0}
+        minSize={15}
+        class="min-h-0 flex flex-col"
+      >
+        <SearchFilter bind:search />
         <div class="overflow-y-auto flex-1 pr-4">
           <div class="space-y-2">
-            {#if loading}
+            {#if entriesResource.loading}
               <div class="flex items-center justify-center h-full text-muted-foreground">
                 <p>Loading entries...</p>
               </div>
-            {:else if entries.length === 0}
+            {:else if entriesResource.error}
               <div class="flex items-center justify-center h-full text-muted-foreground">
-                <p>No entries found</p>
+                <p>Failed to load entries</p>
+                <p>{entriesResource.error.message}</p>
               </div>
             {:else}
               {#each entries as entry}
-                <EntryRow
-                  entry={entry}
-                  isSelected={selectedEntry === entry}
-                  onclick={() => (selectedEntry = entry)}
-                />
+                <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => (selectedEntry = entry)} />
+              {:else}
+                <div class="flex items-center justify-center h-full text-muted-foreground">
+                  <p>No entries found</p>
+                </div>
               {/each}
             {/if}
           </div>

@@ -333,6 +333,9 @@ importers:
       postcss:
         specifier: 'catalog:'
         version: 8.5.2
+      runed:
+        specifier: ^0.24.1
+        version: 0.24.1(svelte@5.20.0)
       svelte-dnd-action:
         specifier: ^0.9.57
         version: 0.9.57(svelte@5.20.0)
@@ -5260,6 +5263,11 @@ packages:
 
   runed@0.23.4:
     resolution: {integrity: sha512-9q8oUiBYeXIDLWNK5DfCWlkL0EW3oGbk845VdKlPeia28l751VpfesaB/+7pI6rnbx1I6rqoZ2fZxptOJLxILA==}
+    peerDependencies:
+      svelte: ^5.7.0
+
+  runed@0.24.1:
+    resolution: {integrity: sha512-7LWRiZ+TR/NKSkBwO/AQXgCR40dLl/toM3DxlagPSxXsRGGi40hQkKt2S5ESUrgZJ7YbXhct/vlnJwp2oRrGCg==}
     peerDependencies:
       svelte: ^5.7.0
 
@@ -11951,6 +11959,11 @@ snapshots:
       queue-microtask: 1.2.3
 
   runed@0.23.4(svelte@5.20.0):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.20.0
+
+  runed@0.24.1(svelte@5.20.0):
     dependencies:
       esm-env: 1.2.2
       svelte: 5.20.0
