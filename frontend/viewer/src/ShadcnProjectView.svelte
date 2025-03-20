@@ -18,6 +18,7 @@
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
   import {cn} from '$lib/utils';
+  import {initView} from '$lib/views/view-service';
 
   const {
     onloaded,
@@ -33,6 +34,7 @@
     showHomeButton?: boolean;
   } = $props();
   let currentView: View = $state('browse');
+  const fieldView = initView();
 
   onMount(() => {
     onloaded(true);

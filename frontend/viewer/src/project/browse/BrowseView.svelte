@@ -6,10 +6,9 @@
   import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import { SidebarTrigger } from '$lib/components/ui/sidebar';
   import EntryRow from './EntryRow.svelte';
   import SearchFilter from './SearchFilter.svelte';
-  import { Input } from '$lib/components/ui/input';
+  import ViewPicker from './ViewPicker.svelte';
   import { resource } from 'runed';
 
   const miniLcmApi = useMiniLcmApi();
@@ -48,7 +47,10 @@
         minSize={15}
         class="min-h-0 flex flex-col"
       >
-        <SearchFilter bind:search />
+        <div class="p-2 pr-4">
+            <SearchFilter bind:search />
+            <ViewPicker />
+        </div>
         <div class="overflow-y-auto flex-1 pr-4">
           <div class="space-y-2">
             {#if entriesResource.loading}
