@@ -29,6 +29,9 @@
     },
   );
   const entries = $derived(entriesResource.current ?? []);
+
+  // Generate a random number of skeleton rows between 3 and 7
+  const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 </script>
 
 <Button
@@ -41,9 +44,10 @@
 <div class="overflow-y-auto flex-1 pr-4">
   <div class="space-y-2">
     {#if entriesResource.loading}
-      <div class="flex items-center justify-center h-full text-muted-foreground">
-        <p>Loading entries...</p>
-      </div>
+      <!-- Show skeleton rows while loading -->
+      {#each {length: skeletonRowCount}, _index}
+        <EntryRow skeleton={true} />
+      {/each}
     {:else if entriesResource.error}
       <div class="flex items-center justify-center h-full text-muted-foreground">
         <p>Failed to load entries</p>
