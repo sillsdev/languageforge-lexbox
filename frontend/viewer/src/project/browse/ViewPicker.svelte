@@ -69,7 +69,7 @@
       <Icon icon="i-mdi-layers" class="size-5" />
     </Drawer.Trigger>
     <Drawer.Content>
-      <div class="mx-auto w-full max-w-sm">
+      <div class="mx-auto w-full max-w-sm p-4">
         <Drawer.Header>
           <Drawer.Title>{$t`View Configuration`}</Drawer.Title>
         </Drawer.Header>
