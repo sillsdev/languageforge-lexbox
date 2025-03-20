@@ -18,7 +18,7 @@
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
   import {cn} from '$lib/utils';
-  import {initView} from '$lib/views/view-service';
+  import {initView, initViewSettings} from '$lib/views/view-service';
   import {initDialogService} from '$lib/entry-editor/dialog-service';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import {useWritingSystemRunes} from '$lib/writing-system-runes.svelte';
@@ -39,6 +39,7 @@
   } = $props();
   let currentView: View = $state('browse');
   const fieldView = initView();
+  const viewSettings = initViewSettings();
   let deleteDialog = $state<DeleteDialog | undefined>(undefined);
   const dialogService = initDialogService(() => deleteDialog);
   const writingSystemService = useWritingSystemRunes();

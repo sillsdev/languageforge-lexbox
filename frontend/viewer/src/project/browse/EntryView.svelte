@@ -3,7 +3,9 @@
   import type { IEntry } from '$lib/dotnet-types';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
+  import { useViewSettings } from '$lib/views/view-service';
 
+  const viewSettings = useViewSettings();
   const { entry, onClose, showClose = false }: {
     entry: IEntry | undefined;
     onClose?: () => void;
@@ -21,7 +23,7 @@
       {/if}
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || 'Untitled'}</h2>
     </div>
-    <div>
+    <div class:hide-unused={!$viewSettings.showEmptyFields}>
       <EntryEditor modalMode {entry} />
     </div>
   {:else}
