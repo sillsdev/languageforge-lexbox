@@ -41,7 +41,7 @@
   </Sidebar.MenuSubItem>
 {/snippet}
 <Sidebar.Root variant="inset">
-  <Sidebar.Header>
+  <Sidebar.Header class="relative">
     <div class="flex flex-col gap-2">
       <div class="flex flex-row items-center gap-2">
         <ProjectDropdown
@@ -131,5 +131,5 @@
       </div>
     </Sidebar.Group>
   </Sidebar.Footer>
-  <Sidebar.Rail/>
+  <Sidebar.Rail></Sidebar.Rail>
 </Sidebar.Root>

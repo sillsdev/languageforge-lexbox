@@ -17,6 +17,7 @@
   import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
+  import {cn} from '$lib/utils';
 
   const {
     onloaded,
@@ -36,21 +37,19 @@
   onMount(() => {
     onloaded(true);
   });
-
+  let open = $state(true);
 </script>
 
 <div class="h-screen flex">
-  <Sidebar.Provider>
+  <Sidebar.Provider bind:open>
       <ProjectSidebar {projectName} bind:currentView />
-      <Sidebar.Inset class="flex-1">
-        <div class="p-4">
-          <Sidebar.Trigger/>
-          {#if currentView === 'browse'}
-            <BrowseView />
-          {:else if currentView === 'tasks'}
-            <TasksView />
-          {/if}
-        </div>
+      <Sidebar.Inset class="flex-1 relative">
+        <Sidebar.Trigger class={cn('absolute left-3 z-30 top-4')}/>
+        {#if currentView === 'browse'}
+          <BrowseView />
+        {:else if currentView === 'tasks'}
+          <TasksView />
+        {/if}
       </Sidebar.Inset>
   </Sidebar.Provider>
 </div>
