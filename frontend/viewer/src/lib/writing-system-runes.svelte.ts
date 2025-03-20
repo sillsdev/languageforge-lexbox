@@ -1,7 +1,8 @@
 import {untrack} from 'svelte';
 import type {IWritingSystems} from './dotnet-types';
 import {useMiniLcmApi} from './services/service-provider';
-import {WritingSystemService} from './writing-system-service';
+import {initWritingSystemService, WritingSystemService} from './writing-system-service';
+import {writable} from 'svelte/store';
 
 let writingSystems = $state< IWritingSystems | null>(null);
 let loading = $state(false);
@@ -15,10 +16,13 @@ export function useWritingSystemRunes(): WritingSystemService {
 
 function load() {
   if (loading) return;
+  const wsStore = writable<IWritingSystems | null>(null);
+  initWritingSystemService(wsStore);
   loading = true;
   void useMiniLcmApi().getWritingSystems().then(ws => {
     console.log('Writing systems loaded:', ws);
     writingSystems = ws;
+    wsStore.set(ws);
     loading = false;
   });
 }

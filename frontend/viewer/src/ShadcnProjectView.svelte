@@ -19,6 +19,10 @@
   import TasksView from './project/tasks/TasksView.svelte';
   import {cn} from '$lib/utils';
   import {initView} from '$lib/views/view-service';
+  import {initDialogService} from '$lib/entry-editor/dialog-service';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {useWritingSystemRunes} from '$lib/writing-system-runes.svelte';
+  import {initFeatures} from '$lib/services/feature-service';
 
   const {
     onloaded,
@@ -35,18 +39,22 @@
   } = $props();
   let currentView: View = $state('browse');
   const fieldView = initView();
+  let deleteDialog = $state<DeleteDialog | undefined>(undefined);
+  const dialogService = initDialogService(() => deleteDialog);
+  const writingSystemService = useWritingSystemRunes();
+  const features = initFeatures({});
 
   onMount(() => {
     onloaded(true);
   });
   let open = $state(true);
 </script>
-
+<DeleteDialog bind:this={deleteDialog} />
 <div class="h-screen flex">
   <Sidebar.Provider bind:open>
       <ProjectSidebar {projectName} bind:currentView />
       <Sidebar.Inset class="flex-1 relative">
-        <Sidebar.Trigger class={cn('absolute left-3 z-30 top-4')}/>
+        <Sidebar.Trigger class={cn('absolute left-3 z-30 top-7')}/>
         {#if currentView === 'browse'}
           <BrowseView />
         {:else if currentView === 'tasks'}
