@@ -4,14 +4,17 @@
   import type {ComponentProps} from 'svelte';
   import {Icon} from '../icon';
   import {useSidebar} from './context.svelte.js';
+  import type {IconClass} from '$lib/icon-class';
 
   let {
     ref = $bindable(null),
     class: className,
+    icon = 'i-mdi-dock-left',
     onclick,
     ...restProps
   }: ComponentProps<typeof Button> & {
     onclick?: (e: MouseEvent) => void;
+    icon?: IconClass
   } = $props();
 
   const sidebar = useSidebar();
@@ -29,6 +32,6 @@
   class={cn('h-7 w-7', className)}
   {...restProps}
 >
-  <Icon icon="i-mdi-dock-left" />
+  <Icon {icon} />
   <span class="sr-only">Toggle Sidebar</span>
 </Button>
