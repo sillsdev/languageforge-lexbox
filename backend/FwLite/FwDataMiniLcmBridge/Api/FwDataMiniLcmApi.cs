@@ -726,13 +726,19 @@ public class FwDataMiniLcmApi(
         }
 
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        entries = entries
-            .OrderBy(e =>
-            {
-                string? text = e.CitationForm.get_String(sortWs).Text;
-                text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
-                return text?.Trim(LcmHelpers.WhitespaceChars);
-            });
+        string? order(ILexEntry e)
+        {
+            string? text = e.CitationForm.get_String(sortWs).Text;
+            text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
+            return text?.Trim(LcmHelpers.WhitespaceChars);
+        }
+        if (options.Order.Ascending)
+        {
+            entries = entries.OrderBy(order);
+        } else
+        {
+            entries = entries.OrderByDescending(order);
+        }
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
