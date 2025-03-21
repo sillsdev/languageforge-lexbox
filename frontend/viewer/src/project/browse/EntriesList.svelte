@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { IEntry } from '$lib/dotnet-types';
+  import type { IQueryOptions } from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
+  import { SortField } from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
   import { resource } from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
@@ -9,23 +11,35 @@
   const {
     search = '',
     selectedEntry = undefined,
+    sortDirection = 'asc',
     onSelectEntry,
   }: {
     search?: string;
     selectedEntry?: IEntry;
+    sortDirection: 'asc' | 'desc';
     onSelectEntry: (entry: IEntry) => void;
   } = $props();
 
   const miniLcmApi = useMiniLcmApi();
 
   const entriesResource = resource(
-    () => search,
-    async (search) => {
+    () => ({ search, sortDirection }),
+    async ({ search, sortDirection }) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      const queryOptions: IQueryOptions = {
+        count: 100,
+        offset: 0,
+        order: {
+          field: SortField.Headword,
+          writingSystem: 'default',
+          ascending: sortDirection === 'asc',
+        },
+      };
+
       if (search) {
-        return miniLcmApi.searchEntries(search);
+        return miniLcmApi.searchEntries(search, queryOptions);
       }
-      return miniLcmApi.getEntries(undefined);
+      return miniLcmApi.getEntries(queryOptions);
     },
   );
   const entries = $derived(entriesResource.current ?? []);
@@ -45,7 +59,7 @@
   <div class="space-y-2">
     {#if entriesResource.loading}
       <!-- Show skeleton rows while loading -->
-      {#each {length: skeletonRowCount}, _index}
+      {#each { length: skeletonRowCount }, _index}
         <EntryRow skeleton={true} />
       {/each}
     {:else if entriesResource.error}

@@ -6,11 +6,18 @@
   import SearchFilter from './SearchFilter.svelte';
   import ViewPicker from './ViewPicker.svelte';
   import EntriesList from './EntriesList.svelte';
-
+  import { Badge } from '$lib/components/ui/badge';
+  import { Icon } from '$lib/components/ui/icon';
+  import { t } from 'svelte-i18n-lingui';
   let selectedEntry = $state<IEntry | undefined>(undefined);
   const defaultLayout = [30, 70]; // Default split: 30% for list, 70% for details
   const isMobile = new IsMobile();
   let search = $state('');
+  let sortDirection = $state<'asc' | 'desc'>('asc');
+
+  function toggleSort() {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  }
 </script>
 
 <div class="flex flex-col h-full p-4">
@@ -25,8 +32,18 @@
       >
         <div class="p-2 pr-4">
           <SearchFilter bind:search />
+          <div class="mt-2">
+            <Badge
+              variant="secondary"
+              class="cursor-pointer"
+              onclick={toggleSort}
+            >
+            <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
+              {$t`Headword`}
+            </Badge>
+          </div>
         </div>
-        <EntriesList {search} {selectedEntry} onSelectEntry={(e) => (selectedEntry = e)} />
+        <EntriesList {search} {selectedEntry} {sortDirection} onSelectEntry={(e) => (selectedEntry = e)} />
       </ResizablePane>
     {/if}
     {#if !isMobile.current}
