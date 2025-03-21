@@ -7,6 +7,7 @@
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import { cn } from '$lib/utils';
+  import { t } from 'svelte-i18n-lingui';
 
   const {
     search = '',
@@ -48,13 +49,20 @@
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 </script>
 
-<Button
-  icon="i-mdi-refresh"
-  iconProps={{ class: cn(loading.current && 'animate-spin') }}
-  size="icon"
-  class="absolute bottom-0 right-0 m-4"
-  onclick={() => entriesResource.refetch()}
-/>
+<div class="absolute bottom-0 right-0 m-4 flex flex-col items-end">
+  <Button
+    icon="i-mdi-refresh"
+    variant="default"
+    iconProps={{ class: cn('size-6', loading.current && 'animate-spin') }}
+    size="icon"
+    class="size-10 mt-4"
+    onclick={() => entriesResource.refetch()}
+  />
+  <Button icon="i-mdi-plus" class=" mt-6 h-14 p-4" variant="secondary">
+    {$t`New`}
+  </Button>
+</div>
+
 <div class="overflow-y-auto flex-1 pr-4">
   <div class="space-y-2">
     {#if loading.current}
