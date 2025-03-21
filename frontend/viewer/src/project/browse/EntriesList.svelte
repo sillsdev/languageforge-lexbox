@@ -25,7 +25,6 @@
   const entriesResource = resource(
     () => ({ search, sortDirection }),
     async ({ search, sortDirection }) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       const queryOptions: IQueryOptions = {
         count: 100,
         offset: 0,
