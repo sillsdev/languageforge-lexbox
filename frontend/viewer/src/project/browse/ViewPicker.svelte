@@ -18,7 +18,7 @@
 </script>
 <ResponsivePopup title={$t`View Configuration`}>
   {#snippet trigger()}
-    <Icon icon="i-mdi-layers" class="size-5" />
+    <Icon icon="i-mdi-layers" />
   {/snippet}
   <div class="space-y-6">
     <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>

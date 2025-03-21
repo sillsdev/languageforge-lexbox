@@ -9,6 +9,7 @@
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
   import EntryMenu from './EntryMenu.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -40,18 +41,18 @@
   }
 </script>
 
-<div class="h-full p-6 overflow-y-auto relative">
+<div class="h-full md:px-6 pt-2 relative">
   {#if entry}
     <header class="mb-4 flex">
       {#if showClose && onClose}
-        <Icon icon="i-mdi-close" onclick={onClose} class="cursor-pointer"></Icon>
+        <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
       {/if}
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || 'Untitled'}</h2>
       <div class="flex-1"></div>
       <ViewPicker/>
       <EntryMenu onDelete={handleDelete} />
     </header>
-    <div class:hide-unused={!$viewSettings.showEmptyFields}>
+    <div class="h-full overflow-y-auto" class:hide-unused={!$viewSettings.showEmptyFields}>
       <EntryEditor modalMode {entry} />
     </div>
   {/if}
