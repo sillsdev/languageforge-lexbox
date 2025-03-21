@@ -138,9 +138,9 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
         const v2 = writingSystemService.headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
-        const compare = v1.localeCompare(v2, sortWs);
-        if (compare !== 0) return compare;
-        return e1.id.localeCompare(e2.id);
+        let compare = v1.localeCompare(v2, sortWs);
+        if (compare == 0) compare = e1.id.localeCompare(e2.id);
+        return options.order.ascending ? compare : -compare;
       })
       .slice(options.offset, options.offset + options.count);
   }
