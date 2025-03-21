@@ -11,6 +11,7 @@
   import { t } from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
   import ThemePicker from '$lib/ThemePicker.svelte';
+  import {navigate} from 'svelte-routing';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -107,7 +108,7 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
+          <Sidebar.MenuButton onclick={() => navigate('/')}>
             <Icon icon="i-mdi-close" />
             <span>{$t`Close Dictionary`}</span>
           </Sidebar.MenuButton>
