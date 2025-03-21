@@ -44,16 +44,19 @@
       <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
     </div>
   {:else}
-    <div class="font-medium">{writingSystemService.headword(entry) || 'Untitled'}</div>
-    {#if sensePreview}
+    <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || 'Untitled'}</h2>
+    <div class="flex flex-row items-start justify-between gap-2">
+      {#if sensePreview}
       <div class="text-sm text-muted-foreground">
         {sensePreview}
       </div>
       {#if partOfSpeech}
-        <Badge>
+        <Badge variant="default" class="bg-primary/60">
           {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
         </Badge>
       {/if}
     {/if}
+    </div>
+
   {/if}
 </button>
