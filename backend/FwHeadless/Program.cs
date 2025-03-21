@@ -81,8 +81,13 @@ app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
     ProjectLookupService projectLookupService,
     IOptions<FwHeadlessConfig> config,
+    SyncJobStatusService syncJobStatusService,
     ILogger<Program> logger) =>
 {
+    if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
+    {
+        return Results.Conflict(new {message = "Sync job is running"});
+    }
     var projectCode = await projectLookupService.GetProjectCode(projectId);
     if (projectCode is null)
     {
