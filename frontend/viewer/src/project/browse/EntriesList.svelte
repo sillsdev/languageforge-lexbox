@@ -2,7 +2,7 @@
   import type { IEntry } from '$lib/dotnet-types';
   import type { IQueryOptions } from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import { SortField } from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import { resource } from 'runed';
+  import { Debounced, resource } from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -42,6 +42,7 @@
     },
   );
   const entries = $derived(entriesResource.current ?? []);
+  const loading = new Debounced(() => entriesResource.loading, 50);
 
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
@@ -49,14 +50,14 @@
 
 <Button
   icon="i-mdi-refresh"
-  iconProps={{ class: cn(entriesResource.loading && 'animate-spin') }}
+  iconProps={{ class: cn(loading.current && 'animate-spin') }}
   size="icon"
   class="absolute bottom-0 right-0 m-4"
   onclick={() => entriesResource.refetch()}
 />
 <div class="overflow-y-auto flex-1 pr-4">
   <div class="space-y-2">
-    {#if entriesResource.loading}
+    {#if loading.current}
       <!-- Show skeleton rows while loading -->
       {#each { length: skeletonRowCount }, _index}
         <EntryRow skeleton={true} />
