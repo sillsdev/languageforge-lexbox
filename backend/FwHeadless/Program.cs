@@ -77,6 +77,37 @@ app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 
+// DELETE endpoint to remove a project if it exists
+app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
+    ProjectLookupService projectLookupService,
+    IOptions<FwHeadlessConfig> config,
+    SyncJobStatusService syncJobStatusService,
+    ILogger<Program> logger) =>
+{
+    if (syncJobStatusService.SyncStatus(projectId) is SyncJobStatus.Running)
+    {
+        return Results.Conflict(new {message = "Sync job is running"});
+    }
+    var projectCode = await projectLookupService.GetProjectCode(projectId);
+    if (projectCode is null)
+    {
+        logger.LogInformation("DELETE repo request for non-existent project {ProjectId}", projectId);
+        return Results.NotFound(new { message = "Project not found" });
+    }
+    // Delete associated project folder if it exists
+    var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
+    if (Directory.Exists(fwDataProject.ProjectFolder))
+    {
+        logger.LogInformation("Deleting repository for project {ProjectCode} ({ProjectId})", projectCode, projectId);
+        Directory.Delete(fwDataProject.ProjectFolder, true);
+    }
+    else
+    {
+        logger.LogInformation("Repository for project {ProjectCode} ({ProjectId}) does not exist", projectCode, projectId);
+    }
+    return Results.Ok(new { message = "Repo deleted" });
+});
+
 app.Run();
 
 static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
@@ -141,9 +172,9 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
         return TypedResults.NotFound();
     }
     activity?.SetTag("app.project_code", lexboxProject.Code);
-    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{lexboxProject.Code}-{projectId}");
+    var projectFolder = config.Value.GetProjectFolder(lexboxProject.Code, projectId);
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
-    var fwDataProject = new FwDataProject("fw", projectFolder);
+    var fwDataProject = config.Value.GetFwDataProject(lexboxProject.Code, projectId);
     var pendingHgCommits = srService.PendingCommitCount(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
 
     var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
