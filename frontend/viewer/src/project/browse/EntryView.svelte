@@ -6,7 +6,9 @@
   import { useViewSettings } from '$lib/views/view-service';
   import { resource, Debounced } from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
-  import { slide, fade, blur } from 'svelte/transition';
+  import { fade } from 'svelte/transition';
+  import ViewPicker from './ViewPicker.svelte';
+  import EntryMenu from './EntryMenu.svelte';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -31,16 +33,24 @@
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
 
   const writingSystemService = $derived(useWritingSystemRunes());
+
+  function handleDelete() {
+    // TODO: Implement delete functionality
+    console.log('Delete entry:', entryId);
+  }
 </script>
 
 <div class="h-full p-6 overflow-y-auto relative">
   {#if entry}
-    <div class="mb-4">
+    <header class="mb-4 flex">
       {#if showClose && onClose}
         <Icon icon="i-mdi-close" onclick={onClose} class="cursor-pointer"></Icon>
       {/if}
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || 'Untitled'}</h2>
-    </div>
+      <div class="flex-1"></div>
+      <ViewPicker/>
+      <EntryMenu onDelete={handleDelete} />
+    </header>
     <div class:hide-unused={!$viewSettings.showEmptyFields}>
       <EntryEditor modalMode {entry} />
     </div>

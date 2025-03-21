@@ -25,7 +25,6 @@
       >
         <div class="p-2 pr-4">
           <SearchFilter bind:search />
-          <ViewPicker />
         </div>
         <EntriesList {search} {selectedEntry} onSelectEntry={(e) => (selectedEntry = e)} />
       </ResizablePane>
