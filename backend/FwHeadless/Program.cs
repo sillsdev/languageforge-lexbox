@@ -87,7 +87,7 @@ app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
     if (projectCode is null)
     {
         logger.LogInformation("DELETE repo request for non-existent project {ProjectId}", projectId);
-        return Results.Ok(new { message = "Project not found" });
+        return Results.NotFound(new { message = "Project not found" });
     }
     // Delete associated project folder if it exists
     var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
