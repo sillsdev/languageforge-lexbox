@@ -14,21 +14,25 @@
     selectedEntry = undefined,
     sortDirection = 'asc',
     onSelectEntry,
+    gridifyFilter = undefined,
   }: {
     search?: string;
     selectedEntry?: IEntry;
     sortDirection: 'asc' | 'desc';
     onSelectEntry: (entry: IEntry) => void;
+    gridifyFilter?: string;
   } = $props();
-
   const miniLcmApi = useMiniLcmApi();
 
   const entriesResource = resource(
-    () => ({ search, sortDirection }),
-    async ({ search, sortDirection }) => {
+    () => ({ search, sortDirection, gridifyFilter }),
+    async ({ search, sortDirection, gridifyFilter }) => {
       const queryOptions: IQueryOptions = {
         count: 100,
         offset: 0,
+        filter: {
+          gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
+        },
         order: {
           field: SortField.Headword,
           writingSystem: 'default',

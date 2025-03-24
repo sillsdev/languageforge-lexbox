@@ -13,6 +13,7 @@
   const defaultLayout = [30, 70]; // Default split: 30% for list, 70% for details
   const isMobile = new IsMobile();
   let search = $state('');
+  let gridifyFilter = $state<string | undefined>(undefined);
   let sortDirection = $state<'asc' | 'desc'>('asc');
 
   function toggleSort() {
@@ -31,7 +32,7 @@
         class="min-h-0 flex flex-col relative"
       >
         <div class="p-2 pr-4">
-          <SearchFilter bind:search />
+          <SearchFilter bind:search bind:gridifyFilter />
           <div class="mt-3">
             <Badge
               variant="secondary"
@@ -43,7 +44,7 @@
             </Badge>
           </div>
         </div>
-        <EntriesList {search} {selectedEntry} {sortDirection} onSelectEntry={(e) => (selectedEntry = e)} />
+        <EntriesList {search} {selectedEntry} {sortDirection} {gridifyFilter} onSelectEntry={(e) => (selectedEntry = e)} />
       </ResizablePane>
     {/if}
     {#if !isMobile.current}
