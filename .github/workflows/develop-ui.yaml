@@ -66,7 +66,7 @@ jobs:
       - name: Svelte-Check PR Annotator
         uses: prgm-dev/svelte-check-pr-annotator@v1
       - id: svelte_check
-        run: pnpm run -r --no-bail check --output machine
+        run: pnpm run -r --no-bail --parallel --aggregate-output --reporter-hide-prefix check --output machine
       - run: pnpm run -r --no-bail lint:report
         if: ${{ always() && steps.svelte_check.outcome != 'cancelled' }}
       - name: Annotate Code Linting REsults
