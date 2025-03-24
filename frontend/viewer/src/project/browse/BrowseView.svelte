@@ -32,7 +32,7 @@
       >
         <div class="p-2 pr-4">
           <SearchFilter bind:search />
-          <div class="mt-2">
+          <div class="mt-3">
             <Badge
               variant="secondary"
               class="cursor-pointer"
