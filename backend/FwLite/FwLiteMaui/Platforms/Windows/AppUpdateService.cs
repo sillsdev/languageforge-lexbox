@@ -215,7 +215,7 @@ public class AppUpdateService(
             logger.LogInformation("Should check for update, because last check was in the future: {LastCheck}", lastChecked);
             return true;
         }
-        if (timeSinceLastCheck.TotalHours < 20)
+        if (timeSinceLastCheck.TotalHours < 8)
         {
             logger.LogInformation("Should not check for update, because last check was too recent: {LastCheck}", lastChecked);
             return false;
