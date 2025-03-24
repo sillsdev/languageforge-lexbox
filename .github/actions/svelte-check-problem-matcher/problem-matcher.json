@@ -5,18 +5,17 @@
             "pattern": [
                 {
                     // Matches the 1st line in the output
-                    "regexp": "^[0-9]+\\s+START\\s+\"(.*)\"$",
-                    "fromPath": 1
+                    "regexp": "^(.*):([0-9]+):([0-9]+)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3
                 },
                 {
                     // Matches the error, warning and hint lines in the output
-                    "regexp": "^[0-9]+\\s+(WARNING|ERROR|HINT)\\s+\"(.*)\"\\s+([0-9]*):([0-9]*)\\s+\"(.*)\"$",
+                    "regexp": "^(Warning|Error|Hint):\\s+(.*)\\s+(.*)$",
                     // File path Root is carried through from above, so we define the rest of the groups
                     "severity": 1,
-                    "file": 2,
-                    "line": 3,
-                    "column": 4,
-                    "message": 5,
+                    "message": 2,
                     "loop": true
                 }
             ]

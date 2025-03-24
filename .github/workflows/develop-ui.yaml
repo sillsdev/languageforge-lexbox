@@ -66,7 +66,8 @@ jobs:
       - name: Svelte-Check PR Annotator
         uses: ./.github/actions/svelte-check-problem-matcher
       - id: svelte_check
-        run: pnpm run -r --no-bail --parallel --aggregate-output --reporter-hide-prefix check --output machine
+        #dont use machine output as it is not compatible with github actions
+        run: pnpm run -r --no-bail --parallel --aggregate-output --reporter-hide-prefix check
       - run: pnpm run -r --no-bail lint:report
         if: ${{ always() && steps.svelte_check.outcome != 'cancelled' }}
       - name: Annotate Code Linting REsults
