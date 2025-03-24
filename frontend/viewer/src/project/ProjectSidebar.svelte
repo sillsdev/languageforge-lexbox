@@ -31,6 +31,10 @@
   function handleProjectSelect(selectedProjectName: string) {
     console.log('selectedProjectName', selectedProjectName);
   }
+
+  function handleNewEntry() {
+    console.log('handleNewEntry');
+  }
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -45,16 +49,15 @@
   <Sidebar.Header class="relative">
     <div class="flex flex-col gap-2">
       <div class="flex flex-row items-center gap-2">
-        <ProjectDropdown
-          {projectName}
-          onSelect={handleProjectSelect}
-        />
-        <div class="flex-1" ></div>
-        <ThemePicker button={{variant: 'ghost', size: 'icon'}}>
+        <ProjectDropdown {projectName} onSelect={handleProjectSelect} />
+        <div class="flex-1"></div>
+        <ThemePicker button={{ variant: 'ghost', size: 'icon' }}>
           <div class="size-3 rounded-full bg-primary"></div>
         </ThemePicker>
       </div>
-      <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus">{$t`Create Entry`}</Button>
+      <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus" onclick={handleNewEntry}>
+        {$t`New Entry`}
+      </Button>
     </div>
   </Sidebar.Header>
   <Sidebar.Content>
@@ -83,7 +86,11 @@
               <Icon icon="i-mdi-sync" />
               <span>{$t`Synchronize`}</span>
             </div>
-            <div class="size-2 rounded-full" class:bg-red-500={isSynchronizing} class:bg-green-500={!isSynchronizing}></div>
+            <div
+              class="size-2 rounded-full"
+              class:bg-red-500={isSynchronizing}
+              class:bg-green-500={!isSynchronizing}
+            ></div>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
