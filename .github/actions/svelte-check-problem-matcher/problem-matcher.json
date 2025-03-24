@@ -10,7 +10,7 @@
                 },
                 {
                     // Matches the error, warning and hint lines in the output, with optional leading dot or 2 as we had to hack the output by setting the workspace to the package.json
-                    "regexp": "^[0-9]+\\s+(WARNING|ERROR|HINT)\\s+\"\\.{0,2}(.*)\"\\s+([0-9]*):([0-9]*)\\s+\"(.*)\"$",
+                    "regexp": "^[0-9]+\\s+(WARNING|ERROR|HINT)\\s+\"(?:\\.{1,2}\\\\)?(.*)\"\\s+([0-9]*):([0-9]*)\\s+\"(.*)\"$",
                     // File path Root is carried through from above, so we define the rest of the groups
                     "severity": 1,
                     "file": 2,
