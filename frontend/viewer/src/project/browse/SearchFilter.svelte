@@ -43,7 +43,7 @@
     <Input bind:value={search} placeholder={$t`Filter`} autofocus class="pl-10 pr-10" />
     <Collapsible.Trigger
       class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'absolute top-1/2 -translate-y-1/2 right-1' })}>
-      <Icon icon="i-mdi-filter" class="size-5" />
+      <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
     </Collapsible.Trigger>
   </div>
   <Collapsible.Content class="my-4 space-y-2">
