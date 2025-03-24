@@ -203,7 +203,7 @@ public class AppUpdateService(
     {
         if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(ForceUpdateCheckEnvVar) ?? ""))
         {
-            logger.LogInformation("Should check for update based on env var {EnvVar}", PreventUpdateCheckEnvVar);
+            logger.LogInformation("Should check for update based on env var {EnvVar}", ForceUpdateCheckEnvVar);
             return true;
         }
         var lastChecked = preferences.Get(LastUpdateCheck, DateTime.MinValue);
