@@ -4,6 +4,7 @@ import {useMiniLcmApi} from './services/service-provider';
 import {initWritingSystemService, WritingSystemService} from './writing-system-service';
 import {writable} from 'svelte/store';
 
+//todo this won't work when projects change, the WSS should depend on miniLcmApi which should also be reactive
 let writingSystems = $state< IWritingSystems | null>(null);
 let loading = $state(false);
 export function useWritingSystemRunes(): WritingSystemService {
