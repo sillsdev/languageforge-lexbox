@@ -25,7 +25,10 @@ function processErrorIntoDetails(message: string): {message: string, detail?: st
   return {message: match[1].trim(), detail: message.substring(match[1].length).trim()};
 }
 
+const setup = {value: false};
 export function setupGlobalErrorHandlers() {
+  if (setup.value) return;
+  setup.value = true;
   window.addEventListener('error', (event: ErrorEvent) => {
     console.error('Global error', event);
 

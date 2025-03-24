@@ -19,6 +19,7 @@
   import DotnetProjectView from './DotnetProjectView.svelte';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
   import {ModeWatcher} from 'mode-watcher';
+  import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
 
   export let url = '';
 
@@ -68,6 +69,7 @@
   /* eslint-enable @typescript-eslint/naming-convention */
 
   setupGlobalErrorHandlers();
+  initScottyPortalContext();
 </script>
 <ModeWatcher/>
 <Router {url}>

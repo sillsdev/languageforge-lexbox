@@ -53,7 +53,7 @@
       <EntryMenu onDelete={handleDelete} />
     </header>
     <div class="h-full overflow-y-auto" class:hide-unused={!$viewSettings.showEmptyFields}>
-      <EntryEditor modalMode {entry} />
+      <EntryEditor {entry} disablePortalButtons />
     </div>
   {/if}
   {#if loadingDebounced.current}
