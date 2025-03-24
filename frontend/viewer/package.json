@@ -24,7 +24,7 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check": "svelte-check",
     "lint": "eslint .",
     "i18n:extract": "lingui extract && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js"
