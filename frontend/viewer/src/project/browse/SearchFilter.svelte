@@ -17,6 +17,8 @@
   } = $props();
   let missingExamples = $state(false);
   let missingSenses = $state(false);
+  let missingPartOfSpeech = $state(false);
+  let missingSemanticDomains = $state(false);
   $effect(() => {
     let newFilter: string[] = [];
     if (missingExamples) {
@@ -24,6 +26,12 @@
     }
     if (missingSenses) {
       newFilter.push('Senses=null')
+    }
+    if (missingPartOfSpeech) {
+      newFilter.push('Senses.PartOfSpeechId=null')
+    }
+    if (missingSemanticDomains) {
+      newFilter.push('Senses.SemanticDomains=null')
     }
     gridifyFilter = newFilter.join(', ');
   });
@@ -46,6 +54,14 @@
     <div class="flex items-center gap-2">
       <Switch id="missingSenses" bind:checked={missingSenses} />
       <Label for="missingSenses">{$t`Missing Senses`}</Label>
+    </div>
+    <div class="flex items-center gap-2">
+      <Switch id="missingPartOfSpeech" bind:checked={missingPartOfSpeech} />
+      <Label for="missingPartOfSpeech">{$t`Missing Part of Speech`}</Label>
+    </div>
+    <div class="flex items-center gap-2">
+      <Switch id="missingSemanticDomains" bind:checked={missingSemanticDomains} />
+      <Label for="missingSemanticDomains">{$t`Missing Semantic Domains`}</Label>
     </div>
   </Collapsible.Content>
 </Collapsible.Root>
