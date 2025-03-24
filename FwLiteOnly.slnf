@@ -5,6 +5,7 @@
       "backend\\FwLite\\FwDataMiniLcmBridge.Tests\\FwDataMiniLcmBridge.Tests.csproj",
       "backend\\FwLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",
       "backend\\FwLite\\FwLiteMaui\\FwLiteMaui.csproj",
+      "backend\\FwLite\\FwLiteMaui.Tests\\FwLiteMaui.Tests.csproj",
       "backend\\FwLite\\FwLiteProjectSync.Tests\\FwLiteProjectSync.Tests.csproj",
       "backend\\FwLite\\FwLiteProjectSync\\FwLiteProjectSync.csproj",
       "backend\\FwLite\\FwLiteShared\\FwLiteShared.csproj",

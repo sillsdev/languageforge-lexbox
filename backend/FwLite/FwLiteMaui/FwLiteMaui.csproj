@@ -112,4 +112,8 @@
         <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="../FwLiteMaui.Tests/FwLiteMaui.Tests.csproj" />
+    </ItemGroup>
+
 </Project>
