@@ -1,5 +1,5 @@
 import {MediaQuery} from 'svelte/reactivity';
-import { MOBILE_BREAKPOINT } from '../../../tailwind.config';
+import {MOBILE_BREAKPOINT} from '../../css-breakpoints';
 
 export class IsMobile extends MediaQuery {
   constructor() {
