@@ -13,9 +13,6 @@
     <PackageReference Include="SIL.LCModel" />
     <PackageReference Include="structuremap.patched" />
     <PackageReference Include="System.Linq.Async" />
-    <PackageReference Include="System.Net.NameResolution" />
-    <PackageReference Include="System.Private.Uri" />
-    <PackageReference Include="System.Threading.ThreadPool" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests" />

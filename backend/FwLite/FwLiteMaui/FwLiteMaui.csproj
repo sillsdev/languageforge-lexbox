@@ -73,10 +73,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
     <PackageReference Include="NReco.Logging.File" />
-    <PackageReference Include="System.Collections" />
-    <PackageReference Include="System.IO" />
-    <PackageReference Include="System.Runtime.Extensions" />
-    <PackageReference Include="System.Runtime.InteropServices" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
