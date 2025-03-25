@@ -9,6 +9,8 @@ import svelteUx from 'svelte-ux/plugins/tailwind.cjs';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import {fontFamily} from 'tailwindcss/defaultTheme';
 
+// used in the is-mobile.svelte hook
+export const MOBILE_BREAKPOINT = 768;
 export default {
   darkMode: ['class'],
   content: [
@@ -73,6 +75,9 @@ export default {
   },
 
   theme: {
+    screens: {
+      'md': `${MOBILE_BREAKPOINT}px`,
+    },
     container: {
       center: true,
       padding: '2rem',
