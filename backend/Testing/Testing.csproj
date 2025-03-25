@@ -34,7 +34,7 @@
         <PackageReference Include="Moq.Contrib.HttpClient" Version="1.4.0" />
         <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.1.0" />
-        <PackageReference Include="SIL.Core" Version="14.2.0-*" />
+        <PackageReference Include="SIL.Core" Version="14.2.0-beta0022" />
         <PackageReference Include="xunit" Version="2.9.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
             <PrivateAssets>all</PrivateAssets>

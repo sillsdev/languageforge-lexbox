@@ -26,7 +26,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1"/>
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
-        <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.*" />
+        <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     </ItemGroup>
 
     <ItemGroup>
