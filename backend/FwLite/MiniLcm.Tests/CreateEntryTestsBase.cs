@@ -10,7 +10,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "test" } } });
         entry.Should().NotBeNull();
         entry.LexemeForm.Values.Should().ContainKey("en");
-        entry.LexemeForm.Values["en"].Should().Be("test");
+        entry.LexemeForm["en"].Should().Be("test");
     }
 
     [Fact]

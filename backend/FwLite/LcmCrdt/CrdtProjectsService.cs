@@ -243,14 +243,14 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { Values = { { "en", "Apple" } } },
-            CitationForm = { Values = { { "en", "Apple" } } },
+            LexemeForm = { { "en", "Apple" } },
+            CitationForm = { { "en", "Apple" } },
             LiteralMeaning = { { "en", "Fruit" } },
             Senses =
             [
                 new()
                 {
-                    Gloss = { Values = { { "en", "Fruit" } } },
+                    Gloss = { { "en", "Fruit" } },
                     Definition =
                     {
                         {
