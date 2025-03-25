@@ -11,7 +11,8 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+#      the current max cache size in the kopia config is around 5gb, we want some headroom so we're increasing it
+      storage: 6Gi
 
 ---
 apiVersion: batch/v1

@@ -17,7 +17,13 @@ using Path = System.IO.Path; // Resolves ambiguous reference with HotChocolate.P
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService)
+public class ProjectService(
+    LexBoxDbContext dbContext,
+    IHgService hgService,
+    IOptions<HgConfig> hgConfig,
+    IMemoryCache memoryCache,
+    IEmailService emailService,
+    FwHeadlessClient fwHeadless)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -154,14 +160,17 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
 
     public async Task ResetProject(ResetProjectByAdminInput input)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var rowsAffected = await dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
             .ExecuteUpdateAsync(u => u
                 .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
                 .SetProperty(p => p.RepoSizeInKb, 0)
                 .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
         if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
+        await fwHeadless.DeleteRepo(await LookupProjectId(input.Code));
         await ResetLexEntryCount(input.Code);
         await hgService.ResetRepo(input.Code);
+        await transaction.CommitAsync();
     }
 
     public async Task FinishReset(string code, Stream? zipFile = null)

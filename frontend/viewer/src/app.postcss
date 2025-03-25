@@ -1,3 +1,4 @@
+@import 'theme.postcss';
 @import './lib/entry-editor/field.postcss';
 @import './lib/entry-editor/EntryOrSensePicker.postcss';
 @import 'theme.postcss';
@@ -154,4 +155,12 @@ html:has(.Dialog) {
 
 .menu-items .options {
   @apply overscroll-contain;
+}
+
+.x-ellipsis {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Ensures dangling letters are not clipped (e.g. "g") */
+  line-height: 1.3em;
 }

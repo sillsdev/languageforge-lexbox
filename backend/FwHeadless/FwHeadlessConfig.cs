@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.IO;
+using FwDataMiniLcmBridge;
 
 namespace FwHeadless;
 
@@ -14,4 +16,19 @@ public class FwHeadlessConfig
     [Required]
     public required string ProjectStorageRoot { get; init; }
     public string FdoDataModelVersion { get; init; } = "7000072";
+
+    public string GetProjectFolder(string projectCode, Guid projectId)
+    {
+        return Path.Join(ProjectStorageRoot, $"{projectCode}-{projectId}");
+    }
+
+    public string GetCrdtFile(string projectCode, Guid projectId)
+    {
+        return Path.Join(GetProjectFolder(projectCode, projectId), "crdt.sqlite");
+    }
+
+    public FwDataProject GetFwDataProject(string projectCode, Guid projectId)
+    {
+        return new FwDataProject("fw", GetProjectFolder(projectCode, projectId));
+    }
 }

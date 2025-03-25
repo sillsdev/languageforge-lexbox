@@ -38,22 +38,23 @@
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
-  <Sidebar.MenuSubItem>
-    <Sidebar.MenuSubButton onclick={() => (currentView = view)} isActive={currentView === view}>
+  <Sidebar.MenuItem>
+    <Sidebar.MenuButton onclick={() => (currentView = view)} isActive={currentView === view}>
       <Icon {icon} />
       <span>{label}</span>
-    </Sidebar.MenuSubButton>
-  </Sidebar.MenuSubItem>
+    </Sidebar.MenuButton>
+  </Sidebar.MenuItem>
 {/snippet}
 <Sidebar.Root variant="inset">
   <Sidebar.Header class="relative">
-    <div class="flex flex-col gap-2">
-      <div class="flex flex-row items-center gap-2">
-        <ProjectDropdown {projectName} onSelect={handleProjectSelect} />
-        <div class="flex-1"></div>
-        <ThemePicker button={{ variant: 'ghost', size: 'icon' }}>
-          <div class="size-3 rounded-full bg-primary"></div>
-        </ThemePicker>
+    <div class="flex flex-col gap-2 overflow-hidden">
+      <div class="flex flex-row items-center gap-1">
+        <ProjectDropdown
+          {projectName}
+          onSelect={handleProjectSelect}
+        />
+        <div class="flex-1" ></div>
+        <ThemePicker />
       </div>
       <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus" onclick={handleNewEntry}>
         {$t`New Entry`}
@@ -62,19 +63,15 @@
   </Sidebar.Header>
   <Sidebar.Content>
     <Sidebar.Group>
-      <Sidebar.Menu>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            <span>{$t`Dictionary`}</span>
-          </Sidebar.MenuButton>
-          <Sidebar.MenuSub>
-            {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
-            {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
-            {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
-          </Sidebar.MenuSub>
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
+      <Sidebar.GroupLabel>{$t`Dictionary`}</Sidebar.GroupLabel>
+      <Sidebar.GroupContent>
+        <Sidebar.Menu>
+          {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
+          {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
+          {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+          {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+        </Sidebar.Menu>
+      </Sidebar.GroupContent>
     </Sidebar.Group>
   </Sidebar.Content>
   <Sidebar.Footer>
