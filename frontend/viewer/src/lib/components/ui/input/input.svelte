@@ -1,13 +1,16 @@
-<script lang="ts">
-  import {cn} from '$lib/utils.js';
-  import type {WithElementRef} from 'bits-ui';
-  import type {HTMLInputAttributes, HTMLInputTypeAttribute} from 'svelte/elements';
+<script lang="ts" module>
+  import type { WithElementRef, WithoutChildren } from 'bits-ui';
+  import type { HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 
   type InputType = Exclude<HTMLInputTypeAttribute, 'file'>;
 
-  type Props = WithElementRef<
+  export type InputProps = WithoutChildren<WithElementRef<
     Omit<HTMLInputAttributes, 'type'> & ({ type: 'file'; files?: FileList } | { type?: InputType; files?: undefined })
-  >;
+  >>;
+</script>
+
+<script lang="ts">
+  import { cn } from '$lib/utils.js';
 
   let {
     ref = $bindable(null),
@@ -16,7 +19,7 @@
     files = $bindable(),
     class: className,
     ...restProps
-  }: Props = $props();
+  }: InputProps = $props();
 </script>
 
 {#if type === 'file'}

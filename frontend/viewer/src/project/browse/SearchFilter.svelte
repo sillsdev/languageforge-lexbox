@@ -1,12 +1,14 @@
 <script lang="ts">
-  import { buttonVariants } from '$lib/components/ui/button';
   import * as Collapsible from '$lib/components/ui/collapsible';
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
-  import { Input } from '$lib/components/ui/input';
+  import { ComposableInput } from '$lib/components/ui/input';
   import { t } from 'svelte-i18n-lingui';
   import {Switch} from '$lib/components/ui/switch';
   import {Label} from '$lib/components/ui/label';
+  import {Toggle} from '$lib/components/ui/toggle';
+  import {cn} from '$lib/utils';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let {
     search = $bindable(),
@@ -35,33 +37,41 @@
     }
     gridifyFilter = newFilter.join(', ');
   });
+
+  let filtersExpanded = $state(false);
 </script>
 
-<Collapsible.Root>
+<Collapsible.Root bind:open={filtersExpanded} class={cn(filtersExpanded && 'bg-[hsl(var(--sidebar-background))] rounded-b')}>
   <div class="relative">
-    <Sidebar.Trigger icon="i-mdi-menu" class="absolute top-1/2 -translate-y-1/2 left-3 size-5" />
-    <Input bind:value={search} placeholder={$t`Filter`} autofocus class="pl-10 pr-10" />
-    <Collapsible.Trigger
-      class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'absolute top-1/2 -translate-y-1/2 right-1' })}>
-      <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
-    </Collapsible.Trigger>
+    <ComposableInput bind:value={search} placeholder={$t`Filter`} autofocus class="px-1">
+      {#snippet before()}
+        <Sidebar.Trigger icon={IsMobile.value ? 'i-mdi-menu' : 'i-mdi-dock-left'} iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs" />
+      {/snippet}
+      {#snippet after()}
+        <Collapsible.Trigger>
+          <Toggle aria-label={$t`Toggle filters`} class="aspect-square" size="xs">
+            <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
+          </Toggle>
+        </Collapsible.Trigger>
+      {/snippet}
+    </ComposableInput>
   </div>
-  <Collapsible.Content class="my-4 space-y-2">
+  <Collapsible.Content class="p-2 mb-2 space-y-2">
     <div class="flex items-center gap-2">
       <Switch id="missingExamples" bind:checked={missingExamples} />
-      <Label for="missingExamples">{$t`Missing Examples`}</Label>
+      <Label class="cursor-pointer" for="missingExamples">{$t`Missing Examples`}</Label>
     </div>
     <div class="flex items-center gap-2">
       <Switch id="missingSenses" bind:checked={missingSenses} />
-      <Label for="missingSenses">{$t`Missing Senses`}</Label>
+      <Label class="cursor-pointer" for="missingSenses">{$t`Missing Senses`}</Label>
     </div>
     <div class="flex items-center gap-2">
       <Switch id="missingPartOfSpeech" bind:checked={missingPartOfSpeech} />
-      <Label for="missingPartOfSpeech">{$t`Missing Part of Speech`}</Label>
+      <Label class="cursor-pointer" for="missingPartOfSpeech">{$t`Missing Part of Speech`}</Label>
     </div>
     <div class="flex items-center gap-2">
       <Switch id="missingSemanticDomains" bind:checked={missingSemanticDomains} />
-      <Label for="missingSemanticDomains">{$t`Missing Semantic Domains`}</Label>
+      <Label class="cursor-pointer" for="missingSemanticDomains">{$t`Missing Semantic Domains`}</Label>
     </div>
   </Collapsible.Content>
 </Collapsible.Root>

@@ -74,29 +74,31 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
   </Sidebar.Content>
-  <Sidebar.Footer>
+  <Sidebar.Footer class="p-0">
     <Sidebar.Group>
-      <Sidebar.Menu>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton class="justify-between">
-            <div class="flex items-center gap-2">
-              <Icon icon="i-mdi-sync" />
-              <span>{$t`Synchronize`}</span>
-            </div>
-            <div
-              class="size-2 rounded-full"
-              class:bg-red-500={isSynchronizing}
-              class:bg-green-500={!isSynchronizing}
-            ></div>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            <Icon icon="i-mdi-account" />
-            <span>{$t`Account`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
+      <Sidebar.GroupContent>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton class="justify-between">
+              <div class="flex items-center gap-2">
+                <Icon icon="i-mdi-sync" />
+                <span>{$t`Synchronize`}</span>
+              </div>
+              <div
+                class="size-2 rounded-full"
+                class:bg-red-500={isSynchronizing}
+                class:bg-green-500={!isSynchronizing}
+              ></div>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-account" />
+              <span>{$t`Account`}</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.GroupContent>
     </Sidebar.Group>
 
     <Sidebar.Group>

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import {Collapsible as CollapsiblePrimitive} from 'bits-ui';
 import Content from './collapsible-content.svelte';
 

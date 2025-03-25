@@ -5,6 +5,7 @@
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
   import {mode, resetMode, setMode, setTheme, theme, userPrefersMode} from 'mode-watcher';
+  import {t} from 'svelte-i18n-lingui';
 
   const themes = ['green', 'blue', 'rose', 'orange', 'violet', 'stone'];
 </script>
@@ -18,7 +19,7 @@
         <Icon icon="i-mdi-weather-night"
           class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary"
         />
-        <span class="sr-only">Toggle theme</span>
+        <span class="sr-only">{$t`Toggle theme`}</span>
       </Button>
     {/snippet}
   </Popover.Trigger>
@@ -26,7 +27,7 @@
     <div class="flex flex-1 flex-col space-y-4 md:space-y-6">
       <div class="space-y-1">
         <div class="flex items-baseline justify-between">
-          <Label class="text-xs">Color</Label>
+          <Label class="text-xs">{$t`Color`}</Label>
           <Popover.Close>
             {#snippet child({props})}
               <Button {...props} variant="ghost" size="icon">

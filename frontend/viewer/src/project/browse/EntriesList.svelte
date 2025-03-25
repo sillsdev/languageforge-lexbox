@@ -67,26 +67,28 @@
   </Button>
 </div>
 
-<div class="overflow-y-auto flex-1 pr-4">
-  <div class="space-y-2">
-    {#if loading.current}
-      <!-- Show skeleton rows while loading -->
-      {#each { length: skeletonRowCount }, _index}
-        <EntryRow skeleton={true} />
-      {/each}
-    {:else if entriesResource.error}
-      <div class="flex items-center justify-center h-full text-muted-foreground">
-        <p>Failed to load entries</p>
-        <p>{entriesResource.error.message}</p>
-      </div>
-    {:else}
-      {#each entries as entry}
-        <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => onSelectEntry(entry)} />
+<div class="overflow-y-auto flex-1">
+  {#if entriesResource.error}
+    <div class="flex items-center justify-center h-full text-muted-foreground">
+      <p>{$t`Failed to load entries`}</p>
+      <p>{entriesResource.error.message}</p>
+    </div>
+  {:else}
+    <div>
+      {#if loading.current}
+        <!-- Show skeleton rows while loading -->
+        {#each { length: skeletonRowCount }, _index}
+          <EntryRow skeleton={true} />
+        {/each}
       {:else}
-        <div class="flex items-center justify-center h-full text-muted-foreground">
-          <p>No entries found</p>
-        </div>
-      {/each}
-    {/if}
-  </div>
+        {#each entries as entry}
+          <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => onSelectEntry(entry)} />
+        {:else}
+          <div class="flex items-center justify-center h-full text-muted-foreground">
+            <p>{$t`No entries found`}</p>
+          </div>
+        {/each}
+      {/if}
+    </div>
+  {/if}
 </div>
