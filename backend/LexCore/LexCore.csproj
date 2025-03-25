@@ -1,11 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-      <LangVersion>preview</LangVersion>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="EntityFrameworkCore.Projectables.Abstractions" Version="4.0.0-preview.4" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="EntityFrameworkCore.Projectables.Abstractions" />
+  </ItemGroup>
 </Project>

@@ -1,51 +1,45 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-        <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1"/>
-        <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
-        <PackageReference Include="xunit" Version="2.9.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1"/>
-        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
-        <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Using Include="Xunit"/>
-        <Using Include="FluentAssertions"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj" />
-      <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
-      <ProjectReference Include="..\FwLiteWeb\FwLiteWeb.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <!-- json files get imported by default in web projects, so exclude those here so they aren't imported again below -->
-        <!-- TODO: Determine if this step is actually necessary -->
-        <Content Remove="Mercurial\contrib\asv.conf.json"/>
-        <Content Include="Mercurial\**" CopyToOutputDirectory="PreserveNewest" Watch="false" />
-        <Content Include="MercurialExtensions\**" CopyToOutputDirectory="PreserveNewest" Watch="false" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="GitHubActionsTestLogger">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Soenneker.Utils.AutoBogus" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
+    <PackageReference Include="SIL.Chorus.Mercurial" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj" />
+    <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
+    <ProjectReference Include="..\FwLiteWeb\FwLiteWeb.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- json files get imported by default in web projects, so exclude those here so they aren't imported again below -->
+    <!-- TODO: Determine if this step is actually necessary -->
+    <Content Remove="Mercurial\contrib\asv.conf.json" />
+    <Content Include="Mercurial\**" CopyToOutputDirectory="PreserveNewest" Watch="false" />
+    <Content Include="MercurialExtensions\**" CopyToOutputDirectory="PreserveNewest" Watch="false" />
+  </ItemGroup>
 </Project>
