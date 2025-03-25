@@ -22,7 +22,7 @@
 </script>
 
 <div class="flex flex-col h-full">
-  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-hidden">
+  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
     {#if !isMobile.current || !selectedEntry}
       <ResizablePane
         defaultSize={defaultLayout[0]}

@@ -51,7 +51,7 @@
   let open = $state(true);
 </script>
 <DeleteDialog bind:this={deleteDialog} />
-<div class="h-screen flex PortalTarget">
+<div class="h-screen flex PortalTarget overflow-hidden">
   <Sidebar.Provider bind:open>
       <ProjectSidebar {projectName} bind:currentView />
       <Sidebar.Inset class="flex-1 relative">
