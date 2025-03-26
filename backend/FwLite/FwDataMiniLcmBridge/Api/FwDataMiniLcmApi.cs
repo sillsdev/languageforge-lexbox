@@ -961,7 +961,7 @@ public class FwDataMiniLcmApi(
 
         foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
-            if (entryRef.ComponentLexemesRS.Remove(lexComponent)) return;
+            entryRef.ComponentLexemesRS.Remove(lexComponent);
         }
         //not throwing to match CRDT behavior
     }
@@ -990,11 +990,11 @@ public class FwDataMiniLcmApi(
 
     internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
-        foreach (var entryRef in lexEntry.ComplexFormEntryRefs.Reverse())
+        foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
             var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
             if (lexEntryType is null) continue;
-            if (entryRef.ComplexEntryTypesRS.Remove(lexEntryType)) break;
+            entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
         }
     }
 
