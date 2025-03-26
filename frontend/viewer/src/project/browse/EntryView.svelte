@@ -10,6 +10,8 @@
   import ViewPicker from './ViewPicker.svelte';
   import EntryMenu from './EntryMenu.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
+  import {ScrollArea} from '$lib/components/ui/scroll-area';
+  import {cn} from '$lib/utils';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -52,9 +54,9 @@
       <ViewPicker/>
       <EntryMenu onDelete={handleDelete} />
     </header>
-    <div class="h-full overflow-y-auto" class:hide-unused={!$viewSettings.showEmptyFields}>
+    <ScrollArea class={cn('h-full pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />
-    </div>
+    </ScrollArea>
   {/if}
   {#if loadingDebounced.current}
     <div

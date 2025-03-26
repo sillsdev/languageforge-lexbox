@@ -8,6 +8,7 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import { cn } from '$lib/utils';
   import { t } from 'svelte-i18n-lingui';
+  import {ScrollArea} from '$lib/components/ui/scroll-area';
 
   const {
     search = '',
@@ -53,7 +54,7 @@
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 </script>
 
-<div class="absolute bottom-0 right-0 m-4 flex flex-col items-end">
+<div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
   <Button
     icon="i-mdi-refresh"
     variant="default"
@@ -67,14 +68,14 @@
   </Button>
 </div>
 
-<div class="overflow-y-auto flex-1">
+<ScrollArea class="pr-5 flex-1">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
       <p>{entriesResource.error.message}</p>
     </div>
   {:else}
-    <div>
+    <div class="space-y-2 pb-12">
       {#if loading.current}
         <!-- Show skeleton rows while loading -->
         {#each { length: skeletonRowCount }, _index}
@@ -91,4 +92,4 @@
       {/if}
     </div>
   {/if}
-</div>
+</ScrollArea>

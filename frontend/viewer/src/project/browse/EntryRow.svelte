@@ -30,7 +30,7 @@
 </script>
 
 <button
-  class="w-full px-4 py-3 text-left hover:bg-muted rounded"
+  class="w-full px-4 py-3 text-left bg-muted/30 hover:bg-muted rounded"
   class:bg-muted={isSelected}
   class:cursor-default={skeleton}
   class:hover:bg-transparent={skeleton}
