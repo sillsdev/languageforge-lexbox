@@ -6,11 +6,10 @@
   import { t } from 'svelte-i18n-lingui';
   import type {WithChildren} from 'bits-ui';
   import type {Snippet} from 'svelte';
-  const isMobile = new IsMobile();
   let { open = $bindable(false), children, title, trigger }: WithChildren<{ open?: boolean, title: string, trigger: Snippet }> = $props();
 </script>
 
-{#if !isMobile.current}
+{#if !IsMobile.value}
   <Popover.Root bind:open>
     <Popover.Trigger class={buttonVariants({ variant: 'ghost', size: 'sm', class: 'float-right' })}>
       {@render trigger()}

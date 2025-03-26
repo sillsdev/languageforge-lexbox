@@ -12,7 +12,6 @@
     onDelete?: () => void;
   }>();
 
-  const isMobile = new IsMobile();
   let open = $state(false);
   const triggerVariant = buttonVariants({ variant: 'ghost', size: 'sm', class: 'float-right' });
 </script>
@@ -23,7 +22,7 @@
 {/snippet}
 
 {#snippet menuItem(icon: IconClass, label: string, onSelect: () => void)}
-  {#if !isMobile.current}
+  {#if !IsMobile.value}
     <DropdownMenu.Item class="cursor-pointer" {onSelect}>
       <Icon {icon} class="mr-2" />
       {label}
@@ -40,7 +39,7 @@
   {/if}
 {/snippet}
 
-{#if !isMobile.current}
+{#if !IsMobile.value}
   <DropdownMenu.Root bind:open>
     <DropdownMenu.Trigger class={triggerVariant}>
       <Icon icon="i-mdi-dots-vertical" class="cursor-pointer" />

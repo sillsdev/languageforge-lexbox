@@ -4,14 +4,12 @@
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
-  import ViewPicker from './ViewPicker.svelte';
   import EntriesList from './EntriesList.svelte';
   import { Badge } from '$lib/components/ui/badge';
   import { Icon } from '$lib/components/ui/icon';
   import { t } from 'svelte-i18n-lingui';
   let selectedEntry = $state<IEntry | undefined>(undefined);
   const defaultLayout = [30, 70]; // Default split: 30% for list, 70% for details
-  const isMobile = new IsMobile();
   let search = $state('');
   let gridifyFilter = $state<string | undefined>(undefined);
   let sortDirection = $state<'asc' | 'desc'>('asc');
@@ -23,7 +21,7 @@
 
 <div class="flex flex-col h-full p-2 md:p-4">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
-    {#if !isMobile.current || !selectedEntry}
+    {#if !IsMobile.value || !selectedEntry}
       <ResizablePane
         defaultSize={defaultLayout[0]}
         collapsible
@@ -47,10 +45,10 @@
         <EntriesList {search} {selectedEntry} {sortDirection} {gridifyFilter} onSelectEntry={(e) => (selectedEntry = e)} />
       </ResizablePane>
     {/if}
-    {#if !isMobile.current}
+    {#if !IsMobile.value}
       <ResizableHandle withHandle />
     {/if}
-    {#if selectedEntry || !isMobile.current}
+    {#if selectedEntry || !IsMobile.value}
       <ResizablePane defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
         {#if !selectedEntry}
           <div class="flex items-center justify-center h-full text-muted-foreground">
@@ -60,7 +58,7 @@
           <EntryView
             entryId={selectedEntry.id}
             onClose={() => (selectedEntry = undefined)}
-            showClose={isMobile.current}
+            showClose={IsMobile.value}
           />
         {/if}
       </ResizablePane>
