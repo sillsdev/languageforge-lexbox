@@ -57,21 +57,9 @@
     </ComposableInput>
   </div>
   <Collapsible.Content class="p-2 mb-2 space-y-2">
-    <div class="flex items-center gap-2">
-      <Switch id="missingExamples" bind:checked={missingExamples} />
-      <Label class="cursor-pointer" for="missingExamples">{$t`Missing Examples`}</Label>
-    </div>
-    <div class="flex items-center gap-2">
-      <Switch id="missingSenses" bind:checked={missingSenses} />
-      <Label class="cursor-pointer" for="missingSenses">{$t`Missing Senses`}</Label>
-    </div>
-    <div class="flex items-center gap-2">
-      <Switch id="missingPartOfSpeech" bind:checked={missingPartOfSpeech} />
-      <Label class="cursor-pointer" for="missingPartOfSpeech">{$t`Missing Part of Speech`}</Label>
-    </div>
-    <div class="flex items-center gap-2">
-      <Switch id="missingSemanticDomains" bind:checked={missingSemanticDomains} />
-      <Label class="cursor-pointer" for="missingSemanticDomains">{$t`Missing Semantic Domains`}</Label>
-    </div>
+    <Switch bind:checked={missingExamples} label={$t`Missing Examples`} />
+    <Switch bind:checked={missingSenses} label={$t`Missing Senses`} />
+    <Switch bind:checked={missingPartOfSpeech} label={$t`Missing Part of Speech`} />
+    <Switch bind:checked={missingSemanticDomains} label={$t`Missing Semantic Domains`} />
   </Collapsible.Content>
 </Collapsible.Root>
