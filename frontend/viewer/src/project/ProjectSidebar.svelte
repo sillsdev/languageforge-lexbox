@@ -73,8 +73,7 @@
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
-  </Sidebar.Content>
-  <Sidebar.Footer class="p-0">
+    <div class="grow"></div>
     <Sidebar.Group>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
@@ -132,11 +131,13 @@
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
       </Sidebar.Menu>
+    </Sidebar.Group>
+  </Sidebar.Content>
+  <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
         <div>{$t`Version ${config.appVersion}`}</div>
         <div>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
-    </Sidebar.Group>
   </Sidebar.Footer>
   <Sidebar.Rail></Sidebar.Rail>
 </Sidebar.Root>
