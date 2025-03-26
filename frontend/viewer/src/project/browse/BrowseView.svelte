@@ -21,7 +21,7 @@
   }
 </script>
 
-<div class="flex flex-col h-full p-4">
+<div class="flex flex-col h-full p-2 md:p-4">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
     {#if !isMobile.current || !selectedEntry}
       <ResizablePane
@@ -31,9 +31,9 @@
         minSize={15}
         class="min-h-0 flex flex-col relative"
       >
-        <div class="mb-4 mr-4">
+        <div class="mb-2 md:mb-4 md:mr-4">
           <SearchFilter bind:search bind:gridifyFilter />
-          <div class="mt-3">
+          <div class="mt-2 md:mt-3">
             <Badge
               variant="secondary"
               class="cursor-pointer"

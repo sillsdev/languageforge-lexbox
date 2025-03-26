@@ -54,7 +54,7 @@
       <ViewPicker/>
       <EntryMenu onDelete={handleDelete} />
     </header>
-    <ScrollArea class={cn('h-full pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
   {/if}

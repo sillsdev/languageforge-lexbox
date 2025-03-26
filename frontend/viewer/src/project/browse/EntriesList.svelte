@@ -68,7 +68,7 @@
   </Button>
 </div>
 
-<ScrollArea class="pr-5 flex-1">
+<ScrollArea class="md:pr-5 flex-1">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
