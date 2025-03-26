@@ -45,7 +45,7 @@
   <div class="relative">
     <ComposableInput bind:value={search} placeholder={$t`Filter`} autofocus class="px-1">
       {#snippet before()}
-        <Sidebar.Trigger icon={IsMobile.value ? 'i-mdi-menu' : 'i-mdi-dock-left'} iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs" />
+        <Sidebar.Trigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs" />
       {/snippet}
       {#snippet after()}
         <Collapsible.Trigger>
