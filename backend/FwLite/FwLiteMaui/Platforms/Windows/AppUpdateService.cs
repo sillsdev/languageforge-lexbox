@@ -202,17 +202,26 @@ public class AppUpdateService(
     private bool ShouldCheckForUpdate()
     {
         if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(ForceUpdateCheckEnvVar) ?? ""))
+        {
+            logger.LogInformation("Should check for update based on env var {EnvVar}", ForceUpdateCheckEnvVar);
             return true;
+        }
         var lastChecked = preferences.Get(LastUpdateCheck, DateTime.MinValue);
         var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
         //if last checked is in the future (should never happen), then we want to reset the time and check again
-        if (timeSinceLastCheck.Hours < -1)
+        if (timeSinceLastCheck.TotalHours < -1)
         {
             preferences.Set(LastUpdateCheck, DateTime.UtcNow);
+            logger.LogInformation("Should check for update, because last check was in the future: {LastCheck}", lastChecked);
             return true;
         }
-        if (timeSinceLastCheck.Hours < 20) return false;
+        if (timeSinceLastCheck.TotalHours < 8)
+        {
+            logger.LogInformation("Should not check for update, because last check was too recent: {LastCheck}", lastChecked);
+            return false;
+        }
         preferences.Set(LastUpdateCheck, DateTime.UtcNow);
+        logger.LogInformation("Should check for update based on last check time: {LastCheck}", lastChecked);
         return true;
     }
 
