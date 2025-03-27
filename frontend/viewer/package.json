@@ -68,6 +68,7 @@
     "typescript": "catalog:",
     "vaul-svelte": "1.0.0-next.6",
     "vite": "catalog:",
+    "vite-plugin-webfont-dl": "^3.10.4",
     "vitest": "catalog:"
   },
   "dependencies": {

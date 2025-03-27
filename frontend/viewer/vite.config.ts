@@ -2,6 +2,7 @@ import {defineConfig} from 'vite';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import {svelteTesting} from '@testing-library/svelte/vite';
 import {lingui} from '@lingui/vite-plugin';
+import webfontDownload from 'vite-plugin-webfont-dl';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -52,7 +53,12 @@ export default defineConfig(({ mode, command }) => {
         },
       }),
       svelteTesting(),
-      lingui()
+      lingui(),
+      webfontDownload([],
+    {
+      assetsSubfolder: 'fonts',
+      minifyCss: false
+    })
     ],
     server: {
       origin: 'http://localhost:5173',
