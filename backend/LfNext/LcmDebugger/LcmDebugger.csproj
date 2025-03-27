@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\FwLite\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+      <ProjectReference Include="..\..\FwLite\FwLiteProjectSync\FwLiteProjectSync.csproj" />
     </ItemGroup>
 
     <ItemGroup>

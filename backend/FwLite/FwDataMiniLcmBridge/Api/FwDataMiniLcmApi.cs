@@ -47,7 +47,7 @@ public class FwDataMiniLcmApi(
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
     private ICmPossibilityList ComplexFormTypes => Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
-    private IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
+    internal IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
 
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
     private ICmPossibilityList Publications => Cache.LangProject.LexDbOA.PublicationTypesOA;
@@ -572,6 +572,7 @@ public class FwDataMiniLcmApi(
     {
         return entry.ComplexFormEntryRefs
             .SelectMany(r => r.ComplexEntryTypesRS, (_, type) => ToComplexFormType(type))
+            .DistinctBy(c => c.Id)
             .ToList();
     }
     private IEnumerable<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
@@ -582,7 +583,7 @@ public class FwDataMiniLcmApi(
                 ILexEntry component => ToEntryReference(component, entry),
                 ILexSense s => ToSenseReference(s, entry),
                 _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
-            });
+            }).DistinctBy(c => (c.ComponentEntryId, c.ComplexFormEntryId, c.ComponentSenseId));
     }
 
     private Variants? ToVariants(ILexEntry entry)
@@ -960,7 +961,7 @@ public class FwDataMiniLcmApi(
 
         foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
-            if (entryRef.ComponentLexemesRS.Remove(lexComponent)) return;
+            entryRef.ComponentLexemesRS.Remove(lexComponent);
         }
         //not throwing to match CRDT behavior
     }
@@ -989,11 +990,11 @@ public class FwDataMiniLcmApi(
 
     internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
-        foreach (var entryRef in lexEntry.ComplexFormEntryRefs.Reverse())
+        foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
             var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
             if (lexEntryType is null) continue;
-            if (entryRef.ComplexEntryTypesRS.Remove(lexEntryType)) break;
+            entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
         }
     }
 
