@@ -31,23 +31,20 @@ public class OpenProjectTests
         var services = host.Services;
         var asyncScope = services.CreateAsyncScope();
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-        var projectRequest = new CreateProjectRequest("CleaningUpAFailedCreateWorks", AfterCreate: (_, _) => throw new Exception("Test exception"), SeedNewProjectData: true);
+        var exception = new Exception("Test exception");
+        var projectRequest = new CreateProjectRequest("CleaningUpAFailedCreateWorks", AfterCreate: (_, _) => throw exception, SeedNewProjectData: true);
 
-        try
+
+        var act = async () => await crdtProjectsService.CreateProject(projectRequest);
+        (await act.Should().ThrowAsync<Exception>()).Which.Should().BeSameAs(exception);
+        var counter = 0;
+        while (File.Exists(sqliteConnectionString) && counter < 10)
         {
-            await crdtProjectsService.CreateProject(projectRequest);
-            Assert.Fail("Create should fail");
+            await Task.Delay(1000);
+            counter++;
         }
-        catch
-        {
-            var counter = 0;
-            while (File.Exists(sqliteConnectionString) && counter < 10)
-            {
-                await Task.Delay(1000);
-                counter++;
-            }
-            File.Exists(sqliteConnectionString).Should().BeFalse();
-        }
+
+        File.Exists(sqliteConnectionString).Should().BeFalse("database {0} was deleted", sqliteConnectionString);
     }
 
     [Fact]

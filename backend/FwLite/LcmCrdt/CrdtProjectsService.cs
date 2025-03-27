@@ -135,6 +135,8 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             {
                 EnsureDeleteProject(sqliteFile);
             }
+
+            throw;
         }
         return crdtProject;
     }
