@@ -30,8 +30,9 @@
 </script>
 
 <button
-  class="w-full px-4 py-3 text-left bg-muted/30 hover:bg-muted rounded"
-  class:bg-muted={isSelected}
+  class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:bg-muted hover:bg-muted rounded"
+  role="row"
+  aria-selected={isSelected}
   class:cursor-default={skeleton}
   class:hover:bg-transparent={skeleton}
   onclick={skeleton ? undefined : onclick}
