@@ -9,7 +9,7 @@ RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
 USER www-data:www-data
 WORKDIR /src/backend
 # Copy the main source project files
-COPY */*.csproj *.sln Directory.Build.props ./
+COPY */*.csproj *.sln Directory.Build.props Directory.Packages.props ./
 # move them into the proper sub folders, based on the name of the project
 RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p ${dir}/ && mv -v $file ${dir}/; done
 # Do the same for csproj files in slightly different hierarchies
