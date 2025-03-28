@@ -115,6 +115,12 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
         component2.ComplexFormEntryId.Should().Be(_complexFormEntryId);
         component2.ComponentEntryId.Should().Be(_componentEntryId);
         component2.ComponentSenseId.Should().Be(_componentSenseId2);
+
+        // ensure our sync code can handle them too
+        _complexFormEntry = (await Api.GetEntry(_complexFormEntryId))!;
+        await Api.UpdateEntry(_complexFormEntry, _complexFormEntry);
+        _componentEntry = (await Api.GetEntry(_componentEntryId))!;
+        await Api.UpdateEntry(_componentEntry, _componentEntry);
     }
 
     [Fact]
@@ -137,7 +143,8 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     {
         var entry3 = await Api.CreateEntry(new()
         {
-            Id = Guid.NewGuid(), LexemeForm = { { "en", "entry3" } }
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry3" } }
         });
         await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, entry3));
         await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(entry3, _componentEntry));
@@ -150,7 +157,8 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     {
         var entry3 = await Api.CreateEntry(new()
         {
-            Id = Guid.NewGuid(), LexemeForm = { { "en", "entry3" } }
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry3" } }
         });
         await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, entry3));
         var complexFormComponent = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(entry3, _componentEntry));
