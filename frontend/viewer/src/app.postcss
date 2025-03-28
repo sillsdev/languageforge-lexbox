@@ -1,6 +1,9 @@
 @import 'theme.postcss';
 @import './lib/entry-editor/field.postcss';
 @import './lib/entry-editor/EntryOrSensePicker.postcss';
+@import 'theme.postcss';
+/* this import is removed by vite-plugin-webfont-dl, and the styles are inlined in webfonts.css */
+@import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,7 +17,6 @@
   height: max(auto, 100%);
   scroll-behavior: smooth;
   @apply bg-surface-100;
-  color: var(--base-text);
   interpolate-size: allow-keywords;
 }
 
@@ -36,6 +38,9 @@
   }
 }
 
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
 /* The search bar dialog is somewhat unique. It should be considered when making global changes here. */
 .dialog {
     /*using 100vh or dvh still caused the action items to get clipped*/

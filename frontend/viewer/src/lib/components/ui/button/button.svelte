@@ -3,6 +3,7 @@
   import type {WithElementRef} from 'bits-ui';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
+  import type {IconProps} from '../icon/icon.svelte';
 
   export const buttonVariants = tv({
     base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
@@ -17,9 +18,12 @@
       },
       size: {
         default: 'h-10 px-4 py-2',
+        xs: 'h-8 rounded-md px-2',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
         icon: 'h-10 w-10 min-h-10 min-w-10',
+        'extended-fab': 'h-14 pl-4 pr-5',
+        'fab': 'h-14 px-4'
       },
     },
     defaultVariants: {
@@ -37,6 +41,7 @@
       size?: ButtonSize;
       loading?: boolean;
       icon?: IconClass;
+      iconProps?: Partial<IconProps>;
     };
 </script>
 
@@ -53,6 +58,7 @@
     type = 'button',
     loading = false,
     icon = undefined,
+    iconProps = undefined,
     children,
     ...restProps
   }: ButtonProps = $props();
@@ -62,7 +68,7 @@
   {#if loading}
     <Icon icon="i-mdi-loading" class="animate-spin" />
   {:else if icon}
-    <Icon {icon} />
+    <Icon {icon} {...iconProps} />
   {/if}
   {@render children?.()}
 {/snippet}

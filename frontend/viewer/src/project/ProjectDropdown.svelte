@@ -76,7 +76,7 @@
       </Button>
     {/snippet}
   </Popover.Trigger>
-  <Popover.Content class="w-full p-0">
+  <Popover.Content class="w-full p-0 min-w-56" align="start">
     <Command.Root>
       <Command.Input placeholder={$t`Search Dictionaries`} />
       <Command.List>

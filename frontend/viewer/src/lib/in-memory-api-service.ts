@@ -20,6 +20,7 @@ import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-
 import {WritingSystemService} from './writing-system-service';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
+import {delay} from '$lib/utils/time';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -101,8 +102,9 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     return JSON.parse(JSON.stringify(this._entries)) as IEntry[];
   }
 
-  getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
-    return Promise.resolve(this.ApplyQueryOptions(this._Entries(), options));
+  async getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
+    await delay(300);
+    return this.ApplyQueryOptions(this._Entries(), options);
   }
 
   getWritingSystemsSync(): IWritingSystems {
@@ -112,8 +114,9 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     return Promise.resolve(writingSystems);
   }
 
-  searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
-    return Promise.resolve(this.ApplyQueryOptions(filterEntries(this._Entries(), query), options));
+  async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
+    await delay(300);
+    return this.ApplyQueryOptions(filterEntries(this._Entries(), query), options);
   }
 
   private ApplyQueryOptions(entries: IEntry[], options: IQueryOptions | undefined): IEntry[] {
@@ -135,17 +138,18 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
         const v2 = writingSystemService.headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
-        const compare = v1.localeCompare(v2, sortWs);
-        if (compare !== 0) return compare;
-        return e1.id.localeCompare(e2.id);
+        let compare = v1.localeCompare(v2, sortWs);
+        if (compare == 0) compare = e1.id.localeCompare(e2.id);
+        return options.order.ascending ? compare : -compare;
       })
       .slice(options.offset, options.offset + options.count);
   }
 
-  getEntry(guid: string) {
+  async getEntry(guid: string) {
     const entry = entries.find(e => e.id === guid);
+    await delay(300);
     if (!entry) throw new Error(`Entry ${guid} not found`);
-    return Promise.resolve(entry);
+    return entry;
   }
 
   createEntry(entry: IEntry): Promise<IEntry> {

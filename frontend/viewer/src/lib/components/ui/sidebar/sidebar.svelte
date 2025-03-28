@@ -21,6 +21,10 @@
   } = $props();
 
   const sidebar = useSidebar();
+
+  export function isOpen() {
+    return sidebar.open;
+  }
 </script>
 
 {#if collapsible === 'none'}

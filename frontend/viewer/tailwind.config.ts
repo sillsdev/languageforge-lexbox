@@ -8,6 +8,7 @@ import type {Config} from 'tailwindcss';
 import svelteUx from 'svelte-ux/plugins/tailwind.cjs';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import {fontFamily} from 'tailwindcss/defaultTheme';
+import {MOBILE_BREAKPOINT} from './src/css-breakpoints';
 
 export default {
   darkMode: ['class'],
@@ -73,6 +74,9 @@ export default {
   },
 
   theme: {
+    screens: {
+      'md': `${MOBILE_BREAKPOINT}px`,
+    },
     container: {
       center: true,
       padding: '2rem',
@@ -148,7 +152,7 @@ export default {
         sm: 'calc(var(--radius) - 4px)'
       },
       fontFamily: {
-        sans: [...fontFamily.sans],
+        sans: ['Noto Sans', ...fontFamily.sans],
       },
       keyframes: {
         'accordion-down': {

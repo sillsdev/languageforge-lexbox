@@ -24,7 +24,7 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check": "svelte-check",
     "lint": "eslint .",
     "i18n:extract": "lingui extract && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js"
@@ -68,6 +68,7 @@
     "typescript": "catalog:",
     "vaul-svelte": "1.0.0-next.6",
     "vite": "catalog:",
+    "vite-plugin-webfont-dl": "^3.10.4",
     "vitest": "catalog:"
   },
   "dependencies": {
@@ -78,6 +79,7 @@
     "fast-json-patch": "^3.1.1",
     "just-throttle": "^4.2.0",
     "postcss": "catalog:",
+    "runed": "^0.24.1",
     "svelte-dnd-action": "^0.9.57",
     "svelte-exmarkdown": "catalog:",
     "svelte-i18n-lingui": "^0.2.2",

@@ -1,0 +1,11 @@
+name: "Svelte-Check PR Annotator"
+description: "Annotate pull requests with Svelte-Check errors detected during CI"
+branding:
+  icon: alert-triangle
+  color: red
+author: "prgm.dev, modified for Lexbox"
+runs:
+  using: "composite"
+  steps:
+    - run: echo "::add-matcher::${{ github.action_path }}/problem-matcher.json"
+      shell: bash
