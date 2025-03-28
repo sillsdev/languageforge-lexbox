@@ -59,11 +59,11 @@
     icon="i-mdi-refresh"
     iconProps={{ class: cn(loading.current && 'animate-spin') }}
     size="icon"
-    class="mt-4"
+    class="mt-4 mb-6"
     onclick={() => entriesResource.refetch()}
   />
-  <Button icon="i-mdi-plus" class="mt-6" size="extended-fab" variant="secondary">
-    <span class="pb-[2px]">{$t`New`}</span>
+  <Button icon="i-mdi-plus-thick" size="extended-fab">
+    <span>{$t`New`}</span>
   </Button>
 </div>
 

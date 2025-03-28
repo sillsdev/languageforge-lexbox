@@ -56,8 +56,8 @@
         <div class="flex-1" ></div>
         <ThemePicker />
       </div>
-      <Button variant="default" size="sm" class="px-3 max-w-72 m-auto" icon="i-mdi-plus" onclick={handleNewEntry}>
-        {$t`New Entry`}
+      <Button variant="default" size="extended-fab" class="m-auto font-semibold max-sm:hidden" icon="i-mdi-plus-thick" onclick={handleNewEntry}>
+        <span>{$t`New Entry`}</span>
       </Button>
     </div>
   </Sidebar.Header>
