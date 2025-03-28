@@ -9,6 +9,7 @@
   import { cn } from '$lib/utils';
   import { t } from 'svelte-i18n-lingui';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   const {
     search = '',
@@ -55,13 +56,16 @@
 </script>
 
 <div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
-  <Button
-    icon="i-mdi-refresh"
-    iconProps={{ class: cn(loading.current && 'animate-spin') }}
-    size="icon"
-    class="mt-4 mb-6"
-    onclick={() => entriesResource.refetch()}
-  />
+  <DevContent>
+    <Button
+      icon="i-mdi-refresh"
+      variant="secondary"
+      iconProps={{ class: cn(loading.current && 'animate-spin') }}
+      size="icon"
+      class="mt-4 mb-6"
+      onclick={() => entriesResource.refetch()}
+    />
+  </DevContent>
   <Button icon="i-mdi-plus-thick" size="extended-fab">
     <span>{$t`New`}</span>
   </Button>
