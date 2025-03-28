@@ -99,20 +99,16 @@
               <span>{$t`Account`}</span>
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton>
+              <Icon icon="i-mdi-cog" />
+              <span>{$t`Settings`}</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
 
-    <Sidebar.Group>
-      <Sidebar.Menu>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            <Icon icon="i-mdi-cog" />
-            <span>{$t`Settings`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
-    </Sidebar.Group>
     <Sidebar.Group>
       <Sidebar.Menu>
         <Sidebar.MenuItem>
@@ -121,6 +117,11 @@
             <span>{$t`Close Dictionary`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
+      </Sidebar.Menu>
+    </Sidebar.Group>
+
+    <Sidebar.Group>
+      <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton>
             <Icon icon="i-mdi-help-circle" />
