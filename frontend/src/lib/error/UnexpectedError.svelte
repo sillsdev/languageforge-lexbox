@@ -42,11 +42,12 @@
     })
   );
 
+  const TIME_RANGE_2024_TO_2040 = 'trace_start_ts=1704286862&trace_end_ts=2209042862';
   function onTraceIdClick(event: MouseEvent): void {
     if (event.ctrlKey) {
       const traceId = (event.target as HTMLElement).textContent as string;
       const honeyCombEnv = getHoneyCombEnv();
-      const url = `https://ui.honeycomb.io/sil-language-forge/environments/${honeyCombEnv}/trace?trace_id=${traceId}`;
+      const url = `https://ui.honeycomb.io/sil-language-forge/environments/${honeyCombEnv}/trace?trace_id=${traceId}&${TIME_RANGE_2024_TO_2040}`;
       window.open(url, '_blank')?.focus();
     }
   }
