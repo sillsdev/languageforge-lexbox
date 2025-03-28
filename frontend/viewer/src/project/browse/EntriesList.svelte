@@ -10,6 +10,7 @@
   import { t } from 'svelte-i18n-lingui';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import NewEntryButton from '../NewEntryButton.svelte';
 
   const {
     search = '',
@@ -53,6 +54,10 @@
 
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
+
+  function handleNewEntry() {
+    console.log('handleNewEntry');
+  }
 </script>
 
 <div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
@@ -66,9 +71,7 @@
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
-  <Button icon="i-mdi-plus-thick" size="extended-fab">
-    <span>{$t`New`}</span>
-  </Button>
+  <NewEntryButton onclick={handleNewEntry} shortForm />
 </div>
 
 <ScrollArea class="md:pr-5 flex-1" role="table">

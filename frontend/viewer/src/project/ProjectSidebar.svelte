@@ -4,7 +4,6 @@
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
-  import { Button } from '$lib/components/ui/button';
   import type {IconClass} from '../lib/icon-class';
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
@@ -12,6 +11,8 @@
   import {onDestroy} from 'svelte';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate} from 'svelte-routing';
+  import NewEntryButton from './NewEntryButton.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -35,6 +36,8 @@
   function handleNewEntry() {
     console.log('handleNewEntry');
   }
+
+  let sidebar: Sidebar.Root | undefined = $state();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -45,9 +48,9 @@
     </Sidebar.MenuButton>
   </Sidebar.MenuItem>
 {/snippet}
-<Sidebar.Root variant="inset">
+<Sidebar.Root variant="inset" bind:this={sidebar}>
   <Sidebar.Header class="relative">
-    <div class="flex flex-col gap-2 overflow-hidden">
+    <div class="flex flex-col gap-2">
       <div class="flex flex-row items-center gap-1">
         <ProjectDropdown
           {projectName}
@@ -56,9 +59,9 @@
         <div class="flex-1" ></div>
         <ThemePicker />
       </div>
-      <Button variant="default" size="extended-fab" class="m-auto font-semibold max-sm:hidden" icon="i-mdi-plus-thick" onclick={handleNewEntry}>
-        <span>{$t`New Entry`}</span>
-      </Button>
+      <div class="mx-auto">
+        <NewEntryButton active={!IsMobile.value && sidebar?.isOpen()} onclick={handleNewEntry} />
+      </div>
     </div>
   </Sidebar.Header>
   <Sidebar.Content>
