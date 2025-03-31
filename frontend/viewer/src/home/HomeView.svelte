@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import {
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
@@ -158,7 +158,7 @@
                   {loading}
                 >
                   <ProjectTitle slot="title" {project}/>
-                  <div slot="actions">
+                  <div slot="actions" class="shrink-0">
                     {#if $isDev}
                       <Button
                         icon={mdiDelete}
@@ -178,7 +178,7 @@
             <DevContent>
               <ButtonListItem href={`/testing/project-view`}>
                 <ListItem title={$t`Test Project`} icon={mdiTestTube}>
-                  <div slot="actions" class="pointer-events-none">
+                  <div slot="actions" class="pointer-events-none shrink-0">
                     <Button icon={mdiChevronRight} class="p-2" />
                   </div>
                 </ListItem>
@@ -213,8 +213,8 @@
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
                 <ButtonListItem href={`/fwdata/${project.name}`}>
                   <ListItem title={project.name}>
-                    <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6" />
-                    <div slot="actions">
+                    <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0" />
+                    <div slot="actions" class="shrink-0">
                       <DevContent invisible>
                         <Button
                           loading={importing === project.name}

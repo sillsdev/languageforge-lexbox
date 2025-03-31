@@ -88,10 +88,11 @@
       {#each projects as project}
         {@const localProject = matchesProject(localProjects, project)}
         {#if localProject?.crdt}
-          <ButtonListItem href={`/project/${project.code}`}>
-            <ListItem icon={mdiCloud}>
-              <ProjectTitle slot="title" {project}/>
-              <div slot="actions" class="pointer-events-none">
+          <ButtonListItem href={`/project/${project.name}`}>
+            <ListItem icon={mdiCloud}
+                      title={project.name}
+                      loading={downloading === project.name}>
+              <div slot="actions" class="pointer-events-none shrink-0">
                 <Button disabled icon={mdiBookSyncOutline} class="p-2">
                   {$t`Synced`}
                 </Button>
@@ -104,7 +105,7 @@
             <ListItem icon={mdiCloud}
                       {loading}>
               <ProjectTitle slot="title" {project}/>
-              <div slot="actions" class="pointer-events-none">
+              <div slot="actions" class="pointer-events-none shrink-0">
                 <Button icon={mdiBookArrowDownOutline} class="p-2">
                   {$t`Download`}
                 </Button>
