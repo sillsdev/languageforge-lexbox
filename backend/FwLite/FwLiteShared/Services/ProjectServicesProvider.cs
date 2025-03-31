@@ -38,20 +38,20 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public Task<ProjectData> GetCrdtProjectData(Guid projectId)
+    public Task<ProjectData> GetCrdtProjectData(string code)
     {
-        var crdtProject = crdtProjectsService.GetProject(projectId)
-            ?? throw new InvalidOperationException($"Crdt Project {projectId} not found");
+        var crdtProject = crdtProjectsService.GetProject(code)
+            ?? throw new InvalidOperationException($"Crdt Project {code} not found");
         return Task.FromResult(crdtProject.Data ?? throw new InvalidOperationException($"Project data for {crdtProject.Name} not found"));
     }
 
     [JSInvokable]
-    public async Task<ProjectScope> OpenCrdtProject(Guid projectId)
+    public async Task<ProjectScope> OpenCrdtProject(string code)
     {
         var serviceScope = serviceProvider.CreateAsyncScope();
         var scopedServices = serviceScope.ServiceProvider;
-        var project = crdtProjectsService.GetProject(projectId)
-            ?? throw new InvalidOperationException($"Crdt Project {projectId} not found");
+        var project = crdtProjectsService.GetProject(code)
+            ?? throw new InvalidOperationException($"Crdt Project {code} not found");
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
         var projectData = await currentProjectService.SetupProjectContext(project);
         await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);

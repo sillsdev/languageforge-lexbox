@@ -27,6 +27,7 @@
   import {t} from 'svelte-i18n-lingui';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import ProjectTitle from './ProjectTitle.svelte';
+  import type {IProjectModel} from '$lib/dotnet-types';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -62,10 +63,10 @@
   }
 
   let deletingProject: undefined | string = undefined;
-  async function deleteProject(projectId: string) {
+  async function deleteProject(project: IProjectModel) {
     try {
-      deletingProject = projectId;
-      await projectsService.deleteProject(projectId);
+      deletingProject = project.id;
+      await projectsService.deleteProject(project.code);
       await refreshProjects();
     } finally {
       deletingProject = undefined;
@@ -150,7 +151,7 @@
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
-              <ButtonListItem href={`/project/${project.id}`}>
+              <ButtonListItem href={`/project/${project.code}`}>
                 <ListItem
                   icon={mdiBookEditOutline}
                   subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
@@ -165,7 +166,7 @@
                         class="p-2"
                         on:click={(e) => {
                           e.preventDefault();
-                          void deleteProject(project.name);
+                          void deleteProject(project);
                         }}
                       />
                     {/if}

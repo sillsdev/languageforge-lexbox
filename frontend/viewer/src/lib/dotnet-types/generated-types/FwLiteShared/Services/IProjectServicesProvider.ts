@@ -11,8 +11,8 @@ import type {IProjectScope} from './IProjectScope';
 export interface IProjectServicesProvider extends IAsyncDisposable
 {
 	disposeService(service: DotNet.DotNetObject) : Promise<void>;
-	getCrdtProjectData(projectId: string) : Promise<IProjectData>;
-	openCrdtProject(projectId: string) : Promise<IProjectScope>;
+	getCrdtProjectData(code: string) : Promise<IProjectData>;
+	openCrdtProject(code: string) : Promise<IProjectScope>;
 	openFwDataProject(projectName: string) : Promise<IProjectScope>;
 }
 /* eslint-enable */

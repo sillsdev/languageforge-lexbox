@@ -81,13 +81,14 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var crdtProjects = crdtProjectsService.ListProjects();
         //todo get project Id and use that to specify the Id in the model. Also pull out server
         var projects = crdtProjects.ToDictionary(p => p.Name, // actually the code
-            p => new ProjectModel(p.Data!.Name,
+            p => new ProjectModel(
+                p.Data?.Name ?? throw new NullReferenceException($"Project Data/Name is null for project {p.Name}"),
                 p.Name,
                 true,
                 false,
                 p.Data?.OriginDomain is not null,
                 lexboxProjectService.GetServer(p.Data),
-                p.Data?.Id ?? throw new NullReferenceException("Project Data/Id is null")));
+                p.Data?.Id));
         //basically populate projects and indicate if they are lexbox or fwdata
         if (FwDataProjectProvider is not null)
         {
@@ -108,16 +109,23 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         return projects.Values;
     }
 
-    [JSInvokable]
-    public async Task DownloadProject(Guid projectId, LexboxServer server)
+    public async Task DownloadProject(string code, LexboxServer server)
     {
         var serverProjects = await ServerProjects(server, false);
-        var project = serverProjects.FirstOrDefault(p => p.Id == projectId)
-            ?? throw new InvalidOperationException($"Project {projectId} not found on server {server.Authority}");
+        var project = serverProjects.FirstOrDefault(p => p.Code == code)
+            ?? throw new InvalidOperationException($"Project {code} not found on server {server.Authority}");
+        await DownloadProject(project);
+    }
+
+    [JSInvokable]
+    public async Task DownloadProject(ProjectModel project)
+    {
+        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
+        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         await crdtProjectsService.CreateProject(new(project.Name,
             project.Code,
-            project.Id ?? throw new ArgumentNullException(nameof(project.Id)),
+            projectId,
             server.Authority,
             async (provider, project) =>
             {
@@ -135,8 +143,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public async Task DeleteProject(Guid projectId)
+    public async Task DeleteProject(string code)
     {
-        await crdtProjectsService.DeleteProject(projectId);
+        await crdtProjectsService.DeleteProject(code);
     }
 }

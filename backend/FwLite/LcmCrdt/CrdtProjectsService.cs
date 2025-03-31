@@ -176,9 +176,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         });
     }
 
-    public async Task DeleteProject(Guid projectId)
+    public async Task DeleteProject(string code)
     {
-        var project = GetProject(projectId) ?? throw new InvalidOperationException($"Project {projectId} not found");
+        var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(project);

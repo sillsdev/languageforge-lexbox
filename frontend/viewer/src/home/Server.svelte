@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-  import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
+  import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import {createEventDispatcher} from 'svelte';
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
@@ -23,20 +23,15 @@
   export let loading: boolean;
   let downloading = '';
 
-  async function downloadCrdtProject(project: Project, server: ILexboxServer | undefined) {
-    if (!server) throw new Error('Server is undefined');
-    else if (matchesProject(localProjects, project)) return;
+  async function downloadCrdtProject(project: Project) {
+    if (matchesProject(localProjects, project)) return;
 
-    const projectId = project.id;
-    if (!projectId) throw new Error('Project ID is undefined');
-    downloading = projectId;
+    downloading = project.code;
     try {
-      await projectsService.downloadProject(projectId, server);
+      await projectsService.downloadProject(project);
       dispatch('refreshAll');
-      localProjects.push({ // the refresh will take a moment
-        ...project,
-        server,
-      });
+      // Getting an updated list of localProjects will take a moment. For the time being, we do it manually.
+      localProjects.push(project);
     } finally {
       downloading = '';
     }
@@ -93,9 +88,8 @@
       {#each projects as project}
         {@const localProject = matchesProject(localProjects, project)}
         {#if localProject?.crdt}
-          <ButtonListItem href={`/project/${project.id}`}>
-            <ListItem icon={mdiCloud}
-                      loading={downloading === project.id}>
+          <ButtonListItem href={`/project/${project.code}`}>
+            <ListItem icon={mdiCloud}>
               <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none">
                 <Button disabled icon={mdiBookSyncOutline} class="p-2">
@@ -105,8 +99,8 @@
             </ListItem>
           </ButtonListItem>
         {:else}
-          {@const loading = downloading === project.id}
-          <ButtonListItem on:click={() => downloadCrdtProject(project, server)} disabled={loading}>
+          {@const loading = downloading === project.code}
+          <ButtonListItem on:click={() => downloadCrdtProject(project)} disabled={!!downloading}>
             <ListItem icon={mdiCloud}
                       {loading}>
               <ProjectTitle slot="title" {project}/>

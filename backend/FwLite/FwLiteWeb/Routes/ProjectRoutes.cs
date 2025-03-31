@@ -48,18 +48,15 @@ public static class ProjectRoutes
                 await syncService.UploadProject(lexboxProjectId, server);
                 return TypedResults.Ok();
             });
-        group.MapPost("/download/crdt/{serverAuthority}/{projectId}",
+        group.MapPost("/download/crdt/{serverAuthority}/{code}",
             async (IOptions<AuthConfig> options,
                 CombinedProjectsService combinedProjectsService,
-                Guid projectId,
-                [FromQuery] string projectName,
+                string code,
                 string serverAuthority
             ) =>
             {
-                if (!CrdtProjectsService.ProjectCode().IsMatch(projectName))
-                    return Results.BadRequest("Project name is invalid");
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await combinedProjectsService.DownloadProject(projectId, server);
+                await combinedProjectsService.DownloadProject(code, server);
                 return TypedResults.Ok();
             });
         return group;
