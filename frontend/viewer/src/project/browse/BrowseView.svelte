@@ -17,12 +17,28 @@
   function toggleSort() {
     sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
   }
+
+  function resetPanes() {
+    if (!leftPane || !rightPane) return;
+
+    const totalSize = leftPane.getSize() + rightPane.getSize();
+    leftPane.resize((defaultLayout[0] / 100) * totalSize);
+    rightPane.resize((defaultLayout[1] / 100) * totalSize);
+  }
+
+  let canClickLeft = $state(true);
+  let canClickRight = $state(true);
+  let leftPane: ResizablePane | null = $state(null);
+  let rightPane: ResizablePane | null = $state(null);
 </script>
 
 <div class="flex flex-col h-full p-2 md:p-4">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
     {#if !IsMobile.value || !selectedEntry}
       <ResizablePane
+        bind:this={leftPane}
+        onCollapse={() => (canClickLeft = false)}
+        onExpand={() => (canClickLeft = true)}
         defaultSize={defaultLayout[0]}
         collapsible
         collapsedSize={0}
@@ -46,10 +62,17 @@
       </ResizablePane>
     {/if}
     {#if !IsMobile.value}
-      <ResizableHandle withHandle />
+      <ResizableHandle {canClickLeft} {canClickRight} withHandle ondblclick={resetPanes}
+        onClickLeft={() => { if(canClickRight) leftPane?.collapse(); else rightPane?.expand(); }}
+        onClickRight={() => { if(canClickLeft) rightPane?.collapse(); else leftPane?.expand(); }}
+        />
     {/if}
     {#if selectedEntry || !IsMobile.value}
-      <ResizablePane defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
+      <ResizablePane
+        bind:this={rightPane}
+        onCollapse={() => (canClickRight = false)}
+        onExpand={() => (canClickRight = true)}
+        defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
         {#if !selectedEntry}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>Select an entry to view details</p>
