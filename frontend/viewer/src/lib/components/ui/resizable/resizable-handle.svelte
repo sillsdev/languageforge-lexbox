@@ -58,7 +58,6 @@
   const showResizers = $derived(leftPane && rightPane && defaultPaneProportions && !draggingDebounced.current);
 </script>
 
-
 <ResizablePrimitive.PaneResizer
   onDraggingChange={(isDragging) => {
     dragging = isDragging;
@@ -73,7 +72,10 @@
   {...restProps}
 >
   {#if withHandle}
-    <div class="flex gap-1 items-center group z-10 min-w-3 overflow-hidden justify-center" class:hover:overflow-visible={showResizers} class:hover:min-w-max={showResizers}>
+    <div
+      class="flex gap-1 items-center justify-center z-10 min-w-3 overflow-hidden transition-all delay-100 hover:delay-300 duration-0"
+      class:hover:min-w-max={showResizers}
+    >
       {@render paneResizer(leftResizerOnClick, 'i-mdi-chevron-left')}
       <div class="bg-border z-10 flex h-4 w-3 items-center justify-center rounded-sm border">
         <Icon icon="i-mdi-drag-vertical" class="size-2.5" />
@@ -82,10 +84,13 @@
     </div>
 
     {#snippet paneResizer(onclick: OnClickHandler, icon: IconClass)}
-      <Button class={cn(
-        'aspect-square p-0 rounded-full invisible transition-[visibility] delay-0 group-hover:delay-300 bg-accent/50',
-        onclick && 'group-hover:visible',
-      )} size="xs" {icon} variant="ghost" {onclick}></Button>
+      <Button
+        class={cn('aspect-square p-0 rounded-full bg-accent/50', onclick || 'invisible')}
+        size="xs"
+        {icon}
+        variant="ghost"
+        {onclick}
+      ></Button>
     {/snippet}
   {/if}
 </ResizablePrimitive.PaneResizer>
