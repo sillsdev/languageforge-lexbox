@@ -22,7 +22,6 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         {
             result = await DbContext.ProjectData.AsNoTracking().FirstAsync();
             memoryCache.Set(CacheKey(Project), result);
-            memoryCache.Set(CacheKey(result.Id), result);
         }
         if (result is null) throw new InvalidOperationException("Project data not found");
 
@@ -39,19 +38,9 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         return project.DbPath + "|ProjectData";
     }
 
-    private static string CacheKey(Guid projectId)
-    {
-        return $"ProjectData|{projectId}";
-    }
-
     public static ProjectData? LookupProjectData(IMemoryCache memoryCache, CrdtProject project)
     {
         return memoryCache.Get<ProjectData>(CacheKey(project));
-    }
-
-    public static ProjectData? LookupProjectById(IMemoryCache memoryCache, Guid projectId)
-    {
-        return memoryCache.Get<ProjectData>(CacheKey(projectId));
     }
 
     /// <summary>
