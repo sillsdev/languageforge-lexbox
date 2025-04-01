@@ -17,13 +17,11 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
 
     public async ValueTask<ProjectData> GetProjectData(bool forceRefresh = false)
     {
-        var key = CacheKey(Project);
-        ProjectData? result = LookupProjectData(memoryCache, Project);
+        var result = LookupProjectData(memoryCache, Project);
         if (result is null || forceRefresh)
         {
             result = await DbContext.ProjectData.AsNoTracking().FirstAsync();
-            memoryCache.Set(key, result);
-            memoryCache.Set(CacheKey(result.Id), result);
+            memoryCache.Set(CacheKey(Project), result);
         }
         if (result is null) throw new InvalidOperationException("Project data not found");
 
@@ -40,19 +38,9 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         return project.DbPath + "|ProjectData";
     }
 
-    private static string CacheKey(Guid projectId)
-    {
-        return $"ProjectData|{projectId}";
-    }
-
     public static ProjectData? LookupProjectData(IMemoryCache memoryCache, CrdtProject project)
     {
         return memoryCache.Get<ProjectData>(CacheKey(project));
-    }
-
-    public static ProjectData? LookupProjectById(IMemoryCache memoryCache, Guid projectId)
-    {
-        return memoryCache.Get<ProjectData>(CacheKey(projectId));
     }
 
     /// <summary>

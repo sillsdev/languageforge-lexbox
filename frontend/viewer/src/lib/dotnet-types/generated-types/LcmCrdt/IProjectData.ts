@@ -6,6 +6,7 @@
 export interface IProjectData
 {
 	name: string;
+	code: string;
 	id: string;
 	originDomain?: string;
 	clientId: string;

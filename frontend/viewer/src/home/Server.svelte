@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-  import type {ILexboxServer, IServerStatus} from '$lib/dotnet-types';
+  import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import {createEventDispatcher} from 'svelte';
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
@@ -8,6 +8,7 @@
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
+  import ProjectTitle from './ProjectTitle.svelte';
 
   const projectsService = useProjectsService();
 
@@ -22,19 +23,15 @@
   export let loading: boolean;
   let downloading = '';
 
-  async function downloadCrdtProject(project: Project, server: ILexboxServer | undefined) {
-    if (!server) throw new Error('Server is undefined');
-    else if (matchesProject(localProjects, project)) return;
+  async function downloadCrdtProject(project: Project) {
+    if (matchesProject(localProjects, project)) return;
 
-    downloading = project.name;
-    if (project.id == null) throw new Error('Project id is null');
+    downloading = project.code;
     try {
-      await projectsService.downloadProject(project.id, project.name, server);
+      await projectsService.downloadProject(project);
       dispatch('refreshAll');
-      localProjects.push({ // the refresh will take a moment
-        ...project,
-        server,
-      });
+      // Getting an updated list of localProjects will take a moment. For the time being, we do it manually.
+      localProjects.push(project);
     } finally {
       downloading = '';
     }
@@ -61,6 +58,7 @@
       <Button icon={mdiRefresh}
               title={$t`Refresh Projects`}
               disabled={loading}
+              class="mr-2"
               on:click={() => dispatch('refreshProjects')}/>
       <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
     {/if}
@@ -90,10 +88,9 @@
       {#each projects as project}
         {@const localProject = matchesProject(localProjects, project)}
         {#if localProject?.crdt}
-          <ButtonListItem href={`/project/${project.name}`}>
-            <ListItem icon={mdiCloud}
-                      title={project.name}
-                      loading={downloading === project.name}>
+          <ButtonListItem href={`/project/${project.code}`}>
+            <ListItem icon={mdiCloud}>
+              <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none">
                 <Button disabled icon={mdiBookSyncOutline} class="p-2">
                   {$t`Synced`}
@@ -102,11 +99,11 @@
             </ListItem>
           </ButtonListItem>
         {:else}
-          {@const loading = downloading === project.name}
-          <ButtonListItem on:click={() => downloadCrdtProject(project, server)} disabled={loading}>
+          {@const loading = downloading === project.code}
+          <ButtonListItem on:click={() => downloadCrdtProject(project)} disabled={!!downloading}>
             <ListItem icon={mdiCloud}
-                      title={project.name}
                       {loading}>
+              <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none">
                 <Button icon={mdiBookArrowDownOutline} class="p-2">
                   {$t`Download`}

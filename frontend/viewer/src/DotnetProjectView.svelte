@@ -11,17 +11,26 @@
   import ProjectLoader from './ProjectLoader.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
-  export let projectName: string;
-  export let type: 'fwdata' | 'crdt';
+
+  const {code, type}: {
+    code: string; // Code for CRDTs, project-name for FWData
+    type: 'fwdata' | 'crdt'
+  } = $props();
+
+
+  let projectName = $state<string>(code);
   let projectScope: IProjectScope;
-  let serviceLoaded = false;
+  let serviceLoaded = $state(false);
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
     if (type === 'crdt') {
-      projectScope = await projectServicesProvider.openCrdtProject(projectName);
+      const projectData = await projectServicesProvider.getCrdtProjectData(code);
+      projectName = projectData.name;
+      projectScope = await projectServicesProvider.openCrdtProject(code);
     } else {
-      projectScope = await projectServicesProvider.openFwDataProject(projectName);
+      projectName = code;
+      projectScope = await projectServicesProvider.openFwDataProject(code);
     }
     if (destroyed) {
       cleanup();

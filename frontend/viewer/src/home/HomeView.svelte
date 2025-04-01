@@ -26,6 +26,8 @@
   import ServersList from './ServersList.svelte';
   import {t} from 'svelte-i18n-lingui';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
+  import ProjectTitle from './ProjectTitle.svelte';
+  import type {IProjectModel} from '$lib/dotnet-types';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -61,10 +63,10 @@
   }
 
   let deletingProject: undefined | string = undefined;
-  async function deleteProject(projectName: string) {
+  async function deleteProject(project: IProjectModel) {
     try {
-      deletingProject = projectName;
-      await projectsService.deleteProject(projectName);
+      deletingProject = project.id;
+      await projectsService.deleteProject(project.code);
       await refreshProjects();
     } finally {
       deletingProject = undefined;
@@ -137,22 +139,25 @@
     {:then projects}
       <div class="space-y-4 md:space-y-8">
         <div>
-          <div class="flex flex-row">
+          <div class="flex flex-row items-end">
             <p class="sub-title">{$t`Local`}</p>
             <div class="flex-grow"></div>
-            <Button icon={mdiRefresh} title={$t`Refresh Projects`} on:click={() => refreshProjects()} />
+            <Button icon={mdiRefresh}
+                    title={$t`Refresh Projects`}
+                    class="mb-2"
+                    on:click={() => refreshProjects()}/>
           </div>
           <div>
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
-              {@const loading = deletingProject === project.name}
-              <ButtonListItem href={`/project/${project.name}`}>
+              {@const loading = deletingProject === project.id}
+              <ButtonListItem href={`/project/${project.code}`}>
                 <ListItem
-                  title={project.name}
                   icon={mdiBookEditOutline}
                   subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                   {loading}
                 >
+                  <ProjectTitle slot="title" {project}/>
                   <div slot="actions">
                     {#if $isDev}
                       <Button
@@ -161,7 +166,7 @@
                         class="p-2"
                         on:click={(e) => {
                           e.preventDefault();
-                          void deleteProject(project.name);
+                          void deleteProject(project);
                         }}
                       />
                     {/if}

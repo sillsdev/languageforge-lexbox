@@ -46,7 +46,7 @@ public class Program
                 Console.WriteLine($"crdtFile: {crdtFile}");
                 Console.WriteLine($"fwDataFile: {fwDataFile}");
                 var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
-                var crdtProjectName = Path.GetFileNameWithoutExtension(crdtFile);
+                var crdtProjectCode = Path.GetFileNameWithoutExtension(crdtFile);
 
                 await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
                 await using var scope = serviceRoot.CreateAsyncScope();
@@ -60,10 +60,10 @@ public class Program
                 }
                 var fwdataApi = (FwDataMiniLcmApi) fieldWorksProjectList.OpenProject(fwProject);
                 var projectsService = services.GetRequiredService<CrdtProjectsService>();
-                var crdtProject = projectsService.GetProject(crdtProjectName);
+                var crdtProject = projectsService.GetProject(crdtProjectCode);
                 if (crdtProject is null)
                 {
-                    crdtProject = await projectsService.CreateProject(new(crdtProjectName, FwProjectId:fwdataApi.ProjectId, SeedNewProjectData: false));
+                    crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId, SeedNewProjectData: false));
                 }
                 var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
 
