@@ -74,9 +74,6 @@ export default {
   },
 
   theme: {
-    screens: {
-      'md': `${MOBILE_BREAKPOINT}px`,
-    },
     container: {
       center: true,
       padding: '2rem',
@@ -86,6 +83,7 @@ export default {
     },
     extend: {
       screens: {
+        'md': `${MOBILE_BREAKPOINT}px`,
         'max-sm': {'max': '639px'},
         'max-md': {'max': '767px'},
 
