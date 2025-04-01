@@ -7,7 +7,6 @@
   import {mdiClose} from '@mdi/js';
   import ShowEmptyFieldsSwitch from './ShowEmptyFieldsSwitch.svelte';
   import type {LexboxFeatures} from '$lib/services/feature-service';
-  import ThemeSyncer from '$lib/ThemeSyncer.svelte';
 
   export let activeView: View;
   export let viewSettings: ViewSettings;
@@ -16,8 +15,6 @@
 
   const isWebComponent = !!document.querySelector('lexbox-svelte')?.shadowRoot;
 </script>
-
-<ThemeSyncer />
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
   <div class="absolute right-2 top-2">

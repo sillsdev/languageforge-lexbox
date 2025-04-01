@@ -6,12 +6,10 @@
   import {cn} from '$lib/utils';
   import {mode, resetMode, setMode, setTheme, theme, userPrefersMode} from 'mode-watcher';
   import {t} from 'svelte-i18n-lingui';
-  import ThemeSyncer from './ThemeSyncer.svelte';
 
   const themes = ['green', 'blue', 'rose', 'orange', 'violet', 'stone'];
 
 </script>
-<ThemeSyncer/>
 
 <Popover.Root>
   <Popover.Trigger>
