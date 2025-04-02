@@ -18,6 +18,9 @@ catalogs:
     '@typescript-eslint/parser':
       specifier: ^8.24.0
       version: 8.24.0
+    '@vitejs/plugin-basic-ssl':
+      specifier: ^1.2.0
+      version: 1.2.0
     '@vitest/ui':
       specifier: ^3.0.5
       version: 3.0.5
@@ -330,6 +333,24 @@ importers:
       postcss:
         specifier: 'catalog:'
         version: 8.5.2
+      prosemirror-commands:
+        specifier: ^1.7.0
+        version: 1.7.0
+      prosemirror-history:
+        specifier: ^1.4.1
+        version: 1.4.1
+      prosemirror-keymap:
+        specifier: ^1.2.2
+        version: 1.2.2
+      prosemirror-model:
+        specifier: ^1.25.0
+        version: 1.25.0
+      prosemirror-state:
+        specifier: ^1.4.3
+        version: 1.4.3
+      prosemirror-view:
+        specifier: ^1.38.1
+        version: 1.38.1
       runed:
         specifier: ^0.24.1
         version: 0.24.1(svelte@5.20.0)
@@ -4811,6 +4832,9 @@ packages:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
     engines: {node: '>=10'}
 
+  orderedmap@2.1.1:
+    resolution: {integrity: sha512-TvAWxi0nDe1j/rtMcWcIj94+Ffe6n7zhow33h40SKxmsmozs6dz/e+EajymfoFcHd7sxNn8yHM8839uixMOV6g==}
+
   os-tmpdir@1.0.2:
     resolution: {integrity: sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==}
     engines: {node: '>=0.10.0'}
@@ -5115,6 +5139,27 @@ packages:
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
 
+  prosemirror-commands@1.7.0:
+    resolution: {integrity: sha512-6toodS4R/Aah5pdsrIwnTYPEjW70SlO5a66oo5Kk+CIrgJz3ukOoS+FYDGqvQlAX5PxoGWDX1oD++tn5X3pyRA==}
+
+  prosemirror-history@1.4.1:
+    resolution: {integrity: sha512-2JZD8z2JviJrboD9cPuX/Sv/1ChFng+xh2tChQ2X4bB2HeK+rra/bmJ3xGntCcjhOqIzSDG6Id7e8RJ9QPXLEQ==}
+
+  prosemirror-keymap@1.2.2:
+    resolution: {integrity: sha512-EAlXoksqC6Vbocqc0GtzCruZEzYgrn+iiGnNjsJsH4mrnIGex4qbLdWWNza3AW5W36ZRrlBID0eM6bdKH4OStQ==}
+
+  prosemirror-model@1.25.0:
+    resolution: {integrity: sha512-/8XUmxWf0pkj2BmtqZHYJipTBMHIdVjuvFzMvEoxrtyGNmfvdhBiRwYt/eFwy2wA9DtBW3RLqvZnjurEkHaFCw==}
+
+  prosemirror-state@1.4.3:
+    resolution: {integrity: sha512-goFKORVbvPuAQaXhpbemJFRKJ2aixr+AZMGiquiqKxaucC6hlpHNZHWgz5R7dS4roHiwq9vDctE//CZ++o0W1Q==}
+
+  prosemirror-transform@1.10.3:
+    resolution: {integrity: sha512-Nhh/+1kZGRINbEHmVu39oynhcap4hWTs/BlU7NnxWj3+l0qi8I1mu67v6mMdEe/ltD8hHvU4FV6PHiCw2VSpMw==}
+
+  prosemirror-view@1.38.1:
+    resolution: {integrity: sha512-4FH/uM1A4PNyrxXbD+RAbAsf0d/mM0D/wAKSVVWK7o0A9Q/oOXJBrw786mBf2Vnrs/Edly6dH6Z2gsb7zWwaUw==}
+
   proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
 
@@ -5274,6 +5319,9 @@ packages:
     resolution: {integrity: sha512-wc2cBWqJgkU3Iz5oztRkQbfVkbxoz5EhnCGOrnJvnLnQ7O0WhQUYyv18qQI79O8L7DdHrrlJNeCHd4VGpnaXKQ==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  rope-sequence@1.3.4:
+    resolution: {integrity: sha512-UT5EDe2cu2E/6O4igUr5PSFs23nvvukicWHx6GnOPlHAiiYbzNuCRQCuiUdHJQcqKalLKlrYJnjY0ySGsXNQXQ==}
 
   run-async@2.4.1:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
@@ -5987,6 +6035,9 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  w3c-keyname@2.2.8:
+    resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -11544,6 +11595,8 @@ snapshots:
       strip-ansi: 6.0.1
       wcwidth: 1.0.1
 
+  orderedmap@2.1.1: {}
+
   os-tmpdir@1.0.2: {}
 
   p-limit@2.3.0:
@@ -11819,6 +11872,44 @@ snapshots:
       retry: 0.12.0
       signal-exit: 3.0.7
 
+  prosemirror-commands@1.7.0:
+    dependencies:
+      prosemirror-model: 1.25.0
+      prosemirror-state: 1.4.3
+      prosemirror-transform: 1.10.3
+
+  prosemirror-history@1.4.1:
+    dependencies:
+      prosemirror-state: 1.4.3
+      prosemirror-transform: 1.10.3
+      prosemirror-view: 1.38.1
+      rope-sequence: 1.3.4
+
+  prosemirror-keymap@1.2.2:
+    dependencies:
+      prosemirror-state: 1.4.3
+      w3c-keyname: 2.2.8
+
+  prosemirror-model@1.25.0:
+    dependencies:
+      orderedmap: 2.1.1
+
+  prosemirror-state@1.4.3:
+    dependencies:
+      prosemirror-model: 1.25.0
+      prosemirror-transform: 1.10.3
+      prosemirror-view: 1.38.1
+
+  prosemirror-transform@1.10.3:
+    dependencies:
+      prosemirror-model: 1.25.0
+
+  prosemirror-view@1.38.1:
+    dependencies:
+      prosemirror-model: 1.25.0
+      prosemirror-state: 1.4.3
+      prosemirror-transform: 1.10.3
+
   proto-list@1.2.4: {}
 
   protobufjs@7.4.0:
@@ -12011,6 +12102,8 @@ snapshots:
       '@rollup/rollup-win32-ia32-msvc': 4.34.6
       '@rollup/rollup-win32-x64-msvc': 4.34.6
       fsevents: 2.3.3
+
+  rope-sequence@1.3.4: {}
 
   run-async@2.4.1: {}
 
@@ -12780,6 +12873,8 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  w3c-keyname@2.2.8: {}
 
   wcwidth@1.0.1:
     dependencies:
