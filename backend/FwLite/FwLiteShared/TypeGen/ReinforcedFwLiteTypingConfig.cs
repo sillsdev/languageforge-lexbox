@@ -66,7 +66,9 @@ public static class ReinforcedFwLiteTypingConfig
                 ..config.ObjectTypes,
                 typeof(WritingSystems),
                 typeof(MiniLcmJsInvokable.MiniLcmFeatures),
-                typeof(IObjectWithId)
+                typeof(IObjectWithId),
+                typeof(RichString),
+                typeof(RichTextObjectData),
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
@@ -75,6 +77,18 @@ public static class ReinforcedFwLiteTypingConfig
                 exportBuilder.Ignore();
             }
         }));
+        builder.ExportAsInterface<RichSpan>().WithPublicNonStaticProperties().WithPublicFields(exportBuilder => exportBuilder.CamelCase());
+        builder.ExportAsEnums([
+            typeof(RichTextToggle),
+            typeof(RichTextAlign),
+            typeof(RichTextSizeUnit),
+            typeof(RichTextLineHeightType),
+            typeof(RichTextSpellingMode),
+            typeof(RichTextEditable),
+            typeof(RichTextSuperscript),
+            typeof(RichTextUnderline),
+            typeof(RichTextObjectDataType),
+        ]);
         builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
