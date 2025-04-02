@@ -8,7 +8,7 @@
         content: 'text*',
         inline: true,
         whitespace: 'pre',
-        toDOM: () => ['pre', 0],
+        toDOM: (node) => ['pre', {title: 'ws: ' + node.attrs.richSpan.ws}, 0],
         parseDOM: [{tag: 'pre'}],
         //richSpan is used to track the original span which was modified
         //this allows us to update the text property without having to map all the span properties into the schema
