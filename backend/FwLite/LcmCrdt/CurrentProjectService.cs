@@ -13,7 +13,8 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     public CrdtProject? MaybeProject => _project;
 
     //only works because PopulateProjectDataCache is called first in the request pipeline
-    public ProjectData ProjectData => memoryCache.Get<ProjectData>(CacheKey(Project)) ?? throw new InvalidOperationException("Project data not found, call PopulateProjectDataCache first or use GetProjectData");
+    public ProjectData ProjectData => memoryCache.Get<ProjectData>(CacheKey(Project)) ?? throw new InvalidOperationException(
+        $"Project data not found for project {MaybeProject?.Name}, call PopulateProjectDataCache first or use GetProjectData");
 
     public async ValueTask<ProjectData> GetProjectData(bool forceRefresh = false)
     {
@@ -23,14 +24,15 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
             result = await DbContext.ProjectData.AsNoTracking().FirstAsync();
             memoryCache.Set(CacheKey(Project), result);
         }
-        if (result is null) throw new InvalidOperationException("Project data not found");
+        if (result is null) throw new InvalidOperationException($"Project data not found for project {MaybeProject?.Name}");
 
         return result;
     }
 
     public void ValidateProjectScope()
     {
-        if (Project is null) throw new InvalidOperationException($"Project is null, there's a bug and {nameof(SetupProjectContext)} was not called");
+        if (Project is null)
+            throw new InvalidOperationException($"Project is null for project {MaybeProject?.Name}, there's a bug and {nameof(SetupProjectContext)} was not called");
     }
 
     private static string CacheKey(CrdtProject project)
@@ -60,7 +62,8 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
     {
         using var activity = LcmCrdtActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_code", project.Name);
-        if (_project != null && project != _project) throw new InvalidOperationException("Can't setup project context for a different project");
+        if (_project != null && project != _project)
+            throw new InvalidOperationException($"Can't setup project context for {project.Name} when already in context of project {_project.Name}");
         _project = project;
         //the first time this is called ProjectData will be null, after that it will be populated, so we can skip migration
         if (LookupProjectData(memoryCache, project) is null) await MigrateDb();

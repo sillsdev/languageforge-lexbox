@@ -8,6 +8,7 @@
   {href}
   {...$$restProps}
   class="button-list-item w-full text-start"
+  class:pointer-events-none={$$restProps.disabled}
   role="button"
   tabindex="0">
   <div></div> <!-- avoid internal first: styles -->
