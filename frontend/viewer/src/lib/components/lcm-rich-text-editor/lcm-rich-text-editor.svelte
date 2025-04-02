@@ -93,7 +93,7 @@
     outline: none;
   }
   :global(.ProseMirror pre) {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid currentColor;
     display: inline;
     margin: 2px;
   }
