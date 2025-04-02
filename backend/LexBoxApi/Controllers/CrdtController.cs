@@ -1,17 +1,16 @@
 ﻿using System.Text.Json.Serialization;
+using EFCore.BulkExtensions;
 using SIL.Harmony.Core;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
-using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexCore.Sync;
+using LexCore.Utils;
 using LexData;
-using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -41,16 +40,24 @@ public class CrdtController(
     }
 
     [HttpPost("{projectId}/add")]
-    public async Task<ActionResult> Add(Guid projectId, [FromBody] ServerCommit[] commits, Guid? clientId)
+    public async Task<ActionResult> Add(Guid projectId, [FromBody] IAsyncEnumerable<ServerCommit> commits, Guid? clientId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        foreach (var commit in commits)
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        await foreach (var chunk in commits.Chunk(100))
         {
-            commit.ProjectId = projectId;
-            dbContext.Add(commit); //todo should only add if not exists, based on commit id
+            foreach (var commit in chunk)
+            {
+                commit.ProjectId = projectId;
+            }
+            await dbContext.BulkInsertAsync(chunk, config =>
+            {
+                //ignore duplicates
+                config.ConflictOption = ConflictOption.Ignore;
+            });
         }
+        await transaction.CommitAsync();
 
-        await dbContext.SaveChangesAsync();
         await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);
         return Ok();
     }

@@ -51,6 +51,7 @@
     <PackageReference Include="Quartz.AspNetCore" />
     <PackageReference Include="Quartz.Serialization.SystemTextJson" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="System.Linq.Async" />
     <PackageReference Include="System.Text.Encodings.Web" />
     <PackageReference Include="tusdotnet" />
     <PackageReference Include="zxcvbn-core" />
