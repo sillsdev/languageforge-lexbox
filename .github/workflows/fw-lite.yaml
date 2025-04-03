@@ -141,7 +141,9 @@ jobs:
 
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
-        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+        run: |
+            dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+            dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@v4
