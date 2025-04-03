@@ -30,6 +30,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
                     },
                     ProjectId = projectId,
                     Metadata = commit.Metadata,
+                    //without this sql cast the value will be treated as text and fail to insert into the jsonb column
                     ChangeEntities = Sql.Expr<List<ChangeEntity<ServerJsonChange>>>($"{commit.ChangeEntities}::jsonb")
                 })
                 .MergeAsync();
