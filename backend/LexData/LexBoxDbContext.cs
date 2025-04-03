@@ -32,7 +32,7 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
     public DbSet<Organization> Orgs => Set<Organization>();
     public DbSet<OrgMember> OrgMembers => Set<OrgMember>();
     public DbSet<OrgProjects> OrgProjects => Set<OrgProjects>();
-    public DbSet<ServerCommit> CrdtCommits => Set<ServerCommit>();
+    public IQueryable<ServerCommit> CrdtCommits(Guid projectId) => Set<ServerCommit>().Where(c => c.ProjectId == projectId);
 
     public async Task<bool> HeathCheck(CancellationToken cancellationToken)
     {

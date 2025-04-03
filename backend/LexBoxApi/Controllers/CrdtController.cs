@@ -29,8 +29,6 @@ public class CrdtController(
     CrdtCommitService crdtCommitService,
     LexAuthService lexAuthService) : ControllerBase
 {
-    private DbSet<ServerCommit> ServerCommits => dbContext.CrdtCommits;
-
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
@@ -71,7 +69,7 @@ public class CrdtController(
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
-            .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, ServerCommits.Any(c => c.ProjectId == p.Id)))
+            .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id)))
             .ToArrayAsync();
         if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()))
         {

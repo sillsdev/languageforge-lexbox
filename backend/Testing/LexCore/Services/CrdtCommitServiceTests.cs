@@ -69,7 +69,7 @@ public class CrdtCommitServiceTests
         var commit = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
         await _crdtCommitService.AddCommits(projectId, AsAsync([commit]));
         commit.ProjectId = projectId;
-        var actualCommit = _lexBoxDbContext.CrdtCommits.Where(c => c.Id == commit.Id).Should().ContainSingle().Subject;
+        var actualCommit = _lexBoxDbContext.CrdtCommits(commit.ProjectId).Where(c => c.Id == commit.Id).Should().ContainSingle().Subject;
         actualCommit.Should().BeEquivalentTo(commit,
             options => options
                 .Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(10)))
@@ -118,7 +118,7 @@ public class CrdtCommitServiceTests
         var commit = await AddTestCommit();
         var act = async () => await _crdtCommitService.AddCommits(commit.ProjectId, AsAsync([commit]));
         await act.Should().NotThrowAsync();
-        _lexBoxDbContext.CrdtCommits.Should().HaveCountGreaterThan(0);
+        _lexBoxDbContext.CrdtCommits(commit.ProjectId).Should().HaveCountGreaterThan(0);
     }
 
 
