@@ -38,4 +38,18 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
 
         await transaction.CommitAsync();
     }
+
+    public IAsyncEnumerable<ServerCommit> GetMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)
+    {
+        return dbContext.CrdtCommits.Where(c => c.ProjectId == projectId)
+        //don't need to include change entities since they're not owned in lexbox so they will get included automatically
+            .GetMissingCommits<ServerCommit, ServerJsonChange>(localState, remoteState, false);
+    }
+
+    public async Task<SyncState> GetSyncState(Guid projectId)
+    {
+        return await dbContext.CrdtCommits
+            .Where(c => c.ProjectId == projectId)
+            .GetSyncState();
+    }
 }

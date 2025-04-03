@@ -115,11 +115,37 @@ public class CrdtCommitServiceTests
     [Fact]
     public async Task AddingTheSameCommitTwiceShouldNotThrow()
     {
+        var commit = await AddTestCommit();
+        var act = async () => await _crdtCommitService.AddCommits(commit.ProjectId, AsAsync([commit]));
+        await act.Should().NotThrowAsync();
+        _lexBoxDbContext.CrdtCommits.Should().HaveCountGreaterThan(0);
+    }
+
+
+    private async Task<ServerCommit> AddTestCommit()
+    {
         var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
         var commit = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
         await _crdtCommitService.AddCommits(projectId, AsAsync([commit]));
-        var act = async () => await _crdtCommitService.AddCommits(projectId, AsAsync([commit]));
-        await act.Should().NotThrowAsync();
-        _lexBoxDbContext.CrdtCommits.Should().HaveCountGreaterThan(0);
+        commit.ProjectId = projectId;
+        return commit;
+    }
+
+    [Fact]
+    public async Task CanGetSyncState()
+    {
+        var commit = await AddTestCommit();
+        var syncState = await _crdtCommitService.GetSyncState(commit.ProjectId);
+        syncState.ClientHeads.Should().Contain(commit.ClientId, commit.DateTime.ToUnixTimeMilliseconds());
+    }
+
+    [Fact]
+    public async Task CanGetMissingCommits()
+    {
+        var commit = await AddTestCommit();
+        var syncState = await _crdtCommitService.GetSyncState(commit.ProjectId);
+
+        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([])).ToArrayAsync();
+        commits.Should().Contain(c => c.Id == commit.Id);
     }
 }

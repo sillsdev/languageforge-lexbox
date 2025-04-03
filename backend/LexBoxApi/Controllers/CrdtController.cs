@@ -29,13 +29,13 @@ public class CrdtController(
     CrdtCommitService crdtCommitService,
     LexAuthService lexAuthService) : ControllerBase
 {
-    private DbSet<ServerCommit> ServerCommits => dbContext.Set<ServerCommit>();
+    private DbSet<ServerCommit> ServerCommits => dbContext.CrdtCommits;
 
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        return await ServerCommits.Where(c => c.ProjectId == projectId).GetSyncState();
+        return await crdtCommitService.GetSyncState(projectId);
     }
 
     [HttpPost("{projectId}/add")]
@@ -60,9 +60,8 @@ public class CrdtController(
         [FromBody] SyncState clientHeads)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        var commits = ServerCommits.Where(c => c.ProjectId == projectId);
-        var localState = await commits.GetSyncState();
-        return new ChangesResult(commits.GetMissingCommits<ServerCommit, ServerJsonChange>(localState, clientHeads), localState);
+        var localState = await crdtCommitService.GetSyncState(projectId);
+        return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
     }
 
     public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
