@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '$lib/components/ui/resizable';
   import OverrideFields from '$lib/OverrideFields.svelte';
   import {Button} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type ISense} from '$lib/dotnet-types';
-  import type {FieldIds} from '$lib/entry-editor/field-data';
+  import {fieldData, type FieldIds} from '$lib/entry-editor/field-data';
   import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -21,6 +22,10 @@
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
+  import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
+  import FieldTitle from '$lib/components/field-editors/field-title.svelte';
+  import {t} from 'svelte-i18n-lingui';
+  import ThemePicker from '$lib/ThemePicker.svelte';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -67,11 +72,22 @@
   let richString: IRichString = $state({
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
   });
+
+  const allDomains = $state<{label: string}[]>([
+    { label: 'fruit' }, { label: 'tree' }, { label: 'stars' }, { label: 'earth' },
+  ]);
+  for (let i = 0; i < 100; i++) {
+    allDomains.push({
+      label: allDomains[Math.floor(Math.random() * allDomains.length)].label + '-' + i
+    });
+  }
+
+  let selectedDomains = $state([allDomains[3], allDomains[5]]);
 </script>
 
-<div class="p-6">
-  <h2 class="mb-4">
-    Shadcn Sandbox
+<div class="p-6 shadcn-root">
+  <h2 class="mb-4 flex gap-8 items-center">
+    Shadcn Sandbox <ThemePicker />
   </h2>
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
@@ -82,7 +98,44 @@
       </label>
     </div>
   </div>
-  <div class="grid grid-cols-3 gap-6">
+  <ResizablePaneGroup direction="horizontal">
+    <ResizablePane class="min-w-72_ !overflow-visible" defaultSize={100}>
+      <div class="@container my-4 border px-4 py-8 relative z-0">
+        <div class="breakpoint-marker w-[32rem] text-orange-600">
+          @lg
+        </div>
+        <div class="breakpoint-marker w-[48rem] text-green-600">
+          @3xl
+        </div>
+        <div class="editor-grid">
+          <div class="field-root">
+            <FieldTitle
+              liteName={$t`Semantic domains`}
+              classicName={$t`Semantic domains`}
+              helpId={fieldData.semanticDomains.helpId}
+            />
+
+            <div class="field-body">
+              <div class="col-span-full">
+                <MultiSelect
+                  bind:values={() => selectedDomains,
+                  (newValues) => selectedDomains = newValues}
+                  idSelector="label"
+                  labelSelector={(item) => item.label}
+                  options={allDomains}>
+                </MultiSelect>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ResizablePane>
+    <!-- looks cool 🤷 https://github.com/huntabyte/shadcn-svelte/blob/bcbe10a4f65d244a19fb98ffb6a71d929d9603bc/sites/docs/src/lib/components/docs/block-preview.svelte#L65 -->
+    <ResizableHandle class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10" />
+    <ResizablePane>
+    </ResizablePane>
+  </ResizablePaneGroup>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
     <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString}/>
     <pre>{JSON.stringify(richString, null, 2).replaceAll(lineSeparator, '\n')}</pre>
@@ -107,11 +160,11 @@
 
 <hr class="border-t border-gray-200 my-6"/>
 
-<div class="p-6">
+<div class="p-6 overflow-hidden">
   <h2 class="mb-4">
     Svelte-UX Sandbox
   </h2>
-  <div class="grid grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       MultiOptionEditor configurations
       <OptionSandbox/>
@@ -170,8 +223,8 @@
       </div>
       <div>
         <p>Shown:</p>
-        <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} on:consider={updateFields}
-            on:finalize={updateFields}>
+        <div class="p-2" use:dndzone={{items: senseFields, flipDurationMs: 200}} onconsider={updateFields}
+            onfinalize={updateFields}>
           {#each senseFields as field (field)}
             <div class="p-2 border m-3">{field.id}</div>
           {/each}
@@ -187,3 +240,10 @@
 
   </div>
 </div>
+<div id="bottom" class="fixed bottom-0 left-1/2"></div>
+
+<style lang="postcss">
+  .breakpoint-marker {
+    @apply absolute h-full top-0 border-r-current border-r -z-10 text-right pr-2;
+  }
+</style>

@@ -30,20 +30,22 @@ export const allFields: Record<FieldIds, FieldView> = {
   reference: {show: false, order: 3},
 };
 
-const defaultView: RootView = {
+export const FW_LITE_VIEW: RootView = {
   id: 'fwlite',
+  type: 'fw-lite',
   i18nKey: '',
   label: 'FieldWorks Lite',
   fields: allFields,
-  get alternateView() { return fieldWorksView; }
+  get alternateView() { return FW_CLASSIC_VIEW; }
 };
 
-const fieldWorksView: RootView = {
+export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
+  type: 'fw-classic',
   i18nKey: 'fieldworks',
   label: 'FieldWorks',
   fields: recursiveSpread(allFields, {[defaultDef]: {show: true}}),
-  alternateView: defaultView,
+  alternateView: FW_LITE_VIEW,
 };
 
 const viewDefinitions: CustomViewDefinition[] = [
@@ -51,12 +53,12 @@ const viewDefinitions: CustomViewDefinition[] = [
 ];
 
 export const views: [RootView, RootView, ...CustomView[]] = [
-  defaultView,
-  fieldWorksView,
+  FW_LITE_VIEW,
+  FW_CLASSIC_VIEW,
   ...viewDefinitions.map(view => {
     const fields: Record<FieldIds, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fieldOverrides);
     return {
-      ...defaultView,
+      ...FW_LITE_VIEW,
       ...view,
       fields: fields
     };
@@ -88,6 +90,7 @@ function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, ob
 
 interface ViewDefinition {
   id: string;
+  type: 'fw-lite' | 'fw-classic';
   i18nKey: I18nType;
   label: string;
 }
