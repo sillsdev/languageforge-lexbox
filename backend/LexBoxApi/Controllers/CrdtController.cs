@@ -34,7 +34,7 @@ public class CrdtController(
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
-        // await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanSyncProject(projectId);
         return await ServerCommits.Where(c => c.ProjectId == projectId).GetSyncState();
     }
 
