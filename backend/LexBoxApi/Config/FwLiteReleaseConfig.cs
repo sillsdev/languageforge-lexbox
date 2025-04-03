@@ -17,6 +17,6 @@ public class FwLiteEditionConfig
     [Required]
     public required string FileNameRegex { get; init; }
 
-    [field: AllowNull]
-    public Regex FileName => field ??= new Regex(FileNameRegex);
+    private Regex? _fileName;
+    public Regex FileName => _fileName ??= new Regex(FileNameRegex);
 }
