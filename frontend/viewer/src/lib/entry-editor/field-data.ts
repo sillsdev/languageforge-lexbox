@@ -27,5 +27,6 @@ const privateFieldData = {
 /**
  * This is a list of all standard fields with fixed data that is constant across all views.
  */
-export const fieldData: Record<string, FieldData> = privateFieldData;
-export type FieldIds = keyof typeof fieldData;
+export type FieldId = keyof typeof privateFieldData;
+export const fieldData: Record<FieldId, FieldData> = privateFieldData;
+export type FieldIds = keyof typeof fieldData; // == string 🙃
