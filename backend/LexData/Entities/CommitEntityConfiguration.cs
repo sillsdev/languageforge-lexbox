@@ -23,11 +23,10 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
             m => JsonSerializer.Serialize(m, (JsonSerializerOptions?)null),
             json => JsonSerializer.Deserialize<CommitMetadata>(json, (JsonSerializerOptions?)null) ?? new()
         );
-        builder.OwnsMany(c => c.ChangeEntities,
-            b => b.ToJson().Property(c => c.Change).HasConversion(
-                change => Serialize(change),
-                element => Deserialize(element)
-            ));
+        builder.Property(c => c.ChangeEntities).HasConversion(
+            c => JsonSerializer.Serialize(c, (JsonSerializerOptions?)null),
+            json => JsonSerializer.Deserialize<List<ChangeEntity<ServerJsonChange>>>(json, (JsonSerializerOptions?)null) ?? new()
+        ).HasColumnType("jsonb");
     }
 
     private static ServerJsonChange Deserialize(string s) => JsonSerializer.Deserialize<ServerJsonChange>(s)!;

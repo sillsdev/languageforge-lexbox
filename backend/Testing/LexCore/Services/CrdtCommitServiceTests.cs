@@ -1,0 +1,125 @@
+﻿using System.Text.Json;
+using FluentAssertions;
+using FluentAssertions.Equivalency;
+using LexBoxApi.Services;
+using LexData;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SIL.Harmony.Core;
+using Testing.Fixtures;
+
+namespace Testing.LexCore.Services;
+
+[Collection(nameof(TestingServicesFixture))]
+[Trait("Category", "RequiresDb")]
+public class CrdtCommitServiceTests
+{
+    private readonly CrdtCommitService _crdtCommitService;
+    private readonly LexBoxDbContext _lexBoxDbContext;
+
+    public CrdtCommitServiceTests(TestingServicesFixture testing)
+    {
+        var serviceProvider = testing.ConfigureServices(collection => collection.AddSingleton<CrdtCommitService>());
+        _crdtCommitService = serviceProvider.GetRequiredService<CrdtCommitService>();
+        _lexBoxDbContext = serviceProvider.GetRequiredService<LexBoxDbContext>();
+    }
+
+    private ServerCommit CreateCommit(Guid clientId, Guid entityId, DateTime dateTime, Guid? commitId = null)
+    {
+        commitId ??= Guid.NewGuid();
+        var commit = new ServerCommit(commitId.Value)
+        {
+            ClientId = clientId,
+            HybridDateTime = new HybridDateTime(dateTime, 0),
+            ProjectId = Guid.Empty,
+            ChangeEntities =
+            [
+                new ChangeEntity<ServerJsonChange>()
+                {
+                    Index = 0,
+                    CommitId = commitId.Value,
+                    EntityId = entityId,
+                    Change = new()
+                    {
+                        Type = "MyTestType",
+                        ExtensionData = new Dictionary<string, JsonElement>()
+                        {
+                            ["MyTestProperty"] = JsonSerializer.SerializeToElement("MyTestValue")
+                        }
+                    }
+                }
+            ]
+        };
+        return commit;
+    }
+
+    private async IAsyncEnumerable<ServerCommit> AsAsync(IEnumerable<ServerCommit> commits)
+    {
+        foreach (var serverCommit in commits)
+        {
+            yield return serverCommit;
+        }
+    }
+
+
+    [Fact]
+    public async Task CanAddCommits()
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var commit = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
+        await _crdtCommitService.AddCommits(projectId, AsAsync([commit]));
+        commit.ProjectId = projectId;
+        var actualCommit = _lexBoxDbContext.CrdtCommits.Should().ContainSingle().Subject;
+        actualCommit.Should().BeEquivalentTo(commit,
+            options => options
+                .Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(10)))
+                .WhenTypeIs<DateTimeOffset>()
+                .Using<JsonElement>(ctx => ctx.Subject.ToString().Should().Be(ctx.Expectation.ToString()))
+                .WhenTypeIs<JsonElement>());
+    }
+
+    [Fact]
+    public async Task AddingViaServiceBulkAddWorksTheSameAsAddingViaDbContext()
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var clientId = Guid.NewGuid();
+        var entityId = Guid.NewGuid();
+        var dateTime = DateTime.UtcNow;
+        var commit = CreateCommit(clientId, entityId, dateTime);
+        commit.ProjectId = projectId;
+        _lexBoxDbContext.Add(commit);
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        var commit2 = CreateCommit(clientId, entityId, dateTime);
+        await _crdtCommitService.AddCommits(projectId, AsAsync([commit2]));
+        commit2.ProjectId = projectId;
+        var commits = await _lexBoxDbContext.Set<ServerCommit>().Where(c => c.ProjectId == projectId).ToListAsync();
+        commits.Count.Should().Be(2);
+
+        commits[0].Should().BeEquivalentTo(commit, Config);
+        commits[1].Should().BeEquivalentTo(commit2, Config);
+        commits[0].Should().BeEquivalentTo(commits[1], Config);
+
+        EquivalencyOptions<ServerCommit> Config(EquivalencyOptions<ServerCommit> options)
+        {
+            return options.Excluding(c => c.Id)
+                .Excluding(c => c.CompareKey)
+                .For(c => c.ChangeEntities).Exclude(c => c.CommitId)
+                .Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(10)))
+                .WhenTypeIs<DateTimeOffset>()
+                .Using<JsonElement>(ctx => ctx.Subject.ToString().Should().Be(ctx.Expectation.ToString()))
+                .WhenTypeIs<JsonElement>();
+        }
+    }
+
+    [Fact]
+    public async Task AddingTheSameCommitTwiceShouldNotThrow()
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var commit = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
+        await _crdtCommitService.AddCommits(projectId, AsAsync([commit]));
+        var act = async () => await _crdtCommitService.AddCommits(projectId, AsAsync([commit]));
+        await act.Should().NotThrowAsync();
+        _lexBoxDbContext.CrdtCommits.Should().HaveCount(1);
+    }
+}

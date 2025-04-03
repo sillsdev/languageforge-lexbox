@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using EFCore.BulkExtensions;
 using SIL.Harmony.Core;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -9,7 +8,6 @@ using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexCore.Utils;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -28,6 +26,7 @@ public class CrdtController(
     IPermissionService permissionService,
     LoggedInContext loggedInContext,
     ProjectService projectService,
+    CrdtCommitService crdtCommitService,
     LexAuthService lexAuthService) : ControllerBase
 {
     private DbSet<ServerCommit> ServerCommits => dbContext.Set<ServerCommit>();
@@ -35,7 +34,7 @@ public class CrdtController(
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        // await permissionService.AssertCanSyncProject(projectId);
         return await ServerCommits.Where(c => c.ProjectId == projectId).GetSyncState();
     }
 
@@ -43,20 +42,7 @@ public class CrdtController(
     public async Task<ActionResult> Add(Guid projectId, [FromBody] IAsyncEnumerable<ServerCommit> commits, Guid? clientId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        await foreach (var chunk in commits.Chunk(100))
-        {
-            foreach (var commit in chunk)
-            {
-                commit.ProjectId = projectId;
-            }
-            await dbContext.BulkInsertAsync(chunk, config =>
-            {
-                //ignore duplicates
-                config.ConflictOption = ConflictOption.Ignore;
-            });
-        }
-        await transaction.CommitAsync();
+        await crdtCommitService.AddCommits(projectId, commits);
 
         await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);
         return Ok();

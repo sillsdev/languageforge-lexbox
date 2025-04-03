@@ -1,6 +1,7 @@
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
+using SIL.Harmony.Core;
 
 namespace LexData;
 
@@ -31,6 +32,7 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
     public DbSet<Organization> Orgs => Set<Organization>();
     public DbSet<OrgMember> OrgMembers => Set<OrgMember>();
     public DbSet<OrgProjects> OrgProjects => Set<OrgProjects>();
+    public DbSet<ServerCommit> CrdtCommits => Set<ServerCommit>();
 
     public async Task<bool> HeathCheck(CancellationToken cancellationToken)
     {
