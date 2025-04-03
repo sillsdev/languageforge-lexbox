@@ -26,7 +26,7 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
         builder.Property(c => c.ChangeEntities).HasConversion(
             c => JsonSerializer.Serialize(c, (JsonSerializerOptions?)null),
             json => JsonSerializer.Deserialize<List<ChangeEntity<ServerJsonChange>>>(json, (JsonSerializerOptions?)null) ?? new()
-        ).HasColumnType("jsonb");
+        ).HasColumnType("jsonb").IsRequired(false);
     }
 
     private static ServerJsonChange Deserialize(string s) => JsonSerializer.Deserialize<ServerJsonChange>(s)!;
