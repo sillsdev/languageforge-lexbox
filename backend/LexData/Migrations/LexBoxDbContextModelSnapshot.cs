@@ -19,7 +19,7 @@ namespace LexData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -517,7 +517,7 @@ namespace LexData.Migrations
 
                     b.HasIndex("ProjectManagerId");
 
-                    b.ToTable("DraftProjects");
+                    b.ToTable("DraftProjects", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
@@ -536,7 +536,7 @@ namespace LexData.Migrations
 
                     b.HasKey("ProjectId");
 
-                    b.ToTable("FlexProjectMetadata");
+                    b.ToTable("FlexProjectMetadata", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
@@ -603,7 +603,7 @@ namespace LexData.Migrations
                     b.HasIndex("OrgId", "ProjectId")
                         .IsUnique();
 
-                    b.ToTable("OrgProjects");
+                    b.ToTable("OrgProjects", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.Organization", b =>
@@ -701,7 +701,7 @@ namespace LexData.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.ProjectUsers", b =>
@@ -736,7 +736,7 @@ namespace LexData.Migrations
                     b.HasIndex("UserId", "ProjectId")
                         .IsUnique();
 
-                    b.ToTable("ProjectUsers");
+                    b.ToTable("ProjectUsers", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.User", b =>
@@ -818,7 +818,7 @@ namespace LexData.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>
@@ -1035,10 +1035,6 @@ namespace LexData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ChangeEntities")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
@@ -1140,21 +1136,21 @@ namespace LexData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("LexCore.Entities.ProjectWritingSystems", "WritingSystems", b1 =>
+                    b.OwnsOne("LexCore.Entities.FlexProjectMetadata.WritingSystems#LexCore.Entities.ProjectWritingSystems", "WritingSystems", b1 =>
                         {
                             b1.Property<Guid>("FlexProjectMetadataProjectId")
                                 .HasColumnType("uuid");
 
                             b1.HasKey("FlexProjectMetadataProjectId");
 
-                            b1.ToTable("FlexProjectMetadata");
+                            b1.ToTable("FlexProjectMetadata", (string)null);
 
                             b1.ToJson("WritingSystems");
 
                             b1.WithOwner()
                                 .HasForeignKey("FlexProjectMetadataProjectId");
 
-                            b1.OwnsMany("LexCore.Entities.FLExWsId", "AnalysisWss", b2 =>
+                            b1.OwnsMany("LexCore.Entities.FlexProjectMetadata.WritingSystems#LexCore.Entities.ProjectWritingSystems.AnalysisWss#LexCore.Entities.FLExWsId", "AnalysisWss", b2 =>
                                 {
                                     b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
                                         .HasColumnType("uuid");
@@ -1175,13 +1171,13 @@ namespace LexData.Migrations
 
                                     b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
 
-                                    b2.ToTable("FlexProjectMetadata");
+                                    b2.ToTable("FlexProjectMetadata", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("ProjectWritingSystemsFlexProjectMetadataProjectId");
                                 });
 
-                            b1.OwnsMany("LexCore.Entities.FLExWsId", "VernacularWss", b2 =>
+                            b1.OwnsMany("LexCore.Entities.FlexProjectMetadata.WritingSystems#LexCore.Entities.ProjectWritingSystems.VernacularWss#LexCore.Entities.FLExWsId", "VernacularWss", b2 =>
                                 {
                                     b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
                                         .HasColumnType("uuid");
@@ -1202,7 +1198,7 @@ namespace LexData.Migrations
 
                                     b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
 
-                                    b2.ToTable("FlexProjectMetadata");
+                                    b2.ToTable("FlexProjectMetadata", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("ProjectWritingSystemsFlexProjectMetadataProjectId");
@@ -1316,11 +1312,44 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("SIL.Harmony.Core.ServerCommit", b =>
                 {
-                    b.HasOne("LexCore.Entities.Project", null)
+                    b.HasOne("LexCore.Entities.FlexProjectMetadata", null)
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsMany("SIL.Harmony.Core.ServerCommit.ChangeEntities#SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Core.ServerJsonChange>", "ChangeEntities", b1 =>
+                        {
+                            b1.Property<Guid>("ServerCommitId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Change")
+                                .HasColumnType("text");
+
+                            b1.Property<Guid>("CommitId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("EntityId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Index")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("ServerCommitId", "Id");
+
+                            b1.ToTable("CrdtCommits", (string)null);
+
+                            b1.ToJson("ChangeEntities");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServerCommitId");
+                        });
+
+                    b.Navigation("ChangeEntities");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>
