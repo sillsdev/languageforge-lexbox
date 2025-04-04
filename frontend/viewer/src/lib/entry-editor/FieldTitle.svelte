@@ -2,13 +2,13 @@
   import {fieldName} from '../i18n';
   import {useCurrentView} from '$lib/views/view-service';
   import FieldHelpIcon from './FieldHelpIcon.svelte';
-  import {fieldData} from './field-data';
+  import {fieldData, type FieldId} from './field-data';
   import {type View} from '$lib/views/view-data';
 
   export let id: string;
   export let helpId: string | undefined = undefined;
   export let name: string | undefined = undefined;
-  $: if (!helpId) helpId = fieldData[id]?.helpId;
+  $: if (!helpId) helpId = fieldData[id as FieldId]?.helpId;
 
   const currentView = useCurrentView();
 

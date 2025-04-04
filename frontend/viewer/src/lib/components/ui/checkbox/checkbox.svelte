@@ -23,7 +23,7 @@
   {...restProps}
 >
   {#snippet children({ checked, indeterminate })}
-    <div class="flex size-4 items-center justify-center text-current">
+    <div class="flex size-full items-center justify-center text-current">
       {#if indeterminate}
         <Icon icon="i-mdi-minus" class="size-3.5" />
       {:else}
