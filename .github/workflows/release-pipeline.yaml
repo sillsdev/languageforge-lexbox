@@ -76,9 +76,6 @@ jobs:
           - '6'
         include:
           - run-playwright: false
-          - runs-on: ubuntu-latest
-            hg-version: '6'
-            run-playwright: true
     needs: deploy
     permissions:
       checks: write
