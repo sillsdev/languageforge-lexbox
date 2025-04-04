@@ -21,11 +21,11 @@ on:
         required: false
         default: true
         type: boolean
-      run-playwright:
-        description: 'Whether to run Playwright tests'
-        required: false
-        default: true
-        type: boolean
+#      run-playwright:
+#        description: 'Whether to run Playwright tests'
+#        required: false
+#        default: true
+#        type: boolean
   workflow_dispatch:
     inputs:
       environment:
