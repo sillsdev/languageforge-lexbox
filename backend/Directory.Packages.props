@@ -6,125 +6,125 @@
     <MauiVersion>9.0.50</MauiVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1"/>
-    <PackageVersion Include="BeaKona.AutoInterfaceGenerator" Version="1.0.42"/>
-    <PackageVersion Include="coverlet.collector" Version="6.0.2"/>
-    <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta"/>
-    <PackageVersion Include="DataAnnotatedModelValidations" Version="6.0.0"/>
-    <PackageVersion Include="EntityFrameworkCore.Projectables" Version="3.0.4"/>
-    <PackageVersion Include="EntityFrameworkCore.Projectables.Abstractions" Version="4.0.0-preview.4"/>
-    <PackageVersion Include="FluentAssertions" Version="7.0.0-alpha.5"/>
-    <PackageVersion Include="FluentValidation" Version="11.11.0"/>
-    <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1"/>
-    <PackageVersion Include="Gridify" Version="2.16.2"/>
-    <PackageVersion Include="Gridify.EntityFramework" Version="2.15.0"/>
-    <PackageVersion Include="HotChocolate.Analyzers" Version="13.9.14"/>
-    <PackageVersion Include="HotChocolate.AspNetCore" Version="14.0.0"/>
-    <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="14.0.0"/>
-    <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="14.0.0"/>
-    <PackageVersion Include="HotChocolate.Diagnostics" Version="14.0.0"/>
-    <PackageVersion Include="HotChocolate.Types.Analyzers" Version="14.0.0"/>
-    <PackageVersion Include="HtmlAgilityPack" Version="1.12.0"/>
-    <PackageVersion Include="Humanizer.Core" Version="2.14.1"/>
-    <PackageVersion Include="icu.net" Version="3.0.0-beta.297"/>
-    <PackageVersion Include="linq2db.AspNet" Version="5.4.1"/>
-    <PackageVersion Include="linq2db.EntityFrameworkCore" Version="8.1.0"/>
-    <PackageVersion Include="MailKit" Version="4.7.1.1"/>
-    <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.7"/>
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10"/>
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)"/>
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.11"/>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11"/>
-    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.9.24556.5"/>
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.11"/>
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.2.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2"/>
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3"/>
-    <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.67.2"/>
-    <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.0"/>
-    <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
-    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)"/>
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1"/>
-    <PackageVersion Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3"/>
-    <PackageVersion Include="MongoDB.Analyzer" Version="1.5.0"/>
-    <PackageVersion Include="MongoDB.Driver" Version="2.28.0"/>
-    <PackageVersion Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="1.5.0"/>
-    <PackageVersion Include="Moq" Version="4.20.70"/>
-    <PackageVersion Include="Moq.Contrib.HttpClient" Version="1.4.0"/>
-    <PackageVersion Include="Nito.AsyncEx.Coordination" Version="5.1.2"/>
-    <PackageVersion Include="Npgsql" Version="8.0.6"/>
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11"/>
-    <PackageVersion Include="Npgsql.OpenTelemetry" Version="8.0.6"/>
-    <PackageVersion Include="NReco.Logging.File" Version="1.2.1"/>
-    <PackageVersion Include="OpenIddict.AspNetCore" Version="5.8.0"/>
-    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="5.8.0"/>
-    <PackageVersion Include="OpenIddict.Quartz" Version="5.8.0"/>
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.10.0"/>
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0"/>
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.11.0-beta.1"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="1.11.0-beta.1"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.0.0-beta.1"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0"/>
-    <PackageVersion Include="Polly" Version="8.4.2"/>
-    <PackageVersion Include="Polly.Extensions" Version="8.4.2"/>
-    <PackageVersion Include="Quartz.AspNetCore" Version="3.13.0"/>
-    <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.13.0"/>
-    <PackageVersion Include="Refit" Version="8.0.0"/>
-    <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0"/>
-    <PackageVersion Include="Reinforced.Typings" Version="1.6.5"/>
-    <PackageVersion Include="Scalar.AspNetCore" Version="1.2.22"/>
-    <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0055"/>
-    <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43"/>
-    <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028"/>
-    <PackageVersion Include="SIL.Core" Version="14.2.0-beta0022"/>
-    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0111"/>
-    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0109"/>
-    <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022"/>
-    <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="3.0.410"/>
-    <PackageVersion Include="Squidex.Assets.TusClient" Version="6.6.4"/>
-    <PackageVersion Include="structuremap.patched" Version="4.7.3"/>
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0"/>
-    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0"/>
-    <PackageVersion Include="System.Linq.Async" Version="6.0.1"/>
-    <PackageVersion Include="System.Reactive" Version="6.0.1"/>
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.0"/>
-    <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.0"/>
-    <PackageVersion Include="System.Text.Json" Version="9.0.0"/>
-    <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0"/>
-    <PackageVersion Include="SystemTextJsonPatch" Version="3.2.1"/>
-    <PackageVersion Include="tusdotnet" Version="2.8.0"/>
-    <PackageVersion Include="Verify.Xunit" Version="28.2.1"/>
-    <PackageVersion Include="xunit" Version="2.9.2"/>
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2"/>
-    <PackageVersion Include="XunitXml.TestLogger" Version="3.1.17"/>
-    <PackageVersion Include="Yarp.ReverseProxy" Version="2.2.0"/>
-    <PackageVersion Include="Yarp.Telemetry.Consumption" Version="2.2.0"/>
-    <PackageVersion Include="zxcvbn-core" Version="7.0.92"/>
+    <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1" />
+    <PackageVersion Include="BeaKona.AutoInterfaceGenerator" Version="1.0.42" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
+    <PackageVersion Include="DataAnnotatedModelValidations" Version="6.0.0" />
+    <PackageVersion Include="EntityFrameworkCore.Projectables" Version="3.0.4" />
+    <PackageVersion Include="EntityFrameworkCore.Projectables.Abstractions" Version="4.0.0-preview.4" />
+    <PackageVersion Include="FluentAssertions" Version="7.0.0-alpha.5" />
+    <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
+    <PackageVersion Include="Gridify" Version="2.16.2" />
+    <PackageVersion Include="Gridify.EntityFramework" Version="2.15.0" />
+    <PackageVersion Include="HotChocolate.Analyzers" Version="13.9.14" />
+    <PackageVersion Include="HotChocolate.AspNetCore" Version="14.0.0" />
+    <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="14.0.0" />
+    <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="14.0.0" />
+    <PackageVersion Include="HotChocolate.Diagnostics" Version="14.0.0" />
+    <PackageVersion Include="HotChocolate.Types.Analyzers" Version="14.0.0" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.12.0" />
+    <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
+    <PackageVersion Include="icu.net" Version="3.0.0-beta.297" />
+    <PackageVersion Include="linq2db.AspNet" Version="5.4.1" />
+    <PackageVersion Include="linq2db.EntityFrameworkCore" Version="8.1.0" />
+    <PackageVersion Include="MailKit" Version="4.7.1.1" />
+    <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.7" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.9.24556.5" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.2.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.67.2" />
+    <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageVersion Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+    <PackageVersion Include="MongoDB.Analyzer" Version="1.5.0" />
+    <PackageVersion Include="MongoDB.Driver" Version="2.28.0" />
+    <PackageVersion Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="1.5.0" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
+    <PackageVersion Include="Moq.Contrib.HttpClient" Version="1.4.0" />
+    <PackageVersion Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+    <PackageVersion Include="Npgsql" Version="8.0.6" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    <PackageVersion Include="Npgsql.OpenTelemetry" Version="8.0.6" />
+    <PackageVersion Include="NReco.Logging.File" Version="1.2.1" />
+    <PackageVersion Include="OpenIddict.AspNetCore" Version="5.8.0" />
+    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="5.8.0" />
+    <PackageVersion Include="OpenIddict.Quartz" Version="5.8.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.11.0-beta.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="1.11.0-beta.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.0.0-beta.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
+    <PackageVersion Include="Polly" Version="8.4.2" />
+    <PackageVersion Include="Polly.Extensions" Version="8.4.2" />
+    <PackageVersion Include="Quartz.AspNetCore" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
+    <PackageVersion Include="Refit" Version="8.0.0" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
+    <PackageVersion Include="Reinforced.Typings" Version="1.6.5" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="1.2.22" />
+    <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0055" />
+    <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
+    <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
+    <PackageVersion Include="SIL.Core" Version="14.2.0-beta0022" />
+    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0111" />
+    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0109" />
+    <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022" />
+    <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
+    <PackageVersion Include="Squidex.Assets.TusClient" Version="6.6.4" />
+    <PackageVersion Include="structuremap.patched" Version="4.7.3" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
+    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
+    <PackageVersion Include="System.Reactive" Version="6.0.1" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.0" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.0" />
+    <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
+    <PackageVersion Include="SystemTextJsonPatch" Version="3.2.1" />
+    <PackageVersion Include="tusdotnet" Version="2.8.0" />
+    <PackageVersion Include="Verify.Xunit" Version="28.2.1" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="XunitXml.TestLogger" Version="3.1.17" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.2.0" />
+    <PackageVersion Include="Yarp.Telemetry.Consumption" Version="2.2.0" />
+    <PackageVersion Include="zxcvbn-core" Version="7.0.92" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20"/>
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20" />
   </ItemGroup>
 </Project>

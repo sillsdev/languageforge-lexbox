@@ -62,6 +62,7 @@ public static class LexBoxKernel
         services.AddScoped<LoggedInContext>();
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<ProjectService>();
+        services.AddScoped<CrdtCommitService>();
         services.AddScoped<UserService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<TusService>();

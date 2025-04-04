@@ -1,7 +1,13 @@
 using LexData.Configuration;
+using LinqToDB;
+using LinqToDB.AspNet.Logging;
+using LinqToDB.EntityFrameworkCore;
+using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SIL.Harmony.Core;
 
 namespace LexData;
 
@@ -15,10 +21,28 @@ public static class DataKernel
     {
         if (useSeeding)
             services.AddScoped<SeedingData>();
+
+        LinqToDBForEFTools.Initialize();
         services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
+            options.UseLinqToDB(builder =>
+            {
+                var mappingSchema = new MappingSchema();
+                new FluentMappingBuilder(mappingSchema)
+                    .HasAttribute<ServerCommit>(new ColumnAttribute(
+                        $"{nameof(ServerCommit.HybridDateTime)}_{nameof(HybridDateTime.DateTime)}",
+                        $"{nameof(ServerCommit.HybridDateTime)}.{nameof(HybridDateTime.DateTime)}"))
+                    .HasAttribute<ServerCommit>(new ColumnAttribute(
+                        $"{nameof(ServerCommit.HybridDateTime)}_{nameof(HybridDateTime.Counter)}",
+                        $"{nameof(ServerCommit.HybridDateTime)}.{nameof(HybridDateTime.Counter)}"))
+                    .Build();
+                builder.AddMappingSchema(mappingSchema);
+                var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+                if (loggerFactory is not null)
+                    builder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
+            });
             options.UseProjectables();
             //todo remove this once this bug is fixed: https://github.com/dotnet/efcore/issues/35110
             //we ended up not upgrading to EF Core 9, so this was disabled for now, may or may not be needed in the future
