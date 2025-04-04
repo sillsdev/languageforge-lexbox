@@ -46,11 +46,11 @@ on:
         required: false
         default: true
         type: boolean
-      run-playwright:
-        description: 'Whether to run Playwright tests'
-        required: false
-        default: true
-        type: boolean
+#      run-playwright:
+#        description: 'Whether to run Playwright tests'
+#        required: false
+#        default: true
+#        type: boolean
 
 # TODO: Set up caching for /home/runner/.cache/ms-playwright
 # TODO: Ditto for /home/runner/.pnpm-store/v3
