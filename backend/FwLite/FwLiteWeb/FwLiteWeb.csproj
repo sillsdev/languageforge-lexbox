@@ -26,6 +26,8 @@
       <Link>.dockerignore</Link>
     </Content>
     <Content Include="*.md" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="install-launcher.sh" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="fwlite.desktop.template" CopyToPublishDirectory="PreserveNewest" />
     <None Include="$(Pkgicu_net)\contentFiles\any\any\icu.net.dll.config">
       <Link>icu.net.dll.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
