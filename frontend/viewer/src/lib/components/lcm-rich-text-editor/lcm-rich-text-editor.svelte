@@ -1,4 +1,4 @@
-﻿<script lang="ts" module>
+<script lang="ts" module>
   import {Schema, type Node} from 'prosemirror-model';
 
   const textSchema = new Schema({
@@ -24,7 +24,7 @@
   import {Label} from '$lib/components/ui/label';
   import InputShell from '../ui/input/input-shell.svelte';
   import {EditorView} from 'prosemirror-view';
-  import {EditorState} from 'prosemirror-state';
+  import {EditorState, type Command} from 'prosemirror-state';
   import {keymap} from 'prosemirror-keymap';
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
@@ -71,14 +71,73 @@
       doc: valueToDoc(),
       plugins: [
         history(),
-        keymap({'Mod-z': undo, 'Mod-y': redo}),
-        keymap({'Shift-Enter': (state, dispatch) => {
+        keymap({
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Delete': handleDelete,
+          'Backspace': handleBackspace,
+          'Enter': () => true,
+          'Shift-Enter': (state, dispatch) => {
           if (dispatch) dispatch(state.tr.insertText('\n'));
           return true;
         }}),
         keymap(baseKeymap)
       ]
     });
+  }
+
+  /**
+   * Changes the default behaviour of delete, so that nodes don't get merged,
+   * but rather the first character of the next node is deleted.
+   */
+  // eslint-disable-next-line func-style
+  const handleDelete: Command = (state, dispatch) => {
+      if (!dispatch) return false; // read-only?
+      if (!state.selection.empty) return false; // skip if range selected
+      if (state.selection.$from.nodeAfter) return false; // not at the end of the current node
+
+      const nextPos = state.selection.$from.pos + 1;
+      const nextNode = state.doc.nodeAt(nextPos);
+      if (!nextNode) return false; // no next node
+
+      if (nextNode.content.size <= 1) {
+        // the node is empty, so we delete the whole thing
+        dispatch(state.tr.delete(nextPos, nextPos + nextNode.nodeSize));
+      } else {
+        // "jump" into the next node and delete the first character
+        dispatch(state.tr.delete(nextPos + 1, nextPos + 2));
+      }
+
+      return true;
+  }
+
+  /**
+   * Changes the default behaviour of backspace, so that nodes don't get merged,
+   * but rather the last character of the previous node is deleted.
+   */
+  // eslint-disable-next-line func-style
+  const handleBackspace: Command = (state, dispatch) => {
+      if (!dispatch) return false; // read-only?
+      if (!state.selection.empty) return false; // skip if range selected
+      if (state.selection.$from.nodeBefore) return false; // not at the start of the current node
+
+      const currNode = state.selection.$from.node();
+      const currSpan = currNode.isText ? state.selection.$from.parent : currNode;
+      const currSpanI = state.doc.children.indexOf(currSpan);
+      const prevSpan = currSpanI > 0 ? state.doc.children[currSpanI - 1] : undefined;
+      if (!prevSpan) return false; // no previous node
+
+      const prevPos = state.selection.$from.pos - 1;
+
+      if (prevSpan.content.size <= 1) {
+        // the node is empty, so we delete the whole thing
+        dispatch(state.tr.delete(prevPos - prevSpan.nodeSize, prevPos));
+      } else {
+        // "jump" into the previous node and delete the last character
+        dispatch(state.tr.delete(prevPos - 2, prevPos - 1));
+      }
+
+      return true;
   }
 
   function valueToDoc(): Node {
