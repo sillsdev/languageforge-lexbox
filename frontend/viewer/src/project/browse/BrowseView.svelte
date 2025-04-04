@@ -17,12 +17,16 @@
   function toggleSort() {
     sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
   }
+
+  let leftPane: ResizablePane | undefined = $state();
+  let rightPane: ResizablePane | undefined = $state();
 </script>
 
 <div class="flex flex-col h-full p-2 md:p-4">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
     {#if !IsMobile.value || !selectedEntry}
       <ResizablePane
+        bind:this={leftPane}
         defaultSize={defaultLayout[0]}
         collapsible
         collapsedSize={0}
@@ -46,10 +50,12 @@
       </ResizablePane>
     {/if}
     {#if !IsMobile.value}
-      <ResizableHandle withHandle />
+      <ResizableHandle {leftPane} {rightPane} withHandle />
     {/if}
     {#if selectedEntry || !IsMobile.value}
-      <ResizablePane defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
+      <ResizablePane
+        bind:this={rightPane}
+        defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
         {#if !selectedEntry}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>Select an entry to view details</p>
