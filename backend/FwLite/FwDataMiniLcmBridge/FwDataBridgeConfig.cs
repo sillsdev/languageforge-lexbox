@@ -41,6 +41,7 @@ public class FwDataBridgeConfig
 
     public string ProjectsFolder { get; set; } = DataFolder;
     public string TemplatesFolder { get; set; } = Path.Join(ProgramFolder, "Templates");
+    public bool AutoMigrateLcmData { get; set; } = false;
 
     public GridifyMapper<ILexEntry> Mapper { get; set; } = EntryFilter.NewMapper(new LexEntryFilterMapProvider());
 }
