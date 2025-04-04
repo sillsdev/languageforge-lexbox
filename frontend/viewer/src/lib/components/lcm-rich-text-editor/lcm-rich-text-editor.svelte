@@ -1,15 +1,17 @@
-<script lang="ts" module>
+﻿<script lang="ts" module>
   import {Schema, type Node} from 'prosemirror-model';
+  import {gt} from 'svelte-i18n-lingui';
 
   const textSchema = new Schema({
     nodes: {
       text: {},
       span: {
+        selectable: false,
         content: 'text*',
         inline: true,
         whitespace: 'pre',
-        toDOM: (node) => ['pre', {title: 'ws: ' + node.attrs.richSpan.ws}, 0],
-        parseDOM: [{tag: 'pre'}],
+        toDOM: (node) => ['span', {title: gt`Writing system: ${node.attrs.richSpan.ws}`}, 0],
+        parseDOM: [{tag: 'span'}],
         //richSpan is used to track the original span which was modified
         //this allows us to update the text property without having to map all the span properties into the schema
         attrs: {richSpan: {default: {text: ''}}}
@@ -151,10 +153,10 @@
     flex-grow: 1;
     outline: none;
   }
-  :global(.ProseMirror pre) {
+  :global(.ProseMirror span) {
     border-bottom: 1px solid currentColor;
-    display: inline;
     margin: 2px;
+    white-space: pre-wrap;
   }
 </style>
 <div>
