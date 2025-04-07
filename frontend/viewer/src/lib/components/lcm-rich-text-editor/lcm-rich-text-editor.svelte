@@ -5,6 +5,12 @@
   const textSchema = new Schema({
     nodes: {
       text: {},
+      /**
+       * Note: it seems that our spans likely should have been modeled as "marks" rather than "nodes".
+       * Conceptually our users "mark" up a text.
+       * I assume using marks would make delete and backspace behave more intuitively and automatically solve what our
+       * custom key bindings do.
+       * */
       span: {
         selectable: false,
         content: 'text*',
@@ -74,15 +80,18 @@
       plugins: [
         history(),
         keymap({
+          /* eslint-disable @typescript-eslint/naming-convention */
           'Mod-z': undo,
           'Mod-y': redo,
           'Delete': handleDelete,
           'Backspace': handleBackspace,
           'Enter': () => true,
           'Shift-Enter': (state, dispatch) => {
-          if (dispatch) dispatch(state.tr.insertText('\n'));
-          return true;
-        }}),
+            if (dispatch) dispatch(state.tr.insertText('\n'));
+            return true;
+          },
+          /* eslint-enable @typescript-eslint/naming-convention */
+        }),
         keymap(baseKeymap)
       ]
     });
