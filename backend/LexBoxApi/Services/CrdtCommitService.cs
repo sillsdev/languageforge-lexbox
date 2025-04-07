@@ -12,10 +12,11 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        var commitsTable = dbContext.CreateLinqToDBContext().GetTable<ServerCommit>();
         await foreach (var commitChunk in commits.Chunk(100))
         {
             //using merge instead of BulkCopy to support skipping inserts of commits that already exist
-            await dbContext.CreateLinqToDBContext().GetTable<ServerCommit>()
+            await commitsTable
                 .Merge()
                 .Using(commitChunk)
                 .OnTargetKey()
