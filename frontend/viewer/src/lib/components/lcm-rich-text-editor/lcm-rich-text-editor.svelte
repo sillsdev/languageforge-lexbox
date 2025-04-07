@@ -91,7 +91,6 @@
           'Mod-y': redo,
           'Delete': handleDelete,
           'Backspace': handleBackspace,
-          'Enter': () => true,
           'Shift-Enter': (state, dispatch) => {
             if (dispatch) dispatch(state.tr.insertText('\n'));
             return true;
