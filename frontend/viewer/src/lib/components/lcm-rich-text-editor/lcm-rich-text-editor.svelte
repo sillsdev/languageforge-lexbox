@@ -36,7 +36,7 @@
   import {keymap} from 'prosemirror-keymap';
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
-  import {onMount} from 'svelte';
+  import {onDestroy, onMount} from 'svelte';
 
   let {
     value = $bindable(),
@@ -66,6 +66,12 @@
       }
     });
   });
+
+  onDestroy(() => {
+    editor?.destroy();
+    editor = null;
+  });
+
   $effect(() => {
     if (!editor) return;
     //change was likely made via the editor, not a prop update
