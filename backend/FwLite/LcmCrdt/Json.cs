@@ -130,7 +130,7 @@ public static class Json
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query()
     //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => v.Value)
     [ExpressionMethod(nameof(QueryExpression))]
-    public static IQueryable<T> Query<T>(this IEnumerable<T> value)
+    public static IQueryable<T> Query<T>(IEnumerable<T> value)
     {
         return value.AsQueryable();
     }
@@ -138,7 +138,7 @@ public static class Json
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
     //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => Sql.Value(v.Value, d => d.Code))
     [ExpressionMethod(nameof(QuerySelectExpression))]
-    public static IQueryable<T_Value> Query<T, T_Value>(this IEnumerable<T> value, Expression<Func<T, T_Value>> select)
+    public static IQueryable<T_Value> Query<T, T_Value>(IEnumerable<T> value, Expression<Func<T, T_Value>> select)
     {
         return value.Select(select.Compile()).AsQueryable();
     }
