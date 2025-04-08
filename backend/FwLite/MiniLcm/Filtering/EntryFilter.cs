@@ -29,9 +29,15 @@ public class EntryFilter
     }
 
     //used by the database for json columns which are lists, we want to treat null as an empty list
-    public static object ConvertNullToEmptyList<T>(string value)
+    public static object NormalizeEmptyToEmptyList<T>(string value)
     {
         if (value is "null" or "" or "[]") return new List<T>();
+        throw new Exception($"Invalid value {value} for {typeof(T).Name}");
+    }
+
+    public static object NormalizeEmptyToNullString<T>(string value)
+    {
+        if (value is "null" or "" or "[]") return "null";
         throw new Exception($"Invalid value {value} for {typeof(T).Name}");
     }
 

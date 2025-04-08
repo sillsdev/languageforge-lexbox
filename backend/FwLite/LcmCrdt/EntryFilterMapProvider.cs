@@ -10,7 +10,9 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
         //ideally we would use Json.Query(s.SemanticDomains) but Gridify doesn't support that, so we have to configure
         //linq2db to rewrite this to that.
         e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => Json.Value(sd, sd => sd.Code));
-    public override Func<string, object>? EntrySensesSemanticDomainsConverter => null;//linq2db treats Sense.SemanticDomains as a table, if we use null then it'll write the query we want
+    public override Func<string, object>? EntrySensesSemanticDomainsConverter =>
+        //linq2db treats Sense.SemanticDomains as a table, if we use "null" then it'll write the query we want
+        EntryFilter.NormalizeEmptyToNullString<SemanticDomain>;
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.SelectMany(s => s.ExampleSentences);
     public override Expression<Func<Entry, string, object?>> EntrySensesExampleSentencesSentence =>
         (e, ws) => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Json.Value(example.Sentence, ms => ms[ws]));
@@ -26,5 +28,5 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Expression<Func<Entry, string, object?>> EntryCitationForm => (entry, ws) => Json.Value(entry.CitationForm, ms => ms[ws]);
     public override Expression<Func<Entry, string, object?>> EntryLiteralMeaning => (entry, ws) => Json.Value(entry.LiteralMeaning, ms => ms[ws]);
     public override Expression<Func<Entry, object?>> EntryComplexFormTypes => e => e.ComplexFormTypes;
-    public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.ConvertNullToEmptyList<ComplexFormType>;
+    public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
 }
