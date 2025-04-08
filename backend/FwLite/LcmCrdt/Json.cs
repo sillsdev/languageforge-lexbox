@@ -164,6 +164,8 @@ public static class Json
         return (values) => values.QueryInternal().Select(v => v.Value);
     }
 
+    //these 2 methods tell linq2db to treat the given property as a table where each row looks like a JsonEach
+    //however we don't really care about any other columns and probably want to just use the value, that's what the QueryExpression does above
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
     {
