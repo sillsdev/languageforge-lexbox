@@ -12,7 +12,7 @@
 
 {#if loading}
   <div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
-    <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
+    <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75 m-auto p-4 text-center">
       <span>Loading <span class="text-primary-500">{projectName}</span>...</span><ProgressCircle class="text-surface-content" />
     </div>
   </div>

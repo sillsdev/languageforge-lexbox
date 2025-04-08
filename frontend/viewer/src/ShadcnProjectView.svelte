@@ -17,6 +17,12 @@
   import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
+  import {cn} from '$lib/utils';
+  import {initView, initViewSettings} from '$lib/views/view-service';
+  import {initDialogService} from '$lib/entry-editor/dialog-service';
+  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import {useWritingSystemRunes} from '$lib/writing-system-runes.svelte';
+  import {initFeatures} from '$lib/services/feature-service';
 
   const {
     onloaded,
@@ -32,25 +38,28 @@
     showHomeButton?: boolean;
   } = $props();
   let currentView: View = $state('browse');
+  const fieldView = initView();
+  const viewSettings = initViewSettings();
+  let deleteDialog = $state<DeleteDialog | undefined>(undefined);
+  const dialogService = initDialogService(() => deleteDialog);
+  const writingSystemService = useWritingSystemRunes();
+  const features = initFeatures({});
 
   onMount(() => {
     onloaded(true);
   });
-
+  let open = $state(true);
 </script>
-
-<div class="h-screen flex">
-  <Sidebar.Provider>
+<DeleteDialog bind:this={deleteDialog} />
+<div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
+  <Sidebar.Provider bind:open>
       <ProjectSidebar {projectName} bind:currentView />
-      <Sidebar.Inset class="flex-1">
-        <div class="p-4">
-          <Sidebar.Trigger/>
-          {#if currentView === 'browse'}
-            <BrowseView />
-          {:else if currentView === 'tasks'}
-            <TasksView />
-          {/if}
-        </div>
+      <Sidebar.Inset class="flex-1 relative">
+        {#if currentView === 'browse'}
+          <BrowseView />
+        {:else if currentView === 'tasks'}
+          <TasksView />
+        {/if}
       </Sidebar.Inset>
   </Sidebar.Provider>
 </div>

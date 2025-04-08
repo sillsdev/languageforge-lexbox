@@ -3,6 +3,7 @@
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ClientId (Guid) Required
+      Code (string) Required
       FwProjectId (Guid?)
       LastUserId (string)
       LastUserName (string)

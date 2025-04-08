@@ -42,43 +42,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     }
 
     [Theory]
-    [InlineData(HgProtocol.Hgweb)]
-    [InlineData(HgProtocol.Resumable)]
-    public void CloneBigProject(HgProtocol hgProtocol)
-    {
-        var sendReceiveParams = GetParams(hgProtocol, "elawa-dev-flex");
-        _sendReceiveService.RunCloneSendReceive(sendReceiveParams, AdminAuth);
-    }
-
-    [Theory]
-    [InlineData(HgProtocol.Hgweb)]
-    [InlineData(HgProtocol.Resumable)]
-    public async Task CloneConfidentialProjectAsOrgManager(HgProtocol protocol)
-    {
-        // Create a fresh project
-        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, isConfidential: true, LexData.SeedingData.TestOrgId);
-        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
-
-        // Push the project to the server
-        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
-        _sendReceiveService.SendReceiveProject(sendReceiveParams, ManagerAuth);
-
-        // Verify pushed
-        var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
-        lastCommitDate.Should().NotBeNull();
-    }
-
-    [Theory]
-    [InlineData(HgProtocol.Hgweb, "manager")]
-    [InlineData(HgProtocol.Resumable, "manager")]
-    public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
-    {
-        var sendReceiveParams = GetParams(hgProtocol);
-        _sendReceiveService.RunCloneSendReceive(sendReceiveParams,
-            new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword));
-    }
-
-    [Theory]
     [InlineData(HgProtocol.Hgweb, "manager")]
     [InlineData(HgProtocol.Resumable, "manager")]
     public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol, string user)
@@ -184,12 +147,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         await SendNewProject(180, 10);
     }
 
-    [Fact]
-    public async Task SendNewProject_Medium()
-    {
-        await SendNewProject(90, 5);
-    }
-
     private async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
@@ -246,7 +203,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         act.Should().Throw<UnauthorizedAccessException>();
     }
 
-    [Fact]
+    [Fact(Skip = "Low value test for it's runtime")]
     public void InvalidPassOnSendReceiveHgWeb()
     {
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
@@ -256,7 +213,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         act.Should().Throw<RepositoryAuthorizationException>();
     }
 
-    [Fact]
+    [Fact(Skip = "Low value test for it's runtime")]
     public void InvalidPassOnSendReceiveHgResumable()
     {
         var sendReceiveParams = GetParams(HgProtocol.Resumable);

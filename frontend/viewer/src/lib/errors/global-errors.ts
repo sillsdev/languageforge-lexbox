@@ -18,14 +18,22 @@ function suppressErrorNotification(message: string): boolean {
   return false;
 }
 
-const dotnetErrorRegex = /^((?:.|\s)+?) {3}at /m;
+/** Matches messages/stack traces of the format:
+System.InvalidOperationException: Everything is broken. Here's some ice cream.
+   at FwLiteShared.Services.ProjectServicesProvider.OpenCrdtProject(String projectName)
+ */
+const dotnetErrorRegex = /^([\s\S]+?) {3}at /m;
+
 function processErrorIntoDetails(message: string): {message: string, detail?: string} {
   const match = dotnetErrorRegex.exec(message);
   if (!match) return {message};
   return {message: match[1].trim(), detail: message.substring(match[1].length).trim()};
 }
 
+let setup = false;
 export function setupGlobalErrorHandlers() {
+  if (setup) return;
+  setup = true;
   window.addEventListener('error', (event: ErrorEvent) => {
     console.error('Global error', event);
 

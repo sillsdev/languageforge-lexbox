@@ -388,9 +388,16 @@ public class CrdtMiniLcmApi(
             .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
-            .AsQueryable()
-            .OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs))
-            .ThenBy(e => e.Id);
+            .AsQueryable();
+        if (options.Order.Ascending)
+        {
+            queryable = queryable.OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs)).ThenBy(e => e.Id);
+        }
+        else
+        {
+            queryable = queryable.OrderByDescending(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs)).ThenBy(e => e.Id);
+        }
+
         queryable = options.ApplyPaging(queryable);
         var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
             .AsComplexFormComparer();

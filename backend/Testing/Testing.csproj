@@ -1,71 +1,66 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <IsPackable>false</IsPackable>
-        <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
-        <!-- To switch Mercurial versions, do dotnet build /p:MercurialVersion=3 followed by dotnet test -->
-        <!-- Note that if you run dotnet test /p:MercurialVersion=3 it will not work as expected; you must run dotnet build first in order to switch Mercurial versions -->
-        <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">6</MercurialVersion>
-    </PropertyGroup>
-
-    <Choose>
-        <When Condition=" '$(MercurialVersion)' == '6' ">
-            <ItemGroup>
-                <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0049" />
-                <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
-            </ItemGroup>
-        </When>
-        <Otherwise>
-            <ItemGroup>
-                <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0041" />
-                <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.11" />
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
-        <PackageReference Include="Squidex.Assets.TusClient" Version="6.6.4" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="Moq" Version="4.20.70" />
-        <PackageReference Include="Moq.Contrib.HttpClient" Version="1.4.0" />
-        <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
-        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.1.0" />
-        <PackageReference Include="SIL.Core" Version="14.2.0-*" />
-        <PackageReference Include="xunit" Version="2.9.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="XunitXml.TestLogger" Version="3.1.17" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\LexBoxApi\LexBoxApi.csproj" />
-      <ProjectReference Include="..\LexCore\LexCore.csproj" />
-      <ProjectReference Include="..\LexData\LexData.csproj" />
-      <ProjectReference Include="..\FixFwData\FixFwData.csproj" />
-      <!-- <ProjectReference Include="../../../csharp/flexbridge/src/LfMergeBridge/LfMergeBridge.csproj" />
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
+    <!-- To switch Mercurial versions, do dotnet build /p:MercurialVersion=3 followed by dotnet test -->
+    <!-- Note that if you run dotnet test /p:MercurialVersion=3 it will not work as expected; you must run dotnet build first in order to switch Mercurial versions -->
+    <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">6</MercurialVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition=" '$(MercurialVersion)' == '6' ">
+      <ItemGroup>
+        <PackageReference Include="SIL.Chorus.LibChorus" />
+        <PackageReference Include="SIL.Chorus.Mercurial" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="SIL.Chorus.LibChorus" />
+        <PackageReference Include="SIL.Chorus.Mercurial" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Squidex.Assets.TusClient" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.Contrib.HttpClient" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
+    <PackageReference Include="SIL.Core" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="GitHubActionsTestLogger">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="XunitXml.TestLogger" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LexBoxApi\LexBoxApi.csproj" />
+    <ProjectReference Include="..\LexCore\LexCore.csproj" />
+    <ProjectReference Include="..\LexData\LexData.csproj" />
+    <ProjectReference Include="..\FixFwData\FixFwData.csproj" />
+    <!-- <ProjectReference Include="../../../csharp/flexbridge/src/LfMergeBridge/LfMergeBridge.csproj" />
       <ProjectReference Include="..\..\..\csharp\chorus\src\LibChorus\LibChorus.csproj" /> -->
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
-      <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
-      <Content Include="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
-
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
+    <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
+    <Content Include="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   <Target Name="CreateFixFwDataExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
     <Message Text="Creating FixFwData.exe in $(OutputPath) on Linux since FLExBridge requires the .exe extension" />
     <Exec Command="ln FixFwData FixFwData.exe" WorkingDirectory="$(OutputPath)" />

@@ -1,44 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
-        <PackageReference Include="Verify.Xunit" Version="28.2.1" />
-        <PackageReference Include="xunit" Version="2.9.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Using Include="Xunit"/>
-        <Using Include="FluentAssertions"/>
-        <Using Include="MiniLcm.Models"/>
-        <Using Include="SIL.Harmony"/>
-        <Using Include="MiniLcm"/>
-        <Using Include="MiniLcm.Tests"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
-      <ProjectReference Include="..\MiniLcm.Tests\MiniLcm.Tests.csproj" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Soenneker.Utils.AutoBogus" />
+    <PackageReference Include="Verify.Xunit" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="GitHubActionsTestLogger">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+    <Using Include="MiniLcm.Models" />
+    <Using Include="SIL.Harmony" />
+    <Using Include="MiniLcm" />
+    <Using Include="MiniLcm.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
+    <ProjectReference Include="..\MiniLcm.Tests\MiniLcm.Tests.csproj" />
+  </ItemGroup>
 </Project>

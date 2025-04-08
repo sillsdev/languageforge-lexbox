@@ -11,7 +11,7 @@ WORKDIR /src/backend
 # Uncomment line below if second COPY fails
 # RUN mkdir -p FwLite && chown www-data:www-data FwLite
 # Copy the main source project files
-COPY --chown=www-data:www-data *.sln FwHeadless/FwHeadless.csproj FixFwData/FixFwData.csproj LexCore/LexCore.csproj LexData/LexData.csproj Directory.Build.props ./
+COPY --chown=www-data:www-data *.sln FwHeadless/FwHeadless.csproj FixFwData/FixFwData.csproj LexCore/LexCore.csproj LexData/LexData.csproj Directory.Build.props Directory.Packages.props ./
 # move them into the proper sub folders, based on the name of the project
 RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p ${dir}/ && mv -v $file ${dir}/; done
 # Do the same for csproj files in slightly different hierarchies

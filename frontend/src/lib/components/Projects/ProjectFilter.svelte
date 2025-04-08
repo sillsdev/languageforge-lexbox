@@ -51,6 +51,7 @@
   import ProjectConfidentialityFilterSelect from './ProjectConfidentialityFilterSelect.svelte';
   import SupHelp from '../help/SupHelp.svelte';
   import { helpLinks } from '../help';
+  import BypassCloudflareEmailObfuscation from '$lib/components/BypassCloudflareEmailObfuscation.svelte';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
@@ -93,7 +94,9 @@
       {:else if filter.key === 'memberSearch' && filter.value}
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
-          {filter.value}
+            <BypassCloudflareEmailObfuscation>
+              {filter.value}
+            </BypassCloudflareEmailObfuscation>
         </ActiveFilter>
       {:else if filter.key === 'hideDraftProjects' && filter.value}
         <ActiveFilter {filter}>

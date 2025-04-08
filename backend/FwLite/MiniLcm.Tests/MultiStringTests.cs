@@ -11,7 +11,7 @@ public class MultiStringTests
     {
         //lang=json
         var json = """{"en": "test"}""";
-        var expectedMs = new MultiString() { Values = { { "en", "test" } } };
+        var expectedMs = new MultiString() { { "en", "test" } };
         var actualMs = JsonSerializer.Deserialize<MultiString>(json);
         actualMs.Should().NotBeNull();
         actualMs.Values.Should().ContainKey("en");
@@ -41,18 +41,18 @@ public class MultiStringTests
     [Fact]
     public void JsonPatchCanUpdateMultiString()
     {
-        var ms = new MultiString() { Values = { { "en", "test" } } };
+        var ms = new MultiString() { { "en", "test" } };
         var patch = new JsonPatchDocument<MultiString>();
         patch.Replace(ms => ms["en"], "updated");
         patch.ApplyTo(ms);
         ms.Values.Should().ContainKey("en");
-        ms.Values["en"].Should().Be("updated");
+        ms["en"].Should().Be("updated");
     }
 
     [Fact]
     public void JsonPatchCanRemoveMultiString()
     {
-        var ms = new MultiString() { Values = { { "en", "test" } } };
+        var ms = new MultiString() { { "en", "test" } };
         var patch = new JsonPatchDocument<MultiString>();
         patch.Remove(ms => ms["en"]);
         patch.ApplyTo(ms);
@@ -62,11 +62,11 @@ public class MultiStringTests
     [Fact]
     public void JsonPatchCanAddMultiString()
     {
-        var ms = new MultiString() { Values = { { "en", "test" } } };
+        var ms = new MultiString() { { "en", "test" } };
         var patch = new JsonPatchDocument<MultiString>();
         patch.Add(ms => ms["fr"], "test");
         patch.ApplyTo(ms);
         ms.Values.Should().ContainKey("fr");
-        ms.Values["fr"].Should().Be("test");
+        ms["fr"].Should().Be("test");
     }
 }

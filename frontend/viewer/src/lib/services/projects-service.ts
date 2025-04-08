@@ -1,4 +1,4 @@
-﻿import type {ICombinedProjectsService, ILexboxServer, IProjectModel, IServerProjects, IServerStatus} from '$lib/dotnet-types';
+﻿import type {ICombinedProjectsService, IProjectModel, IServerProjects, IServerStatus} from '$lib/dotnet-types';
 
 import {AppNotification} from '../notifications/notifications';
 
@@ -15,10 +15,10 @@ export class ProjectService implements ICombinedProjectsService {
   remoteProjects(): Promise<IServerProjects[]> {
       throw new Error('Method not implemented.');
   }
-  downloadProject(_lexboxProjectId: string, _projectName: string, _server: ILexboxServer): Promise<void> {
+  downloadProject(_project: IProjectModel): Promise<void> {
       throw new Error('Method not implemented.');
   }
-  deleteProject(_name: string): Promise<void> {
+  deleteProject(_code: string): Promise<void> {
       throw new Error('Method not implemented.');
   }
   async createProject(newProjectName: string): Promise<void> {
@@ -48,10 +48,10 @@ export class ProjectService implements ICombinedProjectsService {
   }
 
   async downloadCrdtProject(project: Project) {
-    const r = await fetch(`/api/download/crdt/${project.server!.authority}/${project.id}?projectName=${project.name}`, {method: 'POST'});
+    const r = await fetch(`/api/download/crdt/${project.server!.authority}/${project.code}`, {method: 'POST'});
     if (!r.ok) {
-      AppNotification.display(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, 'error', 'long');
-      console.error(`Failed to download project ${project.name}: ${r.statusText} (${r.status})`, r, await r.text())
+      AppNotification.display(`Failed to download project ${project.code}: ${r.statusText} (${r.status})`, 'error', 'long');
+      console.error(`Failed to download project ${project.code}: ${r.statusText} (${r.status})`, r, await r.text())
     }
     return r.ok;
   }

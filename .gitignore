@@ -30,3 +30,6 @@ backend/FwLite/FwLiteShared/wwwroot/viewer
 *.csproj.user
 *.log
 failedSyncs/
+
+# just ignore everything rider related
+.idea

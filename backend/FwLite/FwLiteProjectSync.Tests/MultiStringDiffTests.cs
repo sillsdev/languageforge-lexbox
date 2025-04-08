@@ -22,8 +22,7 @@ public class MultiStringDiffTests
     public void DiffOneToEmptyAddsOne()
     {
         var before = new MultiString();
-        var after = new MultiString();
-        after.Values.Add("en", "hello");
+        var after = new MultiString { { "en", "hello" } };
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("add", "/test/en", null, "hello")
@@ -33,10 +32,8 @@ public class MultiStringDiffTests
     [Fact]
     public void DiffOneToOneReplacesOne()
     {
-        var before = new MultiString();
-        before.Values.Add("en", "hello");
-        var after = new MultiString();
-        after.Values.Add("en", "world");
+        var before = new MultiString { { "en", "hello" } };
+        var after = new MultiString { { "en", "world" } };
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("replace", "/test/en", null, "world")
@@ -46,8 +43,7 @@ public class MultiStringDiffTests
     [Fact]
     public void DiffNoneToOneRemovesOne()
     {
-        var before = new MultiString();
-        before.Values.Add("en", "hello");
+        var before = new MultiString { { "en", "hello" } };
         var after = new MultiString();
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
         result.Should().BeEquivalentTo([
@@ -58,10 +54,8 @@ public class MultiStringDiffTests
     [Fact]
     public void DiffMatchingDoesNothing()
     {
-        var before = new MultiString();
-        before.Values.Add("en", "hello");
-        var after = new MultiString();
-        after.Values.Add("en", new string(['h', 'e', 'l', 'l', 'o']));
+        var before = new MultiString { { "en", "hello" } };
+        var after = new MultiString { { "en", new string(['h', 'e', 'l', 'l', 'o']) } };
         //ensure the strings are not the same instance
         ReferenceEquals(before["en"], after["en"]).Should().BeFalse();
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
@@ -71,12 +65,16 @@ public class MultiStringDiffTests
     [Fact]
     public void DiffWithMultipleAddsRemovesEach()
     {
-        var before = new MultiString();
-        before.Values.Add("en", "hello");
-        before.Values.Add("es", "hola");
-        var after = new MultiString();
-        after.Values.Add("en", "world");
-        after.Values.Add("fr", "monde");
+        var before = new MultiString
+        {
+            { "en", "hello" },
+            { "es", "hola" }
+        };
+        var after = new MultiString
+        {
+            { "en", "world" },
+            { "fr", "monde" }
+        };
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("replace", "/test/en", null, "world"),

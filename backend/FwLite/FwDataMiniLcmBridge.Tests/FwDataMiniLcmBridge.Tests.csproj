@@ -1,46 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
-        <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.5"/>
-        <PackageReference Include="xunit" Version="2.9.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Using Include="Xunit"/>
-        <Using Include="FluentAssertions"/>
-        <Using Include="MiniLcm"/>
-        <Using Include="MiniLcm.Tests"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
-      <ProjectReference Include="..\MiniLcm.Tests\MiniLcm.Tests.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="TestData\" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="GitHubActionsTestLogger">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+    <Using Include="MiniLcm" />
+    <Using Include="MiniLcm.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+    <ProjectReference Include="..\MiniLcm.Tests\MiniLcm.Tests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
 </Project>

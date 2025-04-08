@@ -12,15 +12,15 @@ public class SerializationTests(ITestOutputHelper output)
         var entry = new Entry()
         {
             Id = entryId,
-            LexemeForm = { Values = { { "en", "test" } } },
-            CitationForm = { Values = { { "en", "test" } } },
+            LexemeForm = { { "en", "test" } },
+            CitationForm = { { "en", "test" } },
             Senses =
             [
                 new Sense
                 {
                     Id = Guid.NewGuid(),
                     EntryId = entryId,
-                    Gloss = { Values = { { "en", "test" } } }
+                    Gloss = { { "en", "test" } }
                 }
             ]
         };
@@ -37,15 +37,15 @@ public class SerializationTests(ITestOutputHelper output)
         var entry = new Entry()
         {
             Id = entryId,
-            LexemeForm = { Values = { { "en", "test" } } },
-            CitationForm = { Values = { { "en", "test" } } },
+            LexemeForm = { { "en", "test" } },
+            CitationForm = { { "en", "test" } },
             Senses =
             [
                 new Sense
                 {
                     Id = senseId,
                     EntryId = entryId,
-                    Gloss = { Values = { { "en", "test" } } },
+                    Gloss = { { "en", "test" } },
                     ExampleSentences =
                     {
                         new ExampleSentence()
@@ -73,30 +73,30 @@ public class SerializationTests(ITestOutputHelper output)
         var entry = new Entry()
         {
             Id = entryId,
-            LexemeForm = { Values = { { "en", "test" } } },
-            CitationForm = { Values = { { "en", "test" } } },
+            LexemeForm = { { "en", "test" } },
+            CitationForm = { { "en", "test" } },
             Senses =
             [
                 new Sense
                 {
                     Id = senseId,
                     EntryId = entryId,
-                    Gloss = { Values = { { "en", "test" } } }
+                    Gloss = { { "en", "test" } }
                 }
             ]
         };
         var entryCopy = new Entry()
         {
             Id = entryId,
-            LexemeForm = { Values = { { "en", "test" } } },
-            CitationForm = { Values = { { "en", "test" } } },
+            LexemeForm = { { "en", "test" } },
+            CitationForm = { { "en", "test" } },
             Senses =
             [
                 new Sense
                 {
                     Id = senseId,
                     EntryId = entryId,
-                    Gloss = { Values = { { "en", "test" } } }
+                    Gloss = { { "en", "test" } }
                 }
             ]
         };

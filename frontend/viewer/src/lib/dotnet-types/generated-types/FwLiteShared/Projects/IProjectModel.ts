@@ -8,6 +8,7 @@ import type {ILexboxServer} from '../Auth/ILexboxServer';
 export interface IProjectModel
 {
 	name: string;
+	code: string;
 	crdt: boolean;
 	fwdata: boolean;
 	lexbox: boolean;

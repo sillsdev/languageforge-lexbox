@@ -5,13 +5,10 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
-using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexCore.Sync;
 using LexData;
-using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -29,28 +26,22 @@ public class CrdtController(
     IPermissionService permissionService,
     LoggedInContext loggedInContext,
     ProjectService projectService,
+    CrdtCommitService crdtCommitService,
     LexAuthService lexAuthService) : ControllerBase
 {
-    private DbSet<ServerCommit> ServerCommits => dbContext.Set<ServerCommit>();
-
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        return await ServerCommits.Where(c => c.ProjectId == projectId).GetSyncState();
+        return await crdtCommitService.GetSyncState(projectId);
     }
 
     [HttpPost("{projectId}/add")]
-    public async Task<ActionResult> Add(Guid projectId, [FromBody] ServerCommit[] commits, Guid? clientId)
+    public async Task<ActionResult> Add(Guid projectId, [FromBody] IAsyncEnumerable<ServerCommit> commits, Guid? clientId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        foreach (var commit in commits)
-        {
-            commit.ProjectId = projectId;
-            dbContext.Add(commit); //todo should only add if not exists, based on commit id
-        }
+        await crdtCommitService.AddCommits(projectId, commits);
 
-        await dbContext.SaveChangesAsync();
         await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);
         return Ok();
     }
@@ -67,9 +58,8 @@ public class CrdtController(
         [FromBody] SyncState clientHeads)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        var commits = ServerCommits.Where(c => c.ProjectId == projectId);
-        var localState = await commits.GetSyncState();
-        return new ChangesResult(commits.GetMissingCommits<ServerCommit, ServerJsonChange>(localState, clientHeads), localState);
+        var localState = await crdtCommitService.GetSyncState(projectId);
+        return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
     }
 
     public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
@@ -79,7 +69,7 @@ public class CrdtController(
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
-            .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, ServerCommits.Any(c => c.ProjectId == p.Id)))
+            .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id)))
             .ToArrayAsync();
         if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()))
         {

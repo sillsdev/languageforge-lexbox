@@ -66,7 +66,10 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
             null,
             new LfLcmUi(progress.SynchronizeInvoke),
             lcmDirectories,
-            new LcmSettings(),
+            new LcmSettings()
+            {
+                DisableDataMigration = !config.Value.AutoMigrateLcmData
+            },
             progress
         );
         return cache;

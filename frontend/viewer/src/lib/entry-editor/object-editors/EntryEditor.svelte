@@ -29,6 +29,7 @@
   }>();
 
   export let entry: IEntry;
+  export let disablePortalButtons = false;
   //used to not try to delete an object which has not been created yet
   let newSenses: ISense[] = [];
   let newExamples: IExampleSentence[] = [];
@@ -265,7 +266,7 @@
 
 {#if !modalMode}
 {@const willRenderAnyButtons = $features.history || !readonly}
-  {#if willRenderAnyButtons}
+  {#if willRenderAnyButtons && !disablePortalButtons}
   <div class="hidden">
     <Scotty beamMeTo="right-toolbar" let:projectViewState>
       {#if !readonly}
