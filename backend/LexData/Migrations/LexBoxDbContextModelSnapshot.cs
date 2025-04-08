@@ -19,7 +19,7 @@ namespace LexData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "8.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -1035,6 +1035,9 @@ namespace LexData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ChangeEntities")
+                        .HasColumnType("jsonb");
+
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
@@ -1317,39 +1320,6 @@ namespace LexData.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.OwnsMany("SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Core.ServerJsonChange>", "ChangeEntities", b1 =>
-                        {
-                            b1.Property<Guid>("ServerCommitId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Change")
-                                .HasColumnType("text");
-
-                            b1.Property<Guid>("CommitId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<Guid>("EntityId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Index")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("ServerCommitId", "Id");
-
-                            b1.ToTable("CrdtCommits");
-
-                            b1.ToJson("ChangeEntities");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ServerCommitId");
-                        });
-
-                    b.Navigation("ChangeEntities");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>
