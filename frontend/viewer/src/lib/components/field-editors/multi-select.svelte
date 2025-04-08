@@ -55,6 +55,10 @@
     }
   });
 
+  function dismiss() {
+    open = false;
+  }
+
   function submit() {
     open = false;
     values = [...pendingValues];
@@ -115,7 +119,7 @@
             </Button>
           {/if}
         {:else if !dirty}
-          <Button variant="ghost" size="xs" onclick={() => (open = false)} aria-label={$t`Close`}>
+          <Button variant="ghost" size="xs" onclick={dismiss} aria-label={$t`Close`}>
               <Icon icon="i-mdi-close" />
           </Button>
         {/if}
@@ -123,7 +127,7 @@
     </CommandInput>
     {#if !IsMobile.value && dirty}
       <div class="flex gap-3 p-3 items-center flex-nowrap" transition:slide={{ duration: 200 }}>
-        <Button class="basis-1/4" variant="secondary" onclick={() => (open = false)} aria-label={$t`Close`}>
+        <Button class="basis-1/4" variant="secondary" onclick={dismiss} aria-label={$t`Close`}>
             {$t`Cancel`}
         </Button>
         <Button class="basis-3/4" onclick={submit}>
@@ -168,10 +172,10 @@
       {@render command()}
       <DrawerFooter>
         <div class="flex gap-4 items-center flex-nowrap">
-          <Button variant="secondary" class={cn('basis-1/4 transition-all', dirty || 'basis-3/4')} onclick={() => (open = false)}>
+          <Button variant="secondary" class={cn('basis-1/4 transition-all', dirty || 'basis-3/4')} onclick={dismiss}>
             {$t`Cancel`}
           </Button>
-          <Button disabled={!dirty} class={cn('basis-3/4 transition-all', dirty || 'basis-1/4')} onclick={() => (open = false)}>
+          <Button disabled={!dirty} class={cn('basis-3/4 transition-all', dirty || 'basis-1/4')} onclick={submit}>
             {$t`Submit`}
           </Button>
         </div>
