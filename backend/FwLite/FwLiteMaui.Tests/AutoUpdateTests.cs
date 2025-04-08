@@ -1,7 +1,11 @@
-﻿namespace FwLiteMaui.Tests;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+namespace FwLiteMaui.Tests;
 
 using FwLiteMaui;
-
+#if WINDOWS
 public class AutoUpdateTests
 {
     private readonly AppUpdateService _appUpdateService;
@@ -9,9 +13,11 @@ public class AutoUpdateTests
     public AutoUpdateTests()
     {
         var services = new ServiceCollection()
+            .AddFwLiteMauiServices(new ConfigurationManager(), Mock.Of<ILoggingBuilder>())
+            .AddSingleton(Mock.Of<IPreferences>())
+            .AddSingleton(Mock.Of<IConnectivity>())
             .AddSingleton<AppUpdateService>()
-            .AddHttpClient()
-            //...
+            .BuildServiceProvider();
         _appUpdateService = services.GetRequiredService<AppUpdateService>();
     }
 
@@ -27,3 +33,4 @@ public class AutoUpdateTests
 
     }
 }
+#endif
