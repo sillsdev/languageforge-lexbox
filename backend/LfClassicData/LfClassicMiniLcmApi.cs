@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;
@@ -275,8 +275,8 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             Id = entry.Guid,
             CitationForm = ToMultiString(entry.CitationForm),
             LexemeForm = ToMultiString(entry.Lexeme),
-            Note = ToMultiString(entry.Note),
-            LiteralMeaning = ToMultiString(entry.LiteralMeaning),
+            Note = ToRichMultiString(entry.Note),
+            LiteralMeaning = ToRichMultiString(entry.LiteralMeaning),
             Senses = new List<Sense>(senses),
         };
     }
@@ -289,7 +289,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             Id = sense.Guid,
             EntryId = entryId,
             Gloss = ToMultiString(sense.Gloss),
-            Definition = ToMultiString(sense.Definition),
+            Definition = ToRichMultiString(sense.Definition),
             PartOfSpeech = partOfSpeech,
             PartOfSpeechId = partOfSpeech?.Id,
             SemanticDomains = (sense.SemanticDomain?.Values ?? [])
@@ -306,8 +306,8 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             Id = example.Guid,
             SenseId = senseId,
             Reference = (example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty,
-            Sentence = ToMultiString(example.Sentence),
-            Translation = ToMultiString(example.Translation)
+            Sentence = ToRichMultiString(example.Sentence),
+            Translation = ToRichMultiString(example.Translation)
         };
     }
 
@@ -318,6 +318,18 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         foreach (var (key, value) in multiTextValue)
         {
             ms.Values[key] = value.Value;
+        }
+
+        return ms;
+    }
+
+    private static RichMultiString ToRichMultiString(Dictionary<string, LexValue>? multiTextValue)
+    {
+        var ms = new RichMultiString();
+        if (multiTextValue is null) return ms;
+        foreach (var (key, value) in multiTextValue)
+        {
+            ms[key] = value.Value;
         }
 
         return ms;

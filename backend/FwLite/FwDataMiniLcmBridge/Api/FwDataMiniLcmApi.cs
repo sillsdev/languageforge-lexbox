@@ -47,7 +47,7 @@ public class FwDataMiniLcmApi(
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
     private ICmPossibilityList ComplexFormTypes => Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
-    private IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
+    internal IEnumerable<ILexEntryType> ComplexFormTypesFlattened => ComplexFormTypes.PossibilitiesOS.Cast<ILexEntryType>().Flatten();
 
     private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
     private ICmPossibilityList Publications => Cache.LangProject.LexDbOA.PublicationTypesOA;
@@ -134,8 +134,10 @@ public class FwDataMiniLcmApi(
 
         foreach (var entry in EntriesRepository.AllInstances())
         {
-            LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
-            LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
+            if (entry.CitationForm is not null)
+                LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
+            if (entry.LexemeFormOA is {Form: not null })
+                LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
         }
 
         foreach (var ws in wsExemplars.Keys)
@@ -521,7 +523,7 @@ public class FwDataMiniLcmApi(
             {
                 Id = entry.Guid,
                 Note = FromLcmMultiString(entry.Comment),
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
                 Senses = entry.AllSenses.Select(FromLexSense).ToList(),
@@ -549,7 +551,7 @@ public class FwDataMiniLcmApi(
         {
             return new Entry()
             {
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
+                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
             }.Headword();
         }
@@ -563,6 +565,7 @@ public class FwDataMiniLcmApi(
     {
         return entry.ComplexFormEntryRefs
             .SelectMany(r => r.ComplexEntryTypesRS, (_, type) => ToComplexFormType(type))
+            .DistinctBy(c => c.Id)
             .ToList();
     }
     private IEnumerable<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
@@ -573,7 +576,7 @@ public class FwDataMiniLcmApi(
                 ILexEntry component => ToEntryReference(component, entry),
                 ILexSense s => ToSenseReference(s, entry),
                 _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
-            });
+            }).DistinctBy(c => (c.ComponentEntryId, c.ComplexFormEntryId, c.ComponentSenseId));
     }
 
     private Variants? ToVariants(ILexEntry entry)
@@ -650,17 +653,31 @@ public class FwDataMiniLcmApi(
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = sentence.Reference.Text,
-            Translation = translation is null ? new MultiString() : FromLcmMultiString(translation),
+            Translation = translation is null ? new() : FromLcmMultiString(translation),
         };
     }
 
-    private MultiString FromLcmMultiString(ITsMultiString multiString)
+    private MultiString FromLcmMultiString(ITsMultiString? multiString)
     {
+        if (multiString is null) return new MultiString();
         var result = new MultiString(multiString.StringCount);
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
             result.Values.Add(GetWritingSystemId(ws), tsString.Text);
+        }
+
+        return result;
+    }
+
+    private RichMultiString FromLcmMultiString(IMultiString multiString)
+    {
+        var result = new RichMultiString(multiString.StringCount);
+        for (var i = 0; i < multiString.StringCount; i++)
+        {
+            var tsString = multiString.GetStringFromIndex(i, out var ws);
+
+            result.Add(GetWritingSystemId(ws), tsString.Text);
         }
 
         return result;
@@ -703,13 +720,19 @@ public class FwDataMiniLcmApi(
         }
 
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        entries = entries
-            .OrderBy(e =>
-            {
-                string? text = e.CitationForm.get_String(sortWs).Text;
-                text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
-                return text?.Trim(LcmHelpers.WhitespaceChars);
-            });
+        string? order(ILexEntry e)
+        {
+            string? text = e.CitationForm.get_String(sortWs).Text;
+            text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
+            return text?.Trim(LcmHelpers.WhitespaceChars);
+        }
+        if (options.Order.Ascending)
+        {
+            entries = entries.OrderBy(order);
+        } else
+        {
+            entries = entries.OrderByDescending(order);
+        }
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
@@ -742,7 +765,7 @@ public class FwDataMiniLcmApi(
                 {
                     var lexEntry = LexEntryFactory.Create(entry.Id,
                         Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-                    lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+                    lexEntry.LexemeFormOA = Cache.CreateLexemeForm();
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
@@ -937,7 +960,7 @@ public class FwDataMiniLcmApi(
 
         foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
-            if (entryRef.ComponentLexemesRS.Remove(lexComponent)) return;
+            entryRef.ComponentLexemesRS.Remove(lexComponent);
         }
         //not throwing to match CRDT behavior
     }
@@ -966,11 +989,11 @@ public class FwDataMiniLcmApi(
 
     internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
     {
-        foreach (var entryRef in lexEntry.ComplexFormEntryRefs.Reverse())
+        foreach (var entryRef in lexEntry.ComplexFormEntryRefs)
         {
             var lexEntryType = entryRef.ComplexEntryTypesRS.SingleOrDefault(c => c.Guid == complexFormTypeId);
             if (lexEntryType is null) continue;
-            if (entryRef.ComplexEntryTypesRS.Remove(lexEntryType)) break;
+            entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
         }
     }
 
@@ -1028,6 +1051,15 @@ public class FwDataMiniLcmApi(
     private void UpdateLcmMultiString(ITsMultiString multiString, MultiString newMultiString)
     {
         foreach (var (ws, value) in newMultiString.Values)
+        {
+            var writingSystemHandle = GetWritingSystemHandle(ws);
+            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+        }
+    }
+
+    private void UpdateLcmMultiString(ITsMultiString multiString, RichMultiString newMultiString)
+    {
+        foreach (var (ws, value) in newMultiString)
         {
             var writingSystemHandle = GetWritingSystemHandle(ws);
             multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));

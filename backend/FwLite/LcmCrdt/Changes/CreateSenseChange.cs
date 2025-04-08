@@ -28,7 +28,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
 
     public Guid EntryId { get; set; }
     public double Order { get; set; }
-    public MultiString? Definition { get; set; }
+    public RichMultiString? Definition { get; set; }
     public MultiString? Gloss { get; set; }
     public Guid? PartOfSpeechId { get; set; }
     public IList<SemanticDomain>? SemanticDomains { get; set; }
@@ -40,7 +40,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Id = EntityId,
             EntryId = EntryId,
             Order = Order,
-            Definition = Definition ?? new MultiString(),
+            Definition = Definition ?? new(),
             Gloss = Gloss ?? new MultiString(),
             PartOfSpeechId = await context.DeletedAsNull(PartOfSpeechId),
             SemanticDomains = await context.FilterDeleted(SemanticDomains ?? []).ToArrayAsync(),

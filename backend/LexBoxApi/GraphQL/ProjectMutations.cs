@@ -514,7 +514,8 @@ public class ProjectMutations
         ProjectService projectService,
         LexBoxDbContext dbContext,
         IHgService hgService,
-        ILogger<ProjectMutations> _logger)
+        ILogger<ProjectMutations> _logger,
+        FwHeadlessClient fwHeadlessClient)
     {
         await permissionService.AssertCanManageProject(projectId);
 
@@ -535,6 +536,7 @@ public class ProjectMutations
 
         using var transaction = await dbContext.Database.BeginTransactionAsync();
         await dbContext.SaveChangesAsync();
+        await fwHeadlessClient.DeleteRepo(project.Id);
         try
         {
             await hgService.SoftDeleteRepo(projectCode, timestamp);
@@ -545,6 +547,7 @@ public class ProjectMutations
             Activity.Current?.AddTag("app.hg.delete", "not-found");
             _logger.LogWarning(e, "Failed to soft-delete repo while soft-deleting project {ProjectCode}", projectCode);
         }
+
         projectService.InvalidateProjectConfidentialityCache(projectId);
         projectService.InvalidateProjectCodeCache(projectCode);
         await transaction.CommitAsync();

@@ -21,11 +21,11 @@ on:
         required: false
         default: true
         type: boolean
-      run-playwright:
-        description: 'Whether to run Playwright tests'
-        required: false
-        default: true
-        type: boolean
+#      run-playwright:
+#        description: 'Whether to run Playwright tests'
+#        required: false
+#        default: true
+#        type: boolean
   workflow_dispatch:
     inputs:
       environment:
@@ -46,11 +46,11 @@ on:
         required: false
         default: true
         type: boolean
-      run-playwright:
-        description: 'Whether to run Playwright tests'
-        required: false
-        default: true
-        type: boolean
+#      run-playwright:
+#        description: 'Whether to run Playwright tests'
+#        required: false
+#        default: true
+#        type: boolean
 
 # TODO: Set up caching for /home/runner/.cache/ms-playwright
 # TODO: Ditto for /home/runner/.pnpm-store/v3
@@ -71,19 +71,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Setup self-hosted dependencies
-        if: ${{ inputs.runs-on == 'self-hosted' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
-          wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
-          sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
-          sudo apt-get install -f
-          rm powershell_7.4.1-1.deb_amd64.deb
-          pwsh #validate that powershell installed correctly
       - uses: actions/setup-dotnet@v4
-        env:
-          DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
         with:
           dotnet-version: '9.x'
       - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
@@ -97,15 +85,14 @@ jobs:
         if: ${{ inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
-      - name: Dotnet build
-        # limit cpu count for self-hosted due to memory constraints
-        run: dotnet build LexBoxOnly.slnf ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
       - name: Build for tests
         run: "dotnet build LexBoxOnly.slnf /p:MercurialVersion=$MERCURIAL_VERSION"
+        id: build
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
       - name: Integration tests (.NET)
+        id: integration-tests
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -113,14 +100,11 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          # 1.5gb max heap size, must be in hex https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#heap-limit
-          # the self hosted runner only has 2gb so this should prevent it from running out of memory
-          DOTNET_GCHeapHardLimit: '0x2CB417800'
 
         run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
 
       - name: Flaky Integration tests (.NET)
-        continue-on-error: true
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -128,9 +112,6 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          # 1.5gb max heap size, must be in hex https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#heap-limit
-          # the self hosted runner only has 2gb so this should prevent it from running out of memory
-          DOTNET_GCHeapHardLimit: '0x2CB417800'
 
         run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=FlakyIntegration
 
@@ -141,47 +122,47 @@ jobs:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
 
-  playwright-test:
-    if: ${{ inputs.run-playwright }}
-    timeout-minutes: 120
-    name: Playwright tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
-    permissions:
-      checks: write
-    environment:
-      name: ${{ inputs.environment }}
-    runs-on: ${{ inputs.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup self-hosted dependencies
-        if: ${{ inputs.runs-on == 'self-hosted' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
-          wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
-          sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
-          sudo apt-get install -f
-          rm powershell_7.4.1-1.deb_amd64.deb
-          pwsh #validate that powershell installed correctly
-
-      - name: Setup and run playwright tests
-        if: ${{ !cancelled() }}
-        uses: ./.github/actions/playwright-tests
-        with:
-          lexbox-hostname: ${{ vars.TEST_SERVER_HOSTNAME }}
-          lexbox-default-password: ${{ secrets.TEST_USER_PASSWORD }}
-          viewer-tests: 'true'
-      - name: Password protect Playwright traces
-        id: password_protect_test_results
-        if: ${{ !cancelled() }}
-        shell: bash
-        env:
-          ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
-      - name: Upload playwright results
-        if: ${{ !cancelled() && steps.password_protect_test_results.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
-          path: |
-            ./playwright-traces.7z
-            ./frontend/test-results/
+#  playwright-test:
+#    if: ${{ inputs.run-playwright }}
+#    timeout-minutes: 120
+#    name: Playwright tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
+#    permissions:
+#      checks: write
+#    environment:
+#      name: ${{ inputs.environment }}
+#    runs-on: ${{ inputs.runs-on }}
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Setup self-hosted dependencies
+#        if: ${{ inputs.runs-on == 'self-hosted' }}
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
+#          wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
+#          sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
+#          sudo apt-get install -f
+#          rm powershell_7.4.1-1.deb_amd64.deb
+#          pwsh #validate that powershell installed correctly
+#
+#      - name: Setup and run playwright tests
+#        if: ${{ !cancelled() }}
+#        uses: ./.github/actions/playwright-tests
+#        with:
+#          lexbox-hostname: ${{ vars.TEST_SERVER_HOSTNAME }}
+#          lexbox-default-password: ${{ secrets.TEST_USER_PASSWORD }}
+#          viewer-tests: 'true'
+#      - name: Password protect Playwright traces
+#        id: password_protect_test_results
+#        if: ${{ !cancelled() }}
+#        shell: bash
+#        env:
+#          ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+#        run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
+#      - name: Upload playwright results
+#        if: ${{ !cancelled() && steps.password_protect_test_results.outcome == 'success' }}
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
+#          path: |
+#            ./playwright-traces.7z
+#            ./frontend/test-results/

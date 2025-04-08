@@ -130,12 +130,12 @@ public static class EntrySync
         }
     }
 
-    private class ComplexFormsDiffApi(IMiniLcmApi api) : CollectionDiffApi<ComplexFormComponent, Guid>
+    private class ComplexFormsDiffApi(IMiniLcmApi api) : CollectionDiffApi<ComplexFormComponent, (Guid, Guid, Guid?)>
     {
-        public override Guid GetId(ComplexFormComponent component)
+        public override (Guid, Guid, Guid?) GetId(ComplexFormComponent component)
         {
             //we can't use the ID as there's none defined by Fw so it won't work as a sync key
-            return component.ComplexFormEntryId;
+            return (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId);
         }
 
         public override async Task<int> Add(ComplexFormComponent after)

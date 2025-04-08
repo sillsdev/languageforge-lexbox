@@ -6,9 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using MiniLcm.Project;
 
 namespace LcmCrdt;
@@ -21,9 +19,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return ListProjects();
     }
 
-    IProjectIdentifier? IProjectProvider.GetProject(string name)
+    IProjectIdentifier? IProjectProvider.GetProject(string code)
     {
-        return GetProject(name);
+        return GetProject(code);
     }
 
     public async ValueTask<IMiniLcmApi> OpenProject(IProjectIdentifier project, IServiceProvider serviceProvider, bool saveChangesOnDispose = true)
@@ -52,25 +50,31 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     {
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
-            var name = Path.GetFileNameWithoutExtension(file);
-            return new CrdtProject(name, file, memoryCache);
+            var code = Path.GetFileNameWithoutExtension(file);
+            return new CrdtProject(code, file, memoryCache);
         });
     }
 
-    public CrdtProject? GetProject(string name)
+    public CrdtProject? GetProject(string code)
     {
         var file = Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite")
-            .FirstOrDefault(file => Path.GetFileNameWithoutExtension(file) == name);
-        return file is null ? null : new CrdtProject(name, file);
+            .FirstOrDefault(file => Path.GetFileNameWithoutExtension(file) == code);
+        return file is null ? null : new CrdtProject(code, file, memoryCache);
     }
 
-    public bool ProjectExists(string name)
+    public CrdtProject? GetProject(Guid id)
     {
-        return GetProject(name) is not null;
+        return ListProjects().FirstOrDefault(p => p.Data?.Id == id);
+    }
+
+    public bool ProjectExists(string code)
+    {
+        return GetProject(code) is not null;
     }
 
     public record CreateProjectRequest(
         string Name,
+        string Code,
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
@@ -82,23 +86,23 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
-        return await CreateProject(new(name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
+        return await CreateProject(new(name, name, AfterCreate: SampleProjectData, SeedNewProjectData: true));
     }
 
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
         using var activity = LcmCrdtActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_id", request.Id);
-        if (!ProjectName().IsMatch(request.Name))
+        if (!ProjectCode().IsMatch(request.Code))
         {
-            var nameIsInvalid = $"Project name '{request.Name}' is invalid";
+            var nameIsInvalid = $"Project code '{request.Code}' is invalid";
             activity?.SetStatus(ActivityStatusCode.Error, nameIsInvalid);
             throw new InvalidOperationException(nameIsInvalid);
         }
 
         //poor man's sanitation
-        var name = Path.GetFileName(request.Name);
-        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
+        var code = Path.GetFileName(request.Code);
+        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
         if (File.Exists(sqliteFile))
         {
             var alreadyExists = $"Project already exists at '{sqliteFile}'";
@@ -106,14 +110,15 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             throw new InvalidOperationException(alreadyExists);
         }
 
-        var crdtProject = new CrdtProject(name, sqliteFile);
+        var crdtProject = new CrdtProject(code, sqliteFile);
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(crdtProject);
         var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
         try
         {
-            var projectData = new ProjectData(name,
+            var projectData = new ProjectData(request.Name,
+                code,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
                 Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
@@ -124,12 +129,20 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             logger.LogError(e, "Failed to create project {Project}, deleting database", crdtProject.Name);
             activity?.AddException(e);
             await db.Database.CloseConnectionAsync();
-            EnsureDeleteProject(sqliteFile);
+            try
+            {
+                await db.Database.EnsureDeletedAsync();
+            }
+            catch
+            {
+                EnsureDeleteProject(sqliteFile);
+            }
+
             throw;
         }
         return crdtProject;
@@ -163,9 +176,9 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         });
     }
 
-    public async Task DeleteProject(string name)
+    public async Task DeleteProject(string code)
     {
-        var project = GetProject(name) ?? throw new InvalidOperationException($"Project {name} not found");
+        var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(project);
@@ -188,7 +201,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     }
 
     [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
-    public static partial Regex ProjectName();
+    public static partial Regex ProjectCode();
 
     public static async Task SampleProjectData(IServiceProvider provider, CrdtProject project)
     {
@@ -243,26 +256,23 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { Values = { { "en", "Apple" } } },
-            CitationForm = { Values = { { "en", "Apple" } } },
-            LiteralMeaning = { Values = { { "en", "Fruit" } } },
+            LexemeForm = { { "en", "Apple" } },
+            CitationForm = { { "en", "Apple" } },
+            LiteralMeaning = { { "en", "Fruit" } },
             Senses =
             [
                 new()
                 {
-                    Gloss = { Values = { { "en", "Fruit" } } },
+                    Gloss = { { "en", "Fruit" } },
                     Definition =
                     {
-                        Values =
                         {
-                            {
-                                "en",
-                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
-                            }
+                            "en",
+                            "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
                         }
                     },
                     SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
+                    ExampleSentences = [new() { Sentence = { { "en", "We ate an apple" } } }]
                 }
             ]
         });

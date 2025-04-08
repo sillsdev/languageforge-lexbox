@@ -33,7 +33,7 @@ public static class ProjectRoutes
                     return Results.BadRequest("Project name is required");
                 if (projectService.ProjectExists(name))
                     return Results.BadRequest("Project already exists");
-                if (!CrdtProjectsService.ProjectName().IsMatch(name))
+                if (!CrdtProjectsService.ProjectCode().IsMatch(name))
                     return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
                 await projectService.CreateExampleProject(name);
                 return TypedResults.Ok();
@@ -48,18 +48,15 @@ public static class ProjectRoutes
                 await syncService.UploadProject(lexboxProjectId, server);
                 return TypedResults.Ok();
             });
-        group.MapPost("/download/crdt/{serverAuthority}/{projectId}",
+        group.MapPost("/download/crdt/{serverAuthority}/{code}",
             async (IOptions<AuthConfig> options,
                 CombinedProjectsService combinedProjectsService,
-                Guid projectId,
-                [FromQuery] string projectName,
+                string code,
                 string serverAuthority
             ) =>
             {
-                if (!CrdtProjectsService.ProjectName().IsMatch(projectName))
-                    return Results.BadRequest("Project name is invalid");
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await combinedProjectsService.DownloadProject(projectId, projectName, server);
+                await combinedProjectsService.DownloadProject(code, server);
                 return TypedResults.Ok();
             });
         return group;

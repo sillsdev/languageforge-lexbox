@@ -27,6 +27,10 @@ namespace LcmCrdt.Migrations
                     b.Property<Guid>("ClientId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("FwProjectId")
                         .HasColumnType("TEXT");
 

@@ -133,12 +133,11 @@ public class SyncWorker(
             return new SyncJobResult(SyncJobResultEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
         }
 
-        var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{projectCode}-{projectId}");
+        var projectFolder = config.Value.GetProjectFolder(projectCode, projectId);
         if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
 
-        var crdtFile = Path.Join(projectFolder, "crdt.sqlite");
-
-        var fwDataProject = new FwDataProject("fw", projectFolder);
+        var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
+        var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
         logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
 
@@ -210,6 +209,7 @@ public class SyncWorker(
             }
 
             return await projectsService.CreateProject(new("crdt",
+                "crdt",
                 SeedNewProjectData: false,
                 Id: projectId,
                 Path: projectFolder,

@@ -1,72 +1,68 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
-    <PropertyGroup>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
-        <UserSecretsId>7392cddf-9b3b-441c-9316-203bb5c4a6bc</UserSecretsId>
-        <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
-        <LangVersion>preview</LangVersion>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1" />
-        <PackageReference Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
-        <PackageReference Include="DataAnnotatedModelValidations" Version="6.0.0" />
-        <PackageReference Include="HotChocolate.Analyzers" Version="13.9.14" />
-        <PackageReference Include="HotChocolate.Types.Analyzers" Version="14.0.0">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="HotChocolate.AspNetCore" Version="14.0.0" />
-        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="14.0.0" />
-        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="14.0.0" />
-        <PackageReference Include="HotChocolate.Diagnostics" Version="14.0.0" />
-        <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-        <PackageReference Include="MailKit" Version="4.7.1.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.9.24556.5" />
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.0" />
-        <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-        <PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.6" />
-        <PackageReference Include="OpenIddict.AspNetCore" Version="5.8.0" />
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.8.0" />
-        <PackageReference Include="OpenIddict.Quartz" Version="5.8.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.8" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="0.5.0-beta.3" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Quartz" Version="1.0.0-beta.1" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
-        <PackageReference Include="Polly" Version="8.4.2" />
-        <PackageReference Include="Polly.Extensions" Version="8.4.2" />
-        <PackageReference Include="Quartz.AspNetCore" Version="3.13.0" />
-        <PackageReference Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-        <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
-        <PackageReference Include="tusdotnet" Version="2.8.0" />
-        <PackageReference Include="zxcvbn-core" Version="7.0.92" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\harmony\src\SIL.Harmony.Core\SIL.Harmony.Core.csproj" />
-      <ProjectReference Include="..\LexCore\LexCore.csproj" />
-      <ProjectReference Include="..\LexData\LexData.csproj" />
-      <ProjectReference Include="..\LfClassicData\LfClassicData.csproj" />
-      <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Services\HgEmptyRepo\**" CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
+  <PropertyGroup>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    <UserSecretsId>7392cddf-9b3b-441c-9316-203bb5c4a6bc</UserSecretsId>
+    <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" />
+    <PackageReference Include="CrystalQuartz.AspNetCore" />
+    <PackageReference Include="DataAnnotatedModelValidations" />
+    <PackageReference Include="HotChocolate.Analyzers" />
+    <PackageReference Include="HotChocolate.Types.Analyzers">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="HotChocolate.AspNetCore" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" />
+    <PackageReference Include="HotChocolate.Diagnostics" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" />
+    <PackageReference Include="Npgsql.OpenTelemetry" />
+    <PackageReference Include="OpenIddict.AspNetCore" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" />
+    <PackageReference Include="OpenIddict.Quartz" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Process" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Quartz" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Polly.Extensions" />
+    <PackageReference Include="Quartz.AspNetCore" />
+    <PackageReference Include="Quartz.Serialization.SystemTextJson" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="System.Linq.Async" />
+    <PackageReference Include="System.Text.Encodings.Web" />
+    <PackageReference Include="tusdotnet" />
+    <PackageReference Include="zxcvbn-core" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\harmony\src\SIL.Harmony.Core\SIL.Harmony.Core.csproj" />
+    <ProjectReference Include="..\LexCore\LexCore.csproj" />
+    <ProjectReference Include="..\LexData\LexData.csproj" />
+    <ProjectReference Include="..\LfClassicData\LfClassicData.csproj" />
+    <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Services\HgEmptyRepo\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

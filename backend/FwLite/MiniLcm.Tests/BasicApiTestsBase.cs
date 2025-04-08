@@ -2,8 +2,8 @@
 
 public abstract class BasicApiTestsBase : MiniLcmTestBase
 {
-    protected readonly Guid Entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
-    protected readonly Guid Entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
+    protected readonly Guid Entry1Id = new("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
+    protected readonly Guid Entry2Id = new("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
 
     public override async Task InitializeAsync()
     {
@@ -11,51 +11,24 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry
         {
             Id = Entry1Id,
-            LexemeForm =
-            {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
-            },
+            LexemeForm = { { "en", "Kevin" } },
             Note =
             {
-                Values =
-                {
-                    { "en", "this is a test note from Kevin" }
-                }
+                { "en", "this is a test note from Kevin" }
             },
-            CitationForm =
-            {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
-            },
+            CitationForm = { { "en", "Kevin" } },
             LiteralMeaning =
             {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
+                { "en", "Kevin" }
             },
             Senses =
             [
                 new Sense
                 {
-                    Gloss =
-                    {
-                        Values =
-                        {
-                            { "en", "Kevin" }
-                        }
-                    },
+                    Gloss = { { "en", "Kevin" } },
                     Definition =
                     {
-                        Values =
-                        {
-                            { "en", "Kevin" }
-                        }
+                        { "en", "Kevin" }
                     },
                     ExampleSentences =
                     [
@@ -63,10 +36,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                         {
                             Sentence =
                             {
-                                Values =
-                                {
-                                    { "en", "Kevin is a good guy" }
-                                }
+                                { "en", "Kevin is a good guy" }
                             }
                         }
                     ]
@@ -76,27 +46,15 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new()
         {
             Id = Entry2Id,
-            LexemeForm =
-            {
-                Values = { { "en", "apple" } }
-            },
+            LexemeForm = { { "en", "apple" } },
             Senses =
             [
                 new Sense
                 {
-                    Gloss =
-                    {
-                        Values =
-                        {
-                            { "en", "fruit" }
-                        }
-                    },
+                    Gloss = { { "en", "fruit" } },
                     Definition =
                     {
-                        Values =
-                        {
-                            { "en", "a round fruit, red or yellow" }
-                        }
+                        { "en", "a round fruit, red or yellow" }
                     },
                 }
             ],
@@ -164,7 +122,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var entries = await Api.SearchEntries("a").ToArrayAsync();
         entries.Should().NotBeEmpty();
         entries.Should().NotContain(e => e.Id == default);
-        entries.Should().NotContain(e => e.LexemeForm.Values["en"] == "Kevin");
+        entries.Should().NotContain(e => e.LexemeForm["en"] == "Kevin");
     }
     [Fact]
     public async Task SearchEntries_MatchesGloss()
@@ -172,7 +130,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var entries = await Api.SearchEntries("fruit").ToArrayAsync();
         entries.Should().NotBeEmpty();
         entries.Should().NotContain(e => e.Id == default);
-        entries.Should().Contain(e => e.LexemeForm.Values["en"] == "apple");
+        entries.Should().Contain(e => e.LexemeForm["en"] == "apple");
     }
 
     [Fact]
@@ -189,53 +147,26 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreateEntry()
     {
-        var entry = await Api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new()
         {
-            LexemeForm =
-            {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
-            },
+            LexemeForm = { { "en", "Kevin" } },
             Note =
             {
-                Values =
-                {
-                    { "en", "this is a test note from Kevin" }
-                }
+                { "en", "this is a test note from Kevin" }
             },
-            CitationForm =
-            {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
-            },
+            CitationForm = { { "en", "Kevin" } },
             LiteralMeaning =
             {
-                Values =
-                {
-                    { "en", "Kevin" }
-                }
+                { "en", "Kevin" }
             },
             Senses =
             [
                 new Sense
                 {
-                    Gloss =
-                    {
-                        Values =
-                        {
-                            { "en", "Kevin" }
-                        }
-                    },
+                    Gloss = { { "en", "Kevin" } },
                     Definition =
                     {
-                        Values =
-                        {
-                            { "en", "Kevin" }
-                        }
+                        { "en", "Kevin" }
                     },
                     ExampleSentences =
                     [
@@ -243,10 +174,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                         {
                             Sentence =
                             {
-                                Values =
-                                {
-                                    { "en", "Kevin is a good guy" }
-                                }
+                                { "en", "Kevin is a good guy" }
                             }
                         }
                     ]
@@ -254,15 +182,15 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             ]
         });
         entry.Should().NotBeNull();
-        entry.LexemeForm.Values["en"].Should().Be("Kevin");
-        entry.LiteralMeaning.Values["en"].Should().Be("Kevin");
-        entry.CitationForm.Values["en"].Should().Be("Kevin");
-        entry.Note.Values["en"].Should().Be("this is a test note from Kevin");
+        entry.LexemeForm["en"].Should().Be("Kevin");
+        entry.LiteralMeaning["en"].Should().Be("Kevin");
+        entry.CitationForm["en"].Should().Be("Kevin");
+        entry.Note["en"].Should().Be("this is a test note from Kevin");
         var sense = entry.Senses.Should().ContainSingle().Subject;
-        sense.Gloss.Values["en"].Should().Be("Kevin");
-        sense.Definition.Values["en"].Should().Be("Kevin");
+        sense.Gloss["en"].Should().Be("Kevin");
+        sense.Definition["en"].Should().Be("Kevin");
         var example = sense.ExampleSentences.Should().ContainSingle().Subject;
-        example.Sentence.Values["en"].Should().Be("Kevin is a good guy");
+        example.Sentence["en"].Should().Be("Kevin is a good guy");
     }
 
     [Fact]
@@ -271,7 +199,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var updatedEntry = await Api.UpdateEntry(Entry1Id,
             new UpdateObjectInput<Entry>()
                 .Set(e => e.LexemeForm["en"], "updated"));
-        updatedEntry.LexemeForm.Values["en"].Should().Be("updated");
+        updatedEntry.LexemeForm["en"].Should().Be("updated");
     }
 
 
@@ -280,18 +208,12 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
-                {
-                    { "en", "test" }
-                }
-            }
+            LexemeForm = new MultiString { { "en", "test" } }
         });
         var updatedEntry = await Api.UpdateEntry(entry.Id,
             new UpdateObjectInput<Entry>()
                 .Set(e => e.Note["en"], "updated"));
-        updatedEntry.Note.Values["en"].Should().Be("updated");
+        updatedEntry.Note["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -299,32 +221,20 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
+            LexemeForm = new MultiString { { "en", "test" } },
+            Senses =
+            [
+                new Sense
                 {
-                    { "en", "test" }
+                    Definition = new() { { "en", "test" } }
                 }
-            },
-            Senses = new List<Sense>
-            {
-                new Sense()
-                {
-                    Definition = new MultiString
-                    {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
-                    }
-                }
-            }
+            ]
         });
         var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
                 .Set(e => e.Definition["en"], "updated"));
-        updatedSense.Definition.Values["en"].Should().Be("updated");
+        updatedSense.Definition["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -334,7 +244,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var createdSense = await Api.CreateSense(Entry1Id, new Sense()
         {
             Id = senseId,
-            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
+            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString { { "en", "semdom" } } }],
         });
         createdSense.Id.Should().Be(senseId);
         createdSense.SemanticDomains.Should().BeEmpty("because the domain does not exist (or was deleted)");
@@ -390,34 +300,25 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "Adverb" } } });
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
-                {
-                    { "en", "test" }
-                }
-            },
-            Senses = new List<Sense>
-            {
+            LexemeForm = new MultiString { { "en", "test" } },
+            Senses =
+            [
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     }
                 }
-            }
+            ]
         });
         var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
-                .Set(e => e.PartOfSpeech, new PartOfSpeech() { Id = Guid.NewGuid(), Name = {{"en","updated"}} }) // should be ignored
+                .Set(e => e.PartOfSpeech, new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "updated" } } }) // should be ignored
                 .Set(e => e.PartOfSpeechId, partOfSpeechId));
         updatedSense.PartOfSpeech.Should().NotBeNull();
-        updatedSense.PartOfSpeech.Name.Should().BeEquivalentTo(new MultiString() {{"en","Adverb"}});
+        updatedSense.PartOfSpeech.Name.Should().BeEquivalentTo(new MultiString() { { "en", "Adverb" } });
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 
@@ -430,17 +331,14 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(newSemanticDomain);
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values = { { "en", "test" } }
-            },
+            LexemeForm = new MultiString { { "en", "test" } },
             Senses =
             [
                 new Sense()
                 {
                     SemanticDomains =
                         [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString(){{"en", "semdom"}} }],
-                    Definition = new MultiString { Values = { { "en", "test" } } }
+                    Definition = new() { { "en", "test" } }
                 }
             ]
         });
@@ -462,27 +360,18 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         ArgumentNullException.ThrowIfNull(newSemanticDomain);
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
-                {
-                    { "en", "test" }
-                }
-            },
-            Senses = new List<Sense>
-            {
+            LexemeForm = new MultiString { { "en", "test" } },
+            Senses =
+            [
                 new Sense()
                 {
                     SemanticDomains = [newSemanticDomain],
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     }
                 }
-            }
+            ]
         });
         var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
@@ -496,39 +385,27 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
-                {
-                    { "en", "test" }
-                }
-            },
-            Senses = new List<Sense>
-            {
+            LexemeForm = new MultiString { { "en", "test" } },
+            Senses =
+            [
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     },
-                    ExampleSentences = new List<ExampleSentence>
-                    {
+                    ExampleSentences =
+                    [
                         new ExampleSentence()
                         {
-                            Sentence = new MultiString
+                            Sentence = new()
                             {
-                                Values =
-                                {
-                                    { "en", "test" }
-                                }
+                                { "en", "test" }
                             }
                         }
-                    }
+                    ]
                 }
-            }
+            ]
         });
         entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
         var updatedExample = await Api.UpdateExampleSentence(entry.Id,
@@ -536,7 +413,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             entry.Senses[0].ExampleSentences[0].Id,
             new UpdateObjectInput<ExampleSentence>()
                 .Set(e => e.Sentence["en"], "updated"));
-        updatedExample.Sentence.Values["en"].Should().Be("updated");
+        updatedExample.Sentence["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -544,46 +421,31 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
-                {
-                    { "en", "test" }
-                }
-            },
-            Senses = new List<Sense>
-            {
+            LexemeForm = new MultiString { { "en", "test" } },
+            Senses =
+            [
                 new Sense()
                 {
-                    Definition = new MultiString
+                    Definition = new()
                     {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
+                        { "en", "test" }
                     },
-                    ExampleSentences = new List<ExampleSentence>
-                    {
+                    ExampleSentences =
+                    [
                         new ExampleSentence()
                         {
-                            Sentence = new MultiString
+                            Sentence = new()
                             {
-                                Values =
-                                {
-                                    { "en", "test" }
-                                }
+                                { "en", "test" }
                             },
                             Translation =
                             {
-                                Values =
-                                {
-                                    { "en", "test" }
-                                }
+                                { "en", "test" }
                             }
                         }
-                    }
+                    ]
                 }
-            }
+            ]
         });
         entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
         var updatedExample = await Api.UpdateExampleSentence(entry.Id,
@@ -591,7 +453,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
             entry.Senses[0].ExampleSentences[0].Id,
             new UpdateObjectInput<ExampleSentence>()
                 .Set(e => e.Translation["en"], "updated"));
-        updatedExample.Translation.Values["en"].Should().Be("updated");
+        updatedExample.Translation["en"].Should().Be("updated");
     }
 
     [Fact]
@@ -599,13 +461,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.CreateEntry(new Entry
         {
-            LexemeForm = new MultiString
-            {
-                Values =
-                {
-                    { "en", "test" }
-                }
-            }
+            LexemeForm = new MultiString { { "en", "test" } }
         });
         await Api.DeleteEntry(entry.Id);
 

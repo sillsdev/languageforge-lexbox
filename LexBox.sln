@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteProjectSync", "backen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteProjectSync.Tests", "backend\FwLite\FwLiteProjectSync.Tests\FwLiteProjectSync.Tests.csproj", "{5352D1CC-14C5-4589-9389-731F55E4FFDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmDebugger", "backend\LfNext\LcmDebugger\LcmDebugger.csproj", "{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmDebugger", "backend\FwLite\LcmDebugger\LcmDebugger.csproj", "{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm.Tests", "backend\FwLite\MiniLcm.Tests\MiniLcm.Tests.csproj", "{00AE5440-0E36-4488-935B-5B11301BA57D}"
 EndProject

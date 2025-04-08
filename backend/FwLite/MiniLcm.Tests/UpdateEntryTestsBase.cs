@@ -15,19 +15,19 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry
         {
             Id = Entry1Id,
-            LexemeForm = { Values = { { "en", "Kevin" } } },
-            Note = { Values = { { "en", "this is a test note from Kevin" } } },
-            CitationForm = { Values = { { "en", "Kevin" } } },
-            LiteralMeaning = { Values = { { "en", "Kevin" } } },
+            LexemeForm = { { "en", "Kevin" } },
+            Note = { { "en", "this is a test note from Kevin" } },
+            CitationForm = { { "en", "Kevin" } },
+            LiteralMeaning = { { "en", "Kevin" } },
             Senses =
             [
                 new Sense
                 {
-                    Gloss = { Values = { { "en", "Kevin" } } },
-                    Definition = { Values = { { "en", "Kevin" } } },
+                    Gloss = { { "en", "Kevin" } },
+                    Definition = { { "en", "Kevin" } },
                     ExampleSentences =
                     [
-                        new ExampleSentence { Sentence = { Values = { { "en", "Kevin is a good guy" } } } }
+                        new ExampleSentence { Sentence = { { "en", "Kevin is a good guy" } } }
                     ]
                 }
             ]
@@ -35,13 +35,13 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new()
         {
             Id = Entry2Id,
-            LexemeForm = { Values = { { "en", "apple" } } },
+            LexemeForm = { { "en", "apple" } },
             Senses =
             [
                 new Sense
                 {
-                    Gloss = { Values = { { "en", "fruit" } } },
-                    Definition = { Values = { { "en", "a round fruit, red or yellow" } } },
+                    Gloss = { { "en", "fruit" } },
+                    Definition = { { "en", "a round fruit, red or yellow" } },
                 }
             ],
         });

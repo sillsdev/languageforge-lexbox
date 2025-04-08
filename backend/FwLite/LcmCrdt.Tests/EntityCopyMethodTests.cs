@@ -14,6 +14,7 @@ public class EntityCopyMethodTests
         Overrides =
         [
             new MultiStringOverride(),
+            new RichMultiStringOverride(),
             new WritingSystemIdOverride(),
             new OrderableOverride(),
         ],

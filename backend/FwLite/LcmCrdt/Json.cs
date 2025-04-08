@@ -94,18 +94,22 @@ public static class Json
         {
             var declaringType = method.DeclaringType;
             if (declaringType is null) return false;
-            var indexerProperty = GetIndexerProperty(declaringType);
-            if (indexerProperty is null) return false;
-            return method == indexerProperty.GetMethod || method == indexerProperty.SetMethod;
+            var indexerProperty = GetIndexerProperties(declaringType);
+            foreach (var propertyInfo in indexerProperty)
+            {
+                if (propertyInfo.GetMethod == method || propertyInfo.SetMethod == method)
+                    return true;
+            }
+            return false;
         }
 
-        private static PropertyInfo? GetIndexerProperty(Type type)
+        private static IEnumerable<PropertyInfo> GetIndexerProperties(Type type)
         {
             var defaultPropertyAttribute = type.GetCustomAttributes<DefaultMemberAttribute>()
                 .FirstOrDefault();
-            if (defaultPropertyAttribute is null) return null;
-            return type.GetProperty(defaultPropertyAttribute.MemberName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (defaultPropertyAttribute is null) return [];
+            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.Name == defaultPropertyAttribute.MemberName);
         }
     }
 

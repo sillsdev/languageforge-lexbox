@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using LexCore.Exceptions;
 using LexCore.Sync;
 
 namespace LexBoxApi.Services;
@@ -49,5 +50,20 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             projectId,
             await response.Content.ReadAsStringAsync());
         return null;
+    }
+
+    public async Task<bool> DeleteRepo(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.DeleteAsync($"/api/manage/repo/{projectId}", cancellationToken);
+        if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotFound)
+            return true;
+        if (response.StatusCode == HttpStatusCode.Conflict)
+            throw new ProjectSyncInProgressException(projectId);
+        logger.LogError("Failed to delete repo: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            await response.Content.ReadAsStringAsync(cancellationToken));
+        return false;
     }
 }

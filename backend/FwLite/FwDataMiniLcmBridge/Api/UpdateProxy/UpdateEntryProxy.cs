@@ -1,4 +1,5 @@
-﻿using MiniLcm.Models;
+﻿using System.Collections;
+using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 
@@ -18,7 +19,11 @@ public record UpdateEntryProxy : Entry
 
     public override MultiString LexemeForm
     {
-        get => new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
+        get
+        {
+            _lcmEntry.LexemeFormOA ??= _lexboxLcmApi.Cache.CreateLexemeForm();
+            return new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
+        }
         set => throw new NotImplementedException();
     }
 
@@ -28,9 +33,9 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override MultiString LiteralMeaning
+    public override RichMultiString LiteralMeaning
     {
-        get => new UpdateMultiStringProxy(_lcmEntry.LiteralMeaning, _lexboxLcmApi);
+        get => new UpdateRichMultiStringProxy(_lcmEntry.LiteralMeaning, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 
@@ -58,9 +63,9 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override MultiString Note
+    public override RichMultiString Note
     {
-        get => new UpdateMultiStringProxy(_lcmEntry.Comment, _lexboxLcmApi);
+        get => new UpdateRichMultiStringProxy(_lcmEntry.Comment, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 }
@@ -73,5 +78,30 @@ public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi
     public override MultiString Copy()
     {
         return new UpdateMultiStringProxy(multiString, lexboxLcmApi);
+    }
+}
+
+
+public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : RichMultiString, IDictionary
+{
+    private IDictionary<WritingSystemId, string> proxy => new UpdateDictionaryProxy(multiString, lexboxLcmApi);
+
+    void IDictionary.Add(object key, object? value)
+    {
+        var valStr = value as string ??
+                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string",
+                         nameof(value));
+        if (key is WritingSystemId keyWs)
+        {
+            proxy.Add(keyWs, valStr);
+        }
+        else if (key is string keyStr)
+        {
+            proxy.Add(keyStr, valStr);
+        }
+        else
+        {
+            throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+        }
     }
 }

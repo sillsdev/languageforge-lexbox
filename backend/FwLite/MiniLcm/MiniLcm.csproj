@@ -1,20 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="11.11.0" />
-      <PackageReference Include="Gridify" Version="2.16.2" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-      <PackageReference Include="SIL.WritingSystems" Version="14.2.0-beta*" />
-      <PackageReference Include="System.Text.Json" Version="9.0.0" />
-      <PackageReference Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
-      <PackageReference Include="SystemTextJsonPatch" Version="3.2.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <InternalsVisibleTo Include="MiniLcm.Tests" />
-    </ItemGroup>
+  <PropertyGroup>
+    <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="HtmlAgilityPack" />
+    <PackageReference Include="Gridify" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="SIL.WritingSystems" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="SystemTextJson.JsonDiffPatch" />
+    <PackageReference Include="SystemTextJsonPatch" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MiniLcm.Tests" />
+  </ItemGroup>
 </Project>

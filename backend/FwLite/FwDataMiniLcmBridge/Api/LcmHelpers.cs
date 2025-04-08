@@ -118,6 +118,11 @@ internal static class LcmHelpers
         return multiString.get_String(wsHandle)?.Text ?? null;
     }
 
+    internal static IMoStemAllomorph CreateLexemeForm(this LcmCache cache)
+    {
+        return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+    }
+
     internal static string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
     {
         var abbr = semanticDomain.Abbreviation;

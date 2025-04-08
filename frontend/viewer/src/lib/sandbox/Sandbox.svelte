@@ -17,7 +17,10 @@
   import {Button as UxButton, type MenuOption} from 'svelte-ux';
   import {writable} from 'svelte/store';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
-
+  import * as Resizable from '$lib/components/ui/resizable';
+  import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
+  import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
+  import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -25,7 +28,7 @@
     {value: 'c', label: 'Charlie'},
   ];
 
-  let crdtValue = ['a'];
+  let crdtValue = $state(['a']);
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -47,19 +50,23 @@
     return s;
   }
 
-  let senseFields: ({ id: FieldIds })[] = [{id: 'gloss'}, {id: 'definition'}];
+  let senseFields: ({ id: FieldIds })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
 
   function updateFields(e: CustomEvent<{ items: ({ id: FieldIds })[] }>) {
     senseFields = e.detail.items;
   }
-  let count = 0;
-  let loading = false;
+  let count = $state(0);
+  let loading = $state(false);
   async function incrementAsync() {
     loading = true;
     await delay(1000);
     count++;
     loading = false;
   }
+
+  let richString: IRichString = $state({
+    spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
+  });
 </script>
 
 <div class="p-6">
@@ -74,6 +81,27 @@
         <Checkbox bind:checked={loading}></Checkbox>
       </label>
     </div>
+  </div>
+  <div class="grid grid-cols-3 gap-6">
+    <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString}/>
+    <pre>{JSON.stringify(richString, null, 2).replaceAll(lineSeparator, '\n')}</pre>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Resizable Example</h3>
+    <Resizable.PaneGroup direction="horizontal" class="h-[200px] border rounded-lg">
+      <Resizable.Pane defaultSize={20} class="bg-muted p-4">
+        Left Pane
+      </Resizable.Pane>
+      <Resizable.Handle withHandle />
+      <Resizable.Pane defaultSize={30} class="bg-muted p-4">
+        Middle Pane
+      </Resizable.Pane>
+      <Resizable.Handle withHandle />
+      <Resizable.Pane class="bg-muted p-4">
+        Right Pane
+      </Resizable.Pane>
+    </Resizable.PaneGroup>
   </div>
 </div>
 
