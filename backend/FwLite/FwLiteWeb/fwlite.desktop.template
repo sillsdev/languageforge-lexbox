@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FieldWorks Lite
+Comment=Run FieldWorks Lite Desktop in the terminal
+Exec="./FwLiteWeb"
+Path=APPDIR/
+Keywords=FieldWorks;lexbox;language forge;sfm;fw-lite;fw lite;
+Categories=Utility;
+Terminal=true
+Icon=APPDIR/wwwroot/_content/FwLiteShared/viewer/logo-dark.svg
+X-Desktop-File-Install-Version=0.27
