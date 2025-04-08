@@ -183,12 +183,9 @@
     </DrawerContent>
   </Drawer>
 {:else}
-  <Popover bind:open={() => open, (newOpen) => {
-      // discard changes (i.e. prevent passive dismissing) if dirty
-      if (!dirty) open = newOpen;
-    }}>
+  <Popover bind:open>
     <PopoverTrigger child={trigger} />
-    <PopoverContent class="p-0" align="start" sticky="always" side="bottom" avoidCollisions={false}>
+    <PopoverContent class="p-0" align="start" sticky="always" side="bottom" avoidCollisions interactOutsideBehavior={dirty ? 'ignore' : 'close'}>
       {@render command()}
     </PopoverContent>
   </Popover>
