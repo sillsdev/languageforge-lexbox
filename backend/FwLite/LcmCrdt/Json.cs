@@ -135,6 +135,12 @@ public static class Json
         return value.AsQueryable();
     }
 
+    [ExpressionMethod(nameof(QueryExpressionMultiString))]
+    public static IQueryable<string> QueryValues(MultiString values)
+    {
+        return values.Values.Values.AsQueryable();
+    }
+
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
     //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => Sql.Value(v.Value, d => d.Code))
     [ExpressionMethod(nameof(QuerySelectExpression))]
@@ -153,8 +159,19 @@ public static class Json
         return (values) => values.QueryInternal().Select(v => v.Value);
     }
 
+    private static Expression<Func<MultiString, IQueryable<string>>> QueryExpressionMultiString()
+    {
+        return (values) => values.QueryInternal().Select(v => v.Value);
+    }
+
     [Sql.TableFunction("json_each", argIndices: [0])]
     private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
+    {
+        throw new NotImplementedException("only supported server side");
+    }
+
+    [Sql.TableFunction("json_each", argIndices: [0])]
+    private static IQueryable<JsonEach<string>> QueryInternal(this MultiString value)
     {
         throw new NotImplementedException("only supported server side");
     }
