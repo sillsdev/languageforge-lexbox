@@ -26,6 +26,11 @@
     }
   });
 
+  //matching the character used in FieldWorks
+  //https://unicode-explorer.com/c/2028
+  export const lineSeparator = '\u2028';
+  const newLine = '\n';
+
 </script>
 <script lang="ts">
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
@@ -60,7 +65,7 @@
         //I suspect marks is the right way though.
         value.spans = newState.doc.children.map((child) => {
           const originalRichSpan = child.attrs.richSpan;
-          return {...originalRichSpan, text: child.textContent};
+          return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
         });
         editor.updateState(newState);
       }
@@ -92,7 +97,7 @@
           'Delete': handleDelete,
           'Backspace': handleBackspace,
           'Shift-Enter': (state, dispatch) => {
-            if (dispatch) dispatch(state.tr.insertText('\n'));
+            if (dispatch) dispatch(state.tr.insertText(newLine));
             return true;
           },
           /* eslint-enable @typescript-eslint/naming-convention */
@@ -158,8 +163,16 @@
 
   function valueToDoc(): Node {
     return textSchema.node('doc', {richString: value}, value.spans.map(s => {
-      return textSchema.node('span', {richSpan: s}, [textSchema.text(s.text)]);
+      return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
     }));
+  }
+
+  //lcm expects line separators, but html does not render them, so we replace them with \n
+  function replaceNewLineWithLineSeparator(text: string) {
+    return text.replaceAll(newLine, lineSeparator);
+  }
+  function replaceLineSeparatorWithNewLine(text: string) {
+    return text.replaceAll(lineSeparator, newLine);
   }
 </script>
 <style>
