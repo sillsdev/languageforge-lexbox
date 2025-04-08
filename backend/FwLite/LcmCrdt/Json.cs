@@ -139,10 +139,20 @@ public static class Json
         return value.AsQueryable();
     }
 
+    private static Expression<Func<IEnumerable<T>, IQueryable<T>>> QueryExpression<T>()
+    {
+        return (values) => values.QueryInternal().Select(v => v.Value);
+    }
+
     [ExpressionMethod(nameof(QueryExpressionMultiString))]
     public static IQueryable<string> QueryValues(MultiString values)
     {
         return values.Values.Values.AsQueryable();
+    }
+
+    private static Expression<Func<MultiString, IQueryable<string>>> QueryExpressionMultiString()
+    {
+        return (values) => values.QueryInternal().Select(v => v.Value);
     }
 
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
@@ -156,16 +166,6 @@ public static class Json
     private static Expression<Func<IEnumerable<T>, Expression<Func<T, T_Value>>, IQueryable<T_Value>>> QuerySelectExpression<T, T_Value>()
     {
         return (values, select) => values.QueryInternal().Select(v => ValueInternal(v.Value, select)!);
-    }
-
-    private static Expression<Func<IEnumerable<T>, IQueryable<T>>> QueryExpression<T>()
-    {
-        return (values) => values.QueryInternal().Select(v => v.Value);
-    }
-
-    private static Expression<Func<MultiString, IQueryable<string>>> QueryExpressionMultiString()
-    {
-        return (values) => values.QueryInternal().Select(v => v.Value);
     }
 
     //these 2 methods tell linq2db to treat the given property as a table where each row looks like a JsonEach
