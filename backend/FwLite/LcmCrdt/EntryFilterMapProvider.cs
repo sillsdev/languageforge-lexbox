@@ -7,8 +7,10 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
 {
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomains => e => e.Senses.Select(s => s.SemanticDomains);
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomainsCode =>
-        e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => sd.Code);
-    public override Func<string, object>? EntrySensesSemanticDomainsConverter => EntryFilter.ConvertNullToEmptyList<SemanticDomain>;
+        //ideally we would use Json.Query(s.SemanticDomains) but Gridify doesn't support that, so we have to configure
+        //linq2db to rewrite this to that.
+        e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => Json.Value(sd, sd => sd.Code));
+    public override Func<string, object>? EntrySensesSemanticDomainsConverter => null;//linq2db treats Sense.SemanticDomains as a table, if we use null then it'll write the query we want
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.SelectMany(s => s.ExampleSentences);
     public override Expression<Func<Entry, string, object?>> EntrySensesExampleSentencesSentence =>
         (e, ws) => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Json.Value(example.Sentence, ms => ms[ws]));
