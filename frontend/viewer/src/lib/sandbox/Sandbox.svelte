@@ -26,6 +26,9 @@
   import FieldTitle from '$lib/components/field-editors/field-title.svelte';
   import {t} from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
+  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
+  import {Label} from '$lib/components/ui/label';
+  import {Switch} from '$lib/components/ui/switch';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -80,9 +83,20 @@
     allDomains.push({
       label: allDomains[Math.floor(Math.random() * allDomains.length)].label + '-' + i
     });
+    allDomains.sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  let selectedDomains = $state([allDomains[3], allDomains[5]]);
+  function randomSemanticDomainSorter() {
+    return Math.random() - 0.5;
+  }
+
+  let selectedDomains = $state([allDomains[0], allDomains[80]]);
+
+  let semanticDomainOrder = $state<'selectionOrder' | 'optionOrder' | 'randomOrder'>('selectionOrder');
+  const sortSemanticDomainValuesBy = $derived(semanticDomainOrder === 'randomOrder'
+    ? randomSemanticDomainSorter
+    : semanticDomainOrder);
+  let semanticDomainsReadonly = $state(false);
 </script>
 
 <div class="p-6 shadcn-root">
@@ -109,19 +123,44 @@
         </div>
         <div class="editor-grid">
           <div class="field-root">
+            <div class="field-body grid-cols-1">
+              <Label class="mb-2">Order of semantic domains</Label>
+              <Tabs bind:value={semanticDomainOrder} class="mb-1">
+                <TabsList>
+                  <TabsTrigger value="selectionOrder">Selection</TabsTrigger>
+                  <TabsTrigger value="optionOrder">Option</TabsTrigger>
+                  <TabsTrigger value="randomOrder">Random</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <p class="text-muted-foreground text-sm">
+                Only comes into effect while editing, because we don't want to make any changes implicitly.
+              </p>
+            </div>
+          </div>
+          <div class="field-root">
+            <div class="field-body grid-cols-1">
+              <Switch bind:checked={semanticDomainsReadonly} label="Readonly" />
+            </div>
+          </div>
+          <div class="field-root">
             <FieldTitle
               liteName={$t`Semantic domains`}
               classicName={$t`Semantic domains`}
               helpId={fieldData.semanticDomains.helpId}
             />
-
             <div class="field-body">
               <div class="col-span-full">
                 <MultiSelect
+                  readonly={semanticDomainsReadonly}
                   bind:values={() => selectedDomains,
                   (newValues) => selectedDomains = newValues}
                   idSelector="label"
                   labelSelector={(item) => item.label}
+                  sortValuesBy={sortSemanticDomainValuesBy}
+                  drawerTitle={$t`Semantic domains`}
+                  filterPlaceholder={$t`Filter semantic domains...`}
+                  placeholder={$t`🤷 nothing here`}
+                  emptyResultsPlaceholder={$t`Looked hard, found nothing`}
                   options={allDomains}>
                 </MultiSelect>
               </div>

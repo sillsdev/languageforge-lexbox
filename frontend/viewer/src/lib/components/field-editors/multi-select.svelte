@@ -7,7 +7,7 @@
   import { t } from 'svelte-i18n-lingui';
   import { Checkbox } from '../ui/checkbox';
   import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
-  import { Drawer, DrawerContent, DrawerTrigger } from '../ui/drawer';
+  import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
   import { Icon } from '../ui/icon';
   import type {ConditionalKeys, Primitive} from 'type-fest';
   import {cn} from '$lib/utils';
@@ -21,6 +21,7 @@
   }: {
     values: Value[];
     options: Value[];
+    readonly?: boolean;
     /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
@@ -28,9 +29,21 @@
     placeholder?: string;
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
+    drawerTitle?: string;
+    sortValuesBy?: 'selectionOrder' | 'optionOrder' | NonNullable<Parameters<Array<Value>['sort']>[0]>;
   } = $props();
 
-  const { options, idSelector, labelSelector, placeholder, filterPlaceholder, emptyResultsPlaceholder } = $derived(constProps);
+  const {
+    options,
+    readonly = false,
+    idSelector,
+    labelSelector,
+    placeholder,
+    filterPlaceholder,
+    emptyResultsPlaceholder,
+    drawerTitle,
+    sortValuesBy = 'selectionOrder',
+  } = $derived(constProps);
 
   const getId = $derived.by(() => {
     if (typeof idSelector === 'function') return idSelector;
@@ -42,18 +55,37 @@
     return (value: Value) => value[labelSelector] as string;
   });
 
+  // A wrapper for caching calculated values
+  type PendingValue = {
+    value: Value;
+    optionIndex: number;
+    id: Primitive;
+  };
+
   let open = $state(false);
   let dirty = $state(false);
-  let pendingValues = $state<Value[]>([]);
-  let displayValues = $derived(dirty ? pendingValues : values);
+  let filterValue = $state('');
+  let pendingValues = $state<PendingValue[]>([]);
+  let displayValues = $derived(dirty ? pendingValues.map(v => v.value) : values);
   let triggerRef = $state<HTMLButtonElement | null>(null);
+  let commandRef = $state<HTMLElement | null>(null);
 
   watch(() => open, () => {
     dirty = false;
-    if (open) {
-      pendingValues = [...values];
+    filterValue = '';
+  });
+
+  watch([() => open, () => options], () => {
+    if (open && options) {
+      pendingValues = values.map(toPendingValue);
     }
   });
+
+  function toPendingValue(value: Value): PendingValue {
+    const id = getId(value);
+    const optionIndex = options.findIndex((option) => getId(option) === id);
+    return { value, optionIndex, id };
+  }
 
   function dismiss() {
     open = false;
@@ -61,24 +93,33 @@
 
   function submit() {
     open = false;
-    values = [...pendingValues];
+    values = pendingValues.map(p => p.value);
     void tick().then(() => {
       triggerRef?.focus();
     });
   }
 
-  function onSelect(value: Value, wasSelected: boolean, triggerSubmit: boolean = true) {
-    if (!wasSelected) pendingValues = [...pendingValues, value];
-    else {
-      const id = getId(value);
-      const index = pendingValues.findIndex((v) => getId(v) === id);
+  function toggleSelected(value: Value, triggerSubmit: boolean = true) {
+    const id = getId(value);
+    const isSelected = pendingValues.some((v) => v.id === id);
+
+    if (!isSelected) { // add
+      pendingValues = [...pendingValues, toPendingValue(value)];
+      if (sortValuesBy === 'selectionOrder') {
+        // happens automatically
+      } else if (sortValuesBy === 'optionOrder') {
+        pendingValues.sort((a, b) => a.optionIndex - b.optionIndex);
+      } else {
+        pendingValues.sort((a, b) => sortValuesBy(a.value, b.value));
+      }
+    } else { // remove
+      const index = pendingValues.findIndex((v) => v.id === id);
       if (index !== -1) pendingValues.splice(index, 1);
     }
+
     if (triggerSubmit) submit();
     else dirty = true;
   }
-
-  let filterValue = $state('');
 
   const filteredOptions = $derived.by(() => {
     const filterValueLower = filterValue.toLocaleLowerCase();
@@ -87,30 +128,68 @@
       return label.includes(filterValueLower);
     });
   });
+
+  function onkeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && dirty && (e.metaKey || e.ctrlKey)) {
+      submit();
+      e.stopPropagation();
+      e.preventDefault();
+    } else if (e.key === ' ' && (e.metaKey || e.ctrlKey)) {
+      tryToggleHighlightedValue();
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }
+
+  function tryToggleHighlightedValue() {
+      const value = getHighlightedValue();
+      if (value) {
+        toggleSelected(value, false);
+      }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  function getHighlightedValue(): Value | undefined {
+    const selectedItem = commandRef?.querySelector('[data-command-item][data-selected]');
+    const index = selectedItem?.getAttribute('data-value-index');
+    if (index) return filteredOptions[Number(index)];
+  }
 </script>
 
-{#snippet trigger({ props }: { props: Record<string, unknown> })}
-  <Button bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open} class="w-full h-auto">
-    <div class="flex flex-wrap justify-start gap-2">
-      {#each displayValues as value (getId(value))}
-        <Badge>
-          {getLabel(value)}
+{#snippet displayBadges()}
+  <div class="flex flex-wrap justify-start gap-2">
+    {#each displayValues as value (getId(value))}
+      <Badge>
+        {getLabel(value)}
+      </Badge>
+    {:else}
+      <span class="text-muted-foreground">
+        {placeholder ?? $t`None`}
+        <!-- ensures that:
+          1) baseline alignment works for consumers of this component
+          2) list height doesn't shrink when empty
+          -->
+        <Badge class="max-w-0 invisible">
+          &nbsp;
         </Badge>
-      {:else}
-        <span class="text-muted-foreground">
-          {placeholder}
-          &nbsp; <!-- ensures baseline alignment works for consumers of this component -->
-        </span>
-      {/each}
-    </div>
-    <div class="grow"></div>
-    <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      </span>
+    {/each}
+  </div>
+{/snippet}
+
+{#snippet trigger({ props }: { props: Record<string, unknown> })}
+  <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
+    class="w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent">
+    {@render displayBadges()}
+    {#if !readonly}
+      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+    {/if}
   </Button>
 {/snippet}
 
 {#snippet command()}
-  <Command shouldFilter={false}>
-    <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`}>
+  <Command shouldFilter={false} bind:ref={commandRef}>
+    <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`} {onkeydown}>
       <div class="flex items-center gap-2 flex-nowrap">
         {#if IsMobile.value}
           {#if filterValue}
@@ -118,44 +197,51 @@
               <Icon icon="i-mdi-close" />
             </Button>
           {/if}
-        {:else if !dirty}
-          <Button variant="ghost" size="xs" onclick={dismiss} aria-label={$t`Close`}>
+        {:else}
+          {#if dirty}
+            <div in:slide={{axis: 'x', duration: 200}}>
+              <Button variant="default" size="xs" onclick={submit} aria-label={$t`Submit`}>
+                {$t`Submit`}
+              </Button>
+            </div>
+          {/if}
+          <Button variant={dirty ? 'secondary' : 'ghost'} size="xs-icon" onclick={dismiss} aria-label={$t`Close`}>
               <Icon icon="i-mdi-close" />
           </Button>
         {/if}
       </div>
     </CommandInput>
-    {#if !IsMobile.value && dirty}
-      <div class="flex gap-3 p-3 items-center flex-nowrap" transition:slide={{ duration: 200 }}>
-        <Button class="basis-1/4" variant="secondary" onclick={dismiss} aria-label={$t`Close`}>
-            {$t`Cancel`}
-        </Button>
-        <Button class="basis-3/4" onclick={submit}>
-          {$t`Submit`}
-        </Button>
-      </div>
-    {/if}
     <CommandList class="h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
-        {#each filteredOptions as value}
+        {#each filteredOptions as value, i (getId(value))}
           {@const label = getLabel(value)}
-          {@const selected = pendingValues.includes(value)}
+          {@const id = getId(value)}
+          {@const selected = pendingValues.some(v => v.id === id)}
           <CommandItem
             keywords={[label.toLocaleLowerCase()]}
             value={label.toLocaleLowerCase()}
-            onSelect={() => onSelect(value, selected, !dirty && !IsMobile.value)}
+            onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
             class="group max-md:h-12"
+            data-value-index={i}
             aria-label={label}
           >
             <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
             <Checkbox
               checked={selected}
+              tabindex={-1}
               class={cn(
-                'max-md:hidden mr-2 border-muted-foreground !text-foreground !bg-transparent group-[&:not(:hover)]:border-transparent',
+                'max-md:hidden mr-2 border-muted-foreground !text-foreground !bg-transparent group-[&:not([data-selected])]:border-transparent',
                 selected || '[&:not(:hover)]:opacity-50')}
-              onclick={(e) => e.stopPropagation()}
-              onCheckedChange={() => onSelect(value, selected, false)}
+              onclick={(e) => {
+                // prevents deault command item selection
+                e.stopPropagation();
+              }}
+              onpointerdown={(e) => {
+                // prevents moving focus to the checkbox when clicking on it
+                e.preventDefault();
+              }}
+              onCheckedChange={() => toggleSelected(value, false)}
             />
             {label}
           </CommandItem>
@@ -169,6 +255,14 @@
   <Drawer bind:open dismissible={!dirty}>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">
+      <DrawerHeader class="text-left py-2">
+        {#if drawerTitle}
+          <DrawerTitle class="mb-2">{drawerTitle}</DrawerTitle>
+        {/if}
+        <DrawerDescription>
+          {@render displayBadges()}
+        </DrawerDescription>
+      </DrawerHeader>
       {@render command()}
       <DrawerFooter>
         <div class="flex gap-4 items-center flex-nowrap">
@@ -185,7 +279,7 @@
 {:else}
   <Popover bind:open>
     <PopoverTrigger child={trigger} />
-    <PopoverContent class="p-0" align="start" sticky="always" side="bottom" avoidCollisions interactOutsideBehavior={dirty ? 'ignore' : 'close'}>
+    <PopoverContent class="p-0 w-96 max-w-[50vw]" align="start" sticky="always" side="bottom" avoidCollisions interactOutsideBehavior={dirty ? 'ignore' : 'close'}>
       {@render command()}
     </PopoverContent>
   </Popover>

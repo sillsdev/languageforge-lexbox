@@ -104,6 +104,9 @@
 
   .field-root {
     @apply grid grid-cols-subgrid col-span-full items-baseline;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
   }
 
   .field-title {
@@ -114,7 +117,7 @@
   .field-body {
     @apply grid grid-cols-subgrid;
     @apply col-span-full;
-    @apply @3xl:col-span-2;
+    @apply @3xl:col-start-2 @3xl:col-end-4;
   }
   /* shadcn grid end */
 
