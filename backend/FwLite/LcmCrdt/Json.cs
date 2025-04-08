@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
 using LinqToDB;
 using LinqToDB.Common;
+using LinqToDB.Mapping;
 using LinqToDB.SqlQuery;
 using SIL.Harmony;
 
@@ -19,7 +20,12 @@ public static class Json
             if (propExpression == null)
                 throw new InvalidOperationException("Invalid property.");
 
-            var pathLambda = (LambdaExpression)builder.Arguments[1];
+            var pathLambda = builder.Arguments[1] switch
+            {
+                LambdaExpression lambda => lambda,
+                UnaryExpression unary => (LambdaExpression)unary.Operand,
+                { } exp => throw new InvalidOperationException($"invalid property {exp}.")
+            };
 
             var pathBody = pathLambda.Body;
 
@@ -111,6 +117,56 @@ public static class Json
     {
         return valueAccess(prop);
     }
+
+    [Sql.Extension(typeof(JsonValuePathBuilder),
+        Precedence = Precedence.Primary,
+        ServerSideOnly = true,
+        CanBeNull = true)]
+    private static TValue? ValueInternal<TProp, TValue>(TProp prop, Expression<Func<TProp, TValue>> valueAccess)
+    {
+        return valueAccess.Compile()(prop);
+    }
+
+    //indicates that linq2db should rewrite Sense.SemanticDomains.Query()
+    //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => v.Value)
+    [ExpressionMethod(nameof(QueryExpression))]
+    public static IQueryable<T> Query<T>(this IEnumerable<T> value)
+    {
+        return value.AsQueryable();
+    }
+
+    //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
+    //into code in QueryExpression: Sense.SemanticDomains.QueryInternal().Select(v => Sql.Value(v.Value, d => d.Code))
+    [ExpressionMethod(nameof(QuerySelectExpression))]
+    public static IQueryable<T_Value> Query<T, T_Value>(this IEnumerable<T> value, Expression<Func<T, T_Value>> select)
+    {
+        return value.Select(select.Compile()).AsQueryable();
+    }
+
+    private static Expression<Func<IEnumerable<T>, Expression<Func<T, T_Value>>, IQueryable<T_Value>>> QuerySelectExpression<T, T_Value>()
+    {
+        return (values, select) => values.QueryInternal().Select(v => ValueInternal(v.Value, select)!);
+    }
+
+    private static Expression<Func<IEnumerable<T>, IQueryable<T>>> QueryExpression<T>()
+    {
+        return (values) => values.QueryInternal().Select(v => v.Value);
+    }
+
+    [Sql.TableFunction("json_each", argIndices: [0])]
+    private static IQueryable<JsonEach<T>> QueryInternal<T>(this IEnumerable<T> value)
+    {
+        throw new NotImplementedException("only supported server side");
+    }
+
+    //maps to a row from json_each
+    private record JsonEach<T>(
+        [property: Column("value")] T Value,
+        [property: Column("key")] string Key,
+        [property: Column("type")] string Type,
+        [property: Column("id")] int Id,
+        [property: Column("fullkey")] string FullKey,
+        [property: Column("path")] string Path);
 
     public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
     {
