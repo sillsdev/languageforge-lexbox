@@ -7,6 +7,7 @@ using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
+using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
@@ -86,7 +87,7 @@ public class CrdtMiniLcmApi(
         {
             await AddChange(new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
         }
-        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.InnerException is SqliteException { SqliteErrorCode: 19 }) //19 is a unique constraint violation
+        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.CausedByUniqueConstraintViolation())
         {
             throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
         }
