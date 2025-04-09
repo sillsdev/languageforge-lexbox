@@ -89,7 +89,7 @@
             <Command.Item
               value={project.name}
               onSelect={() => handleSelect(project)}
-              class="cursor-pointer"
+              class={cn('cursor-pointer', project.name === projectName && 'bg-secondary')}
             >
               {#if project.fwdata}
                 <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0"/>
