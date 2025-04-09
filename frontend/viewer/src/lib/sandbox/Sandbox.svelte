@@ -83,8 +83,8 @@
     allDomains.push({
       label: allDomains[Math.floor(Math.random() * allDomains.length)].label + '-' + i
     });
-    allDomains.sort((a, b) => a.label.localeCompare(b.label));
   }
+  allDomains.sort((a, b) => a.label.localeCompare(b.label));
 
   function randomSemanticDomainSorter() {
     return Math.random() - 0.5;
