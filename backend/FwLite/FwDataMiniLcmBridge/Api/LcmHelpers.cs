@@ -122,4 +122,11 @@ internal static class LcmHelpers
     {
         return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
     }
+
+    internal static string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
+    {
+        var abbr = semanticDomain.Abbreviation;
+        // UiString can be null even though there is an abbreviation available
+        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+    }
 }

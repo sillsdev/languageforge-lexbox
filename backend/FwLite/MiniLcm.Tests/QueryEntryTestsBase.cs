@@ -1,4 +1,4 @@
-namespace MiniLcm.Tests;
+﻿namespace MiniLcm.Tests;
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
@@ -90,9 +90,30 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterToMissingSemanticDomainsWithEmptyArray()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.SemanticDomains=[]" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
+    }
+
+    [Fact]
+    public async Task CanFilterSemanticDomainCodeContains()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.SemanticDomains.Code=*Fruit" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
     public async Task CanFilterToMissingComplexFormTypes()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingComplexFormTypesWithEmptyArray()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana);
     }
 

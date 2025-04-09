@@ -1,22 +1,29 @@
-﻿using LinqToDB;
+﻿using System.Linq.Expressions;
+using LinqToDB;
 
 namespace LcmCrdt;
 
 public static class SqlHelpers
 {
-    [Sql.Expression("exists(select 1 from json_each({0}, '$') where value = {1})",
-        PreferServerSide = true,
-        IsPredicate = true)]
+    [ExpressionMethod(nameof(HasValueExpression))]
     public static bool HasValue(this MultiString ms, string value)
     {
         return ms.Values.Values.Contains(value);
     }
 
-    [Sql.Expression("exists(select 1 from json_each({0}, '$') where value like '%' || {1} || '%')",
-        PreferServerSide = true,
-        IsPredicate = true)]
+    private static Expression<Func<MultiString, string, bool>> HasValueExpression()
+    {
+        return (ms, value) => Json.QueryValues(ms).Contains(value);
+    }
+
+    [ExpressionMethod(nameof(SearchValueExpression))]
     public static bool SearchValue(this MultiString ms, string search)
     {
         return ms.Values.Any(pair => pair.Value.Contains(search));
+    }
+
+    private static Expression<Func<MultiString, string, bool>> SearchValueExpression()
+    {
+        return (ms, search) => Json.QueryValues(ms).Any(s => s.Contains(search));
     }
 }
