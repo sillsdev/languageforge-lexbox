@@ -7,10 +7,11 @@ import {
   type IEntry,
   type IExampleSentence,
   type IMiniLcmJsInvokable,
-  type IPartOfSpeech,
+  type IPartOfSpeech, type IProjectModel,
   type IQueryOptions,
   type ISemanticDomain,
   type ISense,
+  type IServerProjects,
   type IWritingSystem,
   type IWritingSystems,
   type WritingSystemType
@@ -54,6 +55,29 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
       feedbackUrl: '',
       os: FwLitePlatform.Web,
       useDevAssets: true,
+    });
+    window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
+      localProjects(): Promise<IProjectModel[]> {
+        return Promise.resolve([]);
+      },
+      supportsFwData: function (): Promise<boolean> {
+        return Promise.resolve(false);
+      },
+      remoteProjects: function (): Promise<IServerProjects[]> {
+        return Promise.resolve([]);
+      },
+      serverProjects: function (_serverId: string, _forceRefresh: boolean): Promise<IProjectModel[]> {
+        return Promise.resolve([]);
+      },
+      downloadProject: function (_project: IProjectModel): Promise<void> {
+        return Promise.resolve();
+      },
+      createProject: function (_name: string): Promise<void> {
+        return Promise.resolve();
+      },
+      deleteProject: function (_code: string): Promise<void> {
+        return Promise.resolve();
+      }
     });
     return inMemoryLexboxApi;
   }

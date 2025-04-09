@@ -6,38 +6,34 @@
   import { cn } from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
+  import flexLogo from '$lib/assets/flex-logo.png';
+  import {useProjectsService} from '$lib/services/service-provider';
+  import {resource} from 'runed';
+  import type {IProjectModel} from '$lib/dotnet-types';
 
   let { projectName, onSelect } = $props<{
     projectName: string;
-    onSelect: (projectName: string) => void;
+    onSelect: (project: IProjectModel) => void;
   }>();
-
-  // Mock project list - this would be replaced with actual API call later
-  const mockProjects = [
-    { id: '1', name: 'Project Alpha' },
-    { id: '2', name: 'Project Beta' },
-    { id: '3', name: 'Project Gamma' },
-    { id: '4', name: 'Project Delta' },
-    { id: '5', name: 'Project Epsilon' },
-  ];
+  const projectsService = useProjectsService();
+  const projectsResource = resource(() => projectsService, (projectsService) => {
+      return projectsService.localProjects();
+  }, {lazy: true});
 
   let open = $state(false);
-  let loading = $state(false);
   let triggerRef = $state<HTMLButtonElement>(null!);
+
 
   // Simulate loading delay
   function handleOpen(isOpen: boolean) {
     open = isOpen;
-    if (isOpen) {
-      loading = true;
-      setTimeout(() => {
-        loading = false;
-      }, 1000);
+    if (isOpen && !projectsResource.current) {
+      void projectsResource.refetch();
     }
   }
 
-  function handleSelect(project: { id: string; name: string }) {
-    onSelect(project.name);
+  function handleSelect(project: IProjectModel) {
+    onSelect(project);
     open = false;
     closeAndFocusTrigger();
   }
@@ -48,7 +44,7 @@
   function closeAndFocusTrigger() {
     open = false;
     void tick().then(() => {
-      triggerRef.focus();
+      triggerRef?.focus();
     });
   }
 </script>
@@ -81,7 +77,7 @@
       <Command.Input placeholder={$t`Search Dictionaries`} />
       <Command.List>
         <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
-        {#if loading}
+        {#if projectsResource.loading}
           <Command.Loading>
             <div class="flex items-center justify-center p-4">
               <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
@@ -89,19 +85,17 @@
             </div>
           </Command.Loading>
         {:else}
-          {#each mockProjects as project}
+          {#each projectsResource.current ?? [] as project}
             <Command.Item
               value={project.name}
               onSelect={() => handleSelect(project)}
               class="cursor-pointer"
             >
-              <Icon
-                icon="i-mdi-check"
-                class={cn(
-                  'mr-2 size-4',
-                  projectName === project.name ? 'opacity-100' : 'opacity-0'
-                )}
-              />
+              {#if project.fwdata}
+                <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0"/>
+                {:else}
+                <Icon icon="i-mdi-book-edit-outline"/>
+              {/if}
               {project.name}
             </Command.Item>
           {/each}
