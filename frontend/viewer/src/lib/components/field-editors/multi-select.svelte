@@ -234,7 +234,7 @@
                 'max-md:hidden mr-2 border-muted-foreground !text-foreground !bg-transparent group-[&:not([data-selected])]:border-transparent',
                 selected || '[&:not(:hover)]:opacity-50')}
               onclick={(e) => {
-                // prevents deault command item selection
+                // prevents command item selection
                 e.stopPropagation();
               }}
               onpointerdown={(e) => {
@@ -263,7 +263,7 @@
           {@render displayBadges()}
         </DrawerDescription>
       </DrawerHeader>
-      {@render command()}
+        {@render command()}
       <DrawerFooter>
         <div class="flex gap-4 items-center flex-nowrap">
           <Button variant="secondary" class={cn('basis-1/4 transition-all', dirty || 'basis-3/4')} onclick={dismiss}>
