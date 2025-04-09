@@ -14,9 +14,11 @@
     withHandle = false,
     leftPane,
     rightPane,
+    resetTo,
     ...restProps
   }: WithoutChildrenOrChild<ResizablePrimitive.PaneResizerProps> & {
     withHandle?: boolean;
+    resetTo?: Readonly<[number, number]>;
     leftPane?: ResizablePrimitive.Pane;
     rightPane?: ResizablePrimitive.Pane;
   } = $props();
@@ -25,8 +27,8 @@
   const draggingDebounced = new Debounced(() => dragging, 300);
 
   type OnClickHandler = ButtonProps['onclick'];
-  const leftResizerOnClick = $derived.by(() => getPaneResizerOnClick(leftPane, rightPane));
-  const rightResizerOnClick = $derived.by(() => getPaneResizerOnClick(rightPane, leftPane));
+  const leftResizerOnClick = $derived(getPaneResizerOnClick(leftPane, rightPane));
+  const rightResizerOnClick = $derived(getPaneResizerOnClick(rightPane, leftPane));
   function getPaneResizerOnClick(pane?: ResizablePrimitive.Pane, otherPane?: ResizablePrimitive.Pane): OnClickHandler {
     if (!pane || !otherPane) return undefined;
     if (pane.isCollapsed()) return undefined;
@@ -39,23 +41,19 @@
     };
   }
 
-  let defaultPaneProportions = $state<[number, number]>();
-
   onMount(async () => {
     await tick(); // one of the panes almost definitely gets mounted after us
     if (!leftPane || !rightPane) return;
-    const totalSize = leftPane.getSize() + rightPane.getSize();
-    defaultPaneProportions = [leftPane.getSize() / totalSize, rightPane.getSize() / totalSize];
+    resetTo ??= [leftPane.getSize(), rightPane.getSize()];
   });
 
   function resetPanes() {
-    if (!leftPane || !rightPane || !defaultPaneProportions) return;
-    const totalSize = leftPane.getSize() + rightPane.getSize();
-    leftPane.resize(defaultPaneProportions[0] * totalSize);
-    rightPane.resize(defaultPaneProportions[1] * totalSize);
+    if (!leftPane || !rightPane || !resetTo) return;
+    leftPane.resize(resetTo[0]);
+    // rightPane.resize(resetTo[1]); // redundant
   }
 
-  const showResizers = $derived(leftPane && rightPane && defaultPaneProportions && !draggingDebounced.current);
+  const showResizers = $derived((leftResizerOnClick || rightResizerOnClick) && resetTo && !draggingDebounced.current);
 </script>
 
 <ResizablePrimitive.PaneResizer

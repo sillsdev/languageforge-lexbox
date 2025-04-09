@@ -9,7 +9,7 @@
   import { Icon } from '$lib/components/ui/icon';
   import { t } from 'svelte-i18n-lingui';
   let selectedEntry = $state<IEntry | undefined>(undefined);
-  const defaultLayout = [30, 70]; // Default split: 30% for list, 70% for details
+  const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string | undefined>(undefined);
   let sortDirection = $state<'asc' | 'desc'>('asc');
@@ -50,7 +50,7 @@
       </ResizablePane>
     {/if}
     {#if !IsMobile.value}
-      <ResizableHandle {leftPane} {rightPane} withHandle />
+      <ResizableHandle {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
     {/if}
     {#if selectedEntry || !IsMobile.value}
       <ResizablePane
