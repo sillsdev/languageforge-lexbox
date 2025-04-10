@@ -4,10 +4,10 @@ import {firstTruthy} from './utils';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {resource, type ResourceReturn} from 'runed';
 
-
+const symbol = Symbol.for('fw-lite-ws-service');
 export function useWritingSystemService(): WritingSystemService {
   const projectContext = useProjectContext();
-  return projectContext.writingSystemService ??= new WritingSystemService(projectContext);
+  return projectContext.lazyCreate(symbol, () => new WritingSystemService(projectContext));
 }
 
 export class WritingSystemService {

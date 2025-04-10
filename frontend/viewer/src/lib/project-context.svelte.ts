@@ -44,8 +44,6 @@ export class ProjectContext {
     return this.#features.current;
   }
   public historyService?: IHistoryServiceJsInvokable = $state(undefined);
-  //not to be used directly, call useWritingSystemService instead
-  public writingSystemService?: WritingSystemService;
 
   constructor(args?: ProjectContextSetup) {
     this.#api = args?.api;
