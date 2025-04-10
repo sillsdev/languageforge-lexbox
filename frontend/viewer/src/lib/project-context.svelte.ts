@@ -1,9 +1,10 @@
 ﻿import {getContext, setContext} from 'svelte';
-import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
+import type {IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import {type WritingSystemService} from '$lib/writing-system-service.svelte';
+import {resource} from 'runed';
 
 const projectContextKey = 'current-project';
 interface ProjectContextSetup {
@@ -22,6 +23,10 @@ export function useProjectContext() {
 export class ProjectContext {
   #api: IMiniLcmJsInvokable | undefined = $state(undefined);
   #projectName: string | undefined = $state(undefined);
+  #features = resource(() => this.#api, (api) => {
+    if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
+    return api.supportedFeatures();
+  }, {initialValue: {}});
   public get api() {
     if (!this.#api) throw new Error('api not setup yet');
     return this.#api;
@@ -32,6 +37,9 @@ export class ProjectContext {
   public get projectName(): string {
     if (!this.#projectName) throw new Error('projectName not set');
     return this.#projectName;
+  }
+  public get features(): IMiniLcmFeatures {
+    return this.#features.current;
   }
   public historyService?: IHistoryServiceJsInvokable = $state(undefined);
   //not to be used directly, call useWritingSystemService instead

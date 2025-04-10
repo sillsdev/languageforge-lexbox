@@ -45,7 +45,7 @@
                >
             <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
             <div class="contents">
-              <OpenInFieldWorksButton {entryId} {projectName} show={$features.openWithFlex}/>
+              <OpenInFieldWorksButton {entryId} {projectName} show={features.openWithFlex}/>
             </div>
           </div>
           <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
