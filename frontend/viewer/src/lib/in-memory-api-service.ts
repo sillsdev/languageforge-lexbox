@@ -49,9 +49,8 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   public static setup(): InMemoryApiService {
     const inMemoryLexboxApi = new InMemoryApiService();
     window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, inMemoryLexboxApi);
-    const yyyyMMDD = new Date().toISOString().split('T')[0];
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
-      appVersion: `${yyyyMMDD}-test`,
+      appVersion: `dev`,
       feedbackUrl: '',
       os: FwLitePlatform.Web,
       useDevAssets: true,
