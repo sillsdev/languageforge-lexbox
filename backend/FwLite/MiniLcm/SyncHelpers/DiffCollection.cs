@@ -74,7 +74,7 @@ public static class DiffCollection
         foreach ((var createdItem, var afterItem) in postAddUpdates)
         {
             //todo this may do a lot more work than it needs to, eg sense will be created during add, but they will be checked again here when we know they didn't change
-            await diffApi.Replace(createdItem, afterItem);
+            changes += await diffApi.Replace(createdItem, afterItem);
         }
 
         foreach (var beforeEntry in beforeEntriesDict.Values)
