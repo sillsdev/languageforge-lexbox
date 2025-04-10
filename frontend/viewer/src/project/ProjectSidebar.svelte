@@ -8,11 +8,11 @@
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import {onDestroy} from 'svelte';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate} from 'svelte-routing';
   import NewEntryButton from './NewEntryButton.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import type {IProjectModel} from '$lib/dotnet-types';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -21,16 +21,13 @@
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
-  let intervalId = setInterval(() => {
-    isSynchronizing = !isSynchronizing;
-  }, 2000);
 
-  onDestroy(() => {
-    clearInterval(intervalId);
-  });
-
-  function handleProjectSelect(selectedProjectName: string) {
-    console.log('selectedProjectName', selectedProjectName);
+  function handleProjectSelect(selectedProject: IProjectModel) {
+    if (selectedProject.fwdata) {
+      navigate('/fwdata/' + selectedProject.name);
+    } else if (selectedProject.crdt) {
+      navigate('/project/' + selectedProject.code)
+    }
   }
 
   function handleNewEntry() {
