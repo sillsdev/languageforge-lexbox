@@ -1,5 +1,9 @@
 ﻿import {defineConfig, devices} from '@playwright/test';
 import * as testEnv from '../tests/envVars';
+const vitePort = '5173';
+const dotnetPort = '5137';
+const autoStartServer = process.env.AUTO_START_SERVER ? Boolean(process.env.AUTO_START_SERVER) : false;
+const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -18,7 +22,7 @@ export default defineConfig({
     : [['list'], ['html', {outputFolder: 'html-test-results', open: 'never'}]],
 
   use: {
-    baseURL: 'http://localhost:5137',
+    baseURL: 'http://localhost:' + serverPort,
     /* Local storage to be populated for every test */
     storageState: {
       cookies: [],
@@ -44,6 +48,13 @@ export default defineConfig({
       width: 1280,
     }
   },
+  webServer: [
+    {
+      command: 'pnpm run dev-app',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true
+    }
+  ],
   projects: [
     {
       name: 'chromium',
