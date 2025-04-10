@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@playwright/test':
+      specifier: ^1.49.1
+      version: 1.50.1
     '@stylistic/eslint-plugin':
       specifier: ^2.12.1
       version: 2.13.0
@@ -178,7 +181,7 @@ importers:
         specifier: ^1.1.66
         version: 1.2.3
       '@playwright/test':
-        specifier: ^1.49.1
+        specifier: 'catalog:'
         version: 1.50.1
       '@stylistic/eslint-plugin':
         specifier: 'catalog:'
@@ -394,6 +397,9 @@ importers:
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
+      '@playwright/test':
+        specifier: 'catalog:'
+        version: 1.50.1
       '@stylistic/eslint-plugin':
         specifier: 'catalog:'
         version: 2.13.0(eslint@9.20.1(jiti@2.4.2))(typescript@5.7.3)

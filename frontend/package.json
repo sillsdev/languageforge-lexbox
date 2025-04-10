@@ -38,7 +38,7 @@
 		"@graphql-codegen/typescript": "^4.0.6",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@iconify-json/mdi": "^1.1.66",
-		"@playwright/test": "^1.49.1",
+		"@playwright/test": "catalog:",
 		"@sveltejs/adapter-node": "^5.2.9",
 		"@sveltejs/kit": "2.8.4",
 		"@sveltejs/vite-plugin-svelte": "catalog:",

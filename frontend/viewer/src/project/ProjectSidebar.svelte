@@ -8,7 +8,6 @@
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import {onDestroy} from 'svelte';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate} from 'svelte-routing';
   import NewEntryButton from './NewEntryButton.svelte';
@@ -22,13 +21,6 @@
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
-  let intervalId = setInterval(() => {
-    isSynchronizing = !isSynchronizing;
-  }, 2000);
-
-  onDestroy(() => {
-    clearInterval(intervalId);
-  });
 
   function handleProjectSelect(selectedProject: IProjectModel) {
     if (selectedProject.fwdata) {
