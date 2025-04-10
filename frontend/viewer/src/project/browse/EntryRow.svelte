@@ -1,7 +1,7 @@
 <script lang="ts">
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type { IEntry } from '$lib/dotnet-types';
-  import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const { entry, isSelected = false, onclick, skeleton = false }: {
     entry?: IEntry;
@@ -10,7 +10,7 @@
     skeleton?: boolean;
   } = $props();
 
-  const writingSystemService = $derived(useWritingSystemRunes());
+  const writingSystemService = useWritingSystemService();
   const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
   const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
 

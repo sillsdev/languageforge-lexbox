@@ -8,7 +8,7 @@
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
   import type { IEntry, ISense, IComplexFormComponent } from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };

@@ -1,7 +1,7 @@
 <script lang="ts">
   import {useComplexFormTypes} from '$lib/complex-form-types';
   import type {IComplexFormType} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
 
   export let id: string;

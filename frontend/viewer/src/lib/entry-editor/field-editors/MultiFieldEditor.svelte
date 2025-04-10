@@ -5,7 +5,7 @@
   import type { IMultiString } from '$lib/dotnet-types';
   import type {WritingSystemSelection} from '../../config-types';
   import {useCurrentView} from '$lib/views/view-service';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import {makeHasHadValueTracker} from '$lib/utils';
 
   const dispatch = createEventDispatcher<{

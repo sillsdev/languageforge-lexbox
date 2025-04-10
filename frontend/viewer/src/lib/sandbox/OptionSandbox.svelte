@@ -5,22 +5,7 @@
   import MultiOptionEditor from '$lib/entry-editor/field-editors/MultiOptionEditor.svelte';
   import {Button} from 'svelte-ux';
   import MapBind from '$lib/utils/MapBind.svelte';
-  import {initWritingSystemService} from '$lib/writing-system-service';
-  import {WritingSystemType} from '$lib/dotnet-types';
 
-  initWritingSystemService(readable({
-    analysis: [{
-      id: 'test',
-      wsId: 'test',
-      name: 'test',
-      abbreviation: 'test',
-      font: 'test',
-      exemplars: [],
-      type: WritingSystemType.Analysis,
-      order: 0,
-    }],
-    vernacular: [],
-  }));
   const fields = {
     'multi1': {show: true, order: 1},
     'multi2': {show: true, order: 2},

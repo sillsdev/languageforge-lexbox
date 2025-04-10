@@ -9,8 +9,7 @@
   import {defaultEntry, defaultSense} from '../utils';
   import EntryEditor from './object-editors/EntryEditor.svelte';
   import OverrideFields from '$lib/OverrideFields.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service';
-  import {initFeatures} from '$lib/services/feature-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   let open = false;
   let loading = false;
@@ -67,8 +66,6 @@
     }
     entry = defaultEntry();
   }
-
-  initFeatures({ write: true }); // hide history buttons
 </script>
 
 <Dialog bind:open on:close={onClosing} {loading} persistent={loading}>
