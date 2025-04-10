@@ -6,7 +6,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem} from 'svelte-ux';

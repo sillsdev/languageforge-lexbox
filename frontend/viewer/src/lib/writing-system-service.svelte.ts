@@ -1,32 +1,29 @@
 ﻿import type {IEntry, IExampleSentence, IMultiString, ISense, IWritingSystem, IWritingSystems} from '$lib/dotnet-types';
-import {getContext, onDestroy, setContext} from 'svelte';
-import {derived, get, type Readable} from 'svelte/store';
 import type {WritingSystemSelection} from './config-types';
 import {firstTruthy} from './utils';
+import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {resource, type ResourceReturn} from 'runed';
 
-const writingSystemContextName = 'writingSystems';
-export function initWritingSystemService(ws: Readable<IWritingSystems | null>): Readable<WritingSystemService | null> {
-  return setContext(writingSystemContextName, derived(ws, ($ws) => $ws ? new WritingSystemService($ws) : null));
-}
 
 export function useWritingSystemService(): WritingSystemService {
-  const writingSystemServiceContext = getContext<Readable<WritingSystemService | null>>(writingSystemContextName);
-  if (!writingSystemServiceContext) throw new Error('Writing system context is not initialized. Are you in the context of a project?');
-  const writingSystemService = get(writingSystemServiceContext);
-  if (!writingSystemService) throw new Error('Writing system service is not initialized.');
-  const unsub = writingSystemServiceContext.subscribe((service) => {
-    if (service !== writingSystemService) console.warn('Writing system service changed unexpectedly.');
-  });
-  onDestroy(unsub);
-  return writingSystemService;
+  const projectContext = useProjectContext();
+  return projectContext.writingSystemService ??= new WritingSystemService(projectContext);
 }
 
 export class WritingSystemService {
 
-  private readonly wsColors: WritingSystemColors;
+  private wsColors: WritingSystemColors = $derived(calcWritingSystemColors(this.writingSystems));
+  wsResource: ResourceReturn<IWritingSystems>;
+  private get writingSystems(): IWritingSystems {
+    return this.wsResource.current ?? {analysis: [], vernacular: []};
+  }
 
-  constructor(private readonly writingSystems: IWritingSystems) {
-    this.wsColors = calcWritingSystemColors(writingSystems);
+  constructor(private projectContext: ProjectContext) {
+    this.wsResource = resource(() => projectContext.maybeApi,
+      (api): Promise<IWritingSystems> => {
+        if (!api) return Promise.resolve({analysis: [], vernacular: []});
+        return api.getWritingSystems();
+      });
   }
 
   allWritingSystems(selection: Extract<WritingSystemSelection, 'vernacular-analysis' | 'analysis-vernacular'> = 'vernacular-analysis'): IWritingSystem[] {

@@ -5,7 +5,7 @@
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
   import {useSemanticDomains} from '../../semantic-domains';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import {usePartsOfSpeech} from '../../parts-of-speech';
   import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
 

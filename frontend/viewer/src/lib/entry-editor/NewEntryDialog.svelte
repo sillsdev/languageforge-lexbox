@@ -9,7 +9,7 @@
   import {defaultEntry, defaultSense} from '../utils';
   import EntryEditor from './object-editors/EntryEditor.svelte';
   import OverrideFields from '$lib/OverrideFields.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {initFeatures} from '$lib/services/feature-service';
 
   let open = false;

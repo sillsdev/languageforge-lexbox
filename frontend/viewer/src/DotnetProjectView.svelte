@@ -10,13 +10,16 @@
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
   import ProjectLoader from './ProjectLoader.svelte';
   import ThemeSyncer from '$lib/ThemeSyncer.svelte';
+  import {initProjectContext} from '$lib/project-context.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
+  const projectContext = initProjectContext();
 
   const {code, type}: {
     code: string; // Code for CRDTs, project-name for FWData
     type: 'fwdata' | 'crdt'
   } = $props();
+
 
 
   let projectName = $state<string>(code);
@@ -37,10 +40,15 @@
       cleanup();
       return;
     }
+    let historyService: IHistoryServiceJsInvokable | undefined = undefined;
     if (projectScope.historyService) {
-      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable);
+      historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
     }
-    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable);
+    const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
+    if (historyService)
+      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, historyService);
+    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, api);
+    projectContext.setup({api, historyService});
     serviceLoaded = true;
   });
   onDestroy(() => {

@@ -1,7 +1,7 @@
 ﻿import {derived, type Readable, type Writable, writable} from 'svelte/store';
 import type {IPartOfSpeech} from '$lib/dotnet-types';
 import {useLexboxApi} from './services/service-provider';
-import {useWritingSystemService} from './writing-system-service';
+import {useWritingSystemService} from './writing-system-service.svelte';
 
 type LabeledPartOfSpeech = IPartOfSpeech & {label: string};
 

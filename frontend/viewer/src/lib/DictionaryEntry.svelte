@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { IEntry, ISense } from '$lib/dotnet-types';
-  import {useWritingSystemService} from './writing-system-service';
+  import {useWritingSystemService} from './writing-system-service.svelte';
   import { usePartsOfSpeech } from './parts-of-speech';
 
   export let entry: IEntry;

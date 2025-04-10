@@ -21,7 +21,6 @@
   import {initView, initViewSettings} from '$lib/views/view-service';
   import {initDialogService} from '$lib/entry-editor/dialog-service';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
-  import {useWritingSystemRunes} from '$lib/writing-system-runes.svelte';
   import {initFeatures} from '$lib/services/feature-service';
 
   const {
@@ -42,7 +41,6 @@
   const viewSettings = initViewSettings();
   let deleteDialog = $state<DeleteDialog | undefined>(undefined);
   const dialogService = initDialogService(() => deleteDialog);
-  const writingSystemService = useWritingSystemRunes();
   const features = initFeatures({});
 
   onMount(() => {

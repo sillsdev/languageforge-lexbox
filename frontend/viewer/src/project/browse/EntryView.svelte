@@ -2,7 +2,6 @@
   import { Icon } from '$lib/components/ui/icon';
   import type { IEntry } from '$lib/dotnet-types';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
-  import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
   import { useViewSettings } from '$lib/views/view-service';
   import { resource, Debounced } from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
@@ -12,6 +11,7 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -35,7 +35,7 @@
   const entry = $derived(entryResource.current ?? undefined);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
 
-  const writingSystemService = $derived(useWritingSystemRunes());
+  const writingSystemService = useWritingSystemService();
 
   function handleDelete() {
     // TODO: Implement delete functionality
