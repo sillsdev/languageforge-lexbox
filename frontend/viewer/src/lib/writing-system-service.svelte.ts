@@ -13,13 +13,13 @@ export function useWritingSystemService(): WritingSystemService {
 export class WritingSystemService {
 
   private wsColors: WritingSystemColors = $derived(calcWritingSystemColors(this.writingSystems));
-  wsResource: ResourceReturn<IWritingSystems>;
+  #wsResource: ResourceReturn<IWritingSystems>;
   private get writingSystems(): IWritingSystems {
-    return this.wsResource.current ?? {analysis: [], vernacular: []};
+    return this.#wsResource.current ?? {analysis: [], vernacular: []};
   }
 
-  constructor(private projectContext: ProjectContext) {
-    this.wsResource = resource(() => projectContext.maybeApi,
+  constructor(projectContext: ProjectContext) {
+    this.#wsResource = resource(() => projectContext.maybeApi,
       (api): Promise<IWritingSystems> => {
         if (!api) return Promise.resolve({analysis: [], vernacular: []});
         return api.getWritingSystems();
