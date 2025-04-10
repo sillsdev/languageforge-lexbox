@@ -16,7 +16,4 @@
   } = $props();
 </script>
 
-
 <ShadcnProjectView {onloaded} {projectName} {about} {isConnected} {showHomeButton}/>
-
-
