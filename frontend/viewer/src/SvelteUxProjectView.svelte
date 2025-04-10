@@ -167,7 +167,7 @@
     } else if (currEntryId !== $selectedEntry?.id) {
       $state.userPickedEntry = true;
       navigateToEntryId = currEntryId;
-      refreshSelection();
+      void refreshSelection();
     }
   });
 
@@ -185,21 +185,28 @@
   $: {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     $entries;
-    refreshSelection();
+    void refreshSelection();
   }
 
-  //selection handling, make sure the selected entry is always in the list of entries
-  function refreshSelection() {
+  async function findEntry(id: string): Promise<IEntry | undefined> {
+    const entry = $entries?.find(e => e.id === id);
+    if (entry) return entry;
+    if ($selectedEntry?.id === id) return $selectedEntry;
+    return await lexboxApi.getEntry(id);
+  }
+
+  //selection handling, make sure we preserve selection even if the entry is not in server-page
+  async function refreshSelection() {
     if (!$entries) return;
 
     if (navigateToEntryId) {
-      const entry = $entries.find(e => e.id === navigateToEntryId);
+      const entry = await findEntry(navigateToEntryId);
       if (entry) {
         $selectedEntry = entry;
         $state.userPickedEntry = true;
       }
     } else if ($selectedEntry !== undefined) {
-      const entry = $entries.find(e => e.id === $selectedEntry!.id);
+      const entry = await findEntry($selectedEntry.id);
       if (entry !== $selectedEntry) {
         $selectedEntry = entry;
       }
