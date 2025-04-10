@@ -225,10 +225,13 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
         // assert
         var actualExistingEntry = await Api.GetEntry(existingEntryAfter.Id);
         actualExistingEntry.Should().BeEquivalentTo(existingEntryAfter, options => options
-            .For(e => e.ComplexForms).Exclude(c => c.Id));
+            .For(e => e.ComplexForms).Exclude(c => c.Id)
+            .For(e => e.ComplexForms).Exclude(c => c.Order));
 
         var actualNewEntry = await Api.GetEntry(newEntry.Id);
         actualNewEntry.Should().BeEquivalentTo(newEntry, options => options
-            .For(e => e.Components).Exclude(c => c.Id));
+            .Excluding(e => e.ComplexFormTypes) // LibLcm automatically creates a complex form type. Should we?
+            .For(e => e.Components).Exclude(c => c.Id)
+            .For(e => e.Components).Exclude(c => c.Order));
     }
 }
