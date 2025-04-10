@@ -48,7 +48,7 @@
     if (historyService)
       window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, historyService);
     window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, api);
-    projectContext.setup({api, historyService});
+    projectContext.setup({api, historyService, projectName});
     serviceLoaded = true;
   });
   onDestroy(() => {
