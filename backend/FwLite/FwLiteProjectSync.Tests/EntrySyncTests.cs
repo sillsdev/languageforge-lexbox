@@ -204,4 +204,31 @@ public abstract class EntrySyncTestsBase(SyncFixture fixture) : IClassFixture<Sy
             .Excluding(c => c.Order)
             .Excluding(c => c.Id));
     }
+
+    [Fact]
+    public async Task CanSyncNewEntryReferencedByExistingEntry()
+    {
+        // arrange
+        // - before
+        var existingEntryBefore = await Api.CreateEntry(new() { LexemeForm = { { "en", "existing-component" } } });
+
+        // - after
+        var existingEntryAfter = existingEntryBefore.Copy();
+        var newEntry = new Entry() { Id = Guid.NewGuid(), LexemeForm = { { "en", "complex-form" } } };
+        var newComplexFormComponent = ComplexFormComponent.FromEntries(newEntry, existingEntryAfter);
+        existingEntryAfter.ComplexForms.Add(newComplexFormComponent);
+        newEntry.Components.Add(newComplexFormComponent);
+
+        // act
+        await EntrySync.Sync([existingEntryBefore], [existingEntryAfter, newEntry], Api);
+
+        // assert
+        var actualExistingEntry = await Api.GetEntry(existingEntryAfter.Id);
+        actualExistingEntry.Should().BeEquivalentTo(existingEntryAfter, options => options
+            .For(e => e.ComplexForms).Exclude(c => c.Id));
+
+        var actualNewEntry = await Api.GetEntry(newEntry.Id);
+        actualNewEntry.Should().BeEquivalentTo(newEntry, options => options
+            .For(e => e.Components).Exclude(c => c.Id));
+    }
 }
