@@ -1,4 +1,4 @@
-import type {$OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery, ProjectsByNameAndOrgQuery} from '$lib/gql/types';
+import type {$OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, LoadRequestingUserQuery, ProjectStatus, ProjectsByLangCodeAndOrgQuery, ProjectsByNameAndOrgQuery} from '$lib/gql/types';
 import {getClient, graphql} from '$lib/gql';
 
 import type {PageLoadEvent} from './$types';
@@ -8,7 +8,7 @@ import {isGuid} from '$lib/util/guid';
 export async function load(event: PageLoadEvent) {
   const userIsAdmin = (await event.parent()).user.isAdmin;
   const requestingUserId = getSearchParam<CreateProjectInput>('projectManagerId', event.url.searchParams);
-  let requestingUser = null;
+  let requestingUser: NonNullable<NonNullable<NonNullable<LoadRequestingUserQuery>['users']>['items']>[number] | undefined;
   const client = getClient();
   if (userIsAdmin && isGuid(requestingUserId)) {
     const userResultsPromise = await client.query(graphql(`
@@ -36,7 +36,7 @@ export async function load(event: PageLoadEvent) {
     requestingUser = userResultsPromise.data?.users?.items?.[0];
   }
 
-  let orgs;
+  let orgs: undefined | { id: string, name: string }[];
   if (userIsAdmin) {
     const orgsPromise = await client.query(graphql(`
           query loadOrgs {
@@ -58,7 +58,24 @@ export async function load(event: PageLoadEvent) {
       `), {}, { fetch: event.fetch });
     orgs = myOrgsPromise.data?.myOrgs;
   }
-  return { requestingUser, myOrgs: orgs };
+
+  const projectId = getSearchParam<CreateProjectInput>('id', event.url.searchParams);
+  let projectStatus: ProjectStatus | undefined;
+  if (projectId) {
+    const projectStatusResult = await client.query(graphql(`
+        query loadProjectStatus($projectId: UUID!) {
+            projectStatus(projectId: $projectId) {
+                id
+                exists
+                deleted
+                accessibleCode
+            }
+        }
+    `), {projectId}, {fetch: event.fetch});
+    projectStatus = projectStatusResult.data?.projectStatus;
+  }
+
+  return { requestingUser, myOrgs: orgs, projectStatus };
 }
 
 export async function _createProject(input: CreateProjectInput): $OpResult<CreateProjectMutation> {

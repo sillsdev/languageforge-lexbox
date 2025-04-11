@@ -435,6 +435,13 @@ type ProjectMembersMustBeVerifiedForRole implements Error {
   message: String!
 }
 
+type ProjectStatus {
+  id: UUID!
+  exists: Boolean!
+  deleted: Boolean!
+  accessibleCode: String
+}
+
 type ProjectUsers {
   userId: UUID!
   user: User!
@@ -459,6 +466,7 @@ type Query {
   projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
   projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput @cost(weight: "10") orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
   projectById(projectId: UUID!): Project @cost(weight: "10")
+  projectStatus(projectId: UUID!): ProjectStatus! @cost(weight: "10")
   projectByCode(code: String!): Project @cost(weight: "10")
   orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
