@@ -58,9 +58,8 @@ public static class DiffCollection
         var postAddUpdates = new List<(T created, T after)>(after.Count);
         foreach (var afterEntry in after)
         {
-            if (beforeEntriesDict.TryGetValue(diffApi.GetId(afterEntry), out var beforeEntry))
+            if (beforeEntriesDict.Remove(diffApi.GetId(afterEntry), out var beforeEntry))
             {
-                beforeEntriesDict.Remove(diffApi.GetId(afterEntry));
                 postAddUpdates.Add((beforeEntry, afterEntry)); // defer updating existing entry
             }
             else
