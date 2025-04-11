@@ -120,6 +120,27 @@ public class LexQueries
         return context.Projects.AsNoTracking().Where(p => p.Id == projectId);
     }
 
+    public record ProjectStatus(Guid Id, bool Exists, bool Deleted, string? AccessibleCode);
+
+    [GraphQLName("projectStatus")]
+    public async Task<ProjectStatus> GetProjectStatus(LexBoxDbContext context, IPermissionService permissionService, LoggedInContext loggedInContext, Guid projectId)
+    {
+        var project = await context.Projects.Include(p => p.Users)
+            .AsNoTracking().IgnoreQueryFilters()
+            .SingleOrDefaultAsync(p => p.Id == projectId);
+
+        if (project is null) return new ProjectStatus(projectId, false, false, null);
+        if (project.DeletedDate != null) return new ProjectStatus(projectId, true, true, null);
+
+        // explicitly check the project users in the DB, because if this endpoint returns stale results, it will result in confusion
+        var hasPermission = project.Users.Any(u => u.UserId == loggedInContext.User.Id)
+            || await permissionService.CanViewProject(projectId);
+
+        if (!hasPermission) return new ProjectStatus(projectId, true, false, null);
+
+        return new ProjectStatus(projectId, true, false, project.Code);
+    }
+
     [UseProjection]
     public async Task<Project?> ProjectByCode(
         LexBoxDbContext dbContext,
