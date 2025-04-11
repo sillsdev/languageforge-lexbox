@@ -1,4 +1,5 @@
 using MiniLcm.SyncHelpers;
+using Moq;
 
 namespace MiniLcm.Tests;
 
@@ -191,6 +192,71 @@ public class DiffCollectionTests
     private static CollectionDiffOperation Remove(TestOrderable value)
     {
         return new CollectionDiffOperation(value, PositionDiffKind.Remove);
+    }
+
+
+    public record Entry(Guid Id, string Word);
+
+    private readonly Mock<CollectionDiffApi<Entry, Guid>> _mock;
+
+    public DiffCollectionTests()
+    {
+        _mock = new Mock<CollectionDiffApi<Entry, Guid>>();
+        _mock.Setup(api => api.GetId(It.IsAny<Entry>())).Returns<Entry>(value => value.Id).Verifiable(Times.Once);
+    }
+
+    [Fact]
+    public async Task Diff_CallsAddForNewRecords()
+    {
+        var entry = new Entry(Guid.NewGuid(), "test");
+        await DiffCollection.Diff([], [entry], _mock.Object);
+        _mock.Verify(api => api.Add(entry), Times.Once);
+    }
+
+    [Fact]
+    public async Task Diff_CallsRemoveForMissingRecords()
+    {
+        var entry = new Entry(Guid.NewGuid(), "test");
+        await DiffCollection.Diff([entry], [], _mock.Object);
+        _mock.Verify(api => api.Remove(entry), Times.Once);
+    }
+
+    [Fact]
+    public async Task Diff_CallsReplaceForMatchingRecords()
+    {
+        var entry = new Entry(Guid.NewGuid(), "test");
+        var updated = entry with { Word = "new" };
+        await DiffCollection.Diff([entry], [updated], _mock.Object);
+        _mock.Verify(api => api.Replace(entry, updated), Times.Once);
+    }
+
+    [Fact]
+    public async Task Diff_AddThenUpdate_CallsAddForNewRecords()
+    {
+        var entry = new Entry(Guid.NewGuid(), "test");
+        await DiffCollection.DiffAddThenUpdate([], [entry], _mock.Object);
+        var sequence = new MockSequence();
+        _mock.InSequence(sequence).Setup(api => api.Replace(entry, entry)).ReturnsAsync(1).Verifiable(Times.Once);
+        _mock.InSequence(sequence).Setup(api => api.AddAndGet(entry)).ReturnsAsync((1, entry)).Verifiable(Times.Once);
+        _mock.VerifyAll();
+        _mock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DiffAddThenUpdate_CallsRemoveForMissingRecords()
+    {
+        var entry = new Entry(Guid.NewGuid(), "test");
+        await DiffCollection.DiffAddThenUpdate([entry], [], _mock.Object);
+        _mock.Verify(api => api.Remove(entry), Times.Once);
+    }
+
+    [Fact]
+    public async Task DiffAddThenUpdate_CallsReplaceForMatchingRecords()
+    {
+        var entry = new Entry(Guid.NewGuid(), "test");
+        var updated = entry with { Word = "new" };
+        await DiffCollection.DiffAddThenUpdate([entry], [updated], _mock.Object);
+        _mock.Verify(api => api.Replace(entry, updated), Times.Once);
     }
 }
 
