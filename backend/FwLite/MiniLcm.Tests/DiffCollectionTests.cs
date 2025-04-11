@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using MiniLcm.SyncHelpers;
 using Moq;
 
@@ -197,28 +198,22 @@ public class DiffCollectionTests
 
     public record Entry(Guid Id, string Word);
 
-    private readonly Mock<CollectionDiffApi<Entry, Guid>> _mock;
-
-    public DiffCollectionTests()
-    {
-        _mock = new Mock<CollectionDiffApi<Entry, Guid>>();
-        _mock.Setup(api => api.GetId(It.IsAny<Entry>())).Returns<Entry>(value => value.Id).Verifiable(Times.Once);
-    }
+    private readonly FakeDiffApi _fakeApi = new();
 
     [Fact]
     public async Task Diff_CallsAddForNewRecords()
     {
         var entry = new Entry(Guid.NewGuid(), "test");
-        await DiffCollection.Diff([], [entry], _mock.Object);
-        _mock.Verify(api => api.Add(entry), Times.Once);
+        await DiffCollection.Diff([], [entry], _fakeApi);
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Add)));
     }
 
     [Fact]
     public async Task Diff_CallsRemoveForMissingRecords()
     {
         var entry = new Entry(Guid.NewGuid(), "test");
-        await DiffCollection.Diff([entry], [], _mock.Object);
-        _mock.Verify(api => api.Remove(entry), Times.Once);
+        await DiffCollection.Diff([entry], [], _fakeApi);
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Remove)));
     }
 
     [Fact]
@@ -226,28 +221,27 @@ public class DiffCollectionTests
     {
         var entry = new Entry(Guid.NewGuid(), "test");
         var updated = entry with { Word = "new" };
-        await DiffCollection.Diff([entry], [updated], _mock.Object);
-        _mock.Verify(api => api.Replace(entry, updated), Times.Once);
+        await DiffCollection.Diff([entry], [updated], _fakeApi);
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.Replace)));
     }
 
     [Fact]
     public async Task Diff_AddThenUpdate_CallsAddForNewRecords()
     {
         var entry = new Entry(Guid.NewGuid(), "test");
-        await DiffCollection.DiffAddThenUpdate([], [entry], _mock.Object);
-        var sequence = new MockSequence();
-        _mock.InSequence(sequence).Setup(api => api.Replace(entry, entry)).ReturnsAsync(1).Verifiable(Times.Once);
-        _mock.InSequence(sequence).Setup(api => api.AddAndGet(entry)).ReturnsAsync((1, entry)).Verifiable(Times.Once);
-        _mock.VerifyAll();
-        _mock.VerifyNoOtherCalls();
+        await DiffCollection.DiffAddThenUpdate([], [entry], _fakeApi);
+        _fakeApi.VerifyCalls(
+            new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.AddAndGet)),
+            new FakeDiffApi.MethodCall((entry, entry), nameof(FakeDiffApi.Replace))
+        );
     }
 
     [Fact]
     public async Task DiffAddThenUpdate_CallsRemoveForMissingRecords()
     {
         var entry = new Entry(Guid.NewGuid(), "test");
-        await DiffCollection.DiffAddThenUpdate([entry], [], _mock.Object);
-        _mock.Verify(api => api.Remove(entry), Times.Once);
+        await DiffCollection.DiffAddThenUpdate([entry], [], _fakeApi);
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Remove)));
     }
 
     [Fact]
@@ -255,8 +249,48 @@ public class DiffCollectionTests
     {
         var entry = new Entry(Guid.NewGuid(), "test");
         var updated = entry with { Word = "new" };
-        await DiffCollection.DiffAddThenUpdate([entry], [updated], _mock.Object);
-        _mock.Verify(api => api.Replace(entry, updated), Times.Once);
+        await DiffCollection.DiffAddThenUpdate([entry], [updated], _fakeApi);
+        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.Replace)));
+    }
+
+    private class FakeDiffApi: CollectionDiffApi<Entry, Guid>
+    {
+        public record MethodCall(object Args, [CallerMemberName] string Name = "");
+
+        public List<MethodCall> Calls { get; set; } = [];
+        public override Task<int> Add(Entry value)
+        {
+            Calls.Add(new(value));
+            return Task.FromResult(1);
+        }
+
+        public override Task<int> Remove(Entry value)
+        {
+            Calls.Add(new(value));
+            return Task.FromResult(1);
+        }
+
+        public override Task<int> Replace(Entry before, Entry after)
+        {
+            Calls.Add(new((before, after)));
+            return Task.FromResult(1);
+        }
+
+        public override Task<(int, Entry)> AddAndGet(Entry value)
+        {
+            Calls.Add(new(value));
+            return Task.FromResult((1, value));
+        }
+
+        public override Guid GetId(Entry value)
+        {
+            return value.Id;
+        }
+
+        public void VerifyCalls(params MethodCall[] expectedCalls)
+        {
+            Calls.Should().BeEquivalentTo(expectedCalls, o => o.WithStrictOrdering());
+        }
     }
 }
 
