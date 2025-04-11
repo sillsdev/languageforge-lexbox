@@ -53,19 +53,18 @@ public class ProjectService(
             });
         // Also delete draft project, if any
         await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
-        if (input.ProjectManagerId.HasValue)
-        {
-            var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
-            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
-            if (draftProject != null && manager != null)
-            {
-                await emailService.SendApproveProjectRequestEmail(manager, input);
-            }
-        }
+
+        var manager = input.ProjectManagerId.HasValue ? await dbContext.Users.FindAsync(input.ProjectManagerId.Value) : null;
+        manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
+
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         InvalidateProjectOrgIdsCache(projectId);
         InvalidateProjectConfidentialityCache(projectId);
+        if (draftProject != null && manager != null)
+        {
+            await emailService.SendApproveProjectRequestEmail(manager, input);
+        }
         await transaction.CommitAsync();
         return projectId;
     }
