@@ -433,14 +433,12 @@ public class CrdtMiniLcmApi(
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        var chunks = entries.ToBlockingEnumerable()
-            .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
-            //force entries to be created first, this avoids issues where references are created before the entry is created
-            .OrderBy(c => c is CreateEntryChange ? 0 : 1).Chunk(1000);
-        foreach (var changes in chunks)
-        {
-            await AddChanges(changes);
-        }
+        await AddChanges(
+            entries.ToBlockingEnumerable()
+                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
+                //force entries to be created first, this avoids issues where references are created before the entry is created
+                .OrderBy(c => c is CreateEntryChange ? 0 : 1)
+        );
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
