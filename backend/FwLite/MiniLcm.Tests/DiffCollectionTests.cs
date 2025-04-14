@@ -253,6 +253,23 @@ public class DiffCollectionTests
         _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall((entry, updated), nameof(FakeDiffApi.Replace)));
     }
 
+    [Fact]
+    public async Task DiffAddThenUpdate_AddAlwaysBeforeReplace()
+    {
+        var newEntry = new Entry(Guid.NewGuid(), "new");
+        var oldEntry = new Entry(Guid.NewGuid(), "test");
+        var updated = oldEntry with { Word = "new" };
+        await DiffCollection.DiffAddThenUpdate([oldEntry], [updated, newEntry], _fakeApi);
+        //this order is required because the new entry must be created before the updated entry is modified.
+        //the updated entry might reference the newEntry and so must be updated after the new entry is created.
+        //the order that the replace calls are made is unimportant.
+        _fakeApi.VerifyCalls(
+            new FakeDiffApi.MethodCall(newEntry, nameof(FakeDiffApi.AddAndGet)),
+            new FakeDiffApi.MethodCall((oldEntry, updated), nameof(FakeDiffApi.Replace)),
+            new FakeDiffApi.MethodCall((newEntry, newEntry), nameof(FakeDiffApi.Replace))
+        );
+    }
+
     private class FakeDiffApi: CollectionDiffApi<Entry, Guid>
     {
         public record MethodCall(object Args, [CallerMemberName] string Name = "");
