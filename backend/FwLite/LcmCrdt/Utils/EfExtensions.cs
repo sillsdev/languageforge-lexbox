@@ -15,4 +15,28 @@ public static class EfExtensions
         }
         return false;
     }
+
+    //prevents hiding query exceptions due to Dispose throwing after the query threw an exception
+    internal static async IAsyncEnumerable<T> SafeIterate<T>(IAsyncEnumerable<T> asyncEnumerable)
+    {
+        var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator();
+        try
+        {
+            while (await asyncEnumerator.MoveNextAsync())
+            {
+                yield return asyncEnumerator.Current;
+            }
+        }
+        finally
+        {
+            try
+            {
+                await asyncEnumerator.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);//basically ignore, there's a known issue where dispose will throw but we want to ignore that since it would otherwise cover up when MoveNextAsync throws
+            }
+        }
+    }
 }

@@ -57,6 +57,8 @@ public class MigrationTests: IAsyncLifetime
     public async Task GetEntries_WorksAfterMigrationFromScriptedDb()
     {
         await InitDbFromScripts();
+        //manually open the connection, this prevents a race condition where the entries query runs before the collations are created.
+        await _asyncScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>().Database.OpenConnectionAsync();
         var api = _asyncScope.ServiceProvider.GetRequiredService<IMiniLcmApi>();
         var hasEntries = false;
         await foreach (var entry in api.GetEntries(new(Count: 100)))

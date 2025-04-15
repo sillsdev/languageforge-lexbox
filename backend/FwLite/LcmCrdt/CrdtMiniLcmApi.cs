@@ -418,7 +418,7 @@ public class CrdtMiniLcmApi(
         var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
             .AsComplexFormComparer();
         var entries = queryable.AsAsyncEnumerable();
-        await foreach (var entry in entries)
+        await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
             entry.ApplySortOrder(complexFormComparer);
             yield return entry;
