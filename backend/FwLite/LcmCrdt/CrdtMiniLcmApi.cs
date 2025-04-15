@@ -27,6 +27,7 @@ public class CrdtMiniLcmApi(
     CurrentProjectService projectService,
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
+    LcmCrdtDbContext dbContext,
     IOptions<LcmCrdtConfig> config) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -71,11 +72,13 @@ public class CrdtMiniLcmApi(
     /// <param name="changeChunks"></param>
     private async Task AddChanges(IEnumerable<IChange[]> changeChunks)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
         foreach (var chunk in changeChunks)
         {
             await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
         }
         await dataModel.FlushDeferredCommits();
+        await transaction.CommitAsync();
     }
 
     public async Task<WritingSystems> GetWritingSystems()

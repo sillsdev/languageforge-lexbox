@@ -13,6 +13,8 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 
 var builder = Host.CreateApplicationBuilder();
+//slows down import to log all sql.
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 builder.Services.AddFwDataBridge();
 builder.Services.AddLcmCrdtClient();
 builder.Services.AddFwLiteProjectSync();
