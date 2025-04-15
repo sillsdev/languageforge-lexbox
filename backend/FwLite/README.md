@@ -10,13 +10,32 @@
     * linux: `sudo snap install task --classic` or other options on their website
     * mac: `brew install go-task/tap/go-task`
     * via npm: `npm install -g @go-task/cli`
+* .Net Maui workload
+```bash
+sudo dotnet workload restore
+```
+* XCode (for MacOS and iOS)
+* Android SDK API 35+ (can be installed via Android Studio)
+  * Java SDK 17 (for Android)
 
-### Running the project
+### Running FWLite Web
 
-from repo root you will be able to develop the UI as well. From this folder it will just run the backend and use the most recent built of the frontend for the UI.
+from repo root you will be able to develop the UI as well. From this folder it will just run the backend and use the most recent build of the frontend for the UI.
 ```bash
 task web-for-develop
 ```
+
+### Running Tests
+For .Net tests, you can run them from the command line, in the repo root:
+```bash
+dotnet test FwLiteOnly.slnf 
+```
+
+### Building for a specific framework
+```bash
+dotnet build -f net9.0-ios
+```
+You can choose which framework to build for with the `-f` flag.
 
 ## High level project flow diagram
 

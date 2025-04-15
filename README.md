@@ -1,11 +1,12 @@
 [![Staging workflow](https://github.com/sillsdev/languageforge-lexbox/actions/workflows/lexbox-api.yaml/badge.svg?branch=develop)](https://github.com/sillsdev/languageforge-lexbox/actions/workflows/lexbox-api.yaml?query=branch%3Adevelop)
 
 # Lexbox (formerly Language Depot)
+Looking for [FieldWorks Lite](backend/FwLite/README.md)?
 
 ## Repo Structure
 
 * [backend](backend/README.md) - dotnet API
-* [backend/FwLite](backend/FwLite/README.md) - FieldWorks lite application
+* [backend/FwLite](backend/FwLite/README.md) - FieldWorks Lite application
 * [frontend](frontend/README.md) - SvelteKit app
 * hgweb - hgweb Dockerfile and config
 * otel - Open Telemetry collector config
@@ -29,6 +30,7 @@ Summary of setup steps below. See the appropriate file for your operating system
 
 ### Setup
  * install [Taskfile](https://taskfile.dev/installation/)
+ * optionally install [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/)
  * install [Tilt](https://docs.tilt.dev/) and add it to your path (don't forget to read the script before running it)
  * run `tilt version` to check that Tilt is installed correctly
  * clone the repo
