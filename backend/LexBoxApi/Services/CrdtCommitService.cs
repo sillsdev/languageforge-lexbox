@@ -13,12 +13,22 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var commitsTable = dbContext.CreateLinqToDBContext().GetTable<ServerCommit>();
-        await foreach (var commitChunk in commits.Chunk(100))
+        const int commitsThreshold = 100;
+        const int changeThreshold = 150;
+        var currentChangeCount = 0;
+        var commitBucket = new List<ServerCommit>(100);
+        await foreach (var serverCommit in commits)
         {
-            //using merge instead of BulkCopy to support skipping inserts of commits that already exist
+            commitBucket.Add(serverCommit);
+            currentChangeCount += serverCommit.ChangeEntities.Count;
+            if (currentChangeCount < changeThreshold && commitBucket.Count < commitsThreshold)
+            {
+                continue;
+            }
+            //flush commits
             await commitsTable
                 .Merge()
-                .Using(commitChunk)
+                .Using(commitBucket)
                 .OnTargetKey()
                 .InsertWhenNotMatched(commit => new ServerCommit(commit.Id)
                 {
@@ -26,8 +36,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
                     ClientId = commit.ClientId,
                     HybridDateTime = new HybridDateTime(commit.HybridDateTime.DateTime, commit.HybridDateTime.Counter)
                     {
-                        DateTime = commit.HybridDateTime.DateTime,
-                        Counter = commit.HybridDateTime.Counter
+                        DateTime = commit.HybridDateTime.DateTime, Counter = commit.HybridDateTime.Counter
                     },
                     ProjectId = projectId,
                     Metadata = commit.Metadata,
@@ -35,6 +44,8 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
                     ChangeEntities = Sql.Expr<List<ChangeEntity<ServerJsonChange>>>($"{commit.ChangeEntities}::jsonb")
                 })
                 .MergeAsync();
+            commitBucket.Clear();
+            currentChangeCount = 0;
         }
 
         await transaction.CommitAsync();
