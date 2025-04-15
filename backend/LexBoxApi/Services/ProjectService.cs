@@ -106,6 +106,12 @@ public class ProjectService(
 
     public async Task<Guid> CreateDraftProject(CreateProjectInput input)
     {
+        var existingProject = await dbContext.Projects.FindAsync(input.Id);
+        if (existingProject is not null)
+        {
+            throw new InvalidOperationException($"Project was already approved ({input.Id}: {existingProject.Code})");
+        }
+
         // No need for a transaction if we're just saving a single item
         var projectId = input.Id ?? Guid.NewGuid();
         dbContext.DraftProjects.Add(
