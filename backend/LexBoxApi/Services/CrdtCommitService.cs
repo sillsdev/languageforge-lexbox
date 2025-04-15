@@ -25,7 +25,16 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
             {
                 continue;
             }
-            //flush commits
+
+            await FlushCommits();
+        }
+
+        if (commitBucket.Count > 0) await FlushCommits();
+
+        await transaction.CommitAsync();
+
+        async Task FlushCommits()
+        {
             await commitsTable
                 .Merge()
                 .Using(commitBucket)
@@ -47,8 +56,6 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
             commitBucket.Clear();
             currentChangeCount = 0;
         }
-
-        await transaction.CommitAsync();
     }
 
     public IAsyncEnumerable<ServerCommit> GetMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)

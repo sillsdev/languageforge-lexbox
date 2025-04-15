@@ -78,6 +78,26 @@ public class CrdtCommitServiceTests
                 .WhenTypeIs<JsonElement>());
     }
 
+    [Theory]
+    [InlineData(10)]
+    [InlineData(100)]
+    [InlineData(1000)]
+    public async Task CanAddManyCommits(int count)
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var clientId = Guid.NewGuid();
+        var commits = Enumerable.Range(0, count).Select(i => CreateCommit(clientId, Guid.NewGuid(), DateTime.UtcNow.AddSeconds(i))).ToArray();
+        await _crdtCommitService.AddCommits(projectId, AsAsync(commits));
+        _lexBoxDbContext.CrdtCommits(projectId).Where(c => c.ClientId == clientId).Should()
+            .BeEquivalentTo(commits,
+                o => o.Using<DateTimeOffset>(ctx =>
+                        ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(10)))
+                    .WhenTypeIs<DateTimeOffset>()
+                    .Using<JsonElement>(ctx => ctx.Subject.ToString().Should().Be(ctx.Expectation.ToString()))
+                    .WhenTypeIs<JsonElement>()
+                    .Excluding(c => c.ProjectId));
+    }
+
     [Fact]
     public async Task AddingViaServiceBulkAddWorksTheSameAsAddingViaDbContext()
     {
