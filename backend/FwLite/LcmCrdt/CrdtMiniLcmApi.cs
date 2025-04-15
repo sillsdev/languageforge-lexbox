@@ -60,10 +60,22 @@ public class CrdtMiniLcmApi(
         return commit;
     }
 
-    private async Task<Commit> AddChanges(IEnumerable<IChange> changes)
+    private async Task AddChanges(IEnumerable<IChange> changes)
     {
-        var commit = await dataModel.AddChanges(ClientId, changes, commitMetadata: NewMetadata());
-        return commit;
+        await AddChanges(changes.Chunk(100));
+    }
+
+    /// <summary>
+    /// use when making a large number of changes at once
+    /// </summary>
+    /// <param name="changeChunks"></param>
+    private async Task AddChanges(IEnumerable<IChange[]> changeChunks)
+    {
+        foreach (var chunk in changeChunks)
+        {
+            await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
+        }
+        await dataModel.FlushDeferredCommits();
     }
 
     public async Task<WritingSystems> GetWritingSystems()
@@ -433,16 +445,10 @@ public class CrdtMiniLcmApi(
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        var chunking = entries.ToBlockingEnumerable()
+        await AddChanges(entries.ToBlockingEnumerable()
             .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
             //force entries to be created first, this avoids issues where references are created before the entry is created
-            .OrderBy(c => c is CreateEntryChange ? 0 : 1)
-            .Chunk(100);
-        foreach (var chunk in chunking)
-        {
-            await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
-        }
-        await dataModel.FlushDeferredCommits();
+            .OrderBy(c => c is CreateEntryChange ? 0 : 1));
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
