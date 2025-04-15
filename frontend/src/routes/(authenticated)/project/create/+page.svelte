@@ -65,7 +65,7 @@
       forceDraft
     });
     if (result.error) {
-      if (result.error.byCode(DbErrorCode.Duplicate)) {
+      if (result.error.byCode(DbErrorCode.DuplicateProjectCode)) {
         $errors.code = [$t('project.create.code_exists')];
       } else {
         $message = result.error.message;
