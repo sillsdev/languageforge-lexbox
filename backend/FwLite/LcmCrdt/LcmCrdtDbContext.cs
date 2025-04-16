@@ -56,12 +56,12 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
 
     internal static string Serialize<T>(T value)
     {
-        return JsonSerializer.Serialize(value, typeof(T));
+        return JsonSerializer.Serialize(value, typeof(T), JsonSourceGenerationContext.Default);
     }
 
     internal static T Deserialize<T>(string value) where T : class
     {
-        return JsonSerializer.Deserialize(value, typeof(T)) as T ??
+        return JsonSerializer.Deserialize(value, typeof(T), JsonSourceGenerationContext.Default) as T ??
                throw new InvalidOperationException($"Failed to deserialize {typeof(T).Name}");
     }
 }

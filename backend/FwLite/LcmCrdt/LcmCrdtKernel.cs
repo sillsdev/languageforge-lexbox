@@ -90,6 +90,24 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
                     //tells linq2db to rewrite Sense.SemanticDomains, into Json.Query(Sense.SemanticDomains)
                     .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
+                    //for some reason since we started using compiled models linq2db is not picking up the conversion from EF
+                    //so we need to define it here also
+                    .HasConversion(
+                        list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<SemanticDomain>>(json) ?? new()
+                        )
+                    .Entity<Entry>()
+                    .Property(e => e.ComplexFormTypes).HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<ComplexFormType>>(json) ?? new())
+                    .Property(e => e.PublishIn).HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => string.IsNullOrWhiteSpace(json)
+                            ? new()
+                            : LcmCrdtDbContext.Deserialize<List<Publication>>(json) ?? new())
+                    .Entity<WritingSystem>()
+                    .Property(w => w.Exemplars)
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<string[]>(json) ??
+                                Array.Empty<string>())
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
