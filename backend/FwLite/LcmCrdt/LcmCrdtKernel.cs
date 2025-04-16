@@ -107,6 +107,13 @@ public static class LcmCrdtKernel
         return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
     }
 
+    public static CrdtConfig MakeConfig()
+    {
+        var config = new CrdtConfig();
+        ConfigureCrdt(config);
+        return config;
+    }
+
 
     public static void ConfigureCrdt(CrdtConfig config)
     {
@@ -128,15 +135,13 @@ public static class LcmCrdtKernel
                 builder
                     .Property(e => e.ComplexFormTypes)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<ComplexFormType>>(json,
-                            (JsonSerializerOptions?)null) ?? new());
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<ComplexFormType>>(json) ?? new());
                 builder
                     .Property(e => e.PublishIn)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => string.IsNullOrWhiteSpace(json) ? new() : JsonSerializer.Deserialize<List<Publication>>(json,
-                                (JsonSerializerOptions?)null) ?? new());
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => string.IsNullOrWhiteSpace(json) ? new() : LcmCrdtDbContext.Deserialize<List<Publication>>(json) ?? new());
             })
             .Add<Sense>(builder =>
             {
@@ -149,8 +154,8 @@ public static class LcmCrdtKernel
                     .HasForeignKey(sense => sense.EntryId);
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<SemanticDomain>>(json) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -160,11 +165,12 @@ public static class LcmCrdtKernel
             })
             .Add<WritingSystem>(builder =>
             {
+                builder.Property(ws => ws.WsId).HasSentinel(new WritingSystemId("default"));
                 builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();
                 builder.Property(w => w.Exemplars)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ??
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<string[]>(json) ??
                                 Array.Empty<string>());
             })
             .Add<PartOfSpeech>()

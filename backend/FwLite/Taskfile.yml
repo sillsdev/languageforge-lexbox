@@ -33,6 +33,10 @@ tasks:
     desc: 'Usage: task add-migration -- "MigrationName"'
     dir: ./LcmCrdt
     cmd: dotnet ef migrations add {{.CLI_ARGS}}
+  compile-db-model:
+    deps: [tool-restore]
+    dir: ./LcmCrdt
+    cmd: dotnet ef dbcontext optimize
 
   has-pending-model-changes:
     deps: [ tool-restore ]
