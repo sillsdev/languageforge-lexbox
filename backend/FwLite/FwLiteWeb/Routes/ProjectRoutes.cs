@@ -42,6 +42,7 @@ public static class ProjectRoutes
             async (SyncService syncService,
                 IOptions<AuthConfig> options,
                 string serverAuthority,
+                [FromRoute(Name = CrdtMiniLcmApiHub.ProjectRouteKey)]string project,
                 [FromQuery] Guid lexboxProjectId) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);

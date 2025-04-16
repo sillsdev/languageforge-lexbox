@@ -4,6 +4,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL;
 using LexBoxApi.Hub;
+using LexBoxApi.Models;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
@@ -12,6 +13,7 @@ using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 
 namespace LexBoxApi.Controllers;
@@ -27,7 +29,8 @@ public class CrdtController(
     LoggedInContext loggedInContext,
     ProjectService projectService,
     CrdtCommitService crdtCommitService,
-    LexAuthService lexAuthService) : ControllerBase
+    LexAuthService lexAuthService
+    ) : ControllerBase
 {
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
@@ -37,10 +40,11 @@ public class CrdtController(
     }
 
     [HttpPost("{projectId}/add")]
-    public async Task<ActionResult> Add(Guid projectId, [FromBody] IAsyncEnumerable<ServerCommit> commits, Guid? clientId)
+
+    public async Task<ActionResult> Add(Guid projectId, StreamJsonAsyncEnumerable<ServerCommit> commits, Guid? clientId, CancellationToken token)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        await crdtCommitService.AddCommits(projectId, commits);
+        await crdtCommitService.AddCommits(projectId, commits, token);
 
         await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);
         return Ok();

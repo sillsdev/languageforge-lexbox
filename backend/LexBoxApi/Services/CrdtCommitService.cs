@@ -10,12 +10,12 @@ namespace LexBoxApi.Services;
 
 public class CrdtCommitService(LexBoxDbContext dbContext)
 {
-    public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits)
+    public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
     {
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
         var linqToDbContext = dbContext.CreateLinqToDBContext();
-        await using var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}");
-        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, commits);
+        await using var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}", cancellationToken: token);
+        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, commits, token);
 
         var commitsTable = linqToDbContext.GetTable<ServerCommit>();
         await commitsTable
@@ -35,10 +35,9 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
                 //without this sql cast the value will be treated as text and fail to insert into the jsonb column
                 ChangeEntities = Sql.Expr<List<ChangeEntity<ServerJsonChange>>>($"{commit.ChangeEntities}::jsonb")
             })
-            .MergeAsync();
+            .MergeAsync(token);
 
-        await transaction.CommitAsync();
-
+        await transaction.CommitAsync(token);
     }
 
     public IAsyncEnumerable<ServerCommit> GetMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)
