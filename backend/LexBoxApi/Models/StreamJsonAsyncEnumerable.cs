@@ -33,11 +33,11 @@ public class StreamJsonAsyncEnumerableConverter(ILogger<StreamJsonAsyncEnumerabl
         {
             throw new InvalidOperationException("Model type must be generic");
         }
-        var genericType = bindingContext.ModelType.GetGenericArguments()[0];
-        var bindMethodGeneric = BindMethod.MakeGenericMethod(genericType);
-        bindMethodGeneric.Invoke(null, [bindingContext]);
         try
         {
+            var genericType = bindingContext.ModelType.GetGenericArguments()[0];
+            var bindMethodGeneric = BindMethod.MakeGenericMethod(genericType);
+            bindMethodGeneric.Invoke(null, [bindingContext]);
         }
         catch (Exception e)
         {
