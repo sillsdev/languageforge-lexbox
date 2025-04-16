@@ -65,5 +65,18 @@ partial class ObjectSnapshotEntityType
                     (string json) => SnapshotEntityConfig.DeserializeObject(json,
                         jsonSerializerOptions)))
         );
+
+        var referenceProperty = runtimeEntityType.FindProperty(nameof(ObjectSnapshot.References));
+        if (referenceProperty == null)
+        {
+            throw new InvalidOperationException($"References property not found on {nameof(ObjectSnapshot)}");
+        }
+
+        var clrType = referenceProperty.TypeMapping.ElementTypeMapping?.ClrType;
+        if (clrType == null)
+        {
+            throw new InvalidOperationException($"Element type mapping not found on {nameof(ObjectSnapshot.References)}");
+        }
+        referenceProperty.SetElementType(clrType, typeMapping: referenceProperty.TypeMapping.ElementTypeMapping, primitiveCollection: true);
     }
 }
