@@ -58,8 +58,7 @@ public static class LcmCrdtKernel
         {
             ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
-                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtExternalJsonTypeResolver()
+                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions.TypeInfoResolver?.AddExternalMiniLcmModifiers()
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
@@ -255,8 +254,7 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
-        config.JsonSerializerOptions.TypeInfoResolver = JsonSourceGenerationContext.Default
-            .WithAddedModifier(config.MakeJsonTypeModifier())
+        config.JsonSerializerOptions.TypeInfoResolver = JsonTypeInfoResolver.Combine(config.JsonSerializerOptions.TypeInfoResolver, JsonSourceGenerationContext.Default)
             //per https://github.com/dotnet/runtime/issues/95893, source generators don't support custom converters per property
             .WithAddedModifier(SetSensePosTypeConverter);
     }

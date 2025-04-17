@@ -1,6 +1,8 @@
 using System.Net;
+using System.Text.Json.Serialization.Metadata;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using FwLiteShared.Json;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using MiniLcm;
 using Polly;
 using Polly.Simmy;
 using SIL.Harmony;
@@ -114,5 +117,12 @@ public static class FwLiteSharedKernel
                     return service;
                 }, descriptor.Lifetime);
         }
+    }
+
+    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
+    {
+        var resolver = JsonTypeInfoResolver.Combine(config.JsonSerializerOptions.TypeInfoResolver, SharedSourceGenerationContext.Default);
+        resolver = resolver.AddExternalMiniLcmModifiers();
+        return resolver;
     }
 }
