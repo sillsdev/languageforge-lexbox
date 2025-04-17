@@ -3,7 +3,8 @@
   import {fieldName} from '$lib/i18n';
   import {useCurrentView} from '$lib/views/view-service';
   import {getContext} from 'svelte';
-  import {Button, Dialog} from 'svelte-ux';
+  import {Button} from 'svelte-ux';
+  import * as Dialog from '$lib/components/ui/dialog';
   import type {SaveHandler} from '../services/save-event-service';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
@@ -15,6 +16,7 @@
   let open = false;
   let loading = false;
   let entry: IEntry = defaultEntry();
+  let previousOpenState = false;
 
   const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
@@ -23,6 +25,12 @@
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
+
+  // Watch for changes in the open state to detect when the dialog is closed
+  $: if (previousOpenState && !open) {
+    onClosing();
+  }
+  $: previousOpenState = open;
 
   async function createEntry(e: Event) {
     e.preventDefault();
@@ -71,21 +79,30 @@
   initFeatures({ write: true }); // hide history buttons
 </script>
 
-<Dialog bind:open on:close={onClosing} {loading} persistent={loading}>
-  <div slot="title">New {fieldName({id: 'entry'}, $currentView.i18nKey)}</div>
-  <div class="m-6">
-    <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
-      <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
-    </OverrideFields>
-  </div>
-  <div class="flex-grow"></div>
-  <div class="self-end m-4">
-    {#each errors as error}
-      <p class="text-danger p-2">{error}</p>
-    {/each}
-  </div>
-  <div slot="actions">
-    <Button>Cancel</Button>
-    <Button variant="fill-light" color="success" on:click={e => createEntry(e)}>Create {fieldName({id: 'entry'}, $currentView.i18nKey)}</Button>
-  </div>
-</Dialog>
+<Dialog.Root bind:open>
+  <Dialog.DialogContent class="sm:max-w-[425px]">
+    <Dialog.DialogHeader>
+      <Dialog.DialogTitle>New {fieldName({id: 'entry'}, $currentView.i18nKey)}</Dialog.DialogTitle>
+    </Dialog.DialogHeader>
+    <div class="m-6">
+      <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
+        <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
+      </OverrideFields>
+    </div>
+    <div class="flex-grow"></div>
+    <div class="self-end m-4">
+      {#each errors as error}
+        <p class="text-danger p-2">{error}</p>
+      {/each}
+    </div>
+    <Dialog.DialogFooter>
+      <Button on:click={() => open = false}>Cancel</Button>
+      <Button variant="fill-light" color="success" on:click={e => createEntry(e)} disabled={loading}>
+        {#if loading}
+          <span class="loading loading-spinner loading-xs mr-2"></span>
+        {/if}
+        Create {fieldName({id: 'entry'}, $currentView.i18nKey)}
+      </Button>
+    </Dialog.DialogFooter>
+  </Dialog.DialogContent>
+</Dialog.Root>
