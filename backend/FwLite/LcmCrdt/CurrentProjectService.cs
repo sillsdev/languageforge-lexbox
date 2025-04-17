@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt;
 
-public class CurrentProjectService(IServiceProvider services, IMemoryCache memoryCache, CrdtProjectsService crdtProjectsService)
+public class CurrentProjectService(IServiceProvider services, IMemoryCache memoryCache, CrdtProjectsService crdtProjectsService, ILogger<CrdtProjectsService> logger)
 {
     private CrdtProject? _project;
     //creating a DbContext depends on the CurrentProjectService, so we can't create it in the constructor otherwise we'll create a circular dependency
@@ -83,7 +84,16 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
 
     private async Task MigrateDb()
     {
-        await DbContext.Database.MigrateAsync();
+        try
+        {
+
+            await DbContext.Database.MigrateAsync();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to migrate database for project '{Project}'", Project.Name);
+            throw;
+        }
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
