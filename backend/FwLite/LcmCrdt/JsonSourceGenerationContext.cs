@@ -24,6 +24,8 @@ namespace LcmCrdt;
 [JsonSerializable(typeof(MultiString))]
 [JsonSerializable(typeof(IDictionary<WritingSystemId, string>))]
 [JsonSerializable(typeof(Dictionary<WritingSystemId, string>))]
+[JsonSerializable(typeof(List<IChange>))]
+
 [JsonSerializable(typeof(CreateEntryChange))]
 [JsonSerializable(typeof(CreateWritingSystemChange))]
 [JsonSerializable(typeof(JsonPatchChange<Entry>))]
