@@ -254,6 +254,8 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        config.JsonSerializerOptions.TypeInfoResolver = JsonSourceGenerationContext.Default.WithAddedModifier(config.MakeJsonTypeModifier());
     }
 
     public static IEnumerable<Type> AllChangeTypes()

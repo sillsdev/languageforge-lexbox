@@ -22,7 +22,6 @@ partial class ChangeEntityEntityType
 
         var config = LcmCrdtKernel.MakeConfig();
         var jsonSerializerOptions = config.JsonSerializerOptions;
-        jsonSerializerOptions.TypeInfoResolver = JsonSourceGenerationContext.Default.WithAddedModifier(config.MakeJsonTypeModifier());
         changeProperty.TypeMapping = changeProperty.TypeMapping.Clone(
             converter: new ValueConverter<IChange, string>(
                 (IChange change) => ChangeEntityConfig.SerializeChange(change, jsonSerializerOptions),
@@ -50,8 +49,6 @@ partial class ObjectSnapshotEntityType
 
         var config = LcmCrdtKernel.MakeConfig();
         var jsonSerializerOptions = config.JsonSerializerOptions;
-        jsonSerializerOptions.TypeInfoResolver =
-            JsonSourceGenerationContext.Default.WithAddedModifier(config.MakeJsonTypeModifier());
         entityProperty.TypeMapping = entityProperty.TypeMapping.Clone(
             converter: new ValueConverter<IObjectBase, string>(
                 (IObjectBase obj) => SnapshotEntityConfig.Serialize(obj, jsonSerializerOptions),
