@@ -18,6 +18,7 @@ namespace LcmCrdt;
 [JsonSerializable(typeof(Commit))]
 [JsonSerializable(typeof(ObjectSnapshot))]
 [JsonSerializable(typeof(Entry))]
+[JsonSerializable(typeof(Sense))]
 [JsonSerializable(typeof(List<SemanticDomain>))]
 [JsonSerializable(typeof(IList<SemanticDomain>))]
 [JsonSerializable(typeof(List<ComplexFormType>))]
@@ -25,6 +26,7 @@ namespace LcmCrdt;
 [JsonSerializable(typeof(IDictionary<WritingSystemId, string>))]
 [JsonSerializable(typeof(Dictionary<WritingSystemId, string>))]
 [JsonSerializable(typeof(List<IChange>))]
+[JsonSerializable(typeof(List<IObjectBase>))]
 
 [JsonSerializable(typeof(CreateEntryChange))]
 [JsonSerializable(typeof(CreateWritingSystemChange))]

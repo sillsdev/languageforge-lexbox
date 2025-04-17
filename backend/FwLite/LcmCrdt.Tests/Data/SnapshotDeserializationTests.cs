@@ -9,8 +9,7 @@ public class SnapshotDeserializationTests
 
     private static readonly Lazy<JsonSerializerOptions> LazyOptions = new(() =>
     {
-        var config = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(config);
+        var config = LcmCrdtKernel.MakeConfig();
         config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
         return config.JsonSerializerOptions;
     });

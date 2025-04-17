@@ -255,7 +255,22 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
-        config.JsonSerializerOptions.TypeInfoResolver = JsonSourceGenerationContext.Default.WithAddedModifier(config.MakeJsonTypeModifier());
+        config.JsonSerializerOptions.TypeInfoResolver = JsonSourceGenerationContext.Default
+            .WithAddedModifier(config.MakeJsonTypeModifier())
+            //per https://github.com/dotnet/runtime/issues/95893, source generators don't support custom converters per property
+            .WithAddedModifier(SetSensePosTypeConverter);
+    }
+
+    public static void SetSensePosTypeConverter(JsonTypeInfo info)
+    {
+        if (info.Type != typeof(Sense))
+        {
+            return;
+        }
+
+        var partOfSpeechProperty = info.Properties.FirstOrDefault(p => p.PropertyType == typeof(PartOfSpeech));
+        if (partOfSpeechProperty is null || partOfSpeechProperty.CustomConverter is not null) return;
+        partOfSpeechProperty.CustomConverter = new SensePoSConverter();
     }
 
     public static IEnumerable<Type> AllChangeTypes()

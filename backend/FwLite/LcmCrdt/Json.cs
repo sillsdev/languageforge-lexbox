@@ -193,7 +193,9 @@ public static class Json
 
     public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
     {
-        var resolver = JsonSourceGenerationContext.Default.WithAddedModifier(config.MakeJsonTypeModifier());
+        var resolver = JsonSourceGenerationContext.Default
+            .WithAddedModifier(config.MakeJsonTypeModifier())
+            .WithAddedModifier(LcmCrdtKernel.SetSensePosTypeConverter);
         resolver = resolver.AddExternalMiniLcmModifiers();
         return resolver;
     }
