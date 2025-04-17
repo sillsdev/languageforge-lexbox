@@ -1,4 +1,7 @@
-﻿using FwDataMiniLcmBridge;
+﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using SIL.Harmony;
 using FwLiteShared;
@@ -6,6 +9,7 @@ using FwLiteShared.Auth;
 using FwLiteWeb.Routes;
 using LcmCrdt;
 using FwLiteWeb.Services;
+using FwLiteWeb.Utils;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -32,14 +36,37 @@ public static class FwLiteWebKernel
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
         {
-            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
+            jsonOptions.SerializerOptions.TypeInfoResolver = jsonOptions.SerializerOptions.TypeInfoResolver.WithWebTypeInfo(crdtConfig.Value);
         });
 
         services.AddOptions<JsonHubProtocolOptions>().PostConfigure<IOptions<CrdtConfig>>(
             (jsonOptions, crdtConfig) =>
             {
-                jsonOptions.PayloadSerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
+                jsonOptions.PayloadSerializerOptions.TypeInfoResolver = jsonOptions.PayloadSerializerOptions.TypeInfoResolver.WithWebTypeInfo(crdtConfig.Value);
             });
+        services.PostConfigure<CrdtConfig>(config =>
+        {
+            var type = typeof(RazorComponentsServiceCollectionExtensions).Assembly.GetType(
+                "Microsoft.AspNetCore.Components.ServerComponentSerializationSettings");
+            if (type is null)
+                throw new InvalidOperationException(
+                    "Microsoft.AspNetCore.Components.ServerComponentSerializationSettings not found");
+            var property = type.GetField("JsonSerializationOptions", BindingFlags.Static | BindingFlags.Public);
+            if (property is null)
+                throw new InvalidOperationException(
+                    "ServerComponentSerializationSettings.JsonSerializationOptions property not found");
+            var jsonSerializerOptions = (JsonSerializerOptions?)property.GetValue(null);
+            if (jsonSerializerOptions is null)
+                throw new InvalidOperationException(
+                    "ServerComponentSerializationSettings.JsonSerializationOptions is null");
+            jsonSerializerOptions.TypeInfoResolver = jsonSerializerOptions.TypeInfoResolver.WithWebTypeInfo(config);
+
+        });
         return services;
+    }
+
+    private static IJsonTypeInfoResolver WithWebTypeInfo(this IJsonTypeInfoResolver? resolver, CrdtConfig config)
+    {
+        return JsonTypeInfoResolver.Combine(resolver, config.MakeLcmCrdtExternalJsonTypeResolver());
     }
 }

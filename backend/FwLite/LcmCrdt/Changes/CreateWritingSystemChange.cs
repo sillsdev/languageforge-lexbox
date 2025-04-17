@@ -31,7 +31,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     }
 
     [JsonConstructor]
-    private CreateWritingSystemChange(Guid entityId) : base(entityId)
+    internal CreateWritingSystemChange(Guid entityId) : base(entityId)
     {
     }
 

@@ -9,7 +9,7 @@ namespace LcmCrdt.Changes.Entries;
 public class SetComplexFormComponentChange : EditChange<ComplexFormComponent>, ISelfNamedType<SetComplexFormComponentChange>
 {
     [JsonConstructor]
-    protected SetComplexFormComponentChange(Guid entityId, Guid? complexFormEntryId, Guid? componentEntryId, Guid? componentSenseId) : base(entityId)
+    internal SetComplexFormComponentChange(Guid entityId, Guid? complexFormEntryId, Guid? componentEntryId, Guid? componentSenseId) : base(entityId)
     {
         ComplexFormEntryId = complexFormEntryId;
         ComponentEntryId = componentEntryId;

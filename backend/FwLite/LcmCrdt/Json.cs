@@ -190,11 +190,4 @@ public static class Json
         [property: Column("id")] int Id,
         [property: Column("fullkey")] string FullKey,
         [property: Column("path")] string Path);
-
-    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
-    {
-        var resolver = config.MakeJsonTypeResolver();
-        resolver = resolver.AddExternalMiniLcmModifiers();
-        return resolver;
-    }
 }

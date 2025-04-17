@@ -19,7 +19,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
     }
 
     [JsonConstructor]
-    private CreateEntryChange(Guid entityId) : base(entityId)
+    internal CreateEntryChange(Guid entityId) : base(entityId)
     {
     }
 

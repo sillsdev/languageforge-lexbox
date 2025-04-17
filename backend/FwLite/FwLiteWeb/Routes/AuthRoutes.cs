@@ -10,6 +10,9 @@ public static class AuthRoutes
 {
     public const string CallbackRoute = "AuthRoutes_Callback";
     public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, string? Authority);
+
+    public record AuthRecord(string? Name);
+
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth").WithOpenApi();
@@ -40,7 +43,7 @@ public static class AuthRoutes
         group.MapGet("/me/{authority}",
             async (AuthService authService, string authority, IOptions<AuthConfig> options) =>
             {
-                return new { name = await authService.GetLoggedInName(options.Value.GetServerByAuthority(authority)) };
+                return new AuthRecord(await authService.GetLoggedInName(options.Value.GetServerByAuthority(authority)));
             });
         group.MapGet("/logout/{authority}",
             async (AuthService authService, string authority, IOptions<AuthConfig> options) =>

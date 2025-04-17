@@ -20,8 +20,6 @@ public static class FwLiteJson
             throw new InvalidOperationException("Unable to find JsonSerializerOptions property");
         var options = (JsonSerializerOptions?)_jsRuntimeJsonOptionsProperty.GetValue(jsRuntime, null);
         if (options is null) throw new InvalidOperationException("JSRuntime.JsonSerializerOptions returned null");
-        options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-            .WithAddedModifier(crdtConfig.MakeJsonTypeModifier())
-            .AddExternalMiniLcmModifiers();
+        options.TypeInfoResolver = JsonTypeInfoResolver.Combine(options.TypeInfoResolver, crdtConfig.MakeLcmCrdtExternalJsonTypeResolver());
     }
 }

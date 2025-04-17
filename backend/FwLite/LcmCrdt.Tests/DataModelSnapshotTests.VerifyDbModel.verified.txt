@@ -44,11 +44,7 @@
       ComponentSenseId
       SnapshotId Unique
       ComplexFormEntryId, ComponentEntryId Unique
-        Annotations: 
-          Relational:Filter: ComponentSenseId IS NULL
       ComplexFormEntryId, ComponentEntryId, ComponentSenseId Unique
-        Annotations: 
-          Relational:Filter: ComponentSenseId IS NOT NULL
     Annotations: 
       DiscriminatorProperty: 
       Relational:FunctionName: 
@@ -270,7 +266,7 @@
       Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
       Type (WritingSystemType) Required Index
-      WsId (WritingSystemId) Required Index
+      WsId (WritingSystemId) Required Index Sentinel:default
     Keys: 
       Id PK
     Foreign keys: 
@@ -308,6 +304,13 @@
             DateTime (DateTimeOffset) Required
               Annotations: 
                 Relational:ColumnName: DateTime
+          Annotations: 
+            Relational:FunctionName: 
+            Relational:Schema: 
+            Relational:SqlQuery: 
+            Relational:TableName: Commits
+            Relational:ViewName: 
+            Relational:ViewSchema: 
     Keys: 
       Id PK
     Annotations: 
