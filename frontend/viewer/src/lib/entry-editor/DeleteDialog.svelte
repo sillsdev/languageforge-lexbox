@@ -2,6 +2,7 @@
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {mdiTrashCanOutline} from '@mdi/js';
+  import {t} from 'svelte-i18n-lingui';
   let subject: string = $state('');
   let open = $state(false);
   let requester: {
@@ -36,16 +37,16 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent class="sm:max-w-[425px]">
+  <Dialog.DialogContent>
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>Delete {subject}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{$t`Delete ${subject}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <div class="m-6 mt-3">
-      <p>Are you sure you want to delete {subject}?</p>
+      <p>{$t`Are you sure you want to delete ${subject}?`}</p>
     </div>
     <Dialog.DialogFooter>
-      <Button onclick={() => cancel()} variant="secondary">Don't delete</Button>
-      <Button icon="i-mdi-trash-can-outline" variant="destructive" onclick={_ => confirm()}>Delete {subject}</Button>
+      <Button onclick={() => cancel()} variant="secondary">{$t`Don't delete`}</Button>
+      <Button icon="i-mdi-trash-can-outline" variant="destructive" onclick={_ => confirm()}>{$t`Delete ${subject}`}</Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>

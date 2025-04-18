@@ -1,6 +1,7 @@
 <script lang="ts">
   import type {IEntry} from '$lib/dotnet-types';
   import {fieldName} from '$lib/i18n';
+  import {t} from 'svelte-i18n-lingui';
   import {useCurrentView} from '$lib/views/view-service';
   import {getContext} from 'svelte';
   import {Button} from '$lib/components/ui/button';
@@ -77,12 +78,13 @@
   }
 
   initFeatures({ write: true }); // hide history buttons
+  let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent class="sm:max-w-[425px]">
+  <Dialog.DialogContent>
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>New {fieldName({id: 'entry'}, $currentView.i18nKey)}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     <div class="m-6">
       <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
@@ -96,9 +98,9 @@
       {/each}
     </div>
     <Dialog.DialogFooter>
-      <Button onclick={() => open = false} variant="secondary">Cancel</Button>
+      <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
-        Create {fieldName({id: 'entry'}, $currentView.i18nKey)}
+        {$t`Create ${entryLabel}`}
       </Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
