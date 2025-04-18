@@ -3,7 +3,7 @@
   import {fieldName} from '$lib/i18n';
   import {useCurrentView} from '$lib/views/view-service';
   import {getContext} from 'svelte';
-  import {Button} from 'svelte-ux';
+  import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import type {SaveHandler} from '../services/save-event-service';
   import {useLexboxApi} from '../services/service-provider';
@@ -13,10 +13,9 @@
   import {useWritingSystemService} from '$lib/writing-system-service';
   import {initFeatures} from '$lib/services/feature-service';
 
-  let open = false;
-  let loading = false;
-  let entry: IEntry = defaultEntry();
-  let previousOpenState = false;
+  let open = $state(false);
+  let loading = $state(false);
+  let entry: IEntry = $state(defaultEntry());
 
   const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
@@ -27,10 +26,11 @@
   } | undefined;
 
   // Watch for changes in the open state to detect when the dialog is closed
-  $: if (previousOpenState && !open) {
-    onClosing();
-  }
-  $: previousOpenState = open;
+  $effect(() => {
+    if (!open) {
+      onClosing();
+    }
+  });
 
   async function createEntry(e: Event) {
     e.preventDefault();
@@ -46,7 +46,7 @@
     open = false;
   }
 
-  let errors: string[] = [];
+  let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
     if (!writingSystemService.headword(entry)) errors.push('Lexeme form is required');
@@ -96,11 +96,8 @@
       {/each}
     </div>
     <Dialog.DialogFooter>
-      <Button on:click={() => open = false}>Cancel</Button>
-      <Button variant="fill-light" color="success" on:click={e => createEntry(e)} disabled={loading}>
-        {#if loading}
-          <span class="loading loading-spinner loading-xs mr-2"></span>
-        {/if}
+      <Button onclick={() => open = false} variant="secondary">Cancel</Button>
+      <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
         Create {fieldName({id: 'entry'}, $currentView.i18nKey)}
       </Button>
     </Dialog.DialogFooter>

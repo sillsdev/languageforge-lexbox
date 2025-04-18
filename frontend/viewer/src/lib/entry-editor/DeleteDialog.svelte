@@ -1,13 +1,15 @@
 ﻿<script lang="ts">
-  import {Button} from 'svelte-ux';
+  import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {mdiTrashCanOutline} from '@mdi/js';
-  let subject: string;
-  let open = false;
-  let loading = false;
+  let subject: string = $state('');
+  let open = $state(false);
   let requester: {
     resolve: (result: boolean) => void
   } | undefined = undefined;
+  $effect(() => {
+    if (!open && requester) resolve(false);
+  });
 
   function confirm() {
     resolve(true);
@@ -42,8 +44,8 @@
       <p>Are you sure you want to delete {subject}?</p>
     </div>
     <Dialog.DialogFooter>
-      <Button on:click={() => cancel()}>Don't delete</Button>
-      <Button variant="fill-light" color="danger" icon={mdiTrashCanOutline} on:click={_ => confirm()}>Delete {subject}</Button>
+      <Button onclick={() => cancel()} variant="secondary">Don't delete</Button>
+      <Button icon="i-mdi-trash-can-outline" variant="destructive" onclick={_ => confirm()}>Delete {subject}</Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>
