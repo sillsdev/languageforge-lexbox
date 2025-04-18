@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { Button, Dialog } from 'svelte-ux';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import { Button } from '$lib/components/ui/button';
   import NewTabLinkMarkdown from '../markdown/NewTabLinKMarkdown.svelte';
   import { onMount } from 'svelte';
+  import { t } from 'svelte-i18n-lingui';
 
   export let open: boolean;
   export let text: string;
@@ -14,12 +16,16 @@
   });
 </script>
 
-<Dialog bind:open>
-  <div class="m-6 prose">
-    <NewTabLinkMarkdown md={text} />
-  </div>
-  <div class="flex-grow"></div>
-  <div slot="actions">
-    <Button on:click={() => open = false}>Close</Button>
-  </div>
-</Dialog>
+<Dialog.Root bind:open>
+  <Dialog.Content>
+    <Dialog.Header>
+      <Dialog.Title>{$t`About`}</Dialog.Title>
+    </Dialog.Header>
+    <div class="prose">
+      <NewTabLinkMarkdown md={text} />
+    </div>
+    <Dialog.Footer>
+      <Button onclick={() => open = false}>{$t`Close`}</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
