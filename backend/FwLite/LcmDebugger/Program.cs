@@ -7,6 +7,7 @@ using LcmCrdt;
 using LexCore.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
 using SIL.Harmony;
