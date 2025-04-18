@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -59,6 +62,7 @@ public class DbStartupService : IHostedService
     {
         try
         {
+
             // there's a method to check if we can connect, but that won't work when the database is not created yet.
             await dbContext.Database.MigrateAsync(cancellationToken);
             return true;
@@ -84,6 +88,28 @@ public class DbStartupService : IHostedService
         }
     }
 
+    //this is mostly just for debugging diffs
+    private void DetermineModelDiffs(DbContext dbContext)
+    {
+        var migrationsAssembly = dbContext.Database.GetService<IMigrationsAssembly>();
+        var designTimeModel = dbContext.Database.GetService<IDesignTimeModel>();
+        var modelRuntimeInitializer = dbContext.Database.GetService<IModelRuntimeInitializer>();
+        var migrationsModelDiffer = dbContext.Database.GetService<IMigrationsModelDiffer>();
+        var diffs = migrationsModelDiffer.GetDifferences(
+            modelRuntimeInitializer.Initialize(migrationsAssembly.ModelSnapshot!.Model).GetRelationalModel(),
+            designTimeModel.Model.GetRelationalModel());
+        if (diffs.Count > 0)
+        {
+            foreach (var migrationOperation in diffs)
+            {
+                _logger.LogInformation("Model Diffs:{Diff}", migrationOperation);
+            }
+        }
+        else
+        {
+            _logger.LogInformation("No model diffs");
+        }
+    }
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
