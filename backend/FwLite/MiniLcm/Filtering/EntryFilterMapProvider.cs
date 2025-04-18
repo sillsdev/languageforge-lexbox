@@ -5,6 +5,7 @@ namespace MiniLcm.Filtering;
 public abstract class EntryFilterMapProvider<T>
 {
     public abstract Expression<Func<T, object?>> EntrySensesSemanticDomains { get; }
+    public abstract Expression<Func<T, object?>> EntrySensesSemanticDomainsCode { get; }
     public virtual Func<string, object>? EntrySensesSemanticDomainsConverter { get; } = null;
     public abstract Expression<Func<T, object?>> EntrySensesExampleSentences { get; }
     public abstract Expression<Func<T, string, object?>> EntrySensesExampleSentencesSentence { get; }

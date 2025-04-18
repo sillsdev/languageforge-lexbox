@@ -87,7 +87,7 @@ tasks:
 
   prod-db-forward:
     cmds:
-      - kubectl port-forward service/db 5435:5432 -n languagedepot --context aws-rke
+      - kubectl port-forward service/db 5435:5432 -n languagedepot --context aws-prod
 
 
   diff-staging:

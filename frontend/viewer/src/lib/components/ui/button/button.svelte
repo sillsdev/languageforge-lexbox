@@ -21,6 +21,7 @@
         xs: 'h-8 rounded-md px-2',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
+        'xs-icon': 'h-8 w-8 min-h-8 min-w-8',
         icon: 'h-10 w-10 min-h-10 min-w-10',
         'extended-fab': 'h-14 pl-4 pr-5',
         'fab': 'h-14 px-4'

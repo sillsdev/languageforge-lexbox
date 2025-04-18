@@ -27,5 +27,10 @@ const privateFieldData = {
 /**
  * This is a list of all standard fields with fixed data that is constant across all views.
  */
-export const fieldData: Record<string, FieldData> = privateFieldData;
-export type FieldIds = keyof typeof fieldData;
+export type FieldId = keyof typeof privateFieldData;
+export const fieldData: Record<FieldId, FieldData> = privateFieldData;
+
+/**
+ * @deprecated I think we want a type that's more type safe i.e. FieldId 👆
+ */
+export type FieldIds = string; // this was always just string, it just wasn't obvious 🙃

@@ -8,6 +8,7 @@ public enum DbErrorCode
 {
     Unknown,
     Duplicate,
+    DuplicateProjectCode,
 }
 
 public class DbError
@@ -19,9 +20,10 @@ public class DbError
 
     public static DbError CreateErrorFrom(PostgresException exception)
     {
-        return exception.SqlState switch
+        return exception switch
         {
-            PostgresErrorCodes.UniqueViolation => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists", DbErrorCode.Duplicate),
+            { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_Projects_Code" } => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists", DbErrorCode.DuplicateProjectCode),
+            { SqlState: PostgresErrorCodes.UniqueViolation } => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists", DbErrorCode.Duplicate),
             _ => new DbError(exception.Message)
         };
     }

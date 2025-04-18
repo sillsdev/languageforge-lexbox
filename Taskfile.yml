@@ -37,7 +37,7 @@ tasks:
       - git submodule init
       - git submodule update --recursive
       - git config --local submodule.recurse true
-      - cmd: setup-k8s
+      - task: setup-k8s
       - docker build -t local-dev-init data/
   setup-k8s:
     cmds:

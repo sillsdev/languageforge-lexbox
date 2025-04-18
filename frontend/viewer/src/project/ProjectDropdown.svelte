@@ -34,7 +34,6 @@
 
   function handleSelect(project: IProjectModel) {
     onSelect(project);
-    open = false;
     closeAndFocusTrigger();
   }
 
