@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import {AppBar, Button, clamp} from 'svelte-ux';
   import {
     mdiArrowLeft,
@@ -7,7 +7,7 @@
   import Editor from './lib/Editor.svelte';
   import {useLocation} from 'svelte-routing';
   import {useFwLiteConfig, useLexboxApi} from './lib/services/service-provider';
-  import type {IEntry} from './lib/dotnet-types';
+  import type {IEntry, IMiniLcmFeatures} from './lib/dotnet-types';
   import {createEventDispatcher, onDestroy, onMount, setContext} from 'svelte';
   import {derived, writable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
@@ -23,7 +23,6 @@
   import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
   import {initView, initViewSettings} from './lib/views/view-service';
   import {views} from './lib/views/view-data';
-  import {initWritingSystemService} from './lib/writing-system-service';
   import {useEventBus} from './lib/services/event-bus';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
@@ -32,12 +31,12 @@
   import {initDialogService} from '$lib/entry-editor/dialog-service';
   import HomeButton from '$lib/HomeButton.svelte';
   import AppBarMenu from '$lib/layout/AppBarMenu.svelte';
-  import {initFeatures} from '$lib/services/feature-service';
   import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
   import {initProjectViewState} from '$lib/views/project-view-state-service';
   import NewEntryButton from '$lib/entry-editor/NewEntryButton.svelte';
   import {getSelectedEntryChangedStore} from '$lib/services/selected-entry-service';
   import RightToolbar from '$lib/RightToolbar.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const dispatch = createEventDispatcher<{
     loaded: boolean;
@@ -82,7 +81,7 @@
     comment: true,
   });
 
-  const features = initFeatures({});
+  const features = writable<IMiniLcmFeatures>({})
   void lexboxApi.supportedFeatures().then(f => {
     features.set(f);
     $viewSettings.showEmptyFields = !!($permissions.write && $features.write);
@@ -117,10 +116,7 @@
   setContext('selectedIndexExamplar', selectedIndexExemplar);
   $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar, false);
 
-  const writingSystemService = initWritingSystemService(deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.getWritingSystems();
-  }).value);
+  const writingSystemService = useWritingSystemService();
 
   const trigger = writable(0);
 
@@ -222,7 +218,7 @@
     navigateToEntryId = null;
   }
 
-  $: projectLoaded = !!($entries && $writingSystemService);
+  $: projectLoaded = !!($entries && writingSystemService);
   $: dispatch('loaded', projectLoaded);
 
   function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
@@ -294,7 +290,7 @@
   async function openNewEntryDialog(lexemeForm?: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
     const partialEntry: Partial<IEntry> = {};
     if (lexemeForm) {
-      const defaultWs = $writingSystemService!.defaultVernacular()?.wsId;
+      const defaultWs = writingSystemService.defaultVernacular()?.wsId;
       if (defaultWs === undefined) return undefined;
       partialEntry.lexemeForm = {[defaultWs]: lexemeForm};
     }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { IEntry, ISense } from '$lib/dotnet-types';
-  import {useWritingSystemService} from './writing-system-service';
-  import { usePartsOfSpeech } from './parts-of-speech';
+  import {useWritingSystemService} from './writing-system-service.svelte';
+  import { usePartsOfSpeech } from './parts-of-speech.svelte';
 
   export let entry: IEntry;
   export let lines: number = 0;

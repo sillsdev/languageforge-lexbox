@@ -1,17 +1,26 @@
 ﻿import type {IMiniLcmFeatures} from '$lib/dotnet-types';
-import {getContext, setContext} from 'svelte';
-import {type Readable, type Writable, writable} from 'svelte/store';
-
-const featureContextName = 'features';
+import {useProjectContext} from '$lib/project-context.svelte';
 
 export type LexboxFeatures = IMiniLcmFeatures;
 
-export function initFeatures(defaultFeatures: LexboxFeatures): Writable<LexboxFeatures> {
-  const featureStore = writable<LexboxFeatures>(defaultFeatures);
-  setContext<Readable<LexboxFeatures>>(featureContextName, featureStore);
-  return featureStore;
-}
-
-export function useFeatures(): Readable<LexboxFeatures> {
-  return getContext<Readable<LexboxFeatures>>(featureContextName);
+export function useFeatures(): LexboxFeatures {
+  const context = useProjectContext();
+  //need to do this as returning context.features would not be reactive
+  return {
+    get history() {
+      return context.features.history;
+    },
+    get feedback() {
+      return context.features.feedback;
+    },
+    get openWithFlex() {
+      return context.features.openWithFlex;
+    },
+    get sync() {
+      return context.features.sync;
+    },
+    get write() {
+      return context.features.write;
+    }
+  };
 }

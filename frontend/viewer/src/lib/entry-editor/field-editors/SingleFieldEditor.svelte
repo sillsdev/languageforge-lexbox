@@ -3,7 +3,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import {useCurrentView} from '$lib/views/view-service';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import {makeHasHadValueTracker} from '$lib/utils';
 
   export let id: string;
