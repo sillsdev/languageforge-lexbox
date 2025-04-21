@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -82,18 +83,27 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
         return projectData;
     }
 
-    private async Task MigrateDb()
+    private static readonly ConcurrentDictionary<string, Lazy<Task>> MigrationTasks = [];
+    private Task MigrateDb()
     {
-        try
+        //ensure we only execute once, otherwise we'll have a conflict as Migrate is not thread safe.
+        //design based on https://andrewlock.net/making-getoradd-on-concurrentdictionary-thread-safe-using-lazy/
+#pragma warning disable VSTHRD011
+        return MigrationTasks.GetOrAdd(Project.DbPath, _ => new Lazy<Task>(Execute)).Value;
+#pragma warning restore VSTHRD011
+        async Task Execute()
         {
+            try
+            {
+                await DbContext.Database.MigrateAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to migrate database for project '{Project}'", Project.Name);
+                throw;
+            }
+        }
 
-            await DbContext.Database.MigrateAsync();
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Failed to migrate database for project '{Project}'", Project.Name);
-            throw;
-        }
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
