@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {Label} from '$lib/components/ui/label/index.js';
   import * as Popover from '$lib/components/ui/popover';
@@ -32,9 +32,7 @@
           <Label class="text-xs">{$t`Color`}</Label>
           <Popover.Close>
             {#snippet child({props})}
-              <Button {...props} variant="ghost" size="icon">
-                <Icon icon="i-mdi-close"/>
-              </Button>
+              <XButton {...props} />
             {/snippet}
           </Popover.Close>
         </div>

@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import {useHistoryService} from '$lib/services/history-service';
-  import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {
     cls,
@@ -77,7 +76,6 @@
   <Dialog.DialogContent class="sm:max-w-[90vw] max-h-[90vh]" interactOutsideBehavior={loading ? 'ignore' : 'close'}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Activity`}</Dialog.DialogTitle>
-      <Button variant="ghost" size="icon" onclick={() => open = false} icon="i-mdi-close" class="absolute right-2 top-2 z-40"></Button>
     </Dialog.DialogHeader>
     {#if !loading}
   <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">

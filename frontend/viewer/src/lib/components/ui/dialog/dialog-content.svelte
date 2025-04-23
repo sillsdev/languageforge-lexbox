@@ -2,8 +2,8 @@
   import {cn} from '$lib/utils.js';
   import {Dialog as DialogPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
   import type {Snippet} from 'svelte';
-  import {Icon} from '../icon';
   import * as Dialog from './index.js';
+  import {XButton} from '../button';
 
   let {
     ref = $bindable(null),
@@ -31,11 +31,10 @@
   >
     {@render children?.()}
     {#if !hideClose}
-      <DialogPrimitive.Close
-        class="ring-offset-background focus:ring-ring absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none"
-      >
-        <Icon icon="i-mdi-close" class="size-4" />
-        <span class="sr-only">Close</span>
+      <DialogPrimitive.Close class="absolute right-4 top-4">
+        {#snippet child({props})}
+          <XButton {...props} />
+        {/snippet}
       </DialogPrimitive.Close>
     {/if}
   </DialogPrimitive.Content>
