@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
   import ProjectView from './ProjectView.svelte';
   import {onDestroy, onMount} from 'svelte';
-  import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+  import {type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
   import {wrapInProxy} from '$lib/services/service-provider-dotnet';
   import type {IProjectScope} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectScope';
@@ -45,16 +45,12 @@
       historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
     }
     const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
-    if (historyService)
-      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, historyService);
-    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, api);
     projectContext.setup({api, historyService, projectName});
     serviceLoaded = true;
   });
   onDestroy(() => {
     destroyed = true;
     if (serviceLoaded) {
-      window.lexbox.ServiceProvider.removeService(DotnetService.MiniLcmApi);
       cleanup();
     }
   });
