@@ -9,7 +9,7 @@ const symbol = Symbol.for('fw-lite-pos');
 export function usePartsOfSpeech(): PartOfSpeechService {
   const projectContext = useProjectContext();
   const writingSystemService = useWritingSystemService();
-  return projectContext.lazyCreate(symbol, () => {
+  return projectContext.getOrAdd(symbol, () => {
     return new PartOfSpeechService(projectContext, writingSystemService);
   });
 }

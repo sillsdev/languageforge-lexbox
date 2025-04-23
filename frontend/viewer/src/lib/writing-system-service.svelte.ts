@@ -7,7 +7,7 @@ import {resource, type ResourceReturn} from 'runed';
 const symbol = Symbol.for('fw-lite-ws-service');
 export function useWritingSystemService(): WritingSystemService {
   const projectContext = useProjectContext();
-  return projectContext.lazyCreate(symbol, () => new WritingSystemService(projectContext));
+  return projectContext.getOrAdd(symbol, () => new WritingSystemService(projectContext));
 }
 
 export class WritingSystemService {
