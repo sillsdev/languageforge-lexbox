@@ -16,7 +16,7 @@
   on:change
   bind:value
   preserveOrder
-  options={$complexFormTypes}
+  options={complexFormTypes.current}
   getOptionLabel={(cft) => writingSystemService.pickBestAlternative(cft.name, 'analysis')}
   {readonly}
   {id}
