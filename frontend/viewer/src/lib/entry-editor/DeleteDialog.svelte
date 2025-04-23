@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
   import {Button} from '$lib/components/ui/button';
-  import * as Dialog from '$lib/components/ui/dialog';
-  import {mdiTrashCanOutline} from '@mdi/js';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {t} from 'svelte-i18n-lingui';
   let subject: string = $state('');
   let open = $state(false);
@@ -36,17 +35,17 @@
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.DialogContent>
-    <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Delete ${subject}`}</Dialog.DialogTitle>
-    </Dialog.DialogHeader>
-    <div class="m-6 mt-3">
-      <p>{$t`Are you sure you want to delete ${subject}?`}</p>
-    </div>
-    <Dialog.DialogFooter>
+<AlertDialog.Root bind:open>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>{$t`Delete ${subject}`}</AlertDialog.Title>
+    </AlertDialog.Header>
+    <AlertDialog.Description>
+      {$t`Are you sure you want to delete ${subject}?`}
+    </AlertDialog.Description>
+    <AlertDialog.Footer>
       <Button onclick={() => cancel()} variant="secondary">{$t`Don't delete`}</Button>
       <Button icon="i-mdi-trash-can-outline" variant="destructive" onclick={_ => confirm()}>{$t`Delete ${subject}`}</Button>
-    </Dialog.DialogFooter>
-  </Dialog.DialogContent>
-</Dialog.Root>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
