@@ -73,7 +73,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'}>
+  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Activity`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
