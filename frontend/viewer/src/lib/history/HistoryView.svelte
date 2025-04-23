@@ -54,7 +54,7 @@
       <Dialog.DialogTitle>{$t`History`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     {#if !loading}
-      <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
+      <div class="grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
         <div class="flex flex-col gap-4 overflow-hidden row-start-2">
           <div class="border rounded-md overflow-y-auto">
             {#if !history || history.length === 0}
@@ -118,6 +118,5 @@
         </div>
       </div>
     {/if}
-  <div class="flex-grow"></div>
   </Dialog.DialogContent>
 </Dialog.Root>

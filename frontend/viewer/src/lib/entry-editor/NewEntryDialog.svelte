@@ -86,17 +86,16 @@
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div class="m-6">
-      <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
-        <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
-      </OverrideFields>
-    </div>
-    <div class="flex-grow"></div>
-    <div class="self-end m-4">
-      {#each errors as error}
-        <p class="text-danger p-2">{error}</p>
-      {/each}
-    </div>
+    <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
+      <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
+    </OverrideFields>
+    {#if errors.length}
+      <div class="self-end my-4">
+        {#each errors as error}
+          <p class="text-danger p-2">{error}</p>
+        {/each}
+      </div>
+    {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
