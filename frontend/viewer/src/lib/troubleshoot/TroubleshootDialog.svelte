@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-  import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
+  import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Field } from 'svelte-ux';
   import { useFwLiteConfig, useTroubleshootingService } from '$lib/services/service-provider';
