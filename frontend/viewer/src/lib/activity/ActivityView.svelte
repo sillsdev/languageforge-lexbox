@@ -73,7 +73,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.DialogContent class="sm:max-w-[90vw] max-h-[90vh]" interactOutsideBehavior={loading ? 'ignore' : 'close'}>
+  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Activity`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
