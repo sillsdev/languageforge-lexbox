@@ -3,7 +3,6 @@ import type {IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
-import {type WritingSystemService} from '$lib/writing-system-service.svelte';
 import {resource, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
 
@@ -65,12 +64,17 @@ export class ProjectContext {
       return this.#stateCache.get(key) as ResourceReturn<T, unknown, true>;
     }
 
+    const res = this.apiResource(initialValue, factory);
+    this.#stateCache.set(key, res);
+    return res;
+  }
+
+  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {
     const res = resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
       ((api) => {
         if (!api) return Promise.resolve(initialValue);
         return factory(api);
       }), {initialValue});
-    this.#stateCache.set(key, res);
     return res;
   }
 

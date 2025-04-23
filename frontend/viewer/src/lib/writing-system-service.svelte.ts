@@ -2,7 +2,7 @@
 import type {WritingSystemSelection} from './config-types';
 import {firstTruthy} from './utils';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
-import {resource, type ResourceReturn} from 'runed';
+import {type ResourceReturn} from 'runed';
 
 const symbol = Symbol.for('fw-lite-ws-service');
 export function useWritingSystemService(): WritingSystemService {
@@ -13,17 +13,13 @@ export function useWritingSystemService(): WritingSystemService {
 export class WritingSystemService {
 
   private wsColors: WritingSystemColors = $derived(calcWritingSystemColors(this.writingSystems));
-  #wsResource: ResourceReturn<IWritingSystems>;
+  #wsResource: ResourceReturn<IWritingSystems, unknown, true>;
   private get writingSystems(): IWritingSystems {
-    return this.#wsResource.current ?? {analysis: [], vernacular: []};
+    return this.#wsResource.current;
   }
 
   constructor(projectContext: ProjectContext) {
-    this.#wsResource = resource(() => projectContext.maybeApi,
-      (api): Promise<IWritingSystems> => {
-        if (!api) return Promise.resolve({analysis: [], vernacular: []});
-        return api.getWritingSystems();
-      });
+    this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, api => api.getWritingSystems());
   }
 
   allWritingSystems(selection: Extract<WritingSystemSelection, 'vernacular-analysis' | 'analysis-vernacular'> = 'vernacular-analysis'): IWritingSystem[] {
