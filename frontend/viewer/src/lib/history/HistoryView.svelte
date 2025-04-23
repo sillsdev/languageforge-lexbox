@@ -6,6 +6,7 @@
   import ExampleEditor from '../entry-editor/object-editors/ExampleEditor.svelte';
   import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
   import {type HistoryItem, useHistoryService} from '../services/history-service';
+  import {EditorGrid} from '$lib/components/editor';
 
   export let id: string;
   export let open: boolean;
@@ -99,13 +100,13 @@
             {#if record.entityName === 'Entry'}
               <EntryEditor entry={record.entity} modalMode readonly/>
             {:else if record.entityName === 'Sense'}
-              <div class="editor-grid">
+              <EditorGrid>
                 <SenseEditor sense={record.entity} readonly/>
-              </div>
+              </EditorGrid>
             {:else if record.entityName === 'ExampleSentence'}
-              <div class="editor-grid">
+              <EditorGrid>
                 <ExampleEditor example={record.entity} readonly/>
-              </div>
+              </EditorGrid>
             {/if}
           {/key}
         </div>

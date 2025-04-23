@@ -23,12 +23,12 @@
   import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
-  import FieldTitle from '$lib/components/field-editors/field-title.svelte';
   import {t} from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Label} from '$lib/components/ui/label';
   import {Switch} from '$lib/components/ui/switch';
+  import {EditorField, EditorGrid} from '$lib/components/editor';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -121,10 +121,13 @@
         <div class="breakpoint-marker w-[48rem] text-green-600">
           @3xl
         </div>
-        <div class="editor-grid">
-          <div class="field-root">
-            <div class="field-body grid-cols-1">
-              <Label class="mb-2">Order of semantic domains</Label>
+        <EditorGrid>
+          <EditorField.Root>
+            <EditorField.Title
+              liteName={$t`Order of semantic domains`}
+              classicName={$t`Order of semantic domains`}
+            />
+            <EditorField.Body class="grid-cols-1">
               <Tabs bind:value={semanticDomainOrder} class="mb-1">
                 <TabsList>
                   <TabsTrigger value="selectionOrder">Selection</TabsTrigger>
@@ -135,20 +138,24 @@
               <p class="text-muted-foreground text-sm">
                 Only comes into effect while editing, because we don't want to make any changes implicitly.
               </p>
-            </div>
-          </div>
-          <div class="field-root">
-            <div class="field-body grid-cols-1">
-              <Switch bind:checked={semanticDomainsReadonly} label="Readonly" />
-            </div>
-          </div>
-          <div class="field-root">
-            <FieldTitle
+            </EditorField.Body>
+          </EditorField.Root>
+          <EditorField.Root>
+            <EditorField.Title
+              liteName={$t`Readonly`}
+              classicName={$t`Readonly`}
+            />
+            <EditorField.Body class="grid-cols-1">
+              <Switch bind:checked={semanticDomainsReadonly} />
+            </EditorField.Body>
+          </EditorField.Root>
+          <EditorField.Root>
+            <EditorField.Title
               liteName={$t`Semantic domains`}
               classicName={$t`Semantic domains`}
               helpId={fieldData.semanticDomains.helpId}
             />
-            <div class="field-body">
+            <EditorField.Body>
               <div class="col-span-full">
                 <MultiSelect
                   readonly={semanticDomainsReadonly}
@@ -164,9 +171,9 @@
                   options={allDomains}>
                 </MultiSelect>
               </div>
-            </div>
-          </div>
-        </div>
+            </EditorField.Body>
+          </EditorField.Root>
+        </EditorGrid>
       </div>
     </ResizablePane>
     <!-- looks cool 🤷 https://github.com/huntabyte/shadcn-svelte/blob/bcbe10a4f65d244a19fb98ffb6a71d929d9603bc/sites/docs/src/lib/components/docs/block-preview.svelte#L65 -->
@@ -269,12 +276,12 @@
           {/each}
         </div>
       </div>
-      <div class="editor-grid border p-4">
+      <EditorGrid class="border p-4">
         <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
           <SenseEditor
             sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
         </OverrideFields>
-      </div>
+      </EditorGrid>
     </div>
 
   </div>
