@@ -104,7 +104,7 @@
   export let canAddSense = true;
   export let canAddExample = true;
 
-  let editorElem: HTMLDivElement | undefined;
+  let editorElem: HTMLDivElement | null = null;
   let highlightedEntity: IExampleSentence | ISense | undefined;
   let highlightTimeout: ReturnType<typeof setTimeout>;
 
