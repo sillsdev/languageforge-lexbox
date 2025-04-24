@@ -9,70 +9,74 @@
 
 <script lang="ts">
   import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
-  import { Button, Dialog, ExpansionPanel, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
-  import { derived, writable } from 'svelte/store';
-  import { createEventDispatcher, getContext } from 'svelte';
-  import { useLexboxApi } from '../services/service-provider';
-  import { deriveAsync } from '../utils/time';
-  import { defaultSense } from '../utils';
-  import { useProjectCommands } from '../commands';
-  import type { SaveHandler } from '../services/save-event-service';
+  import {Button, Dialog, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
+  import {getContext} from 'svelte';
+  import {useLexboxApi} from '../services/service-provider';
+  import {cn, defaultSense} from '../utils';
+  import {useProjectCommands} from '../commands';
+  import type {SaveHandler} from '../services/save-event-service';
   import {SortField} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import NewEntryButton from './NewEntryButton.svelte';
-
-  const dispatch = createEventDispatcher<{
-    pick: EntrySenseSelection;
-  }>();
+  import {resource} from 'runed';
+  import {Accordion} from "bits-ui";
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
   const writingSystemService = useWritingSystemService();
 
-  export let open = false;
-  export let title: string;
-  export let disableEntry: ((entry: IEntry) => false | { reason: string, disableSenses?: true }) | undefined = undefined;
-  export let disableSense: ((sense: ISense, entry: IEntry) => false | string) | undefined = undefined;
-  export let mode: 'entries-and-senses' | 'only-entries' = 'entries-and-senses';
-  $: onlyEntries = mode === 'only-entries';
+  interface Props {
+    open?: boolean;
+    title: string;
+    disableEntry?: ((entry: IEntry) => false | { reason: string, disableSenses?: true }) | undefined;
+    disableSense?: ((sense: ISense, entry: IEntry) => false | string) | undefined;
+    mode?: 'entries-and-senses' | 'only-entries';
+    pick?: (selection: EntrySenseSelection) => void;
+  }
 
-  let selectedEntry: IEntry | undefined;
-  let selectedSense: ISense | undefined;
+  let {
+    open = $bindable(false),
+    title,
+    disableEntry = undefined,
+    disableSense = undefined,
+    mode = 'entries-and-senses',
+    pick = undefined,
+  }: Props = $props();
+  let onlyEntries = $derived(mode === 'only-entries');
+
+  let selectedEntry: IEntry | undefined = $state(undefined);
+  let selectedSense: ISense | undefined = $state(undefined);
   // We need this redundant field so the ExpandPanel has something to bind to. Otherwise it's very fragile.
   // So it's basically just for managing the state of the ExpansionPanel.
-  let selectedEntryId: string | undefined;
+  let selectedEntryId: string | undefined = $state(undefined);
 
   const lexboxApi = useLexboxApi();
-  const search = writable<string>('');
+  let search = $state('')
   const fetchCount = 150;
   const displayCount = 50;
 
-  let addedEntries: IEntry[] = [];
-  const { value: result, loading } = deriveAsync(search, async (s) => {
-    if (!s) return Promise.resolve({ entries: [], search: undefined });
-    let entries = await lexboxApi.searchEntries(s ?? '', {
+  let addedEntries: IEntry[] = $state([]);
+  const searchResource = resource(() => search, (search) => {
+    if (!search) return [];
+    return lexboxApi.searchEntries(search ?? '', {
       offset: 0,
       count: fetchCount,
       order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
-    return { entries, search: s};
-  }, {entries: [], search: undefined}, 200);
-  const displayedEntries = derived(result, (result) => {
-    return result?.entries.slice(0, displayCount) ?? [];
+  }, {initialValue: []});
+  const displayedEntries = $derived(searchResource.current?.slice(0, displayCount) ?? []);
+  $effect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    searchResource.current;
+    addedEntries = [];
   });
 
-  $: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    $result;
-    addedEntries = [];
-  }
-
   function onPick() {
-    dispatch('pick', {entry: selectedEntry!, sense: selectedSense});
+    pick?.({entry: selectedEntry!, sense: selectedSense});
   }
 
   function reset() {
-    $search = '';
+    search = '';
     selectedEntry = undefined;
     selectedEntryId = undefined;
     selectedSense = undefined;
@@ -90,7 +94,7 @@
 
 
   async function onClickCreateNewEntry(): Promise<void> {
-    const entry = await projectCommands.createNewEntry($search, { dontSelect: true });
+    const entry = await projectCommands.createNewEntry(search, {dontSelect: true});
     selectedEntry = entry;
     selectedEntryId = entry?.id;
     if (entry) {
@@ -103,22 +107,21 @@
     selectedEntryId = entry?.id;
     selectedSense = sense;
   }
+  $effect(() => {
+    if (!selectedEntryId) {
+      select()
+      return;
+    }
+    let entry = displayedEntries.find(e => e.id === selectedEntryId);
+    if (disableEntry && entry && disableEntry(entry)) entry = undefined;
+    select(entry);
+  });
 
-  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean) {
-    if (open) { // I'm opening so I manage the state
-      select(entry);
-      return;
-    }
-      // a different entry was selected, I don't manage the state
-    if (selectedEntry?.id !== entry.id) {
-      return;
-    }
-    if (selectedSense && !disabledEntry) {
-      // move selection to the entry and keep myself open
-      select(entry);
-    } else {
-      // let myself close
-      select();
+  function onExpansionClick(disableExpand: boolean, entry: IEntry) {
+    console.log('expansion clicked', disableExpand);
+    if (disableExpand) {
+      // In this case, the ExpansionPanel' on:change event above is not in use, so we need to manage state here
+      select(selectedEntry?.id === entry.id ? undefined : entry);
     }
   }
 </script>
@@ -131,90 +134,85 @@
     <TextField
       autofocus
       clearable
-      bind:value={$search}
+      bind:value={search}
       placeholder="Find entry..."
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
       classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
       icon={mdiBookSearchOutline}>
       <div slot="append" class="flex p-1">
-        {#if $loading}
+        {#if searchResource.loading}
           <ProgressCircle size={20} width={2} />
         {/if}
       </div>
     </TextField>
   </div>
   <div class="p-1">
-    {#each [...$displayedEntries, ...addedEntries] as entry (entry.id)}
-      {@const disabledEntry = disableEntry?.(entry)}
-      {@const disableExpand = onlyEntries || (disabledEntry && disabledEntry.disableSenses)}
-      <div class="entry"
-        class:selected={entry.id === selectedEntryId && !selectedSense && !disabledEntry}
-        class:disabled={disabledEntry}
-        class:disable-expand={disableExpand}>
-        <ExpansionPanel
-          bind:group={selectedEntryId}
-          value={entry.id}
-          disabled={disableExpand}
-          on:change={(event) => onExpansionChange(event.detail.open, entry, !!disabledEntry)}
-        >
-          <button disabled={!!disabledEntry} slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
-            on:click={() => {
-              if (disableExpand) {
-                // In this case, the ExpansionPanel' on:change event above is not in use, so we need to manage state here
-                select(selectedEntry?.id === entry.id ? undefined : entry);
-              }
-            }}>
-            <ListItem
-              title={writingSystemService.headword(entry).padStart(1, '–')}
-              subheading={writingSystemService.glosses(entry).padStart(1, '–')}
-              noShadow />
-            <div class="grow"></div>
-            {#if disabledEntry}
-              <span class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                {disabledEntry.reason}
-              </span>
-            {/if}
-            {#if entry.senses.length && !onlyEntries}
-              <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
-                {entry.senses.length}
-              </span>
-            {/if}
-          </button>
-          {#each entry.senses as sense}
-            {@const disabledSense = disableSense?.(sense, entry)}
-            <span class="hidden"></span> <!-- so the first sense doesn't get :first styles, because the entry is the first list item -->
-            <button class="sense w-full bg-surface-100 flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
-              class:selected={selectedSense?.id === sense.id}
-              class:disabled={disabledSense}
-              on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
-              <ListItem
-                title={writingSystemService.firstGloss(sense).padStart(1, '–')}
-                subheading={writingSystemService.firstDef(sense).padStart(1, '–')}
-                classes={{icon: 'text-info'}}
-                noShadow />
-              {#if disabledSense}
-                <span class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                  {disabledSense}
+    <Accordion.Root type="single" bind:value={selectedEntryId}>
+      {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
+        {@const disabledEntry = disableEntry?.(entry)}
+        {@const disableExpand = onlyEntries || !!(disabledEntry && disabledEntry.disableSenses)}
+        <Accordion.Item value={entry.id} class="data-[state=open]:border">
+          <Accordion.Header class={cn('hover:bg-accent p-2', entry.id === selectedEntryId && !selectedSense && 'bg-accent')} onclick={() => onExpansionClick(disableExpand, entry)}>
+            <Accordion.Trigger class="w-full flex" disabled={!!disabledEntry}>
+              <div class="flex flex-col items-start">
+                <p class="font-medium text-xl">{writingSystemService.headword(entry).padStart(1, '–')}</p>
+                <p class="text-muted-foreground">{writingSystemService.glosses(entry).padStart(1, '–')}</p>
+              </div>
+              <div class="grow"></div>
+              {#if disabledEntry}
+                <span
+                  class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                  {disabledEntry.reason}
                 </span>
               {/if}
-            </button>
-          {/each}
-          <ListItem
-            title="Add Sense..."
-            icon={mdiPlus}
-            classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
-            noShadow
-            on:click={() => onClickAddSense(entry)}
-          />
-        </ExpansionPanel>
-      </div>
-    {/each}
-    {#if $displayedEntries.length === 0 && addedEntries.length === 0}
+              {#if entry.senses.length && !onlyEntries}
+                <span
+                  class="aspect-square size-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
+                  {entry.senses.length}
+                </span>
+              {/if}
+            </Accordion.Trigger>
+          </Accordion.Header>
+          {#if !disableExpand}
+            <Accordion.Content>
+              <p class="text-muted-foreground p-2 text-sm">Senses:</p>
+              {#each entry.senses as sense}
+                {@const disabledSense = disableSense?.(sense, entry)}
+                <button
+                  class="sense w-full flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4"
+                  class:bg-accent={selectedSense?.id === sense.id}
+                  class:disabled={disabledSense}
+                  onclick={() => select(entry, sense)}>
+                  <div class="flex flex-col items-start">
+                    <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
+                    <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
+                  </div>
+                  {#if disabledSense}
+                    <span
+                      class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                      {disabledSense}
+                    </span>
+                  {/if}
+                </button>
+              {/each}
+              <ListItem
+                title="Add Sense..."
+                icon={mdiPlus}
+                classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
+                noShadow
+                on:click={() => onClickAddSense(entry)}
+              />
+            </Accordion.Content>
+          {/if}
+        </Accordion.Item>
+      {/each}
+    </Accordion.Root>
+    {#if displayedEntries.length === 0 && addedEntries.length === 0}
       <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
-        {#if $result.search}
+        {#if search}
           No entries found <Icon data={mdiMagnifyRemoveOutline} />
           <NewEntryButton on:click={onClickCreateNewEntry} />
-        {:else if $loading}
+        {:else if searchResource.loading}
           <ProgressCircle size={30} />
         {:else}
             Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
@@ -222,7 +220,7 @@
         {/if}
       </div>
     {/if}
-    {#if $displayedEntries.length}
+    {#if displayedEntries.length}
       <ListItem
         title="Create new Entry..."
         icon={mdiBookPlusOutline}
@@ -231,10 +229,10 @@
         on:click={onClickCreateNewEntry}
       />
     {/if}
-    {#if $result.entries.length > $displayedEntries.length}
+    {#if searchResource.current.length > displayedEntries.length}
       <div class="px-4 py-2 text-center opacity-75 flex items-center">
-        <span>{$result.entries.length - $displayedEntries.length}</span>
-        {#if $result.entries.length === fetchCount}<span>+</span>{/if}
+        <span>{searchResource.current.length - displayedEntries.length}</span>
+        {#if searchResource.current.length === fetchCount}<span>+</span>{/if}
         <div class="ml-1 flex justify-between items-center gap-2">
           <span>more matching entries...</span>
         </div>
@@ -244,7 +242,7 @@
   <div class="flex-grow"></div>
   <div slot="actions">
     <Button on:click={() => open = false}>Cancel</Button>
-    <Button variant="fill-light" color="success" disabled={!selectedEntry || (!!disableEntry?.(selectedEntry) && !selectedSense)} on:click={onPick}>
+    <Button variant="fill-light" color="success" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} on:click={onPick}>
       <slot name="submit-text">
         Select {selectedSense ? 'Sense' : 'Entry'}
       </slot>

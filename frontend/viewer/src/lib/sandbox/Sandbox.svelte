@@ -3,7 +3,7 @@
   import OverrideFields from '$lib/OverrideFields.svelte';
   import {Button} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
-  import {DotnetService, type ISense} from '$lib/dotnet-types';
+  import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import {fieldData, type FieldIds} from '$lib/entry-editor/field-data';
   import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
@@ -27,6 +27,8 @@
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Label} from '$lib/components/ui/label';
   import {Switch} from '$lib/components/ui/switch';
+  import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -50,6 +52,7 @@
   InMemoryApiService.setup();
   initView();
   initViewSettings();
+  const writingSystemService = useWritingSystemService();
 
   function makeSense(s: ISense) {
     return s;
@@ -94,6 +97,18 @@
     ? randomSemanticDomainSorter
     : semanticDomainOrder);
   let semanticDomainsReadonly = $state(false);
+
+  let selectedEntryHistory: EntrySenseSelection[] = $state([]);
+  let openPicker = $state(false);
+  let pickerMode: 'entries-and-senses' | 'only-entries' = $state('only-entries');
+  function disableEntry(entry: IEntry): false | { reason: string, disableSenses?: true } {
+    const selected = selectedEntryHistory.some(e => e.entry.id === entry.id);
+    if (!selected) return  false;
+    return {
+      reason: 'You cannot select an entry that you have already selected',
+      disableSenses: false
+    };
+  }
 </script>
 
 <div class="p-6 shadcn-root">
@@ -195,6 +210,28 @@
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <h3 class="font-medium">Entry picker example</h3>
 
+    <Tabs bind:value={pickerMode} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="only-entries">Entry only</TabsTrigger>
+        <TabsTrigger value="entries-and-senses">Entry or Sense</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Button onclick={() => openPicker = true}>Open picker</Button>
+    <EntryOrSensePicker title="Test selecting something"
+                        bind:open={openPicker}
+                        disableEntry={disableEntry}
+                        mode={pickerMode}
+                        pick={(e) => selectedEntryHistory.push(e)}/>
+    <div>
+      {#each selectedEntryHistory as selected}
+        <p>
+          Entry: {writingSystemService.headword(selected.entry)}
+          {#if selected.sense}
+            Sense: {writingSystemService.firstGloss(selected.sense)}
+          {/if}
+        </p>
+      {/each}
+    </div>
   </div>
 </div>
 
