@@ -4,16 +4,16 @@
   import type {HTMLAttributes} from 'svelte/elements';
 
 
-  type FieldBodyProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
+  type EditorRootProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
   const {
     class: className,
     children,
     ref = $bindable(null),
     ...restProps
-  }: FieldBodyProps = $props();
+  }: EditorRootProps = $props();
 </script>
 
-<div class={cn('grid grid-cols-subgrid col-span-full @3xl/editor:col-start-2 @3xl/editor:col-end-4', className)} {...restProps}>
+<div class={cn('@container/editor', className)} {...restProps}>
   {@render children?.()}
 </div>

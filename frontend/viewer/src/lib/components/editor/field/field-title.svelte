@@ -37,7 +37,7 @@
   });
 </script>
 
-<div class="col-span-full me-2 mb-2 @3xl:col-span-1">
+<div class="col-span-full me-2 mb-2 @3xl/editor:col-span-1">
   <span class="inline-flex items-center relative">
     <span class="name" {title}>
       {otherWords}

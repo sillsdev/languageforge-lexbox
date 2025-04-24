@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { EditorGrid, EditorField } from '$lib/components/editor';
+  import * as Editor from '$lib/components/editor';
   import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
   import { Switch } from '$lib/components/ui/switch';
@@ -32,13 +32,14 @@
 
 <ResizablePaneGroup direction="horizontal">
   <ResizablePane class="!overflow-visible" defaultSize={100}>
-    <div class="@container my-4 border px-4 py-8 relative z-0">
+    <Editor.Root class="my-4 border px-4 py-8 relative z-0">
+      <!-- See sizes here: https://github.com/tailwindlabs/tailwindcss-container-queries?tab=readme-ov-file#configuration -->
       <div class="breakpoint-marker w-[32rem] text-orange-600">@lg</div>
       <div class="breakpoint-marker w-[48rem] text-green-600">@3xl</div>
-      <EditorGrid>
-        <EditorField.Root>
-          <EditorField.Title liteName={$t`Order of semantic domains`} classicName={$t`Order of semantic domains`} />
-          <EditorField.Body class="grid-cols-1">
+      <Editor.Grid>
+        <Editor.Field.Root>
+          <Editor.Field.Title liteName={$t`Order of semantic domains`} classicName={$t`Order of semantic domains`} />
+          <Editor.Field.Body class="grid-cols-1">
             <Tabs bind:value={semanticDomainOrder} class="mb-1">
               <TabsList>
                 <TabsTrigger value="selectionOrder">Selection</TabsTrigger>
@@ -49,21 +50,21 @@
             <p class="text-muted-foreground text-sm">
               Only comes into effect while editing, because we don't want to make any changes implicitly.
             </p>
-          </EditorField.Body>
-        </EditorField.Root>
-        <EditorField.Root>
-          <EditorField.Title liteName={$t`Readonly`} classicName={$t`Readonly`} />
-          <EditorField.Body class="grid-cols-1">
+          </Editor.Field.Body>
+        </Editor.Field.Root>
+        <Editor.Field.Root>
+          <Editor.Field.Title liteName={$t`Readonly`} classicName={$t`Readonly`} />
+          <Editor.Field.Body class="grid-cols-1">
             <Switch bind:checked={semanticDomainsReadonly} />
-          </EditorField.Body>
-        </EditorField.Root>
-        <EditorField.Root>
-          <EditorField.Title
+          </Editor.Field.Body>
+        </Editor.Field.Root>
+        <Editor.Field.Root>
+          <Editor.Field.Title
             liteName={$t`Semantic domains`}
             classicName={$t`Semantic domains`}
             helpId={fieldData.semanticDomains.helpId}
           />
-          <EditorField.Body>
+          <Editor.Field.Body>
             <div class="col-span-full">
               <MultiSelect
                 readonly={semanticDomainsReadonly}
@@ -78,10 +79,10 @@
                 options={allDomains}
               ></MultiSelect>
             </div>
-          </EditorField.Body>
-        </EditorField.Root>
-      </EditorGrid>
-    </div>
+          </Editor.Field.Body>
+        </Editor.Field.Root>
+      </Editor.Grid>
+    </Editor.Root>
   </ResizablePane>
   <!-- looks cool 🤷 https://github.com/huntabyte/shadcn-svelte/blob/bcbe10a4f65d244a19fb98ffb6a71d929d9603bc/sites/docs/src/lib/components/docs/block-preview.svelte#L65 -->
   <ResizableHandle
