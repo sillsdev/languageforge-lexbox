@@ -39,7 +39,7 @@
       <Editor.Grid>
         <Editor.Field.Root>
           <Editor.Field.Title liteName={$t`Order of semantic domains`} classicName={$t`Order of semantic domains`} />
-          <Editor.Field.Body class="grid-cols-1">
+          <Editor.Field.Body>
             <Tabs bind:value={semanticDomainOrder} class="mb-1">
               <TabsList>
                 <TabsTrigger value="selectionOrder">Selection</TabsTrigger>
@@ -54,7 +54,7 @@
         </Editor.Field.Root>
         <Editor.Field.Root>
           <Editor.Field.Title liteName={$t`Readonly`} classicName={$t`Readonly`} />
-          <Editor.Field.Body class="grid-cols-1">
+          <Editor.Field.Body>
             <Switch bind:checked={semanticDomainsReadonly} />
           </Editor.Field.Body>
         </Editor.Field.Root>
@@ -65,20 +65,18 @@
             helpId={fieldData.semanticDomains.helpId}
           />
           <Editor.Field.Body>
-            <div class="col-span-full">
-              <MultiSelect
-                readonly={semanticDomainsReadonly}
-                bind:values={() => selectedDomains, (newValues) => (selectedDomains = newValues)}
-                idSelector="label"
-                labelSelector={(item) => item.label}
-                sortValuesBy={sortSemanticDomainValuesBy}
-                drawerTitle={$t`Semantic domains`}
-                filterPlaceholder={$t`Filter semantic domains...`}
-                placeholder={$t`🤷 nothing here`}
-                emptyResultsPlaceholder={$t`Looked hard, found nothing`}
-                options={allDomains}
-              ></MultiSelect>
-            </div>
+            <MultiSelect
+              readonly={semanticDomainsReadonly}
+              bind:values={() => selectedDomains, (newValues) => (selectedDomains = newValues)}
+              idSelector="label"
+              labelSelector={(item) => item.label}
+              sortValuesBy={sortSemanticDomainValuesBy}
+              drawerTitle={$t`Semantic domains`}
+              filterPlaceholder={$t`Filter semantic domains...`}
+              placeholder={$t`🤷 nothing here`}
+              emptyResultsPlaceholder={$t`Looked hard, found nothing`}
+              options={allDomains}
+            ></MultiSelect>
           </Editor.Field.Body>
         </Editor.Field.Root>
       </Editor.Grid>
