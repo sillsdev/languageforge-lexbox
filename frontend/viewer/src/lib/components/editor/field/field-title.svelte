@@ -1,6 +1,6 @@
 <script lang="ts">
   import {t} from 'svelte-i18n-lingui';
-  import FieldHelpIcon from '../../entry-editor/FieldHelpIcon.svelte';
+  import FieldHelpIcon from '../../../entry-editor/FieldHelpIcon.svelte';
   import {useCurrentView} from '$lib/views/view-service';
 
   const {
@@ -10,7 +10,7 @@
   }: {
     liteName: string;
     classicName: string;
-    helpId: string | undefined;
+    helpId?: string | undefined;
   } = $props();
 
   const view = useCurrentView();
@@ -34,10 +34,10 @@
       lastWord: words.pop(),
       otherWords: words.join(' '),
     };
-  })
+  });
 </script>
 
-<div class="field-title">
+<div class="col-span-full me-2 mb-2 @3xl/editor:col-span-1">
   <span class="inline-flex items-center relative">
     <span class="name" {title}>
       {otherWords}
