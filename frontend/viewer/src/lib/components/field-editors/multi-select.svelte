@@ -211,7 +211,7 @@
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each filteredOptions as value, i (getId(value))}
