@@ -80,6 +80,12 @@
     open = false;
   }
 
+  $effect(() => {
+    if (!open) {
+      reset();
+    }
+  });
+
   function reset() {
     search = '';
     selectedEntry = undefined;
@@ -131,7 +137,7 @@
   }
 </script>
 
-<Dialog.Root bind:open onOpenChange={(isOpen) => !isOpen && reset()}>
+<Dialog.Root bind:open>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">
