@@ -9,7 +9,7 @@
 
 <script lang="ts">
   import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
-  import {Dialog, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
+  import {Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
   import {getContext} from 'svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {cn, defaultSense} from '../utils';
@@ -21,6 +21,7 @@
   import {resource} from 'runed';
   import {Accordion} from "bits-ui";
   import {Button} from '$lib/components/ui/button';
+  import * as Dialog from '$lib/components/ui/dialog';
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
@@ -74,6 +75,7 @@
 
   function onPick() {
     pick?.({entry: selectedEntry!, sense: selectedSense});
+    open = false;
   }
 
   function reset() {
@@ -127,124 +129,127 @@
   }
 </script>
 
-<Dialog bind:open on:close={reset} class="entry-sense-picker" classes={{title: 'p-2'}}>
-  <div slot="title">
-    <h2 class="mb-4 mt-3 mx-2">
-      {title}
-    </h2>
-    <TextField
-      autofocus
-      clearable
-      bind:value={search}
-      placeholder="Find entry..."
-      class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
-      icon={mdiBookSearchOutline}>
-      <div slot="append" class="flex p-1">
-        {#if searchResource.loading}
-          <ProgressCircle size={20} width={2} />
-        {/if}
-      </div>
-    </TextField>
-  </div>
-  <div class="p-1">
-    <Accordion.Root type="single" bind:value={selectedEntryId}>
-      {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
-        {@const disabledEntry = disableEntry?.(entry)}
-        {@const disableExpand = onlyEntries || !!(disabledEntry && disabledEntry.disableSenses)}
-        <Accordion.Item value={entry.id} class="data-[state=open]:border">
-          <Accordion.Header class={cn('hover:bg-accent p-2', entry.id === selectedEntryId && !selectedSense && 'bg-accent')} onclick={() => onExpansionClick(disableExpand, entry)}>
-            <Accordion.Trigger class="w-full flex" disabled={!!disabledEntry}>
-              <div class="flex flex-col items-start">
-                <p class="font-medium text-xl">{writingSystemService.headword(entry).padStart(1, '–')}</p>
-                <p class="text-muted-foreground">{writingSystemService.glosses(entry).padStart(1, '–')}</p>
-              </div>
-              <div class="grow"></div>
-              {#if disabledEntry}
-                <span
-                  class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                  {disabledEntry.reason}
-                </span>
-              {/if}
-              {#if entry.senses.length && !onlyEntries}
-                <span
-                  class="aspect-square size-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
-                  {entry.senses.length}
-                </span>
-              {/if}
-            </Accordion.Trigger>
-          </Accordion.Header>
-          {#if !disableExpand}
-            <Accordion.Content>
-              <p class="text-muted-foreground p-2 text-sm">Senses:</p>
-              {#each entry.senses as sense}
-                {@const disabledSense = disableSense?.(sense, entry)}
-                <button
-                  class="sense w-full flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4"
-                  class:bg-accent={selectedSense?.id === sense.id}
-                  class:disabled={disabledSense}
-                  onclick={() => select(entry, sense)}>
-                  <div class="flex flex-col items-start">
-                    <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
-                    <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
-                  </div>
-                  {#if disabledSense}
-                    <span
-                      class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                      {disabledSense}
-                    </span>
-                  {/if}
-                </button>
-              {/each}
-              <ListItem
-                title="Add Sense..."
-                icon={mdiPlus}
-                classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
-                noShadow
-                on:click={() => onClickAddSense(entry)}
-              />
-            </Accordion.Content>
+<Dialog.Root bind:open onOpenChange={(isOpen) => !isOpen && reset()}>
+  <Dialog.Content class="entry-sense-picker">
+    <Dialog.Header>
+      <Dialog.Title class="mb-4">
+        {title}
+      </Dialog.Title>
+      <TextField
+        autofocus
+        clearable
+        bind:value={search}
+        placeholder="Find entry..."
+        class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
+        classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
+        icon={mdiBookSearchOutline}>
+        <div slot="append" class="flex p-1">
+          {#if searchResource.loading}
+            <ProgressCircle size={20} width={2} />
           {/if}
-        </Accordion.Item>
-      {/each}
-    </Accordion.Root>
-    {#if displayedEntries.length === 0 && addedEntries.length === 0}
-      <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
-        {#if search}
-          No entries found <Icon data={mdiMagnifyRemoveOutline} />
-          <NewEntryButton on:click={onClickCreateNewEntry} />
-        {:else if searchResource.loading}
-          <ProgressCircle size={30} />
-        {:else}
-            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
-            <NewEntryButton on:click={onClickCreateNewEntry} />
-        {/if}
-      </div>
-    {/if}
-    {#if displayedEntries.length}
-      <ListItem
-        title="Create new Entry..."
-        icon={mdiBookPlusOutline}
-        classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
-        noShadow
-        on:click={onClickCreateNewEntry}
-      />
-    {/if}
-    {#if searchResource.current.length > displayedEntries.length}
-      <div class="px-4 py-2 text-center opacity-75 flex items-center">
-        <span>{searchResource.current.length - displayedEntries.length}</span>
-        {#if searchResource.current.length === fetchCount}<span>+</span>{/if}
-        <div class="ml-1 flex justify-between items-center gap-2">
-          <span>more matching entries...</span>
         </div>
-      </div>
-    {/if}
-  </div>
-  <div class="flex-grow"></div>
-  <div slot="actions">
-    <Button variant="secondary" onclick={() => open = false}>Cancel</Button>
-    <Button variant="default" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} onclick={onPick}>
-        Select {selectedSense ? 'Sense' : 'Entry'}
-    </Button>
-  </div>
-</Dialog>
+      </TextField>
+    </Dialog.Header>
+
+    <div class="p-1">
+      <Accordion.Root type="single" bind:value={selectedEntryId}>
+        {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
+          {@const disabledEntry = disableEntry?.(entry)}
+          {@const disableExpand = onlyEntries || !!(disabledEntry && disabledEntry.disableSenses)}
+          <Accordion.Item value={entry.id} class="data-[state=open]:border">
+            <Accordion.Header class={cn('hover:bg-accent p-2', entry.id === selectedEntryId && !selectedSense && 'bg-accent')} onclick={() => onExpansionClick(disableExpand, entry)}>
+              <Accordion.Trigger class="w-full flex" disabled={!!disabledEntry}>
+                <div class="flex flex-col items-start">
+                  <p class="font-medium text-xl">{writingSystemService.headword(entry).padStart(1, '–')}</p>
+                  <p class="text-muted-foreground">{writingSystemService.glosses(entry).padStart(1, '–')}</p>
+                </div>
+                <div class="grow"></div>
+                {#if disabledEntry}
+                  <span
+                    class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                    {disabledEntry.reason}
+                  </span>
+                {/if}
+                {#if entry.senses.length && !onlyEntries}
+                  <span
+                    class="aspect-square size-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
+                    {entry.senses.length}
+                  </span>
+                {/if}
+              </Accordion.Trigger>
+            </Accordion.Header>
+            {#if !disableExpand}
+              <Accordion.Content>
+                <p class="text-muted-foreground p-2 text-sm">Senses:</p>
+                {#each entry.senses as sense}
+                  {@const disabledSense = disableSense?.(sense, entry)}
+                  <button
+                    class="sense w-full flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4"
+                    class:bg-accent={selectedSense?.id === sense.id}
+                    class:disabled={disabledSense}
+                    onclick={() => select(entry, sense)}>
+                    <div class="flex flex-col items-start">
+                      <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
+                      <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
+                    </div>
+                    {#if disabledSense}
+                      <span
+                        class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                        {disabledSense}
+                      </span>
+                    {/if}
+                  </button>
+                {/each}
+                <ListItem
+                  title="Add Sense..."
+                  icon={mdiPlus}
+                  classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
+                  noShadow
+                  on:click={() => onClickAddSense(entry)}
+                />
+              </Accordion.Content>
+            {/if}
+          </Accordion.Item>
+        {/each}
+      </Accordion.Root>
+      {#if displayedEntries.length === 0 && addedEntries.length === 0}
+        <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
+          {#if search}
+            No entries found <Icon data={mdiMagnifyRemoveOutline} />
+            <NewEntryButton on:click={onClickCreateNewEntry} />
+          {:else if searchResource.loading}
+            <ProgressCircle size={30} />
+          {:else}
+              Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
+              <NewEntryButton on:click={onClickCreateNewEntry} />
+          {/if}
+        </div>
+      {/if}
+      {#if displayedEntries.length}
+        <ListItem
+          title="Create new Entry..."
+          icon={mdiBookPlusOutline}
+          classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
+          noShadow
+          on:click={onClickCreateNewEntry}
+        />
+      {/if}
+      {#if searchResource.current.length > displayedEntries.length}
+        <div class="px-4 py-2 text-center opacity-75 flex items-center">
+          <span>{searchResource.current.length - displayedEntries.length}</span>
+          {#if searchResource.current.length === fetchCount}<span>+</span>{/if}
+          <div class="ml-1 flex justify-between items-center gap-2">
+            <span>more matching entries...</span>
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <Dialog.Footer>
+      <Button variant="secondary" onclick={() => open = false}>Cancel</Button>
+      <Button variant="default" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} onclick={onPick}>
+          Select {selectedSense ? 'Sense' : 'Entry'}
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
