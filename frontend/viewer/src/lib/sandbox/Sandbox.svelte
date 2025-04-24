@@ -13,10 +13,8 @@
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {delay} from '$lib/utils/time';
   import {initView, initViewSettings} from '$lib/views/view-service';
-  import {initWritingSystemService} from '$lib/writing-system-service';
   import {dndzone} from 'svelte-dnd-action';
   import {Button as UxButton, type MenuOption} from 'svelte-ux';
-  import {writable} from 'svelte/store';
   import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
@@ -49,8 +47,7 @@
     AppNotification.display('This is a notification with a large detail', 'info', undefined, detail);
   }
 
-  const inMemoryLexboxApi = InMemoryApiService.setup();
-  initWritingSystemService(writable(inMemoryLexboxApi.getWritingSystemsSync()));
+  InMemoryApiService.setup();
   initView();
   initViewSettings();
 

@@ -4,7 +4,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import {useCurrentView} from '$lib/views/view-service';
   import MapBind from '../../utils/MapBind.svelte';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtMultiOptionField from '../inputs/CrdtMultiOptionField.svelte';
 

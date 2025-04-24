@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
   import {Button, Dialog, SelectField} from 'svelte-ux';
   import WritingSystemEditor from '$lib/writing-system/WritingSystemEditor.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
   import {defaultWritingSystem} from '$lib/utils';
 
