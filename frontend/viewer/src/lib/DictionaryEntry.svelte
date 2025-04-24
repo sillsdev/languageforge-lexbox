@@ -29,7 +29,7 @@
   function getRenderedContent(sense: ISense) {
     return {
       id: sense.id,
-      partOfSpeech: $partsOfSpeech.find(pos => pos.id === sense.partOfSpeechId)?.label,
+      partOfSpeech: partsOfSpeech.current.find(pos => pos.id === sense.partOfSpeechId)?.label,
       glossesAndDefs: wsService.analysis
         .map(ws => ({
           wsId: ws.wsId,

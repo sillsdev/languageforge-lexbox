@@ -22,7 +22,7 @@ import {WritingSystemService} from './writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 import {delay} from '$lib/utils/time';
-import {initProjectContext, type ProjectContext} from '$lib/project-context.svelte';
+import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -48,12 +48,15 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   constructor(private projectContext: ProjectContext) {
     this.#writingSystemService = new WritingSystemService(projectContext);
   }
-
+  public static newProjectContext() {
+    const projectContext = new ProjectContext();
+    projectContext.setup({api: new InMemoryApiService(projectContext), projectName});
+    return projectContext;
+  }
   public static setup(): InMemoryApiService {
     const projectContext = initProjectContext();
     const inMemoryLexboxApi = new InMemoryApiService(projectContext);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName})
-    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, inMemoryLexboxApi);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
       appVersion: `dev`,
       feedbackUrl: '',
