@@ -9,7 +9,7 @@
 
 <script lang="ts">
   import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
-  import {Button, Dialog, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
+  import {Dialog, Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
   import {getContext} from 'svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {cn, defaultSense} from '../utils';
@@ -20,6 +20,7 @@
   import NewEntryButton from './NewEntryButton.svelte';
   import {resource} from 'runed';
   import {Accordion} from "bits-ui";
+  import {Button} from '$lib/components/ui/button';
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
@@ -241,11 +242,9 @@
   </div>
   <div class="flex-grow"></div>
   <div slot="actions">
-    <Button on:click={() => open = false}>Cancel</Button>
-    <Button variant="fill-light" color="success" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} on:click={onPick}>
-      <slot name="submit-text">
+    <Button variant="secondary" onclick={() => open = false}>Cancel</Button>
+    <Button variant="default" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} onclick={onPick}>
         Select {selectedSense ? 'Sense' : 'Entry'}
-      </slot>
     </Button>
   </div>
 </Dialog>
