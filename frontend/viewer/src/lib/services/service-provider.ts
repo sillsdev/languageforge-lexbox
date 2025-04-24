@@ -15,7 +15,7 @@ import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShar
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
-import {useProjectContext} from '$lib/project-context.svelte';
+import {useProjectContext} from '../project-context.svelte';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
