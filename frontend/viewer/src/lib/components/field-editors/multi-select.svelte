@@ -20,7 +20,7 @@
     ...constProps
   }: {
     values: Value[];
-    options: Value[];
+    options: Readonly<Readonly<Value>[]>;
     readonly?: boolean;
     /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
