@@ -6,10 +6,9 @@ import {render, screen} from '@testing-library/svelte'
 import userEvent, {type UserEvent} from '@testing-library/user-event'
 import MultiOptionEditor from './MultiOptionEditor.svelte'
 import type {ComponentProps} from 'svelte'
-import {WritingSystemService} from '$lib/writing-system-service'
-import {WritingSystemType} from '$lib/dotnet-types'
 import {views} from '$lib/views/view-data'
 import {polyfillMockAnimations} from '../../../test-utils'
+import {InMemoryApiService} from '$lib/in-memory-api-service';
 
 type Option = {id: string};
 
@@ -17,19 +16,7 @@ const value = ['2', '3', '4'];
 const options: Option[] = ['1', '2', '3', '4', '5'].map(id => ({id}));
 
 const context = new Map<string, unknown>([
-  ['writingSystems', readable(new WritingSystemService({
-    analysis: [],
-    vernacular: [{
-      id: 'test',
-      wsId: 'test',
-      name: 'test',
-      abbreviation: 'test',
-      font: 'test',
-      exemplars: ['test'],
-      order: 0,
-      type: WritingSystemType.Vernacular,
-    }],
-  }))],
+  ['current-project', InMemoryApiService.newProjectContext()],
   ['currentView', readable(views[0])],
 ]);
 

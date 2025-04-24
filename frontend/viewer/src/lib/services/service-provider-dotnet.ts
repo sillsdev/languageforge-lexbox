@@ -47,7 +47,10 @@ export class DotNetServiceProvider {
 
 export function wrapInProxy(dotnetObject: DotNet.DotNetObject, serviceName: string): unknown {
   return new Proxy(dotnetObject, {
-    get(target: DotNet.DotNetObject, prop: string) {
+    get(target: DotNet.DotNetObject, prop: unknown) {
+      if (typeof prop !== 'string') return undefined;
+      //runed resource calls stringify on values to check equality, so we don't want to pass the toJSON call through to the backend
+      if (prop === 'toJSON') return undefined;
       const dotnetMethodName = uppercaseFirstLetter(prop);
       return async function proxyHandler(...args: unknown[]) {
         console.debug(`[Dotnet Proxy] Calling ${serviceName} method ${dotnetMethodName}`, args);

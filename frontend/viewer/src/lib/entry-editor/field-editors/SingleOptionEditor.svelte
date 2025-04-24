@@ -6,10 +6,10 @@
 
   import type { WritingSystemSelection } from '../../config-types';
   import { useCurrentView } from '$lib/views/view-service';
-  import { useWritingSystemService } from '../../writing-system-service';
+  import { useWritingSystemService } from '../../writing-system-service.svelte';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
-  
+
   type Id = string | undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

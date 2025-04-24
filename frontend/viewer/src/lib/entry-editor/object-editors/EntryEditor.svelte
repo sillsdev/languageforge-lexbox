@@ -6,7 +6,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem} from 'svelte-ux';
@@ -266,7 +266,7 @@
 </EditorGrid>
 
 {#if !modalMode}
-{@const willRenderAnyButtons = $features.history || !readonly}
+{@const willRenderAnyButtons = features.history || !readonly}
   {#if willRenderAnyButtons && !disablePortalButtons}
   <div class="hidden">
     <Scotty beamMeTo="right-toolbar" let:projectViewState>
@@ -282,7 +282,7 @@
           </div>
         </Button>
       {/if}
-      {#if $features.history}
+      {#if features.history}
         <Button on:click={() => showHistoryView = true} title="View entry level history" icon={mdiHistory} variant="fill-light" color="info" size="sm">
           <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
             History
@@ -298,7 +298,7 @@
               Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
             </MenuItem>
           {/if}
-          {#if $features.history}
+          {#if features.history}
             <MenuItem on:click={() => showHistoryView = true} icon={mdiHistory}>
               History
             </MenuItem>
@@ -310,7 +310,7 @@
   </div>
 
   {/if}
-  {#if $features.history}
+  {#if features.history}
     <HistoryView id={entry.id} bind:open={showHistoryView} />
   {/if}
 {/if}

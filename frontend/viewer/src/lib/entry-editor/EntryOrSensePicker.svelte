@@ -18,7 +18,7 @@
   import { useProjectCommands } from '../commands';
   import type { SaveHandler } from '../services/save-event-service';
   import {SortField} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import NewEntryButton from './NewEntryButton.svelte';
 
   const dispatch = createEventDispatcher<{

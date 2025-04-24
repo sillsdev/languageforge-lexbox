@@ -2,7 +2,7 @@
   import type { IEntry } from '$lib/dotnet-types';
   import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   export let entry: IEntry | undefined;
   const currentView = useCurrentView();
