@@ -1,9 +1,11 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
   import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
+  import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
   import { Switch } from '$lib/components/ui/switch';
   import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+  import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import { fieldData } from '$lib/entry-editor/field-data';
   import { t } from 'svelte-i18n-lingui';
 
@@ -28,6 +30,13 @@
     ? randomSemanticDomainSorter
     : semanticDomainOrder);
   let semanticDomainsReadonly = $state(false);
+
+  let note = $state<IRichString>({
+    spans: [
+      { text: 'en note', ws: 'en' },
+      { text: 'fr note', ws: 'fr' },
+    ]
+  });
 </script>
 
 <ResizablePaneGroup direction="horizontal">
@@ -77,6 +86,16 @@
               emptyResultsPlaceholder={$t`Looked hard, found nothing`}
               options={allDomains}
             ></MultiSelect>
+          </Editor.Field.Body>
+        </Editor.Field.Root>
+        <Editor.Field.Root>
+          <Editor.Field.Title
+            liteName={$t`Note`}
+            classicName={$t`Note`}
+            helpId={fieldData.note.helpId}
+          />
+          <Editor.Field.Body>
+            <LcmRichTextEditor bind:value={note}/>
           </Editor.Field.Body>
         </Editor.Field.Root>
       </Editor.Grid>
