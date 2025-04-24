@@ -47,6 +47,6 @@ var fwDataFactory = app.Services.GetRequiredService<FwDataFactory>();
 // var miniLcmApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
 // var entries = await miniLcmApi.GetEntries().ToArrayAsync();
 // var entries = miniLcmApi.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[sbe]=ta" })).ToArrayAsync();
-// var entry = Tools.GetLexEntry(app.Services, fwDataProject, new Guid("{018d71a9-12c2-4129-be8a-35fe246afda2}"));
+// var entry = Utils.GetLexEntry(app.Services, fwDataProject, new Guid("{018d71a9-12c2-4129-be8a-35fe246afda2}"));
 
 fwDataFactory.Dispose();
