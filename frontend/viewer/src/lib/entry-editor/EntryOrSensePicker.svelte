@@ -9,7 +9,7 @@
 
 <script lang="ts">
   import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
-  import {Icon, ListItem, ProgressCircle, TextField} from 'svelte-ux';
+  import {Icon as UxIcon, ListItem, ProgressCircle} from 'svelte-ux';
   import {getContext} from 'svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {cn, defaultSense} from '../utils';
@@ -22,6 +22,8 @@
   import {Accordion} from "bits-ui";
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
+  import {ComposableInput} from '$lib/components/ui/input';
+  import {Icon} from '$lib/components/ui/icon';
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
@@ -130,25 +132,21 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={(isOpen) => !isOpen && reset()}>
-  <Dialog.Content class="entry-sense-picker">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">
         {title}
       </Dialog.Title>
-      <TextField
-        autofocus
-        clearable
-        bind:value={search}
-        placeholder="Find entry..."
-        class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-        classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
-        icon={mdiBookSearchOutline}>
-        <div slot="append" class="flex p-1">
+      <ComposableInput bind:value={search} placeholder="Find entry..." autofocus class="px-1">
+        {#snippet before()}
+          <Icon icon="i-mdi-book-search-outline"/>
+        {/snippet}
+        {#snippet after()}
           {#if searchResource.loading}
-            <ProgressCircle size={20} width={2} />
+            <ProgressCircle size={20} width={2}/>
           {/if}
-        </div>
-      </TextField>
+        {/snippet}
+      </ComposableInput>
     </Dialog.Header>
 
     <div class="p-1">
@@ -215,12 +213,12 @@
       {#if displayedEntries.length === 0 && addedEntries.length === 0}
         <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
           {#if search}
-            No entries found <Icon data={mdiMagnifyRemoveOutline} />
+            No entries found <UxIcon data={mdiMagnifyRemoveOutline} />
             <NewEntryButton on:click={onClickCreateNewEntry} />
           {:else if searchResource.loading}
             <ProgressCircle size={30} />
           {:else}
-              Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
+              Search for an entry {onlyEntries ? '' : 'or sense'} <UxIcon data={mdiBookSearchOutline} /> or
               <NewEntryButton on:click={onClickCreateNewEntry} />
           {/if}
         </div>
@@ -245,7 +243,7 @@
       {/if}
     </div>
 
-    <Dialog.Footer>
+    <Dialog.Footer class="flex-0">
       <Button variant="secondary" onclick={() => open = false}>Cancel</Button>
       <Button variant="default" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} onclick={onPick}>
           Select {selectedSense ? 'Sense' : 'Entry'}
