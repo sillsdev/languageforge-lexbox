@@ -192,6 +192,10 @@
       </Resizable.Pane>
     </Resizable.PaneGroup>
   </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Entry picker example</h3>
+
+  </div>
 </div>
 
 <hr class="border-t border-gray-200 my-6"/>
@@ -203,7 +207,12 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       MultiOptionEditor configurations
-      <OptionSandbox/>
+      <svelte:boundary>
+        <OptionSandbox/>
+        {#snippet failed(error)}
+          Error opening options sandbox {error}
+        {/snippet}
+      </svelte:boundary>
     </div>
 
     <div class="flex flex-col gap-2 border p-4 justify-between">
@@ -267,10 +276,15 @@
         </div>
       </div>
       <div class="editor-grid border p-4">
-        <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
-          <SenseEditor
-            sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
-        </OverrideFields>
+        <svelte:boundary>
+          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+            <SenseEditor
+              sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+          </OverrideFields>
+          {#snippet failed(error)}
+            Error rendering sense editor {error}
+          {/snippet}
+        </svelte:boundary>
       </div>
     </div>
 
