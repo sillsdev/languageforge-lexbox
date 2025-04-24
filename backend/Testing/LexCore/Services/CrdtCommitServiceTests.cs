@@ -3,6 +3,7 @@ using FluentAssertions;
 using FluentAssertions.Equivalency;
 using LexBoxApi.Services;
 using LexData;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SIL.Harmony.Core;
@@ -61,6 +62,58 @@ public class CrdtCommitServiceTests
         }
     }
 
+    //previously the value of the Change property was serialized twice, this test ensures that we can still
+    //pull those commits out of the database
+    [Fact]
+    public async Task CanQueryOldCommits()
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var context = _lexBoxDbContext.CreateLinqToDBContext();
+        var table = LinqToDB.DataExtensions.GetTable<ServerCommit>(context);
+        var commitId = Guid.NewGuid();
+        var changeEntity = new ChangeEntity<ServerJsonChange>
+        {
+            Index = 0,
+            CommitId = commitId,
+            EntityId = Guid.NewGuid(),
+            Change = new()
+            {
+                Type = "MyTestType",
+                ExtensionData = new Dictionary<string, JsonElement>()
+                {
+                    ["MyTestProperty"] = JsonSerializer.SerializeToElement("MyTestValue")
+                }
+            }
+        };
+        var changeEntityJson = JsonSerializer.SerializeToNode(changeEntity);
+        changeEntityJson.Should().NotBeNull();
+        //the old format stored json in json, this is emulating that.
+        changeEntityJson["Change"] = changeEntityJson["Change"]?.ToJsonString();
+        var jsonPayload = changeEntityJson.ToJsonString();
+        var inlineSql = $"'[{jsonPayload}]'::jsonb";
+        //insert a new server commit, manually specifying the value for ChangeEntities so it will match the old format.
+        await LinqToDB.LinqExtensions.InsertAsync(table, () => new ServerCommit(commitId)
+        {
+            Id = commitId,
+            ClientId = Guid.NewGuid(),
+            HybridDateTime = new HybridDateTime(DateTimeOffset.UtcNow, 0)
+            {
+                DateTime = DateTimeOffset.UtcNow,
+                Counter = 0
+            },
+            ProjectId = projectId,
+            Metadata = new CommitMetadata(),
+            ChangeEntities = LinqToDB.Sql.Expr<List<ChangeEntity<ServerJsonChange>>>(inlineSql)
+        });
+        var commits = await _lexBoxDbContext.CrdtCommits(projectId).ToArrayAsync();
+        var actualCommit = commits.Should().ContainSingle(c => c.Id == commitId).Subject;
+        actualCommit.ChangeEntities.Should().BeEquivalentTo([changeEntity],
+            options => options
+                .Using<JsonElement>(ctx => ctx.Subject.ToString().Should().Be(ctx.Expectation.ToString()))
+                .WhenTypeIs<JsonElement>()
+            );
+    }
+
 
     [Fact]
     public async Task CanAddCommits()
@@ -76,6 +129,26 @@ public class CrdtCommitServiceTests
                 .WhenTypeIs<DateTimeOffset>()
                 .Using<JsonElement>(ctx => ctx.Subject.ToString().Should().Be(ctx.Expectation.ToString()))
                 .WhenTypeIs<JsonElement>());
+    }
+
+    [Theory]
+    [InlineData(10)]
+    [InlineData(100)]
+    [InlineData(1000)]
+    public async Task CanAddManyCommits(int count)
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var clientId = Guid.NewGuid();
+        var commits = Enumerable.Range(0, count).Select(i => CreateCommit(clientId, Guid.NewGuid(), DateTime.UtcNow.AddSeconds(i))).ToArray();
+        await _crdtCommitService.AddCommits(projectId, AsAsync(commits));
+        _lexBoxDbContext.CrdtCommits(projectId).Where(c => c.ClientId == clientId).Should()
+            .BeEquivalentTo(commits,
+                o => o.Using<DateTimeOffset>(ctx =>
+                        ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMilliseconds(10)))
+                    .WhenTypeIs<DateTimeOffset>()
+                    .Using<JsonElement>(ctx => ctx.Subject.ToString().Should().Be(ctx.Expectation.ToString()))
+                    .WhenTypeIs<JsonElement>()
+                    .Excluding(c => c.ProjectId));
     }
 
     [Fact]

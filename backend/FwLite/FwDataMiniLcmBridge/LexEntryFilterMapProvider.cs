@@ -11,6 +11,12 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     private static object? EmptyToNull<T>(IList<T> list) => list.Count == 0 ? null : list;
     private static object? EmptyToNull<T>(IEnumerable<T> list) => !list.Any() ? null : list;
     public override Expression<Func<ILexEntry, object?>> EntrySensesSemanticDomains => e => e.AllSenses.Select(s => EmptyToNull(s.SemanticDomainsRC));
+    public override Expression<Func<ILexEntry, object?>> EntrySensesSemanticDomainsCode =>
+        e => e.AllSenses.SelectMany(s => s.SemanticDomainsRC)
+            //don't convert this to a method group, aka keep it as a lambda as that's what Gridify expects
+            // ReSharper disable once ConvertClosureToMethodGroup
+            .Select(domain => LcmHelpers.GetSemanticDomainCode(domain));
+    public override Func<string, object>? EntrySensesSemanticDomainsConverter => EntryFilter.NormalizeEmptyToNullString<ICmSemanticDomain>;
     public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentences => e => EmptyToNull(e.AllSenses.SelectMany(s => s.ExamplesOS));
     public override Expression<Func<ILexEntry, string, object?>> EntrySensesExampleSentencesSentence => (entry, ws) =>
         entry.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => example.PickText(example.Example, ws));
@@ -26,4 +32,5 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, string, object?>> EntryCitationForm => (entry, ws) => entry.PickText(entry.CitationForm, ws);
     public override Expression<Func<ILexEntry, string, object?>> EntryLiteralMeaning => (entry, ws) => entry.PickText(entry.LiteralMeaning, ws);
     public override Expression<Func<ILexEntry, object?>> EntryComplexFormTypes => e => EmptyToNull(e.ComplexFormEntryRefs.SelectMany(r => r.ComplexEntryTypesRS));
+    public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToNullString<ILexEntryType>;
 }

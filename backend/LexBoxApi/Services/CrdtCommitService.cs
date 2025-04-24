@@ -1,6 +1,7 @@
 ﻿using LexCore.Utils;
 using LexData;
 using LinqToDB;
+using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.EntityFrameworkCore.Internal;
 using SIL.Harmony.Core;
@@ -9,35 +10,34 @@ namespace LexBoxApi.Services;
 
 public class CrdtCommitService(LexBoxDbContext dbContext)
 {
-    public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits)
+    public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
     {
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        var commitsTable = dbContext.CreateLinqToDBContext().GetTable<ServerCommit>();
-        await foreach (var commitChunk in commits.Chunk(100))
-        {
-            //using merge instead of BulkCopy to support skipping inserts of commits that already exist
-            await commitsTable
-                .Merge()
-                .Using(commitChunk)
-                .OnTargetKey()
-                .InsertWhenNotMatched(commit => new ServerCommit(commit.Id)
-                {
-                    Id = commit.Id,
-                    ClientId = commit.ClientId,
-                    HybridDateTime = new HybridDateTime(commit.HybridDateTime.DateTime, commit.HybridDateTime.Counter)
-                    {
-                        DateTime = commit.HybridDateTime.DateTime,
-                        Counter = commit.HybridDateTime.Counter
-                    },
-                    ProjectId = projectId,
-                    Metadata = commit.Metadata,
-                    //without this sql cast the value will be treated as text and fail to insert into the jsonb column
-                    ChangeEntities = Sql.Expr<List<ChangeEntity<ServerJsonChange>>>($"{commit.ChangeEntities}::jsonb")
-                })
-                .MergeAsync();
-        }
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
+        var linqToDbContext = dbContext.CreateLinqToDBContext();
+        await using var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}", cancellationToken: token);
+        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, commits, token);
 
-        await transaction.CommitAsync();
+        var commitsTable = linqToDbContext.GetTable<ServerCommit>();
+        await commitsTable
+            .Merge()
+            .Using(tmpTable)
+            .OnTargetKey()
+            .InsertWhenNotMatched(commit => new ServerCommit(commit.Id)
+            {
+                Id = commit.Id,
+                ClientId = commit.ClientId,
+                HybridDateTime = new HybridDateTime(commit.HybridDateTime.DateTime, commit.HybridDateTime.Counter)
+                {
+                    DateTime = commit.HybridDateTime.DateTime, Counter = commit.HybridDateTime.Counter
+                },
+                ProjectId = projectId,
+                Metadata = commit.Metadata,
+                //without this sql cast the value will be treated as text and fail to insert into the jsonb column
+                ChangeEntities = Sql.Expr<List<ChangeEntity<ServerJsonChange>>>($"{commit.ChangeEntities}::jsonb")
+            })
+            .MergeAsync(token);
+
+        await transaction.CommitAsync(token);
     }
 
     public IAsyncEnumerable<ServerCommit> GetMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)

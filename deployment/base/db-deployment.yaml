@@ -55,9 +55,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
-            memory: 100Mi
+            memory: 200Mi
           limits:
-            memory: 100Mi
+            memory: 200Mi
 
         env:
           - name: PGDATA

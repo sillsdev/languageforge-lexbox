@@ -88,7 +88,7 @@
       {#each projects as project}
         {@const localProject = matchesProject(localProjects, project)}
         {#if localProject?.crdt}
-          <ButtonListItem href={`/project/${project.name}`}>
+          <ButtonListItem href={`/project/${project.code}`}>
             <ListItem icon={mdiCloud}
                       title={project.name}
                       loading={downloading === project.name}>

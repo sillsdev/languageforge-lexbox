@@ -7,10 +7,12 @@
     ref = $bindable(null),
     class: className,
     portalProps,
+    handle = true,
     children,
     ...restProps
   }: DrawerPrimitive.ContentProps & {
     portalProps?: DrawerPrimitive.PortalProps;
+    handle?: boolean;
   } = $props();
 </script>
 
@@ -24,7 +26,9 @@
     )}
     {...restProps}
   >
-    <div class="bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full"></div>
+    {#if handle}
+      <div class="bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full"></div>
+    {/if}
     {@render children?.()}
   </DrawerPrimitive.Content>
 </DrawerPrimitive.Portal>

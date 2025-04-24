@@ -15,6 +15,7 @@
 
   const alternateView = {
     id: 'alternate',
+    type: 'fw-classic',
     i18nKey: '',
     label: 'Alternate',
     fields,
@@ -25,6 +26,7 @@
 
   const defaultView = {
     id: 'sandbox',
+    type: 'fw-lite',
     i18nKey: '',
     label: 'Language Forge',
     fields,

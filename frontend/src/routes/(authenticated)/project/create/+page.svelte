@@ -26,6 +26,7 @@
   $: user = data.user;
   let requestingUser : typeof data.requestingUser;
   $: myOrgs = data.myOrgs ?? [];
+  $: projectStatus = data.projectStatus;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -65,7 +66,7 @@
       forceDraft
     });
     if (result.error) {
-      if (result.error.byCode(DbErrorCode.Duplicate)) {
+      if (result.error.byCode(DbErrorCode.DuplicateProjectCode)) {
         $errors.code = [$t('project.create.code_exists')];
       } else {
         $message = result.error.message;
@@ -197,6 +198,19 @@
 </script>
 
 <TitlePage title={$t('project.create.title')}>
+{#if projectStatus?.exists}
+  <div class="text-center">
+    <div>
+      <p>{$t('project.create.already_approved')}</p>
+      {#if projectStatus.deleted}
+        <p>{$t('project.create.already_approved_deleted')}</p>
+      {/if}
+    </div>
+    {#if projectStatus.accessibleCode}
+      <a class="btn btn-primary mt-4" href={projectUrl({ code: projectStatus.accessibleCode })}>{$t('project.create.go_to_project')}</a>
+    {/if}
+  </div>
+{:else}
   <Form {enhance}>
     <Input
       label={$t('project.create.name')}
@@ -344,4 +358,5 @@
       </SubmitButton>
     {/if}
   </Form>
+{/if}
 </TitlePage>
