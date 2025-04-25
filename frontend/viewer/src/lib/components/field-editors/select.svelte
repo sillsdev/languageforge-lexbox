@@ -86,13 +86,8 @@
     {:else}
       <span class="text-muted-foreground">
         {placeholder ?? $t`None`}
-        <!-- ensures that:
-          1) baseline alignment works for consumers of this component
-          2) list height doesn't shrink when empty
-          -->
-        <Badge class="max-w-0 invisible">
-          &nbsp;
-        </Badge>
+        <!-- ensures that baseline alignment works for consumers of this component -->
+        &nbsp;
       </span>
     {/if}
     {#if !readonly}
