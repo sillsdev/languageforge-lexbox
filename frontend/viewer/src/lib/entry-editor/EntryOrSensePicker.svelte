@@ -138,7 +138,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content>
+  <Dialog.Content class="pb-0">
     <Dialog.Header>
       <Dialog.Title class="mb-4">
         {title}
@@ -249,11 +249,18 @@
       {/if}
     </div>
 
-    <Dialog.Footer class="flex-0">
-      <Button variant="secondary" onclick={() => open = false}>Cancel</Button>
-      <Button variant="default" disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)} onclick={onPick}>
+    <Dialog.Footer class="sticky bottom-0 pointer-events-none">
+      <div class="flex gap-4 items-end p-2 pb-4 bg-background rounded flex-nowrap pointer-events-auto">
+        <Button variant="secondary" class="basis-1/4" onclick={() => open = false}>
+          Cancel
+        </Button>
+        <Button variant="default" class="basis-3/4"
+                disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)}
+                onclick={onPick}>
           Select {selectedSense ? 'Sense' : 'Entry'}
-      </Button>
+        </Button>
+      </div>
+
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
