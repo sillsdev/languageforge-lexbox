@@ -56,7 +56,7 @@
   let selectedEntryId: string | undefined = $state(undefined);
 
   const lexboxApi = useLexboxApi();
-  let search = $state('')
+  let search = $state('k');
   const fetchCount = 150;
   const displayCount = 50;
 
@@ -88,7 +88,7 @@
   });
 
   function reset() {
-    search = '';
+    search = 'k';
     selectedEntry = undefined;
     selectedEntryId = undefined;
     selectedSense = undefined;
@@ -157,84 +157,21 @@
     </Dialog.Header>
 
     <div class="p-1">
-      {#if onlyEntries}
-        <div class="space-y-2">
-          {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
-            {@const disabledEntry = disableEntry?.(entry)}
-            <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => select(entry)}>
-              {#snippet badge()}
-                {#if disabledEntry}
-                    <span
-                      class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                      {disabledEntry.reason}
-                    </span>
-                {/if}
-              {/snippet}
-            </EntryRow>
-          {/each}
-        </div>
-      {:else}
-        <Accordion.Root type="single" bind:value={selectedEntryId}>
+      <div class="space-y-2">
         {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
           {@const disabledEntry = disableEntry?.(entry)}
-          {@const disableExpand = !!(disabledEntry && disabledEntry.disableSenses)}
-          <Accordion.Item value={entry.id} class="data-[state=open]:border">
-            <Accordion.Header class={cn('hover:bg-accent p-2', entry.id === selectedEntryId && !selectedSense && 'bg-accent')} onclick={() => onExpansionClick(disableExpand, entry)}>
-              <Accordion.Trigger class="w-full flex" disabled={!!disabledEntry}>
-                <div class="flex flex-col items-start">
-                  <p class="font-medium text-xl">{writingSystemService.headword(entry).padStart(1, '–')}</p>
-                  <p class="text-muted-foreground">{writingSystemService.glosses(entry).padStart(1, '–')}</p>
-                </div>
-                <div class="grow"></div>
-                {#if disabledEntry}
+          <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => select(entry)}>
+            {#snippet badge()}
+              {#if disabledEntry}
                   <span
                     class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
                     {disabledEntry.reason}
                   </span>
-                {/if}
-                {#if entry.senses.length}
-                  <span
-                    class="aspect-square size-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
-                    {entry.senses.length}
-                  </span>
-                {/if}
-              </Accordion.Trigger>
-            </Accordion.Header>
-            {#if !disableExpand}
-              <Accordion.Content>
-                <p class="text-muted-foreground p-2 text-sm">Senses:</p>
-                {#each entry.senses as sense}
-                  {@const disabledSense = disableSense?.(sense, entry)}
-                  <button
-                    class="sense w-full flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4"
-                    class:bg-accent={selectedSense?.id === sense.id}
-                    class:disabled={disabledSense}
-                    onclick={() => select(entry, sense)}>
-                    <div class="flex flex-col items-start">
-                      <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
-                      <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
-                    </div>
-                    {#if disabledSense}
-                      <span
-                        class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                        {disabledSense}
-                      </span>
-                    {/if}
-                  </button>
-                {/each}
-                <ListItem
-                  title="Add Sense..."
-                  icon={mdiPlus}
-                  classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
-                  noShadow
-                  on:click={() => onClickAddSense(entry)}
-                />
-              </Accordion.Content>
-            {/if}
-          </Accordion.Item>
+              {/if}
+            {/snippet}
+          </EntryRow>
         {/each}
-      </Accordion.Root>
-      {/if}
+      </div>
       {#if displayedEntries.length === 0 && addedEntries.length === 0}
         <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
           {#if search}
@@ -268,8 +205,53 @@
       {/if}
     </div>
 
-    <Dialog.Footer class="sticky bottom-0 pointer-events-none">
-      <div class="flex gap-4 items-end p-2 pb-4 bg-background rounded flex-nowrap pointer-events-auto">
+    <Dialog.Footer class="sticky bottom-0 pointer-events-none gap-0 flex-col bg-background border rounded border-b-0">
+      {#if !onlyEntries && selectedEntry}
+        <div class="pointer-events-auto flex-1 pr-2 space-y-2 pb-4 max-h-72 overflow-y-scroll">
+          <p class="text-muted-foreground p-2 text-sm">Senses:</p>
+          <div class="ml-2 mr-1">
+            <button
+              class="w-full hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
+              role="row"
+              aria-selected={!selectedSense}
+              onclick={() => select(selectedEntry, undefined)}>
+              <div class="flex flex-col items-start">
+                <p class="font-medium">Entry Only</p>
+              </div>
+            </button>
+          </div>
+          {#each selectedEntry.senses as sense}
+            {@const disabledSense = disableSense?.(sense, selectedEntry)}
+            <div class="ml-2 mr-1">
+              <button
+                class="w-full hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
+                role="row"
+                aria-selected={selectedSense?.id === sense.id}
+                class:disabled={disabledSense}
+                onclick={() => select(selectedEntry, sense)}>
+                <div class="flex flex-col items-start">
+                  <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
+                  <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
+                </div>
+                {#if disabledSense}
+                          <span
+                            class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                            {disabledSense}
+                          </span>
+                {/if}
+              </button>
+            </div>
+          {/each}
+<!--          disabled for now because this didn't prompt the user to define the sense, it just created it with no data-->
+<!--          <button
+            class="w-full flex-1 flex items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 rounded"
+            onclick={() => onClickAddSense(selectedEntry)}>
+            <Icon icon="i-mdi-plus"/>
+            <p class="font-medium text-xl">Add sense...</p>
+          </button>-->
+        </div>
+      {/if}
+      <div class="flex gap-4 items-end p-2 pb-4 rounded flex-nowrap pointer-events-auto">
         <Button variant="secondary" class="basis-1/4" onclick={() => open = false}>
           Cancel
         </Button>
