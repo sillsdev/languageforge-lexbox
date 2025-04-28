@@ -17,7 +17,6 @@
   import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
-  import {cn} from '$lib/utils';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
 

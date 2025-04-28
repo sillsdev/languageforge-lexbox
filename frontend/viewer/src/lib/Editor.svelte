@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
-  import {createEventDispatcher, getContext} from 'svelte';
+  import {createEventDispatcher} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
   import {useSaveHandler} from './services/save-event-service.svelte';
   import {useViewSettings} from '$lib/views/view-service';

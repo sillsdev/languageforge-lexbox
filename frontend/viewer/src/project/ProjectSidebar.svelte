@@ -10,8 +10,6 @@
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate} from 'svelte-routing';
-  import NewEntryButton from './NewEntryButton.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
 
@@ -29,10 +27,6 @@
     } else if (selectedProject.crdt) {
       navigate('/project/' + selectedProject.code)
     }
-  }
-
-  function handleNewEntry() {
-    console.log('handleNewEntry');
   }
 
   let sidebar: Sidebar.Root | undefined = $state();

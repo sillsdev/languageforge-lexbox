@@ -1,6 +1,6 @@
 import {useProjectContext} from '$lib/project-context.svelte';
 import type {IEntry} from '$lib/dotnet-types';
-import {useWritingSystemService, WritingSystemService} from '$lib/writing-system-service.svelte';
+import {useWritingSystemService, type WritingSystemService} from '$lib/writing-system-service.svelte';
 
 const symbol = Symbol.for('fw-lite-dialogs');
 

@@ -333,7 +333,7 @@
     <div slot="actions" class="flex items-center whitespace-nowrap">
       <div class="space-x-2">
         {#if !readonly}
-          <NewEntryButton on:click={() => openNewEntryDialog()} />
+          <NewEntryButton onclick={() => openNewEntryDialog()} />
         {/if}
         {#if $features.feedback && fwLiteConfig.feedbackUrl}
           <Button
@@ -377,7 +377,7 @@
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !readonly}
-              <NewEntryButton on:click={() => openNewEntryDialog()} />
+              <NewEntryButton onclick={() => openNewEntryDialog()} />
             {/if}
           </div>
         {/if}
