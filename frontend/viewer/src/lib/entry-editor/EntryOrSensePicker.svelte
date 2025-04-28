@@ -8,9 +8,6 @@
 </script>
 
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline} from '@mdi/js';
-  import {Icon as UxIcon, ListItem, ProgressCircle} from 'svelte-ux';
-  import {getContext} from 'svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultSense} from '../utils';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -24,6 +21,7 @@
   import {ComposableInput} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
   import EntryRow from '../../project/browse/EntryRow.svelte';
+  import Loading from '$lib/components/Loading.svelte';
 
   const dialogsService = useDialogsService();
   const saveHandler = useSaveHandler();
@@ -149,7 +147,7 @@
         {/snippet}
         {#snippet after()}
           {#if searchResource.loading}
-            <ProgressCircle size={20} width={2}/>
+            <Loading/>
           {/if}
         {/snippet}
       </ComposableInput>
@@ -169,29 +167,31 @@
               {/if}
             {/snippet}
           </EntryRow>
+        {:else}
+          {#if searchResource.loading}
+            <EntryRow skeleton/>
+            <EntryRow skeleton/>
+            <EntryRow skeleton/>
+            <EntryRow skeleton/>
+            <EntryRow skeleton/>
+          {:else}
+            <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
+              {#if search}
+                No entries found
+                <Icon icon="i-mdi-magnify-remove-outline"/>
+                <NewEntryButton onclick={onClickCreateNewEntry}/>
+              {:else}
+                Search for an entry {onlyEntries ? '' : 'or sense'}
+                <Icon icon="i-mdi-book-search-outline"/>
+                or
+                <NewEntryButton onclick={onClickCreateNewEntry}/>
+              {/if}
+            </div>
+          {/if}
         {/each}
       </div>
-      {#if displayedEntries.length === 0 && addedEntries.length === 0}
-        <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
-          {#if search}
-            No entries found <UxIcon data={mdiMagnifyRemoveOutline} />
-            <NewEntryButton on:click={onClickCreateNewEntry} />
-          {:else if searchResource.loading}
-            <ProgressCircle size={30} />
-          {:else}
-              Search for an entry {onlyEntries ? '' : 'or sense'} <UxIcon data={mdiBookSearchOutline} /> or
-              <NewEntryButton on:click={onClickCreateNewEntry} />
-          {/if}
-        </div>
-      {/if}
       {#if displayedEntries.length}
-        <ListItem
-          title="Create new Entry..."
-          icon={mdiBookPlusOutline}
-          classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
-          noShadow
-          on:click={onClickCreateNewEntry}
-        />
+        <NewEntryButton onclick={onClickCreateNewEntry} class="m-4" variant="default"/>
       {/if}
       {#if searchResource.current.length > displayedEntries.length}
         <div class="px-4 py-2 text-center opacity-75 flex items-center">

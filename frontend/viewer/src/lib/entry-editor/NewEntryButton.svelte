@@ -1,14 +1,13 @@
-<script>
+<script lang="ts">
   import {fieldName} from '$lib/i18n';
   import {useCurrentView} from '$lib/views/view-service';
-  import {mdiBookPlusOutline} from '@mdi/js';
-  import {Button} from 'svelte-ux';
+  import {Button, type ButtonProps} from '$lib/components/ui/button/index.js';
 
   const currentView = useCurrentView();
-
+  const {...restProps}: ButtonProps = $props();
 </script>
 
-<Button on:click icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
+<Button icon="i-mdi-book-plus-outline" variant="outline" {...restProps}>
   <div class="hidden sm:contents">
     Create {fieldName({id: 'entry'}, $currentView.i18nKey)}
   </div>
