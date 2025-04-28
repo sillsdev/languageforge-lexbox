@@ -15,13 +15,14 @@
   import {SortField} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import NewEntryButton from './NewEntryButton.svelte';
-  import {resource} from 'runed';
+  import {resource, watch} from 'runed';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {ComposableInput} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
   import EntryRow from '../../project/browse/EntryRow.svelte';
   import Loading from '$lib/components/Loading.svelte';
+  import {t, T} from 'svelte-i18n-lingui';
 
   const dialogsService = useDialogsService();
   const saveHandler = useSaveHandler();
@@ -53,13 +54,14 @@
   let selectedEntryId: string | undefined = $state(undefined);
 
   const lexboxApi = useLexboxApi();
-  let search = $state('k');
-  const fetchCount = 150;
-  const displayCount = 50;
+  let search = $state('');
+  const PAGE_SIZE = 50;
+  let displayCount = $state(PAGE_SIZE);
+  let fetchCount = $state(PAGE_SIZE * 2);
 
   let addedEntries: IEntry[] = $state([]);
-  const searchResource = resource(() => search, (search) => {
-    if (!search) return [];
+  const searchResource = resource([() => search, () => fetchCount], () => {
+    if (!search) return Promise.resolve([]);
     return lexboxApi.searchEntries(search ?? '', {
       offset: 0,
       count: fetchCount,
@@ -73,6 +75,18 @@
     addedEntries = [];
   });
 
+  watch([() => open, () => search], ([open]) => {
+    if (open) {
+      displayCount = PAGE_SIZE;
+      fetchCount = PAGE_SIZE * 2;
+    }
+  });
+
+  function showMoreEntries() {
+    displayCount += PAGE_SIZE;
+    fetchCount += PAGE_SIZE;
+  }
+
   function onPick() {
     pick?.({entry: selectedEntry!, sense: selectedSense});
     open = false;
@@ -85,7 +99,7 @@
   });
 
   function reset() {
-    search = 'k';
+    search = '';
     selectedEntry = undefined;
     selectedEntryId = undefined;
     selectedSense = undefined;
@@ -118,21 +132,13 @@
   }
   $effect(() => {
     if (!selectedEntryId) {
-      select()
+      select();
       return;
     }
     let entry = displayedEntries.find(e => e.id === selectedEntryId);
     if (disableEntry && entry && disableEntry(entry)) entry = undefined;
     select(entry);
   });
-
-  function onExpansionClick(disableExpand: boolean, entry: IEntry) {
-    console.log('expansion clicked', disableExpand);
-    if (disableExpand) {
-      // In this case, the ExpansionPanel' on:change event above is not in use, so we need to manage state here
-      select(selectedEntry?.id === entry.id ? undefined : entry);
-    }
-  }
 </script>
 
 <Dialog.Root bind:open>
@@ -176,68 +182,63 @@
         {:else}
           <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
             {#if search}
-              No entries found
+              {$t`No entries found`}
               <Icon icon="i-mdi-magnify-remove-outline"/>
               <NewEntryButton onclick={onClickCreateNewEntry}/>
             {:else}
-              Search for an entry {onlyEntries ? '' : 'or sense'}
-              <Icon icon="i-mdi-book-search-outline"/>
-              or
-              <NewEntryButton onclick={onClickCreateNewEntry}/>
+              <T msg="Search for an entry # or #">
+                <Icon icon="i-mdi-book-search-outline"/>
+                {#snippet second()}
+                  <NewEntryButton onclick={onClickCreateNewEntry}/>
+                {/snippet}
+              </T>
             {/if}
           </div>
         {/if}
       {/each}
+      {#if searchResource.current.length > displayedEntries.length}
+        {@const remainingEntries = searchResource.current.length - displayedEntries.length}
+        <Button class="w-full h-14" variant="outline" onclick={showMoreEntries}>
+          {$t`Show ${remainingEntries} more...`}
+        </Button>
+      {/if}
+      {#if displayedEntries.length}
+        <NewEntryButton onclick={onClickCreateNewEntry} class="w-full h-14" variant="default"/>
+      {/if}
     </div>
-    {#if displayedEntries.length}
-      <NewEntryButton onclick={onClickCreateNewEntry} class="m-4" variant="default"/>
-    {/if}
-    {#if searchResource.current.length > displayedEntries.length}
-      <div class="px-4 py-2 text-center opacity-75 flex items-center">
-        <span>{searchResource.current.length - displayedEntries.length}</span>
-        {#if searchResource.current.length === fetchCount}<span>+</span>{/if}
-        <div class="ml-1 flex justify-between items-center gap-2">
-          <span>more matching entries...</span>
-        </div>
-      </div>
-    {/if}
 
-    <Dialog.Footer class="sticky bottom-0 pointer-events-none gap-0 flex-col bg-background border rounded border-b-0">
+    <Dialog.Footer class="sticky bottom-0 gap-0 flex-col bg-background border rounded rounded-b-none border-b-0 scale-[1.02]">
       {#if !onlyEntries && selectedEntry}
-        <div class="pointer-events-auto flex-1 pr-2 space-y-2 pb-4 max-h-72 overflow-y-scroll">
+        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 max-h-72 overflow-y-auto overscroll-contains">
           <p class="text-muted-foreground p-2 text-sm">Senses:</p>
-          <div class="ml-2 mr-1">
-            <button
-              class="w-full hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
-              role="row"
-              aria-selected={!selectedSense}
-              onclick={() => select(selectedEntry, undefined)}>
-              <div class="flex flex-col items-start">
-                <p class="font-medium">Entry Only</p>
-              </div>
-            </button>
-          </div>
+          <button
+            class="w-full bg-muted/30 hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
+            role="row"
+            aria-selected={!selectedSense}
+            onclick={() => select(selectedEntry, undefined)}>
+            <div class="flex flex-col items-start">
+              <p class="font-medium">{$t`Entry Only`}</p>
+            </div>
+          </button>
           {#each selectedEntry.senses as sense}
             {@const disabledSense = disableSense?.(sense, selectedEntry)}
-            <div class="ml-2 mr-1">
-              <button
-                class="w-full hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
-                role="row"
-                aria-selected={selectedSense?.id === sense.id}
-                class:disabled={disabledSense}
-                onclick={() => select(selectedEntry, sense)}>
-                <div class="flex flex-col items-start">
-                  <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
-                  <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
-                </div>
-                {#if disabledSense}
-                          <span
-                            class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                            {disabledSense}
-                          </span>
-                {/if}
-              </button>
-            </div>
+            <button
+              class="w-full bg-muted/30 hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
+              role="row"
+              aria-selected={selectedSense?.id === sense.id}
+              class:disabled={disabledSense}
+              onclick={() => select(selectedEntry, sense)}>
+              <div class="flex flex-col items-start">
+                <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
+                <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
+              </div>
+              {#if disabledSense}
+                <span
+                  class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                  {disabledSense}
+                </span>
+              {/if}
+            </button>
           {/each}
 <!--          disabled for now because this didn't prompt the user to define the sense, it just created it with no data-->
 <!--          <button
@@ -248,14 +249,14 @@
           </button>-->
         </div>
       {/if}
-      <div class="flex gap-4 items-end p-2 pb-4 rounded flex-nowrap pointer-events-auto">
+      <div class="flex gap-4 items-end p-4 rounded flex-nowrap min-w-64">
         <Button variant="secondary" class="basis-1/4" onclick={() => open = false}>
-          Cancel
+           {$t`Cancel`}
         </Button>
         <Button variant="default" class="basis-3/4"
                 disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)}
                 onclick={onPick}>
-          Select {selectedSense ? 'Sense' : 'Entry'}
+          {$t`Select ${selectedSense ? $t`Sense` : $t`Entry`}`}
         </Button>
       </div>
 

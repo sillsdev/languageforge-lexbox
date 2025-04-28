@@ -197,6 +197,10 @@
         101
       ],
       [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        254
+      ],
+      [
         "src/lib/components/field-editors/multi-select.svelte",
         270
       ]
@@ -283,6 +287,10 @@
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
         103
+      ],
+      [
+        "src/lib/entry-editor/NewEntryButton.svelte",
+        12
       ]
     ],
     "translation": ""
@@ -427,6 +435,30 @@
       ]
     ],
     "translation": "Télécharger"
+  },
+  "VIwCaD": {
+    "message": "Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        259
+      ]
+    ],
+    "translation": ""
+  },
+  "byQjNm": {
+    "message": "Entry Only",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        220
+      ]
+    ],
+    "translation": ""
   },
   "9QXzjh": {
     "message": "Failed to load entries",
@@ -812,6 +844,10 @@
       [
         "src/project/browse/EntriesList.svelte",
         99
+      ],
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        185
       ]
     ],
     "translation": ""
@@ -960,6 +996,30 @@
     ],
     "translation": ""
   },
+  "TBEd/+": {
+    "message": "Search for an entry # or #",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        null
+      ]
+    ],
+    "translation": ""
+  },
+  "02ePaq": {
+    "message": "Select {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        259
+      ]
+    ],
+    "translation": ""
+  },
   "mEtszZ": {
     "message": "Semantic domains",
     "placeholders": {},
@@ -976,6 +1036,18 @@
       [
         "src/lib/sandbox/EditorSandbox.svelte",
         75
+      ]
+    ],
+    "translation": ""
+  },
+  "Ivc0e8": {
+    "message": "Sense",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        259
       ]
     ],
     "translation": ""
@@ -1000,6 +1072,18 @@
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
         44
+      ]
+    ],
+    "translation": ""
+  },
+  "0IaUwR": {
+    "message": "Show {0} more...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        202
       ]
     ],
     "translation": ""
@@ -1171,7 +1255,7 @@
       ],
       [
         "src/project/browse/EntryRow.svelte",
-        52
+        51
       ]
     ],
     "translation": ""
