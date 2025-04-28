@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import type {IEntry, ISense} from '$lib/dotnet-types';
 
   export type EntrySenseSelection = {
@@ -8,25 +8,24 @@
 </script>
 
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
+  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline} from '@mdi/js';
   import {Icon as UxIcon, ListItem, ProgressCircle} from 'svelte-ux';
   import {getContext} from 'svelte';
   import {useLexboxApi} from '../services/service-provider';
-  import {cn, defaultSense} from '../utils';
-  import {useProjectCommands} from '../commands';
+  import {defaultSense} from '../utils';
+  import {useDialogsService} from '$lib/services/dialogs-service';
   import type {SaveHandler} from '../services/save-event-service';
   import {SortField} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import NewEntryButton from './NewEntryButton.svelte';
   import {resource} from 'runed';
-  import {Accordion} from "bits-ui";
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {ComposableInput} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
   import EntryRow from '../../project/browse/EntryRow.svelte';
 
-  const projectCommands = useProjectCommands();
+  const dialogsService = useDialogsService();
   const saveHandler = getContext<SaveHandler>('saveHandler');
   const writingSystemService = useWritingSystemService();
 
@@ -106,7 +105,7 @@
 
 
   async function onClickCreateNewEntry(): Promise<void> {
-    const entry = await projectCommands.createNewEntry(search, {dontSelect: true});
+    const entry = await dialogsService.createNewEntry(search);
     selectedEntry = entry;
     selectedEntryId = entry?.id;
     if (entry) {

@@ -29,6 +29,7 @@
   import {Switch} from '$lib/components/ui/switch';
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import DialogsProvider from '$lib/DialogsProvider.svelte';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -110,7 +111,7 @@
     };
   }
 </script>
-
+<DialogsProvider/>
 <div class="p-6 shadcn-root">
   <h2 class="mb-4 flex gap-8 items-center">
     Shadcn Sandbox <ThemePicker />

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
-  import {useDialogService} from '$lib/entry-editor/dialog-service';
+  import {useDialogsService} from '$lib/services/dialogs-service';
   import {fieldName} from '$lib/i18n';
   import Scotty from '$lib/layout/Scotty.svelte';
   import {useFeatures} from '$lib/services/feature-service';
@@ -21,7 +21,7 @@
   import ExampleEditor from './ExampleEditor.svelte';
   import SenseEditor from './SenseEditor.svelte';
 
-  const dialogService = useDialogService();
+  const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};

@@ -12,6 +12,7 @@
   import EntryEditor from './object-editors/EntryEditor.svelte';
   import OverrideFields from '$lib/OverrideFields.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service.js';
 
   let open = $state(false);
   let loading = $state(false);
@@ -19,6 +20,8 @@
 
   const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
+  const dialogsService = useDialogsService();
+  dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
   let requester: {
