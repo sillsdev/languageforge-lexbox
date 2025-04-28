@@ -142,7 +142,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="pb-0" style="grid-template-rows: auto 1fr auto">
+  <Dialog.Content class="pb-0 @container" style="grid-template-rows: auto 1fr auto">
     <Dialog.Header>
       <Dialog.Title class="mb-4">
         {title}
@@ -209,7 +209,7 @@
 
     <Dialog.Footer class="sticky bottom-0 gap-0 flex-col bg-background border rounded rounded-b-none border-b-0 scale-[1.02]">
       {#if !onlyEntries && selectedEntry}
-        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 max-h-72 overflow-y-auto overscroll-contains">
+        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 max-h-[min(50cqh,20rem)] overflow-y-auto overscroll-contains">
           <p class="text-muted-foreground p-2 text-sm">Senses:</p>
           <button
             class="w-full bg-muted/30 hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
