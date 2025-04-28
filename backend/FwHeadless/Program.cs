@@ -36,12 +36,16 @@ builder.Services.AddFwHeadless();
 builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalOpenTelemetry(telemetryBuilder =>
 {
     telemetryBuilder.WithTracing(b => b.AddNpgsql()
-        .AddEntityFrameworkCoreInstrumentation(c => c.SetDbStatementForText = true)
+        .AddEntityFrameworkCoreInstrumentation(c =>
+        {
+            //never emit traces for sqlite as there's way too much noise and it'll crash servers and overrun honeycomb
+            c.Filter = (provider, command) => provider is not "Microsoft.EntityFrameworkCore.Sqlite";
+            c.SetDbStatementForText = true;
+        })
         .AddSource(FwHeadlessActivitySource.ActivitySourceName,
             FwLiteProjectSyncActivitySource.ActivitySourceName,
             FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
-            LcmCrdtActivitySource.ActivitySourceName)
-        .SetSampler<OtelSampler>());
+            LcmCrdtActivitySource.ActivitySourceName));
 });
 
 var app = builder.Build();
