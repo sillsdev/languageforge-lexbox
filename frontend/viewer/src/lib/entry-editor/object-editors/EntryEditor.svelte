@@ -20,6 +20,7 @@
   import EntityEditor from './EntityEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
   import SenseEditor from './SenseEditor.svelte';
+  import {EditorGrid} from '$lib/components/editor';
 
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
@@ -103,7 +104,7 @@
   export let canAddSense = true;
   export let canAddExample = true;
 
-  let editorElem: HTMLDivElement | undefined;
+  let editorElem: HTMLDivElement | null = null;
   let highlightedEntity: IExampleSentence | ISense | undefined;
   let highlightTimeout: ReturnType<typeof setTimeout>;
 
@@ -147,7 +148,7 @@
   let showHistoryView = false;
 </script>
 
-<div bind:this={editorElem} class="editor-grid">
+<EditorGrid bind:ref={editorElem}>
   <div class="grid-layer" style:grid-template-areas={`${objectTemplateAreas($currentView, entry)}`}>
     <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                       bind:value={entry.lexemeForm}
@@ -262,7 +263,7 @@
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
-</div>
+</EditorGrid>
 
 {#if !modalMode}
 {@const willRenderAnyButtons = features.history || !readonly}
