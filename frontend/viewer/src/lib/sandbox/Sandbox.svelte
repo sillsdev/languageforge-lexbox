@@ -25,6 +25,7 @@
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -74,12 +75,13 @@
   let selectedEntryHistory: EntrySenseSelection[] = $state([]);
   let openPicker = $state(false);
   let pickerMode: 'entries-and-senses' | 'only-entries' = $state('only-entries');
+
   function disableEntry(entry: IEntry): false | { reason: string, disableSenses?: true } {
     const selected = selectedEntryHistory.some(e => e.entry.id === entry.id);
-    if (!selected) return  false;
+    if (!selected) return false;
     return {
       reason: 'You cannot select an entry that you have already selected',
-      disableSenses: false
+      disableSenses: true
     };
   }
 </script>
@@ -224,12 +226,17 @@
           {/each}
         </div>
       </div>
-      <EditorGrid class="border p-4">
+      <svelte:boundary>
+        <EditorGrid class="border p-4">
           <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
             <SenseEditor
               sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
           </OverrideFields>
-      </EditorGrid>
+        </EditorGrid>
+        {#snippet failed(error)}
+          Error opening override fields {error}
+        {/snippet}
+      </svelte:boundary>
     </div>
 
   </div>
