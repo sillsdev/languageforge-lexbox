@@ -32,39 +32,37 @@
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
 </script>
 
-<div class="mx-1">
-  <button
-    class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:ring-2 ring-primary ring-offset-background hover:bg-muted rounded"
-    role="row"
-    aria-selected={isSelected}
-    class:cursor-default={skeleton}
-    class:hover:bg-transparent={skeleton}
-    onclick={skeleton ? undefined : onclick}
-    disabled={skeleton}
-  >
-    {#if skeleton || !entry}
-      <div class="animate-pulse" style="animation-delay: {animationDelay}">
-        <div class="h-5 bg-muted-foreground/20 rounded mb-2" style="width: {headwordWidth}"></div>
-        <div class="h-4 bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}"></div>
-        <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
+<button
+  class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:ring-2 ring-primary ring-offset-background hover:bg-muted rounded"
+  role="row"
+  aria-selected={isSelected}
+  class:cursor-default={skeleton}
+  class:hover:bg-transparent={skeleton}
+  onclick={skeleton ? undefined : onclick}
+  disabled={skeleton}
+>
+  {#if skeleton || !entry}
+    <div class="animate-pulse" style="animation-delay: {animationDelay}">
+      <div class="h-5 bg-muted-foreground/20 rounded mb-2" style="width: {headwordWidth}"></div>
+      <div class="h-4 bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}"></div>
+      <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
+    </div>
+  {:else}
+    <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
+    <div class="flex flex-row items-start justify-between gap-2">
+      {#if sensePreview}
+      <div class="text-sm text-muted-foreground">
+        {sensePreview}
       </div>
-    {:else}
-      <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
-      <div class="flex flex-row items-start justify-between gap-2">
-        {#if sensePreview}
-        <div class="text-sm text-muted-foreground">
-          {sensePreview}
-        </div>
-          {#if badge}
-            {@render badge()}
-          {:else if partOfSpeech}
-            <Badge variant="default" class="bg-primary/60">
-              {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
-            </Badge>
-          {/if}
-      {/if}
-      </div>
-
+        {#if badge}
+          {@render badge()}
+        {:else if partOfSpeech}
+          <Badge variant="default" class="bg-primary/60">
+            {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
+          </Badge>
+        {/if}
     {/if}
-  </button>
-</div>
+    </div>
+
+  {/if}
+</button>

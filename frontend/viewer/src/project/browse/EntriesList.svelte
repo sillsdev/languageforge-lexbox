@@ -85,7 +85,7 @@
       <p>{entriesResource.error.message}</p>
     </div>
   {:else}
-    <div class="space-y-2 pb-12">
+    <div class="space-y-2 p-0.5 pb-12">
       {#if loading.current}
         <!-- Show skeleton rows while loading -->
         {#each { length: skeletonRowCount }, _index}

@@ -153,56 +153,54 @@
       </ComposableInput>
     </Dialog.Header>
 
-    <div class="p-1">
-      <div class="space-y-2">
-        {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
-          {@const disabledEntry = disableEntry?.(entry)}
-          <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => select(entry)}>
-            {#snippet badge()}
-              {#if disabledEntry}
-                  <span
-                    class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                    {disabledEntry.reason}
-                  </span>
-              {/if}
-            {/snippet}
-          </EntryRow>
+    <div class="space-y-2">
+      {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
+        {@const disabledEntry = disableEntry?.(entry)}
+        <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => select(entry)}>
+          {#snippet badge()}
+            {#if disabledEntry}
+                <span
+                  class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                  {disabledEntry.reason}
+                </span>
+            {/if}
+          {/snippet}
+        </EntryRow>
+      {:else}
+        {#if searchResource.loading}
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
         {:else}
-          {#if searchResource.loading}
-            <EntryRow skeleton/>
-            <EntryRow skeleton/>
-            <EntryRow skeleton/>
-            <EntryRow skeleton/>
-            <EntryRow skeleton/>
-          {:else}
-            <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
-              {#if search}
-                No entries found
-                <Icon icon="i-mdi-magnify-remove-outline"/>
-                <NewEntryButton onclick={onClickCreateNewEntry}/>
-              {:else}
-                Search for an entry {onlyEntries ? '' : 'or sense'}
-                <Icon icon="i-mdi-book-search-outline"/>
-                or
-                <NewEntryButton onclick={onClickCreateNewEntry}/>
-              {/if}
-            </div>
-          {/if}
-        {/each}
-      </div>
-      {#if displayedEntries.length}
-        <NewEntryButton onclick={onClickCreateNewEntry} class="m-4" variant="default"/>
-      {/if}
-      {#if searchResource.current.length > displayedEntries.length}
-        <div class="px-4 py-2 text-center opacity-75 flex items-center">
-          <span>{searchResource.current.length - displayedEntries.length}</span>
-          {#if searchResource.current.length === fetchCount}<span>+</span>{/if}
-          <div class="ml-1 flex justify-between items-center gap-2">
-            <span>more matching entries...</span>
+          <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
+            {#if search}
+              No entries found
+              <Icon icon="i-mdi-magnify-remove-outline"/>
+              <NewEntryButton onclick={onClickCreateNewEntry}/>
+            {:else}
+              Search for an entry {onlyEntries ? '' : 'or sense'}
+              <Icon icon="i-mdi-book-search-outline"/>
+              or
+              <NewEntryButton onclick={onClickCreateNewEntry}/>
+            {/if}
           </div>
-        </div>
-      {/if}
+        {/if}
+      {/each}
     </div>
+    {#if displayedEntries.length}
+      <NewEntryButton onclick={onClickCreateNewEntry} class="m-4" variant="default"/>
+    {/if}
+    {#if searchResource.current.length > displayedEntries.length}
+      <div class="px-4 py-2 text-center opacity-75 flex items-center">
+        <span>{searchResource.current.length - displayedEntries.length}</span>
+        {#if searchResource.current.length === fetchCount}<span>+</span>{/if}
+        <div class="ml-1 flex justify-between items-center gap-2">
+          <span>more matching entries...</span>
+        </div>
+      </div>
+    {/if}
 
     <Dialog.Footer class="sticky bottom-0 pointer-events-none gap-0 flex-col bg-background border rounded border-b-0">
       {#if !onlyEntries && selectedEntry}
