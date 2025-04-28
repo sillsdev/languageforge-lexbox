@@ -2,12 +2,14 @@
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type { IEntry } from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import type {Snippet} from 'svelte';
 
-  const { entry, isSelected = false, onclick, skeleton = false }: {
+  const { entry, isSelected = false, onclick, skeleton = false, badge = undefined }: {
     entry?: IEntry;
     isSelected?: boolean;
     onclick?: () => void;
     skeleton?: boolean;
+    badge?: Snippet
   } = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -52,11 +54,13 @@
         <div class="text-sm text-muted-foreground">
           {sensePreview}
         </div>
-        {#if partOfSpeech}
-          <Badge variant="default" class="bg-primary/60">
-            {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
-          </Badge>
-        {/if}
+          {#if badge}
+            {@render badge()}
+          {:else if partOfSpeech}
+            <Badge variant="default" class="bg-primary/60">
+              {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
+            </Badge>
+          {/if}
       {/if}
       </div>
 

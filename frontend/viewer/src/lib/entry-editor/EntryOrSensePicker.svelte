@@ -24,6 +24,7 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import {ComposableInput} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
+  import EntryRow from '../../project/browse/EntryRow.svelte';
 
   const projectCommands = useProjectCommands();
   const saveHandler = getContext<SaveHandler>('saveHandler');
@@ -156,10 +157,27 @@
     </Dialog.Header>
 
     <div class="p-1">
-      <Accordion.Root type="single" bind:value={selectedEntryId}>
+      {#if onlyEntries}
+        <div class="space-y-2">
+          {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
+            {@const disabledEntry = disableEntry?.(entry)}
+            <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => select(entry)}>
+              {#snippet badge()}
+                {#if disabledEntry}
+                    <span
+                      class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                      {disabledEntry.reason}
+                    </span>
+                {/if}
+              {/snippet}
+            </EntryRow>
+          {/each}
+        </div>
+      {:else}
+        <Accordion.Root type="single" bind:value={selectedEntryId}>
         {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
           {@const disabledEntry = disableEntry?.(entry)}
-          {@const disableExpand = onlyEntries || !!(disabledEntry && disabledEntry.disableSenses)}
+          {@const disableExpand = !!(disabledEntry && disabledEntry.disableSenses)}
           <Accordion.Item value={entry.id} class="data-[state=open]:border">
             <Accordion.Header class={cn('hover:bg-accent p-2', entry.id === selectedEntryId && !selectedSense && 'bg-accent')} onclick={() => onExpansionClick(disableExpand, entry)}>
               <Accordion.Trigger class="w-full flex" disabled={!!disabledEntry}>
@@ -174,7 +192,7 @@
                     {disabledEntry.reason}
                   </span>
                 {/if}
-                {#if entry.senses.length && !onlyEntries}
+                {#if entry.senses.length}
                   <span
                     class="aspect-square size-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
                     {entry.senses.length}
@@ -216,6 +234,7 @@
           </Accordion.Item>
         {/each}
       </Accordion.Root>
+      {/if}
       {#if displayedEntries.length === 0 && addedEntries.length === 0}
         <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
           {#if search}
