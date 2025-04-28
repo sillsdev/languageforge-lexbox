@@ -11,6 +11,7 @@
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import DevContent from '$lib/layout/DevContent.svelte';
   import NewEntryButton from '../NewEntryButton.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service';
 
   const {
     search = '',
@@ -26,6 +27,7 @@
     gridifyFilter?: string;
   } = $props();
   const miniLcmApi = useMiniLcmApi();
+  const dialogsService = useDialogsService();
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
@@ -55,8 +57,10 @@
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 
-  function handleNewEntry() {
-    console.log('handleNewEntry');
+  async function handleNewEntry() {
+    const entry = await dialogsService.createNewEntry();
+    if (!entry) return;
+    onSelectEntry(entry);
   }
 </script>
 
@@ -89,7 +93,7 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => onSelectEntry(entry)} />
+          <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)} />
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>

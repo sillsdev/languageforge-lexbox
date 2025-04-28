@@ -19,7 +19,6 @@
   import {getAvailableHeightForElement} from './lib/utils/size';
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
-  import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
   import {initView, initViewSettings} from './lib/views/view-service';
   import {views} from './lib/views/view-data';
   import {useEventBus} from './lib/services/event-bus';
@@ -69,8 +68,6 @@
 
   const fwLiteConfig = useFwLiteConfig();
   const lexboxApi = useLexboxApi();
-  setContext('saveEvents', saveEventDispatcher);
-  setContext('saveHandler', saveHandler);
 
   const currentView = initView(views[0]);
   const viewSettings = initViewSettings();

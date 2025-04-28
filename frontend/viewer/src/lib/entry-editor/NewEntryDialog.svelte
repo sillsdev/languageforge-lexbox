@@ -6,7 +6,7 @@
   import {getContext} from 'svelte';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
-  import type {SaveHandler} from '../services/save-event-service';
+  import {useSaveHandler} from '../services/save-event-service.svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import EntryEditor from './object-editors/EntryEditor.svelte';
@@ -23,7 +23,7 @@
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
-  const saveHandler = getContext<SaveHandler>('saveHandler');
+  const saveHandler = useSaveHandler();
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
@@ -42,7 +42,7 @@
     if (!validateEntry()) return;
     loading = true;
     console.debug('Creating entry', entry);
-    await saveHandler(() => lexboxApi.createEntry(entry));
+    await saveHandler.handleSave(() => lexboxApi.createEntry(entry));
     requester.resolve(entry);
     requester = undefined;
     loading = false;

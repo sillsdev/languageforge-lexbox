@@ -2,10 +2,12 @@
   import { mdiCheck, mdiContentSaveCheckOutline, mdiSync } from '@mdi/js';
   import { getContext } from 'svelte';
   import { Button, DurationUnits, Icon, Popover, Toggle, humanizeDuration } from 'svelte-ux';
-  import type { SaveEvent, SaveEventEmmiter } from '../services/save-event-service';
+  import type { SaveEvent } from '../services/save-event-service.svelte';
   import type { UnionToIntersection } from 'type-fest';
+  import {writable} from 'svelte/store';
 
-  const onSave = getContext<SaveEventEmmiter>('saveEvents');
+  //todo replace with useSaveStatus and $effect based on saveHandler.currentEvent
+  const onSave = writable<SaveEvent>({status: 'saved-to-disk'});
 
   let saving = false;
   let savingShownLongEnough = true;
