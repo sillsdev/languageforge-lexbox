@@ -135,7 +135,7 @@
       select();
       return;
     }
-    let entry = displayedEntries.find(e => e.id === selectedEntryId);
+    let entry = displayedEntries.find(e => e.id === selectedEntryId) ?? addedEntries.find(e => e.id === selectedEntryId);
     if (disableEntry && entry && disableEntry(entry)) entry = undefined;
     select(entry);
   });
