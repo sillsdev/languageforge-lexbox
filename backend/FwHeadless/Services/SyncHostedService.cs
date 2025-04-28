@@ -190,7 +190,7 @@ public class SyncWorker(
             else
             {
                 var srResult = await srService.SendReceive(fwDataProject, projectCode);
-                logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
+                logger.LogInformation("Send/Receive result before CRDT sync: {srResult}", srResult.Output);
             }
         }
         else
