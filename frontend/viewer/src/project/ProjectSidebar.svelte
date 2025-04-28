@@ -13,6 +13,7 @@
   import NewEntryButton from './NewEntryButton.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
+  import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -35,6 +36,7 @@
   }
 
   let sidebar: Sidebar.Root | undefined = $state();
+  const primaryAction = usePrimaryAction();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -57,7 +59,7 @@
         <ThemePicker />
       </div>
       <div class="mx-auto">
-        <NewEntryButton active={!IsMobile.value && sidebar?.isOpen()} onclick={handleNewEntry} />
+        {@render primaryAction.snippet?.(sidebar?.isOpen())}
       </div>
     </div>
   </Sidebar.Header>
