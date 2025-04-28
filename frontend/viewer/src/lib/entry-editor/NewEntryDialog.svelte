@@ -82,6 +82,7 @@
   let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
 </script>
 
+{#if open}
 <Dialog.Root bind:open>
   <Dialog.DialogContent>
     <Dialog.DialogHeader>
@@ -105,3 +106,4 @@
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>
+{/if}

@@ -39,6 +39,7 @@
   }
 </script>
 
+{#if open}
 <AlertDialog.Root bind:open>
   <AlertDialog.Content>
     <AlertDialog.Header>
@@ -53,3 +54,4 @@
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
+{/if}
