@@ -136,7 +136,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="pb-0">
+  <Dialog.Content class="pb-0" style="grid-template-rows: auto 1fr auto">
     <Dialog.Header>
       <Dialog.Title class="mb-4">
         {title}
