@@ -12,8 +12,6 @@
   let input: HTMLInputElement = $state();
 
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-  
-
 
   export function clear(): void {
     debouncer.clear();
@@ -53,11 +51,10 @@
     autocomplete = undefined,
     debounce = false,
     debouncing = $bindable(false),
-    undebouncedValue = $bindable(undefined),
+    undebouncedValue = $bindable(),
     style = undefined,
-    keydownHandler = undefined
+    keydownHandler = undefined,
   }: Props = $props();
-
 
   let handlingInputEvent = $state(false);
   let handlingInputEventTimeout: ReturnType<typeof setTimeout>;
