@@ -1,6 +1,6 @@
 <script lang="ts" generics="Value">
   import { Badge } from '$lib/components/ui/badge';
-  import { Button } from '$lib/components/ui/button';
+  import { Button, XButton } from '$lib/components/ui/button';
   import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { tick } from 'svelte';
@@ -20,7 +20,7 @@
     ...constProps
   }: {
     values: Value[];
-    options: Value[];
+    options: Readonly<Readonly<Value>[]>;
     readonly?: boolean;
     /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
@@ -45,15 +45,15 @@
     sortValuesBy = 'selectionOrder',
   } = $derived(constProps);
 
-  const getId = $derived.by(() => {
-    if (typeof idSelector === 'function') return idSelector;
-    return (value: Value) => value[idSelector] as Primitive;
-  });
+  function getId(value: Value): Primitive {
+    if (typeof idSelector === 'function') return idSelector(value);
+    return value[idSelector] as Primitive;
+  }
 
-  const getLabel = $derived.by(() => {
-    if (typeof labelSelector === 'function') return labelSelector;
-    return (value: Value) => value[labelSelector] as string;
-  });
+  function getLabel(value: Value): string {
+    if (typeof labelSelector === 'function') return labelSelector(value);
+    return value[labelSelector] as string;
+  }
 
   // A wrapper for caching calculated values
   type PendingValue = {
@@ -193,9 +193,7 @@
       <div class="flex items-center gap-2 flex-nowrap">
         {#if IsMobile.value}
           {#if filterValue}
-            <Button variant="ghost" size="xs-icon" onclick={() => (filterValue = '')} aria-label={$t`clear`}>
-              <Icon icon="i-mdi-close" />
-            </Button>
+            <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
           {/if}
         {:else}
           {#if dirty}
@@ -205,13 +203,11 @@
               </Button>
             </div>
           {/if}
-          <Button variant={dirty ? 'secondary' : 'ghost'} size="xs-icon" onclick={dismiss} aria-label={$t`Close`}>
-              <Icon icon="i-mdi-close" />
-          </Button>
+          <XButton variant={dirty ? 'secondary' : 'ghost'} onclick={dismiss} aria-label={$t`Close`} />
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
         {#each filteredOptions as value, i (getId(value))}
