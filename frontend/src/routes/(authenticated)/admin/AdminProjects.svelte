@@ -20,7 +20,7 @@
   import {TrashIcon} from '$lib/icons';
   import {useNotifications} from '$lib/notify';
   import {type QueryParams, toSearchParams} from '$lib/util/query-params';
-  import {derived} from 'svelte/store';
+  import {derived as derivedStore} from 'svelte/store';
   import type {AdminSearchParams, DraftProject} from './+page';
   import AdminTabs from './AdminTabs.svelte';
   import type {CreateProjectInput} from '$lib/gql/types';
@@ -36,7 +36,7 @@
 
   const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 
-  const loading = derived(navigating, (nav) => {
+  const loading = derivedStore(navigating, (nav) => {
     const fromUrl = nav?.from?.url;
     return fromUrl && serverSideProjectFilterKeys.some((key) =>
       (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== $filters?.[key]?.toString());

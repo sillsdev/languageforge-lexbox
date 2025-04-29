@@ -12,7 +12,7 @@
   import { type AdminSearchParams, type User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { derived } from 'svelte/store';
+  import { derived as derivedStore } from 'svelte/store';
   import AdminProjects from './AdminProjects.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { PageBreadcrumb } from '$lib/layout';
@@ -51,7 +51,7 @@
   const { queryParamValues, defaultQueryParamValues } = queryParams;
   $: tab = $queryParamValues.tab;
 
-  const loadingUsers = derived(navigating, (nav) => {
+  const loadingUsers = derivedStore(navigating, (nav) => {
     if (!nav?.to?.route.id?.endsWith('/admin')) return false;
     const fromUrl = nav?.from?.url;
     return fromUrl && userFilterKeys.some((key) =>

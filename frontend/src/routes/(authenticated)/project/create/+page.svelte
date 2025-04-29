@@ -12,7 +12,7 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived, writable, type Readable } from 'svelte/store';
+  import { derived as derivedStore, writable, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -83,24 +83,24 @@
   });
 
   const asyncCodeError = writable<string | undefined>();
-  const codeStore = derived(form, f => f.code);
+  const codeStore = derivedStore(form, f => f.code);
   const codeIsAvailable = deriveAsync(codeStore, async (code) => {
     if (!browser || !code || !user.canCreateProjects) return true;
     return _projectCodeAvailable(code);
   }, true, true);
   $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
-  const codeErrors = derived([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
+  const codeErrors = derivedStore([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
 
-  const projectNameStore = derived(form, f => f.name);
-  const langCodeStore = derived(form, f => f.languageCode);
-  const orgIdStore = derived(form, f => f.orgId);
-  const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derived([langCodeStore, orgIdStore], ([langCode, orgId], set) => {
+  const projectNameStore = derivedStore(form, f => f.name);
+  const langCodeStore = derivedStore(form, f => f.languageCode);
+  const orgIdStore = derivedStore(form, f => f.orgId);
+  const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derivedStore([langCodeStore, orgIdStore], ([langCode, orgId], set) => {
     if (langCode && orgId && (langCode.length == 2 || langCode.length == 3)) {
       set({ langCode, orgId });
     }
   });
 
-  const projectNameAndOrgIdStore: Readable<{projectName: string, orgId: string}> = derived([projectNameStore, orgIdStore], ([projectName, orgId], set) => {
+  const projectNameAndOrgIdStore: Readable<{projectName: string, orgId: string}> = derivedStore([projectNameStore, orgIdStore], ([projectName, orgId], set) => {
     if (projectName && orgId && projectName.length >= 3) {
       set({ projectName, orgId });
     }
@@ -109,7 +109,7 @@
   const relatedProjectsByLangCode = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg, []);
   const relatedProjectsByName = deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg, []);
 
-  const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
+  const relatedProjects = derivedStore([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
     // Put projects related by language code first as they're more likely to be real matches
     var uniqueByName = byName.filter(n => byCode.findIndex(c => c.id == n.id) == -1);
     return [...byCode, ...uniqueByName];
