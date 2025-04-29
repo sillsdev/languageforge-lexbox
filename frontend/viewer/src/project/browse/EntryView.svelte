@@ -46,14 +46,17 @@
 
 <div class="h-full flex flex-col relative">
   {#if entry}
-    <header class="mb-4 flex">
-      {#if showClose && onClose}
-        <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
-      {/if}
-      <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
-      <div class="flex-1"></div>
-      <ViewPicker/>
-      <EntryMenu onDelete={handleDelete} />
+    <header class="mb-4 flex justify-between">
+      <div>
+        {#if showClose && onClose}
+          <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
+        {/if}
+        <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
+      </div>
+      <div class="flex gap-2">
+        <ViewPicker/>
+        <EntryMenu onDelete={handleDelete} />
+      </div>
     </header>
     <ScrollArea class={cn('grow md:pr-4', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />
