@@ -101,6 +101,6 @@
 <div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
-    <CrdtOptionField on:change={onChange} bind:value={valueId} options={uiOptions} placeholder={ws.abbreviation} {readonly} />
+    <CrdtOptionField on:change={onChange} bind:value={valueId} options={uiOptions} placeholder={ws?.abbreviation} {readonly} />
   </div>
 </div>

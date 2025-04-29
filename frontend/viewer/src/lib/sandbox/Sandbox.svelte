@@ -2,7 +2,7 @@
   import OverrideFields from '$lib/OverrideFields.svelte';
   import {Button} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
-  import {DotnetService, type ISense} from '$lib/dotnet-types';
+  import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import type {FieldIds} from '$lib/entry-editor/field-data';
   import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
@@ -22,6 +22,10 @@
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {EditorGrid} from '$lib/components/editor';
   import EditorSandbox from './EditorSandbox.svelte';
+  import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
 
   const crdtOptions: MenuOption[] = [
     {value: 'a', label: 'Alpha'},
@@ -45,6 +49,7 @@
   InMemoryApiService.setup();
   initView();
   initViewSettings();
+  const writingSystemService = useWritingSystemService();
 
   function makeSense(s: ISense) {
     return s;
@@ -68,8 +73,20 @@
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
   });
   let readonly = $state(false);
-</script>
+  let selectedEntryHistory: EntrySenseSelection[] = $state([]);
+  let openPicker = $state(false);
+  let pickerMode: 'entries-and-senses' | 'only-entries' = $state('only-entries');
 
+  function disableEntry(entry: IEntry): false | { reason: string, disableSenses?: true } {
+    const selected = selectedEntryHistory.some(e => e.entry.id === entry.id);
+    if (!selected) return false;
+    return {
+      reason: 'You cannot select an entry that you have already selected',
+      disableSenses: true
+    };
+  }
+</script>
+<DialogsProvider/>
 <div class="p-6 shadcn-root">
   <h2 class="mb-4 flex gap-8 items-center">
     Shadcn Sandbox <ThemePicker />
@@ -110,6 +127,32 @@
       </Resizable.Pane>
     </Resizable.PaneGroup>
   </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Entry picker example</h3>
+
+    <Tabs bind:value={pickerMode} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="only-entries">Entry only</TabsTrigger>
+        <TabsTrigger value="entries-and-senses">Entry or Sense</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Button onclick={() => openPicker = true}>Open picker</Button>
+    <EntryOrSensePicker title="Test selecting something"
+                        bind:open={openPicker}
+                        disableEntry={disableEntry}
+                        mode={pickerMode}
+                        pick={(e) => selectedEntryHistory.push(e)}/>
+    <div>
+      {#each selectedEntryHistory as selected}
+        <p>
+          Entry: {writingSystemService.headword(selected.entry)}
+          {#if selected.sense}
+            Sense: {writingSystemService.firstGloss(selected.sense)}
+          {/if}
+        </p>
+      {/each}
+    </div>
+  </div>
 </div>
 
 <hr class="border-t border-gray-200 my-6"/>
@@ -121,7 +164,12 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       MultiOptionEditor configurations
-      <OptionSandbox/>
+      <svelte:boundary>
+        <OptionSandbox/>
+        {#snippet failed(error)}
+          Error opening options sandbox {error}
+        {/snippet}
+      </svelte:boundary>
     </div>
 
     <div class="flex flex-col gap-2 border p-4 justify-between">
@@ -184,12 +232,17 @@
           {/each}
         </div>
       </div>
-      <EditorGrid class="border p-4">
-        <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
-          <SenseEditor
-            sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
-        </OverrideFields>
-      </EditorGrid>
+      <svelte:boundary>
+        <EditorGrid class="border p-4">
+          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+            <SenseEditor
+              sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+          </OverrideFields>
+        </EditorGrid>
+        {#snippet failed(error)}
+          Error opening override fields {error}
+        {/snippet}
+      </svelte:boundary>
     </div>
 
   </div>

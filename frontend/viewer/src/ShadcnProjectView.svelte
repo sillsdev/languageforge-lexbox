@@ -17,10 +17,8 @@
   import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
-  import {cn} from '$lib/utils';
   import {initView, initViewSettings} from '$lib/views/view-service';
-  import {initDialogService} from '$lib/entry-editor/dialog-service';
-  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import DialogsProvider from '$lib/DialogsProvider.svelte';
 
   const {
     onloaded,
@@ -38,15 +36,13 @@
   let currentView: View = $state('browse');
   const fieldView = initView();
   const viewSettings = initViewSettings();
-  let deleteDialog = $state<DeleteDialog | undefined>(undefined);
-  const dialogService = initDialogService(() => deleteDialog);
 
   onMount(() => {
     onloaded(true);
   });
   let open = $state(true);
 </script>
-<DeleteDialog bind:this={deleteDialog} />
+<DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
       <ProjectSidebar {projectName} bind:currentView />

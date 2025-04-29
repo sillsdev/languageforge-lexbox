@@ -13,7 +13,8 @@
       }
     </style>
     <script>
-        setTimeout(() => window.history.pushState({}, '', '/testing/project-view'));
+        if (location.pathname === '/')
+            setTimeout(() => window.history.pushState({}, '', '/testing/project-view'));
     </script>
 </head>
 <body>
