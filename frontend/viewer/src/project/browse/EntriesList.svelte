@@ -38,6 +38,10 @@
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
     entriesResource.refetch();
   });
+  projectEventBus.onEntryUpdated(entry => {
+    if (entriesResource.loading) return;
+    entriesResource.refetch();
+  });
 
 
   const entriesResource = resource(
@@ -72,7 +76,6 @@
     const entry = await dialogsService.createNewEntry();
     if (!entry) return;
     onSelectEntry(entry);
-    void entriesResource.refetch();
   }
 
   async function handleDeleteEntry(entry: IEntry) {
