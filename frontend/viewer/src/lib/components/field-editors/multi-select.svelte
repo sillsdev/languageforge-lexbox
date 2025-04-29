@@ -1,4 +1,4 @@
-<script lang="ts" generics="Value">
+<script lang="ts" generics="MutableValue">
   import { Badge } from '$lib/components/ui/badge';
   import { Button, XButton } from '$lib/components/ui/button';
   import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
@@ -15,12 +15,14 @@
   import {slide} from 'svelte/transition';
   import {watch} from 'runed';
 
+  type Value = ReadonlyDeep<MutableValue>;
+
   let {
     values = $bindable(),
     ...constProps
   }: {
     values: Value[];
-    options: ReadonlyDeep<Value[]>;
+    options: ReadonlyArray<Value>;
     readonly?: boolean;
     /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
