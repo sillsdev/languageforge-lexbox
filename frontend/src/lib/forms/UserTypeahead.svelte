@@ -103,7 +103,6 @@
   function onOverlayOpen(e: CustomEvent): void {
     typeaheadOpen = e.detail;
     if (!typeaheadOpen) {
-      // eslint-disable-next-line svelte/no-reactive-reassign
       typeaheadResults = []; // prevent old results showing when opening next time
     }
   }

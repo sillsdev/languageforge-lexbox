@@ -23,7 +23,6 @@
   let dialogResponse = writable<DialogResponse | null>(null);
   let open = writable(false);
   let closing = $derived($dialogResponse !== null && $open);
-  // eslint-disable-next-line svelte/valid-compile
   let submitting = $derived($dialogResponse === DialogResponse.Submit && $open);
   interface Props {
     bottom?: boolean;
@@ -92,7 +91,6 @@
     $open = false;
   }
 
-  // eslint-disable-next-line svelte/valid-compile
   run(() => {
     if ($dialogResponse === DialogResponse.Submit) {
       dispatch('submit');
