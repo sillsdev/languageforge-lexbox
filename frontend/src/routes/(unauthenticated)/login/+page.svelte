@@ -1,4 +1,3 @@
-<!-- @migration task: review uses of `navigating` -->
 <script lang="ts">
   import {goto} from '$app/navigation';
   import {SubmitButton, Form, FormError, Input, lexSuperForm} from '$lib/forms';
@@ -112,7 +111,7 @@
             {$t('login.forgot_password')}
           </a>
 
-          <SubmitButton loading={$submitting || navigating?.to?.route.id?.includes(AUTHENTICATED_ROOT)}>
+          <SubmitButton loading={$submitting || navigating.to?.route.id?.includes(AUTHENTICATED_ROOT)}>
             {badCredentials ? $t('login.button_login_again') : $t('login.button_login')}
           </SubmitButton>
 
