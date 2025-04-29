@@ -67,11 +67,11 @@
 <div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
   <DevContent>
     <Button
-      icon="i-mdi-refresh"
-      variant="secondary"
+      icon={loading.current ? 'i-mdi-loading' : 'i-mdi-refresh'}
+      variant="outline"
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
-      class="mt-4 mb-6"
+      class="mb-4"
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
