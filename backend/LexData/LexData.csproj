@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL"/>
     <PackageReference Include="EntityFrameworkCore.Projectables" />
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="linq2db.AspNet" />
