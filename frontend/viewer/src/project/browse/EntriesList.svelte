@@ -122,7 +122,7 @@
               <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)}/>
             </ContextMenu.Trigger>
             <ContextMenu.Content>
-              <ContextMenu.Item onclick={() => handleDeleteEntry(entry)}>
+              <ContextMenu.Item class="cursor-pointer" onclick={() => handleDeleteEntry(entry)}>
                 <Icon icon="i-mdi-delete" class="mr-2"/>
                 {$t`Delete Entry`}
               </ContextMenu.Item>
