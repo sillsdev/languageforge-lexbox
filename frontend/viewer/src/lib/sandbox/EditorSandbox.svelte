@@ -73,7 +73,7 @@
 </script>
 
 <ResizablePaneGroup direction="horizontal">
-  <ResizablePane class="!overflow-visible" defaultSize={100}>
+  <ResizablePane class="!overflow-visible" defaultSize={75}>
     <Editor.Root class="my-4 border px-4 py-8 relative z-0">
       <div class="absolute top-4 right-4">
         <ViewPicker />
@@ -169,12 +169,6 @@
             ></Select>
           </Editor.Field.Body>
         </Editor.Field.Root>
-        <Editor.Field.Root>
-          <Editor.Field.Title name="Current value" />
-          <Editor.Field.Body>
-            <pre class="overflow-x-auto text-sm text-muted-foreground">{JSON.stringify(entry, null, 2)}</pre>
-          </Editor.Field.Body>
-        </Editor.Field.Root>
       </Editor.Grid>
     </Editor.Root>
   </ResizablePane>
@@ -182,7 +176,9 @@
   <ResizableHandle
     class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10"
   />
-  <ResizablePane></ResizablePane>
+  <ResizablePane>
+    <pre class="overflow-x-auto text-sm text-muted-foreground bg-background relative">{JSON.stringify(entry, null, 2)}</pre>
+  </ResizablePane>
 </ResizablePaneGroup>
 
 <style lang="postcss">
