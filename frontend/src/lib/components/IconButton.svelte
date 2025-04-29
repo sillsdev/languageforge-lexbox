@@ -5,8 +5,7 @@
   import type { IconString } from '$lib/icons';
   import Loader from './Loader.svelte';
 
-  
-  let loadingSize = size === 'btn-sm' ? 'loading-xs' as const : undefined;
+
   interface Props {
     // See https://icon-sets.iconify.design/mdi/
     icon: IconString;
@@ -33,6 +32,7 @@
     fake = false,
     ...rest
   }: Props = $props();
+  let loadingSize = size === 'btn-sm' ? 'loading-xs' as const : undefined;
 
   const xlIcons: IconString[] = ['i-mdi-refresh'];
   let textSize = $derived(xlIcons.includes(icon) ? 'text-xl' : 'text-lg');
