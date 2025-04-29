@@ -4,7 +4,7 @@
   import {fieldName} from '$lib/i18n';
   import Scotty from '$lib/layout/Scotty.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
+  import {useCurrentView} from '$lib/views/view-service';
   import {defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
@@ -12,15 +12,11 @@
   import {Button, MenuItem} from 'svelte-ux';
   import HistoryView from '../../history/HistoryView.svelte';
   import EntityListItemActions from '../EntityListItemActions.svelte';
-  import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
-  import ComplexForms from '../field-editors/ComplexForms.svelte';
-  import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
-  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
-  import EntityEditor from './EntityEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import {EditorGrid} from '$lib/components/editor';
+  import EntryEditorPrimitive from './EntryEditorPrimitive.svelte';
 
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
@@ -149,57 +145,7 @@
 </script>
 
 <EditorGrid bind:ref={editorElem}>
-  <div class="grid-layer" style:grid-template-areas={`${objectTemplateAreas($currentView, entry)}`}>
-    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                      bind:value={entry.lexemeForm}
-                      {readonly}
-                      autofocus={modalMode}
-                      id="lexemeForm"
-                      wsType="vernacular"/>
-
-    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                      bind:value={entry.citationForm}
-                      {readonly}
-                      id="citationForm"
-                      wsType="vernacular"/>
-
-    {#if !modalMode}
-
-      <ComplexForms on:change={() => dispatch('change', {entry})}
-                    bind:value={entry.complexForms}
-                    {readonly}
-                    {entry}
-                    id="complexForms" />
-
-      <ComplexFormTypes on:change={() => dispatch('change', {entry})}
-                    bind:value={entry.complexFormTypes}
-                    {readonly}
-                    id="complexFormTypes" />
-
-      <ComplexFormComponents  on:change={() => dispatch('change', {entry})}
-                              bind:value={entry.components}
-                              {readonly}
-                              {entry}
-                              id="components" />
-
-    {/if}
-
-    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                      bind:value={entry.literalMeaning}
-                      {readonly}
-                      id="literalMeaning"
-                      wsType="vernacular"/>
-    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                      bind:value={entry.note}
-                      {readonly}
-                      id="note"
-                      wsType="analysis"/>
-    <EntityEditor
-      {readonly}
-      customFieldConfigs={[]}
-      on:change={() => dispatch('change', {entry})}
-    />
-  </div>
+  <EntryEditorPrimitive {entry} {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
 
   {#each entry.senses as sense, i (sense.id)}
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
