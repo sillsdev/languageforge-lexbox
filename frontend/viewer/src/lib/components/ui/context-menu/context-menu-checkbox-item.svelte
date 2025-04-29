@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { ContextMenu as ContextMenuPrimitive, type WithoutChildrenOrChild } from "bits-ui";
-	import Check from "@lucide/svelte/icons/check";
-	import Minus from "@lucide/svelte/icons/minus";
 	import { cn } from "$lib/utils.js";
 	import type { Snippet } from "svelte";
+  import {Icon} from '$lib/components/ui/icon';
 
 	let {
 		ref = $bindable(null),
@@ -29,11 +28,11 @@
 >
 	{#snippet children({ checked, indeterminate })}
 		<span class="absolute left-2 flex size-3.5 items-center justify-center">
-			{#if indeterminate}
-				<Minus class="size-3.5" />
-			{:else}
-				<Check class={cn("size-3.5", !checked && "text-transparent")} />
-			{/if}
+      {#if indeterminate}
+        <Icon icon="i-mdi-minus" class="size-3.5"/>
+      {:else}
+        <Icon icon="i-mdi-check" class={cn('size-3.5', !checked && 'text-transparent')}/>
+      {/if}
 		</span>
 		{@render childrenProp?.()}
 	{/snippet}
