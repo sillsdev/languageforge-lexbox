@@ -67,6 +67,7 @@
   let richString: IRichString = $state({
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
   });
+  let readonly = $state(false);
 </script>
 
 <div class="p-6 shadcn-root">
@@ -84,8 +85,13 @@
   </div>
   <EditorSandbox />
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
-    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString}/>
+    <div>
+      <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
+      <label>
+        <Checkbox bind:checked={readonly}/> Readonly
+      </label>
+    </div>
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}/>
     <pre>{JSON.stringify(richString, null, 2).replaceAll(lineSeparator, '\n')}</pre>
   </div>
   <div class="flex flex-col gap-2 border p-4 justify-between">
