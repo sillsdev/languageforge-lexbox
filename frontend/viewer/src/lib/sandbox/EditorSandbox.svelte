@@ -1,21 +1,26 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
   import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
+  import Select from '$lib/components/field-editors/select.svelte';
+  import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import { ResizablePaneGroup, ResizablePane, ResizableHandle } from '$lib/components/ui/resizable';
   import { Switch } from '$lib/components/ui/switch';
   import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+  import {type IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import { fieldData } from '$lib/entry-editor/field-data';
   import { t } from 'svelte-i18n-lingui';
 
-  const allDomains = $state<{label: string}[]>([
+  const allDomains = [
     { label: 'fruit' }, { label: 'tree' }, { label: 'stars' }, { label: 'earth' },
-  ]);
+  ].map(domain => Object.freeze(domain));
   for (let i = 0; i < 100; i++) {
     allDomains.push({
       label: allDomains[Math.floor(Math.random() * allDomains.length)].label + '-' + i
     });
   }
+  allDomains.forEach(Object.freeze);
   allDomains.sort((a, b) => a.label.localeCompare(b.label));
+  const readonlyDomains = Object.freeze(allDomains);
 
   function randomSemanticDomainSorter() {
     return Math.random() - 0.5;
@@ -27,7 +32,25 @@
   const sortSemanticDomainValuesBy = $derived(semanticDomainOrder === 'randomOrder'
     ? randomSemanticDomainSorter
     : semanticDomainOrder);
-  let semanticDomainsReadonly = $state(false);
+  let editorReadonly = $state(false);
+
+  let note = $state<IRichString>({
+    spans: [
+      { text: 'en note', ws: 'en' },
+      { text: 'fr note', ws: 'fr' },
+    ]
+  });
+
+  const partsOfSpeech = Object.freeze([
+    { label: 'Noun' },
+    { label: 'Verb' },
+    { label: 'Adjective' },
+    { label: 'Adverb' },
+  ] as const);
+  partsOfSpeech.forEach(Object.freeze);
+  type PartOfSpeech = typeof partsOfSpeech[number];
+
+  let partOfSpeech = $state<PartOfSpeech>({ label: 'Adjective' });
 </script>
 
 <ResizablePaneGroup direction="horizontal">
@@ -39,7 +62,7 @@
       <Editor.Grid>
         <Editor.Field.Root>
           <Editor.Field.Title liteName={$t`Order of semantic domains`} classicName={$t`Order of semantic domains`} />
-          <Editor.Field.Body class="grid-cols-1">
+          <Editor.Field.Body>
             <Tabs bind:value={semanticDomainOrder} class="mb-1">
               <TabsList>
                 <TabsTrigger value="selectionOrder">Selection</TabsTrigger>
@@ -53,9 +76,9 @@
           </Editor.Field.Body>
         </Editor.Field.Root>
         <Editor.Field.Root>
-          <Editor.Field.Title liteName={$t`Readonly`} classicName={$t`Readonly`} />
-          <Editor.Field.Body class="grid-cols-1">
-            <Switch bind:checked={semanticDomainsReadonly} />
+          <Editor.Field.Title liteName={$t`Readonly editor`} classicName={$t`Readonly editor`} />
+          <Editor.Field.Body>
+            <Switch bind:checked={editorReadonly} />
           </Editor.Field.Body>
         </Editor.Field.Root>
         <Editor.Field.Root>
@@ -65,20 +88,48 @@
             helpId={fieldData.semanticDomains.helpId}
           />
           <Editor.Field.Body>
-            <div class="col-span-full">
-              <MultiSelect
-                readonly={semanticDomainsReadonly}
-                bind:values={() => selectedDomains, (newValues) => (selectedDomains = newValues)}
-                idSelector="label"
-                labelSelector={(item) => item.label}
-                sortValuesBy={sortSemanticDomainValuesBy}
-                drawerTitle={$t`Semantic domains`}
-                filterPlaceholder={$t`Filter semantic domains...`}
-                placeholder={$t`🤷 nothing here`}
-                emptyResultsPlaceholder={$t`Looked hard, found nothing`}
-                options={allDomains}
-              ></MultiSelect>
-            </div>
+            <MultiSelect
+              readonly={editorReadonly}
+              bind:values={() => selectedDomains, (newValues) => (selectedDomains = newValues)}
+              idSelector="label"
+              labelSelector={(item) => item.label}
+              sortValuesBy={sortSemanticDomainValuesBy}
+              drawerTitle={$t`Semantic domains`}
+              filterPlaceholder={$t`Filter semantic domains...`}
+              placeholder={$t`🤷 nothing here`}
+              emptyResultsPlaceholder={$t`Looked hard, found nothing`}
+              options={readonlyDomains}
+            ></MultiSelect>
+          </Editor.Field.Body>
+        </Editor.Field.Root>
+        <Editor.Field.Root>
+          <Editor.Field.Title
+            liteName={$t`Note`}
+            classicName={$t`Note`}
+            helpId={fieldData.note.helpId}
+          />
+          <Editor.Field.Body>
+            <LcmRichTextEditor bind:value={note}/>
+          </Editor.Field.Body>
+        </Editor.Field.Root>
+        <Editor.Field.Root>
+          <Editor.Field.Title
+            liteName={$t`Part of speech`}
+            classicName={$t`Grammatical info.`}
+            helpId={fieldData.partOfSpeechId.helpId}
+          />
+          <Editor.Field.Body>
+            <Select
+              readonly={editorReadonly}
+              bind:value={partOfSpeech}
+              idSelector="label"
+              labelSelector={(item) => item.label}
+              drawerTitle={$t`Part of speech`}
+              filterPlaceholder={$t`Filter parts of speech...`}
+              placeholder={$t`🤷 nothing here`}
+              emptyResultsPlaceholder={$t`Looked hard, found nothing`}
+              options={partsOfSpeech}
+            ></Select>
           </Editor.Field.Body>
         </Editor.Field.Root>
       </Editor.Grid>

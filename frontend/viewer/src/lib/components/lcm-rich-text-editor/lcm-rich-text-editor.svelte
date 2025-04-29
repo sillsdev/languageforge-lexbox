@@ -186,7 +186,12 @@
     white-space: pre-wrap;
   }
 </style>
-<div>
-  <Label>{label}</Label>
+
+{#if label}
+  <label>
+    <Label>{label}</Label>
+    <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
+  </label>
+{:else}
   <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
-</div>
+{/if}
