@@ -9,7 +9,7 @@
     input: string | undefined;
   }>();
 
-  let input: HTMLInputElement = $state();
+  let input: HTMLInputElement = $state()!;
 
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
 
@@ -64,7 +64,7 @@
     const currValue = (event.target as HTMLInputElement).value;
     undebouncedValue = currValue;
     debouncer.debounce(currValue);
-    handlingInputEventTimeout = setTimeout(() => handlingInputEvent = false);
+    handlingInputEventTimeout = setTimeout(() => (handlingInputEvent = false));
   }
   let debouncer = $derived(makeDebouncer((newValue: string | undefined) => (value = newValue), debounce));
   run(() => {

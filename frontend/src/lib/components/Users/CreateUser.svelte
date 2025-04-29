@@ -2,7 +2,16 @@
   import { run } from 'svelte/legacy';
 
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import { SubmitButton, FormError, Input, MaybeProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
+  import {
+    SubmitButton,
+    FormError,
+    Input,
+    MaybeProtectedForm,
+    isEmail,
+    lexSuperForm,
+    passwordFormRules,
+    DisplayLanguageSelect,
+  } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
@@ -15,8 +24,15 @@
     allowUsernames?: boolean;
     errorOnChangingEmail?: string;
     skipTurnstile?: boolean;
-    submitButtonText?: any;
-    handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
+    submitButtonText?: string;
+    handleSubmit: (
+      password: string,
+      passwordStrength: number,
+      name: string,
+      email: string,
+      locale: string,
+      turnstileToken: string,
+    ) => Promise<RegisterResponse>;
     formTainted?: boolean;
   }
 
@@ -26,14 +42,14 @@
     skipTurnstile = false,
     submitButtonText = $t('register.button_register'),
     handleSubmit,
-    formTainted = $bindable(false)
+    formTainted = $bindable(false),
   }: Props = $props();
   run(() => {
     formTainted = !!$tainted;
   });
 
   const dispatch = createEventDispatcher<{
-    submitted: LexAuthUser,
+    submitted: LexAuthUser;
   }>();
 
   type RegisterPageQueryParams = {
@@ -52,7 +68,9 @@
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('register.name_missing')),
-    email: z.string().trim()
+    email: z
+      .string()
+      .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, errorOnChangingEmail)
       .refine((value) => !validateAsEmail(value) || isEmail(value), $t('form.invalid_email'))
@@ -63,13 +81,22 @@
   });
 
   let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
-    const { user, error } = await handleSubmit($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
+    const { user, error } = await handleSubmit(
+      $form.password,
+      $form.score,
+      $form.name,
+      $form.email,
+      $form.locale,
+      turnstileToken,
+    );
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');
       }
       if (error.accountExists) {
-        $errors.email = [validateAsEmail($form.email) ? $t('register.account_exists_email') : $t('register.account_exists_login')];
+        $errors.email = [
+          validateAsEmail($form.email) ? $t('register.account_exists_email') : $t('register.account_exists_login'),
+        ];
       }
       if (error.invalidInput) {
         $errors.email = [validateAsEmail($form.email) ? $t('form.invalid_email') : $t('register.invalid_username')];
@@ -82,13 +109,17 @@
     }
     throw new Error('Unknown error, no error from server, but also no user.');
   });
-  onMount(() => { // query params not available during SSR
+  onMount(() => {
+    // query params not available during SSR
     urlValues = getSearchParamValues<RegisterPageQueryParams>();
-    form.update((form) => {
-      if (urlValues.name) form.name = urlValues.name;
-      if (urlValues.email) form.email = urlValues.email;
-      return form;
-    }, { taint: true });
+    form.update(
+      (form) => {
+        if (urlValues.name) form.name = urlValues.name;
+        if (urlValues.email) form.email = urlValues.email;
+        return form;
+      },
+      { taint: true },
+    );
   });
 </script>
 
@@ -113,9 +144,7 @@
     autocomplete="new-password"
   />
   <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
-  <DisplayLanguageSelect
-    bind:value={$form.locale}
-  />
+  <DisplayLanguageSelect bind:value={$form.locale} />
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>
 </MaybeProtectedForm>

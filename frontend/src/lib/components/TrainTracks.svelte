@@ -9,8 +9,6 @@
   import { run } from 'svelte/legacy';
 
   // We need a list of dots and lines, i.e. which dots go to which parents
-  
-
 
   interface Props {
     // Each dot has one or two parents, and needs a Bezier curve to the parent
@@ -22,7 +20,7 @@
     colWidthDefault?: number; // May be auto-calculated in the future
     rowHeightDefault?: number;
     circleSize?: number;
-    colors?: any;
+    colors?: string[];
   }
 
   let {
@@ -35,18 +33,18 @@
     rowHeightDefault = 20,
     circleSize = 5,
     colors = [
-    // Default set of colors works nicely, but allow overriding if needed
-    '#4e79a7',
-    '#f28e2c',
-    '#e15759',
-    '#76b7b2',
-    '#59a14f',
-    '#edc949',
-    '#af7aa1',
-    '#ff9da7',
-    '#9c755f',
-    '#bab0ab',
-  ]
+      // Default set of colors works nicely, but allow overriding if needed
+      '#4e79a7',
+      '#f28e2c',
+      '#e15759',
+      '#76b7b2',
+      '#59a14f',
+      '#edc949',
+      '#af7aa1',
+      '#ff9da7',
+      '#9c755f',
+      '#bab0ab',
+    ],
   }: Props = $props();
   let colorLength = $derived(colors.length);
   function color(colIdx: number): string {
@@ -97,11 +95,11 @@
 
   let rowHeight = $derived((rowIdx: number): number => {
     return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
-  })
+  });
 
   let colWidth = $derived((colIdx: number): number => {
     return colWidthDefault * colIdx + firstColOffset;
-  })
+  });
 
   run(() => {
     svgDots = circles.map(({ row, col }) => ({
@@ -114,6 +112,7 @@
 
   let maxWidth = $derived(Math.max(...svgDots.map((c) => c.x)) + colWidthDefault);
 </script>
+
 {#if circles?.length > 0}
   <svg width={maxWidth} height="0" style="height: 100%">
     {#if rowHeights?.length > 0}

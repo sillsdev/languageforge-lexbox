@@ -12,7 +12,7 @@
   interface Props {
     projects: ProjectItemWithDraftStatus[];
     columns?: Readonly<ProjectTableColumn[]>;
-    actions?: Snippet<[any]>;
+    actions?: Snippet<[unknown]>;
   }
 
   let { projects, columns = allColumns, actions }: Props = $props();

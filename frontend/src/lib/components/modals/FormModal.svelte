@@ -34,7 +34,7 @@
     hideActions?: boolean;
     showDoneState?: boolean;
     title?: Snippet;
-    children?: Snippet<[any]>;
+    children?: Snippet<[unknown]>;
     extraActions?: Snippet;
     submitText?: Snippet;
     doneText?: Snippet;
@@ -106,7 +106,7 @@
     return result;
   }
 
-  const extraActions_render = $derived(extraActions);
+  const extraActionsRender = $derived(extraActions);
 </script>
 
 <Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted} {hideActions}>
@@ -116,7 +116,7 @@
   </Form>
   <FormError error={$message} right />
   {#snippet extraActions()}
-    {@render extraActions_render?.()}
+    {@render extraActionsRender?.()}
   {/snippet}
   {#snippet actions({ submitting, close })}
     {#if !done}

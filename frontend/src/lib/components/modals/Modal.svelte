@@ -30,8 +30,8 @@
     showCloseButton?: boolean;
     closeOnClickOutside?: boolean;
     hideActions?: boolean;
-    children?: Snippet<[any]>;
-    actions?: Snippet<[any]>;
+    children?: Snippet<[unknown]>;
+    actions?: Snippet<[unknown]>;
     extraActions?: Snippet;
   }
 

@@ -12,9 +12,9 @@
     submitVariant?: 'btn-primary' | 'btn-error';
     cancelText: string;
     hideActions?: boolean;
-    doneText?: any;
+    doneText?: string;
     showDoneState?: boolean;
-    children?: Snippet<[any]>;
+    children?: Snippet<[unknown]>;
   }
 
   let {

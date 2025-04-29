@@ -34,12 +34,13 @@
     // subscribe() is more durable than reactive syntax
     error.subscribe((e) => {
       if (e) {
-        alertMessageElem = alertMessageElem ?? (browser ? document.querySelector('.error-message') : undefined) ?? undefined;
+        alertMessageElem =
+          alertMessageElem ?? (browser ? document.querySelector('.error-message') : undefined) ?? undefined;
         if (alertMessageElem) alertMessageElem.textContent = e.message;
         traceIdElem = traceIdElem ?? (browser ? document.querySelector('.trace-id') : undefined) ?? undefined;
         if (traceIdElem) traceIdElem.textContent = e.traceId;
       }
-    })
+    }),
   );
 
   const TIME_RANGE_2024_TO_2040 = 'trace_start_ts=1704286862&trace_end_ts=2209042862';
@@ -72,7 +73,11 @@
     <span class="text-2xl">{$t('errors.apology')}</span>
   </div>
 
-  <div class="max-w-full whitespace-pre-wrap error-message" style="overflow-wrap: break-word" bind:this={alertMessageElem}>
+  <div
+    class="max-w-full whitespace-pre-wrap error-message"
+    style="overflow-wrap: break-word"
+    bind:this={alertMessageElem}
+  >
     {$error?.message}
   </div>
 
