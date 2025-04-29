@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-  import {page} from '$app/stores'
+  import {page} from '$app/state'
   import type {FeatureFlag} from '$lib/gql/types';
   import {hasFeatureFlag} from '$lib/user';
 
@@ -11,6 +11,6 @@
   let { flag, children }: Props = $props();
 </script>
 <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-argument -->
-{#if hasFeatureFlag($page.data.user, flag)}
+{#if hasFeatureFlag(page.data.user, flag)}
     {@render children?.()}
 {/if}

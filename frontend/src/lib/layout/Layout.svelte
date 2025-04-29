@@ -6,7 +6,7 @@
   import { onMount } from 'svelte';
   import { ensureClientMatchesUser } from '$lib/gql';
   import { beforeNavigate } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import type { LayoutData } from '../../routes/$types';
   import DevContent from './DevContent.svelte';
   import { helpLinks } from '$lib/components/help';
@@ -19,7 +19,7 @@
   let { hideToolbar = false, children }: Props = $props();
 
   let menuToggle = $state(false);
-  let data = $derived($page.data as LayoutData);
+  let data = $derived(page.data as LayoutData);
   let user = $derived(data.user);
 
   function close(): void {

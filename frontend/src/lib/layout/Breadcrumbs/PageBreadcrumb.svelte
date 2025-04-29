@@ -2,7 +2,7 @@
 
   import type {Writable} from 'svelte/store';
   import {getContext} from 'svelte';
-  import {page} from '$app/stores';
+  import {page} from '$app/state';
   import type {Action} from 'svelte/action';
 
   interface Props {
@@ -11,7 +11,7 @@
   }
 
   let { href = undefined, children }: Props = $props();
-  let isCurrentPath = $derived($page.url.pathname === href);
+  let isCurrentPath = $derived(page.url.pathname === href);
 
   let crumbs: Writable<Element[]> = getContext('breadcrumb-store');
 

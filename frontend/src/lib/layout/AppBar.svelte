@@ -4,7 +4,7 @@
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
   import { onMount } from 'svelte';
   import type { LexAuthUser } from '$lib/user';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import AppLogo from '$lib/icons/AppLogo.svelte';
 
   onMount(() => {
@@ -47,14 +47,14 @@
           <AuthenticatedUserIcon size="text-4xl" />
         </label>
       {:else}
-        {#if $page.url.pathname !== '/login'}
+        {#if page.url.pathname !== '/login'}
           <a href="/login" class="btn btn-primary">
             {$t('login.button_login')}
           <span class="i-mdi-logout text-3xl"></span>
           </a>
         {/if}
 
-        {#if $page.url.pathname !== '/register'}
+        {#if page.url.pathname !== '/register'}
           <a href="/register" class="btn btn-primary">
             {$t('register.button_register')}
             <UserAddOutline/>
