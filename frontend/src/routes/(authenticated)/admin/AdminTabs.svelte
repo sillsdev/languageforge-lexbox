@@ -15,7 +15,7 @@
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher<{
-    clickTab: AdminTabId
+    clickTab: AdminTabId;
   }>();
 
   interface Props {
@@ -30,7 +30,12 @@
   <div class="tab tab-divider"></div>
   {#each adminTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <button onclick={() => dispatch('clickTab', tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
+    <button
+      onclick={() => dispatch('clickTab', tab)}
+      role="tab"
+      class:tab-active={isActiveTab}
+      class="tab grow flex-1 basis-1/2"
+    >
       <h2 class="text-lg flex gap-4 items-center">
         {#if isActiveTab}
           {#if children}{@render children()}{:else}

@@ -13,9 +13,7 @@
 
 <Page {title}>
   {#snippet header()}
-  
-      <PageTitle {title} />
-    
+    <PageTitle {title} />
   {/snippet}
   <div class="py-6">
     {@render children?.()}

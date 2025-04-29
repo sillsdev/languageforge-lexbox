@@ -5,8 +5,7 @@
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
   import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import Icon from '$lib/icons/Icon.svelte';
-  import {projectUrl} from '$lib/util/project';
-
+  import { projectUrl } from '$lib/util/project';
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
@@ -67,7 +66,8 @@
                   </a>
                   <span
                     class="tooltip text-warning text-xl shrink-0 leading-0"
-                    data-tip={$t('admin_dashboard.is_draft')}>
+                    data-tip={$t('admin_dashboard.is_draft')}
+                  >
                     <Icon icon="i-mdi-script" />
                   </span>
                 {:else if project.deletedDate}
@@ -83,7 +83,8 @@
                 {#if project.isConfidential}
                   <span
                     class="tooltip text-warning text-xl shrink-0 leading-0"
-                    data-tip={$t('project.confidential.confidential')}>
+                    data-tip={$t('project.confidential.confidential')}
+                  >
                     <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
                   </span>
                 {/if}
@@ -126,7 +127,7 @@
             </td>
           {/if}
           {#if actions}
-            {@render actions?.({ project, })}
+            {@render actions?.({ project })}
           {/if}
         </tr>
       {/each}

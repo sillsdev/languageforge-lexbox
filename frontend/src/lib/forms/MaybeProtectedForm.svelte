@@ -11,20 +11,15 @@
     children?: Snippet;
   }
 
-  let {
-    enhance = undefined,
-    turnstileToken = $bindable(''),
-    skipTurnstile = false,
-    children
-  }: Props = $props();
+  let { enhance = undefined, turnstileToken = $bindable(''), skipTurnstile = false, children }: Props = $props();
 </script>
 
 {#if skipTurnstile}
-<Form {enhance} on:submit>
-  {@render children?.()}
-</Form>
+  <Form {enhance} on:submit>
+    {@render children?.()}
+  </Form>
 {:else}
-<ProtectedForm {enhance} on:submit bind:turnstileToken>
-  {@render children?.()}
-</ProtectedForm>
+  <ProtectedForm {enhance} on:submit bind:turnstileToken>
+    {@render children?.()}
+  </ProtectedForm>
 {/if}

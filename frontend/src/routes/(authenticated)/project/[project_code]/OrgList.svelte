@@ -16,12 +16,7 @@
     children?: Snippet;
   }
 
-  let {
-    canManage,
-    organizations = [],
-    extraButtons,
-    children
-  }: Props = $props();
+  let { canManage, organizations = [], extraButtons, children }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     removeProjectFromOrg: { orgId: string; orgName: string };
@@ -55,21 +50,24 @@
             </span>
           </ActionBadge>
           {#snippet content()}
-                    <ul  class="menu">
+            <ul class="menu">
               <li>
                 <a href={`/org/${org.id}`}>
-                  <Icon icon="i-mdi-link"/>
-                  {$t('project_page.view_org', {orgName: org.name})}
+                  <Icon icon="i-mdi-link" />
+                  {$t('project_page.view_org', { orgName: org.name })}
                 </a>
               </li>
               <li>
-                <button class="text-error" onclick={() => dispatch('removeProjectFromOrg', {orgId: org.id, orgName: org.name})}>
+                <button
+                  class="text-error"
+                  onclick={() => dispatch('removeProjectFromOrg', { orgId: org.id, orgName: org.name })}
+                >
                   <TrashIcon />
                   {$t('project_page.remove_project_from_org')}
                 </button>
               </li>
             </ul>
-                  {/snippet}
+          {/snippet}
         </Dropdown>
       {/if}
     {/each}

@@ -3,11 +3,10 @@
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
-  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
   import type { HelpLink } from '$lib/components/help';
   import SupHelp from '$lib/components/help/SupHelp.svelte';
 
-  
   interface Props {
     label: string;
     description?: string | undefined;
@@ -15,9 +14,9 @@
     id?: string;
     helpLink?: HelpLink | undefined;
     /**
-   * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
-   * So we allow/support it and disable a11y-autofocus warnings in generic places.
-   */
+     * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
+     * So we allow/support it and disable a11y-autofocus warnings in generic places.
+     */
     autofocus?: boolean;
     children?: Snippet;
   }
@@ -29,7 +28,7 @@
     id = randomFormId(),
     helpLink = undefined,
     autofocus = false,
-    children
+    children,
   }: Props = $props();
 
   let elem: HTMLDivElement = $state();

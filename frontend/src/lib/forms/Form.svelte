@@ -25,7 +25,14 @@
 </script>
 
 <!-- https://daisyui.com/components/input/#with-form-control-and-labels -->
-<form bind:this={formElem} {id} use:enhanceIfRequested method="post" onsubmit={preventDefault(bubble('submit'))} class="flex flex-col">
+<form
+  bind:this={formElem}
+  {id}
+  use:enhanceIfRequested
+  method="post"
+  onsubmit={preventDefault(bubble('submit'))}
+  class="flex flex-col"
+>
   {@render children?.()}
 </form>
 <!-- see frontend/src/app.postcss for global styles related to forms -->

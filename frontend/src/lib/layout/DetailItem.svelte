@@ -20,7 +20,7 @@
     loading = false,
     wrap = false,
     children,
-    extras
+    extras,
   }: Props = $props();
 </script>
 

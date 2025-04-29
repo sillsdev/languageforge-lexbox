@@ -13,12 +13,7 @@
     children?: Snippet;
   }
 
-  let {
-    loading = false,
-    form = undefined,
-    variant = 'btn-primary',
-    children
-  }: Props = $props();
+  let { loading = false, form = undefined, variant = 'btn-primary', children }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->

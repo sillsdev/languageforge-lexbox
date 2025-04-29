@@ -42,7 +42,7 @@
     hideActions = false,
     children,
     actions,
-    extraActions
+    extraActions,
   }: Props = $props();
 
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
@@ -115,11 +115,6 @@
     }
   });
 </script>
-<style>
-  .modal-action {
-    justify-content: var(--justify-actions, space-between)
-  }
-</style>
 
 {#if $open}
   <!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
@@ -138,14 +133,14 @@
           >✕
         </button>
       {/if}
-      {@render children?.({ closing, submitting, })}
+      {@render children?.({ closing, submitting })}
       {#if actions && !hideActions}
         <div class="modal-action">
           <div class="flex gap-4">
             {@render extraActions?.()}
           </div>
           <div class="flex gap-4">
-            {@render actions?.({ closing, submitting, close, })}
+            {@render actions?.({ closing, submitting, close })}
           </div>
         </div>
       {/if}
@@ -158,3 +153,9 @@
     <Notify />
   </dialog>
 {/if}
+
+<style>
+  .modal-action {
+    justify-content: var(--justify-actions, space-between);
+  }
+</style>

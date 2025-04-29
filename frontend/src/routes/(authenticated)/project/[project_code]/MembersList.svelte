@@ -3,9 +3,9 @@
   import type { ProjectRole } from '$lib/gql/types';
 
   export type Member = {
-    id: string
-    user: User,
-    role: ProjectRole
+    id: string;
+    user: User;
+    role: ProjectRole;
   };
 </script>
 
@@ -43,7 +43,7 @@
     projectId,
     canViewOtherMembers,
     extraButtons,
-    children
+    children,
   }: Props = $props();
 
   const dispatch = createEventDispatcher<{
@@ -61,10 +61,12 @@
     if (!search) {
       filteredMembers = members;
     } else {
-      filteredMembers = members.filter((m) =>
-        m.user.name.toLowerCase().includes(search) ||
-        m.user.email?.toLowerCase().includes(search) ||
-        m.user.username?.toLowerCase().includes(search));
+      filteredMembers = members.filter(
+        (m) =>
+          m.user.name.toLowerCase().includes(search) ||
+          m.user.email?.toLowerCase().includes(search) ||
+          m.user.username?.toLowerCase().includes(search),
+      );
     }
   });
   let showMembers = $derived(showAllMembers ? filteredMembers : filteredMembers.slice(0, TRUNCATED_MEMBER_COUNT));
@@ -74,7 +76,7 @@
   let changeMemberRoleModal: ChangeMemberRoleModal = $state();
   async function changeMemberRole(member: Member): Promise<void> {
     if (!member.user) return;
-    const nameOrEmail = member.user.name ? member.user.name : member.user.email ?? '';
+    const nameOrEmail = member.user.name ? member.user.name : (member.user.email ?? '');
     const { response, formState } = await changeMemberRoleModal.open({
       userId: member.user.id as UUID,
       name: nameOrEmail,
@@ -101,22 +103,20 @@
       {#if !canViewOtherMembers}
         <span
           class="tooltip tooltip-warning text-warning shrink-0 leading-0"
-          data-tip={$t('project_page.members.membership_confidential')}>
+          data-tip={$t('project_page.members.membership_confidential')}
+        >
           <Icon icon="i-mdi-shield-lock-outline" size="text-xl" />
         </span>
       {/if}
     </h2>
     {#if members?.length > TRUNCATED_MEMBER_COUNT}
       <div class="form-control max-w-full w-96">
-        <PlainInput
-          placeholder={$t('project_page.members.filter_members_placeholder')}
-          bind:value={memberSearch} />
+        <PlainInput placeholder={$t('project_page.members.filter_members_placeholder')} bind:value={memberSearch} />
       </div>
     {/if}
   </div>
 
   <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
-
     {#if !members.length}
       <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>
     {:else if !showMembers.length}
@@ -126,9 +126,9 @@
     {#each showMembers as member (member.id)}
       {@const canManage = canManageMember(member)}
       <Dropdown disabled={!canManage}>
-        <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManage} />
+        <MemberBadge member={{ name: member.user.name, role: member.role }} {canManage} />
         {#snippet content()}
-                <ul  class="menu">
+          <ul class="menu">
             <AdminContent>
               <li>
                 <button onclick={() => dispatch('openUserModal', member)}>
@@ -150,7 +150,7 @@
               </button>
             </li>
           </ul>
-              {/snippet}
+        {/snippet}
       </Dropdown>
     {/each}
 
@@ -169,7 +169,6 @@
     {/if}
 
     {@render children?.()}
-
   </BadgeList>
   <ChangeMemberRoleModal {projectId} bind:this={changeMemberRoleModal} />
 </div>

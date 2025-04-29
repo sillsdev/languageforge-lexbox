@@ -11,8 +11,12 @@
     formState: LexFormState<S>;
   };
 
-  export type FormSubmitReturn<Schema extends ZodValidation<AnyZodObject>> = ErrorMessage | Partial<LexFormErrors<Schema>>;
-  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<FormSubmitReturn<Schema>>;
+  export type FormSubmitReturn<Schema extends ZodValidation<AnyZodObject>> =
+    | ErrorMessage
+    | Partial<LexFormErrors<Schema>>;
+  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (
+    state: LexFormState<Schema>,
+  ) => Promise<FormSubmitReturn<Schema>>;
 </script>
 
 <script lang="ts">
@@ -45,7 +49,7 @@
     children,
     extraActions,
     submitText,
-    doneText
+    doneText,
   }: Props = $props();
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
@@ -54,12 +58,12 @@
   let done = $state(false);
 
   export async function open(
-    value: Partial<FormType> | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+    value: Partial<FormType> | undefined, //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
     onSubmit: SubmitCallback,
   ): Promise<FormModalResult<Schema>>;
   export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;
   export async function open(
-    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined, //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
     _onSubmit?: SubmitCallback,
   ): Promise<FormModalResult<Schema>> {
     done = false;
@@ -69,12 +73,11 @@
     reset();
 
     //need to use update otherwise some fields might be undefined since value can be a partial
-    if (value) _form.update(f => ({...f, ...value}), { taint: false });
+    if (value) _form.update((f) => ({ ...f, ...value }), { taint: false });
 
     const response = await openModal(onSubmit);
     const _formState = $formState; // we need to read the form state before the modal closes or it will be reset
-    if (response !== DialogResponse.Submit || !showDoneState)
-      modal?.close();
+    if (response !== DialogResponse.Submit || !showDoneState) modal?.close();
     return { response, formState: _formState };
   }
 
@@ -93,7 +96,7 @@
     const error = await onSubmit($formState);
     if (error) {
       if (typeof error === 'string') $message = error;
-      if (typeof error === 'object') $errors = {...$errors, ...error};
+      if (typeof error === 'object') $errors = { ...$errors, ...error };
       // again go back to the top and await a response from the modal.
       return await openModal(onSubmit);
     }
@@ -109,25 +112,21 @@
 <Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted} {hideActions}>
   <Form id="modalForm" {enhance}>
     <p class="mb-4 text-lg font-bold">{@render title?.()}</p>
-    {@render children?.({ errors: $errors, })}
+    {@render children?.({ errors: $errors })}
   </Form>
   <FormError error={$message} right />
   {#snippet extraActions()}
-  
-      {@render extraActions_render?.()}
-    
+    {@render extraActions_render?.()}
   {/snippet}
   {#snippet actions({ submitting, close })}
-  
-      {#if !done}
-        <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
-          {@render submitText?.()}
-        </SubmitButton>
-      {:else}
-        <Button variant="btn-primary" on:click={close}>
-          {@render doneText?.()}
-        </Button>
-      {/if}
-    
+    {#if !done}
+      <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
+        {@render submitText?.()}
+      </SubmitButton>
+    {:else}
+      <Button variant="btn-primary" on:click={close}>
+        {@render doneText?.()}
+      </Button>
+    {/if}
   {/snippet}
 </Modal>

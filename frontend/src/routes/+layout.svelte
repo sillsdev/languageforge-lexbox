@@ -13,8 +13,8 @@
   import { overlayContainer } from '$lib/overlay';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
-  import {onMount, setContext} from 'svelte';
-  import {derived, writable} from 'svelte/store';
+  import { onMount, setContext } from 'svelte';
+  import { derived, writable } from 'svelte/store';
   import { initI18n } from '$lib/i18n';
 
   interface Props {
@@ -44,7 +44,7 @@
   });
 
   let hydrating = $state(true);
-  onMount(() => hydrating = false);
+  onMount(() => (hydrating = false));
 
   const loading = derived(navigating, (nav) => {
     if (!nav?.to) return false;
@@ -74,7 +74,7 @@
   <progress class="progress progress-info block fixed z-50 h-[3px] rounded-none bg-transparent"></progress>
 {/if}
 
-<div class="flex flex-col justify-between min-h-full" class:hydrating={hydrating}>
+<div class="flex flex-col justify-between min-h-full" class:hydrating>
   <div class="flex flex-col flex-grow">
     {@render children?.()}
   </div>

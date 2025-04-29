@@ -9,12 +9,7 @@
     children?: Snippet;
   }
 
-  let {
-    disabled = false,
-    actionIcon,
-    variant = 'btn-neutral',
-    children
-  }: Props = $props();
+  let { disabled = false, actionIcon, variant = 'btn-neutral', children }: Props = $props();
   let iconHoverColor = $derived(variant === 'btn-neutral' ? 'group-hover:bg-base-200' : 'group-hover:bg-neutral/50');
 
   const dispatch = createEventDispatcher<{
@@ -34,7 +29,8 @@
 <button
   onclick={onAction}
   onkeypress={onAction}
-  class="btn badge {variant} group transition whitespace-nowrap gap-1 {pr} {br}" class:pointer-events-none={disabled}
+  class="btn badge {variant} group transition whitespace-nowrap gap-1 {pr} {br}"
+  class:pointer-events-none={disabled}
 >
   {@render children?.()}
 

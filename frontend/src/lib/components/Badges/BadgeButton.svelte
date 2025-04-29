@@ -16,16 +16,15 @@
     children?: Snippet;
   }
 
-  let {
-    variant = undefined,
-    icon = undefined,
-    hoverIcon = undefined,
-    disabled = false,
-    children
-  }: Props = $props();
+  let { variant = undefined, icon = undefined, hoverIcon = undefined, disabled = false, children }: Props = $props();
 </script>
 
-<button onclick={bubble('click')} {disabled} class="badge btn btn-sm !p-0 bright transition-all border-0" class:hover:brightness-90={!disabled}>
+<button
+  onclick={bubble('click')}
+  {disabled}
+  class="badge btn btn-sm !p-0 bright transition-all border-0"
+  class:hover:brightness-90={!disabled}
+>
   <Badge {variant} {icon} hoverIcon={disabled ? undefined : hoverIcon}>
     {@render children?.()}
   </Badge>

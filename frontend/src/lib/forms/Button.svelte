@@ -33,11 +33,16 @@
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<button onclick={bubble('click')} {...rest} class="btn whitespace-nowrap {variant ?? ''} {rest.class ?? ''} {size ?? ''}" {type}
+<button
+  onclick={bubble('click')}
+  {...rest}
+  class="btn whitespace-nowrap {variant ?? ''} {rest.class ?? ''} {size ?? ''}"
+  {type}
   class:btn-outline={outline}
   class:btn-active={active}
   disabled={disabled && !loading}
-  class:pointer-events-none={loading || rest.class?.includes('pointer-events-none')}>
+  class:pointer-events-none={loading || rest.class?.includes('pointer-events-none')}
+>
   {#if !customLoader}
     <Loader {loading} />
   {/if}

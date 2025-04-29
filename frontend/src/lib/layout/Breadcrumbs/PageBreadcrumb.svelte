@@ -20,7 +20,9 @@
 
   function makeBreadCrumb(element: Element): ReturnType<Action> {
     if (setup) {
-      console.error('BreadCrumb already setup, this will mess up the order in which the crumbs are rendered. Probably caused by changing a prop after the component is mounted.');
+      console.error(
+        'BreadCrumb already setup, this will mess up the order in which the crumbs are rendered. Probably caused by changing a prop after the component is mounted.',
+      );
       return;
     }
     element.remove();
@@ -41,7 +43,7 @@
         {@render children?.()}
       </a>
     {:else}
-        {@render children?.()}
+      {@render children?.()}
     {/if}
   </span>
 </div>

@@ -26,7 +26,7 @@
     error = undefined,
     disabled = false,
     helpLink = undefined,
-    children
+    children,
   }: Props = $props();
 </script>
 

@@ -1,7 +1,13 @@
 <script lang="ts" module>
   import type { Snippet } from 'svelte';
   // Add more as necessary. Should be as limited as possible to maximize consistency. https://daisyui.com/components/badge/
-  export type BadgeVariant = 'badge-neutral' | 'badge-info' | 'badge-primary' | 'badge-warning' | 'badge-success' | undefined;
+  export type BadgeVariant =
+    | 'badge-neutral'
+    | 'badge-info'
+    | 'badge-primary'
+    | 'badge-warning'
+    | 'badge-success'
+    | undefined;
 </script>
 
 <script lang="ts">
@@ -20,7 +26,7 @@
     icon = undefined,
     hoverIcon = undefined,
     outline = false,
-    children
+    children,
   }: Props = $props();
 </script>
 

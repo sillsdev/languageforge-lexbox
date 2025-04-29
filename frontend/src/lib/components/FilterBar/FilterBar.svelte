@@ -31,11 +31,6 @@
 
   let searchInput: PlainInput = $state();
 
-  
-  
-
-  
-
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
     autofocus?: true | undefined;
@@ -43,8 +38,8 @@
     filterDefaults: Filters;
     hasActiveFilter?: boolean;
     /**
-   * Explicitly specify the filter object keys that should be used from the `filters` (optional)
-   */
+     * Explicitly specify the filter object keys that should be used from the `filters` (optional)
+     */
     filterKeys?: Readonly<(keyof Filters)[]> | undefined;
     loading?: boolean;
     debounce?: number | boolean;
@@ -64,7 +59,7 @@
     debounce = $bindable(false),
     debouncing = $bindable(false),
     activeFilterSlot,
-    filterSlot
+    filterSlot,
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
 
@@ -112,7 +107,7 @@
 </script>
 
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
-  {@render activeFilterSlot?.({ activeFilters, })}
+  {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
       bind:value={$allFilters[searchKey]}
@@ -131,7 +126,7 @@
         </div>
       {/if}
       <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
-      {#if !!undebouncedSearch || activeFilters.find(f => f.key !== searchKey)}
+      {#if !!undebouncedSearch || activeFilters.find((f) => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>
@@ -143,12 +138,12 @@
               <span class="i-mdi-filter-outline text-xl"></span>
             </button>
             {#snippet content()}
-                        <div  class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+              <div class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
                 <div class="card-body max-sm:p-4">
                   {@render filterSlot?.()}
                 </div>
               </div>
-                      {/snippet}
+            {/snippet}
           </Dropdown>
         </div>
       {/if}

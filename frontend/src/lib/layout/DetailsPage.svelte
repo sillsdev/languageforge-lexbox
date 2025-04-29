@@ -27,7 +27,7 @@
     badges,
     headerContent,
     details,
-    children
+    children,
   }: Props = $props();
 
   const banner_render = $derived(banner);
@@ -36,7 +36,7 @@
   const headerContent_render = $derived(headerContent);
 </script>
 
-<HeaderPage {wide} titleText={titleText} {setBreadcrumb}>
+<HeaderPage {wide} {titleText} {setBreadcrumb}>
   {#snippet banner()}
     {@render banner_render?.()}
   {/snippet}
@@ -47,14 +47,12 @@
     {@render title_render?.()}
   {/snippet}
   {#snippet headerContent()}
-  
-      {#if badges}
-        <BadgeList>
-          {@render badges?.()}
-        </BadgeList>
-      {/if}
-      {@render headerContent_render?.()}
-    
+    {#if badges}
+      <BadgeList>
+        {@render badges?.()}
+      </BadgeList>
+    {/if}
+    {@render headerContent_render?.()}
   {/snippet}
   {#if details}
     <div class="my-4 space-y-2 details">

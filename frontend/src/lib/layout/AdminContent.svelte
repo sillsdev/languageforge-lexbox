@@ -10,5 +10,5 @@
 
 <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-argument -->
 {#if page.data.user?.isAdmin}
-    {@render children?.()}
+  {@render children?.()}
 {/if}

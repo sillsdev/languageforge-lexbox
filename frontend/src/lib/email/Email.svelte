@@ -42,11 +42,7 @@
       <mj-column>
         <mj-divider border-color="#6a737d" border-width="1px"></mj-divider>
         <mj-social font-size="15px" icon-size="40px" icon-padding="8px" align="left">
-          <mj-social-element
-            href="https://lexbox.org"
-            src={lexboxLogo}
-            alt="Lexbox Logo"
-            font-size="20px">
+          <mj-social-element href="https://lexbox.org" src={lexboxLogo} alt="Lexbox Logo" font-size="20px">
             {$t('appbar.app_name')}
           </mj-social-element>
         </mj-social>

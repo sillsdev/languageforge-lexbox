@@ -14,5 +14,5 @@
 
 <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-argument -->
 {#if hasFeatureFlag(page.data.user, flag)}
-    {@render children?.()}
+  {@render children?.()}
 {/if}

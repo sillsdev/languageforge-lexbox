@@ -59,8 +59,12 @@
                 <Icon size="text-2xl" icon="i-mdi-package-variant" />
               </a>
             </DevContent>
-            <a href={helpLinks.helpList} target="_blank" rel="external"
-              class="btn btn-sm btn-info btn-outline hidden lg:flex">
+            <a
+              href={helpLinks.helpList}
+              target="_blank"
+              rel="external"
+              class="btn btn-sm btn-info btn-outline hidden lg:flex"
+            >
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
