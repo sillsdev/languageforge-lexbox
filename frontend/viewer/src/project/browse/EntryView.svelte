@@ -44,7 +44,7 @@
   }
 </script>
 
-<div class="h-full md:px-6 pt-2 relative">
+<div class="h-full flex flex-col md:px-6 pt-2 relative">
   {#if entry}
     <header class="mb-4 flex">
       {#if showClose && onClose}
@@ -55,7 +55,7 @@
       <ViewPicker/>
       <EntryMenu onDelete={handleDelete} />
     </header>
-    <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea class={cn('grow md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
   {/if}
