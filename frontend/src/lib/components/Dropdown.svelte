@@ -1,10 +1,11 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { overlay } from '$lib/overlay';
 
   interface Props {
     disabled?: boolean;
-    children?: import('svelte').Snippet;
-    content?: import('svelte').Snippet;
+    children?: Snippet;
+    content?: Snippet;
   }
 
   let { disabled = false, children, content }: Props = $props();

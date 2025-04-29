@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import t from '$lib/i18n';
   import HeaderPage from './HeaderPage.svelte';
@@ -7,13 +8,13 @@
     titleText: string;
     wide?: boolean;
     setBreadcrumb?: boolean;
-    banner?: import('svelte').Snippet;
-    actions?: import('svelte').Snippet;
-    title?: import('svelte').Snippet;
-    badges?: import('svelte').Snippet;
-    headerContent?: import('svelte').Snippet;
-    details?: import('svelte').Snippet;
-    children?: import('svelte').Snippet;
+    banner?: Snippet;
+    actions?: Snippet;
+    title?: Snippet;
+    badges?: Snippet;
+    headerContent?: Snippet;
+    details?: Snippet;
+    children?: Snippet;
   }
 
   let {

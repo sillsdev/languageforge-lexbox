@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
@@ -18,7 +19,7 @@
    * So we allow/support it and disable a11y-autofocus warnings in generic places.
    */
     autofocus?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {

@@ -1,9 +1,10 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import t from '$lib/i18n';
 
   interface Props {
     column?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { column = false, children }: Props = $props();

@@ -1,13 +1,14 @@
-﻿<script lang="ts">
+<script lang="ts">
+  import type { Snippet } from 'svelte';
 
-  import type {Writable} from 'svelte/store';
-  import {getContext} from 'svelte';
-  import {page} from '$app/state';
-  import type {Action} from 'svelte/action';
+  import type { Writable } from 'svelte/store';
+  import { getContext } from 'svelte';
+  import { page } from '$app/state';
+  import type { Action } from 'svelte/action';
 
   interface Props {
     href?: string | undefined;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { href = undefined, children }: Props = $props();

@@ -1,15 +1,16 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Page from './Page.svelte';
 
   interface Props {
     titleText: string;
     wide?: boolean;
     setBreadcrumb?: boolean;
-    banner?: import('svelte').Snippet;
-    actions?: import('svelte').Snippet;
-    title?: import('svelte').Snippet;
-    headerContent?: import('svelte').Snippet;
-    children?: import('svelte').Snippet;
+    banner?: Snippet;
+    actions?: Snippet;
+    title?: Snippet;
+    headerContent?: Snippet;
+    children?: Snippet;
   }
 
   let {

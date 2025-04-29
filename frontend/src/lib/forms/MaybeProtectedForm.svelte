@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Form from './Form.svelte';
   import ProtectedForm from './ProtectedForm.svelte';
   import type { AnySuperForm } from './types';
@@ -7,7 +8,7 @@
     enhance?: AnySuperForm['enhance'] | undefined;
     turnstileToken?: string;
     skipTurnstile?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {

@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { run } from 'svelte/legacy';
 
   import t from '$lib/i18n';
@@ -29,9 +30,9 @@
     showCloseButton?: boolean;
     closeOnClickOutside?: boolean;
     hideActions?: boolean;
-    children?: import('svelte').Snippet<[any]>;
-    actions?: import('svelte').Snippet<[any]>;
-    extraActions?: import('svelte').Snippet;
+    children?: Snippet<[any]>;
+    actions?: Snippet<[any]>;
+    extraActions?: Snippet;
   }
 
   let {

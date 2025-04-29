@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import SetTitle from './SetTitle.svelte';
   import { PageBreadcrumb } from '$lib/layout';
 
@@ -6,8 +7,8 @@
     title?: string | undefined;
     wide?: boolean;
     setBreadcrumb?: boolean;
-    header?: import('svelte').Snippet;
-    children?: import('svelte').Snippet;
+    header?: Snippet;
+    children?: Snippet;
   }
 
   let {

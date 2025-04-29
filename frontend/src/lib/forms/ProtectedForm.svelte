@@ -5,17 +5,17 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { env } from '$env/dynamic/public';
   import { Turnstile } from 'svelte-turnstile';
   import Form from './Form.svelte';
   import type { AnySuperForm } from './types';
 
-
   const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
   interface Props {
     enhance?: AnySuperForm['enhance'] | undefined;
     turnstileToken?: string;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { enhance = undefined, turnstileToken = $bindable(''), children }: Props = $props();

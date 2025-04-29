@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { createBubbler } from 'svelte/legacy';
 
   const bubble = createBubbler();
@@ -14,7 +15,7 @@
     error?: string | string[] | undefined;
     disabled?: boolean;
     helpLink?: HelpLink | undefined;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {

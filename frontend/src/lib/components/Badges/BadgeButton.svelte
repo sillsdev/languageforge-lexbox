@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { createBubbler } from 'svelte/legacy';
 
   const bubble = createBubbler();
@@ -12,7 +13,7 @@
     icon?: IconString | undefined;
     hoverIcon?: IconString | undefined;
     disabled?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {

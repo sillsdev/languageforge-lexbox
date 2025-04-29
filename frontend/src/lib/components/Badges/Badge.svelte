@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import type { Snippet } from 'svelte';
   // Add more as necessary. Should be as limited as possible to maximize consistency. https://daisyui.com/components/badge/
   export type BadgeVariant = 'badge-neutral' | 'badge-info' | 'badge-primary' | 'badge-warning' | 'badge-success' | undefined;
 </script>
@@ -11,7 +12,7 @@
     icon?: IconString | undefined;
     hoverIcon?: IconString | undefined;
     outline?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {

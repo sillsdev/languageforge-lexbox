@@ -1,11 +1,12 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { Icon, type IconString } from '$lib/icons';
   import { createEventDispatcher } from 'svelte';
   interface Props {
     disabled?: boolean;
     actionIcon: IconString;
     variant?: 'btn-neutral' | 'btn-primary' | 'btn-secondary';
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {

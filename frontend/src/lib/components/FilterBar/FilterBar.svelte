@@ -1,9 +1,12 @@
 <script lang="ts" module>
-  export type Filter<T = Record<string, unknown>> = Readonly<NonNullable<
-    {
-      [K in keyof T]: { value: T[K]; key: K & string, clear: () => void };
-    }[keyof T]
-  >>;
+  import type { Snippet } from 'svelte';
+  export type Filter<T = Record<string, unknown>> = Readonly<
+    NonNullable<
+      {
+        [K in keyof T]: { value: T[K]; key: K & string; clear: () => void };
+      }[keyof T]
+    >
+  >;
 </script>
 
 <script lang="ts">
@@ -46,8 +49,8 @@
     loading?: boolean;
     debounce?: number | boolean;
     debouncing?: boolean;
-    activeFilterSlot?: import('svelte').Snippet<[any]>;
-    filterSlot?: import('svelte').Snippet;
+    activeFilterSlot?: Snippet<[any]>;
+    filterSlot?: Snippet;
   }
 
   let {

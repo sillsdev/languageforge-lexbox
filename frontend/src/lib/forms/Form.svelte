@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { createBubbler, preventDefault } from 'svelte/legacy';
 
   const bubble = createBubbler();
@@ -9,7 +10,7 @@
   interface Props {
     id?: string | undefined;
     enhance?: AnySuperForm['enhance'] | undefined;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { id = undefined, enhance = undefined, children }: Props = $props();

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import t, { date, number } from '$lib/i18n';
   import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
@@ -12,7 +13,7 @@
   interface Props {
     projects: ProjectItemWithDraftStatus[];
     columns?: Readonly<ProjectTableColumn[]>;
-    actions?: import('svelte').Snippet<[any]>;
+    actions?: Snippet<[any]>;
   }
 
   let { projects, columns = allColumns, actions }: Props = $props();

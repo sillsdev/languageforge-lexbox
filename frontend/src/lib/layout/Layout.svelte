@@ -1,5 +1,9 @@
 <script lang="ts">
-  import EmailVerificationStatus, { initEmailResult, initRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
+  import type { Snippet } from 'svelte';
+  import EmailVerificationStatus, {
+    initEmailResult,
+    initRequestedEmail,
+  } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
   import { AdminIcon, HomeIcon, Icon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
@@ -13,7 +17,7 @@
 
   interface Props {
     hideToolbar?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { hideToolbar = false, children }: Props = $props();

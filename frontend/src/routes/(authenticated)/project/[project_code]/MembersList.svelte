@@ -10,6 +10,7 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { run } from 'svelte/legacy';
 
   import t from '$lib/i18n';
@@ -31,8 +32,8 @@
     canManageList: boolean;
     projectId: string;
     canViewOtherMembers: boolean;
-    extraButtons?: import('svelte').Snippet;
-    children?: import('svelte').Snippet;
+    extraButtons?: Snippet;
+    children?: Snippet;
   }
 
   let {

@@ -1,4 +1,5 @@
 <script module lang="ts">
+  import type { Snippet } from 'svelte';
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import type { LexFormErrors, LexFormState } from '$lib/forms/superforms';
   import type { AnyZodObject, ZodObject, z } from 'zod';
@@ -28,11 +29,11 @@
     submitVariant?: SubmitVariant;
     hideActions?: boolean;
     showDoneState?: boolean;
-    title?: import('svelte').Snippet;
-    children?: import('svelte').Snippet<[any]>;
-    extraActions?: import('svelte').Snippet;
-    submitText?: import('svelte').Snippet;
-    doneText?: import('svelte').Snippet;
+    title?: Snippet;
+    children?: Snippet<[any]>;
+    extraActions?: Snippet;
+    submitText?: Snippet;
+    doneText?: Snippet;
   }
 
   let {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { run } from 'svelte/legacy';
 
   import { getStores, navigating } from '$app/stores';
@@ -18,7 +19,7 @@
 
   interface Props {
     data: LayoutData;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { data, children }: Props = $props();

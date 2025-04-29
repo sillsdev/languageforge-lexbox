@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import t from '$lib/i18n';
   import { Badge, BadgeList } from '$lib/components/Badges';
   import type { Organization } from '$lib/gql/types';
@@ -11,8 +12,8 @@
   interface Props {
     canManage: boolean;
     organizations?: Org[];
-    extraButtons?: import('svelte').Snippet;
-    children?: import('svelte').Snippet;
+    extraButtons?: Snippet;
+    children?: Snippet;
   }
 
   let {
@@ -28,7 +29,6 @@
 
   const TRUNCATED_MEMBER_COUNT = 5;
 </script>
-
 
 <div>
   <p class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">

@@ -1,10 +1,11 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { ActionBadge } from '../Badges';
   import type { Filter } from './FilterBar.svelte';
 
   interface Props {
     filter: Filter;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { filter, children }: Props = $props();

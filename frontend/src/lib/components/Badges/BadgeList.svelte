@@ -1,7 +1,8 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   interface Props {
     grid?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { grid = false, children }: Props = $props();

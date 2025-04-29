@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import t from '$lib/i18n';
   import {type ErrorMessage} from '$lib/forms';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
@@ -6,7 +7,7 @@
   interface Props {
     entityName: string;
     isRemoveDialog?: boolean;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { entityName, isRemoveDialog = false, children }: Props = $props();

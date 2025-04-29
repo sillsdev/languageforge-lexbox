@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import type { Snippet } from 'svelte';
   import type { I18nKey } from '$lib/i18n';
 
   export const adminTabs = ['projects', 'users'] as const;
@@ -19,7 +20,7 @@
 
   interface Props {
     activeTab?: AdminTabId;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { activeTab = 'projects', children }: Props = $props();

@@ -1,11 +1,12 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Subject from '$lib/email/Subject.svelte';
   import t from '$lib/i18n';
   const lexboxLogo = 'https://lexbox.org/images/logo-dark.png';
   interface Props {
     subject: string;
     name: string;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let { subject, name, children }: Props = $props();

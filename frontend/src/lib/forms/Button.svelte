@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { createBubbler } from 'svelte/legacy';
 
   const bubble = createBubbler();
@@ -13,8 +14,8 @@
     size?: undefined | 'btn-sm';
     disabled?: boolean;
     customLoader?: boolean;
-    children?: import('svelte').Snippet;
-    [key: string]: any
+    children?: Snippet;
+    [key: string]: any;
   }
 
   let {

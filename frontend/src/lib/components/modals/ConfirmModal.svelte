@@ -1,7 +1,8 @@
-﻿<script lang="ts">
-  import {type IconString, Icon} from '$lib/icons';
-  import Modal, {DialogResponse} from './Modal.svelte';
-  import {Button, type ErrorMessage, FormError} from '$lib/forms';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import { type IconString, Icon } from '$lib/icons';
+  import Modal, { DialogResponse } from './Modal.svelte';
+  import { Button, type ErrorMessage, FormError } from '$lib/forms';
   import t from '$lib/i18n';
 
 
@@ -15,7 +16,7 @@
     hideActions?: boolean;
     doneText?: any;
     showDoneState?: boolean;
-    children?: import('svelte').Snippet<[any]>;
+    children?: Snippet<[any]>;
   }
 
   let {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import Loader from '$lib/components/Loader.svelte';
 
@@ -8,8 +9,8 @@
     copyToClipboard?: boolean;
     loading?: boolean;
     wrap?: boolean;
-    children?: import('svelte').Snippet;
-    extras?: import('svelte').Snippet;
+    children?: Snippet;
+    extras?: Snippet;
   }
 
   let {

@@ -3,13 +3,14 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Button from './Button.svelte';
 
   interface Props {
     loading?: boolean;
     form?: string | undefined;
     variant?: SubmitVariant;
-    children?: import('svelte').Snippet;
+    children?: Snippet;
   }
 
   let {
