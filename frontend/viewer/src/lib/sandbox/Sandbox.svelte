@@ -4,7 +4,7 @@
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import type {FieldIds} from '$lib/entry-editor/field-data';
-  import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
+  import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
   import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
@@ -235,7 +235,7 @@
       <svelte:boundary>
         <EditorGrid class="border p-4">
           <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
-            <SenseEditor
+            <SenseEditorPrimitive
               sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
           </OverrideFields>
         </EditorGrid>

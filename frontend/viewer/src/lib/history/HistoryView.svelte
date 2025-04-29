@@ -5,7 +5,7 @@
   import {t} from 'svelte-i18n-lingui';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import ExampleEditor from '../entry-editor/object-editors/ExampleEditor.svelte';
-  import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
+  import SenseEditorPrimitive from '../entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {type HistoryItem, useHistoryService} from '../services/history-service';
   import {EditorGrid} from '$lib/components/editor';
 
@@ -106,7 +106,7 @@
                   <EntryEditor entry={record.entity} modalMode readonly/>
                 {:else if record.entityName === 'Sense'}
                   <EditorGrid>
-                        <SenseEditor sense={record.entity} readonly/>
+                        <SenseEditorPrimitive sense={record.entity} readonly/>
                   </EditorGrid>
                 {:else if record.entityName === 'ExampleSentence'}
                   <EditorGrid>

@@ -1,5 +1,4 @@
 ﻿<script lang="ts">
-  import EntityEditor from './EntityEditor.svelte';
   import type {ISense} from '$lib/dotnet-types';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
@@ -44,9 +43,4 @@
                     {readonly}
                     id="semanticDomains"
                     wsType="first-analysis" />
-  <EntityEditor
-    {readonly}
-    customFieldConfigs={[]}
-    on:change
-  />
 </div>

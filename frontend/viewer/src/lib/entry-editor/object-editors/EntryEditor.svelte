@@ -14,7 +14,7 @@
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
-  import SenseEditor from './SenseEditor.svelte';
+  import SenseEditorPrimitive from './SenseEditorPrimitive.svelte';
   import {EditorGrid} from '$lib/components/editor';
   import EntryEditorPrimitive from './EntryEditorPrimitive.svelte';
 
@@ -161,7 +161,7 @@
         </div>
       </div>
 
-      <SenseEditor {sense} {readonly} on:change={() => onSenseChange(sense)}/>
+      <SenseEditorPrimitive {sense} {readonly} on:change={() => onSenseChange(sense)}/>
 
       {#if sense.exampleSentences.length}
         <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
