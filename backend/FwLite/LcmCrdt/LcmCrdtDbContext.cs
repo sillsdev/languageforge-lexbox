@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
+using LcmCrdt.CompiledModels;
 using LcmCrdt.Data;
 using SIL.Harmony;
 using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
@@ -16,6 +18,7 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(setupCollationInterceptor);
+        optionsBuilder.UseModel(LcmCrdtDbContextModel.Instance);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,14 +42,26 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
             .HaveConversion<WritingSystemIdConverter>();
     }
 
-    private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
-        mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
-        json => JsonSerializer.Deserialize<MultiString>(json, (JsonSerializerOptions?)null) ?? new());
-    private class RichMultiStringDbConverter() : ValueConverter<RichMultiString, string>(
-        mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
-        json => JsonSerializer.Deserialize<RichMultiString>(json, (JsonSerializerOptions?)null) ?? new());
+    internal class MultiStringDbConverter() : ValueConverter<MultiString, string>(
+        mul => Serialize(mul),
+        json => Deserialize<MultiString>(json) ?? new());
 
-    private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
+    internal class RichMultiStringDbConverter() : ValueConverter<RichMultiString, string>(
+        mul => Serialize(mul),
+        json => Deserialize<RichMultiString>(json) ?? new());
+
+    internal class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
+
+    internal static string Serialize<T>(T value)
+    {
+        return JsonSerializer.Serialize(value, typeof(T), JsonSourceGenerationContext.Default);
+    }
+
+    internal static T Deserialize<T>(string value) where T : class
+    {
+        return JsonSerializer.Deserialize(value, typeof(T), JsonSourceGenerationContext.Default) as T ??
+               throw new InvalidOperationException($"Failed to deserialize {typeof(T).Name}");
+    }
 }

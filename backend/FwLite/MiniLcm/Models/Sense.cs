@@ -53,7 +53,7 @@ public class Sense : IObjectWithId<Sense>, IOrderable
     }
 }
 
-internal class SensePoSConverter : JsonConverter<PartOfSpeech?>
+public class SensePoSConverter : JsonConverter<PartOfSpeech>
 {
     public override PartOfSpeech? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

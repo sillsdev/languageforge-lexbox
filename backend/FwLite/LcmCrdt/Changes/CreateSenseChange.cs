@@ -21,7 +21,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     }
 
     [JsonConstructor]
-    private CreateSenseChange(Guid entityId, Guid entryId) : base(entityId)
+    internal CreateSenseChange(Guid entityId, Guid entryId) : base(entityId)
     {
         EntryId = entryId;
     }

@@ -20,7 +20,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     }
 
     [JsonConstructor]
-    private CreateExampleSentenceChange(Guid entityId, Guid senseId) : base(entityId)
+    internal CreateExampleSentenceChange(Guid entityId, Guid senseId) : base(entityId)
     {
         SenseId = senseId;
     }

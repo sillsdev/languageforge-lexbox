@@ -58,8 +58,7 @@ public static class LcmCrdtKernel
         {
             ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
-                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtExternalJsonTypeResolver()
+                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions.TypeInfoResolver?.AddExternalMiniLcmModifiers()
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
@@ -90,6 +89,24 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
                     //tells linq2db to rewrite Sense.SemanticDomains, into Json.Query(Sense.SemanticDomains)
                     .Entity<Sense>().Property(s => s.SemanticDomains).HasAttribute(new ExpressionMethodAttribute(SenseSemanticDomainsExpression()))
+                    //for some reason since we started using compiled models linq2db is not picking up the conversion from EF
+                    //so we need to define it here also
+                    .HasConversion(
+                        list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<SemanticDomain>>(json) ?? new()
+                        )
+                    .Entity<Entry>()
+                    .Property(e => e.ComplexFormTypes).HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<ComplexFormType>>(json) ?? new())
+                    .Property(e => e.PublishIn).HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => string.IsNullOrWhiteSpace(json)
+                            ? new()
+                            : LcmCrdtDbContext.Deserialize<List<Publication>>(json) ?? new())
+                    .Entity<WritingSystem>()
+                    .Property(w => w.Exemplars)
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<string[]>(json) ??
+                                Array.Empty<string>())
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -105,6 +122,13 @@ public static class LcmCrdtKernel
     {
         //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
         return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
+    }
+
+    public static CrdtConfig MakeConfig()
+    {
+        var config = new CrdtConfig();
+        ConfigureCrdt(config);
+        return config;
     }
 
 
@@ -128,15 +152,13 @@ public static class LcmCrdtKernel
                 builder
                     .Property(e => e.ComplexFormTypes)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<ComplexFormType>>(json,
-                            (JsonSerializerOptions?)null) ?? new());
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<ComplexFormType>>(json) ?? new());
                 builder
                     .Property(e => e.PublishIn)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => string.IsNullOrWhiteSpace(json) ? new() : JsonSerializer.Deserialize<List<Publication>>(json,
-                                (JsonSerializerOptions?)null) ?? new());
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => string.IsNullOrWhiteSpace(json) ? new() : LcmCrdtDbContext.Deserialize<List<Publication>>(json) ?? new());
             })
             .Add<Sense>(builder =>
             {
@@ -149,8 +171,8 @@ public static class LcmCrdtKernel
                     .HasForeignKey(sense => sense.EntryId);
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<List<SemanticDomain>>(json) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -160,11 +182,12 @@ public static class LcmCrdtKernel
             })
             .Add<WritingSystem>(builder =>
             {
+                builder.Property(ws => ws.WsId).HasSentinel(new WritingSystemId("default"));
                 builder.HasIndex(ws => new { ws.WsId, ws.Type }).IsUnique();
                 builder.Property(w => w.Exemplars)
                     .HasColumnType("jsonb")
-                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ??
+                    .HasConversion(list => LcmCrdtDbContext.Serialize(list),
+                        json => LcmCrdtDbContext.Deserialize<string[]>(json) ??
                                 Array.Empty<string>());
             })
             .Add<PartOfSpeech>()
@@ -230,6 +253,22 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        config.JsonSerializerOptions.TypeInfoResolver = JsonTypeInfoResolver.Combine(config.JsonSerializerOptions.TypeInfoResolver, JsonSourceGenerationContext.Default)
+            //per https://github.com/dotnet/runtime/issues/95893, source generators don't support custom converters per property
+            .WithAddedModifier(SetSensePosTypeConverter);
+    }
+
+    public static void SetSensePosTypeConverter(JsonTypeInfo info)
+    {
+        if (info.Type != typeof(Sense))
+        {
+            return;
+        }
+
+        var partOfSpeechProperty = info.Properties.FirstOrDefault(p => p.PropertyType == typeof(PartOfSpeech));
+        if (partOfSpeechProperty is null || partOfSpeechProperty.CustomConverter is not null) return;
+        partOfSpeechProperty.CustomConverter = new SensePoSConverter();
     }
 
     public static IEnumerable<Type> AllChangeTypes()
