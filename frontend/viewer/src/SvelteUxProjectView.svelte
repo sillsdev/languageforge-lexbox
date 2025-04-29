@@ -15,20 +15,18 @@
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
-  import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
   import {getAvailableHeightForElement} from './lib/utils/size';
   import {getSearchParam, getSearchParams, updateSearchParam, ViewerSearchParam} from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
-  import {saveEventDispatcher, saveHandler} from './lib/services/save-event-service';
   import {initView, initViewSettings} from './lib/views/view-service';
   import {views} from './lib/views/view-data';
   import {useEventBus} from './lib/services/event-bus';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
-  import {initDialogService} from '$lib/entry-editor/dialog-service';
+  import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service.js';
   import HomeButton from '$lib/HomeButton.svelte';
   import AppBarMenu from '$lib/layout/AppBarMenu.svelte';
   import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
@@ -70,8 +68,6 @@
 
   const fwLiteConfig = useFwLiteConfig();
   const lexboxApi = useLexboxApi();
-  setContext('saveEvents', saveEventDispatcher);
-  setContext('saveHandler', saveHandler);
 
   const currentView = initView(views[0]);
   const viewSettings = initViewSettings();
@@ -286,22 +282,12 @@
     if (scrolledDown) editorElem?.scrollIntoView({block: 'start', inline: 'nearest', behavior: 'instant'});
   }));
 
-  let newEntryDialog: NewEntryDialog;
+  const dialogsService = useDialogsService();
   async function openNewEntryDialog(lexemeForm?: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
-    const partialEntry: Partial<IEntry> = {};
-    if (lexemeForm) {
-      const defaultWs = writingSystemService.defaultVernacular()?.wsId;
-      if (defaultWs === undefined) return undefined;
-      partialEntry.lexemeForm = {[defaultWs]: lexemeForm};
-    }
-    const entry = await newEntryDialog.openWithValue(partialEntry);
+    const entry = await dialogsService.createNewEntry(lexemeForm);
     if (entry) onEntryCreated(entry, options);
     return entry;
   }
-  let deleteDialog: DeleteDialog;
-  $: dialogHolder.dialog = deleteDialog;
-  const dialogHolder: {dialog?: DeleteDialog} = {};
-  initDialogService(() => dialogHolder.dialog);
 
   initProjectCommands({
     createNewEntry: openNewEntryDialog,
@@ -315,7 +301,7 @@
 
 {#if projectLoaded}
 {#if !readonly}
-  <NewEntryDialog bind:this={newEntryDialog} />
+  <DialogsProvider/>
 {/if}
 <div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
   <AppBar class="bg-primary/25 min-h-12 shadow-md sm-view:sticky sm-view:top-0 overflow-hidden" head={false}>
@@ -340,14 +326,14 @@
     <div class="flex-grow-[2] mx-2 sm-view:overflow-hidden">
       <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
                  {projectName}
-                 createNew={newEntryDialog !== undefined}
+                 createNew={!readonly}
                  on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center whitespace-nowrap">
       <div class="space-x-2">
         {#if !readonly}
-          <NewEntryButton on:click={() => openNewEntryDialog()} />
+          <NewEntryButton onclick={() => openNewEntryDialog()} />
         {/if}
         {#if $features.feedback && fwLiteConfig.feedbackUrl}
           <Button
@@ -391,7 +377,7 @@
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !readonly}
-              <NewEntryButton on:click={() => openNewEntryDialog()} />
+              <NewEntryButton onclick={() => openNewEntryDialog()} />
             {/if}
           </div>
         {/if}
@@ -403,4 +389,3 @@
   <ViewOptionsDrawer bind:open={showOptionsDialog} bind:activeView={$currentView} bind:viewSettings={$viewSettings} bind:features={$features} />
 </div>
 {/if}
-<DeleteDialog bind:this={deleteDialog} />

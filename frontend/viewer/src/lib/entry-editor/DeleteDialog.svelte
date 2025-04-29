@@ -2,6 +2,10 @@
   import {Button} from '$lib/components/ui/button';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {t} from 'svelte-i18n-lingui';
+  import {useDialogsService} from '$lib/services/dialogs-service';
+
+  const dialogsService = useDialogsService();
+  dialogsService.invokeDeleteDialog = prompt;
   let subject: string = $state('');
   let open = $state(false);
   let requester: {
@@ -35,6 +39,7 @@
   }
 </script>
 
+{#if open}
 <AlertDialog.Root bind:open>
   <AlertDialog.Content>
     <AlertDialog.Header>
@@ -49,3 +54,4 @@
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
+{/if}

@@ -12,6 +12,7 @@
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {t} from 'svelte-i18n-lingui';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -49,7 +50,7 @@
       {#if showClose && onClose}
         <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
       {/if}
-      <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || 'Untitled'}</h2>
+      <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
       <div class="flex-1"></div>
       <ViewPicker/>
       <EntryMenu onDelete={handleDelete} />

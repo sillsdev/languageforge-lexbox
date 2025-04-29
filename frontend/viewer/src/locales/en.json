@@ -1,4 +1,40 @@
 {
+  "rwLRCA": {
+    "message": "– ({0} changes)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/activity/ActivityView.svelte",
+        123
+      ]
+    ],
+    "translation": "– ({0} changes)"
+  },
+  "0jQasM": {
+    "message": "{0} (FieldWorks Lite)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/editor/field/field-title.svelte",
+        22
+      ]
+    ],
+    "translation": "{0} (FieldWorks Lite)"
+  },
+  "Bi6Xst": {
+    "message": "{0} (FieldWorks)",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/editor/field/field-title.svelte",
+        26
+      ]
+    ],
+    "translation": "{0} (FieldWorks)"
+  },
   "dhBPPx": {
     "message": "{0} Server",
     "placeholders": {},
@@ -6,10 +42,34 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        54
+        51
       ]
     ],
     "translation": "{0} Server"
+  },
+  "Z3gqCM": {
+    "message": "🤷 nothing here",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        77
+      ]
+    ],
+    "translation": "🤷 nothing here"
+  },
+  "uyJsf6": {
+    "message": "About",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/about/AboutDialog.svelte",
+        22
+      ]
+    ],
+    "translation": "About"
   },
   "AeXO77": {
     "message": "Account",
@@ -18,7 +78,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        80
+        98
       ]
     ],
     "translation": "Account"
@@ -30,10 +90,90 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        59
+        74
+      ],
+      [
+        "src/lib/activity/ActivityView.svelte",
+        78
       ]
     ],
     "translation": "Activity"
+  },
+  "XeIoU/": {
+    "message": "ago",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/history/HistoryView.svelte",
+        79
+      ],
+      [
+        "src/lib/activity/ActivityView.svelte",
+        102
+      ],
+      [
+        "src/lib/activity/ActivityView.svelte",
+        127
+      ]
+    ],
+    "translation": "ago"
+  },
+  "ZYimak": {
+    "message": "Application version",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        26
+      ]
+    ],
+    "translation": "Application version"
+  },
+  "GKJXpX": {
+    "message": "Are you sure you want to delete {0}?",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/DeleteDialog.svelte",
+        48
+      ]
+    ],
+    "translation": "Are you sure you want to delete {0}?"
+  },
+  "6QeoeO": {
+    "message": "Author:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/history/HistoryView.svelte",
+        91
+      ],
+      [
+        "src/lib/activity/ActivityView.svelte",
+        115
+      ]
+    ],
+    "translation": "Author:"
+  },
+  "CI9Ae4": {
+    "message": "before",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/history/HistoryView.svelte",
+        76
+      ],
+      [
+        "src/lib/activity/ActivityView.svelte",
+        99
+      ]
+    ],
+    "translation": "before"
   },
   "O2UpM1": {
     "message": "Browse",
@@ -42,10 +182,30 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        57
+        72
       ]
     ],
     "translation": "Browse"
+  },
+  "dEgA5A": {
+    "message": "Cancel",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/NewEntryDialog.svelte",
+        101
+      ],
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        254
+      ],
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        270
+      ]
+    ],
+    "translation": "Cancel"
   },
   "Q01cKL": {
     "message": "Classic FieldWorks Projects",
@@ -54,10 +214,46 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        206
+        211
       ]
     ],
     "translation": "Classic FieldWorks Projects"
+  },
+  "K0PCkZ": {
+    "message": "clear",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        196
+      ]
+    ],
+    "translation": "clear"
+  },
+  "yz7wBu": {
+    "message": "Close",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/ui/button/x-button.svelte",
+        19
+      ],
+      [
+        "src/lib/components/responsive-popup/responsive-popup.svelte",
+        40
+      ],
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        208
+      ],
+      [
+        "src/lib/about/AboutDialog.svelte",
+        28
+      ]
+    ],
+    "translation": "Close"
   },
   "Iy+nsd": {
     "message": "Close Dictionary",
@@ -66,10 +262,38 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        101
+        116
       ]
     ],
     "translation": "Close Dictionary"
+  },
+  "jZlrte": {
+    "message": "Color",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/ThemePicker.svelte",
+        32
+      ]
+    ],
+    "translation": "Color"
+  },
+  "b9XOHo": {
+    "message": "Create {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/NewEntryDialog.svelte",
+        103
+      ],
+      [
+        "src/lib/entry-editor/NewEntryButton.svelte",
+        12
+      ]
+    ],
+    "translation": "Create {0}"
   },
   "x/7uW0": {
     "message": "Create Entry",
@@ -81,7 +305,8 @@
         45
       ]
     ],
-    "translation": "Create Entry"
+    "translation": "Create Entry",
+    "obsolete": true
   },
   "0widty": {
     "message": "Create Example Project",
@@ -90,7 +315,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        185
+        190
       ]
     ],
     "translation": "Create Example Project"
@@ -102,10 +327,22 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        56
+        71
       ]
     ],
     "translation": "Dashboard"
+  },
+  "yX4qgn": {
+    "message": "Data Directory",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        29
+      ]
+    ],
+    "translation": "Data Directory"
   },
   "cnGeoo": {
     "message": "Delete",
@@ -114,10 +351,38 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        160
+        165
       ]
     ],
     "translation": "Delete"
+  },
+  "Y2tU6I": {
+    "message": "Delete {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/DeleteDialog.svelte",
+        45
+      ],
+      [
+        "src/lib/entry-editor/DeleteDialog.svelte",
+        52
+      ]
+    ],
+    "translation": "Delete {0}"
+  },
+  "P0mjNu": {
+    "message": "Delete Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        20
+      ]
+    ],
+    "translation": "Delete Entry"
   },
   "RY27RL": {
     "message": "Dictionaries",
@@ -126,11 +391,11 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        102
+        104
       ],
       [
         "src/home/HomeView.svelte",
-        109
+        111
       ]
     ],
     "translation": "Dictionaries"
@@ -142,10 +407,22 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        53
+        68
       ]
     ],
     "translation": "Dictionary"
+  },
+  "z9VIKz": {
+    "message": "Don't delete",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/DeleteDialog.svelte",
+        51
+      ]
+    ],
+    "translation": "Don't delete"
   },
   "mzI/c+": {
     "message": "Download",
@@ -154,10 +431,58 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        112
+        110
       ]
     ],
     "translation": "Download"
+  },
+  "VIwCaD": {
+    "message": "Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        259
+      ]
+    ],
+    "translation": "Entry"
+  },
+  "byQjNm": {
+    "message": "Entry Only",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        220
+      ]
+    ],
+    "translation": "Entry Only"
+  },
+  "9QXzjh": {
+    "message": "Failed to load entries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntriesList.svelte",
+        84
+      ]
+    ],
+    "translation": "Failed to load entries"
+  },
+  "MS0/dh": {
+    "message": "Failed to open data directory, use the path in the text field instead",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        15
+      ]
+    ],
+    "translation": "Failed to open data directory, use the path in the text field instead"
   },
   "YirHq7": {
     "message": "Feedback",
@@ -166,14 +491,26 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        113
+        133
       ],
       [
         "src/home/HomeView.svelte",
-        113
+        115
       ]
     ],
     "translation": "Feedback"
+  },
+  "jI2ZOA": {
+    "message": "Field Labels",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        25
+      ]
+    ],
+    "translation": "Field Labels"
   },
   "uKNYWn": {
     "message": "FieldWorks logo",
@@ -181,11 +518,79 @@
     "comments": [],
     "origin": [
       [
+        "src/project/ProjectDropdown.svelte",
+        94
+      ],
+      [
         "src/home/HomeView.svelte",
-        211
+        216
       ]
     ],
     "translation": "FieldWorks logo"
+  },
+  "o7J4JM": {
+    "message": "Filter",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        46
+      ]
+    ],
+    "translation": "Filter"
+  },
+  "W8RMC0": {
+    "message": "Filter semantic domains...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        76
+      ]
+    ],
+    "translation": "Filter semantic domains..."
+  },
+  "6HLTEb": {
+    "message": "Filter...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        192
+      ]
+    ],
+    "translation": "Filter..."
+  },
+  "X5C2hm": {
+    "message": "Headword",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        59
+      ]
+    ],
+    "translation": "Headword"
+  },
+  "0caMy7": {
+    "message": "History",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        21
+      ],
+      [
+        "src/lib/history/HistoryView.svelte",
+        55
+      ]
+    ],
+    "translation": "History"
   },
   "l3s5ri": {
     "message": "Import",
@@ -194,7 +599,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        217
+        222
       ]
     ],
     "translation": "Import"
@@ -206,10 +611,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        107
+        109
       ]
     ],
     "translation": "Lexbox logo"
+  },
+  "4PN67S": {
+    "message": "Loading Dictionaries...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectDropdown.svelte",
+        83
+      ]
+    ],
+    "translation": "Loading Dictionaries..."
   },
   "+yD+Wu": {
     "message": "loading...",
@@ -218,7 +635,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        136
+        138
       ]
     ],
     "translation": "loading..."
@@ -230,7 +647,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        141
+        143
       ]
     ],
     "translation": "Local"
@@ -242,7 +659,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        153
+        157
       ]
     ],
     "translation": "Local only"
@@ -275,6 +692,18 @@
     ],
     "translation": "Logout"
   },
+  "8YvG69": {
+    "message": "Looked hard, found nothing",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        78
+      ]
+    ],
+    "translation": "Looked hard, found nothing"
+  },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
     "placeholders": {},
@@ -282,10 +711,170 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        119
+        142
       ]
     ],
     "translation": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+  },
+  "oPBJ/O": {
+    "message": "Missing Examples",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        60
+      ]
+    ],
+    "translation": "Missing Examples"
+  },
+  "sb65UQ": {
+    "message": "Missing Part of Speech",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        62
+      ]
+    ],
+    "translation": "Missing Part of Speech"
+  },
+  "XOUmTu": {
+    "message": "Missing Semantic Domains",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        63
+      ]
+    ],
+    "translation": "Missing Semantic Domains"
+  },
+  "1H/nm7": {
+    "message": "Missing Senses",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        61
+      ]
+    ],
+    "translation": "Missing Senses"
+  },
+  "isRobC": {
+    "message": "New",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/NewEntryButton.svelte",
+        46
+      ]
+    ],
+    "translation": "New"
+  },
+  "6WSYbN": {
+    "message": "New {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/NewEntryDialog.svelte",
+        88
+      ]
+    ],
+    "translation": "New {0}"
+  },
+  "eL8osE": {
+    "message": "New Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/NewEntryButton.svelte",
+        48
+      ]
+    ],
+    "translation": "New Entry"
+  },
+  "QUaH5J": {
+    "message": "No activity found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/activity/ActivityView.svelte",
+        85
+      ]
+    ],
+    "translation": "No activity found"
+  },
+  "cJKxGt": {
+    "message": "No change name",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/history/HistoryView.svelte",
+        67
+      ]
+    ],
+    "translation": "No change name"
+  },
+  "hcFut8": {
+    "message": "No Dictionaries found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectDropdown.svelte",
+        78
+      ]
+    ],
+    "translation": "No Dictionaries found"
+  },
+  "bakDdy": {
+    "message": "No entries found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntriesList.svelte",
+        99
+      ],
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        185
+      ]
+    ],
+    "translation": "No entries found"
+  },
+  "7elymg": {
+    "message": "No history found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/history/HistoryView.svelte",
+        62
+      ]
+    ],
+    "translation": "No history found"
+  },
+  "V9PAEu": {
+    "message": "No items found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        215
+      ]
+    ],
+    "translation": "No items found"
   },
   "BWz+2z": {
     "message": "No projects",
@@ -294,10 +883,62 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        84
+        82
       ]
     ],
     "translation": "No projects"
+  },
+  "EdQY6l": {
+    "message": "None",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        167
+      ]
+    ],
+    "translation": "None"
+  },
+  "LqMYkh": {
+    "message": "Open Data Directory",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        31
+      ]
+    ],
+    "translation": "Open Data Directory"
+  },
+  "sccXTS": {
+    "message": "Open Log file",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        40
+      ]
+    ],
+    "translation": "Open Log file"
+  },
+  "6jnu0f": {
+    "message": "Order of semantic domains",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        41
+      ],
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        41
+      ]
+    ],
+    "translation": "Order of semantic domains"
   },
   "Xp1CO/": {
     "message": "Project name...",
@@ -306,10 +947,26 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        192
+        197
       ]
     ],
     "translation": "Project name..."
+  },
+  "fBd/5T": {
+    "message": "Readonly",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        56
+      ],
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        56
+      ]
+    ],
+    "translation": "Readonly"
   },
   "TG4hr2": {
     "message": "Refresh Projects",
@@ -318,14 +975,82 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        62
+        59
       ],
       [
         "src/home/HomeView.svelte",
-        143
+        146
       ]
     ],
     "translation": "Refresh Projects"
+  },
+  "3NdSH7": {
+    "message": "Search Dictionaries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectDropdown.svelte",
+        76
+      ]
+    ],
+    "translation": "Search Dictionaries"
+  },
+  "TBEd/+": {
+    "message": "Search for an entry # or #",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        null
+      ]
+    ],
+    "translation": "Search for an entry # or #"
+  },
+  "02ePaq": {
+    "message": "Select {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        259
+      ]
+    ],
+    "translation": "Select {0}"
+  },
+  "mEtszZ": {
+    "message": "Semantic domains",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        63
+      ],
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        64
+      ],
+      [
+        "src/lib/sandbox/EditorSandbox.svelte",
+        75
+      ]
+    ],
+    "translation": "Semantic domains"
+  },
+  "Ivc0e8": {
+    "message": "Sense",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        259
+      ]
+    ],
+    "translation": "Sense"
   },
   "Tz0i8g": {
     "message": "Settings",
@@ -334,10 +1059,66 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        91
+        104
       ]
     ],
     "translation": "Settings"
+  },
+  "mFKqBL": {
+    "message": "Share Log file",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        44
+      ]
+    ],
+    "translation": "Share Log file"
+  },
+  "0IaUwR": {
+    "message": "Show {0} more...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        202
+      ]
+    ],
+    "translation": "Show {0} more..."
+  },
+  "0WxGtB": {
+    "message": "Show Empty Fields",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        45
+      ]
+    ],
+    "translation": "Show Empty Fields"
+  },
+  "hQRttt": {
+    "message": "Submit",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        203
+      ],
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        204
+      ],
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        273
+      ]
+    ],
+    "translation": "Submit"
   },
   "N2FcBE": {
     "message": "Synced",
@@ -345,8 +1126,12 @@
     "comments": [],
     "origin": [
       [
+        "src/lib/activity/ActivityView.svelte",
+        127
+      ],
+      [
         "src/home/Server.svelte",
-        99
+        97
       ]
     ],
     "translation": "Synced"
@@ -358,7 +1143,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        153
+        157
       ]
     ],
     "translation": "Synced with {0}"
@@ -370,7 +1155,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        72
+        86
       ]
     ],
     "translation": "Synchronize"
@@ -382,7 +1167,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        58
+        73
       ]
     ],
     "translation": "Tasks"
@@ -394,10 +1179,34 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        175
+        180
       ]
     ],
     "translation": "Test Project"
+  },
+  "L2twOB": {
+    "message": "Toggle filters",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        52
+      ]
+    ],
+    "translation": "Toggle filters"
+  },
+  "2N0C4b": {
+    "message": "Toggle theme",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/ThemePicker.svelte",
+        24
+      ]
+    ],
+    "translation": "Toggle theme"
   },
   "et+mIi": {
     "message": "Troubleshoot",
@@ -406,14 +1215,50 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        107
+        127
+      ],
+      [
+        "src/lib/troubleshoot/TroubleshootDialog.svelte",
+        23
       ],
       [
         "src/home/HomeView.svelte",
-        120
+        122
       ]
     ],
     "translation": "Troubleshoot"
+  },
+  "Ef7StM": {
+    "message": "Unknown",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/history/HistoryView.svelte",
+        95
+      ],
+      [
+        "src/lib/activity/ActivityView.svelte",
+        119
+      ]
+    ],
+    "translation": "Unknown"
+  },
+  "wja8aL": {
+    "message": "Untitled",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntryView.svelte",
+        53
+      ],
+      [
+        "src/project/browse/EntryRow.svelte",
+        51
+      ]
+    ],
+    "translation": "Untitled"
   },
   "YYdC3A": {
     "message": "Version {0}",
@@ -422,9 +1267,33 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        118
+        141
       ]
     ],
     "translation": "Version {0}"
+  },
+  "yK+3LL": {
+    "message": "View Configuration",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        19
+      ]
+    ],
+    "translation": "View Configuration"
+  },
+  "Cs0oSA": {
+    "message": "View Settings",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        36
+      ]
+    ],
+    "translation": "View Settings"
   }
 }

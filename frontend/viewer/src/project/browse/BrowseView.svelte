@@ -8,6 +8,10 @@
   import { Badge } from '$lib/components/ui/badge';
   import { Icon } from '$lib/components/ui/icon';
   import { t } from 'svelte-i18n-lingui';
+  import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service';
+  import NewEntryButton from '../NewEntryButton.svelte';
+  const dialogsService = useDialogsService();
   let selectedEntry = $state<IEntry | undefined>(undefined);
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
@@ -18,10 +22,20 @@
     sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
   }
 
+  async function newEntry() {
+    const entry = await dialogsService.createNewEntry();
+    if (!entry) return;
+    selectedEntry = entry;
+  }
+
   let leftPane: ResizablePane | undefined = $state();
   let rightPane: ResizablePane | undefined = $state();
 </script>
-
+<SidebarPrimaryAction>
+  {#snippet children(isOpen: boolean)}
+    <NewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
+  {/snippet}
+</SidebarPrimaryAction>
 <div class="flex flex-col h-full p-2 md:p-4">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
     {#if !IsMobile.value || !selectedEntry}

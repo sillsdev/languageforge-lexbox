@@ -61,7 +61,7 @@
         <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
           Add Complex Form
         </Button>
-        <EntryOrSensePicker title="Add complex form" bind:open={openPicker} mode="only-entries" on:pick={(e) => addComplexForm(e.detail)}
+        <EntryOrSensePicker title="Add complex form" bind:open={openPicker} mode="only-entries" pick={(e) => addComplexForm(e)}
           {disableEntry} />
       </svelte:fragment>
     </EntryOrSenseItemList>

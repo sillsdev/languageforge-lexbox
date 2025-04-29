@@ -10,9 +10,8 @@
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate} from 'svelte-routing';
-  import NewEntryButton from './NewEntryButton.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
+  import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -30,11 +29,8 @@
     }
   }
 
-  function handleNewEntry() {
-    console.log('handleNewEntry');
-  }
-
   let sidebar: Sidebar.Root | undefined = $state();
+  const primaryAction = usePrimaryAction();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -57,7 +53,7 @@
         <ThemePicker />
       </div>
       <div class="mx-auto">
-        <NewEntryButton active={!IsMobile.value && sidebar?.isOpen()} onclick={handleNewEntry} />
+        {@render primaryAction.snippet?.(sidebar?.isOpen())}
       </div>
     </div>
   </Sidebar.Header>
