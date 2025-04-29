@@ -94,7 +94,7 @@ tasks:
       vars: [id, code]
     vars:
       context: '{{.context| default "docker-desktop"}}'
-      namespace: '{{.namespace| default "languagedept"}}'
+      namespace: '{{.namespace| default "languagedepot"}}'
       pod:
         sh: kubectl get pods -l app=fw-headless -o jsonpath='{.items[0].metadata.name}' --context {{.context}} --namespace {{.namespace}}
     cmds:
