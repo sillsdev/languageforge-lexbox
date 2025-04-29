@@ -13,7 +13,7 @@
   import HistoryView from '../../history/HistoryView.svelte';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
-  import ExampleEditor from './ExampleEditor.svelte';
+  import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';
   import SenseEditorPrimitive from './SenseEditorPrimitive.svelte';
   import {EditorGrid} from '$lib/components/editor';
   import EntryEditorPrimitive from './EntryEditorPrimitive.svelte';
@@ -183,7 +183,7 @@
                 />
               </div>
 
-              <ExampleEditor
+              <ExampleEditorPrimitive
                 {example}
                 {readonly}
                 on:change={() => onExampleChange(sense, example)}
