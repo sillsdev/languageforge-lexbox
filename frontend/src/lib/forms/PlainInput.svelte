@@ -24,7 +24,7 @@
   }
 
   interface Props {
-    id?: any;
+    id?: string;
     value?: string | undefined | null;
     type?: 'text' | 'email' | 'password';
     autofocus?: true | undefined;

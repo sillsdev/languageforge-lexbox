@@ -1,12 +1,12 @@
 <script lang="ts">
-  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
 
   interface Props {
     label: string;
     value: boolean;
-    id?: any;
+    id?: string;
     error?: string | string[] | undefined;
     description?: string | undefined;
     variant?: 'checkbox-warning' | undefined;
@@ -20,7 +20,7 @@
     error = undefined,
     description = undefined,
     variant = undefined,
-    labelColor = undefined
+    labelColor = undefined,
   }: Props = $props();
 </script>
 

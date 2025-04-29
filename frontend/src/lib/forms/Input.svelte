@@ -5,9 +5,9 @@
   import IconButton from '$lib/components/IconButton.svelte';
 
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-  
+
   interface Props {
-    id?: any;
+    id?: string;
     label: string;
     description?: string | undefined;
     value?: string | undefined | null;
@@ -30,24 +30,40 @@
     readonly = false,
     error = undefined,
     placeholder = '',
-    autocomplete = undefined
+    autocomplete = undefined,
   }: Props = $props();
 
   let currentType = $state(type);
 
   function togglePasswordVisibility(): void {
     if (type == 'password') {
-      currentType = (currentType == 'password') ? 'text' : 'password';
+      currentType = currentType == 'password' ? 'text' : 'password';
     }
   }
-
 </script>
 
 <FormField {id} {error} {label} {autofocus} {description}>
-  {#if (type == 'password')}
+  {#if type == 'password'}
     <div class="relative">
-      <PlainInput {id} bind:value on:input type={currentType} {autofocus} {readonly} {error} {placeholder} {autocomplete} style="w-full" />
-      <span class="eye"><IconButton variant="btn-ghost" icon={currentType == 'password' ? 'i-mdi-eye' : 'i-mdi-eye-off'} on:click={togglePasswordVisibility} /></span>
+      <PlainInput
+        {id}
+        bind:value
+        on:input
+        type={currentType}
+        {autofocus}
+        {readonly}
+        {error}
+        {placeholder}
+        {autocomplete}
+        style="w-full"
+      />
+      <span class="eye"
+        ><IconButton
+          variant="btn-ghost"
+          icon={currentType == 'password' ? 'i-mdi-eye' : 'i-mdi-eye-off'}
+          on:click={togglePasswordVisibility}
+        /></span
+      >
     </div>
   {:else}
     <PlainInput {id} bind:value on:input {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />

@@ -6,7 +6,7 @@
     label: string;
     description?: string | undefined;
     value?: string | undefined;
-    id?: any;
+    id?: string;
     autofocus?: boolean;
     readonly?: boolean;
     error?: string | string[] | undefined;
@@ -21,7 +21,7 @@
     autofocus = false,
     readonly = false,
     error = undefined,
-    placeholder = ''
+    placeholder = '',
   }: Props = $props();
 </script>
 
@@ -36,5 +36,5 @@
     {placeholder}
     {readonly}
     {autofocus}
-></textarea>
+  ></textarea>
 </FormField>

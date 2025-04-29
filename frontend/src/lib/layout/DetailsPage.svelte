@@ -30,21 +30,22 @@
     children,
   }: Props = $props();
 
-  const banner_render = $derived(banner);
-  const actions_render = $derived(actions);
-  const title_render = $derived(title);
-  const headerContent_render = $derived(headerContent);
+  // TODO: Can probably simplify this and get rid of the fooRender varaibles, I suspect. 2025-05 RM
+  const bannerRender = $derived(banner);
+  const actionsRender = $derived(actions);
+  const titleRender = $derived(title);
+  const headerContentRender = $derived(headerContent);
 </script>
 
 <HeaderPage {wide} {titleText} {setBreadcrumb}>
   {#snippet banner()}
-    {@render banner_render?.()}
+    {@render bannerRender?.()}
   {/snippet}
   {#snippet actions()}
-    {@render actions_render?.()}
+    {@render actionsRender?.()}
   {/snippet}
   {#snippet title()}
-    {@render title_render?.()}
+    {@render titleRender?.()}
   {/snippet}
   {#snippet headerContent()}
     {#if badges}
@@ -52,7 +53,7 @@
         {@render badges?.()}
       </BadgeList>
     {/if}
-    {@render headerContent_render?.()}
+    {@render headerContentRender?.()}
   {/snippet}
   {#if details}
     <div class="my-4 space-y-2 details">

@@ -10,7 +10,7 @@
   interface Props {
     label: string;
     value: string | undefined;
-    id?: any;
+    id?: string;
     autofocus?: boolean;
     error?: string | string[] | undefined;
     disabled?: boolean;
