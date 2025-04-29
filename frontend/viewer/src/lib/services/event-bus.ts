@@ -7,7 +7,7 @@ import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events
 import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
 import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
 import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
-import { ProjectDataFormat } from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
+import {ProjectDataFormat} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {onDestroy} from 'svelte';
 
@@ -120,8 +120,4 @@ function isEntryDeletedEvent(event: IFwEvent): event is IEntryDeletedEvent {
 
 function isProjectEvent(event: IFwEvent): event is IProjectEvent {
   return event.type === FwEventType.ProjectEvent;
-}
-
-function isEventForProject(event: IFwEvent, projectName: string): event is IProjectEvent {
-  return isProjectEvent(event) && event.project.name === projectName;
 }
