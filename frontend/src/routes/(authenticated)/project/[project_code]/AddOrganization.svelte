@@ -8,17 +8,21 @@
   import { BadgeButton } from '$lib/components/Badges';
 
   type Org = Pick<Organization, 'id' | 'name'>;
-  export let projectId: string;
-  export let userIsAdmin: boolean;
-  let orgList: Org[] = [];
+  interface Props {
+    projectId: string;
+    userIsAdmin: boolean;
+  }
+
+  let { projectId, userIsAdmin }: Props = $props();
+  let orgList: Org[] = $state([]);
 
   const schema = z.object({
     orgId: z.string().trim()
   });
 
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
-  $: form = formModal?.form();
+  let formModal: FormModal<Schema> = $state();
+  let form = $derived(formModal?.form());
 
   async function openModal(): Promise<void> {
     orgList = await _getOrgs(userIsAdmin);
@@ -42,17 +46,23 @@
   {$t('project_page.add_org.add_button')}
 </BadgeButton>
 
-<FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{$t('project_page.add_org.modal_title')}</span>
-  <Select
-    id="org"
-    label={$t('project_page.organization.title')}
-    bind:value={$form.orgId}
-    error={errors.orgId}
-  >
-    {#each orgList as org}
-      <option value={org.id}>{org.name}</option>
-    {/each}
-  </Select>
-  <span slot="submitText">{$t('project_page.add_org.submit_button')}</span>
+<FormModal bind:this={formModal} {schema} >
+  {#snippet title()}
+    <span >{$t('project_page.add_org.modal_title')}</span>
+  {/snippet}
+  {#snippet children({ errors })}
+    <Select
+      id="org"
+      label={$t('project_page.organization.title')}
+      bind:value={$form.orgId}
+      error={errors.orgId}
+    >
+      {#each orgList as org}
+        <option value={org.id}>{org.name}</option>
+      {/each}
+    </Select>
+    {/snippet}
+  {#snippet submitText()}
+    <span >{$t('project_page.add_org.submit_button')}</span>
+  {/snippet}
 </FormModal>

@@ -30,19 +30,23 @@
   import {Duration} from '$lib/util/time';
   import IconButton from '$lib/components/IconButton.svelte';
 
-  export let data: PageData;
-  $: user = data.user;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let user = $derived(data.user);
   let orgStore = data.org;
-  $: org = $orgStore;
+  let org = $derived($orgStore);
 
   const queryParams = getSearchParams<OrgSearchParams>({
     tab: queryParam.string<OrgTabId>('projects'),
   });
   const { queryParamValues } = queryParams;
 
-  $: canManage = user.isAdmin || !!org.members.find(m => m.user.id === user.id && m.role === OrgRole.Admin)
-  $: isMember = !!org.members.find(m => m.user.id === user.id)
-  $: canSeeSettings = user.isAdmin || isMember
+  let canManage = $derived(user.isAdmin || !!org.members.find(m => m.user.id === user.id && m.role === OrgRole.Admin))
+  let isMember = $derived(!!org.members.find(m => m.user.id === user.id))
+  let canSeeSettings = $derived(user.isAdmin || isMember)
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -56,20 +60,20 @@
     notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
   }
 
-  let userModal: UserModal;
+  let userModal: UserModal = $state();
   async function openUserModal(user: User): Promise<void> {
     const queryUser = await _orgMemberById(org.id as UUID, user.id as UUID);
     return userModal.open(queryUser);
   }
 
-  let addOrgMemberModal: AddOrgMemberModal;
+  let addOrgMemberModal: AddOrgMemberModal = $state();
   async function openAddOrgMemberModal(): Promise<void> {
     await addOrgMemberModal.openModal();
   }
 
-  let bulkAddMembersModal: BulkAddOrgMembers;
+  let bulkAddMembersModal: BulkAddOrgMembers = $state();
 
-  let changeMemberRoleModal: ChangeOrgMemberRoleModal;
+  let changeMemberRoleModal: ChangeOrgMemberRoleModal = $state();
   async function openChangeMemberRoleModal(member: OrgUser): Promise<void> {
     await changeMemberRoleModal.open({
       userId: member.user.id,
@@ -78,7 +82,7 @@
     });
   }
 
-  let deleteOrgModal: ConfirmDeleteModal;
+  let deleteOrgModal: ConfirmDeleteModal = $state();
   async function confirmDeleteOrg(): Promise<void> {
     const result = await deleteOrgModal.open(org.name, async () => {
       const { error } = await _deleteOrg(org.id);
@@ -90,8 +94,8 @@
     }
   }
 
-  let removeProjectFromOrgModal: DeleteModal;
-  let projectToRemove: string;
+  let removeProjectFromOrgModal: DeleteModal = $state();
+  let projectToRemove: string = $state();
   async function removeProjectFromOrg(projectId: string, projectName: string): Promise<void> {
     projectToRemove = projectName;
     const removed = await removeProjectFromOrgModal.prompt(async () => {
@@ -103,7 +107,7 @@
     }
   }
 
-  let leaveModal: ConfirmModal;
+  let leaveModal: ConfirmModal = $state();
 
   async function leaveOrg(): Promise<void> {
     const left = await leaveModal.open(async () => {
@@ -124,7 +128,7 @@
     return createGuestUserByAdmin(password, passwordStrength, name, email, locale, _turnstileToken, org.id);
   }
 
-  let createUserModal: CreateUserModal;
+  let createUserModal: CreateUserModal = $state();
   function onUserCreated(user: LexAuthUser): void {
     notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
   }
@@ -133,51 +137,57 @@
 <PageBreadcrumb href="/org/list">{$t('org.table.title')}</PageBreadcrumb>
 
 <DetailsPage wide titleText={org.name}>
-  <svelte:fragment slot="actions">
-    {#if isMember}
-      <AddMyProjectsToOrgModal {user} {org} />
-    {/if}
-    {#if canManage}
-    <div class="join gap-x-0.5">
-      <Button variant="btn-success" class="join-item"
-        on:click={openAddOrgMemberModal}>
-        {$t('org_page.add_user.add_button')}
-        <span class="i-mdi-account-plus-outline text-2xl" />
-      </Button>
-      <Dropdown>
-        <IconButton icon="i-mdi-menu-down" variant="btn-success" join outline={false} />
-        <ul slot="content" class="menu">
-          <li>
-            <button class="whitespace-nowrap" on:click={() => bulkAddMembersModal.open()}>
-              {$t('org_page.bulk_add_members.add_button')}
-              <Icon icon="i-mdi-account-multiple-plus-outline" />
-            </button>
-          </li>
-          <li>
-            <button class="whitespace-nowrap" on:click={() => createUserModal.open()}>
-              {$t('admin_dashboard.create_user_modal.create_user')}
-              <Icon icon="i-mdi-plus" />
-            </button>
-          </li>
-        </ul>
-      </Dropdown>
+  {#snippet actions()}
+  
+      {#if isMember}
+        <AddMyProjectsToOrgModal {user} {org} />
+      {/if}
+      {#if canManage}
+      <div class="join gap-x-0.5">
+        <Button variant="btn-success" class="join-item"
+          on:click={openAddOrgMemberModal}>
+          {$t('org_page.add_user.add_button')}
+          <span class="i-mdi-account-plus-outline text-2xl"></span>
+        </Button>
+        <Dropdown>
+          <IconButton icon="i-mdi-menu-down" variant="btn-success" join outline={false} />
+          {#snippet content()}
+                    <ul  class="menu">
+              <li>
+                <button class="whitespace-nowrap" onclick={() => bulkAddMembersModal.open()}>
+                  {$t('org_page.bulk_add_members.add_button')}
+                  <Icon icon="i-mdi-account-multiple-plus-outline" />
+                </button>
+              </li>
+              <li>
+                <button class="whitespace-nowrap" onclick={() => createUserModal.open()}>
+                  {$t('admin_dashboard.create_user_modal.create_user')}
+                  <Icon icon="i-mdi-plus" />
+                </button>
+              </li>
+            </ul>
+                  {/snippet}
+        </Dropdown>
+      </div>
+      <CreateUserModal handleSubmit={createGuestUser} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
+      <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
+      <BulkAddOrgMembers bind:this={bulkAddMembersModal} orgId={org.id} />
+      {/if}
+    
+  {/snippet}
+  {#snippet title()}
+    <div  class="max-w-full flex items-baseline flex-wrap">
+      <span class="mr-2">{$t('org_page.organization')}:</span>
+      <span class="text-primary max-w-full">
+        <EditableText
+          disabled={!canManage}
+          value={org.name}
+          validation={orgNameValidation}
+          saveHandler={updateOrgName}
+        />
+      </span>
     </div>
-    <CreateUserModal handleSubmit={createGuestUser} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
-    <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
-    <BulkAddOrgMembers bind:this={bulkAddMembersModal} orgId={org.id} />
-    {/if}
-  </svelte:fragment>
-  <div slot="title" class="max-w-full flex items-baseline flex-wrap">
-    <span class="mr-2">{$t('org_page.organization')}:</span>
-    <span class="text-primary max-w-full">
-      <EditableText
-        disabled={!canManage}
-        value={org.name}
-        validation={orgNameValidation}
-        saveHandler={updateOrgName}
-      />
-    </span>
-  </div>
+  {/snippet}
   <div class="mt-6">
     <OrgTabs bind:activeTab={$queryParamValues.tab} hideSettingsTab={!canSeeSettings} memberCount={org.members.length} projectCount={org.projects.length} />
   </div>
@@ -187,23 +197,27 @@
         columns={['name', 'code', 'users', 'type']}
         projects={org.projects}
       >
-        <td class="p-0" slot="actions" let:project>
-          {#if canManage}
-            <Dropdown>
-              <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
-                <span class="i-mdi-dots-vertical text-lg" />
-              </button>
-              <ul slot="content" class="menu">
-                <li>
-                  <button class="text-error" on:click={() => removeProjectFromOrg(project.id, project.name)}>
-                    <TrashIcon />
-                    {$t('org_page.remove_project_from_org')}
-                  </button>
-                </li>
-              </ul>
-            </Dropdown>
-          {/if}
-        </td>
+        {#snippet actions({ project })}
+                <td class="p-0"  >
+            {#if canManage}
+              <Dropdown>
+                <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
+                  <span class="i-mdi-dots-vertical text-lg"></span>
+                </button>
+                {#snippet content()}
+                            <ul  class="menu">
+                    <li>
+                      <button class="text-error" onclick={() => removeProjectFromOrg(project.id, project.name)}>
+                        <TrashIcon />
+                        {$t('org_page.remove_project_from_org')}
+                      </button>
+                    </li>
+                  </ul>
+                          {/snippet}
+              </Dropdown>
+            {/if}
+          </td>
+              {/snippet}
       </ProjectTable>
       <DeleteModal
         bind:this={removeProjectFromOrgModal}
@@ -244,7 +258,7 @@
         </div>
       {/if}
       <AdminContent>
-        <div class="divider" />
+        <div class="divider"></div>
         <div class="flex justify-end">
           <Button variant="btn-error" on:click={confirmDeleteOrg}>
             {$t('org_page.delete_modal.submit')}

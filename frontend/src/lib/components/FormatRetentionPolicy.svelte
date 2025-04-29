@@ -2,7 +2,11 @@
   import { RetentionPolicy } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  export let policy: number | RetentionPolicy;
+  interface Props {
+    policy: number | RetentionPolicy;
+  }
+
+  let { policy }: Props = $props();
 
   const policies: Record<number | RetentionPolicy, string | undefined> = {
     1: $t('retention_policy.language_project'),

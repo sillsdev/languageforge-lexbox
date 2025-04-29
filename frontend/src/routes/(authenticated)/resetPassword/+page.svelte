@@ -10,7 +10,11 @@
   import { getAspResponseErrorMessage } from '$lib/util/asp-response';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const { notifySuccess } = useNotifications();
 

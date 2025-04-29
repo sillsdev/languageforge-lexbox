@@ -7,8 +7,8 @@
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let alertMessageElem: HTMLElement;
-  let traceIdElem: HTMLElement;
+  let alertMessageElem: HTMLElement = $state();
+  let traceIdElem: HTMLElement = $state();
 
   const error = derived(useError(), (error) => {
     if (error) {
@@ -68,7 +68,7 @@
 
 <div class="flex flex-col gap-4 items-start">
   <div class="flex gap-4">
-    <span class="i-mdi-alert-circle-outline text-3xl" />
+    <span class="i-mdi-alert-circle-outline text-3xl"></span>
     <span class="text-2xl">{$t('errors.apology')}</span>
   </div>
 
@@ -84,7 +84,7 @@
 
   <div>
     <span>{$t('errors.error_code')}:</span>
-    <!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
-    <span on:click={onTraceIdClick} class="trace-id" bind:this={traceIdElem}>{$error?.traceId}</span>
+    <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+    <span onclick={onTraceIdClick} class="trace-id" bind:this={traceIdElem}>{$error?.traceId}</span>
   </div>
 </div>

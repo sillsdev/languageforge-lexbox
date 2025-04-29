@@ -6,18 +6,32 @@
   import type { HelpLink } from '$lib/components/help';
   import SupHelp from '$lib/components/help/SupHelp.svelte';
 
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let error: string | string[] | undefined = undefined;
-  export let id: string = randomFormId();
-  export let helpLink: HelpLink | undefined = undefined;
-  /**
+  
+  interface Props {
+    label: string;
+    description?: string | undefined;
+    error?: string | string[] | undefined;
+    id?: string;
+    helpLink?: HelpLink | undefined;
+    /**
    * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
    * So we allow/support it and disable a11y-autofocus warnings in generic places.
    */
-  export let autofocus = false;
+    autofocus?: boolean;
+    children?: import('svelte').Snippet;
+  }
 
-  let elem: HTMLDivElement;
+  let {
+    label,
+    description = undefined,
+    error = undefined,
+    id = randomFormId(),
+    helpLink = undefined,
+    autofocus = false,
+    children
+  }: Props = $props();
+
+  let elem: HTMLDivElement = $state();
 
   onMount(autofocusIfRequested);
 
@@ -36,7 +50,7 @@
       {/if}
     </span>
   </label>
-  <slot />
+  {@render children?.()}
   {#if description}
     <label for={id} class="label pb-0 underline-links">
       <span class="label-text-alt description">

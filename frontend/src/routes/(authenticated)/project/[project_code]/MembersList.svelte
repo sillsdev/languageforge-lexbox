@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   import type { User } from './+page';
   import type { ProjectRole } from '$lib/gql/types';
 
@@ -10,6 +10,8 @@
 </script>
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import t from '$lib/i18n';
   import { BadgeList, MemberBadge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -23,11 +25,25 @@
   import PlainInput from '$lib/forms/PlainInput.svelte';
   import { DialogResponse } from '$lib/components/modals';
 
-  export let members: Member[] = [];
-  export let canManageMember: (member: Member) => boolean;
-  export let canManageList: boolean;
-  export let projectId: string;
-  export let canViewOtherMembers: boolean;
+  interface Props {
+    members?: Member[];
+    canManageMember: (member: Member) => boolean;
+    canManageList: boolean;
+    projectId: string;
+    canViewOtherMembers: boolean;
+    extraButtons?: import('svelte').Snippet;
+    children?: import('svelte').Snippet;
+  }
+
+  let {
+    members = [],
+    canManageMember,
+    canManageList,
+    projectId,
+    canViewOtherMembers,
+    extraButtons,
+    children
+  }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     openUserModal: Member;
@@ -35,11 +51,11 @@
   }>();
 
   const TRUNCATED_MEMBER_COUNT = 5;
-  let showAllMembers = false;
+  let showAllMembers = $state(false);
 
-  let memberSearch = '';
-  let filteredMembers: Member[] = members;
-  $: {
+  let memberSearch = $state('');
+  let filteredMembers: Member[] = $state(members);
+  run(() => {
     const search = memberSearch?.trim().toLowerCase();
     if (!search) {
       filteredMembers = members;
@@ -49,12 +65,12 @@
         m.user.email?.toLowerCase().includes(search) ||
         m.user.username?.toLowerCase().includes(search));
     }
-  }
-  $: showMembers = showAllMembers ? filteredMembers : filteredMembers.slice(0, TRUNCATED_MEMBER_COUNT);
+  });
+  let showMembers = $derived(showAllMembers ? filteredMembers : filteredMembers.slice(0, TRUNCATED_MEMBER_COUNT));
 
   const { notifySuccess } = useNotifications();
 
-  let changeMemberRoleModal: ChangeMemberRoleModal;
+  let changeMemberRoleModal: ChangeMemberRoleModal = $state();
   async function changeMemberRole(member: Member): Promise<void> {
     if (!member.user) return;
     const nameOrEmail = member.user.name ? member.user.name : member.user.email ?? '';
@@ -110,28 +126,30 @@
       {@const canManage = canManageMember(member)}
       <Dropdown disabled={!canManage}>
         <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManage} />
-        <ul slot="content" class="menu">
-          <AdminContent>
+        {#snippet content()}
+                <ul  class="menu">
+            <AdminContent>
+              <li>
+                <button onclick={() => dispatch('openUserModal', member)}>
+                  <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
+                  {$t('project_page.view_user_details')}
+                </button>
+              </li>
+            </AdminContent>
             <li>
-              <button on:click={() => dispatch('openUserModal', member)}>
-                <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
-                {$t('project_page.view_user_details')}
+              <button onclick={() => changeMemberRole(member)}>
+                <span class="i-mdi-account-lock text-2xl"></span>
+                {$t('project_page.change_role')}
               </button>
             </li>
-          </AdminContent>
-          <li>
-            <button on:click={() => changeMemberRole(member)}>
-              <span class="i-mdi-account-lock text-2xl" />
-              {$t('project_page.change_role')}
-            </button>
-          </li>
-          <li>
-            <button class="text-error" on:click={() => dispatch('deleteProjectUser', member)}>
-              <TrashIcon />
-              {$t('project_page.remove_user')}
-            </button>
-          </li>
-        </ul>
+            <li>
+              <button class="text-error" onclick={() => dispatch('deleteProjectUser', member)}>
+                <TrashIcon />
+                {$t('project_page.remove_user')}
+              </button>
+            </li>
+          </ul>
+              {/snippet}
       </Dropdown>
     {/each}
 
@@ -145,11 +163,11 @@
 
     {#if canManageList}
       <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
-        <slot name="extraButtons" />
+        {@render extraButtons?.()}
       </div>
     {/if}
 
-    <slot />
+    {@render children?.()}
 
   </BadgeList>
   <ChangeMemberRoleModal {projectId} bind:this={changeMemberRoleModal} />

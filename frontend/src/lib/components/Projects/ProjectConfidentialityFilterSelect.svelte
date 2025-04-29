@@ -4,8 +4,13 @@
   import { helpLinks } from '../help';
   import type { Confidentiality } from './ProjectFilter.svelte';
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
-  export let value: Confidentiality | undefined;
+  
+  interface Props {
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
+    value: Confidentiality | undefined;
+  }
+
+  let { value = $bindable() }: Props = $props();
   const options: Record<Confidentiality, I18nKey> = {
     true: 'project.confidential.confidential',
     false: 'project.confidential.not_confidential',

@@ -17,7 +17,7 @@
     {#each $notifications as note (note)}
       <div class="alert {note.category ?? ''}" in:slide out:blur>
         {note.message}
-        <button on:click={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost">✕</button>
+        <button onclick={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost">✕</button>
       </div>
     {/each}
   </div>

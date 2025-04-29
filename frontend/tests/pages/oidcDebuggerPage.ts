@@ -1,4 +1,4 @@
-﻿import {BasePage} from './basePage';
+import {BasePage} from './basePage';
 import {expect, type Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {

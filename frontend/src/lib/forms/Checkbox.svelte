@@ -3,13 +3,25 @@
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
 
-  export let label: string;
-  export let value: boolean;
-  export let id = randomFormId();
-  export let error: string | string[] | undefined = undefined;
-  export let description: string | undefined = undefined;
-  export let variant: 'checkbox-warning' | undefined = undefined;
-  export let labelColor: 'text-warning' | undefined = undefined;
+  interface Props {
+    label: string;
+    value: boolean;
+    id?: any;
+    error?: string | string[] | undefined;
+    description?: string | undefined;
+    variant?: 'checkbox-warning' | undefined;
+    labelColor?: 'text-warning' | undefined;
+  }
+
+  let {
+    label,
+    value = $bindable(),
+    id = randomFormId(),
+    error = undefined,
+    description = undefined,
+    variant = undefined,
+    labelColor = undefined
+  }: Props = $props();
 </script>
 
 <div class="form-control w-full">

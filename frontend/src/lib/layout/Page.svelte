@@ -2,11 +2,23 @@
   import SetTitle from './SetTitle.svelte';
   import { PageBreadcrumb } from '$lib/layout';
 
-  export let title: string | undefined = undefined;
-  export let wide = false;
-  export let setBreadcrumb = true;
+  interface Props {
+    title?: string | undefined;
+    wide?: boolean;
+    setBreadcrumb?: boolean;
+    header?: import('svelte').Snippet;
+    children?: import('svelte').Snippet;
+  }
 
-  $: maxWidth = wide ? 'md:max-w-4xl' : 'md:max-w-2xl';
+  let {
+    title = undefined,
+    wide = false,
+    setBreadcrumb = true,
+    header,
+    children
+  }: Props = $props();
+
+  let maxWidth = $derived(wide ? 'md:max-w-4xl' : 'md:max-w-2xl');
 </script>
 
 {#if title}
@@ -17,10 +29,10 @@
 {/if}
 
 <div class="md:px-8 md:mx-auto {maxWidth} w-full">
-  {#if $$slots.header}
-    <slot name="header" />
+  {#if header}
+    {@render header?.()}
   {/if}
   <main>
-    <slot />
+    {@render children?.()}
   </main>
 </div>

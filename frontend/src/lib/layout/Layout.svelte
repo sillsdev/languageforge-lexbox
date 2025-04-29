@@ -11,11 +11,16 @@
   import DevContent from './DevContent.svelte';
   import { helpLinks } from '$lib/components/help';
 
-  export let hideToolbar = false;
+  interface Props {
+    hideToolbar?: boolean;
+    children?: import('svelte').Snippet;
+  }
 
-  let menuToggle = false;
-  $: data = $page.data as LayoutData;
-  $: user = data.user;
+  let { hideToolbar = false, children }: Props = $props();
+
+  let menuToggle = $state(false);
+  let data = $derived($page.data as LayoutData);
+  let user = $derived(data.user);
 
   function close(): void {
     menuToggle = false;
@@ -33,7 +38,7 @@
   initEmailResult();
 </script>
 
-<svelte:window on:keydown={closeOnEscape} />
+<svelte:window onkeydown={closeOnEscape} />
 
 {#if user?.audience === 'LexboxApi' || user?.scope?.includes('lexboxapi')}
   <div class="drawer drawer-end grow">
@@ -84,12 +89,12 @@
       </div>
 
       <Content>
-        <slot />
+        {@render children?.()}
       </Content>
     </div>
     <div class="drawer-side z-10">
       <!-- using a label means it works before hydration is complete -->
-      <label for="drawer-toggle" class="drawer-overlay" />
+      <label for="drawer-toggle" class="drawer-overlay"></label>
       <AppMenu {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
     </div>
   </div>
@@ -99,7 +104,7 @@
   <AppBar {user} />
 
   <Content>
-    <slot />
+    {@render children?.()}
   </Content>
 {/if}
 

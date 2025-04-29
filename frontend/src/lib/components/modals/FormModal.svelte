@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import type { LexFormErrors, LexFormState } from '$lib/forms/superforms';
   import type { AnyZodObject, ZodObject, z } from 'zod';
@@ -23,15 +23,34 @@
   type FormType = z.infer<Schema>;
   type SubmitCallback = FormSubmitCallback<Schema>;
 
-  export let schema: Schema;
-  export let submitVariant: SubmitVariant = 'btn-primary';
-  export let hideActions: boolean = false;
-  export let showDoneState: boolean = false;
+  interface Props {
+    schema: Schema;
+    submitVariant?: SubmitVariant;
+    hideActions?: boolean;
+    showDoneState?: boolean;
+    title?: import('svelte').Snippet;
+    children?: import('svelte').Snippet<[any]>;
+    extraActions?: import('svelte').Snippet;
+    submitText?: import('svelte').Snippet;
+    doneText?: import('svelte').Snippet;
+  }
+
+  let {
+    schema,
+    submitVariant = 'btn-primary',
+    hideActions = false,
+    showDoneState = false,
+    title,
+    children,
+    extraActions,
+    submitText,
+    doneText
+  }: Props = $props();
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
-  let modal: Modal;
-  let done = false;
+  let modal: Modal = $state();
+  let done = $state(false);
 
   export async function open(
     value: Partial<FormType> | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
@@ -82,26 +101,32 @@
 
     return result;
   }
+
+  const extraActions_render = $derived(extraActions);
 </script>
 
 <Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted} {hideActions}>
   <Form id="modalForm" {enhance}>
-    <p class="mb-4 text-lg font-bold"><slot name="title" /></p>
-    <slot errors={$errors} />
+    <p class="mb-4 text-lg font-bold">{@render title?.()}</p>
+    {@render children?.({ errors: $errors, })}
   </Form>
   <FormError error={$message} right />
-  <svelte:fragment slot="extraActions">
-    <slot name="extraActions" />
-  </svelte:fragment>
-  <svelte:fragment slot="actions" let:submitting let:close>
-    {#if !done}
-      <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
-        <slot name="submitText" />
-      </SubmitButton>
-    {:else}
-      <Button variant="btn-primary" on:click={close}>
-        <slot name="doneText" />
-      </Button>
-    {/if}
-  </svelte:fragment>
+  {#snippet extraActions()}
+  
+      {@render extraActions_render?.()}
+    
+  {/snippet}
+  {#snippet actions({ submitting, close })}
+  
+      {#if !done}
+        <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
+          {@render submitText?.()}
+        </SubmitButton>
+      {:else}
+        <Button variant="btn-primary" on:click={close}>
+          {@render doneText?.()}
+        </Button>
+      {/if}
+    
+  {/snippet}
 </Modal>

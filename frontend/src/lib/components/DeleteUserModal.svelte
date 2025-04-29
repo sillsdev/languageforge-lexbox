@@ -4,9 +4,13 @@
   import ConfirmDeleteModal, { type DeleteModalI18nShape } from './modals/ConfirmDeleteModal.svelte';
   import { _deleteUserByAdminOrSelf } from '$lib/gql/mutations';
 
-  export let i18nScope: I18nShapeKey<DeleteModalI18nShape>;
+  interface Props {
+    i18nScope: I18nShapeKey<DeleteModalI18nShape>;
+  }
 
-  let modal: ConfirmDeleteModal;
+  let { i18nScope }: Props = $props();
+
+  let modal: ConfirmDeleteModal = $state();
 
   export async function open(user: {id: string, name: string}): ReturnType<(typeof modal)['open']> {
     return await modal.open(user.name, async () => {

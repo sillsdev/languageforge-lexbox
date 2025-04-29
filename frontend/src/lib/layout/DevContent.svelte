@@ -1,4 +1,12 @@
-﻿<script context="module" lang="ts">
+<script lang="ts">
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
+</script>
+
+﻿<script module lang="ts">
   import { writable } from 'svelte/store';
   import { browser } from '$app/environment';
 
@@ -17,5 +25,5 @@
 </script>
 
 {#if $isDev}
-  <slot />
+  {@render children?.()}
 {/if}

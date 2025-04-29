@@ -2,7 +2,7 @@
   import t from '$lib/i18n';
   import { onMount } from 'svelte';
 
-  let text: string | undefined = undefined;
+  let text: string | undefined = $state(undefined);
 
   onMount(() => {
     setTimeout(() => {

@@ -6,7 +6,7 @@
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let dialog: HTMLDialogElement;
+  let dialog: HTMLDialogElement = $state();
   const error = useError();
   const dismiss = useDismiss();
   beforeNavigate(dismiss);
@@ -45,7 +45,7 @@
         {$t('errors.go_home')}
         <span class="i-mdi-home-outline text-xl"></span>
       </a>
-      <button on:click={dismissClick} class="btn btn-outline self-end">
+      <button onclick={dismissClick} class="btn btn-outline self-end">
         {$t('modal.dismiss')}
         <span class="i-mdi-close text-xl"></span>
       </button>

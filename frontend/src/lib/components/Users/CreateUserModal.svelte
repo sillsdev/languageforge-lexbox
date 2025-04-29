@@ -12,10 +12,14 @@
     submitted: LexAuthUser,
   }>();
 
-  let createUserModal: Modal;
-  export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
+  let createUserModal: Modal = $state();
+  interface Props {
+    handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
+  }
 
-  let formTainted = false;
+  let { handleSubmit }: Props = $props();
+
+  let formTainted = $state(false);
 
   export async function open(): Promise<void> {
     await createUserModal.openModal(true, true);

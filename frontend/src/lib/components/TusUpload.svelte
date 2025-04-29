@@ -1,4 +1,4 @@
-﻿<script context="module" lang="ts">
+﻿<script module lang="ts">
   export enum UploadStatus {
     NoFile = 'NoFile',
     InvalidFile = 'InvalidFile',
@@ -10,6 +10,9 @@
 </script>
 
 <script lang="ts">
+  import { run, createBubbler, stopPropagation } from 'svelte/legacy';
+
+  const bubble = createBubbler();
   import { Upload, type DetailedError } from 'tus-js-client';
   import { Button, FormError, FormField } from '$lib/forms';
   import { env } from '$env/dynamic/public';
@@ -17,24 +20,36 @@
   import t from '$lib/i18n';
   import IconButton from './IconButton.svelte';
 
-  export let endpoint: string;
-  export let accept: string;
-  export let inputLabel: string = $t('tus.select_file');
-  export let inputDescription: string | undefined = undefined;
-  export let internalButton = false;
+  interface Props {
+    endpoint: string;
+    accept: string;
+    inputLabel?: string;
+    inputDescription?: string | undefined;
+    internalButton?: boolean;
+  }
+
+  let {
+    endpoint,
+    accept,
+    inputLabel = $t('tus.select_file'),
+    inputDescription = undefined,
+    internalButton = false
+  }: Props = $props();
   const dispatch = createEventDispatcher<{
     uploadComplete: { upload: Upload };
     status: UploadStatus;
   }>();
 
-  let status = UploadStatus.NoFile;
-  $: dispatch('status', status);
+  let status = $state(UploadStatus.NoFile);
+  run(() => {
+    dispatch('status', status);
+  });
 
-  let percent = 0;
-  let fileError: string | undefined = undefined;
-  let uploadError: string | undefined = undefined;
+  let percent = $state(0);
+  let fileError: string | undefined = $state(undefined);
+  let uploadError: string | undefined = $state(undefined);
   let upload: Upload | undefined;
-  let fileInput: HTMLInputElement | undefined;
+  let fileInput: HTMLInputElement | undefined = $state();
   const maxUploadChunkSizeMb = parseInt(env.PUBLIC_TUS_CHUNK_SIZE_MB);
 
   function fileChanged(): void {
@@ -147,8 +162,8 @@
           class="file-input file-input-bordered file-input-primary grow"
           disabled={status === UploadStatus.Uploading || status === UploadStatus.Complete}
           bind:this={fileInput}
-          on:cancel|stopPropagation
-          on:change={fileChanged}
+          oncancel={stopPropagation(bubble('cancel'))}
+          onchange={fileChanged}
         />
         <IconButton icon="i-mdi-close"
           on:click={clearFile}
@@ -165,6 +180,6 @@
   {/if}
   <div class="flex-1">
     <p class="label label-text py-0">{$t('tus.upload_progress')}</p>
-    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100" />
+    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100"></progress>
   </div>
 </div>

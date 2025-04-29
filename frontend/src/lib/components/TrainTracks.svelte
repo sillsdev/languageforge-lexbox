@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export type Circle = { row: number; col: number };
   export type Path = { fromIdx: number; toIdx: number }; // Indices into array of circles
   type SVGDot = { x: number; y: number; color?: string };
@@ -6,19 +6,35 @@
 </script>
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   // We need a list of dots and lines, i.e. which dots go to which parents
-  // Each dot has one or two parents, and needs a Bezier curve to the parent
-  export let paths: Path[] = []; // Format is [{fromIdx:0,toIdx:1},{fromIdx:1,toIdx:2},{fromIdx:1,toIdx:3}], and so on. Dot 0 connects to dot 1. Dot 1 connects to both dots 2 and 3, because it was a fork or a merge.
-  export let circles: Circle[] = []; // Format is [{row:0,col:0},{row:1,col:0},{row:2,col:0},{row:2,col:1}]. Each dot has a row and column, which are auto-translated to x and y
-  export let rowHeights: number[] = [];
+  
 
-  export let firstRowOffset = 10;
-  export let firstColOffset = 10;
-  export let colWidthDefault = 10; // May be auto-calculated in the future
-  export let rowHeightDefault = 20;
-  export let circleSize = 5;
 
-  export let colors = [
+  interface Props {
+    // Each dot has one or two parents, and needs a Bezier curve to the parent
+    paths?: Path[]; // Format is [{fromIdx:0,toIdx:1},{fromIdx:1,toIdx:2},{fromIdx:1,toIdx:3}], and so on. Dot 0 connects to dot 1. Dot 1 connects to both dots 2 and 3, because it was a fork or a merge.
+    circles?: Circle[]; // Format is [{row:0,col:0},{row:1,col:0},{row:2,col:0},{row:2,col:1}]. Each dot has a row and column, which are auto-translated to x and y
+    rowHeights?: number[];
+    firstRowOffset?: number;
+    firstColOffset?: number;
+    colWidthDefault?: number; // May be auto-calculated in the future
+    rowHeightDefault?: number;
+    circleSize?: number;
+    colors?: any;
+  }
+
+  let {
+    paths = [],
+    circles = [],
+    rowHeights = [],
+    firstRowOffset = 10,
+    firstColOffset = 10,
+    colWidthDefault = 10,
+    rowHeightDefault = 20,
+    circleSize = 5,
+    colors = [
     // Default set of colors works nicely, but allow overriding if needed
     '#4e79a7',
     '#f28e2c',
@@ -30,8 +46,9 @@
     '#ff9da7',
     '#9c755f',
     '#bab0ab',
-  ];
-  $: colorLength = colors.length;
+  ]
+  }: Props = $props();
+  let colorLength = $derived(colors.length);
   function color(colIdx: number): string {
     return colors[colIdx % colorLength];
   }
@@ -46,7 +63,7 @@
     }
     return result;
   }
-  $: cumulativeHeights = calculateCumulativeHeights(rowHeights);
+  let cumulativeHeights = $derived(calculateCumulativeHeights(rowHeights));
 
   function bezier(from: SVGDot, to: SVGDot): SVGStroke {
     /*
@@ -75,27 +92,27 @@
     } else return { color: strokeColor, d: '' }; // TODO: Path should be V${bottomY} to draw a line to the bottom of the graph, but how can we know bottomY?
   }
 
-  let curves: SVGStroke[] = [];
-  let svgDots: SVGDot[] = [];
+  let curves: SVGStroke[] = $state([]);
+  let svgDots: SVGDot[] = $state([]);
 
-  $: rowHeight = (rowIdx: number): number => {
+  let rowHeight = $derived((rowIdx: number): number => {
     return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
-  }
+  })
 
-  $: colWidth = (colIdx: number): number => {
+  let colWidth = $derived((colIdx: number): number => {
     return colWidthDefault * colIdx + firstColOffset;
-  }
+  })
 
-  $: {
+  run(() => {
     svgDots = circles.map(({ row, col }) => ({
       y: rowHeight(row),
       x: colWidth(col),
       color: color(col),
     }));
     curves = paths.map(({ fromIdx: f, toIdx: t }) => bezier(svgDots[f], svgDots[t]));
-  }
+  });
 
-  $: maxWidth = Math.max(...svgDots.map((c) => c.x)) + colWidthDefault;
+  let maxWidth = $derived(Math.max(...svgDots.map((c) => c.x)) + colWidthDefault);
 </script>
 {#if circles?.length > 0}
   <svg width={maxWidth} height="0" style="height: 100%">

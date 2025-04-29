@@ -1,13 +1,19 @@
 <script lang="ts">
   import { overlay } from '$lib/overlay';
 
-  export let disabled = false;
+  interface Props {
+    disabled?: boolean;
+    children?: import('svelte').Snippet;
+    content?: import('svelte').Snippet;
+  }
+
+  let { disabled = false, children, content }: Props = $props();
 </script>
 
 <div class="dropdown-container inline-flex" use:overlay={{ disabled, closeClickSelector: '.menu li' }}>
-  <slot />
+  {@render children?.()}
   <div class="overlay-content">
-    <slot name="content" />
+    {@render content?.()}
   </div>
 </div>
 

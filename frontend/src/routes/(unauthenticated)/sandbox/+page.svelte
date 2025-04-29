@@ -40,7 +40,7 @@
     form.update(f => ({...f, name: 'John'}), {taint: false});
   }
 
-  let disableDropdown = false;
+  let disableDropdown = $state(false);
 
   async function gqlThrows500(): Promise<void> {
     await _gqlThrows500();
@@ -48,10 +48,10 @@
 
   const { notifySuccess } = useNotifications();
 
-  let modal: ConfirmModal;
-  let deleteModal: DeleteModal;
-  let notificationModal: Modal;
-  let notificationModalIsAtBottom = false;
+  let modal: ConfirmModal = $state();
+  let deleteModal: DeleteModal = $state();
+  let notificationModal: Modal = $state();
+  let notificationModalIsAtBottom = $state(false);
 
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
@@ -60,21 +60,21 @@
 <div class="grid gap-2 grid-cols-3">
   <div class="card w-96 bg-base-200 shadow-lg">
     <a rel="external" class="btn" href="/">Go home</a>
-    <div class="divider"/>
+    <div class="divider"></div>
     <a rel="external" class="btn" href="/sandbox/403">Goto page load 403</a>
     <a rel="external" target="_blank" class="btn" href="/sandbox/403">Goto page load 403 new tab</a>
     <a rel="external" class="btn" href="/api/AuthTesting/403">Goto API 403</a>
     <a rel="external" target="_blank" class="btn" href="/api/AuthTesting/403">Goto API 403 new tab</a>
-    <button class="btn" on:click={fetch403}>Fetch 403</button>
+    <button class="btn" onclick={fetch403}>Fetch 403</button>
 
-    <div class="divider"/>
+    <div class="divider"></div>
 
     <a rel="external" class="btn" href="/sandbox/500">Goto page load 500</a>
     <a rel="external" target="_blank" class="btn" href="/sandbox/500">Goto page load 500 new tab</a>
     <a rel="external" class="btn" href="/api/testing/test500NoException">Goto API 500</a>
     <a rel="external" target="_blank" class="btn" href="/api/testing/test500NoException">Goto API 500 new tab</a>
-    <button class="btn" on:click={fetch500}>Fetch 500</button>
-    <button class="btn" on:click={gqlThrows500}>GQL 500</button>
+    <button class="btn" onclick={fetch500}>Fetch 500</button>
+    <button class="btn" onclick={gqlThrows500}>GQL 500</button>
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
@@ -88,27 +88,33 @@
       <span>Clicking menu items inside dropdown should cause it to close</span>
       <Dropdown>
         <Button variant="btn-primary">Open Me!</Button>
-        <ul slot="content" class="menu bg-info rounded-box">
-          <li><button>First item</button></li>
-          <li><button>Second item</button></li>
-        </ul>
+        {#snippet content()}
+                <ul  class="menu bg-info rounded-box">
+            <li><button>First item</button></li>
+            <li><button>Second item</button></li>
+          </ul>
+              {/snippet}
       </Dropdown>
       <div>
         <Dropdown>
           <Button variant="btn-primary">Open Me!</Button>
-          <ul slot="content" class="menu bg-info rounded-box">
-            <li><button>First item</button></li>
-            <li><button>Second item</button></li>
-          </ul>
+          {#snippet content()}
+                    <ul  class="menu bg-info rounded-box">
+              <li><button>First item</button></li>
+              <li><button>Second item</button></li>
+            </ul>
+                  {/snippet}
         </Dropdown>
       </div>
       <div>
         <Dropdown disabled={disableDropdown}>
           <Button variant="btn-primary" disabled={disableDropdown}>Open dropdown</Button>
-          <div slot="content" class="bg-neutral p-5">
-            <p>Some content</p>
-            <Button outline on:click={() => disableDropdown = true}>Disable myself</Button>
-          </div>
+          {#snippet content()}
+                    <div  class="bg-neutral p-5">
+              <p>Some content</p>
+              <Button outline on:click={() => disableDropdown = true}>Disable myself</Button>
+            </div>
+                  {/snippet}
         </Dropdown>
 
         <label class="cursor-pointer label gap-4">

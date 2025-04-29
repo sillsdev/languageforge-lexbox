@@ -1,4 +1,4 @@
-﻿import {type APIRequestContext, type Browser, expect} from '@playwright/test';
+import {type APIRequestContext, type Browser, expect} from '@playwright/test';
 import {test} from './fixtures';
 import {LoginPage} from './pages/loginPage';
 import {OidcDebuggerPage} from './pages/oidcDebuggerPage';

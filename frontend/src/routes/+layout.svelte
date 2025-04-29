@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { getStores, navigating } from '$app/stores';
   import '$lib/app.postcss';
   import { initErrorStore } from '$lib/error';
@@ -14,24 +16,33 @@
   import {derived, writable} from 'svelte/store';
   import { initI18n } from '$lib/i18n';
 
-  export let data: LayoutData;
+  interface Props {
+    data: LayoutData;
+    children?: import('svelte').Snippet;
+  }
+
+  let { data, children }: Props = $props();
   const { page, updated } = getStores();
 
   const { t, locale } = initI18n(data.activeLocale);
-  $: if (data.activeLocale) locale.set(data.activeLocale);
+  run(() => {
+    if (data.activeLocale) locale.set(data.activeLocale);
+  });
 
   const { notifyWarning } = initNotificationService();
   setContext('breadcrumb-store', writable([] as Element[]));
 
   const error = initErrorStore($page.error);
-  $: $error = $page.error;
-  $: {
+  run(() => {
+    $error = $page.error;
+  });
+  run(() => {
     if (browser && $updated) {
       notifyWarning($t('notifications.update_detected'), Duration.Long);
     }
-  }
+  });
 
-  let hydrating = true;
+  let hydrating = $state(true);
   onMount(() => hydrating = false);
 
   const loading = derived(navigating, (nav) => {
@@ -46,7 +57,7 @@
   <UnexpectedErrorAlert />
 {/if}
 
-<div use:overlayContainer class="bg-base-200 shadow rounded-box z-[2] absolute" />
+<div use:overlayContainer class="bg-base-200 shadow rounded-box z-[2] absolute"></div>
 
 <svelte:head>
   {#if data.traceParent}
@@ -64,7 +75,7 @@
 
 <div class="flex flex-col justify-between min-h-full" class:hydrating={hydrating}>
   <div class="flex flex-col flex-grow">
-    <slot />
+    {@render children?.()}
   </div>
   <Footer />
 </div>

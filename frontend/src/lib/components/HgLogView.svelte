@@ -1,9 +1,11 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   // Define regex here so browsers can compile it *once* and reuse it
   const logEntryRe = /\[[^\]]+\]/;
 </script>
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import t, { date } from '$lib/i18n';
 
   import type { Circle, Path } from './TrainTracks.svelte';
@@ -19,9 +21,13 @@
     col: number;
   };
 
-  export let logEntries: LogEntries;
-  export let loading: boolean;
-  export let projectCode: string;
+  interface Props {
+    logEntries: LogEntries;
+    loading: boolean;
+    projectCode: string;
+  }
+
+  let { logEntries, loading, projectCode }: Props = $props();
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -98,25 +104,25 @@
     return paths;
   }
 
-  let expandedLog: ExpandedLogEntry[];
-  $: {
-    expandedLog = (logEntries ?? []) as ExpandedLogEntry[];
-    assignRowsAndColumns(expandedLog);
-    expandedLog = expandedLog.map((e) => ({
-      ...e,
-      trimmedLog: trimEntry(e.desc),
-    }));
-  }
+  let expandedLog: ExpandedLogEntry[] = $state();
 
   function trimEntry(orig: string): string {
     // The [program: version string] part of log entries can get quite long, so let's trim it for the graph
     return orig.replace(logEntryRe, '');
   }
 
-  $: circles = expandedLog.map((entry, idx): Circle => ({ row: idx, col: entry.col }));
-  $: paths = assignPaths(expandedLog);
 
-  let heights: number[] = [];
+  let heights: number[] = $state([]);
+  run(() => {
+    expandedLog = (logEntries ?? []) as ExpandedLogEntry[];
+    assignRowsAndColumns(expandedLog);
+    expandedLog = expandedLog.map((e) => ({
+      ...e,
+      trimmedLog: trimEntry(e.desc),
+    }));
+  });
+  let circles = $derived(expandedLog.map((entry, idx): Circle => ({ row: idx, col: entry.col })));
+  let paths = $derived(assignPaths(expandedLog));
 </script>
 
 <table class="table table-zebra">
@@ -152,7 +158,7 @@
               <Loader loading />
               {$t('project_page.hg.loading')}
             {:else}
-              <span class="i-mdi-creation-outline text-2xl" />
+              <span class="i-mdi-creation-outline text-2xl"></span>
               {$t('project_page.hg.no_history')}
             {/if}
           </div>

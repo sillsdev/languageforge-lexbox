@@ -1,20 +1,37 @@
 <script lang="ts">
+  import { createBubbler } from 'svelte/legacy';
+
+  const bubble = createBubbler();
   import type { HelpLink } from '$lib/components/help';
   import FormField from './FormField.svelte';
   import { randomFormId } from './utils';
 
-  export let label: string;
-  export let value: string | undefined;
-  export let id = randomFormId();
-  export let autofocus = false;
-  export let error: string | string[] | undefined = undefined;
-  export let disabled = false;
-  export let helpLink: HelpLink | undefined = undefined;
+  interface Props {
+    label: string;
+    value: string | undefined;
+    id?: any;
+    autofocus?: boolean;
+    error?: string | string[] | undefined;
+    disabled?: boolean;
+    helpLink?: HelpLink | undefined;
+    children?: import('svelte').Snippet;
+  }
+
+  let {
+    label,
+    value = $bindable(),
+    id = randomFormId(),
+    autofocus = false,
+    error = undefined,
+    disabled = false,
+    helpLink = undefined,
+    children
+  }: Props = $props();
 </script>
 
 <FormField {id} {label} {error} {autofocus} {helpLink}>
-  <!-- svelte-ignore a11y-autofocus -->
-  <select {disabled} bind:value {id} class="select select-bordered" {autofocus} on:change>
-    <slot />
+  <!-- svelte-ignore a11y_autofocus -->
+  <select {disabled} bind:value {id} class="select select-bordered" {autofocus} onchange={bubble('change')}>
+    {@render children?.()}
   </select>
 </FormField>

@@ -7,16 +7,20 @@
   import { _changeProjectMemberRole } from './+page';
   import type { UUID } from 'crypto';
 
-  export let projectId: string;
+  interface Props {
+    projectId: string;
+  }
+
+  let { projectId }: Props = $props();
 
   const schema = z.object({
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager])
   });
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
-  $: form = formModal?.form();
+  let formModal: FormModal<Schema> = $state();
+  let form = $derived(formModal?.form());
 
-  let name: string;
+  let name: string = $state();
 
   export async function open(member: { userId: UUID; name: string; role: ProjectRole }): Promise<FormModalResult<Schema>> {
     name = member.name;
@@ -37,8 +41,14 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{$t('project_page.change_role_modal.title', { name })}</span>
-  <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="submitText">{$t('project_page.change_role')}</span>
+<FormModal bind:this={formModal} {schema} >
+  {#snippet title()}
+    <span >{$t('project_page.change_role_modal.title', { name })}</span>
+  {/snippet}
+  {#snippet children({ errors })}
+    <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
+    {/snippet}
+  {#snippet submitText()}
+    <span >{$t('project_page.change_role')}</span>
+  {/snippet}
 </FormModal>

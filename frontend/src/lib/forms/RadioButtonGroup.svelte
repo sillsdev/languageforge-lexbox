@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   export type SingleRadioButton = {
     label: string
     value: string
@@ -10,15 +10,29 @@
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
 
-  export let buttons: SingleRadioButton[];
-  export let label: string; // This is for the group as a whole
-  export let value: string = ''; // Should be used with `bind:value={localVariable}`
-  export let id = randomFormId();
-  export let error: string | string[] | undefined = undefined;
-  export let description: string | undefined = undefined;
-  export let variant: 'radio-warning' | undefined = undefined;
-  export let labelColor: 'text-warning' | undefined = undefined;
-  export let divClass: string | undefined = undefined;
+  interface Props {
+    buttons: SingleRadioButton[];
+    label: string; // This is for the group as a whole
+    value?: string; // Should be used with `bind:value={localVariable}`
+    id?: any;
+    error?: string | string[] | undefined;
+    description?: string | undefined;
+    variant?: 'radio-warning' | undefined;
+    labelColor?: 'text-warning' | undefined;
+    divClass?: string | undefined;
+  }
+
+  let {
+    buttons,
+    label,
+    value = $bindable(''),
+    id = randomFormId(),
+    error = undefined,
+    description = undefined,
+    variant = undefined,
+    labelColor = undefined,
+    divClass = undefined
+  }: Props = $props();
 </script>
 
 <div

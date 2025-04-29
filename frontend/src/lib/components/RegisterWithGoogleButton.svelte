@@ -1,7 +1,11 @@
 <script lang="ts">
   import SigninWithGoogleButton from './SigninWithGoogleButton.svelte';
 
-  export let href: string;
+  interface Props {
+    href: string;
+  }
+
+  let { href }: Props = $props();
 </script>
 
 <SigninWithGoogleButton {href} text="register_with_google" />

@@ -3,18 +3,29 @@
   import { type ZodString, z } from 'zod';
   import IconButton from './IconButton.svelte';
 
-  export let value: string | undefined | null = undefined;
-  export let disabled = false;
-  export let saveHandler: (newValue: string) => Promise<ErrorMessage>;
-  export let placeholder: string | undefined = undefined;
-  export let multiline = false;
-  export let validation: ZodString = z.string();
+  interface Props {
+    value?: string | undefined | null;
+    disabled?: boolean;
+    saveHandler: (newValue: string) => Promise<ErrorMessage>;
+    placeholder?: string | undefined;
+    multiline?: boolean;
+    validation?: ZodString;
+  }
+
+  let {
+    value = $bindable(undefined),
+    disabled = false,
+    saveHandler,
+    placeholder = undefined,
+    multiline = false,
+    validation = z.string()
+  }: Props = $props();
 
   let initialValue: string | undefined | null;
-  let editing = false;
-  let saving = false;
+  let editing = $state(false);
+  let saving = $state(false);
 
-  let formElem: Form;
+  let formElem: Form = $state();
 
   const formSchema = z.object({ value: validation });
   let { form, errors, reset, enhance, message } = lexSuperForm(
@@ -25,7 +36,7 @@
     },
     { taintedMessage: false },
   );
-  $: error = $errors.value?.join(', ') ?? $message;
+  let error = $derived($errors.value?.join(', ') ?? $message);
 
   function startEditing(): void {
     if (disabled) {
@@ -87,7 +98,7 @@
 <span>
   {#if editing || saving}
     <span class="inline-flex not-prose space-x-2 relative max-sm:flex-col max-w-full max-sm:w-full" class:w-full={multiline}>
-      <!-- svelte-ignore a11y-autofocus -->
+      <!-- svelte-ignore a11y_autofocus -->
       <span
         class="tooltip-error tooltip-open tooltip-bottom"
         class:grow={multiline}
@@ -97,16 +108,16 @@
         <Form bind:this={formElem} {enhance}>
           {#if multiline}
             <textarea
-              on:keydown={onKeydown}
+              onkeydown={onKeydown}
               class:textarea-error={error}
               autofocus
               bind:value={$form.value}
               readonly={saving}
               class="textarea textarea-bordered mt-1 h-48"
-            />
+></textarea>
           {:else}
             <input
-              on:keydown={onKeydown}
+              onkeydown={onKeydown}
               class:input-error={error}
               autofocus
               bind:value={$form.value}
@@ -126,8 +137,8 @@
     <button
       class:hover:bg-base-300={!disabled}
       class="content-wrapper inline-flex items-center cursor-text rounded-lg py-1 px-1.5 -mx-1.5"
-      on:click={startEditing}
-      on:keypress={startEditing}
+      onclick={startEditing}
+      onkeypress={startEditing}
     >
       {#if value}
         <span class="mr-2 whitespace-pre-wrap">{value}</span>
@@ -135,7 +146,7 @@
         <span class="mr-2 opacity-75">{placeholder}</span>
       {/if}
       {#if !disabled}
-        <span class="i-mdi-pencil-outline text-lg text-base-content edit-icon mb-1 self-end" />
+        <span class="i-mdi-pencil-outline text-lg text-base-content edit-icon mb-1 self-end"></span>
       {/if}
     </button>
   {/if}

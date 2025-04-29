@@ -2,9 +2,14 @@
   import { ActionBadge } from '../Badges';
   import type { Filter } from './FilterBar.svelte';
 
-  export let filter: Filter;
+  interface Props {
+    filter: Filter;
+    children?: import('svelte').Snippet;
+  }
+
+  let { filter, children }: Props = $props();
 </script>
 
 <ActionBadge actionIcon="i-mdi-close" on:action={filter.clear}>
-  <slot />
+  {@render children?.()}
 </ActionBadge>

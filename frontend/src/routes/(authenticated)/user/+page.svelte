@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
@@ -15,13 +17,19 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { delay } from '$lib/util/time';
 
-  export let data: PageData;
-  $: user = data.account;
-  let deleteModal: DeleteUserModal;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let user = $derived(data.account);
+  let deleteModal: DeleteUserModal = $state();
 
   const emailResult = useEmailResult();
   const requestedEmail = useRequestedEmail();
-  $: if (data.emailResult) emailResult.set(data.emailResult);
+  run(() => {
+    if (data.emailResult) emailResult.set(data.emailResult);
+  });
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -66,7 +74,9 @@
 
   // This is a bit of a hack to make sure that the email field is not required if the user has no email
   // even if the user edited the email field
-  $: if(!$form.email && $user && !$user.email) $form.email = null;
+  run(() => {
+    if(!$form.email && $user && !$user.email) $form.email = null;
+  });
 
   onMount(() => {
     form.set(
@@ -109,7 +119,7 @@
     </a>
   </div>
   <MoreSettings>
-    <button class="btn btn-error" on:click={openDeleteModal}>
+    <button class="btn btn-error" onclick={openDeleteModal}>
       {$t('account_settings.delete_account.submit')}<TrashIcon />
     </button>
   </MoreSettings>

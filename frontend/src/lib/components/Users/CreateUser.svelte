@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, MaybeProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
@@ -9,13 +11,26 @@
   import { z } from 'zod';
   import type { StringifyValues } from '$lib/type.utils';
 
-  export let allowUsernames = false;
-  export let errorOnChangingEmail = '';
-  export let skipTurnstile = false;
-  export let submitButtonText = $t('register.button_register');
-  export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
-  export let formTainted = false;
-  $: formTainted = !!$tainted;
+  interface Props {
+    allowUsernames?: boolean;
+    errorOnChangingEmail?: string;
+    skipTurnstile?: boolean;
+    submitButtonText?: any;
+    handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
+    formTainted?: boolean;
+  }
+
+  let {
+    allowUsernames = false,
+    errorOnChangingEmail = '',
+    skipTurnstile = false,
+    submitButtonText = $t('register.button_register'),
+    handleSubmit,
+    formTainted = $bindable(false)
+  }: Props = $props();
+  run(() => {
+    formTainted = !!$tainted;
+  });
 
   const dispatch = createEventDispatcher<{
     submitted: LexAuthUser,
@@ -25,7 +40,7 @@
     name: string;
     email: string;
   };
-  let turnstileToken = '';
+  let turnstileToken = $state('');
   let urlValues = {} as StringifyValues<RegisterPageQueryParams>;
 
   function validateAsEmail(value: string): boolean {

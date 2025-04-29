@@ -8,9 +8,13 @@
   import Icon from '$lib/icons/Icon.svelte';
   import { helpLinks } from '$lib/components/help';
 
-  export let serverVersion: string;
-  export let apiVersion: string | null;
-  export let user: LexAuthUser;
+  interface Props {
+    serverVersion: string;
+    apiVersion: string | null;
+    user: LexAuthUser;
+  }
+
+  let { serverVersion, apiVersion, user }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/menu  -->
@@ -27,7 +31,7 @@
     </a>
   </li>
 
-  <div class="divider" />
+  <div class="divider"></div>
 
   <AdminContent>
     <li>
@@ -66,8 +70,8 @@
     </a>
   </li>
 
-  <div class="divider" />
-  <div class="grow" />
+  <div class="divider"></div>
+  <div class="grow"></div>
   <div class="flex flex-col items-end gap-1">
     <Badge>Client Version: {APP_VERSION}</Badge>
     <Badge>Server Version: {serverVersion}</Badge>

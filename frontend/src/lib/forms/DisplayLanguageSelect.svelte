@@ -4,10 +4,14 @@
 
   import { Select } from '.';
 
-  export let id = 'display-language';
-  export let value: string;
+  interface Props {
+    id?: string;
+    value: string;
+  }
 
-  $: currentValueNotSupported = value && !availableLocales.includes(value);
+  let { id = 'display-language', value = $bindable() }: Props = $props();
+
+  let currentValueNotSupported = $derived(value && !availableLocales.includes(value));
   const localNames: Record<string, string> = {
     en: 'English',
     es: 'Español',

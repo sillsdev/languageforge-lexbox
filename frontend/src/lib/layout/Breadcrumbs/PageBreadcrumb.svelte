@@ -5,8 +5,13 @@
   import {page} from '$app/stores';
   import type {Action} from 'svelte/action';
 
-  export let href: string | undefined = undefined;
-  $: isCurrentPath = $page.url.pathname === href;
+  interface Props {
+    href?: string | undefined;
+    children?: import('svelte').Snippet;
+  }
+
+  let { href = undefined, children }: Props = $props();
+  let isCurrentPath = $derived($page.url.pathname === href);
 
   let crumbs: Writable<Element[]> = getContext('breadcrumb-store');
 
@@ -32,10 +37,10 @@
   <span use:makeBreadCrumb>
     {#if href && !isCurrentPath}
       <a {href} class="hover:border-b">
-        <slot/>
+        {@render children?.()}
       </a>
     {:else}
-        <slot/>
+        {@render children?.()}
     {/if}
   </span>
 </div>

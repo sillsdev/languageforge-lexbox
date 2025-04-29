@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   export type DeleteModalI18nShape = {
     title: string;
     submit: string;
@@ -19,15 +19,19 @@
   import { TrashIcon } from '$lib/icons';
   import tt from '$lib/i18n';
 
-  export let i18nScope: I18nShapeKey<DeleteModalI18nShape>;
-  let name: string;
+  interface Props {
+    i18nScope: I18nShapeKey<DeleteModalI18nShape>;
+  }
+
+  let { i18nScope }: Props = $props();
+  let name: string = $state();
 
   export async function open(_name: string, onSubmit: FormSubmitCallback<Schema>): Promise<FormModalResult<Schema>> {
     name = _name;
     return await deletionFormModal.open(onSubmit);
   }
 
-  $: t = tTypeScoped<DeleteModalI18nShape>(i18nScope);
+  let t = $derived(tTypeScoped<DeleteModalI18nShape>(i18nScope));
 
   const verify = z.object({
     keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.value')}$`), $tt('form.value_is_incorrect')),
@@ -35,32 +39,38 @@
 
   type Schema = typeof verify;
 
-  let deletionFormModal: FormModal<Schema>;
-  $: deletionForm = deletionFormModal?.form();
+  let deletionFormModal: FormModal<Schema> = $state();
+  let deletionForm = $derived(deletionFormModal?.form());
 </script>
 
 <div class="contents">
-  <FormModal bind:this={deletionFormModal} schema={verify} let:errors submitVariant="btn-error">
-    <span slot="title">{$t('title')}</span>
-    <Input
-      id="keyphrase"
-      type="text"
-      autofocus
-      label={$t(
-        'enter_to_delete.label',
-        /*
-        Compiler: https://github.com/cibernox/babel-plugin-precompile-intl/blob/1afecaa725f9d59d785666ebccc065a9c41d8b74/src/index.ts#L299
-        Formatter: https://github.com/cibernox/precompile-intl-runtime/blob/cdaee6ebaa7c2e690db4dff3b8545ebaa79704fc/src/stores/formatters.ts#L44
-        `name` is optional in the translation template, so its name must get `sort()`ed after `_value`
-        */
-        { _value: $t('enter_to_delete.value'), name }
-      )}
-      error={errors.keyphrase}
-      bind:value={$deletionForm.keyphrase}
-    />
-    <svelte:fragment slot="submitText">
-      {$t('submit')}
-      <TrashIcon />
-    </svelte:fragment>
+  <FormModal bind:this={deletionFormModal} schema={verify}  submitVariant="btn-error">
+    {#snippet title()}
+        <span >{$t('title')}</span>
+      {/snippet}
+    {#snippet children({ errors })}
+        <Input
+        id="keyphrase"
+        type="text"
+        autofocus
+        label={$t(
+          'enter_to_delete.label',
+          /*
+          Compiler: https://github.com/cibernox/babel-plugin-precompile-intl/blob/1afecaa725f9d59d785666ebccc065a9c41d8b74/src/index.ts#L299
+          Formatter: https://github.com/cibernox/precompile-intl-runtime/blob/cdaee6ebaa7c2e690db4dff3b8545ebaa79704fc/src/stores/formatters.ts#L44
+          `name` is optional in the translation template, so its name must get `sort()`ed after `_value`
+          */
+          { _value: $t('enter_to_delete.value'), name }
+        )}
+        error={errors.keyphrase}
+        bind:value={$deletionForm.keyphrase}
+      />
+      {/snippet}
+      {#snippet submitText()}
+      
+        {$t('submit')}
+        <TrashIcon />
+      
+      {/snippet}
   </FormModal>
 </div>

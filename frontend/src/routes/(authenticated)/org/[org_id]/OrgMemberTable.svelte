@@ -11,10 +11,19 @@
   import type {LexAuthUser} from '$lib/user';
   import {OrgRole} from '$lib/gql/types';
 
-  export let org: Org;
-  export let user: LexAuthUser;
-  export let shownUsers: OrgUser[];
-  export let canManage: boolean;
+  interface Props {
+    org: Org;
+    user: LexAuthUser;
+    shownUsers: OrgUser[];
+    canManage: boolean;
+  }
+
+  let {
+    org,
+    user,
+    shownUsers,
+    canManage
+  }: Props = $props();
 
   const { notifyWarning } = useNotifications();
 
@@ -23,8 +32,8 @@
     changeMemberRole: OrgUser,
   }>();
 
-  let removeMemberModal: DeleteModal;
-  let memberToRemove: string;
+  let removeMemberModal: DeleteModal = $state();
+  let memberToRemove: string = $state();
 
   async function removeMember(member: User): Promise<void> {
     memberToRemove = member.name;
@@ -45,7 +54,7 @@
       <tr class="bg-base-200">
         <th>
           {$t('admin_dashboard.column_name')}
-          <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+          <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2"></span>
         </th>
         {#if canManage}
         <th>{$t('admin_dashboard.column_email_or_login')}</th>
@@ -94,22 +103,24 @@
           <td class="p-0">
             <Dropdown>
               <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
-                <span class="i-mdi-dots-vertical text-lg" />
+                <span class="i-mdi-dots-vertical text-lg"></span>
               </button>
-              <ul slot="content" class="menu">
-                <li>
-                  <button class="whitespace-nowrap" on:click={() => dispatch('changeMemberRole', member)}>
-                    <Icon icon="i-mdi-pencil-outline" />
-                    {$t('org_page.edit_member_role')}
-                  </button>
-                </li>
-                <li>
-                  <button class="whitespace-nowrap text-error" on:click={() => removeMember(memberUser)}>
-                    <Icon icon="i-mdi-account-remove" />
-                    {$t('org_page.remove_member.remove')}
-                  </button>
-                </li>
-              </ul>
+              {#snippet content()}
+                                <ul  class="menu">
+                  <li>
+                    <button class="whitespace-nowrap" onclick={() => dispatch('changeMemberRole', member)}>
+                      <Icon icon="i-mdi-pencil-outline" />
+                      {$t('org_page.edit_member_role')}
+                    </button>
+                  </li>
+                  <li>
+                    <button class="whitespace-nowrap text-error" onclick={() => removeMember(memberUser)}>
+                      <Icon icon="i-mdi-account-remove" />
+                      {$t('org_page.remove_member.remove')}
+                    </button>
+                  </li>
+                </ul>
+                              {/snippet}
             </Dropdown>
           </td>
           {/if}

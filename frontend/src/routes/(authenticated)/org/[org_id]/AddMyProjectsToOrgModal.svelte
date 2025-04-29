@@ -10,17 +10,21 @@
   import {useNotifications} from '$lib/notify';
   import {type UUID} from 'crypto';
 
-  export let user: LexAuthUser;
-  export let org: Org;
+  interface Props {
+    user: LexAuthUser;
+    org: Org;
+  }
+
+  let { user, org }: Props = $props();
 
   const {notifySuccess} = useNotifications();
 
   const schema = z.object({});
 
-  let formModal: FormModal<typeof schema>;
-  let newProjects: Project[] = [];
-  let alreadyAddedProjects: number = 0;
-  let selectedProjects: string[] = [];
+  let formModal: FormModal<typeof schema> = $state();
+  let newProjects: Project[] = $state([]);
+  let alreadyAddedProjects: number = $state(0);
+  let selectedProjects: string[] = $state([]);
 
   async function openModal(): Promise<void> {
     const projectsIManage = await _getProjectsIManage(user);
@@ -54,13 +58,15 @@
 
 <Button variant="btn-success" on:click={openModal}>
   {$t('org_page.add_my_projects.open_button')}
-  <span class="i-mdi-plus text-2xl" />
+  <span class="i-mdi-plus text-2xl"></span>
 </Button>
 
 <FormModal bind:this={formModal} {schema} hideActions={!newProjects.length}>
-  <span slot="title">
-    {$t('org_page.add_my_projects.title')}
-  </span>
+  {#snippet title()}
+    <span >
+      {$t('org_page.add_my_projects.title')}
+    </span>
+  {/snippet}
   {#if newProjects.length}
     <UserProjects projects={newProjects} bind:selectedProjects hideRoleColumn />
   {:else if alreadyAddedProjects}
@@ -72,5 +78,7 @@
       {$t('org_page.add_my_projects.no_projects_managed')}
     </span>
   {/if}
-  <span slot="submitText">{$t('org_page.add_my_projects.submit_button')}</span>
+  {#snippet submitText()}
+    <span >{$t('org_page.add_my_projects.submit_button')}</span>
+  {/snippet}
 </FormModal>

@@ -1,10 +1,18 @@
 <script lang="ts">
+  import { createBubbler, preventDefault } from 'svelte/legacy';
+
+  const bubble = createBubbler();
   import type { AnySuperForm } from './types';
 
-  let formElem: HTMLFormElement;
-  export let id: string | undefined = undefined;
+  let formElem: HTMLFormElement = $state();
 
-  export let enhance: AnySuperForm['enhance'] | undefined = undefined;
+  interface Props {
+    id?: string | undefined;
+    enhance?: AnySuperForm['enhance'] | undefined;
+    children?: import('svelte').Snippet;
+  }
+
+  let { id = undefined, enhance = undefined, children }: Props = $props();
   function enhanceIfRequested(...args: Parameters<AnySuperForm['enhance']>): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     enhance && enhance(...args);
@@ -16,7 +24,7 @@
 </script>
 
 <!-- https://daisyui.com/components/input/#with-form-control-and-labels -->
-<form bind:this={formElem} {id} use:enhanceIfRequested method="post" on:submit|preventDefault class="flex flex-col">
-  <slot />
+<form bind:this={formElem} {id} use:enhanceIfRequested method="post" onsubmit={preventDefault(bubble('submit'))} class="flex flex-col">
+  {@render children?.()}
 </form>
 <!-- see frontend/src/app.postcss for global styles related to forms -->

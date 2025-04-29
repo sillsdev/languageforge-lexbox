@@ -1,4 +1,4 @@
-﻿import {getClient, graphql} from '$lib/gql';
+import {getClient, graphql} from '$lib/gql';
 import type {CreateOrganizationInput, CreateOrgMutation} from '$lib/gql/generated/graphql';
 import type {$OpResult} from '$lib/gql/types';
 

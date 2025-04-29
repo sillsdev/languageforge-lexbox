@@ -1,7 +1,11 @@
 <script lang="ts">
-  export let href: string;
   import t from '$lib/i18n';
-  export let text: 'sign_in_with_google' | 'register_with_google' = 'sign_in_with_google';
+  interface Props {
+    href: string;
+    text?: 'sign_in_with_google' | 'register_with_google';
+  }
+
+  let { href, text = 'sign_in_with_google' }: Props = $props();
 </script>
 
 <!--

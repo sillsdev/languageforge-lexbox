@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import {EmailTemplate, type EmailTemplateProps} from '../emails';
     import {browser} from '$app/environment';
     import {ProjectType, RetentionPolicy} from '$lib/gql/generated/graphql';
@@ -104,19 +106,21 @@
         }
     ];
 
-    let currEmail = emails[0];
-    let emailJson: RenderEmailResult;
-    $: if (browser) {
-        void fetch('.', {method: 'POST', body: JSON.stringify(currEmail)})
-            .then(res => res.json())
-            .then(json => {
-                if (json.message) {
-                    emailJson = {html: json.message, subject: ''};
-                } else {
-                    emailJson = json;
-                }
-            });
-    }
+    let currEmail = $state(emails[0]);
+    let emailJson: RenderEmailResult = $state();
+    run(() => {
+        if (browser) {
+            void fetch('.', {method: 'POST', body: JSON.stringify(currEmail)})
+                .then(res => res.json())
+                .then(json => {
+                    if (json.message) {
+                        emailJson = {html: json.message, subject: ''};
+                    } else {
+                        emailJson = json;
+                    }
+                });
+        }
+    });
 
 </script>
 
@@ -139,6 +143,6 @@
                 height="500"
                 src={'data:text/html;charset=utf-8,' + encodeURIComponent(emailJson.html)}
                 title={currEmail.template}
-        />
+></iframe>
     {/if}
 </div>

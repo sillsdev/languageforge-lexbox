@@ -3,9 +3,14 @@
   import {type ErrorMessage} from '$lib/forms';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
 
-  export let entityName: string;
-  export let isRemoveDialog = false;
-  let modal: ConfirmModal;
+  interface Props {
+    entityName: string;
+    isRemoveDialog?: boolean;
+    children?: import('svelte').Snippet;
+  }
+
+  let { entityName, isRemoveDialog = false, children }: Props = $props();
+  let modal: ConfirmModal = $state();
 
   export async function prompt(deleteCallback: () => Promise<ErrorMessage>): Promise<boolean> {
     return await modal.open(deleteCallback);
@@ -17,5 +22,5 @@
               submitIcon="i-mdi-trash-can"
               submitVariant="btn-error"
               cancelText={isRemoveDialog ? $t('delete_modal.dont_remove') : $t('delete_modal.dont_delete')}>
-  <slot/>
+  {@render children?.()}
 </ConfirmModal>

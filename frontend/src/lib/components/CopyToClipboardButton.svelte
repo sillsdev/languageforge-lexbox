@@ -3,13 +3,22 @@
   import IconButton from './IconButton.svelte';
   import t from '$lib/i18n';
 
-  var copyingToClipboard = false;
-  var copiedToClipboard = false;
+  var copyingToClipboard = $state(false);
+  var copiedToClipboard = $state(false);
 
-  export let textToCopy: string;
-  export let delayMs: Duration | number = Duration.Default;
-  export let size: 'btn-sm' | undefined = undefined;
-  export let outline: boolean = true;
+  interface Props {
+    textToCopy: string;
+    delayMs?: Duration | number;
+    size?: 'btn-sm' | undefined;
+    outline?: boolean;
+  }
+
+  let {
+    textToCopy,
+    delayMs = Duration.Default,
+    size = undefined,
+    outline = true
+  }: Props = $props();
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;

@@ -4,9 +4,13 @@
 
   import { Select } from '.';
 
-  export let id = 'role';
-  export let value: ProjectRole;
-  export let error: string[] | undefined;
+  interface Props {
+    id?: string;
+    value: ProjectRole;
+    error: string[] | undefined;
+  }
+
+  let { id = 'role', value = $bindable(), error }: Props = $props();
 </script>
 
 <Select {id} bind:value label={$t('project_role.label')} {error}>

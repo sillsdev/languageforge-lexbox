@@ -2,19 +2,32 @@
   import { randomFormId } from './utils';
   import FormField from './FormField.svelte';
 
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let value: string | undefined = undefined;
-  export let id = randomFormId();
-  export let autofocus = false;
-  export let readonly = false;
-  export let error: string | string[] | undefined = undefined;
-  export let placeholder = '';
+  interface Props {
+    label: string;
+    description?: string | undefined;
+    value?: string | undefined;
+    id?: any;
+    autofocus?: boolean;
+    readonly?: boolean;
+    error?: string | string[] | undefined;
+    placeholder?: string;
+  }
+
+  let {
+    label,
+    description = undefined,
+    value = $bindable(undefined),
+    id = randomFormId(),
+    autofocus = false,
+    readonly = false,
+    error = undefined,
+    placeholder = ''
+  }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/input -->
 <FormField {id} {error} {label} {autofocus} {description}>
-  <!-- svelte-ignore a11y-autofocus -->
+  <!-- svelte-ignore a11y_autofocus -->
   <textarea
     {id}
     bind:value
@@ -23,5 +36,5 @@
     {placeholder}
     {readonly}
     {autofocus}
-  />
+></textarea>
 </FormField>

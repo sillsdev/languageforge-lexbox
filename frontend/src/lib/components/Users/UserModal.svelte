@@ -27,8 +27,8 @@
     canCreateProjects: boolean
     createdBy?: Partial<User> | null
   };
-  let userDetailsModal: Modal;
-  let user: User;
+  let userDetailsModal: Modal = $state();
+  let user: User = $state();
 
   export async function open(_user: User): Promise<void> {
     user = _user;
@@ -37,7 +37,7 @@
 
   const { notifySuccess } = useNotifications();
 
-  var sendingVerificationEmail = false;
+  var sendingVerificationEmail = $state(false);
   async function sendVerificationEmail(user: User): Promise<void> {
     sendingVerificationEmail = true;
     await _sendNewVerificationEmailByAdmin(user.id as UUID);
@@ -53,7 +53,7 @@
         {user.name}
       </span>
     </h2>
-    <div class="divider" />
+    <div class="divider"></div>
     <UserLockedAlert locked={user.locked} />
     <div class="grid grid-cols-2 gap-4">
       <div>
@@ -65,7 +65,7 @@
               <span
                 class="tooltip text-warning text-md shrink-0 leading-0"
                 data-tip={$t('admin_dashboard.email_not_verified')}>
-                <span class="i-mdi-help-circle-outline" />
+                <span class="i-mdi-help-circle-outline"></span>
               </span>
               <AdminContent>
                 <div class="tooltip" data-tip={$t('admin_dashboard.resend_verification_email')}>

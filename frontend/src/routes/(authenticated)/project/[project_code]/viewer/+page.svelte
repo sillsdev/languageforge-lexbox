@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import 'viewer/component';
   import {LfClassicLexboxApi} from './lfClassicLexboxApi';
   import 'viewer/service-declaration';
@@ -6,18 +8,22 @@
   import type {PageData} from './$types';
   import t from '$lib/i18n';
 
-  export let data: PageData;
-  $: project = data.project;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let project = $derived(data.project);
 
   const serviceProvider = window.lexbox.ServiceProvider;
-  let service: LfClassicLexboxApi;
-  $: {
+  let service: LfClassicLexboxApi = $state();
+  run(() => {
     if (serviceProvider) {
       let localService = new LfClassicLexboxApi($project.code);
       serviceProvider.setService(DotnetService.MiniLcmApi, localService);
       service = localService;
     }
-  }
+  });
 
 </script>
 {#if service}

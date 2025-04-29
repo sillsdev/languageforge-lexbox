@@ -6,7 +6,11 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import type { User } from '../../../routes/(authenticated)/admin/+page';
 
-  export let shownUsers: User[];
+  interface Props {
+    shownUsers: User[];
+  }
+
+  let { shownUsers }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     openUserModal: User
@@ -20,13 +24,13 @@
     <tr class="bg-base-200">
       <th>
         {$t('admin_dashboard.column_name')}
-        <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+        <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2"></span>
       </th>
       <th class="hidden @2xl:table-cell">
         {$t('admin_dashboard.column_login')}
       </th>
       <th>{$t('admin_dashboard.column_email')}</th>
-      <th />
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -77,7 +81,7 @@
                 <span
                   class="tooltip text-warning text-xl shrink-0 leading-0"
                   data-tip={$t('admin_dashboard.email_not_verified')}>
-                  <span class="i-mdi-help-circle-outline" />
+                  <span class="i-mdi-help-circle-outline"></span>
                 </span>
               {/if}
             {:else}
@@ -88,22 +92,24 @@
         <td class="p-0">
           <Dropdown>
             <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
-              <span class="i-mdi-dots-vertical text-lg" />
+              <span class="i-mdi-dots-vertical text-lg"></span>
             </button>
-            <ul slot="content" class="menu">
-              <li>
-                <button class="whitespace-nowrap" on:click={() => dispatch('editUser', user)}>
-                  <Icon icon="i-mdi-pencil-outline" />
-                  {$t('admin_dashboard.form_modal.title')}
-                </button>
-              </li>
-              <li>
-                <button class="whitespace-nowrap" on:click={() => dispatch('filterProjectsByUser', user)}>
-                  <Icon icon="i-mdi-filter-outline" />
-                  {$t('project.filter.filter_user_projects')}
-                </button>
-              </li>
-            </ul>
+            {#snippet content()}
+                        <ul  class="menu">
+                <li>
+                  <button class="whitespace-nowrap" onclick={() => dispatch('editUser', user)}>
+                    <Icon icon="i-mdi-pencil-outline" />
+                    {$t('admin_dashboard.form_modal.title')}
+                  </button>
+                </li>
+                <li>
+                  <button class="whitespace-nowrap" onclick={() => dispatch('filterProjectsByUser', user)}>
+                    <Icon icon="i-mdi-filter-outline" />
+                    {$t('project.filter.filter_user_projects')}
+                  </button>
+                </li>
+              </ul>
+                      {/snippet}
           </Dropdown>
         </td>
       </tr>

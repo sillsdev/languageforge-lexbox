@@ -6,14 +6,18 @@
   import { _setProjectConfidentiality } from './+page';
   import t from '$lib/i18n';
 
-  export let projectId: string;
-  export let isConfidential: boolean | undefined;
+  interface Props {
+    projectId: string;
+    isConfidential: boolean | undefined;
+  }
+
+  let { projectId, isConfidential }: Props = $props();
 
   const schema = z.object({
     isConfidential: z.boolean(),
   });
-  let formModal: FormModal<typeof schema>;
-  $: form = formModal?.form();
+  let formModal: FormModal<typeof schema> = $state();
+  let form = $derived(formModal?.form());
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -39,13 +43,17 @@
 </script>
 
 <FormModal bind:this={formModal} {schema} submitVariant={$form?.isConfidential ? 'btn-warning' : 'btn-primary'}>
-  <span slot="title">{$t('project.confidential.modal.title')}</span>
+  {#snippet title()}
+    <span >{$t('project.confidential.modal.title')}</span>
+  {/snippet}
   <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
-  <span slot="submitText">
-    {#if $form.isConfidential}
-      {$t('project.confidential.modal.submit_button_confidential')}
-    {:else}
-      {$t('project.confidential.modal.submit_button_not_confidential')}
-    {/if}
-  </span>
+  {#snippet submitText()}
+    <span >
+      {#if $form.isConfidential}
+        {$t('project.confidential.modal.submit_button_confidential')}
+      {:else}
+        {$t('project.confidential.modal.submit_button_not_confidential')}
+      {/if}
+    </span>
+  {/snippet}
 </FormModal>

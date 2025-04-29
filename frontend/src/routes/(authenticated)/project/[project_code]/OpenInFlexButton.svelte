@@ -1,16 +1,23 @@
 <script lang="ts">
+  import { createBubbler } from 'svelte/legacy';
+
+  const bubble = createBubbler();
   import { ProjectTypeIcon } from '$lib/components/ProjectType';
   import { ProjectType } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  export let projectId: string;
+  interface Props {
+    projectId: string;
+  }
+
+  let { projectId }: Props = $props();
 </script>
 
 <a
   class="btn btn-primary whitespace-nowrap open-in-flex"
   href={`/api/integration/openWithFlex?projectId=${projectId}`}
   data-sveltekit-reload
-  on:click
+  onclick={bubble('click')}
 >
   {$t('project_page.open_with_flex.button')}
   <ProjectTypeIcon type={ProjectType.FlEx} />

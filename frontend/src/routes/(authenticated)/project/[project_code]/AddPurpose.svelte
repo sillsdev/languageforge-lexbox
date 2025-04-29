@@ -9,15 +9,19 @@
   import { _setRetentionPolicy } from './+page';
   import { DialogResponse, FormModal } from '$lib/components/modals';
 
-  export let projectId: string;
+  interface Props {
+    projectId: string;
+  }
+
+  let { projectId }: Props = $props();
 
   const schema = z.object({
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training)
   });
 
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
-  $: form = formModal?.form();
+  let formModal: FormModal<Schema> = $state();
+  let form = $derived(formModal?.form());
 
   const { notifySuccess } = useNotifications();
 
@@ -42,20 +46,26 @@
   {$t('project_page.add_purpose.add_button')}
 </BadgeButton>
 
-<FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{$t('project_page.add_purpose.modal_title')}</span>
-  <Select
-    id="policy"
-    label={$t('project.create.retention_policy')}
-    bind:value={$form.retentionPolicy}
-    error={errors.retentionPolicy}
-  >
-    <option value={RetentionPolicy.Verified}>{$t('retention_policy.language_project')}</option>
-    <option value={RetentionPolicy.Training}>{$t('retention_policy.training')}</option>
-    <option value={RetentionPolicy.Test}>{$t('retention_policy.test')}</option>
-    <AdminContent>
-      <option value={RetentionPolicy.Dev}>{$t('retention_policy.dev')}</option>
-    </AdminContent>
-  </Select>
-  <span slot="submitText">{'Add Purpose'}</span>
+<FormModal bind:this={formModal} {schema} >
+  {#snippet title()}
+    <span >{$t('project_page.add_purpose.modal_title')}</span>
+  {/snippet}
+  {#snippet children({ errors })}
+    <Select
+      id="policy"
+      label={$t('project.create.retention_policy')}
+      bind:value={$form.retentionPolicy}
+      error={errors.retentionPolicy}
+    >
+      <option value={RetentionPolicy.Verified}>{$t('retention_policy.language_project')}</option>
+      <option value={RetentionPolicy.Training}>{$t('retention_policy.training')}</option>
+      <option value={RetentionPolicy.Test}>{$t('retention_policy.test')}</option>
+      <AdminContent>
+        <option value={RetentionPolicy.Dev}>{$t('retention_policy.dev')}</option>
+      </AdminContent>
+    </Select>
+    {/snippet}
+  {#snippet submitText()}
+    <span >{'Add Purpose'}</span>
+  {/snippet}
 </FormModal>

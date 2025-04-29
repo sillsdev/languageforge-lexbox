@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { goto } from '$app/navigation';
   import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
   import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
@@ -22,11 +24,11 @@
   import {projectUrl} from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
 
-  export let data;
-  $: user = data.user;
-  let requestingUser : typeof data.requestingUser;
-  $: myOrgs = data.myOrgs ?? [];
-  $: projectStatus = data.projectStatus;
+  let { data } = $props();
+  let user = $derived(data.user);
+  let requestingUser : typeof data.requestingUser = $state();
+  let myOrgs = $derived(data.myOrgs ?? []);
+  let projectStatus = $derived(data.projectStatus);
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -48,7 +50,7 @@
     isConfidential: z.boolean().default(false),
     orgId: z.string().trim()
   });
-  let forceDraft = false;
+  let forceDraft = $state(false);
 
   //random guid
   let projectId:string = crypto.randomUUID();
@@ -88,7 +90,9 @@
     if (!browser || !code || !user.canCreateProjects) return true;
     return _projectCodeAvailable(code);
   }, true, true);
-  $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
+  run(() => {
+    $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
+  });
   const codeErrors = derivedStore([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
 
   const projectNameStore = derivedStore(form, f => f.name);
@@ -166,21 +170,23 @@
     }, { taint: false });
   });
 
-  $: if (!$form.customCode) {
-    const type = $form.type;
-    const retentionPolicy = $form.retentionPolicy;
-    const languageCode = $form.languageCode;
-    form.update(
-      (form) => {
-        form.code = buildProjectCode(languageCode, type, retentionPolicy);
-        return form;
-      },
-      { taint: false }
-    );
-  }
+  run(() => {
+    if (!$form.customCode) {
+      const type = $form.type;
+      const retentionPolicy = $form.retentionPolicy;
+      const languageCode = $form.languageCode;
+      form.update(
+        (form) => {
+          form.code = buildProjectCode(languageCode, type, retentionPolicy);
+          return form;
+        },
+        { taint: false }
+      );
+    }
+  });
 
-  let selectedProject: { name: string, id: string } | undefined = undefined;
-  let showRelatedProjects = true;
+  let selectedProject: { name: string, id: string } | undefined = $state(undefined);
+  let showRelatedProjects = $state(true);
 
   // When the related-projects list changes, keep selectedProject up-to-date
   relatedProjects.subscribe(projects => {
@@ -326,7 +332,7 @@
           </Button>
         </div>
       {:else}
-        <button class="btn btn-ghost btn-sm mb-4" tabindex="0" on:click={() => showRelatedProjects = true}>
+        <button class="btn btn-ghost btn-sm mb-4" tabindex="0" onclick={() => showRelatedProjects = true}>
           {$t('project.create.click_to_view_related_projects', {count: $relatedProjects.length})}
         </button>
       {/if}

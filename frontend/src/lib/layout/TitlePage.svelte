@@ -2,14 +2,21 @@
   import Page from './Page.svelte';
   import PageTitle from './PageTitle.svelte';
 
-  export let title: string;
+  interface Props {
+    title: string;
+    children?: import('svelte').Snippet;
+  }
+
+  let { title, children }: Props = $props();
 </script>
 
 <Page {title}>
-  <svelte:fragment slot="header">
-    <PageTitle {title} />
-  </svelte:fragment>
+  {#snippet header()}
+  
+      <PageTitle {title} />
+    
+  {/snippet}
   <div class="py-6">
-    <slot />
+    {@render children?.()}
   </div>
 </Page>

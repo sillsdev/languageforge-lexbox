@@ -2,8 +2,12 @@
   import t from '$lib/i18n';
   import { BadgeButton } from '$lib/components/Badges';
 
-  export let isConfidential: boolean | undefined;
-  export let canManage: boolean;
+  interface Props {
+    isConfidential: boolean | undefined;
+    canManage: boolean;
+  }
+
+  let { isConfidential, canManage }: Props = $props();
 
 </script>
 

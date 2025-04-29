@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   export type Token = {
     token: string;
   };
@@ -10,10 +10,15 @@
   import Form from './Form.svelte';
   import type { AnySuperForm } from './types';
 
-  export let enhance: AnySuperForm['enhance'] | undefined = undefined;
 
   const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
-  export let turnstileToken = '';
+  interface Props {
+    enhance?: AnySuperForm['enhance'] | undefined;
+    turnstileToken?: string;
+    children?: import('svelte').Snippet;
+  }
+
+  let { enhance = undefined, turnstileToken = $bindable(''), children }: Props = $props();
 
   function deliverToken({ detail: { token } }: CustomEvent<Token>): void {
     turnstileToken = token;
@@ -21,7 +26,7 @@
 </script>
 
 <Form {enhance} on:submit>
-  <slot />
+  {@render children?.()}
 </Form>
 
 <section class="mt-8 flex justify-center md:justify-end">

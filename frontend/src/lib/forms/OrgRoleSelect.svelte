@@ -3,9 +3,13 @@
   import t from '$lib/i18n';
   import Select from './Select.svelte';
 
-  export let id = 'role';
-  export let value: OrgRole;
-  export let error: string | string[] | undefined = undefined;
+  interface Props {
+    id?: string;
+    value: OrgRole;
+    error?: string | string[] | undefined;
+  }
+
+  let { id = 'role', value = $bindable(), error = undefined }: Props = $props();
 </script>
 
 <Select {id} bind:value label={$t('org_role.label')} {error} on:change>

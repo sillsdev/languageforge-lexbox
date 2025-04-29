@@ -3,8 +3,12 @@
   import Select from './Select.svelte';
   import type { UserType } from '$lib/components/Users';
 
-  export let value: UserType;
-  export let undefinedOptionLabel: string | undefined = undefined;
+  interface Props {
+    value: UserType;
+    undefinedOptionLabel?: string | undefined;
+  }
+
+  let { value = $bindable(), undefinedOptionLabel = undefined }: Props = $props();
 
   const options: Record<Exclude<UserType, undefined>, I18nKey> = {
     admin: 'admin_dashboard.user_filter.user_type.admin',

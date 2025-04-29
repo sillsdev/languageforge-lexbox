@@ -1,9 +1,14 @@
 <script lang="ts">
-  export let grid = false;
+  interface Props {
+    grid?: boolean;
+    children?: import('svelte').Snippet;
+  }
+
+  let { grid = false, children }: Props = $props();
 </script>
 
 <span class:grid class:inline-flex={!grid} class="badge-list flex-wrap gap-3 justify-items-stretch">
-  <slot />
+  {@render children?.()}
 </span>
 
 <style>

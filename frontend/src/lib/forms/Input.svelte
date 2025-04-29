@@ -4,20 +4,36 @@
   import FormField from './FormField.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
 
-  export let id = randomFormId();
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let value: string | undefined | null = undefined;
-  export let type: 'text' | 'email' | 'password' = 'text';
-  export let autofocus: true | undefined = undefined;
-  export let readonly = false;
-  export let error: string | string[] | undefined = undefined;
-  export let placeholder = '';
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-  export let autocomplete: 'new-password' | 'current-password' | undefined = undefined;
+  
+  interface Props {
+    id?: any;
+    label: string;
+    description?: string | undefined;
+    value?: string | undefined | null;
+    type?: 'text' | 'email' | 'password';
+    autofocus?: true | undefined;
+    readonly?: boolean;
+    error?: string | string[] | undefined;
+    placeholder?: string;
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
+    autocomplete?: 'new-password' | 'current-password' | undefined;
+  }
 
-  let currentType = type;
+  let {
+    id = randomFormId(),
+    label,
+    description = undefined,
+    value = $bindable(undefined),
+    type = 'text',
+    autofocus = undefined,
+    readonly = false,
+    error = undefined,
+    placeholder = '',
+    autocomplete = undefined
+  }: Props = $props();
+
+  let currentType = $state(type);
 
   function togglePasswordVisibility(): void {
     if (type == 'password') {

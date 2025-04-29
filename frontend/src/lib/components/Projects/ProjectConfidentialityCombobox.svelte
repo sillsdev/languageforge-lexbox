@@ -5,7 +5,11 @@
   import { Icon } from '$lib/icons';
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
-  export let value: boolean;
+  interface Props {
+    value: boolean;
+  }
+
+  let { value = $bindable() }: Props = $props();
 </script>
 
 <Checkbox

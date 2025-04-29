@@ -1,4 +1,4 @@
-<script  context="module" lang="ts">
+<script  module lang="ts">
   // We define the Project type that we'll want in here, and export it so that callers can know they're passing in the right type
   export type Project = {
     id: string
@@ -16,11 +16,15 @@
   import FormatUserProjectRole from '../Projects/FormatUserProjectRole.svelte';
   import {projectUrl} from '$lib/util/project';
 
-  export let projects: Project[] = [];
-  export let selectedProjects: string[] = [];
-  export let hideRoleColumn = false;
+  interface Props {
+    projects?: Project[];
+    selectedProjects?: string[];
+    hideRoleColumn?: boolean;
+  }
 
-  $: allSelected = projects && selectedProjects && selectedProjects.length === projects.length;
+  let { projects = [], selectedProjects = $bindable([]), hideRoleColumn = false }: Props = $props();
+
+  let allSelected = $derived(projects && selectedProjects && selectedProjects.length === projects.length);
 
   function handleSelectAllClick(): void {
     if (!selectedProjects || !projects) return;
@@ -36,7 +40,7 @@
   }
 
   // Projects managed by the given user come pre-checked, to save time in typical uses of this component
-  $: projectsStore = writable(projects);
+  let projectsStore = $derived(writable(projects));
   onMount(() => projectsStore.subscribe(projects => {
     if (projects && projects.length > 0) {
       selectedProjects = [... projects.filter(isManager).map(proj => proj.id)];
@@ -51,7 +55,7 @@
         <tr class="bg-base-200">
             <th class="p-0 w-4">
               <label class="px-3 py-2">
-                <input type="checkbox" checked={allSelected} class="align-middle" on:change={handleSelectAllClick} />
+                <input type="checkbox" checked={allSelected} class="align-middle" onchange={handleSelectAllClick} />
               </label>
             </th>
             <th>

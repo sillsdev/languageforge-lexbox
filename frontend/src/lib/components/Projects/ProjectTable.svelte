@@ -6,11 +6,16 @@
   import Icon from '$lib/icons/Icon.svelte';
   import {projectUrl} from '$lib/util/project';
 
-  export let projects: ProjectItemWithDraftStatus[];
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
-  export let columns: Readonly<ProjectTableColumn[]> = allColumns;
+  interface Props {
+    projects: ProjectItemWithDraftStatus[];
+    columns?: Readonly<ProjectTableColumn[]>;
+    actions?: import('svelte').Snippet<[any]>;
+  }
+
+  let { projects, columns = allColumns, actions }: Props = $props();
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
@@ -33,7 +38,7 @@
         {#if isColumnVisible('createdAt')}
           <th class="hidden @xl:table-cell">
             {$t('project.table.created_at')}
-            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2" />
+            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2"></span>
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
@@ -44,8 +49,8 @@
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
         {/if}
-        {#if $$slots.actions}
-          <th />
+        {#if actions}
+          <th></th>
         {/if}
       </tr>
     </thead>
@@ -119,8 +124,8 @@
               </span>
             </td>
           {/if}
-          {#if $$slots.actions}
-            <slot name="actions" {project} />
+          {#if actions}
+            {@render actions?.({ project, })}
           {/if}
         </tr>
       {/each}

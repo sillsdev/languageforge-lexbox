@@ -11,16 +11,20 @@
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import {Duration} from '$lib/util/time';
 
-  export let project: Project;
-  export let isEmpty: boolean;
+  interface Props {
+    project: Project;
+    isEmpty: boolean;
+  }
+
+  let { project, isEmpty }: Props = $props();
   type SyncResult = {crdtChanges: number, fwdataChanges: number};
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
-  let syncing = false;
-  let done = false;
-  $: modalState = isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle';
-  let error: string | undefined = undefined;
+  let syncing = $state(false);
+  let done = $state(false);
+  let modalState = $derived(isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle');
+  let error: string | undefined = $state(undefined);
 
   async function triggerSync(): Promise<string | undefined> {
     syncing = true;
@@ -92,7 +96,7 @@
   async function useInFwLite(): Promise<void> {
     await modal.openModal();
   }
-  let modal: Modal;
+  let modal: Modal = $state();
 </script>
 
 {#if project.hasHarmonyCommits}
@@ -154,22 +158,24 @@
     </div>
     <FormError {error} right/>
   {/if}
-  <svelte:fragment slot="actions" let:close>
-    {#if modalState === 'idle'}
-      <Button variant="btn-primary" on:click={onSubmit}>
-        {$t('project.crdt.submit')}
-      </Button>
-      <Button on:click={close}>
-        {$t('project.crdt.cancel')}
-      </Button>
-    {:else if modalState === 'empty'}
-      <Button on:click={close}>
-        {$t('common.close')}
-      </Button>
-    {:else if modalState === 'done'}
-      <Button variant="btn-primary" on:click={close}>
-        {$t('project.crdt.finish')}
-      </Button>
-    {/if}
-  </svelte:fragment>
+  {#snippet actions({ close })}
+  
+      {#if modalState === 'idle'}
+        <Button variant="btn-primary" on:click={onSubmit}>
+          {$t('project.crdt.submit')}
+        </Button>
+        <Button on:click={close}>
+          {$t('project.crdt.cancel')}
+        </Button>
+      {:else if modalState === 'empty'}
+        <Button on:click={close}>
+          {$t('common.close')}
+        </Button>
+      {:else if modalState === 'done'}
+        <Button variant="btn-primary" on:click={close}>
+          {$t('project.crdt.finish')}
+        </Button>
+      {/if}
+    
+  {/snippet}
 </Modal>

@@ -4,18 +4,33 @@
   import {Button, type ErrorMessage, FormError} from '$lib/forms';
   import t from '$lib/i18n';
 
-  export let title: string;
-  export let submitText: string;
-  export let submitIcon: IconString | undefined = undefined;
-  export let submitVariant: 'btn-primary' |  'btn-error' = 'btn-primary';
 
-  export let cancelText: string;
-  export let hideActions: boolean = false;
 
-  export let doneText = $t('common.close');
-  export let showDoneState = false;
+  interface Props {
+    title: string;
+    submitText: string;
+    submitIcon?: IconString | undefined;
+    submitVariant?: 'btn-primary' |  'btn-error';
+    cancelText: string;
+    hideActions?: boolean;
+    doneText?: any;
+    showDoneState?: boolean;
+    children?: import('svelte').Snippet<[any]>;
+  }
 
-  let done = false;
+  let {
+    title,
+    submitText,
+    submitIcon = undefined,
+    submitVariant = 'btn-primary',
+    cancelText,
+    hideActions = false,
+    doneText = $t('common.close'),
+    showDoneState = false,
+    children
+  }: Props = $props();
+
+  let done = $state(false);
 
   export async function open(onSubmit: () => Promise<ErrorMessage>): Promise<boolean> {
     done = false;
@@ -34,8 +49,8 @@
     return true;
   }
 
-  let modal: Modal;
-  let error: ErrorMessage = undefined;
+  let modal: Modal = $state();
+  let error: ErrorMessage = $state(undefined);
 </script>
 
 
@@ -43,23 +58,25 @@
   <h2 class="text-xl mb-2">
     {title}
   </h2>
-  <slot {done} {error} />
+  {@render children?.({ done, error, })}
   <FormError {error} right/>
-  <svelte:fragment slot="actions" let:submitting let:close>
-    {#if !done}
-      <Button variant={submitVariant} loading={submitting} on:click={() => modal.submitModal()}>
-        {submitText}
-        {#if submitIcon}
-          <Icon icon={submitIcon}/>
-        {/if}
-      </Button>
-      <Button disabled={submitting} on:click={() => modal.cancelModal()}>
-        {cancelText}
-      </Button>
-    {:else}
-      <Button variant="btn-primary" on:click={close}>
-        {doneText}
-      </Button>
-    {/if}
-  </svelte:fragment>
+  {#snippet actions({ submitting, close })}
+  
+      {#if !done}
+        <Button variant={submitVariant} loading={submitting} on:click={() => modal.submitModal()}>
+          {submitText}
+          {#if submitIcon}
+            <Icon icon={submitIcon}/>
+          {/if}
+        </Button>
+        <Button disabled={submitting} on:click={() => modal.cancelModal()}>
+          {cancelText}
+        </Button>
+      {:else}
+        <Button variant="btn-primary" on:click={close}>
+          {doneText}
+        </Button>
+      {/if}
+    
+  {/snippet}
 </Modal>

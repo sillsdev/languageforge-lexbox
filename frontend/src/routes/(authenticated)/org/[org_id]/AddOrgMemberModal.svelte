@@ -13,7 +13,11 @@
   import type { SingleUserICanSeeTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
 
-  export let org: Org;
+  interface Props {
+    org: Org;
+  }
+
+  let { org }: Props = $props();
 
   const schema = z.object({
     usernameOrEmail: z.string().trim()
@@ -22,14 +26,14 @@
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
     canInvite: z.boolean().default(false),
   });
-  let formModal: FormModal<typeof schema>;
-  $: form = formModal?.form();
+  let formModal: FormModal<typeof schema> = $state();
+  let form = $derived(formModal?.form());
 
   const { notifySuccess } = useNotifications();
 
-  let newProjects: Project[] = [];
-  let alreadyAddedProjects: Project[] = [];
-  let selectedProjects: string[] = [];
+  let newProjects: Project[] = $state([]);
+  let alreadyAddedProjects: Project[] = $state([]);
+  let selectedProjects: string[] = $state([]);
 
   function resetProjects(): void {
     newProjects = [];
@@ -93,60 +97,68 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors --justify-actions="end">
-  <span slot="title">
-    {$t('org_page.add_user.modal_title')}
-    <SupHelp helpLink={helpLinks.addOrgMember} />
-    <!-- TODO: helpLinks.addOrgMember currently points to Add_Project_Member scribe. Create a scribe with Add_Org_Member help. -->
-  </span>
-  {#if $page.data.user?.isAdmin}
-    <UserTypeahead
-      id="usernameOrEmail"
-      label={$t('login.label_email')}
-      isAdmin={$page.data.user?.isAdmin}
-      bind:value={$form.usernameOrEmail}
-      error={errors.usernameOrEmail}
-      on:selectedUserChange={(event) => populateUserProjects(event.detail)}
-      autofocus
-      exclude={org.members.map(m => m.user.id)}
+<FormModal bind:this={formModal} {schema}  --justify-actions="end">
+  {#snippet title()}
+    <span >
+      {$t('org_page.add_user.modal_title')}
+      <SupHelp helpLink={helpLinks.addOrgMember} />
+      <!-- TODO: helpLinks.addOrgMember currently points to Add_Project_Member scribe. Create a scribe with Add_Org_Member help. -->
+    </span>
+  {/snippet}
+  {#snippet children({ errors })}
+    {#if $page.data.user?.isAdmin}
+      <UserTypeahead
+        id="usernameOrEmail"
+        label={$t('login.label_email')}
+        isAdmin={$page.data.user?.isAdmin}
+        bind:value={$form.usernameOrEmail}
+        error={errors.usernameOrEmail}
+        on:selectedUserChange={(event) => populateUserProjects(event.detail)}
+        autofocus
+        exclude={org.members.map(m => m.user.id)}
+        />
+    {:else}
+      <Input
+        id="usernameOrEmail"
+        type="text"
+        label={$t('login.label_email')}
+        bind:value={$form.usernameOrEmail}
+        error={errors.usernameOrEmail}
+        autofocus
       />
-  {:else}
-    <Input
-      id="usernameOrEmail"
-      type="text"
-      label={$t('login.label_email')}
-      bind:value={$form.usernameOrEmail}
-      error={errors.usernameOrEmail}
-      autofocus
-    />
-  {/if}
-  <OrgRoleSelect bind:value={$form.role} error={errors.role} />
-  {#if newProjects.length || alreadyAddedProjects.length}
-    <div class="label label-text">
-      {$t('org_page.add_user.also_add_projects')}
-    </div>
-    {#if newProjects.length}
-      <UserProjects projects={newProjects} bind:selectedProjects />
-    {:else}
-      <span class="text-secondary px-1">
-        {$t('org_page.add_user.all_projects_already_added', { count: alreadyAddedProjects.length })}
-      </span>
     {/if}
-  {/if}
-  <svelte:fragment slot="extraActions">
-    <Checkbox
-      id="invite"
-      label={$t('org_page.add_user.invite')}
-      variant="checkbox-warning"
-      labelColor="text-warning"
-      bind:value={$form.canInvite}
-    />
-  </svelte:fragment>
-  <span slot="submitText">
-    {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
-      {$t('org_page.add_user.submit_button_email')}
-    {:else}
-      {$t('org_page.add_user.submit_button')}
+    <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+    {#if newProjects.length || alreadyAddedProjects.length}
+      <div class="label label-text">
+        {$t('org_page.add_user.also_add_projects')}
+      </div>
+      {#if newProjects.length}
+        <UserProjects projects={newProjects} bind:selectedProjects />
+      {:else}
+        <span class="text-secondary px-1">
+          {$t('org_page.add_user.all_projects_already_added', { count: alreadyAddedProjects.length })}
+        </span>
+      {/if}
     {/if}
-  </span>
+    {/snippet}
+  {#snippet extraActions()}
+  
+      <Checkbox
+        id="invite"
+        label={$t('org_page.add_user.invite')}
+        variant="checkbox-warning"
+        labelColor="text-warning"
+        bind:value={$form.canInvite}
+      />
+    
+  {/snippet}
+  {#snippet submitText()}
+    <span >
+      {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
+        {$t('org_page.add_user.submit_button_email')}
+      {:else}
+        {$t('org_page.add_user.submit_button')}
+      {/if}
+    </span>
+  {/snippet}
 </FormModal>

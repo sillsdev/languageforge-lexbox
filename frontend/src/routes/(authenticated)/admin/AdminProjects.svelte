@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import {navigating} from '$app/stores';
   import {Badge} from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -25,12 +27,16 @@
   import AdminTabs from './AdminTabs.svelte';
   import type {CreateProjectInput} from '$lib/gql/types';
 
-  export let projects: ProjectItem[];
-  export let draftProjects: DraftProject[];
-  export let queryParams: QueryParams<AdminSearchParams>;
-  $: queryParamValues = queryParams.queryParamValues;
-  $: filters = queryParamValues;
-  $: filterDefaults = queryParams.defaultQueryParamValues;
+  interface Props {
+    projects: ProjectItem[];
+    draftProjects: DraftProject[];
+    queryParams: QueryParams<AdminSearchParams>;
+  }
+
+  let { projects, draftProjects, queryParams }: Props = $props();
+  let queryParamValues = $derived(queryParams.queryParamValues);
+  let filters = $derived(queryParamValues);
+  let filterDefaults = $derived(queryParams.defaultQueryParamValues);
 
   const { notifyWarning } = useNotifications();
 
@@ -42,23 +48,29 @@
       (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== $filters?.[key]?.toString());
   });
 
-  let allProjects: ProjectItemWithDraftStatus[] = [];
-  let filteredProjects: ProjectItemWithDraftStatus[] = [];
-  let limitResults = true;
-  let hasActiveFilter = false;
-  let lastLoadUsedActiveFilter = false;
-  $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
-  $: allProjects = [
-    ...draftProjects.map(p => ({
-      ...p, isDraft: true as const,
-      createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */
-    })),
-    ...projects.map(p => ({ ...p, isDraft: false as const })),
-  ];
-  $: filteredProjects = filterProjects(allProjects, $filters);
-  $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
+  let allProjects: ProjectItemWithDraftStatus[] = $state([]);
+  let filteredProjects: ProjectItemWithDraftStatus[] = $state([]);
+  let limitResults = $state(true);
+  let hasActiveFilter = $state(false);
+  let lastLoadUsedActiveFilter = $state(false);
+  run(() => {
+    if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
+  });
+  run(() => {
+    allProjects = [
+      ...draftProjects.map(p => ({
+        ...p, isDraft: true as const,
+        createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */
+      })),
+      ...projects.map(p => ({ ...p, isDraft: false as const })),
+    ];
+  });
+  run(() => {
+    filteredProjects = filterProjects(allProjects, $filters);
+  });
+  let shownProjects = $derived(limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects);
 
-  let deleteProjectModal: ConfirmDeleteModal;
+  let deleteProjectModal: ConfirmDeleteModal = $state();
   async function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
     const deleteFn = project.isDraft ? _deleteDraftProject : _deleteProject;
     const result = await deleteProjectModal.open(project.name, async () => {
@@ -92,7 +104,7 @@
         <span class="admin-tabs:hidden">
           {$t('project.create.title')}
         </span>
-        <span class="i-mdi-plus text-2xl" />
+        <span class="i-mdi-plus text-2xl"></span>
       </a>
     </div>
   </AdminTabs>
@@ -107,26 +119,30 @@
     />
   </div>
 
-  <div class="divider" />
+  <div class="divider"></div>
 
   <ProjectTable projects={shownProjects}>
-    <td class="p-0" slot="actions" let:project>
-      {#if project.isDraft || !project.deletedDate}
-        <Dropdown>
-          <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
-            <span class="i-mdi-dots-vertical text-lg" />
-          </button>
-          <ul slot="content" class="menu">
-            <li>
-              <button class="text-error whitespace-nowrap" on:click={() => deleteProjectOrDraft(project)}>
-                <TrashIcon />
-                {$t('delete_project_modal.submit')}
-              </button>
-            </li>
-          </ul>
-        </Dropdown>
-      {/if}
-    </td>
+    {#snippet actions({ project })}
+        <td class="p-0"  >
+        {#if project.isDraft || !project.deletedDate}
+          <Dropdown>
+            <button class="btn btn-ghost btn-square" aria-label={$t('common.actions')}>
+              <span class="i-mdi-dots-vertical text-lg"></span>
+            </button>
+            {#snippet content()}
+                    <ul  class="menu">
+                <li>
+                  <button class="text-error whitespace-nowrap" onclick={() => deleteProjectOrDraft(project)}>
+                    <TrashIcon />
+                    {$t('delete_project_modal.submit')}
+                  </button>
+                </li>
+              </ul>
+                  {/snippet}
+          </Dropdown>
+        {/if}
+      </td>
+      {/snippet}
   </ProjectTable>
 
   {#if shownProjects.length < filteredProjects.length}

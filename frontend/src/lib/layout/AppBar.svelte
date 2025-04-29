@@ -12,9 +12,13 @@
     if (isPlaywright) environmentName = 'playwright';
   });
   let isPlaywright = false;
-  let environmentName = env.PUBLIC_ENV_NAME?.toLowerCase();
-  export let user: LexAuthUser | null;
-  $: loggedIn = !!user;
+  let environmentName = $state(env.PUBLIC_ENV_NAME?.toLowerCase());
+  interface Props {
+    user: LexAuthUser | null;
+  }
+
+  let { user }: Props = $props();
+  let loggedIn = $derived(!!user);
 </script>
 
 <!-- https://daisyui.com/components/navbar -->
@@ -22,7 +26,7 @@
   {#if environmentName !== 'production'}
     <a href="https://lexbox.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
       {$t('environment_warning', { environmentName })}
-      <span class="i-mdi-open-in-new text-xl shrink-0" />
+      <span class="i-mdi-open-in-new text-xl shrink-0"></span>
     </a>
   {/if}
   <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
@@ -46,7 +50,7 @@
         {#if $page.url.pathname !== '/login'}
           <a href="/login" class="btn btn-primary">
             {$t('login.button_login')}
-          <span class="i-mdi-logout text-3xl"/>
+          <span class="i-mdi-logout text-3xl"></span>
           </a>
         {/if}
 

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { writable, type Writable } from 'svelte/store';
   import { defineContext } from '$lib/util/context';
 
@@ -14,10 +14,14 @@
   import { Button } from '$lib/forms';
   import { onNavigate } from '$app/navigation';
 
-  export let user: LexAuthUser;
+  interface Props {
+    user: LexAuthUser;
+  }
 
-  let sendingVerificationEmail = false;
-  let sentVerificationEmail = false;
+  let { user }: Props = $props();
+
+  let sendingVerificationEmail = $state(false);
+  let sentVerificationEmail = $state(false);
 
   async function sendVerificationEmail(): Promise<void> {
     sendingVerificationEmail = true;
@@ -45,7 +49,7 @@
       <div>{$t('account_settings.verify_email.you_have_mail')}</div>
       <span>{$t('account_settings.verify_email.verify_to_change', { $requestedEmail })}</span>
     </div>
-    <span class="i-mdi-email-heart-outline" />
+    <span class="i-mdi-email-heart-outline"></span>
   </div>
 {:else if $emailResult}
   <div class="alert alert-success" transition:slide|local>
@@ -54,7 +58,7 @@
     {:else}
       <span>{$t('account_settings.verify_email.change_success')}</span>
     {/if}
-    <span class="i-mdi-check-circle-outline" />
+    <span class="i-mdi-check-circle-outline"></span>
     <a class="btn" href="/">{$t('account_settings.verify_email.go_to_projects')}</a>
   </div>
 {:else if !user?.emailVerified}
@@ -64,7 +68,7 @@
         <div>{$t('account_settings.verify_email.you_have_mail')}</div>
         <span>{$t('account_settings.verify_email.check_inbox')}</span>
       </div>
-      <span class="i-mdi-email-heart-outline" />
+      <span class="i-mdi-email-heart-outline"></span>
     </div>
   {:else if user.email}
     <div class="alert alert-warning" transition:slide|local>

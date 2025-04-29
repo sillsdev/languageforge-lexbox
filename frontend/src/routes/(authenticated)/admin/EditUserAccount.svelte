@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { FormModal } from '$lib/components/modals';
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
@@ -15,8 +17,12 @@
   import {allPossibleFlags} from '$lib/user';
   import AdminContent from '$lib/layout/AdminContent.svelte';
 
-  export let currUser: LexAuthUser;
-  export let deleteUser: (user: User) => void;
+  interface Props {
+    currUser: LexAuthUser;
+    deleteUser: (user: User) => void;
+  }
+
+  let { currUser, deleteUser }: Props = $props();
 
   const schema = z
     .object({
@@ -36,18 +42,14 @@
 
   type Schema = typeof schema;
   type RefinedSchema = typeof refinedSchema;
-  let formModal: FormModal<RefinedSchema>;
-  $: form = formModal?.form();
+  let formModal: FormModal<RefinedSchema> = $state();
 
   export function close(): void {
     formModal.close();
   }
 
-  // This is a bit of a hack to make sure that the email field is not required if the user has no email
-  // even if the user edited the email field
-  $: if(form && $form && !$form.email && _user && !_user.email) $form.email = null;
 
-  let _user: User;
+  let _user: User = $state();
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     userIsLocked = user.locked;
@@ -76,9 +78,9 @@
     });
   }
 
-  let userIsLocked: boolean;
-  let locking = false;
-  let lockUserError: string | undefined;
+  let userIsLocked: boolean = $state();
+  let locking = $state(false);
+  let lockUserError: string | undefined = $state();
 
   async function onLockedClicked(event: Event): Promise<void> {
     event.preventDefault();
@@ -96,82 +98,96 @@
     }
     userIsLocked = data!.setUserLocked.user!.locked;
   }
+  let form = $derived(formModal?.form());
+  // This is a bit of a hack to make sure that the email field is not required if the user has no email
+  // even if the user edited the email field
+  run(() => {
+    if(form && $form && !$form.email && _user && !_user.email) $form.email = null;
+  });
 </script>
 
-<FormModal bind:this={formModal} schema={refinedSchema} let:errors>
-  <span slot="title">
-    {$t('admin_dashboard.form_modal.title')}
-  </span>
-  <UserLockedAlert locked={userIsLocked} />
-  <Input
-    id="email"
-    type="email"
-    label={$t('admin_dashboard.form_modal.email_label')}
-    bind:value={$form.email}
-    error={errors.email}
-    autofocus
-  />
-  <Input
-    id="name"
-    type="text"
-    label={$t('admin_dashboard.form_modal.name_label')}
-    bind:value={$form.name}
-    error={errors.name}
-  />
-  <SystemRoleSelect
-    id="role"
-    bind:value={$form.role}
-    error={errors.role}
-    disabled={_user.id === currUser.id}
-  />
-  <AdminContent>
-    <div>
-      Feature flags:
-      <ul>
-        {#each allPossibleFlags as flag}
-          <li>
-            <label><input
-            type="checkbox"
-            name="featureFlags"
-            value={flag}
-            bind:group={$form.featureFlags}
-          > {flag}</label></li>
-        {/each}
-      </ul>
-    </div>
-  </AdminContent>
-  <div class="text-error">
+<FormModal bind:this={formModal} schema={refinedSchema} >
+  {#snippet title()}
+    <span >
+      {$t('admin_dashboard.form_modal.title')}
+    </span>
+  {/snippet}
+  {#snippet children({ errors })}
+    <UserLockedAlert locked={userIsLocked} />
     <Input
-      id="new-password"
-      type="password"
-      label={$t('admin_dashboard.form_modal.password_label')}
-      bind:value={$form.password}
-      autocomplete="new-password"
-      error={errors.password}
+      id="email"
+      type="email"
+      label={$t('admin_dashboard.form_modal.email_label')}
+      bind:value={$form.email}
+      error={errors.email}
+      autofocus
     />
-    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
-  </div>
-  <FormError error={lockUserError} />
-  <svelte:fragment slot="extraActions">
-    <label class="btn btn-warning swap" class:btn-disabled={_user.id === currUser.id} class:btn-outline={!userIsLocked}>
-      <input
-        readonly
-        type="checkbox"
-        checked={userIsLocked}
-        on:click={onLockedClicked} />
-        <span class="swap-on flex gap-2 items-center justify-between">
-          {$t('admin_dashboard.form_modal.unlock')}
-          <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock'} />
-        </span>
-        <span class="swap-off flex gap-2 items-center justify-between">
-          {$t('admin_dashboard.form_modal.lock')}
-          <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock-open-outline'} />
-        </span>
-    </label>
-    <Button variant="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
-      {$t('admin_dashboard.form_modal.delete_user.submit')}
-      <TrashIcon />
-    </Button>
-  </svelte:fragment>
-  <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
+    <Input
+      id="name"
+      type="text"
+      label={$t('admin_dashboard.form_modal.name_label')}
+      bind:value={$form.name}
+      error={errors.name}
+    />
+    <SystemRoleSelect
+      id="role"
+      bind:value={$form.role}
+      error={errors.role}
+      disabled={_user.id === currUser.id}
+    />
+    <AdminContent>
+      <div>
+        Feature flags:
+        <ul>
+          {#each allPossibleFlags as flag}
+            <li>
+              <label><input
+              type="checkbox"
+              name="featureFlags"
+              value={flag}
+              bind:group={$form.featureFlags}
+            > {flag}</label></li>
+          {/each}
+        </ul>
+      </div>
+    </AdminContent>
+    <div class="text-error">
+      <Input
+        id="new-password"
+        type="password"
+        label={$t('admin_dashboard.form_modal.password_label')}
+        bind:value={$form.password}
+        autocomplete="new-password"
+        error={errors.password}
+      />
+      <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
+    </div>
+    <FormError error={lockUserError} />
+    {/snippet}
+  {#snippet extraActions()}
+  
+      <label class="btn btn-warning swap" class:btn-disabled={_user.id === currUser.id} class:btn-outline={!userIsLocked}>
+        <input
+          readonly
+          type="checkbox"
+          checked={userIsLocked}
+          onclick={onLockedClicked} />
+          <span class="swap-on flex gap-2 items-center justify-between">
+            {$t('admin_dashboard.form_modal.unlock')}
+            <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock'} />
+          </span>
+          <span class="swap-off flex gap-2 items-center justify-between">
+            {$t('admin_dashboard.form_modal.lock')}
+            <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock-open-outline'} />
+          </span>
+      </label>
+      <Button variant="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
+        {$t('admin_dashboard.form_modal.delete_user.submit')}
+        <TrashIcon />
+      </Button>
+    
+  {/snippet}
+  {#snippet submitText()}
+    <span >{$t('admin_dashboard.form_modal.update_user')}</span>
+  {/snippet}
 </FormModal>

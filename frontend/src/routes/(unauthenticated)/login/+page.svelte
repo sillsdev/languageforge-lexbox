@@ -1,3 +1,4 @@
+<!-- @migration task: review uses of `navigating` -->
 <script lang="ts">
   import {goto} from '$app/navigation';
   import {SubmitButton, Form, FormError, Input, lexSuperForm} from '$lib/forms';
@@ -11,13 +12,13 @@
   import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.svg';
   import weSayLogo from '$lib/assets/we-say-logo.png';
   import {z} from 'zod';
-  import {navigating} from '$app/stores';
+  import {navigating} from '$app/state';
   import {AUTHENTICATED_ROOT} from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
   import AppLogo from '$lib/icons/AppLogo.svelte';
 
   //return url should be a relative path, or empty string
-  let returnUrl: string = '';
+  let returnUrl: string = $state('');
 
   const formSchema = z.object({
     email: z.string().trim().min(1, $t('login.missing_user_info')),
@@ -76,7 +77,7 @@
     return '';
   }
 
-  let badCredentials = false;
+  let badCredentials = $state(false);
 </script>
 
 <div class="hero flex-grow">
@@ -111,7 +112,7 @@
             {$t('login.forgot_password')}
           </a>
 
-          <SubmitButton loading={$submitting || $navigating?.to?.route.id?.includes(AUTHENTICATED_ROOT)}>
+          <SubmitButton loading={$submitting || navigating?.to?.route.id?.includes(AUTHENTICATED_ROOT)}>
             {badCredentials ? $t('login.button_login_again') : $t('login.button_login')}
           </SubmitButton>
 

@@ -4,10 +4,19 @@
 
   import { Select } from '.';
 
-  export let id = 'role';
-  export let value: UserRole;
-  export let error: string[] | undefined;
-  export let disabled = false;
+  interface Props {
+    id?: string;
+    value: UserRole;
+    error: string[] | undefined;
+    disabled?: boolean;
+  }
+
+  let {
+    id = 'role',
+    value = $bindable(),
+    error,
+    disabled = false
+  }: Props = $props();
 </script>
 
 <div class="contents" class:text-accent={value === UserRole.Admin}>

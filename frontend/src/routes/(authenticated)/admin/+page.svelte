@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import t, { number } from '$lib/i18n';
@@ -24,10 +26,14 @@
   import UserTable from '$lib/components/Users/UserTable.svelte';
   import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
 
-  export let data: PageData;
-  $: projects = data.projects;
-  $: draftProjects = data.draftProjects;
-  $: userData = data.users;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let projects = $derived(data.projects);
+  let draftProjects = $derived(data.draftProjects);
+  let userData = $derived(data.users);
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -49,7 +55,7 @@
   const userFilterKeys = ['userSearch', 'usersICreated', 'userType'] as const satisfies Readonly<(keyof UserFilters)[]>;
 
   const { queryParamValues, defaultQueryParamValues } = queryParams;
-  $: tab = $queryParamValues.tab;
+  let tab = $derived($queryParamValues.tab);
 
   const loadingUsers = derivedStore(navigating, (nav) => {
     if (!nav?.to?.route.id?.endsWith('/admin')) return false;
@@ -58,13 +64,15 @@
       (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key]);
   });
 
-  let hasActiveFilter = false;
-  let lastLoadUsedActiveFilter = false;
-  $: if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;
+  let hasActiveFilter = $state(false);
+  let lastLoadUsedActiveFilter = $state(false);
+  run(() => {
+    if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;
+  });
 
-  $: users = $userData?.items ?? [];
-  $: filteredUserCount = $userData?.totalCount ?? 0;
-  $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
+  let users = $derived($userData?.items ?? []);
+  let filteredUserCount = $derived($userData?.totalCount ?? 0);
+  let shownUsers = $derived(lastLoadUsedActiveFilter ? users : users.slice(0, 10));
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
@@ -74,10 +82,10 @@
     $queryParamValues.tab = 'projects';
   }
 
-  let userModal: UserModal;
-  let createUserModal: CreateUserModal;
-  let deleteUserModal: DeleteUserModal;
-  let formModal: EditUserAccount;
+  let userModal: UserModal = $state();
+  let createUserModal: CreateUserModal = $state();
+  let deleteUserModal: DeleteUserModal = $state();
+  let formModal: EditUserAccount = $state();
 
   async function deleteUser(user: User): Promise<void> {
     formModal.close();
@@ -136,13 +144,13 @@
               </Badge>
             </div>
           </div>
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
           <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
-            on:click={() => createUserModal.open()}>
+            onclick={() => createUserModal.open()}>
             <span class="admin-tabs:hidden">
               {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
-            <span class="i-mdi-plus text-2xl" />
+            <span class="i-mdi-plus text-2xl"></span>
           </svelte:element>
         </div>
       </AdminTabs>
@@ -156,7 +164,7 @@
         />
       </div>
 
-      <div class="divider" />
+      <div class="divider"></div>
       <div class="overflow-x-visible @container scroll-shadow">
         <UserTable
           {shownUsers}

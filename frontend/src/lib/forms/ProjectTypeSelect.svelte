@@ -4,10 +4,19 @@
   import t from '$lib/i18n';
   import Select from './Select.svelte';
 
-  export let value: ProjectType | undefined;
-  export let error: string | string[] | undefined = undefined;
-  export let undefinedOptionLabel: string | undefined = undefined;
-  export let includeUnknown = false;
+  interface Props {
+    value: ProjectType | undefined;
+    error?: string | string[] | undefined;
+    undefinedOptionLabel?: string | undefined;
+    includeUnknown?: boolean;
+  }
+
+  let {
+    value = $bindable(),
+    error = undefined,
+    undefinedOptionLabel = undefined,
+    includeUnknown = false
+  }: Props = $props();
   const types = [
     ProjectType.FlEx,
     ProjectType.WeSay,

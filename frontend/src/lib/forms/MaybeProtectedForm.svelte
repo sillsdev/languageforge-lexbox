@@ -3,17 +3,27 @@
   import ProtectedForm from './ProtectedForm.svelte';
   import type { AnySuperForm } from './types';
 
-  export let enhance: AnySuperForm['enhance'] | undefined = undefined;
-  export let turnstileToken = '';
-  export let skipTurnstile = false;
+  interface Props {
+    enhance?: AnySuperForm['enhance'] | undefined;
+    turnstileToken?: string;
+    skipTurnstile?: boolean;
+    children?: import('svelte').Snippet;
+  }
+
+  let {
+    enhance = undefined,
+    turnstileToken = $bindable(''),
+    skipTurnstile = false,
+    children
+  }: Props = $props();
 </script>
 
 {#if skipTurnstile}
 <Form {enhance} on:submit>
-  <slot />
+  {@render children?.()}
 </Form>
 {:else}
 <ProtectedForm {enhance} on:submit bind:turnstileToken>
-  <slot />
+  {@render children?.()}
 </ProtectedForm>
 {/if}
