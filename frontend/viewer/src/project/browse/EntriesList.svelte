@@ -81,7 +81,7 @@
   async function handleDeleteEntry(entry: IEntry) {
     const headword = writingSystemService.headword(entry);
     const entryId = entry.id;
-    if (!await dialogsService.promptDelete($t`Entry: ${headword}`)) return;
+    if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
     await miniLcmApi.deleteEntry(entryId);
     projectEventBus.notifyEntryDeleted(entryId);
     if (selectedEntry?.id === entryId) onSelectEntry(undefined);

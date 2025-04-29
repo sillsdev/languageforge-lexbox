@@ -44,7 +44,7 @@
 
 
   async function handleDelete() {
-    if (!await dialogsService.promptDelete($t`Entry: ${headword}`)) return;
+    if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
     await miniLcmApi.deleteEntry(entryId);
     projectEventBus.notifyEntryDeleted(entryId);
     onClose?.();

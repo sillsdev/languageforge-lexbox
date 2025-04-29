@@ -14,8 +14,8 @@ export class DialogsService {
   constructor(private writingSystemService: WritingSystemService) {
   }
 
-  #invokeDeleteDialog: undefined | ((subject: string) => Promise<boolean>);
-  set invokeDeleteDialog(dialog: ((subject: string) => Promise<boolean>)) {
+  #invokeDeleteDialog: undefined | ((subject: string, subjectDescription?: string) => Promise<boolean>);
+  set invokeDeleteDialog(dialog: ((subject: string, subjectDescription?: string) => Promise<boolean>)) {
     this.#invokeDeleteDialog = dialog;
   }
   #invokeNewEntryDialog: undefined | ((newEntry: Partial<IEntry>) => Promise<IEntry | undefined>);
@@ -34,8 +34,8 @@ export class DialogsService {
     const entry = await this.#invokeNewEntryDialog(partialEntry);
     return entry;
   }
-  async promptDelete(subject: string): Promise<boolean> {
+  async promptDelete(subject: string, subjectDescription?: string): Promise<boolean> {
     if (!this.#invokeDeleteDialog) throw new Error('No delete dialog');
-    return this.#invokeDeleteDialog(subject);
+    return this.#invokeDeleteDialog(subject, subjectDescription);
   }
 }
