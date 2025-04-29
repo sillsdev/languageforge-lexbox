@@ -42,7 +42,9 @@
 {#if !IsMobile.value}
   <DropdownMenu.Root bind:open>
     <DropdownMenu.Trigger class={triggerVariant}>
-      <Icon icon="i-mdi-dots-vertical" class="cursor-pointer" />
+      {#snippet child({props})}
+        <Button {...props} size="icon" variant="ghost" icon="i-mdi-dots-vertical" />
+      {/snippet}
     </DropdownMenu.Trigger>
     <DropdownMenu.Content align="end">
       {@render items()}
