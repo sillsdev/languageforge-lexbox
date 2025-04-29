@@ -44,9 +44,6 @@
   export let projectName: string;
   setContext('project-name', projectName);
 
-  const changeEventBus = useEventBus();
-  onDestroy(changeEventBus.onEntryUpdated(projectName, updateEntryInList));
-
   function updateEntryInList(updatedEntry: IEntry) {
     entries.update(list => {
       let updated = false;

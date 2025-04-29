@@ -12,6 +12,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import NewEntryButton from '../NewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const {
     search = '',
@@ -28,6 +29,12 @@
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
+  const projectEventBus = useProjectEventBus();
+  projectEventBus.onEntryDeleted(entryId => {
+    if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
+    entriesResource.refetch();
+  });
+
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
