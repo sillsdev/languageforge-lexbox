@@ -36,7 +36,7 @@
     <NewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
   {/snippet}
 </SidebarPrimaryAction>
-<div class="flex flex-col h-full p-2 md:p-4">
+<div class="flex flex-col h-full">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
     {#if !IsMobile.value || !selectedEntry}
       <ResizablePane
@@ -47,40 +47,44 @@
         minSize={15}
         class="min-h-0 flex flex-col relative"
       >
-        <div class="mb-2 md:mb-4 md:mr-4">
-          <SearchFilter bind:search bind:gridifyFilter />
-          <div class="mt-2 md:mt-3">
-            <Badge
-              variant="secondary"
-              class="cursor-pointer"
-              onclick={toggleSort}
-            >
-            <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
-              {$t`Headword`}
-            </Badge>
+        <div class="flex flex-col h-full p-2 md:p-4 md:pr-1">
+          <div class="mb-2 md:mb-4 md:mr-3">
+            <SearchFilter bind:search bind:gridifyFilter />
+            <div class="mt-2 md:mt-3">
+              <Badge
+                variant="secondary"
+                class="cursor-pointer"
+                onclick={toggleSort}
+              >
+              <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
+                {$t`Headword`}
+              </Badge>
+            </div>
           </div>
+          <EntriesList {search} {selectedEntry} {sortDirection} {gridifyFilter} onSelectEntry={(e) => (selectedEntry = e)} />
         </div>
-        <EntriesList {search} {selectedEntry} {sortDirection} {gridifyFilter} onSelectEntry={(e) => (selectedEntry = e)} />
       </ResizablePane>
     {/if}
     {#if !IsMobile.value}
-      <ResizableHandle {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
+      <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
     {/if}
     {#if selectedEntry || !IsMobile.value}
       <ResizablePane
         bind:this={rightPane}
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
-        {#if !selectedEntry}
-          <div class="flex items-center justify-center h-full text-muted-foreground">
-            <p>Select an entry to view details</p>
-          </div>
-        {:else}
-          <EntryView
-            entryId={selectedEntry.id}
-            onClose={() => (selectedEntry = undefined)}
-            showClose={IsMobile.value}
-          />
-        {/if}
+          {#if !selectedEntry}
+            <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
+              <p>Select an entry to view details</p>
+            </div>
+          {:else}
+            <div class="p-2 md:p-4 md:pl-6 h-full">
+              <EntryView
+                entryId={selectedEntry.id}
+                onClose={() => (selectedEntry = undefined)}
+                showClose={IsMobile.value}
+              />
+            </div>
+          {/if}
       </ResizablePane>
     {/if}
   </ResizablePaneGroup>

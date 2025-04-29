@@ -78,7 +78,7 @@
   <NewEntryButton onclick={handleNewEntry} shortForm />
 </div>
 
-<ScrollArea class="md:pr-5 flex-1" role="table">
+<ScrollArea class="md:pr-3 flex-1" role="table">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
