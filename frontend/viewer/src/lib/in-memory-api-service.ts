@@ -177,10 +177,10 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   async getEntry(guid: string) {
-    const entry = entries.find(e => e.id === guid);
+    const entry = this._entries.find(e => e.id === guid);
     await delay(300);
     if (!entry) throw new Error(`Entry ${guid} not found`);
-    return entry;
+    return JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
   createEntry(entry: IEntry): Promise<IEntry> {
@@ -189,7 +189,7 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
-    entries.splice(entries.findIndex(e => e.id === after.id), 1, after);
+    this._entries.splice(this._entries.findIndex(e => e.id === after.id), 1, after);
     return Promise.resolve(after);
   }
 
@@ -204,20 +204,20 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   deleteEntry(guid: string): Promise<void> {
-    entries.slice(entries.findIndex(e => e.id === guid), 1);
+    this._entries.splice(this._entries.findIndex(e => e.id === guid), 1);
     return Promise.resolve();
   }
 
   deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
-    entry.senses.slice(entry.senses.findIndex(s => s.id === senseGuid), 1);
+    entry.senses.splice(entry.senses.findIndex(s => s.id === senseGuid), 1);
     return Promise.resolve();
   }
 
   deleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
-    sense.exampleSentences.slice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
+    sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
     return Promise.resolve();
   }
 
