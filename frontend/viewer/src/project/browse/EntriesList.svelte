@@ -13,6 +13,9 @@
   import NewEntryButton from '../NewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
+  import * as ContextMenu from '$lib/components/ui/context-menu';
+  import {Icon} from '$lib/components/ui/icon';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const {
     search = '',
@@ -24,11 +27,12 @@
     search?: string;
     selectedEntry?: IEntry;
     sortDirection: 'asc' | 'desc';
-    onSelectEntry: (entry: IEntry) => void;
+    onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
+  const writingSystemService = useWritingSystemService();
   const projectEventBus = useProjectEventBus();
   projectEventBus.onEntryDeleted(entryId => {
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
@@ -68,6 +72,16 @@
     const entry = await dialogsService.createNewEntry();
     if (!entry) return;
     onSelectEntry(entry);
+    void entriesResource.refetch();
+  }
+
+  async function handleDeleteEntry(entry: IEntry) {
+    const headword = writingSystemService.headword(entry);
+    const entryId = entry.id;
+    if (!await dialogsService.promptDelete($t`Entry: ${headword}`)) return;
+    await miniLcmApi.deleteEntry(entryId);
+    projectEventBus.notifyEntryDeleted(entryId);
+    if (selectedEntry?.id === entryId) onSelectEntry(undefined);
   }
 </script>
 
@@ -100,7 +114,17 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)} />
+          <ContextMenu.Root>
+            <ContextMenu.Trigger>
+              <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)}/>
+            </ContextMenu.Trigger>
+            <ContextMenu.Content>
+              <ContextMenu.Item onclick={() => handleDeleteEntry(entry)}>
+                <Icon icon="i-mdi-delete" class="mr-2"/>
+                {$t`Delete Entry`}
+              </ContextMenu.Item>
+            </ContextMenu.Content>
+          </ContextMenu.Root>
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>
