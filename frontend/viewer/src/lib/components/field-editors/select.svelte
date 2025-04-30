@@ -1,4 +1,4 @@
-<script lang="ts" generics="Value">
+<script lang="ts" generics="MutableValue">
   import { Button, XButton } from '$lib/components/ui/button';
   import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
@@ -6,16 +6,18 @@
   import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
   import { Drawer, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
   import { Icon } from '../ui/icon';
-  import type {ConditionalKeys, Primitive} from 'type-fest';
+  import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
+
+  type Value = ReadonlyDeep<MutableValue>
 
   let {
     value = $bindable(),
     ...constProps
   }: {
     value?: Value;
-    options: Readonly<Readonly<Value>[]>;
+    options: ReadonlyArray<Value>;
     readonly?: boolean;
     /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
