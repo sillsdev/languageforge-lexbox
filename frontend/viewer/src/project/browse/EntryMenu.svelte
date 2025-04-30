@@ -31,7 +31,7 @@
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
 
   let open = $state(false);
-  const triggerVariant = buttonVariants({ variant: 'ghost', size: 'sm', class: 'float-right' });
+  const triggerVariant = buttonVariants({ variant: 'ghost', size: 'icon' });
 
   async function onDelete() {
     if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
@@ -41,10 +41,10 @@
 </script>
 
 {#snippet items()}
-  {@render menuItem('i-mdi-delete', $t`Delete Entry`, onDelete)}
+  {@render menuItem('i-mdi-delete', $t`Delete Entry`, () => void onDelete())}
   {@render menuItem('i-mdi-history', $t`History`, () => {})}
   {#if multiWindowService}
-    {@render menuItem('i-mdi-open-in-new', $t`Open in new Window`, () => multiWindowService.openEntryInNewWindow(entry.id))}
+    {@render menuItem('i-mdi-open-in-new', $t`Open in new Window`, () => void multiWindowService.openEntryInNewWindow(entry.id))}
   {/if}
 {/snippet}
 
@@ -82,9 +82,7 @@
 {:else if !IsMobile.value}
   <DropdownMenu.Root bind:open>
     <DropdownMenu.Trigger class={triggerVariant}>
-      {#snippet child({props})}
-        <Button {...props} size="icon" variant="ghost" icon="i-mdi-dots-vertical" />
-      {/snippet}
+      <Icon icon="i-mdi-dots-vertical" />
     </DropdownMenu.Trigger>
     <DropdownMenu.Content align="end">
       {@render items()}
@@ -93,7 +91,7 @@
 {:else}
   <Drawer.Root bind:open>
     <Drawer.Trigger class={triggerVariant}>
-      <Icon icon="i-mdi-dots-vertical" class="cursor-pointer" />
+      <Icon icon="i-mdi-dots-vertical" />
     </Drawer.Trigger>
     <Drawer.Content>
       <div class="mx-auto w-full max-w-sm p-4">

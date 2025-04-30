@@ -7,11 +7,11 @@
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
   import EntryMenu from './EntryMenu.svelte';
-  import Button from '$lib/components/ui/button/button.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import {XButton} from '$lib/components/ui/button';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
@@ -43,11 +43,11 @@
     <header class="mb-4 flex justify-between">
       <div>
         {#if showClose && onClose}
-          <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
+          <XButton onclick={onClose} size="icon" />
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
       </div>
-      <div class="flex gap-2">
+      <div class="flex">
         <ViewPicker/>
         <EntryMenu {entry} />
       </div>
