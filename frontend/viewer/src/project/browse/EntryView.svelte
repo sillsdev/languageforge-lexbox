@@ -17,10 +17,8 @@
   import {useProjectEventBus} from '$lib/services/event-bus';
 
   const viewSettings = useViewSettings();
-  const dialogsService = useDialogsService();
   const writingSystemService = useWritingSystemService();
   const miniLcmApi = useMiniLcmApi();
-  const projectEventBus = useProjectEventBus();
   const {
     entryId,
     onClose,
@@ -41,14 +39,6 @@
   const entry = $derived(entryResource.current ?? undefined);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
-
-
-  async function handleDelete() {
-    if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
-    await miniLcmApi.deleteEntry(entryId);
-    projectEventBus.notifyEntryDeleted(entryId);
-    onClose?.();
-  }
 </script>
 
 <div class="h-full md:px-6 pt-2 relative">
@@ -60,7 +50,7 @@
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
       <div class="flex-1"></div>
       <ViewPicker/>
-      <EntryMenu onDelete={handleDelete} {entry} />
+      <EntryMenu {entry} />
     </header>
     <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />

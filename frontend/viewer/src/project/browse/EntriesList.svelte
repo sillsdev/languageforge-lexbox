@@ -13,10 +13,7 @@
   import NewEntryButton from '../NewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import * as ContextMenu from '$lib/components/ui/context-menu';
-  import {Icon} from '$lib/components/ui/icon';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {useMultiWindowService} from '$lib/services/multi-window-service';
+  import EntryMenu from './EntryMenu.svelte';
 
   const {
     search = '',
@@ -33,8 +30,6 @@
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
-  const writingSystemService = useWritingSystemService();
-  const multiWindowService = useMultiWindowService();
   const projectEventBus = useProjectEventBus();
 
   projectEventBus.onEntryDeleted(entryId => {
@@ -81,14 +76,6 @@
     if (!entry) return;
     onSelectEntry(entry);
   }
-
-  async function handleDeleteEntry(entry: IEntry) {
-    const headword = writingSystemService.headword(entry);
-    const entryId = entry.id;
-    if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
-    await miniLcmApi.deleteEntry(entryId);
-    projectEventBus.notifyEntryDeleted(entryId);
-  }
 </script>
 
 <div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
@@ -120,23 +107,9 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <ContextMenu.Root>
-            <ContextMenu.Trigger>
+          <EntryMenu {entry} contextMenu>
               <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)}/>
-            </ContextMenu.Trigger>
-            <ContextMenu.Content>
-              <ContextMenu.Item class="cursor-pointer" onclick={() => handleDeleteEntry(entry)}>
-                <Icon icon="i-mdi-delete" class="mr-2"/>
-                {$t`Delete Entry`}
-              </ContextMenu.Item>
-              {#if multiWindowService}
-                <ContextMenu.Item class="cursor-pointer" onclick={() => multiWindowService.openEntryInNewWindow(entry.id)}>
-                  <Icon icon="i-mdi-open-in-new" class="mr-2"/>
-                  {$t`Open in new Window`}
-                </ContextMenu.Item>
-              {/if}
-            </ContextMenu.Content>
-          </ContextMenu.Root>
+          </EntryMenu>
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>
