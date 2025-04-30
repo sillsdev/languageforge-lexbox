@@ -60,8 +60,12 @@
   const loadingUsers = derivedStore(navigating, (nav) => {
     if (!nav?.to?.route.id?.endsWith('/admin')) return false;
     const fromUrl = nav?.from?.url;
-    return fromUrl && userFilterKeys.some((key) =>
-      (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key]);
+    return (
+      fromUrl &&
+      userFilterKeys.some(
+        (key) => (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key],
+      )
+    );
   });
 
   let hasActiveFilter = $state(false);
@@ -82,10 +86,10 @@
     $queryParamValues.tab = 'projects';
   }
 
-  let userModal: UserModal = $state();
-  let createUserModal: CreateUserModal = $state();
-  let deleteUserModal: DeleteUserModal = $state();
-  let formModal: EditUserAccount = $state();
+  let userModal: UserModal = $state()!;
+  let createUserModal: CreateUserModal = $state()!;
+  let deleteUserModal: DeleteUserModal = $state()!;
+  let formModal: EditUserAccount = $state()!;
 
   async function deleteUser(user: User): Promise<void> {
     formModal.close();
@@ -130,7 +134,7 @@
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
-      <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
+      <AdminTabs activeTab="users" on:clickTab={(event) => ($queryParamValues.tab = event.detail)}>
         <div class="flex gap-4 justify-between grow">
           <div class="flex gap-4 items-center">
             {$t('admin_dashboard.user_table_title')}
@@ -145,8 +149,11 @@
             </div>
           </div>
           <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
-            onclick={() => createUserModal.open()}>
+          <svelte:element
+            this={browser ? 'button' : 'div'}
+            class="btn btn-sm btn-success max-xs:btn-square"
+            onclick={() => createUserModal.open()}
+          >
             <span class="admin-tabs:hidden">
               {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
@@ -179,6 +186,10 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
-  <UserModal bind:this={userModal}/>
-  <CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
+  <UserModal bind:this={userModal} />
+  <CreateUserModal
+    handleSubmit={createGuestUserByAdmin}
+    on:submitted={(e) => onUserCreated(e.detail)}
+    bind:this={createUserModal}
+  />
 </main>

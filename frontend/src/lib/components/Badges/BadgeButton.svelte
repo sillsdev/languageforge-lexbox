@@ -13,14 +13,22 @@
     icon?: IconString | undefined;
     hoverIcon?: IconString | undefined;
     disabled?: boolean;
+    onclick: () => void;
     children?: Snippet;
   }
 
-  let { variant = undefined, icon = undefined, hoverIcon = undefined, disabled = false, children }: Props = $props();
+  let {
+    variant = undefined,
+    icon = undefined,
+    hoverIcon = undefined,
+    disabled = false,
+    onclick,
+    children,
+  }: Props = $props();
 </script>
 
 <button
-  onclick={bubble('click')}
+  {onclick}
   {disabled}
   class="badge btn btn-sm !p-0 bright transition-all border-0"
   class:hover:brightness-90={!disabled}

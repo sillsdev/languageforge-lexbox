@@ -15,6 +15,7 @@
     disabled?: boolean;
     customLoader?: boolean;
     children?: Snippet;
+    onclick: () => void;
     [key: string]: unknown;
   }
 
@@ -28,20 +29,21 @@
     disabled = false,
     customLoader = false,
     children,
+    onclick,
     ...rest
   }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->
 <button
-  onclick={bubble('click')}
+  {onclick}
   {...rest}
   class="btn whitespace-nowrap {variant ?? ''} {rest.class ?? ''} {size ?? ''}"
   {type}
   class:btn-outline={outline}
   class:btn-active={active}
   disabled={disabled && !loading}
-  class:pointer-events-none={loading || rest.class?.includes('pointer-events-none')}
+  class:pointer-events-none={loading || (rest.class as string)?.includes('pointer-events-none')}
 >
   {#if !customLoader}
     <Loader {loading} />

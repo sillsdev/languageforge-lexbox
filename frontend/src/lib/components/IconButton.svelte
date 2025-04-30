@@ -16,6 +16,7 @@
     size?: 'btn-sm' | undefined;
     outline?: boolean;
     fake?: boolean; // for display purposes only
+    onclick: () => void;
     [key: string]: unknown;
   }
 
@@ -29,6 +30,7 @@
     size = undefined,
     outline = variant !== 'btn-ghost',
     fake = false,
+    onclick,
     ...rest
   }: Props = $props();
   let loadingSize = size === 'btn-sm' ? ('loading-xs' as const) : undefined;
@@ -40,7 +42,7 @@
 <!-- type="button" ensures the button doen't act as a submit button when in a form -->
 <button
   type="button"
-  onclick={bubble('click')}
+  {onclick}
   disabled={disabled && !loading}
   class:pointer-events-none={fake || loading}
   class="btn btn-square {variant ?? ''} {size ?? ''} {rest.class ?? ''}"

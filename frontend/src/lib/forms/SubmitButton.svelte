@@ -10,13 +10,14 @@
     loading?: boolean;
     form?: string | undefined;
     variant?: SubmitVariant;
+    onclick: () => void;
     children?: Snippet;
   }
 
-  let { loading = false, form = undefined, variant = 'btn-primary', children }: Props = $props();
+  let { loading = false, form = undefined, variant = 'btn-primary', onclick, children }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<Button type="submit" on:click {variant} {loading} {form}>
+<Button type="submit" {onclick} {variant} {loading} {form}>
   {@render children?.()}
 </Button>

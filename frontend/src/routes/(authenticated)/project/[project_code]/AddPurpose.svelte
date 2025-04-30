@@ -16,11 +16,11 @@
   let { projectId }: Props = $props();
 
   const schema = z.object({
-    retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training)
+    retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
   });
 
   type Schema = typeof schema;
-  let formModal: FormModal<Schema> = $state();
+  let formModal: FormModal<Schema> = $state()!;
   let form = $derived(formModal?.form());
 
   const { notifySuccess } = useNotifications();
@@ -30,25 +30,25 @@
       const { error } = await _setRetentionPolicy({
         projectId,
         retentionPolicy: $form.retentionPolicy,
-      })
+      });
       if (error?.byType('NotFoundError')) {
         if (error.message === 'Project not found') return $t('project_page.add_org.project_not_found');
       }
     });
 
     if (response === DialogResponse.Submit && formState.retentionPolicy.currentValue) {
-        notifySuccess($t('project_page.add_purpose.notify_success'));
+      notifySuccess($t('project_page.add_purpose.notify_success'));
     }
   }
 </script>
 
-<BadgeButton variant="badge-success" icon="i-mdi-plus" on:click={openModal}>
+<BadgeButton variant="badge-success" icon="i-mdi-plus" onclick={openModal}>
   {$t('project_page.add_purpose.add_button')}
 </BadgeButton>
 
-<FormModal bind:this={formModal} {schema} >
+<FormModal bind:this={formModal} {schema}>
   {#snippet title()}
-    <span >{$t('project_page.add_purpose.modal_title')}</span>
+    <span>{$t('project_page.add_purpose.modal_title')}</span>
   {/snippet}
   {#snippet children({ errors })}
     <Select
@@ -64,8 +64,8 @@
         <option value={RetentionPolicy.Dev}>{$t('retention_policy.dev')}</option>
       </AdminContent>
     </Select>
-    {/snippet}
+  {/snippet}
   {#snippet submitText()}
-    <span >{'Add Purpose'}</span>
+    <span>{'Add Purpose'}</span>
   {/snippet}
 </FormModal>

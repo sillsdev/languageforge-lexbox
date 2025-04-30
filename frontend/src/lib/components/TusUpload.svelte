@@ -1,4 +1,4 @@
-﻿<script module lang="ts">
+<script module lang="ts">
   export enum UploadStatus {
     NoFile = 'NoFile',
     InvalidFile = 'InvalidFile',
@@ -33,7 +33,7 @@
     accept,
     inputLabel = $t('tus.select_file'),
     inputDescription = undefined,
-    internalButton = false
+    internalButton = false,
   }: Props = $props();
   const dispatch = createEventDispatcher<{
     uploadComplete: { upload: Upload };
@@ -165,9 +165,11 @@
           oncancel={stopPropagation(bubble('cancel'))}
           onchange={fileChanged}
         />
-        <IconButton icon="i-mdi-close"
-          on:click={clearFile}
-          disabled={status !== UploadStatus.Ready && status !== UploadStatus.InvalidFile} />
+        <IconButton
+          icon="i-mdi-close"
+          onclick={clearFile}
+          disabled={status !== UploadStatus.Ready && status !== UploadStatus.InvalidFile}
+        />
       </div>
     </FormField>
     <FormError error={uploadError} />
@@ -176,7 +178,9 @@
 
 <div class="mt-6 flex items-center gap-6">
   {#if internalButton}
-    <Button variant="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{$t('tus.upload')}</Button>
+    <Button variant="btn-success" disabled={status > UploadStatus.Ready} onclick={startUpload}
+      >{$t('tus.upload')}</Button
+    >
   {/if}
   <div class="flex-1">
     <p class="label label-text py-0">{$t('tus.upload_progress')}</p>

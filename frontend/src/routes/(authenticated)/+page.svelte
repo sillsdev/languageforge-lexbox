@@ -7,12 +7,17 @@
   import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItemWithDraftStatus } from '$lib/components/Projects';
+  import {
+    ProjectFilter,
+    filterProjects,
+    type ProjectFilters,
+    type ProjectItemWithDraftStatus,
+  } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
   import { limit } from '$lib/components/Paging';
   import IconButton from '$lib/components/IconButton.svelte';
-  import Cookies from 'js-cookie'
+  import Cookies from 'js-cookie';
   import { STORAGE_VIEW_MODE_KEY, ViewMode } from './shared';
 
   interface Props {
@@ -35,11 +40,12 @@
   let limitResults = $state(true);
   run(() => {
     allProjects = [
-      ...$draftProjects.map(p => ({
-        ...p, isDraft: true as const,
-        createUrl: ''
+      ...$draftProjects.map((p) => ({
+        ...p,
+        isDraft: true as const,
+        createUrl: '',
       })),
-      ...$projects.map(p => ({ ...p, isDraft: false as const })),
+      ...$projects.map((p) => ({ ...p, isDraft: false as const })),
     ];
   });
   run(() => {
@@ -47,9 +53,11 @@
   });
   let shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
 
+  // TODO: This whole thing with initializedMode, defaultMode, and mode *and* the run() block below
+  // looks like it could be simplified, perhaps by turning it into a single $derived.by
   let initializedMode = $state(false);
-  let mode: ViewMode = $state();
   let defaultMode = $derived(allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table);
+  let mode: ViewMode = $state(defaultMode); // Only captures initial value, but that's okay; rest is captured in run() block
 
   run(() => {
     if (!initializedMode) {
@@ -71,40 +79,33 @@
 
 <HeaderPage wide titleText={$t('user_dashboard.title')}>
   {#snippet headerContent()}
-  
-      <div class="flex gap-4 w-full">
-        <div class="grow">
-          <ProjectFilter
-            {filters}
-            filterDefaults={defaultFilterValues}
-            on:change={() => (limitResults = true)}
-            filterKeys={['projectSearch', 'projectType', 'confidential']}
-          />
-        </div>
-        <div class="join">
-          <IconButton
-            icon="i-mdi-grid"
-            join
-            active={mode === ViewMode.Grid}
-            on:click={() => selectMode(ViewMode.Grid)} />
-          <IconButton
-            icon="i-mdi-land-rows-horizontal"
-            join
-            active={mode === ViewMode.Table}
-            on:click={() => selectMode(ViewMode.Table)} />
-        </div>
+    <div class="flex gap-4 w-full">
+      <div class="grow">
+        <ProjectFilter
+          {filters}
+          filterDefaults={defaultFilterValues}
+          on:change={() => (limitResults = true)}
+          filterKeys={['projectSearch', 'projectType', 'confidential']}
+        />
       </div>
-    
+      <div class="join">
+        <IconButton icon="i-mdi-grid" join active={mode === ViewMode.Grid} on:click={() => selectMode(ViewMode.Grid)} />
+        <IconButton
+          icon="i-mdi-land-rows-horizontal"
+          join
+          active={mode === ViewMode.Table}
+          on:click={() => selectMode(ViewMode.Table)}
+        />
+      </div>
+    </div>
   {/snippet}
   {#snippet actions()}
-  
-      {#if data.user.emailVerified && !data.user.createdByAdmin}
-        <a href="/project/create" class="btn btn-success">
-          {$t('project.create.title')}
-          <span class="i-mdi-plus text-2xl"></span>
-        </a>
-      {/if}
-    
+    {#if data.user.emailVerified && !data.user.createdByAdmin}
+      <a href="/project/create" class="btn btn-success">
+        {$t('project.create.title')}
+        <span class="i-mdi-plus text-2xl"></span>
+      </a>
+    {/if}
   {/snippet}
 
   {#if !allProjects.length}

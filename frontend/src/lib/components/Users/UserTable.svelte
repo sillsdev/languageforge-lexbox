@@ -13,9 +13,9 @@
   let { shownUsers }: Props = $props();
 
   const dispatch = createEventDispatcher<{
-    openUserModal: User
-    editUser: User
-    filterProjectsByUser: User
+    openUserModal: User;
+    editUser: User;
+    filterProjectsByUser: User;
   }>();
 </script>
 
@@ -38,24 +38,25 @@
       <tr>
         <td>
           <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
-            <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
+            <Button
+              variant="btn-ghost"
+              size="btn-sm"
+              class="max-w-full"
+              onclick={() => dispatch('openUserModal', user)}
+            >
               <span class="x-ellipsis" title={user.name}>
                 {user.name}
               </span>
               <Icon icon="i-mdi-card-account-details-outline" />
             </Button>
             {#if user.locked}
-              <span
-                  class="tooltip text-warning text-xl leading-0"
-                  data-tip={$t('admin_dashboard.user_is_locked')}>
+              <span class="tooltip text-warning text-xl leading-0" data-tip={$t('admin_dashboard.user_is_locked')}>
                 <Icon icon="i-mdi-lock" />
               </span>
             {/if}
             {#if user.isAdmin}
-              <span
-                  class="tooltip text-accent text-xl leading-0"
-                  data-tip={$t('user_types.admin')}>
-                  <AdminIcon size="text-xl" />
+              <span class="tooltip text-accent text-xl leading-0" data-tip={$t('user_types.admin')}>
+                <AdminIcon size="text-xl" />
               </span>
             {/if}
           </div>
@@ -80,7 +81,8 @@
               {#if !user.emailVerified}
                 <span
                   class="tooltip text-warning text-xl shrink-0 leading-0"
-                  data-tip={$t('admin_dashboard.email_not_verified')}>
+                  data-tip={$t('admin_dashboard.email_not_verified')}
+                >
                   <span class="i-mdi-help-circle-outline"></span>
                 </span>
               {/if}
@@ -95,7 +97,7 @@
               <span class="i-mdi-dots-vertical text-lg"></span>
             </button>
             {#snippet content()}
-                        <ul  class="menu">
+              <ul class="menu">
                 <li>
                   <button class="whitespace-nowrap" onclick={() => dispatch('editUser', user)}>
                     <Icon icon="i-mdi-pencil-outline" />
@@ -109,7 +111,7 @@
                   </button>
                 </li>
               </ul>
-                      {/snippet}
+            {/snippet}
           </Dropdown>
         </td>
       </tr>

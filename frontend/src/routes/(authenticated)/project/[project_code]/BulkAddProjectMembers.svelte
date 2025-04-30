@@ -32,7 +32,7 @@
     password: passwordFormRules($t),
   });
 
-  let formModal: FormModal<typeof schema> = $state();
+  let formModal: FormModal<typeof schema> = $state()!;
   let form = $derived(formModal?.form());
 
   let addedMembers: BulkAddProjectMembersResult['addedMembers'] = $state([]);
@@ -45,7 +45,8 @@
 
     for (const username of usernames) {
       if (username.includes('@')) {
-        if (!isEmail(username)) return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', { email: username })] };
+        if (!isEmail(username))
+          return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', { email: username })] };
       } else if (!usernameRe.test(username)) {
         return { usernamesText: [$t('project_page.bulk_add_members.invalid_username', { username })] };
       }
@@ -59,9 +60,9 @@
       const usernames = state.usernamesText.currentValue
         .split('\n')
         // Remove whitespace
-        .map(s => s.trim())
+        .map((s) => s.trim())
         // Remove empty lines before validating, otherwise final newline would count as invalid because empty string
-        .filter(s => s)
+        .filter((s) => s)
         .filter(distinct);
 
       const bulkErrors = validateBulkAddInput(usernames);
@@ -77,7 +78,7 @@
       const invalidEmailError = error?.byType('InvalidEmailError');
       if (invalidEmailError) {
         const email = invalidEmailError[0].address!;
-        return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
+        return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', { email })] };
       }
 
       addedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.addedMembers ?? [];
@@ -93,19 +94,19 @@
 </script>
 
 <AdminContent>
-  <BadgeButton variant="badge-success" icon="i-mdi-account-multiple-plus-outline" on:click={openModal}>
+  <BadgeButton variant="badge-success" icon="i-mdi-account-multiple-plus-outline" onclick={openModal}>
     {$t('project_page.bulk_add_members.add_button')}
   </BadgeButton>
 
-  <FormModal bind:this={formModal} {schema}  showDoneState>
+  <FormModal bind:this={formModal} {schema} showDoneState>
     {#snippet title()}
-        <span >
+      <span>
         {$t('project_page.bulk_add_members.modal_title')}
         <SupHelp helpLink={helpLinks.bulkAddCreate} />
       </span>
-      {/snippet}
+    {/snippet}
     {#snippet children({ errors })}
-        {#if currentStep == BulkAddSteps.Add}
+      {#if currentStep == BulkAddSteps.Add}
         <p class="mb-2">{$t('project_page.bulk_add_members.explanation')}</p>
         <Input
           id="shared_password"
@@ -129,12 +130,12 @@
       {:else if currentStep == BulkAddSteps.Results}
         <p class="flex gap-1 items-center mb-4">
           <Icon icon="i-mdi-plus" color="text-success" />
-          {$t('project_page.bulk_add_members.members_added', {addedCount})}
+          {$t('project_page.bulk_add_members.members_added', { addedCount })}
         </p>
         <div class="mb-4 ml-8">
           <p class="flex gap-1 items-center">
             <Icon icon="i-mdi-account-outline" color="text-success" />
-            {$t('project_page.bulk_add_members.existing_added_members', {existedCount: addedMembers.length})}
+            {$t('project_page.bulk_add_members.existing_added_members', { existedCount: addedMembers.length })}
           </p>
           {#if addedMembers.length > 0}
             <div class="mt-2">
@@ -149,7 +150,7 @@
         <div class="mb-4 ml-8">
           <p class="flex gap-1 items-center">
             <Icon icon="i-mdi-creation-outline" color="text-success" />
-            {$t('project_page.bulk_add_members.accounts_created', {createdCount: createdMembers.length})}
+            {$t('project_page.bulk_add_members.accounts_created', { createdCount: createdMembers.length })}
           </p>
           {#if createdMembers.length > 0}
             <div class="mt-2">
@@ -164,7 +165,7 @@
         {#if existingMembers.length > 0}
           <p class="flex gap-1 items-center">
             <Icon icon="i-mdi-account-outline" color="text-info" />
-            {$t('project_page.bulk_add_members.already_members', {count: existingMembers.length})}
+            {$t('project_page.bulk_add_members.already_members', { count: existingMembers.length })}
           </p>
           <div class="mt-2">
             <BadgeList>
@@ -177,13 +178,13 @@
       {:else}
         <p>Internal error: unknown step {currentStep}</p>
       {/if}
-      {/snippet}
-      {#snippet submitText()}
-        <span >{$t('project_page.bulk_add_members.submit_button')}</span>
-      {/snippet}
+    {/snippet}
+    {#snippet submitText()}
+      <span>{$t('project_page.bulk_add_members.submit_button')}</span>
+    {/snippet}
     {#snippet doneText()}
-        <span >{$t('project_page.bulk_add_members.finish_button')}</span>
-      {/snippet}
+      <span>{$t('project_page.bulk_add_members.finish_button')}</span>
+    {/snippet}
   </FormModal>
 </AdminContent>
 

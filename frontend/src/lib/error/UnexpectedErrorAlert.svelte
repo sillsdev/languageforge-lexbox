@@ -1,12 +1,12 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
-  import {useDismiss, useError} from '.';
+  import { useDismiss, useError } from '.';
   import t from '$lib/i18n';
   import UnexpectedError from './UnexpectedError.svelte';
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let dialog: HTMLDialogElement = $state();
+  let dialog: HTMLDialogElement = $state()!;
   const error = useError();
   const dismiss = useDismiss();
   beforeNavigate(dismiss);
@@ -18,7 +18,7 @@
       if (!dialog) return;
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       e ? open() : close();
-    })
+    }),
   );
 
   function dismissClick(): void {

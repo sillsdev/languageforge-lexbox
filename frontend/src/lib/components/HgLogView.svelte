@@ -104,13 +104,12 @@
     return paths;
   }
 
-  let expandedLog: ExpandedLogEntry[] = $state();
+  let expandedLog: ExpandedLogEntry[] = $state([]);
 
   function trimEntry(orig: string): string {
     // The [program: version string] part of log entries can get quite long, so let's trim it for the graph
     return orig.replace(logEntryRe, '');
   }
-
 
   let heights: number[] = $state([]);
   run(() => {
@@ -128,8 +127,10 @@
 <table class="table table-zebra">
   <thead>
     <tr class="sticky top-0 z-[1] bg-base-100">
-      <th></th> <!-- No header on train-tracks column -->
-      <th>#</th> <!-- "Revision" is too long -->
+      <th></th>
+      <!-- No header on train-tracks column -->
+      <th>#</th>
+      <!-- "Revision" is too long -->
       <th>{$t('project_page.hg.date_header')}</th>
       <th>{$t('project_page.hg.author_header')}</th>
       <th>{$t('project_page.hg.log_header')}</th>
@@ -173,7 +174,8 @@
   table {
     @apply h-1;
 
-    & tr, td {
+    & tr,
+    td {
       height: 100%;
     }
   }

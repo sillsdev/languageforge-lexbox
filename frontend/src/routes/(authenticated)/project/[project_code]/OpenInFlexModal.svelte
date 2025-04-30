@@ -1,7 +1,7 @@
 <script lang="ts">
   import Modal from '$lib/components/modals/Modal.svelte';
   import Markdown from 'svelte-exmarkdown';
-  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
   import type { Project } from './+page';
   import t from '$lib/i18n';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -12,7 +12,7 @@
   }
 
   let { project }: Props = $props();
-  let modal: Modal = $state();
+  let modal: Modal = $state()!;
 
   export async function open(): Promise<void> {
     await modal.openModal(true, true);
@@ -34,7 +34,9 @@
     </div>
     <div class="collapse collapse-arrow">
       <input type="checkbox" />
-      <h3 class="collapse-title my-0 px-0 pb-0">{$t('project_page.get_project.instructions_header', { type: project.type, mode: 'manual' })}...</h3>
+      <h3 class="collapse-title my-0 px-0 pb-0">
+        {$t('project_page.get_project.instructions_header', { type: project.type, mode: 'manual' })}...
+      </h3>
       <div class="collapse-content p-0">
         <div class="divider mt-0"></div>
         <Markdown md={$t('project_page.get_project.instructions_flex', { code: project.code, name: project.name })} />

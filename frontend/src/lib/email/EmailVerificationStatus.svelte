@@ -2,8 +2,12 @@
   import { writable, type Writable } from 'svelte/store';
   import { defineContext } from '$lib/util/context';
 
-  export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>(() => writable());
-  export const { use: useEmailResult, init: initEmailResult } = defineContext<Writable<EmailResult | null>>(() => writable());
+  export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>(() =>
+    writable(),
+  );
+  export const { use: useEmailResult, init: initEmailResult } = defineContext<Writable<EmailResult | null>>(() =>
+    writable(),
+  );
 </script>
 
 <script lang="ts">
@@ -73,7 +77,7 @@
   {:else if user.email}
     <div class="alert alert-warning" transition:slide|local>
       <span>{$t('account_settings.verify_email.please_verify')}</span>
-      <Button loading={sendingVerificationEmail} on:click={sendVerificationEmail}>
+      <Button loading={sendingVerificationEmail} onclick={sendVerificationEmail}>
         {$t('account_settings.verify_email.resend')}
       </Button>
     </div>

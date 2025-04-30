@@ -18,14 +18,14 @@
     saveHandler,
     placeholder = undefined,
     multiline = false,
-    validation = z.string()
+    validation = z.string(),
   }: Props = $props();
 
   let initialValue: string | undefined | null;
   let editing = $state(false);
   let saving = $state(false);
 
-  let formElem: Form = $state();
+  let formElem: Form = $state()!;
 
   const formSchema = z.object({ value: validation });
   let { form, errors, reset, enhance, message } = lexSuperForm(
@@ -97,7 +97,10 @@
 
 <span>
   {#if editing || saving}
-    <span class="inline-flex not-prose space-x-2 relative max-sm:flex-col max-w-full max-sm:w-full" class:w-full={multiline}>
+    <span
+      class="inline-flex not-prose space-x-2 relative max-sm:flex-col max-w-full max-sm:w-full"
+      class:w-full={multiline}
+    >
       <!-- svelte-ignore a11y_autofocus -->
       <span
         class="tooltip-error tooltip-open tooltip-bottom"
@@ -114,7 +117,7 @@
               bind:value={$form.value}
               readonly={saving}
               class="textarea textarea-bordered mt-1 h-48"
-></textarea>
+            ></textarea>
           {:else}
             <input
               onkeydown={onKeydown}
@@ -129,8 +132,8 @@
       </span>
 
       <span class="max-sm:mt-2 flex flew-nowrap gap-2 self-end">
-        <IconButton on:click={submit} loading={saving} icon="i-mdi-check-bold" />
-        <IconButton on:click={cancel} disabled={saving} icon="i-mdi-close-thick" />
+        <IconButton onclick={submit} loading={saving} icon="i-mdi-check-bold" />
+        <IconButton onclick={cancel} disabled={saving} icon="i-mdi-close-thick" />
       </span>
     </span>
   {:else}

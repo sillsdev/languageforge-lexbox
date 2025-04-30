@@ -23,7 +23,7 @@
 
   let { data }: Props = $props();
   let user = $derived(data.account);
-  let deleteModal: DeleteUserModal = $state();
+  let deleteModal: DeleteUserModal = $state()!;
 
   const emailResult = useEmailResult();
   const requestedEmail = useRequestedEmail();
@@ -55,7 +55,7 @@
       locale: $form.locale,
       userId: $user.id,
     });
-    if (data?.changeUserAccountBySelf.errors?.some(e => e.__typename === 'UniqueValueError')) {
+    if (data?.changeUserAccountBySelf.errors?.some((e) => e.__typename === 'UniqueValueError')) {
       $errors.email = [$t('account_settings.email_taken')];
       return;
     }
@@ -75,7 +75,7 @@
   // This is a bit of a hack to make sure that the email field is not required if the user has no email
   // even if the user edited the email field
   run(() => {
-    if(!$form.email && $user && !$user.email) $form.email = null;
+    if (!$form.email && $user && !$user.email) $form.email = null;
   });
 
   onMount(() => {
@@ -85,7 +85,7 @@
         name: $user.name,
         locale: $user.locale,
       },
-      { taint: false }
+      { taint: false },
     );
   });
 </script>
@@ -107,9 +107,7 @@
       error={$errors.email}
       bind:value={$form.email}
     />
-    <DisplayLanguageSelect
-      bind:value={$form.locale}
-    />
+    <DisplayLanguageSelect bind:value={$form.locale} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('account_settings.button_update')}</SubmitButton>
   </Form>

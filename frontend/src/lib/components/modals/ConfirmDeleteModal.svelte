@@ -24,7 +24,7 @@
   }
 
   let { i18nScope }: Props = $props();
-  let name: string = $state();
+  let name: string | undefined = $state();
 
   export async function open(_name: string, onSubmit: FormSubmitCallback<Schema>): Promise<FormModalResult<Schema>> {
     name = _name;
@@ -34,22 +34,24 @@
   let t = $derived(tTypeScoped<DeleteModalI18nShape>(i18nScope));
 
   const verify = z.object({
-    keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.value')}$`), $tt('form.value_is_incorrect')),
+    keyphrase: z
+      .string()
+      .refine((value) => value.match(`^${$t('enter_to_delete.value')}$`), $tt('form.value_is_incorrect')),
   });
 
   type Schema = typeof verify;
 
-  let deletionFormModal: FormModal<Schema> = $state();
+  let deletionFormModal: FormModal<Schema> = $state()!;
   let deletionForm = $derived(deletionFormModal?.form());
 </script>
 
 <div class="contents">
-  <FormModal bind:this={deletionFormModal} schema={verify}  submitVariant="btn-error">
+  <FormModal bind:this={deletionFormModal} schema={verify} submitVariant="btn-error">
     {#snippet title()}
-        <span >{$t('title')}</span>
-      {/snippet}
+      <span>{$t('title')}</span>
+    {/snippet}
     {#snippet children({ errors })}
-        <Input
+      <Input
         id="keyphrase"
         type="text"
         autofocus
@@ -60,17 +62,15 @@
           Formatter: https://github.com/cibernox/precompile-intl-runtime/blob/cdaee6ebaa7c2e690db4dff3b8545ebaa79704fc/src/stores/formatters.ts#L44
           `name` is optional in the translation template, so its name must get `sort()`ed after `_value`
           */
-          { _value: $t('enter_to_delete.value'), name }
+          { _value: $t('enter_to_delete.value'), name: name ?? '' },
         )}
         error={errors.keyphrase}
         bind:value={$deletionForm.keyphrase}
       />
-      {/snippet}
-      {#snippet submitText()}
-      
-        {$t('submit')}
-        <TrashIcon />
-      
-      {/snippet}
+    {/snippet}
+    {#snippet submitText()}
+      {$t('submit')}
+      <TrashIcon />
+    {/snippet}
   </FormModal>
 </div>

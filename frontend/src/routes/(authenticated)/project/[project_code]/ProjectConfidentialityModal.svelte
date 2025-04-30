@@ -16,7 +16,7 @@
   const schema = z.object({
     isConfidential: z.boolean(),
   });
-  let formModal: FormModal<typeof schema> = $state();
+  let formModal: FormModal<typeof schema> = $state()!;
   let form = $derived(formModal?.form());
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -44,11 +44,11 @@
 
 <FormModal bind:this={formModal} {schema} submitVariant={$form?.isConfidential ? 'btn-warning' : 'btn-primary'}>
   {#snippet title()}
-    <span >{$t('project.confidential.modal.title')}</span>
+    <span>{$t('project.confidential.modal.title')}</span>
   {/snippet}
   <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
   {#snippet submitText()}
-    <span >
+    <span>
       {#if $form.isConfidential}
         {$t('project.confidential.modal.submit_button_confidential')}
       {:else}

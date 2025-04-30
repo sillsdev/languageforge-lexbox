@@ -48,7 +48,7 @@
     return true;
   }
 
-  let modal: Modal = $state();
+  let modal: Modal = $state()!;
   let error: ErrorMessage = $state(undefined);
 </script>
 
@@ -60,17 +60,17 @@
   <FormError {error} right />
   {#snippet actions({ submitting, close })}
     {#if !done}
-      <Button variant={submitVariant} loading={submitting} on:click={() => modal.submitModal()}>
+      <Button variant={submitVariant} loading={submitting} onclick={() => modal.submitModal()}>
         {submitText}
         {#if submitIcon}
           <Icon icon={submitIcon} />
         {/if}
       </Button>
-      <Button disabled={submitting} on:click={() => modal.cancelModal()}>
+      <Button disabled={submitting} onclick={() => modal.cancelModal()}>
         {cancelText}
       </Button>
     {:else}
-      <Button variant="btn-primary" on:click={close}>
+      <Button variant="btn-primary" onclick={close}>
         {doneText}
       </Button>
     {/if}

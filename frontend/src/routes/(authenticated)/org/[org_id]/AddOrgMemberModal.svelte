@@ -5,7 +5,7 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { useNotifications } from '$lib/notify';
-  import { page } from '$app/stores'
+  import { page } from '$app/stores';
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
@@ -20,13 +20,15 @@
   let { org }: Props = $props();
 
   const schema = z.object({
-    usernameOrEmail: z.string().trim()
+    usernameOrEmail: z
+      .string()
+      .trim()
       .min(1, $t('org_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
     canInvite: z.boolean().default(false),
   });
-  let formModal: FormModal<typeof schema> = $state();
+  let formModal: FormModal<typeof schema> = $state()!;
   let form = $derived(formModal?.form());
 
   const { notifySuccess } = useNotifications();
@@ -44,9 +46,16 @@
   function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult | null): void {
     resetProjects();
     if (user && 'projects' in user) {
-      const userProjects = [...user.projects.map(p => ({memberRole: p.role, id: p.project.id, code: p.project.code, name: p.project.name}))];
-      userProjects.forEach(proj => {
-        if (org.projects.find(p => p.id === proj.id)) {
+      const userProjects = [
+        ...user.projects.map((p) => ({
+          memberRole: p.role,
+          id: p.project.id,
+          code: p.project.code,
+          name: p.project.name,
+        })),
+      ];
+      userProjects.forEach((proj) => {
+        if (org.projects.find((p) => p.id === proj.id)) {
           alreadyAddedProjects.push(proj);
         } else {
           newProjects.push(proj);
@@ -97,9 +106,9 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema}  --justify-actions="end">
+<FormModal bind:this={formModal} {schema} --justify-actions="end">
   {#snippet title()}
-    <span >
+    <span>
       {$t('org_page.add_user.modal_title')}
       <SupHelp helpLink={helpLinks.addOrgMember} />
       <!-- TODO: helpLinks.addOrgMember currently points to Add_Project_Member scribe. Create a scribe with Add_Org_Member help. -->
@@ -115,8 +124,8 @@
         error={errors.usernameOrEmail}
         on:selectedUserChange={(event) => populateUserProjects(event.detail)}
         autofocus
-        exclude={org.members.map(m => m.user.id)}
-        />
+        exclude={org.members.map((m) => m.user.id)}
+      />
     {:else}
       <Input
         id="usernameOrEmail"
@@ -140,20 +149,18 @@
         </span>
       {/if}
     {/if}
-    {/snippet}
+  {/snippet}
   {#snippet extraActions()}
-  
-      <Checkbox
-        id="invite"
-        label={$t('org_page.add_user.invite')}
-        variant="checkbox-warning"
-        labelColor="text-warning"
-        bind:value={$form.canInvite}
-      />
-    
+    <Checkbox
+      id="invite"
+      label={$t('org_page.add_user.invite')}
+      variant="checkbox-warning"
+      labelColor="text-warning"
+      bind:value={$form.canInvite}
+    />
   {/snippet}
   {#snippet submitText()}
-    <span >
+    <span>
       {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
         {$t('org_page.add_user.submit_button_email')}
       {:else}

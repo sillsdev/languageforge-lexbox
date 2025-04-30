@@ -54,7 +54,7 @@
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
-  let modal: Modal = $state();
+  let modal: Modal = $state()!;
   let done = $state(false);
 
   export async function open(
@@ -124,7 +124,7 @@
         {@render submitText?.()}
       </SubmitButton>
     {:else}
-      <Button variant="btn-primary" on:click={close}>
+      <Button variant="btn-primary" onclick={close}>
         {@render doneText?.()}
       </Button>
     {/if}

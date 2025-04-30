@@ -6,7 +6,7 @@
   import { z } from 'zod';
   import { _addProjectMember, type Project } from './+page';
   import { useNotifications } from '$lib/notify';
-  import { page } from '$app/stores'
+  import { page } from '$app/stores';
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
   import Checkbox from '$lib/forms/Checkbox.svelte';
@@ -17,13 +17,15 @@
 
   let { project }: Props = $props();
   const schema = z.object({
-    usernameOrEmail: z.string().trim()
+    usernameOrEmail: z
+      .string()
+      .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });
-  let formModal: FormModal<typeof schema> = $state();
+  let formModal: FormModal<typeof schema> = $state()!;
   let form = $derived(formModal?.form());
   let selectedUserId: string | undefined = $state(undefined);
 
@@ -75,9 +77,9 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema}  --justify-actions="end">
+<FormModal bind:this={formModal} {schema} --justify-actions="end">
   {#snippet title()}
-    <span >
+    <span>
       {$t('project_page.add_user.modal_title')}
       <SupHelp helpLink={helpLinks.addProjectMember} />
     </span>
@@ -91,25 +93,23 @@
       error={errors.usernameOrEmail}
       autofocus
       on:selectedUserChange={({ detail }) => {
-          selectedUserId = detail?.id;
+        selectedUserId = detail?.id;
       }}
-      exclude={project.users.map(m => m.user.id)}
+      exclude={project.users.map((m) => m.user.id)}
     />
     <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-    {/snippet}
+  {/snippet}
   {#snippet extraActions()}
-  
-      <Checkbox
-        id="invite"
-        label={$t('project_page.add_user.invite_checkbox')}
-        variant="checkbox-warning"
-        labelColor="text-warning"
-        bind:value={$form.canInvite}
-      />
-    
+    <Checkbox
+      id="invite"
+      label={$t('project_page.add_user.invite_checkbox')}
+      variant="checkbox-warning"
+      labelColor="text-warning"
+      bind:value={$form.canInvite}
+    />
   {/snippet}
   {#snippet submitText()}
-    <span >
+    <span>
       {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
         {$t('project_page.add_user.submit_button_invite')}
       {:else}

@@ -7,8 +7,8 @@
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let alertMessageElem: HTMLElement = $state();
-  let traceIdElem: HTMLElement = $state();
+  let alertMessageElem: HTMLElement = $state()!;
+  let traceIdElem: HTMLElement = $state()!;
 
   const error = derived(useError(), (error) => {
     if (error) {

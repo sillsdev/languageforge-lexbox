@@ -13,12 +13,7 @@
     outline?: boolean;
   }
 
-  let {
-    textToCopy,
-    delayMs = Duration.Default,
-    size = undefined,
-    outline = true
-  }: Props = $props();
+  let { textToCopy, delayMs = Duration.Default, size = undefined, outline = true }: Props = $props();
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;
@@ -31,15 +26,21 @@
 </script>
 
 {#if copiedToClipboard}
-<div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
-  <IconButton fake icon="i-mdi-check" {size} variant={outline ? undefined : 'btn-ghost'} class={outline ? 'btn-success' : 'text-success'} />
-</div>
+  <div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
+    <IconButton
+      fake
+      icon="i-mdi-check"
+      {size}
+      variant={outline ? undefined : 'btn-ghost'}
+      class={outline ? 'btn-success' : 'text-success'}
+    />
+  </div>
 {:else}
   <IconButton
-  loading={copyingToClipboard}
-  icon="i-mdi-content-copy"
-  {size}
-  variant={outline ? undefined : 'btn-ghost'}
-  on:click={copyToClipboard}
-/>
+    loading={copyingToClipboard}
+    icon="i-mdi-content-copy"
+    {size}
+    variant={outline ? undefined : 'btn-ghost'}
+    onclick={copyToClipboard}
+  />
 {/if}

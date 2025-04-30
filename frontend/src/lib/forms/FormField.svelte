@@ -31,7 +31,7 @@
     children,
   }: Props = $props();
 
-  let elem: HTMLDivElement = $state();
+  let elem: HTMLDivElement = $state()!;
 
   onMount(autofocusIfRequested);
 

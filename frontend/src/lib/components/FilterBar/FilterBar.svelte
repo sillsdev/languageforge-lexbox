@@ -29,7 +29,7 @@
     change: Readonly<Filter<Filters>[]>;
   }>();
 
-  let searchInput: PlainInput = $state();
+  let searchInput: PlainInput = $state()!;
 
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
@@ -44,7 +44,7 @@
     loading?: boolean;
     debounce?: number | boolean;
     debouncing?: boolean;
-    activeFilterSlot?: Snippet<[unknown]>;
+    activeFilterSlot?: Snippet<unknown[]>;
     filterSlot?: Snippet;
   }
 
@@ -63,7 +63,7 @@
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
 
-  let activeFilters: Readonly<Filter<Filters>[]> = $state();
+  let activeFilters: Readonly<Filter<Filters>[]> = $state([]);
 
   function onClearFiltersClick(): void {
     searchInput.clear();

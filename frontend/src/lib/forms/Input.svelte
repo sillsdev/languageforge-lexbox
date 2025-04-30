@@ -61,7 +61,7 @@
         ><IconButton
           variant="btn-ghost"
           icon={currentType == 'password' ? 'i-mdi-eye' : 'i-mdi-eye-off'}
-          on:click={togglePasswordVisibility}
+          onclick={togglePasswordVisibility}
         /></span
       >
     </div>

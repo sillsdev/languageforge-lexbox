@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import t, { date } from '$lib/i18n';
   import { Modal } from '$lib/components/modals';
   import DevContent from '$lib/layout/DevContent.svelte';
@@ -6,10 +6,10 @@
   import { NULL_LABEL } from '$lib/i18n';
   import IconButton from '$lib/components/IconButton.svelte';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import {_sendNewVerificationEmailByAdmin} from '../../../routes/(authenticated)/admin/+page';
-  import type {UUID} from 'crypto';
-  import {useNotifications} from '$lib/notify';
-  import type {FeatureFlag} from '$lib/gql/types';
+  import { _sendNewVerificationEmailByAdmin } from '../../../routes/(authenticated)/admin/+page';
+  import type { UUID } from 'crypto';
+  import { useNotifications } from '$lib/notify';
+  import type { FeatureFlag } from '$lib/gql/types';
 
   type User = {
     id: string;
@@ -19,15 +19,15 @@
     isAdmin: boolean;
     createdDate: string | Date;
     username?: string | null;
-    locked: boolean
-    localizationCode: string
-    updatedDate: string | Date
-    lastActive: string | Date
-    featureFlags: FeatureFlag[]
-    canCreateProjects: boolean
-    createdBy?: Partial<User> | null
+    locked: boolean;
+    localizationCode: string;
+    updatedDate: string | Date;
+    lastActive: string | Date;
+    featureFlags: FeatureFlag[];
+    canCreateProjects: boolean;
+    createdBy?: Partial<User> | null;
   };
-  let userDetailsModal: Modal = $state();
+  let userDetailsModal: Modal = $state()!;
   let user: User = $state();
 
   export async function open(_user: User): Promise<void> {
@@ -64,7 +64,8 @@
             {#if !user.emailVerified}
               <span
                 class="tooltip text-warning text-md shrink-0 leading-0"
-                data-tip={$t('admin_dashboard.email_not_verified')}>
+                data-tip={$t('admin_dashboard.email_not_verified')}
+              >
                 <span class="i-mdi-help-circle-outline"></span>
               </span>
               <AdminContent>
@@ -75,7 +76,7 @@
                     outline={false}
                     variant="btn-primary"
                     loading={sendingVerificationEmail}
-                    on:click={() => sendVerificationEmail(user)}
+                    onclick={() => sendVerificationEmail(user)}
                   />
                 </div>
               </AdminContent>
@@ -107,7 +108,9 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
-        <p class="value" class:!text-success={user.canCreateProjects}>{user.canCreateProjects ? $t('common.yes') : $t('common.no')}</p>
+        <p class="value" class:!text-success={user.canCreateProjects}>
+          {user.canCreateProjects ? $t('common.yes') : $t('common.no')}
+        </p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.updated')}</h3>
@@ -119,14 +122,14 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.createdBy')}</h3>
-        <p class="value">{user.createdBy?.name  ?? NULL_LABEL}</p>
+        <p class="value">{user.createdBy?.name ?? NULL_LABEL}</p>
       </div>
       <AdminContent>
-      {#if user.featureFlags && user.featureFlags.length}
-      <div>
-        Feature flags: {user.featureFlags.join(', ')}
-      </div>
-      {/if}
+        {#if user.featureFlags && user.featureFlags.length}
+          <div>
+            Feature flags: {user.featureFlags.join(', ')}
+          </div>
+        {/if}
       </AdminContent>
       <DevContent>
         <div>

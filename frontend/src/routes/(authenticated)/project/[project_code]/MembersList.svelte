@@ -73,7 +73,7 @@
 
   const { notifySuccess } = useNotifications();
 
-  let changeMemberRoleModal: ChangeMemberRoleModal = $state();
+  let changeMemberRoleModal: ChangeMemberRoleModal = $state()!;
   async function changeMemberRole(member: Member): Promise<void> {
     if (!member.user) return;
     const nameOrEmail = member.user.name ? member.user.name : (member.user.email ?? '');
@@ -156,7 +156,7 @@
 
     {#if members.length > TRUNCATED_MEMBER_COUNT}
       <div class="justify-self-start">
-        <Button outline size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
+        <Button outline size="btn-sm" onclick={() => (showAllMembers = !showAllMembers)}>
           {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}
         </Button>
       </div>

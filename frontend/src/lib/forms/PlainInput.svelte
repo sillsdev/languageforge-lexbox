@@ -49,7 +49,7 @@
     error = undefined,
     placeholder = '',
     autocomplete = undefined,
-    debounce = false,
+    debounce = $bindable(false),
     debouncing = $bindable(false),
     undebouncedValue = $bindable(),
     style = undefined,

@@ -1,20 +1,27 @@
-﻿<script lang="ts">
+<script lang="ts">
   import { Modal } from '$lib/components/modals';
   import t from '$lib/i18n';
   import { helpLinks } from '$lib/components/help';
   import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import CreateUser from '$lib/components/Users/CreateUser.svelte';
-  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
   import Icon from '$lib/icons/Icon.svelte';
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher<{
-    submitted: LexAuthUser,
+    submitted: LexAuthUser;
   }>();
 
-  let createUserModal: Modal = $state();
+  let createUserModal: Modal = $state()!;
   interface Props {
-    handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
+    handleSubmit: (
+      password: string,
+      passwordStrength: number,
+      name: string,
+      email: string,
+      locale: string,
+      turnstileToken: string,
+    ) => Promise<RegisterResponse>;
   }
 
   let { handleSubmit }: Props = $props();
@@ -33,16 +40,24 @@
       <h3 class="text-lg">{$t('common.did_you_know')}</h3>
       <div>
         <NewTabLinkMarkdown
-          md={$t('admin_dashboard.create_user_modal.help_create_single_guest_user', { helpLink: helpLinks.addProjectMember })}
+          md={$t('admin_dashboard.create_user_modal.help_create_single_guest_user', {
+            helpLink: helpLinks.addProjectMember,
+          })}
         />
         <NewTabLinkMarkdown
-          md={$t('admin_dashboard.create_user_modal.help_create_bulk_guest_users', { helpLink: helpLinks.bulkAddCreate })}
+          md={$t('admin_dashboard.create_user_modal.help_create_bulk_guest_users', {
+            helpLink: helpLinks.bulkAddCreate,
+          })}
         />
       </div>
     </div>
   </div>
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
-  <CreateUser {handleSubmit} allowUsernames skipTurnstile bind:formTainted
+  <CreateUser
+    {handleSubmit}
+    allowUsernames
+    skipTurnstile
+    bind:formTainted
     on:submitted={(event) => {
       createUserModal.submitModal();
       dispatch('submitted', event.detail);
