@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import { t } from 'svelte-i18n-lingui';
   import { views } from '$lib/views/view-data';
@@ -7,6 +6,7 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
+  import {Button} from '$lib/components/ui/button';
   const currentView = useCurrentView();
   const viewSettings = useViewSettings();
   function getCurrentView() {
@@ -17,8 +17,8 @@
   }
 </script>
 <ResponsivePopup title={$t`View Configuration`}>
-  {#snippet trigger()}
-    <Icon icon="i-mdi-layers" />
+  {#snippet trigger({props})}
+    <Button {...props} size="icon" variant="ghost" icon="i-mdi-layers" />
   {/snippet}
   <div class="space-y-6">
     <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
@@ -37,10 +37,8 @@
       <div class="flex items-center space-x-2">
         <Switch
           id="showEmptyFields"
-          bind:checked={
-            () => $viewSettings.showEmptyFields,
-            (value) => ($viewSettings = { ...$viewSettings, showEmptyFields: value })
-          }
+          bind:checked={() => $viewSettings.showEmptyFields,
+            (value) => ($viewSettings = { ...$viewSettings, showEmptyFields: value })}
         />
         <Label for="showEmptyFields">{$t`Show Empty Fields`}</Label>
       </div>
