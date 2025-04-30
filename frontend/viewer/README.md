@@ -22,3 +22,10 @@ for formatted values you can do this:
 ```sveltehtml
 <span>{$t`Hello ${name}, how are you today?`}</span>
 ```
+
+### ShadCN
+
+add a new component
+```bash
+pnpx shadcn-svelte@next add context-menu
+```

@@ -12,6 +12,8 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import NewEntryButton from '../NewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import EntryMenu from './EntryMenu.svelte';
 
   const {
     search = '',
@@ -23,11 +25,23 @@
     search?: string;
     selectedEntry?: IEntry;
     sortDirection: 'asc' | 'desc';
-    onSelectEntry: (entry: IEntry) => void;
+    onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
+  const projectEventBus = useProjectEventBus();
+
+  projectEventBus.onEntryDeleted(entryId => {
+    if (selectedEntry?.id === entryId) onSelectEntry(undefined);
+    if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
+    entriesResource.refetch();
+  });
+  projectEventBus.onEntryUpdated(entry => {
+    if (entriesResource.loading) return;
+    entriesResource.refetch();
+  });
+
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
@@ -93,7 +107,9 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)} />
+          <EntryMenu {entry} contextMenu>
+              <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)}/>
+          </EntryMenu>
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>

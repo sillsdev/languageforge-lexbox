@@ -6,7 +6,10 @@
 
   const dialogsService = useDialogsService();
   dialogsService.invokeDeleteDialog = prompt;
-  let subject: string = $state('');
+  let subject = $state('');
+  let description = $state<string>();
+  const subjectWithDescription = $derived(description ? `${subject}: ${description}` : subject);
+
   let open = $state(false);
   let requester: {
     resolve: (result: boolean) => void
@@ -29,11 +32,12 @@
     open = false;
   }
 
-  export function prompt(promptSubject: string): Promise<boolean> {
+  export function prompt(promptSubject: string, subjectDescription?: string): Promise<boolean> {
     if (requester) throw new Error('already prompting for a delete');
     return new Promise((resolve) => {
       requester = { resolve };
       subject = promptSubject;
+      description = subjectDescription;
       open = true;
     });
   }
@@ -46,7 +50,7 @@
       <AlertDialog.Title>{$t`Delete ${subject}`}</AlertDialog.Title>
     </AlertDialog.Header>
     <AlertDialog.Description>
-      {$t`Are you sure you want to delete ${subject}?`}
+      {$t`Are you sure you want to delete ${subjectWithDescription}?`}
     </AlertDialog.Description>
     <AlertDialog.Footer>
       <Button onclick={() => cancel()} variant="secondary">{$t`Don't delete`}</Button>
