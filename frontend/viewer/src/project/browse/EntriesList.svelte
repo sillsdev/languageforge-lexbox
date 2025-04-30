@@ -35,6 +35,7 @@
   const writingSystemService = useWritingSystemService();
   const projectEventBus = useProjectEventBus();
   projectEventBus.onEntryDeleted(entryId => {
+    if (selectedEntry?.id === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
     entriesResource.refetch();
   });
@@ -84,7 +85,6 @@
     if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
     await miniLcmApi.deleteEntry(entryId);
     projectEventBus.notifyEntryDeleted(entryId);
-    if (selectedEntry?.id === entryId) onSelectEntry(undefined);
   }
 </script>
 
