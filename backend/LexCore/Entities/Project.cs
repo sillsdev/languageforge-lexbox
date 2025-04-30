@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq.Expressions;
-using EntityFrameworkCore.Projectables;
 using LexCore.ServiceInterfaces;
 
 namespace LexCore.Entities;
@@ -29,9 +27,8 @@ public class Project : EntityBase
     public DateTimeOffset? MigratedDate { get; set; } = null;
 
     [NotMapped]
-    [Projectable(UseMemberBody = nameof(SqlUserCount))]
-    public int UserCount { get; set; }
-    private static Expression<Func<Project, int>> SqlUserCount => project => project.Users.Count;
+    //translated via linq2db to sql
+    public int UserCount { get; init; }
 
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {

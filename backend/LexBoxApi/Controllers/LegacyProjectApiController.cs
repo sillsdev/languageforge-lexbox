@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
-using EntityFrameworkCore.Projectables;
 using LexCore;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -55,7 +54,10 @@ public class LegacyProjectApiController : ControllerBase
                     member.Project.Name,
                     //it seems this is largely ignored by the client as it uses the LF domain instead
                     "http://public.languagedepot.org",
-                    RoleToString(member.Role)))
+                    //instead of using toString which could change if we rename the enum, we only ever want to return these 3 values.
+                    member.Role == ProjectRole.Manager ? "manager"
+                    : member.Role == ProjectRole.Editor ? "editor"
+                    : "unknown"))
             })
             .FirstOrDefaultAsync();
         if (user == null)
@@ -71,14 +73,6 @@ public class LegacyProjectApiController : ControllerBase
 
         return user.projects.ToArray();
     }
-
-    [Projectable]
-    private string RoleToString(ProjectRole role) =>
-        //instead of using toString which could change if we rename the enum, we only ever want to return these 3 values.
-        //this needs to be ugly so that projectable will work :(
-        role == ProjectRole.Manager ? "manager"
-        : role == ProjectRole.Editor ? "editor"
-        : "unknown";
 }
 
 public record LegacyApiProject(string Identifier, string Name, string Repository, string Role);
