@@ -2,23 +2,37 @@
   import type { IEntry, ISense } from '$lib/dotnet-types';
   import {useWritingSystemService} from './writing-system-service.svelte';
   import { usePartsOfSpeech } from './parts-of-speech.svelte';
+  import type {HTMLAttributes} from 'svelte/elements';
+  import {Icon} from '$lib/components/ui/icon';
+  import {cn} from '$lib/utils';
+  let {
+    entry,
+    showLinks = false,
+    lines = $bindable(),
+    ...restProps
+  }: HTMLAttributes<HTMLDivElement> & {
+    entry: IEntry,
+    showLinks?: boolean,
+    lines?: number
+  } = $props();
 
-  export let entry: IEntry;
-  export let lines: number = 0;
-
-  $: lines = entry.senses.length > 1 ? entry.senses.length + 1 : 1;
+  $effect(() => {
+    lines = entry.senses.length > 1 ? entry.senses.length + 1 : 1;
+  });
 
   const wsService = useWritingSystemService();
 
-  $: headwords = wsService.vernacular
-    .map(ws => ({
-      wsId: ws.wsId,
-      value: wsService.headword(entry, ws.wsId),
-      color: wsService.wsColor(ws.wsId, 'vernacular'),
-    }))
-    .filter(({value}) => !!value);
+  let headwords = $derived.by(() => {
+    return wsService.vernacular
+      .map(ws => ({
+        wsId: ws.wsId,
+        value: wsService.headword(entry, ws.wsId),
+        color: wsService.wsColor(ws.wsId, 'vernacular'),
+      }))
+      .filter(({value}) => !!value);
+  });
 
-  $: senses = entry.senses.map(getRenderedContent);
+  let senses = $derived(entry.senses.map(getRenderedContent));
 
   /**
    * Returns the rendered content for a sense.
@@ -58,7 +72,22 @@
   const partsOfSpeech = usePartsOfSpeech();
 </script>
 
-<div>
+{#snippet senseNumber(index: number)}
+  {#if showLinks}
+    <a href={`#sense${index+1}`} class="font-bold group">
+      <Icon icon="i-mdi-link" class={cn(
+          'invisible opacity-0',
+          'group-hover:opacity-100 group-hover:visible transition-all',
+          'size-4'
+        )}/>
+      {index + 1} ·
+    </a>
+  {:else}
+    <span class="font-bold">{index + 1} ·</span>
+  {/if}
+{/snippet}
+
+<div {...restProps}>
   <strong class="inline-flex gap-1 mr-1">
     {#each headwords as headword, i (headword.wsId)}
       {#if i > 0}/{/if}
@@ -68,7 +97,7 @@
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
       <br />
-      <strong class="ml-2">{i + 1} · </strong>
+      {@render senseNumber(i)}
     {/if}
     {#if sense.partOfSpeech}
       <i>{sense.partOfSpeech}</i>
