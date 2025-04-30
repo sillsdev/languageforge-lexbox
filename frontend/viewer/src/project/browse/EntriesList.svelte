@@ -16,6 +16,7 @@
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import {Icon} from '$lib/components/ui/icon';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
 
   const {
     search = '',
@@ -33,7 +34,9 @@
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
   const writingSystemService = useWritingSystemService();
+  const multiWindowService = useMultiWindowService();
   const projectEventBus = useProjectEventBus();
+
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntry?.id === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
@@ -126,6 +129,12 @@
                 <Icon icon="i-mdi-delete" class="mr-2"/>
                 {$t`Delete Entry`}
               </ContextMenu.Item>
+              {#if multiWindowService}
+                <ContextMenu.Item class="cursor-pointer" onclick={() => multiWindowService.openEntryInNewWindow(entry.id)}>
+                  <Icon icon="i-mdi-open-in-new" class="mr-2"/>
+                  {$t`Open in new Window`}
+                </ContextMenu.Item>
+              {/if}
             </ContextMenu.Content>
           </ContextMenu.Root>
         {:else}

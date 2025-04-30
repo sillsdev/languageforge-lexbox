@@ -60,7 +60,7 @@
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
       <div class="flex-1"></div>
       <ViewPicker/>
-      <EntryMenu onDelete={handleDelete} />
+      <EntryMenu onDelete={handleDelete} {entry} />
     </header>
     <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />

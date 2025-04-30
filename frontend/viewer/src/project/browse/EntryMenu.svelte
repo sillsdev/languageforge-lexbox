@@ -7,9 +7,14 @@
   import { t } from 'svelte-i18n-lingui';
   import { buttonVariants } from '$lib/components/ui/button';
   import Button from '$lib/components/ui/button/button.svelte';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
+  import type {IEntry} from '$lib/dotnet-types';
 
-  let { onDelete } = $props<{
+  const multiWindowService = useMultiWindowService();
+
+  let { onDelete, entry } = $props<{
     onDelete?: () => void;
+    entry: IEntry;
   }>();
 
   let open = $state(false);
@@ -19,6 +24,9 @@
 {#snippet items()}
   {@render menuItem('i-mdi-delete', $t`Delete Entry`, onDelete)}
   {@render menuItem('i-mdi-history', $t`History`, () => {})}
+  {#if multiWindowService}
+    {@render menuItem('i-mdi-open-in-new', $t`Open in new Window`, () => multiWindowService.openEntryInNewWindow(entry.id))}
+  {/if}
 {/snippet}
 
 {#snippet menuItem(icon: IconClass, label: string, onSelect: () => void)}
