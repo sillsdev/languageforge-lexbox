@@ -36,7 +36,7 @@
   );
   const entry = $derived(entryResource.current ?? undefined);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
-  let showDictionaryPreview = $state(true);
+  let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
 
   const writingSystemService = useWritingSystemService();
 
@@ -54,12 +54,12 @@
       {/if}
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
       <div class="flex-1"></div>
-      <ViewPicker bind:dictionaryPreview={showDictionaryPreview}/>
+      <ViewPicker bind:dictionaryPreview/>
       <EntryMenu onDelete={handleDelete} />
     </header>
     <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
-      {#if showDictionaryPreview}
-        <DictionaryEntry {entry} showLinks class="mb-2 rounded border p-4"/>
+      {#if dictionaryPreview !== 'hide'}
+        <DictionaryEntry {entry} showLinks class={cn('mb-2 rounded border p-4 z-10 bg-background top-0', dictionaryPreview === 'sticky' && 'sticky')}/>
       {/if}
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
