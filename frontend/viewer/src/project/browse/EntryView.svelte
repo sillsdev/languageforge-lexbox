@@ -3,7 +3,7 @@
   import type { IEntry } from '$lib/dotnet-types';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import { useViewSettings } from '$lib/views/view-service';
-  import { resource, Debounced } from 'runed';
+  import {resource, Debounced, PersistedState} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
@@ -13,6 +13,7 @@
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -35,6 +36,7 @@
   );
   const entry = $derived(entryResource.current ?? undefined);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
+  let showDictionaryPreview = $state(true);
 
   const writingSystemService = useWritingSystemService();
 
@@ -52,10 +54,13 @@
       {/if}
       <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
       <div class="flex-1"></div>
-      <ViewPicker/>
+      <ViewPicker bind:dictionaryPreview={showDictionaryPreview}/>
       <EntryMenu onDelete={handleDelete} />
     </header>
     <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
+      {#if showDictionaryPreview}
+        <DictionaryEntry {entry} showLinks class="mb-2 rounded border p-4"/>
+      {/if}
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
   {/if}

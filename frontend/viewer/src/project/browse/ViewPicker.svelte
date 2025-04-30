@@ -7,6 +7,9 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
+  let {dictionaryPreview = $bindable(true)}: {
+    dictionaryPreview?: boolean
+  } = $props();
   const currentView = useCurrentView();
   const viewSettings = useViewSettings();
   function getCurrentView() {
@@ -32,7 +35,7 @@
         </div>
       {/each}
     </RadioGroup.Root>
-    <div>
+    <div class="space-y-2">
       <h3 class="font-normal mb-2">{$t`View Settings`}</h3>
       <div class="flex items-center space-x-2">
         <Switch
@@ -43,6 +46,13 @@
           }
         />
         <Label for="showEmptyFields">{$t`Show Empty Fields`}</Label>
+      </div>
+      <div class="flex items-center space-x-2">
+        <Switch
+          id="showDictionaryPreview"
+          bind:checked={dictionaryPreview}
+        />
+        <Label for="showDictionaryPreview">{$t`Show Dictionary Preview`}</Label>
       </div>
     </div>
   </div>
