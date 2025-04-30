@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { createBubbler } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import { ProjectTypeIcon } from '$lib/components/ProjectType';
   import { ProjectType } from '$lib/gql/types';
   import t from '$lib/i18n';

@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { createBubbler } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import type { IconString } from '$lib/icons';
   import Loader from './Loader.svelte';
 

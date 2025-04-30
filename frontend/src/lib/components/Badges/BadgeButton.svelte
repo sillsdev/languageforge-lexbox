@@ -1,8 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { createBubbler } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import type { IconString } from '$lib/icons';
   import Badge from './Badge.svelte';
 

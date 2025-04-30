@@ -1,8 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { createBubbler } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import Loader from '$lib/components/Loader.svelte';
 
   interface Props {
