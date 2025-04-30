@@ -5,15 +5,19 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
+  import type {Snippet} from 'svelte';
   let {
     entry,
     showLinks = false,
     lines = $bindable(),
+    actions,
+    class: className,
     ...restProps
   }: HTMLAttributes<HTMLDivElement> & {
     entry: IEntry,
     showLinks?: boolean,
-    lines?: number
+    lines?: number,
+    actions?: Snippet
   } = $props();
 
   $effect(() => {
@@ -74,10 +78,10 @@
 
 {#snippet senseNumber(index: number)}
   {#if showLinks}
-    <a href={`#sense${index+1}`} class="font-bold group underline inline-flex items-center">
+    <a href={`#sense${index+1}`} class="font-bold group/sense underline inline-flex items-center">
       <Icon icon="i-mdi-link" class={cn(
           'invisible opacity-0',
-          'group-hover:opacity-100 group-hover:visible transition-all',
+          'group-hover/sense:opacity-100 group-hover/sense:visible transition-all',
           'size-4'
         )}/><span class="ml-[2px]">{index + 1}</span>
     </a>
@@ -87,10 +91,13 @@
   {' · '}
 {/snippet}
 
-<div {...restProps}>
-  <strong class="inline-flex gap-1 mr-1">
+<div class={cn('group/container', className)} {...restProps}>
+  <div class="float-right group-[&:not(:hover)]/container:invisible relative -top-1">
+    {@render actions?.()}
+  </div>
+  <strong class="inline space-x-1 mr-1">
     {#each headwords as headword, i (headword.wsId)}
-      {#if i > 0}/{/if}
+      {#if i > 0}<span>/</span>{/if}
       <span class={headword.color}>{headword.value}</span>
     {/each}
   </strong>

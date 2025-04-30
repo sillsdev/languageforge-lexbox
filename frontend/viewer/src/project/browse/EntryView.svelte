@@ -14,6 +14,7 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
   import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import {Toggle} from '$lib/components/ui/toggle';
 
   const viewSettings = useViewSettings();
   const miniLcmApi = useMiniLcmApi();
@@ -37,6 +38,7 @@
   const entry = $derived(entryResource.current ?? undefined);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
+  const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
   const writingSystemService = useWritingSystemService();
 
@@ -46,20 +48,38 @@
   }
 </script>
 
+{#snippet preview(entry: IEntry)}
+  <div class="pb-4">
+    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/30 p-4')}>
+      {#snippet actions()}
+        <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
+          aria-label={`Toggle pinned`} class="aspect-square" size="xs">
+          <Icon icon="i-mdi-pin-outline" class="size-5" />
+        </Toggle>
+      {/snippet}
+    </DictionaryEntry>
+  </div>
+{/snippet}
+
 <div class="h-full md:px-6 pt-2 relative">
   {#if entry}
-    <header class="mb-4 flex">
-      {#if showClose && onClose}
-        <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
+    <header>
+      <div class="flex mb-4">
+        {#if showClose && onClose}
+          <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
+        {/if}
+        <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
+        <div class="flex-1"></div>
+        <ViewPicker bind:dictionaryPreview/>
+        <EntryMenu onDelete={handleDelete} />
+      </div>
+      {#if dictionaryPreview === 'sticky'}
+        {@render preview(entry)}
       {/if}
-      <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
-      <div class="flex-1"></div>
-      <ViewPicker bind:dictionaryPreview/>
-      <EntryMenu onDelete={handleDelete} />
     </header>
     <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
-      {#if dictionaryPreview !== 'hide'}
-        <DictionaryEntry {entry} showLinks class={cn('mb-2 rounded border p-4 z-10 bg-background top-0', dictionaryPreview === 'sticky' && 'sticky')}/>
+      {#if dictionaryPreview === 'show'}
+        {@render preview(entry)}
       {/if}
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
