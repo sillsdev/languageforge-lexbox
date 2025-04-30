@@ -4,26 +4,25 @@
   import {useCurrentView} from '$lib/views/view-service';
 
   const {
-    liteName,
-    classicName,
+    name,
     helpId,
   }: {
-    liteName: string;
-    classicName: string;
+    name: string | { lite: string; classic: string };
     helpId?: string | undefined;
   } = $props();
 
   const view = useCurrentView();
 
   const { label, title } = $derived(
-    $view.type === 'fw-classic'
+    typeof name === 'string' ? { label: name }
+    : $view.type === 'fw-classic'
       ? {
-          label: classicName,
-          title: $t`${liteName} (FieldWorks Lite)`,
+          label: name.classic,
+          title: $t`${name.lite} (FieldWorks Lite)`,
         }
       : {
-          label: liteName,
-          title: $t`${classicName} (FieldWorks)`,
+          label: name.lite,
+          title: $t`${name.classic} (FieldWorks)`,
         },
   );
 

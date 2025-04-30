@@ -6,6 +6,10 @@ import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Even
 import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
 import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
 import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
+import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
+import {ProjectDataFormat} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
+import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {onDestroy} from 'svelte';
 
 export class EventBus {
   private _onEvent = new Set<(event: IFwEvent) => void>();
@@ -19,11 +23,11 @@ export class EventBus {
     while (true) {
       event = await jsEventListener.nextEventAsync();
       if (!event) return;
-      this.distributor(event);
+      this.notifyEvent(event);
     }
   }
 
-  private distributor(event: IFwEvent) {
+  public notifyEvent(event: IFwEvent) {
     //using set timeout to queue processing events outside the event loop, this prevents the event loop from being blocked
     setTimeout(() => {
       this._onEvent.forEach(callback => callback(event));
@@ -39,19 +43,60 @@ export class EventBus {
     this._onProjectClosed.forEach(callback => callback(reason));
   }
 
-  public onEntryUpdated(projectName: string, callback: (entry: IEntry) => void): () => void {
-    // eslint-disable-next-line func-style
-    const onEventCallback = (event: IFwEvent) => {
-      if (isEventForProject(event, projectName) && isEntryChangedEvent(event.event)) {
-        callback(event.event.entry);
-      }
-    };
-    this._onEvent.add(onEventCallback);
-    return () => this._onEvent.delete(onEventCallback);
+  public onEvent(callback: (event: IFwEvent) => void): () => void {
+    this._onEvent.add(callback);
+    return () => this._onEvent.delete(callback);
   }
 
   public notifyEntryUpdated(entry: IEntry) {
     console.error('notifyEntryUpdated, no longer supported', entry);
+  }
+}
+
+export class ProjectEventBus {
+
+  constructor(private projectContext: ProjectContext, private eventBus: EventBus) {
+  }
+
+  get projectName() {
+    return this.projectContext.projectName;
+  }
+
+  public notifyEntryDeleted(entryId: string) {
+    this.notifyProjectEvent({entryId, type: FwEventType.EntryDeleted, isGlobal: false} satisfies IEntryDeletedEvent);
+  }
+
+  private notifyProjectEvent<T extends IFwEvent>(event: T) {
+    this.eventBus.notifyEvent({
+      type: FwEventType.ProjectEvent,
+      isGlobal: true,
+      project: {name: this.projectName, dataFormat: ProjectDataFormat.Harmony},
+      event: event
+    } as IProjectEvent);
+  }
+
+  public onEntryUpdated(callback: (entry: IEntry) => void) {
+    this.onProjectEvent(event => {
+      if (isEntryChangedEvent(event)) {
+        callback(event.entry);
+      }
+    });
+  }
+  public onEntryDeleted(callback: (entryId: string) => void) {
+    this.onProjectEvent(event => {
+      if (isEntryDeletedEvent(event)) {
+        callback(event.entryId);
+      }
+    });
+  }
+
+  private onProjectEvent(callback: (event: IFwEvent) => void) {
+    const onProjectEventCallback = (event: IFwEvent) => {
+      if (isProjectEvent(event) && event.project.name === this.projectName) {
+        callback(event.event);
+      }
+    }
+    onDestroy(this.eventBus.onEvent(onProjectEventCallback));
   }
 }
 
@@ -61,14 +106,18 @@ export function useEventBus(): EventBus {
   return changeEventBus ??= new EventBus();
 }
 
+export function useProjectEventBus() {
+  return new ProjectEventBus(useProjectContext(), useEventBus());
+}
+
 function isEntryChangedEvent(event: IFwEvent): event is IEntryChangedEvent {
   return event.type === FwEventType.EntryChanged;
 }
 
-function isProjectEvent(event: IFwEvent): event is IProjectEvent {
-  return event.type === FwEventType.ProjectEvent;
+function isEntryDeletedEvent(event: IFwEvent): event is IEntryDeletedEvent {
+  return event.type === FwEventType.EntryDeleted;
 }
 
-function isEventForProject(event: IFwEvent, projectName: string): event is IProjectEvent {
-  return isProjectEvent(event) && event.project.name === projectName;
+function isProjectEvent(event: IFwEvent): event is IProjectEvent {
+  return event.type === FwEventType.ProjectEvent;
 }

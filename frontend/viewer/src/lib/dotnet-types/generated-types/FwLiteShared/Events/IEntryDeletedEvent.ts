@@ -3,10 +3,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum FwEventType {
-	EntryChanged = "EntryChanged",
-	AuthenticationChanged = "AuthenticationChanged",
-	ProjectEvent = "ProjectEvent",
-	EntryDeleted = "EntryDeleted"
+import type {IFwEvent} from './IFwEvent';
+import type {FwEventType} from './FwEventType';
+
+export interface IEntryDeletedEvent extends IFwEvent
+{
+	type: FwEventType;
+	isGlobal: boolean;
+	entryId: string;
 }
 /* eslint-enable */

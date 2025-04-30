@@ -12,6 +12,8 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import NewEntryButton from '../NewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import EntryMenu from './EntryMenu.svelte';
 
   const {
     search = '',
@@ -24,12 +26,24 @@
     search?: string;
     selectedEntry?: IEntry;
     sortDirection: 'asc' | 'desc';
-    onSelectEntry: (entry: IEntry) => void;
+    onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
     previewDictionary?: boolean
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
+  const projectEventBus = useProjectEventBus();
+
+  projectEventBus.onEntryDeleted(entryId => {
+    if (selectedEntry?.id === entryId) onSelectEntry(undefined);
+    if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
+    entriesResource.refetch();
+  });
+  projectEventBus.onEntryUpdated(entry => {
+    if (entriesResource.loading) return;
+    entriesResource.refetch();
+  });
+
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
@@ -69,18 +83,18 @@
 <div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
   <DevContent>
     <Button
-      icon="i-mdi-refresh"
-      variant="secondary"
+      icon={loading.current ? 'i-mdi-loading' : 'i-mdi-refresh'}
+      variant="outline"
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
-      class="mt-4 mb-6"
+      class="mb-4"
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
   <NewEntryButton onclick={handleNewEntry} shortForm />
 </div>
 
-<ScrollArea class="md:pr-5 flex-1" role="table">
+<ScrollArea class="md:pr-3 flex-1" role="table">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
@@ -95,10 +109,12 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryRow {entry}
-                    isSelected={selectedEntry?.id === entry.id}
-                    onclick={() => onSelectEntry(entry)}
-                    {previewDictionary} />
+          <EntryMenu {entry} contextMenu>
+              <EntryRow {entry}
+                isSelected={selectedEntry?.id === entry.id}
+                onclick={() => onSelectEntry(entry)}
+                {previewDictionary} />
+          </EntryMenu>
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>
