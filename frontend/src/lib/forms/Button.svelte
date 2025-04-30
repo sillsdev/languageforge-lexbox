@@ -15,7 +15,7 @@
     disabled?: boolean;
     customLoader?: boolean;
     children?: Snippet;
-    onclick: () => void;
+    onclick?: () => void;
     [key: string]: unknown;
   }
 
