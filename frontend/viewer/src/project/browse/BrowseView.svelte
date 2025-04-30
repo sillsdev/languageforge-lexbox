@@ -64,13 +64,12 @@
                 <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
                 {$t`Headword`}
               </Badge>
-              <ResponsivePopup title={$t`List View`}>
+              <ResponsivePopup title={$t`List mode`}>
                 {#snippet trigger({props})}
                   <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />
                 {/snippet}
                 <div class="space-y-6">
                   <Tabs bind:value={entryMode} class="mb-1">
-                    <h3 class="font-normal mb-1">{$t`Row display`}</h3>
                     <TabsList>
                       <TabsTrigger value="simple">
                         <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
