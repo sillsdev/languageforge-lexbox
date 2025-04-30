@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Icon } from '$lib/components/ui/icon';
-  import type { IEntry } from '$lib/dotnet-types';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import { useViewSettings } from '$lib/views/view-service';
   import { resource, Debounced } from 'runed';
@@ -13,8 +12,6 @@
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
-  import {useDialogsService} from '$lib/services/dialogs-service';
-  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
@@ -41,18 +38,21 @@
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
 </script>
 
-<div class="h-full md:px-6 pt-2 relative">
+<div class="h-full flex flex-col relative">
   {#if entry}
-    <header class="mb-4 flex">
-      {#if showClose && onClose}
-        <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
-      {/if}
-      <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
-      <div class="flex-1"></div>
-      <ViewPicker/>
-      <EntryMenu {entry} />
+    <header class="mb-4 flex justify-between">
+      <div>
+        {#if showClose && onClose}
+          <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
+        {/if}
+        <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
+      </div>
+      <div class="flex gap-2">
+        <ViewPicker/>
+        <EntryMenu {entry} />
+      </div>
     </header>
-    <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea class={cn('grow md:pr-4', !$viewSettings.showEmptyFields && 'hide-unused')}>
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
   {/if}

@@ -19,6 +19,10 @@
   {...restProps}
 >
   {#snippet children({ checked })}
+    <!--
+    The circle icon is not well centered depending on zoom level.
+    There are multiple potential fixes worth trying in: https://github.com/shadcn-ui/ui/issues/3621
+    -->
     <div class="flex items-center justify-center">
       {#if checked}
         <Icon icon="i-mdi-circle" class="size-3 text-current" />

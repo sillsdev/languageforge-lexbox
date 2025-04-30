@@ -16,7 +16,7 @@
 
 <div class={cn('grid gap-4',
   '     grid-cols-[fit-content(70px)_1fr]',
-  ' @lg/editor:grid-cols-[fit-content(70px)_1fr_1fr]',
+  ' @lg/editor:grid-cols-[fit-content(70px)_1fr]',
   '@3xl/editor:grid-cols-[180px_fit-content(80px)_1fr]',
   className)} {...restProps}>
   {@render children?.()}

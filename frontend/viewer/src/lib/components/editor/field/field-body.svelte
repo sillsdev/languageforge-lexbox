@@ -14,6 +14,6 @@
   }: FieldBodyProps = $props();
 </script>
 
-<div class={cn('grid grid-cols-subgrid col-span-full @3xl/editor:col-start-2 @3xl/editor:col-end-4', className)} {...restProps}>
+<div class={cn('grid grid-cols-1 col-span-full @3xl/editor:col-start-2 @3xl/editor:col-end-4', className)} {...restProps}>
   {@render children?.()}
 </div>

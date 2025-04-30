@@ -138,11 +138,8 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     return this.ApplyQueryOptions(this._Entries(), options);
   }
 
-  getWritingSystemsSync(): IWritingSystems {
-    return writingSystems;
-  }
   getWritingSystems(): Promise<IWritingSystems> {
-    return Promise.resolve(writingSystems);
+    return Promise.resolve(writingSystems as unknown as IWritingSystems);
   }
 
   async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
