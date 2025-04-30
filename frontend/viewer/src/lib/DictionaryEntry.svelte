@@ -74,17 +74,17 @@
 
 {#snippet senseNumber(index: number)}
   {#if showLinks}
-    <a href={`#sense${index+1}`} class="font-bold group">
+    <a href={`#sense${index+1}`} class="font-bold group underline inline-flex items-center">
       <Icon icon="i-mdi-link" class={cn(
           'invisible opacity-0',
           'group-hover:opacity-100 group-hover:visible transition-all',
           'size-4'
-        )}/>
-      {index + 1} ·
+        )}/><span class="ml-[2px]">{index + 1}</span>
     </a>
   {:else}
-    <span class="font-bold">{index + 1} ·</span>
+    <span class="font-bold">{index + 1}</span>
   {/if}
+  {' · '}
 {/snippet}
 
 <div {...restProps}>
