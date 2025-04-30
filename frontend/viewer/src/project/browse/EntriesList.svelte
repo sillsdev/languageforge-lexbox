@@ -19,12 +19,14 @@
     sortDirection = 'asc',
     onSelectEntry,
     gridifyFilter = undefined,
+    previewDictionary = false
   }: {
     search?: string;
     selectedEntry?: IEntry;
     sortDirection: 'asc' | 'desc';
     onSelectEntry: (entry: IEntry) => void;
     gridifyFilter?: string;
+    previewDictionary?: boolean
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
@@ -93,7 +95,10 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)} />
+          <EntryRow {entry}
+                    isSelected={selectedEntry?.id === entry.id}
+                    onclick={() => onSelectEntry(entry)}
+                    {previewDictionary} />
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>

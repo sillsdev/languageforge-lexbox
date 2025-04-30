@@ -11,12 +11,16 @@
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import NewEntryButton from '../NewEntryButton.svelte';
+  import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
+  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
+
   const dialogsService = useDialogsService();
   let selectedEntry = $state<IEntry | undefined>(undefined);
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string | undefined>(undefined);
   let sortDirection = $state<'asc' | 'desc'>('asc');
+  let entryMode: 'preview' | 'simple' = $state('simple');
 
   function toggleSort() {
     sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -58,9 +62,34 @@
             <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
               {$t`Headword`}
             </Badge>
+            <ResponsivePopup title={$t`List View`}>
+              {#snippet trigger()}
+                <Icon icon="i-mdi-format-list-text"/>
+              {/snippet}
+              <div class="space-y-6">
+                  <Tabs bind:value={entryMode} class="mb-1">
+                    <h3 class="font-normal mb-1">{$t`Row display`}</h3>
+                    <TabsList>
+                      <TabsTrigger value="simple">
+                        <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
+                        Simple
+                      </TabsTrigger>
+                      <TabsTrigger value="preview">
+                        <Icon icon="i-mdi-format-list-text" class="mr-1"/>
+                        Preview
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+              </div>
+            </ResponsivePopup>
           </div>
         </div>
-        <EntriesList {search} {selectedEntry} {sortDirection} {gridifyFilter} onSelectEntry={(e) => (selectedEntry = e)} />
+        <EntriesList {search}
+                     {selectedEntry}
+                     {sortDirection}
+                     {gridifyFilter}
+                     onSelectEntry={(e) => (selectedEntry = e)}
+                     previewDictionary={entryMode === 'preview'}/>
       </ResizablePane>
     {/if}
     {#if !IsMobile.value}
