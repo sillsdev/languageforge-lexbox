@@ -247,7 +247,7 @@
     }
   }
 
-  let hgCommandResultModal: Modal = $state();
+  let hgCommandResultModal: Modal = $state()!;
   let hgCommandResponse = $state('');
   let hgCommandRunning = $state(false);
 
@@ -308,9 +308,9 @@
     }
   }
 
-  let projectConfidentialityModal: ProjectConfidentialityModal = $state();
-  let openInFlexModal: OpenInFlexModal = $state();
-  let leaveModal: ConfirmModal = $state();
+  let projectConfidentialityModal: ProjectConfidentialityModal = $state()!;
+  let openInFlexModal: OpenInFlexModal = $state()!;
+  let leaveModal: ConfirmModal = $state()!;
 
   async function leaveProject(): Promise<void> {
     projectStore.pause();
@@ -361,7 +361,7 @@
         <OpenInFlexModal bind:this={openInFlexModal} {project} />
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open} />
       {:else if canAskToJoinProject}
-        <Button variant="btn-primary" loading={askLoading} on:click={() => askToJoinProject(project.id, project.name)}>
+        <Button variant="btn-primary" loading={askLoading} onclick={() => askToJoinProject(project.id, project.name)}>
           {#if !askLoading}
             <span class="i-mdi-email text-2xl"></span>
           {/if}
@@ -501,7 +501,7 @@
                 size="btn-sm"
                 variant="btn-ghost"
                 outline={false}
-                on:click={updateEntryCount}
+                onclick={updateEntryCount}
               />
             </AdminContent>
           {/snippet}
@@ -518,7 +518,7 @@
                 size="btn-sm"
                 variant="btn-ghost"
                 outline={false}
-                on:click={updateModelVersion}
+                onclick={updateModelVersion}
               />
             </AdminContent>
           {/snippet}
@@ -534,7 +534,7 @@
                 size="btn-sm"
                 variant="btn-ghost"
                 outline={false}
-                on:click={updateLanguageList}
+                onclick={updateLanguageList}
               />
             </AdminContent>
             <WritingSystemList writingSystems={vernacularLangTags} />
@@ -547,7 +547,7 @@
                 size="btn-sm"
                 variant="btn-ghost"
                 outline={false}
-                on:click={updateLanguageList}
+                onclick={updateLanguageList}
               />
             </AdminContent>
             <WritingSystemList writingSystems={analysisLangTags} />
@@ -598,7 +598,7 @@
           <BadgeButton
             variant="badge-success"
             icon="i-mdi-account-plus-outline"
-            on:click={() => addProjectMember.openModal(undefined, undefined)}
+            onclick={() => addProjectMember.openModal(undefined, undefined)}
           >
             {$t('project_page.add_user.add_button')}
           </BadgeButton>
@@ -645,12 +645,12 @@
               {$t('delete_project_modal.submit')}
               <TrashIcon />
             </button>
-            <Button outline variant="btn-warning" on:click={projectConfidentialityModal.openModal}>
+            <Button outline variant="btn-warning" onclick={projectConfidentialityModal.openModal}>
               {$t('project.confidential.set_confidentiality')}
               <Icon icon="i-mdi-shield-lock-outline" />
             </Button>
           {/if}
-          <Button outline variant="btn-error" on:click={leaveProject}>
+          <Button outline variant="btn-error" onclick={leaveProject}>
             {$t('project_page.leave.leave_project')}
             <Icon icon="i-mdi-exit-run" />
           </Button>
