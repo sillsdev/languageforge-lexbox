@@ -73,11 +73,11 @@
                     <TabsList>
                       <TabsTrigger value="simple">
                         <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
-                        Simple
+                        {$t`Simple`}
                       </TabsTrigger>
                       <TabsTrigger value="preview">
                         <Icon icon="i-mdi-format-list-text" class="mr-1"/>
-                        Preview
+                        {$t`Preview`}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -103,7 +103,7 @@
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
           {#if !selectedEntry}
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>Select an entry to view details</p>
+              <p>{$t`Select an entry to view details`}</p>
             </div>
           {:else}
             <div class="p-2 md:p-4 md:pl-6 h-full">
