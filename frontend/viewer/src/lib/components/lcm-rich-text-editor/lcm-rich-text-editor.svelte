@@ -76,6 +76,8 @@
         return !readonly;
       },
     });
+
+    editor.dom.setAttribute('tabindex', '0');
   });
 
   watch(() => readonly, () => {
