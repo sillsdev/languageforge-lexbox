@@ -7,6 +7,10 @@
   import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Button} from '$lib/components/ui/button';
+
+  let {dictionaryPreview = $bindable('show')}: {
+    dictionaryPreview?: 'show' | 'hide' | 'sticky'
+  } = $props();
   const currentView = useCurrentView();
   const viewSettings = useViewSettings();
   function getCurrentView() {
@@ -32,7 +36,7 @@
         </div>
       {/each}
     </RadioGroup.Root>
-    <div>
+    <div class="space-y-2">
       <h3 class="font-normal mb-2">{$t`View Settings`}</h3>
       <div class="flex items-center space-x-2">
         <Switch
@@ -42,6 +46,27 @@
         />
         <Label for="showEmptyFields">{$t`Show Empty Fields`}</Label>
       </div>
+      <RadioGroup.Root bind:value={dictionaryPreview}>
+        <h3 class="font-normal">{$t`Dictionary Preview`}</h3>
+        <div class="flex items-center space-x-2">
+          <RadioGroup.Item value="show" id="show"/>
+          <Label for="show">
+            {$t`Show`}
+          </Label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <RadioGroup.Item value="hide" id="hide"/>
+          <Label for="hide">
+            {$t`Hide`}
+          </Label>
+        </div>
+        <div class="flex items-center space-x-2">
+          <RadioGroup.Item value="sticky" id="sticky"/>
+          <Label for="sticky">
+            {$t`Pinned`}
+          </Label>
+        </div>
+      </RadioGroup.Root>
     </div>
   </div>
 </ResponsivePopup>

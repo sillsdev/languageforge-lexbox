@@ -18,7 +18,7 @@
     "origin": [
       [
         "src/lib/components/editor/field/field-title.svelte",
-        22
+        21
       ]
     ],
     "translation": ""
@@ -30,7 +30,7 @@
     "origin": [
       [
         "src/lib/components/editor/field/field-title.svelte",
-        26
+        25
       ]
     ],
     "translation": ""
@@ -57,7 +57,8 @@
         77
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "uyJsf6": {
     "message": "About",
@@ -78,7 +79,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        98
+        92
       ]
     ],
     "translation": "Cuenta"
@@ -90,7 +91,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        74
+        68
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -138,7 +139,7 @@
     "origin": [
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        48
+        53
       ]
     ],
     "translation": ""
@@ -182,7 +183,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        72
+        66
       ]
     ],
     "translation": "Explorar"
@@ -194,15 +195,19 @@
     "origin": [
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
-        101
+        102
       ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
         254
       ],
       [
+        "src/lib/components/field-editors/select.svelte",
+        149
+      ],
+      [
         "src/lib/components/field-editors/multi-select.svelte",
-        270
+        268
       ]
     ],
     "translation": ""
@@ -225,8 +230,12 @@
     "comments": [],
     "origin": [
       [
+        "src/lib/components/field-editors/select.svelte",
+        106
+      ],
+      [
         "src/lib/components/field-editors/multi-select.svelte",
-        196
+        198
       ]
     ],
     "translation": ""
@@ -238,11 +247,11 @@
     "origin": [
       [
         "src/lib/components/ui/button/x-button.svelte",
-        19
+        14
       ],
       [
         "src/lib/components/responsive-popup/responsive-popup.svelte",
-        40
+        38
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
@@ -262,7 +271,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        116
+        110
       ]
     ],
     "translation": "Cerrar Diccionario"
@@ -286,7 +295,7 @@
     "origin": [
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
-        103
+        104
       ],
       [
         "src/lib/entry-editor/NewEntryButton.svelte",
@@ -327,7 +336,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        71
+        65
       ]
     ],
     "translation": "Panel de Control"
@@ -363,11 +372,11 @@
     "origin": [
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        45
+        50
       ],
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        52
+        57
       ]
     ],
     "translation": ""
@@ -379,7 +388,7 @@
     "origin": [
       [
         "src/project/browse/EntryMenu.svelte",
-        20
+        44
       ]
     ],
     "translation": ""
@@ -407,10 +416,22 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        68
+        62
       ]
     ],
     "translation": "Diccionario"
+  },
+  "OVGpil": {
+    "message": "Dictionary Preview",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        50
+      ]
+    ],
+    "translation": ""
   },
   "z9VIKz": {
     "message": "Don't delete",
@@ -419,7 +440,7 @@
     "origin": [
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        51
+        56
       ]
     ],
     "translation": ""
@@ -441,6 +462,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        37
+      ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
         259
@@ -467,7 +492,7 @@
     "origin": [
       [
         "src/project/browse/EntriesList.svelte",
-        84
+        100
       ]
     ],
     "translation": ""
@@ -491,7 +516,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        133
+        127
       ],
       [
         "src/home/HomeView.svelte",
@@ -507,7 +532,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        25
+        29
       ]
     ],
     "translation": ""
@@ -550,7 +575,8 @@
         76
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "6HLTEb": {
     "message": "Filter...",
@@ -558,8 +584,12 @@
     "comments": [],
     "origin": [
       [
+        "src/lib/components/field-editors/select.svelte",
+        102
+      ],
+      [
         "src/lib/components/field-editors/multi-select.svelte",
-        192
+        194
       ]
     ],
     "translation": ""
@@ -571,7 +601,19 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        59
+        65
+      ]
+    ],
+    "translation": ""
+  },
+  "vLyv1R": {
+    "message": "Hide",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        60
       ]
     ],
     "translation": ""
@@ -583,7 +625,7 @@
     "origin": [
       [
         "src/project/browse/EntryMenu.svelte",
-        21
+        45
       ],
       [
         "src/lib/history/HistoryView.svelte",
@@ -615,6 +657,18 @@
       ]
     ],
     "translation": "Logotipo de Lexbox"
+  },
+  "8oegWV": {
+    "message": "List mode",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        67
+      ]
+    ],
+    "translation": ""
   },
   "4PN67S": {
     "message": "Loading Dictionaries...",
@@ -702,7 +756,8 @@
         78
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
@@ -711,7 +766,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        142
+        136
       ]
     ],
     "translation": "Hecho con ❤️ desde 🇦🇹 🇹🇭 🇺🇸"
@@ -783,7 +838,7 @@
     "origin": [
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
-        88
+        89
       ]
     ],
     "translation": ""
@@ -843,7 +898,7 @@
     "origin": [
       [
         "src/project/browse/EntriesList.svelte",
-        99
+        120
       ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
@@ -870,8 +925,12 @@
     "comments": [],
     "origin": [
       [
+        "src/lib/components/field-editors/select.svelte",
+        114
+      ],
+      [
         "src/lib/components/field-editors/multi-select.svelte",
-        215
+        213
       ]
     ],
     "translation": ""
@@ -894,8 +953,12 @@
     "comments": [],
     "origin": [
       [
+        "src/lib/components/field-editors/select.svelte",
+        89
+      ],
+      [
         "src/lib/components/field-editors/multi-select.svelte",
-        167
+        169
       ]
     ],
     "translation": ""
@@ -908,6 +971,18 @@
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
         31
+      ]
+    ],
+    "translation": ""
+  },
+  "OsAKOS": {
+    "message": "Open in new Window",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        47
       ]
     ],
     "translation": ""
@@ -938,6 +1013,31 @@
         41
       ]
     ],
+    "translation": "",
+    "obsolete": true
+  },
+  "kNiQp6": {
+    "message": "Pinned",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        66
+      ]
+    ],
+    "translation": ""
+  },
+  "rdUucN": {
+    "message": "Preview",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        80
+      ]
+    ],
     "translation": ""
   },
   "Xp1CO/": {
@@ -966,7 +1066,8 @@
         56
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "TG4hr2": {
     "message": "Refresh Projects",
@@ -1038,7 +1139,8 @@
         75
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "Ivc0e8": {
     "message": "Sense",
@@ -1059,7 +1161,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        104
+        98
       ]
     ],
     "translation": "Configuración"
@@ -1072,6 +1174,18 @@
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
         44
+      ]
+    ],
+    "translation": ""
+  },
+  "8vETh9": {
+    "message": "Show",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/ViewPicker.svelte",
+        54
       ]
     ],
     "translation": ""
@@ -1095,7 +1209,19 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        45
+        47
+      ]
+    ],
+    "translation": ""
+  },
+  "AQK14J": {
+    "message": "Simple",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        76
       ]
     ],
     "translation": ""
@@ -1115,7 +1241,7 @@
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        273
+        271
       ]
     ],
     "translation": ""
@@ -1155,7 +1281,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        86
+        80
       ]
     ],
     "translation": "Sincronizar"
@@ -1167,7 +1293,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        73
+        67
       ]
     ],
     "translation": "Tareas"
@@ -1215,7 +1341,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        127
+        121
       ],
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
@@ -1251,11 +1377,15 @@
     "origin": [
       [
         "src/project/browse/EntryView.svelte",
-        53
+        40
       ],
       [
         "src/project/browse/EntryRow.svelte",
-        51
+        55
+      ],
+      [
+        "src/project/browse/EntryMenu.svelte",
+        31
       ]
     ],
     "translation": ""
@@ -1267,7 +1397,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        141
+        135
       ]
     ],
     "translation": "Versión {0}"
@@ -1279,7 +1409,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        19
+        23
       ]
     ],
     "translation": ""
@@ -1291,7 +1421,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        36
+        40
       ]
     ],
     "translation": ""

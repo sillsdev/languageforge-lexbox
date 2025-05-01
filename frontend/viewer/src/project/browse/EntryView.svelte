@@ -2,7 +2,7 @@
   import { Icon } from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import { useViewSettings } from '$lib/views/view-service';
-  import { resource, Debounced } from 'runed';
+  import {resource, Debounced} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
@@ -11,7 +11,10 @@
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import {Toggle} from '$lib/components/ui/toggle';
   import {XButton} from '$lib/components/ui/button';
+  import type {IEntry} from '$lib/dotnet-types';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
@@ -34,25 +37,47 @@
     },
   );
   const entry = $derived(entryResource.current ?? undefined);
-  const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
+  const loadingDebounced = new Debounced(() => entryResource.loading, 50);
+  let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
+  const sticky = $derived.by(() => dictionaryPreview === 'sticky');
+
 </script>
+
+{#snippet preview(entry: IEntry)}
+  <div class="pb-4">
+    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/30 p-4')}>
+      {#snippet actions()}
+        <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
+          aria-label={`Toggle pinned`} class="aspect-square" size="xs">
+          <Icon icon="i-mdi-pin-outline" class="size-5" />
+        </Toggle>
+      {/snippet}
+    </DictionaryEntry>
+  </div>
+{/snippet}
 
 <div class="h-full flex flex-col relative">
   {#if entry}
-    <header class="mb-4 flex justify-between">
-      <div>
+    <header>
+      <div class="mb-4 flex justify-between">
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
+        <div class="flex">
+          <ViewPicker bind:dictionaryPreview />
+          <EntryMenu {entry} />
+        </div>
       </div>
-      <div class="flex">
-        <ViewPicker/>
-        <EntryMenu {entry} />
-      </div>
+      {#if dictionaryPreview === 'sticky'}
+        {@render preview(entry)}
+      {/if}
     </header>
     <ScrollArea class={cn('grow md:pr-4', !$viewSettings.showEmptyFields && 'hide-unused')}>
+      {#if dictionaryPreview === 'show'}
+        {@render preview(entry)}
+      {/if}
       <EntryEditor {entry} disablePortalButtons />
     </ScrollArea>
   {/if}

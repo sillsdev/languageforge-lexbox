@@ -4,13 +4,15 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
+  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
 
-  const { entry, isSelected = false, onclick, skeleton = false, badge = undefined }: {
+  const { entry, isSelected = false, onclick, skeleton = false, badge = undefined, previewDictionary = false }: {
     entry?: IEntry;
     isSelected?: boolean;
     onclick?: () => void;
     skeleton?: boolean;
-    badge?: Snippet
+    badge?: Snippet,
+    previewDictionary?: boolean;
   } = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -47,6 +49,8 @@
       <div class="h-4 bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}"></div>
       <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
     </div>
+  {:else if previewDictionary}
+    <DictionaryEntry {entry}/>
   {:else}
     <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
     <div class="flex flex-row items-start justify-between gap-2">

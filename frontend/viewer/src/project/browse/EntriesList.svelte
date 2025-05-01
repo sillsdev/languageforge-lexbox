@@ -21,12 +21,14 @@
     sortDirection = 'asc',
     onSelectEntry,
     gridifyFilter = undefined,
+    previewDictionary = false
   }: {
     search?: string;
     selectedEntry?: IEntry;
     sortDirection: 'asc' | 'desc';
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
+    previewDictionary?: boolean
   } = $props();
   const miniLcmApi = useMiniLcmApi();
   const dialogsService = useDialogsService();
@@ -108,7 +110,10 @@
       {:else}
         {#each entries as entry}
           <EntryMenu {entry} contextMenu>
-              <EntryRow {entry} isSelected={selectedEntry?.id === entry.id} onclick={() => onSelectEntry(entry)}/>
+              <EntryRow {entry}
+                isSelected={selectedEntry?.id === entry.id}
+                onclick={() => onSelectEntry(entry)}
+                {previewDictionary} />
           </EntryMenu>
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
