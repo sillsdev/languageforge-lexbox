@@ -18,10 +18,11 @@
 </script>
 
 <div class="relative">
-  <Select label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value on:change>
+  <!-- TODO: Used to have an on:change attribute below, let's remove it and see if the bubbler function works as it should -->
+  <Select label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value>
     <option value={undefined}>{$t('common.any')}</option>
     {#each Object.entries(options) as [value, label]}
-      <option value={value}>{$t(label)}</option>
+      <option {value}>{$t(label)}</option>
     {/each}
   </Select>
 </div>

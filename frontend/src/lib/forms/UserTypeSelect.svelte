@@ -13,17 +13,19 @@
   const options: Record<Exclude<UserType, undefined>, I18nKey> = {
     admin: 'admin_dashboard.user_filter.user_type.admin',
     nonAdmin: 'admin_dashboard.user_filter.user_type.nonAdmin',
-    guest: 'admin_dashboard.user_filter.user_type.guest'
+    guest: 'admin_dashboard.user_filter.user_type.guest',
   };
 </script>
 
 <div class="relative">
-  <Select id="type" label={$t('admin_dashboard.user_filter.user_type.label')} bind:value on:change>
+  <!-- TODO: This used to have an on:change attribute to bubble up the submit event from HTML.
+       Let's check if the createBubbler() call in Form makes that unnecessary now. -->
+  <Select id="type" label={$t('admin_dashboard.user_filter.user_type.label')} bind:value>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}
     {#each Object.entries(options) as [value, label]}
-      <option value={value}>{$t(label)}</option>
+      <option {value}>{$t(label)}</option>
     {/each}
   </Select>
 </div>

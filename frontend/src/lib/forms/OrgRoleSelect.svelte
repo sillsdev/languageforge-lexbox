@@ -12,7 +12,9 @@
   let { id = 'role', value = $bindable(), error = undefined }: Props = $props();
 </script>
 
-<Select {id} bind:value label={$t('org_role.label')} {error} on:change>
+<!-- TODO: This used to have an on:change attribute to bubble up the submit event from HTML.
+     Let's check if the createBubbler() call in Form makes that unnecessary now. -->
+<Select {id} bind:value label={$t('org_role.label')} {error}>
   <option value={OrgRole.User}>
     {$t('org_role.user_description')}
   </option>

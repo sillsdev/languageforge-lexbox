@@ -65,13 +65,13 @@ test.describe('oauth tests', () => {
     });
   }
 
-  async function addUserToProjectNewContext(browser: Browser, userId: string) {
+  async function addUserToProjectNewContext(browser: Browser, userId: string): Promise<void> {
     const context = await browser.newContext();
     await loginAs(context.request, 'admin');
     await addUserToProject(context.request, userId, elawaProjectId, 'EDITOR');
   }
 
-  async function userProjectCount(apiOrToken: APIRequestContext | string) {
+  async function userProjectCount(apiOrToken: APIRequestContext | string): Promise<number> {
     if (typeof apiOrToken === 'string') {
       const response = await fetch(`${serverBaseUrl}/api/AuthTesting/token-project-count`, {method: 'GET', headers: {'authorization': `Bearer ${apiOrToken}`}});
       expect(response.status).toBe(200);

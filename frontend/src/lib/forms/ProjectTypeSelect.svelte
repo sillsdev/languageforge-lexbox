@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {FormatProjectType, ProjectTypeIcon} from '$lib/components/ProjectType';
+  import { FormatProjectType, ProjectTypeIcon } from '$lib/components/ProjectType';
   import { ProjectType } from '$lib/gql/types';
   import t from '$lib/i18n';
   import Select from './Select.svelte';
@@ -15,26 +15,29 @@
     value = $bindable(),
     error = undefined,
     undefinedOptionLabel = undefined,
-    includeUnknown = false
+    includeUnknown = false,
   }: Props = $props();
   const types = [
     ProjectType.FlEx,
     ProjectType.WeSay,
     ProjectType.OneStoryEditor,
     ProjectType.OurWord,
-    ProjectType.AdaptIt
+    ProjectType.AdaptIt,
   ];
 </script>
+
 <div class="relative">
-  <Select id="type" label={$t('project_type.type')} bind:value {error} on:change>
+  <!-- TODO: This used to have an on:change attribute to bubble up the submit event from HTML.
+       Let's check if the createBubbler() call in Form makes that unnecessary now. -->
+  <Select id="type" label={$t('project_type.type')} bind:value {error}>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}
     {#each types as type}
-      <option value={type}><FormatProjectType {type}/></option>
+      <option value={type}><FormatProjectType {type} /></option>
     {/each}
     {#if includeUnknown}
-      <option value={ProjectType.Unknown}><FormatProjectType type={ProjectType.Unknown}/></option>
+      <option value={ProjectType.Unknown}><FormatProjectType type={ProjectType.Unknown} /></option>
     {/if}
   </Select>
   <span class="absolute right-10 top-[3.75rem] -translate-y-1/2 pointer-events-none leading-0">

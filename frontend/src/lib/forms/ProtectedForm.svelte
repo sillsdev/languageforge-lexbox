@@ -25,7 +25,9 @@
   }
 </script>
 
-<Form {enhance} on:submit>
+<!-- TODO: This used to have an on:submit attribute to bubble up the submit event from HTML.
+     Let's check if the createBubbler() call in Form makes that unnecessary now. -->
+<Form {enhance}>
   {@render children?.()}
 </Form>
 
