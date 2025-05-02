@@ -14,7 +14,7 @@
     hideActions?: boolean;
     doneText?: string;
     showDoneState?: boolean;
-    children?: Snippet<[unknown]>;
+    children?: Snippet<[{ done: boolean; error: ErrorMessage }]>;
   }
 
   let {

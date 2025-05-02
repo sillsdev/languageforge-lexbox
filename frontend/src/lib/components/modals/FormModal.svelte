@@ -3,7 +3,7 @@
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import type { LexFormErrors, LexFormState } from '$lib/forms/superforms';
   import type { AnyZodObject, ZodObject, z } from 'zod';
-  import type { ZodValidation } from 'sveltekit-superforms';
+  import type { UnwrapEffects, ValidationErrors, ZodValidation } from 'sveltekit-superforms';
   import type { ErrorMessage } from '$lib/forms';
 
   export type FormModalResult<S extends AnyZodObject> = {
@@ -34,7 +34,7 @@
     hideActions?: boolean;
     showDoneState?: boolean;
     title?: Snippet;
-    children?: Snippet<[unknown]>;
+    children?: Snippet<[{ errors: ValidationErrors<UnwrapEffects<Schema>> }]>;
     extraActions?: Snippet;
     submitText?: Snippet;
     doneText?: Snippet;

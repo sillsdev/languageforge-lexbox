@@ -4,7 +4,6 @@
   import { helpLinks } from '../help';
   import type { Confidentiality } from './ProjectFilter.svelte';
 
-  
   interface Props {
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
     value: Confidentiality | undefined;

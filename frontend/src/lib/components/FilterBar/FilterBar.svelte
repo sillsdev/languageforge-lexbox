@@ -44,7 +44,7 @@
     loading?: boolean;
     debounce?: number | boolean;
     debouncing?: boolean;
-    activeFilterSlot?: Snippet<unknown[]>;
+    activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
   }
 
