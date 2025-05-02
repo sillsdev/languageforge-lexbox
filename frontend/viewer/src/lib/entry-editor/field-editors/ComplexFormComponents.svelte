@@ -8,7 +8,7 @@
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
   import type { IEntry, ISense, IComplexFormComponent } from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };
@@ -67,7 +67,7 @@
         <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
           Add Component
         </Button>
-        <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} on:pick={(e) => addComponent(e.detail)}
+        <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} pick={(e) => addComponent(e)}
           {disableEntry} {disableSense} />
       </svelte:fragment>
     </EntryOrSenseItemList>

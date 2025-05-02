@@ -1,16 +1,21 @@
 <script lang="ts">
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type { IEntry } from '$lib/dotnet-types';
-  import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import type {Snippet} from 'svelte';
+  import {t} from 'svelte-i18n-lingui';
+  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
 
-  const { entry, isSelected = false, onclick, skeleton = false }: {
+  const { entry, isSelected = false, onclick, skeleton = false, badge = undefined, previewDictionary = false }: {
     entry?: IEntry;
     isSelected?: boolean;
     onclick?: () => void;
     skeleton?: boolean;
+    badge?: Snippet,
+    previewDictionary?: boolean;
   } = $props();
 
-  const writingSystemService = $derived(useWritingSystemRunes());
+  const writingSystemService = useWritingSystemService();
   const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
   const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
 
@@ -30,7 +35,7 @@
 </script>
 
 <button
-  class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:bg-muted hover:bg-muted rounded"
+  class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:ring-2 ring-primary ring-offset-background hover:bg-muted rounded"
   role="row"
   aria-selected={isSelected}
   class:cursor-default={skeleton}
@@ -44,18 +49,22 @@
       <div class="h-4 bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}"></div>
       <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
     </div>
+  {:else if previewDictionary}
+    <DictionaryEntry {entry}/>
   {:else}
-    <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || 'Untitled'}</h2>
+    <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || $t`Untitled`}</h2>
     <div class="flex flex-row items-start justify-between gap-2">
       {#if sensePreview}
       <div class="text-sm text-muted-foreground">
         {sensePreview}
       </div>
-      {#if partOfSpeech}
-        <Badge variant="default" class="bg-primary/60">
-          {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
-        </Badge>
-      {/if}
+        {#if badge}
+          {@render badge()}
+        {:else if partOfSpeech}
+          <Badge variant="default" class="bg-primary/60">
+            {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
+          </Badge>
+        {/if}
     {/if}
     </div>
 

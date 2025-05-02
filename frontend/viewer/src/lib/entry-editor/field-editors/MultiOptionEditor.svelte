@@ -4,7 +4,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import {useCurrentView} from '$lib/views/view-service';
   import MapBind from '../../utils/MapBind.svelte';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtMultiOptionField from '../inputs/CrdtMultiOptionField.svelte';
 
@@ -110,6 +110,6 @@
 <div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
-    <CrdtMultiOptionField on:change={onChange} bind:value={ids} options={uiOptions} placeholder={ws.abbreviation} {readonly} {preserveOrder} />
+    <CrdtMultiOptionField on:change={onChange} bind:value={ids} options={uiOptions} placeholder={ws?.abbreviation} {readonly} {preserveOrder} />
   </div>
 </div>

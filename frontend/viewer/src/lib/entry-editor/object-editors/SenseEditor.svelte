@@ -5,8 +5,8 @@
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
   import {useSemanticDomains} from '../../semantic-domains';
-  import {useWritingSystemService} from '../../writing-system-service';
-  import {usePartsOfSpeech} from '../../parts-of-speech';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
+  import {usePartsOfSpeech} from '../../parts-of-speech.svelte';
   import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
 
   export let sense: ISense;
@@ -31,7 +31,7 @@
   <SingleOptionEditor on:change={() => sense.partOfSpeechId = sense.partOfSpeech?.id}
                       on:change
                       bind:value={sense.partOfSpeech}
-                      options={$partsOfSpeech}
+                      options={partsOfSpeech.current}
                       getOptionLabel={(pos) => pos.label}
                       {readonly}
                       id="partOfSpeechId"
@@ -39,7 +39,7 @@
   <MultiOptionEditor
                     on:change
                     bind:value={sense.semanticDomains}
-                    options={$semanticDomains}
+                    options={semanticDomains.current}
                     getOptionLabel={(sd) => `${sd.code} ${writingSystemService.pickBestAlternative(sd.name, 'analysis')}`}
                     {readonly}
                     id="semanticDomains"

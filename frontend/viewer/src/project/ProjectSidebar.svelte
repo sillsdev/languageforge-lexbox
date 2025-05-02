@@ -8,11 +8,10 @@
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import {onDestroy} from 'svelte';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate} from 'svelte-routing';
-  import NewEntryButton from './NewEntryButton.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import type {IProjectModel} from '$lib/dotnet-types';
+  import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
 
   let { projectName, currentView = $bindable() } = $props<{
     projectName: string;
@@ -21,23 +20,17 @@
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
-  let intervalId = setInterval(() => {
-    isSynchronizing = !isSynchronizing;
-  }, 2000);
 
-  onDestroy(() => {
-    clearInterval(intervalId);
-  });
-
-  function handleProjectSelect(selectedProjectName: string) {
-    console.log('selectedProjectName', selectedProjectName);
-  }
-
-  function handleNewEntry() {
-    console.log('handleNewEntry');
+  function handleProjectSelect(selectedProject: IProjectModel) {
+    if (selectedProject.fwdata) {
+      navigate('/fwdata/' + selectedProject.name);
+    } else if (selectedProject.crdt) {
+      navigate('/project/' + selectedProject.code)
+    }
   }
 
   let sidebar: Sidebar.Root | undefined = $state();
+  const primaryAction = usePrimaryAction();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -60,7 +53,7 @@
         <ThemePicker />
       </div>
       <div class="mx-auto">
-        <NewEntryButton active={!IsMobile.value && sidebar?.isOpen()} onclick={handleNewEntry} />
+        {@render primaryAction.snippet?.(sidebar?.isOpen())}
       </div>
     </div>
   </Sidebar.Header>

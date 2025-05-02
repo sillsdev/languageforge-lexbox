@@ -1,16 +1,15 @@
 ﻿<script lang="ts">
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import {useHistoryService} from '$lib/services/history-service';
-  import {mdiClose} from '@mdi/js';
+  import * as Dialog from '$lib/components/ui/dialog';
   import {
-    Button,
     cls,
-    Dialog,
     Duration,
     DurationUnits,
     InfiniteScroll,
     ListItem
   } from 'svelte-ux';
+  import {t} from 'svelte-i18n-lingui';
 
   const historyService = useHistoryService();
 
@@ -33,6 +32,7 @@
   $: if (open && projectName) {
     void load();
   }
+  $: if (!open) reset();
 
   async function load() {
     activity = [];
@@ -72,15 +72,17 @@
   }
 </script>
 
-<Dialog bind:open {loading} persistent={loading} on:close={reset}>
-  <Button on:click={() => open = false} icon={mdiClose} class="absolute right-2 top-2 z-40" rounded="full"></Button>
-  <div slot="title">Activity</div>
-  {#if !loading}
-  <div class="m-4 mt-0 grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
+<Dialog.Root bind:open>
+  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col">
+    <Dialog.DialogHeader>
+      <Dialog.DialogTitle>{$t`Activity`}</Dialog.DialogTitle>
+    </Dialog.DialogHeader>
+    {#if !loading}
+  <div class="grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if !activity || activity.length === 0}
-          <div class="p-4 text-center opacity-75">No activity found</div>
+          <div class="p-4 text-center opacity-75">{$t`No activity found`}</div>
         {:else}
           <InfiniteScroll perPage={50} items={activity} let:visibleItems>
             {#each visibleItems as row (row.timestamp)}
@@ -94,10 +96,10 @@
                     <Duration totalUnits={2} start={new Date(row.timestamp)}
                               end={new Date(row.previousTimestamp)}
                               minUnits={DurationUnits.Second}/>
-                    before
+                    {$t`before`}
                   {:else}
                     <Duration totalUnits={2} start={new Date(row.timestamp)} minUnits={DurationUnits.Second}/>
-                    ago
+                    {$t`ago`}
                   {/if}
                 </div>
               </ListItem>
@@ -110,19 +112,19 @@
     <div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
       {#if selectedRow}
         <div class="col-start-2 row-start-1 text-sm">
-          <span>Author:
+          <span>{$t`Author:`}
             {#if selectedRow.metadata.authorName}
               <span class="font-semibold">{selectedRow.metadata.authorName}</span>
             {:else}
-              <span class="opacity-75 italic">Unknown</span>
+              <span class="opacity-75 italic">{$t`Unknown`}</span>
             {/if}
           </span>
           {#if selectedRow.changes.length > 1}
-            <span>– ({selectedRow.changes.length} changes)</span>
+            <span>{$t`– (${selectedRow.changes.length} changes)`}</span>
           {/if}
           {#if selectedRow.metadata.extraMetadata['SyncDate']}
             <span class="float-right">
-              Synced <Duration totalUnits={2} minUnits={DurationUnits.Second} start={new Date(selectedRow.metadata.extraMetadata['SyncDate'])}/> ago
+              {$t`Synced`} <Duration totalUnits={2} minUnits={DurationUnits.Second} start={new Date(selectedRow.metadata.extraMetadata['SyncDate'])}/> {$t`ago`}
             </span>
           {/if}
         </div>
@@ -139,8 +141,8 @@
     </div>
   </div>
   {/if}
-  <div class="flex-grow"></div>
-</Dialog>
+  </Dialog.DialogContent>
+</Dialog.Root>
 
 <style lang="postcss">
   :global(.change-list .sentinel) {

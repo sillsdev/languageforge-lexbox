@@ -4,6 +4,7 @@ namespace FwLiteShared.Events;
 
 [JsonPolymorphic]
 [JsonDerivedType(typeof(EntryChangedEvent), nameof(EntryChangedEvent))]
+[JsonDerivedType(typeof(EntryDeletedEvent), nameof(EntryDeletedEvent))]
 [JsonDerivedType(typeof(ProjectEvent), nameof(ProjectEvent))]
 [JsonDerivedType(typeof(AuthenticationChangedEvent), nameof(AuthenticationChangedEvent))]
 public interface IFwEvent
@@ -19,4 +20,5 @@ public enum FwEventType
     EntryChanged,
     AuthenticationChanged,
     ProjectEvent,
+    EntryDeleted
 }

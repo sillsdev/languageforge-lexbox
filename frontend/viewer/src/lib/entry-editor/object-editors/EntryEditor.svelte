@@ -1,12 +1,12 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
-  import {useDialogService} from '$lib/entry-editor/dialog-service';
+  import {useDialogsService} from '$lib/services/dialogs-service';
   import {fieldName} from '$lib/i18n';
   import Scotty from '$lib/layout/Scotty.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import {defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
   import {Button, MenuItem} from 'svelte-ux';
@@ -20,8 +20,9 @@
   import EntityEditor from './EntityEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
   import SenseEditor from './SenseEditor.svelte';
+  import {EditorGrid} from '$lib/components/editor';
 
-  const dialogService = useDialogService();
+  const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -103,7 +104,7 @@
   export let canAddSense = true;
   export let canAddExample = true;
 
-  let editorElem: HTMLDivElement | undefined;
+  let editorElem: HTMLDivElement | null = null;
   let highlightedEntity: IExampleSentence | ISense | undefined;
   let highlightTimeout: ReturnType<typeof setTimeout>;
 
@@ -147,7 +148,7 @@
   let showHistoryView = false;
 </script>
 
-<div bind:this={editorElem} class="editor-grid">
+<EditorGrid bind:ref={editorElem}>
   <div class="grid-layer" style:grid-template-areas={`${objectTemplateAreas($currentView, entry)}`}>
     <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                       bind:value={entry.lexemeForm}
@@ -262,10 +263,10 @@
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
-</div>
+</EditorGrid>
 
 {#if !modalMode}
-{@const willRenderAnyButtons = $features.history || !readonly}
+{@const willRenderAnyButtons = features.history || !readonly}
   {#if willRenderAnyButtons && !disablePortalButtons}
   <div class="hidden">
     <Scotty beamMeTo="right-toolbar" let:projectViewState>
@@ -281,7 +282,7 @@
           </div>
         </Button>
       {/if}
-      {#if $features.history}
+      {#if features.history}
         <Button on:click={() => showHistoryView = true} title="View entry level history" icon={mdiHistory} variant="fill-light" color="info" size="sm">
           <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
             History
@@ -297,7 +298,7 @@
               Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
             </MenuItem>
           {/if}
-          {#if $features.history}
+          {#if features.history}
             <MenuItem on:click={() => showHistoryView = true} icon={mdiHistory}>
               History
             </MenuItem>
@@ -309,7 +310,7 @@
   </div>
 
   {/if}
-  {#if $features.history}
+  {#if features.history}
     <HistoryView id={entry.id} bind:open={showHistoryView} />
   {/if}
 {/if}

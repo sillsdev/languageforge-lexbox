@@ -40,7 +40,7 @@
 </script>
 
 {#if isActive}
-  <div in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
+  <div class="relative z-[1]" in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
     <Button variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick" {onclick}>
       {#if shortForm}
         <span>{$t`New`}</span>

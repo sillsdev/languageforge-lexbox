@@ -35,7 +35,7 @@
   let showHistoryView = false;
 </script>
 
-{#if !readonly || $features.history}
+{#if !readonly || features.history}
 <ButtonGroup color="primary" variant="outline" class="border overflow-hidden rounded icon-button-group-container" rounded={false}>
   {#if !only && !readonly}
     <Toggle let:on={open} let:toggle let:toggleOff>
@@ -79,7 +79,7 @@
       {/if}
     </Toggle>
   {/if}
-  {#if $features.history && id}
+  {#if features.history && id}
     <Button on:click={() => showHistoryView = true} icon={mdiHistory} variant="fill-light" color="info"></Button>
     <HistoryView bind:open={showHistoryView} {id}/>
   {/if}

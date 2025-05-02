@@ -9,7 +9,7 @@
   import {useSearch} from './search';
   import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const {search, showSearchDialog} = useSearch();
   const writingSystemService = useWritingSystemService();

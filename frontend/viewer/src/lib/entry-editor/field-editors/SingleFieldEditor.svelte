@@ -3,7 +3,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import {useCurrentView} from '$lib/views/view-service';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import {makeHasHadValueTracker} from '$lib/utils';
 
   export let id: string;
@@ -25,6 +25,6 @@
 <div class="single-field field" class:unused={!$hasHadValue} class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle id={id} {name}/>
   <div class="fields">
-    <CrdtTextField on:change bind:value placeholder={ws.abbreviation} {readonly} />
+    <CrdtTextField on:change bind:value placeholder={ws?.abbreviation} {readonly} />
   </div>
 </div>

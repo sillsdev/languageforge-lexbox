@@ -38,7 +38,7 @@
     "@graphql-codegen/typescript": "^4.1.6",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@iconify-json/mdi": "^1.2.3",
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "catalog:",
     "@stylistic/eslint-plugin": "catalog:",
     "@sveltejs/adapter-node": "^5.2.12",
     "@sveltejs/kit": "2.20.7",

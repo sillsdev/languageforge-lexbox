@@ -1,7 +1,7 @@
 <script lang="ts">
   import {useComplexFormTypes} from '$lib/complex-form-types';
   import type {IComplexFormType} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '../../writing-system-service';
+  import {useWritingSystemService} from '../../writing-system-service.svelte';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
 
   export let id: string;
@@ -16,7 +16,7 @@
   on:change
   bind:value
   preserveOrder
-  options={$complexFormTypes}
+  options={complexFormTypes.current}
   getOptionLabel={(cft) => writingSystemService.pickBestAlternative(cft.name, 'analysis')}
   {readonly}
   {id}
