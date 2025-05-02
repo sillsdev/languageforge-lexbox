@@ -1,12 +1,9 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
+  import { untrack } from 'svelte';
   import zxcvbn from 'zxcvbn';
 
   // zxcvbn password strength is an int between 0 and 4 inclusive
   // Feedback colors are red for bad passwords, yellow for poor, green for good
-  
-
 
   function passwordStrengthColor(score: number): 'progress-error' | 'progress-warning' | 'progress-success' {
     if (score <= bad) return 'progress-error';
@@ -30,8 +27,8 @@
   }: Props = $props();
 
   let strength = $derived(zxcvbn(password));
-  run(() => {
-    score = strength.score;
+  $effect(() => {
+    score = untrack(() => strength.score);
   });
   let progressColor = $derived(passwordStrengthColor(score));
 </script>

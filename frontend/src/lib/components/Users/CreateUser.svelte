@@ -44,9 +44,6 @@
     handleSubmit,
     formTainted = $bindable(false),
   }: Props = $props();
-  run(() => {
-    formTainted = !!$tainted;
-  });
 
   const dispatch = createEventDispatcher<{
     submitted: LexAuthUser;
@@ -108,6 +105,9 @@
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
+  });
+  run(() => {
+    formTainted = !!$tainted;
   });
   onMount(() => {
     // query params not available during SSR
