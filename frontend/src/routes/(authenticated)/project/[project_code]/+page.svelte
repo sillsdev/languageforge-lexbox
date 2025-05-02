@@ -449,7 +449,7 @@
     {#snippet headerContent()}
       <BadgeList>
         <ProjectConfidentialityBadge
-          onclick={projectConfidentialityModal!.openModal}
+          onclick={projectConfidentialityModal?.openModal}
           {canManage}
           isConfidential={project.isConfidential ?? undefined}
         />
@@ -651,7 +651,7 @@
               {$t('delete_project_modal.submit')}
               <TrashIcon />
             </button>
-            <Button outline variant="btn-warning" onclick={projectConfidentialityModal!.openModal}>
+            <Button outline variant="btn-warning" onclick={projectConfidentialityModal?.openModal}>
               {$t('project.confidential.set_confidentiality')}
               <Icon icon="i-mdi-shield-lock-outline" />
             </Button>
