@@ -100,8 +100,8 @@
     }
   }
 
-  function onOverlayOpen(e: CustomEvent): void {
-    typeaheadOpen = e.detail;
+  function onOverlayOpen(open: boolean): void {
+    typeaheadOpen = open;
     if (!typeaheadOpen) {
       typeaheadResults = []; // prevent old results showing when opening next time
     }
@@ -124,8 +124,7 @@
 </script>
 
 <FormField {id} {label} {error} {autofocus}>
-  <div use:overlay={{ closeClickSelector: '.menu li'}}
-    onoverlayOpen={onOverlayOpen}>
+  <div use:overlay={{ closeClickSelector: '.menu li', onOverlayOpen}}>
     <PlainInput
       style="w-full"
       bind:value {id}
