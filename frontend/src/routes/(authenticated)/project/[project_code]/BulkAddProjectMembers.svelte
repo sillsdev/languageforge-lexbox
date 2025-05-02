@@ -120,7 +120,7 @@
           bind:value={$form!.password}
           error={errors.password}
         />
-        <PasswordStrengthMeter score={0} password={$form!.password} />
+        <PasswordStrengthMeter password={$form!.password} />
         <div class="contents usernames">
           <TextArea
             id="usernamesText"

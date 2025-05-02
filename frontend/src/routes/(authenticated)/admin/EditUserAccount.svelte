@@ -166,7 +166,12 @@
         autocomplete="new-password"
         error={errors.password}
       />
-      <PasswordStrengthMeter bind:score={$form!.score} password={$form!.password} />
+      <PasswordStrengthMeter
+        onScoreUpdated={(score) => {
+          if ($form) $form.score = score;
+        }}
+        password={$form!.password}
+      />
     </div>
     <FormError error={lockUserError} />
   {/snippet}

@@ -143,7 +143,7 @@
     error={$errors.password}
     autocomplete="new-password"
   />
-  <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
+  <PasswordStrengthMeter onScoreUpdated={(score) => ($form.score = score)} password={$form.password} />
   <DisplayLanguageSelect bind:value={$form.locale} />
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>

@@ -51,7 +51,7 @@
       error={$errors.password}
       autofocus
     />
-    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
+    <PasswordStrengthMeter onScoreUpdated={(score) => ($form.score = score)} password={$form.password} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>

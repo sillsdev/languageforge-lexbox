@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { untrack } from 'svelte';
   import zxcvbn from 'zxcvbn';
 
   // zxcvbn password strength is an int between 0 and 4 inclusive
@@ -15,24 +14,19 @@
     // Set threshholds for "bad" and "poor" by changing the values below
     bad?: number;
     poor?: number;
-    score: number;
+    onScoreUpdated?: (score: number) => void;
+    scoreOverride?: number;
     password?: string;
   }
 
-  let {
-    bad = 0,
-    poor = 2,
-    score = $bindable(),
-    password = ''
-  }: Props = $props();
+  let { bad = 0, poor = 2, onScoreUpdated, scoreOverride, password = '' }: Props = $props();
 
   let strength = $derived(zxcvbn(password));
-  $effect(() => {
-    score = untrack(() => strength.score);
-  });
+  let score = $derived(scoreOverride ?? strength.score);
+  $effect(() => onScoreUpdated?.(score));
   let progressColor = $derived(passwordStrengthColor(score));
 </script>
 
 <div class="mb-2">
-  <progress class="progress {progressColor} w-100" value={score+0.33} max={4.33}></progress>
+  <progress class="progress {progressColor} w-100" value={score + 0.33} max={4.33}></progress>
 </div>
