@@ -111,9 +111,9 @@
     }
   });
 
-  let addProjectMember: AddProjectMember = $state()!;
+  let addProjectMember: AddProjectMember | undefined = $state();
 
-  let userModal: UserModal = $state()!;
+  let userModal: UserModal | undefined = $state();
 
   let loadingRepoSize = $state(false);
   async function updateRepoSize(): Promise<void> {
@@ -163,14 +163,15 @@
   // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
   let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
 
-  let resetProjectModal: ResetProjectModal = $state()!;
+  let resetProjectModal: ResetProjectModal | undefined = $state();
   async function resetProject(): Promise<void> {
-    await resetProjectModal.open(project.code, project.resetStatus);
+    await resetProjectModal?.open(project.code, project.resetStatus);
   }
 
-  let removeUserModal: DeleteModal = $state()!;
+  let removeUserModal: DeleteModal | undefined = $state();
   let userToDelete: ProjectUser | undefined = $state();
   async function deleteProjectUser(projectUser: ProjectUser): Promise<void> {
+    if (!removeUserModal) return;
     userToDelete = projectUser;
     const deleted = await removeUserModal.prompt(async () => {
       const { error } = await _deleteProjectUser(project.id, projectUser.user.id);
@@ -181,9 +182,10 @@
     }
   }
 
-  let removeProjectFromOrgModal: DeleteModal = $state()!;
+  let removeProjectFromOrgModal: DeleteModal | undefined = $state();
   let orgToRemove: string = $state('');
   async function removeProjectFromOrg(orgId: string, orgName: string): Promise<void> {
+    if (!removeProjectFromOrgModal) return;
     orgToRemove = orgName;
     const removed = await removeProjectFromOrgModal.prompt(async () => {
       const { error } = await _removeProjectFromOrg(project.id, orgId);
@@ -223,9 +225,10 @@
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
-  let deleteProjectModal: ConfirmDeleteModal = $state()!;
+  let deleteProjectModal: ConfirmDeleteModal | undefined = $state();
 
   async function softDeleteProject(): Promise<void> {
+    if (!deleteProjectModal) return;
     projectStore.pause();
     changesetStore.pause();
     let deleted = false;
@@ -247,7 +250,7 @@
     }
   }
 
-  let hgCommandResultModal: Modal = $state()!;
+  let hgCommandResultModal: Modal | undefined = $state();
   let hgCommandResponse = $state('');
   let hgCommandRunning = $state(false);
 
@@ -282,6 +285,7 @@
   }
 
   async function hgCommand(execute: () => Promise<Response>): Promise<void> {
+    if (!hgCommandResultModal) return;
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
@@ -308,11 +312,12 @@
     }
   }
 
-  let projectConfidentialityModal: ProjectConfidentialityModal = $state()!;
-  let openInFlexModal: OpenInFlexModal = $state()!;
-  let leaveModal: ConfirmModal = $state()!;
+  let projectConfidentialityModal: ProjectConfidentialityModal | undefined = $state();
+  let openInFlexModal: OpenInFlexModal | undefined = $state();
+  let leaveModal: ConfirmModal | undefined = $state();
 
   async function leaveProject(): Promise<void> {
+    if (!leaveModal) return;
     projectStore.pause();
     changesetStore.pause();
     let left = false;
@@ -443,7 +448,7 @@
     {#snippet headerContent()}
       <BadgeList>
         <ProjectConfidentialityBadge
-          on:click={projectConfidentialityModal.openModal}
+          on:click={projectConfidentialityModal!.openModal}
           {canManage}
           isConfidential={project.isConfidential ?? undefined}
         />
@@ -591,14 +596,14 @@
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
         {canViewOtherMembers}
-        on:openUserModal={(event) => userModal.open(event.detail.user)}
+        on:openUserModal={(event) => userModal?.open(event.detail.user)}
         on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
       >
         {#snippet extraButtons()}
           <BadgeButton
             variant="badge-success"
             icon="i-mdi-account-plus-outline"
-            onclick={() => addProjectMember.openModal(undefined, undefined)}
+            onclick={() => addProjectMember?.openModal(undefined, undefined)}
           >
             {$t('project_page.add_user.add_button')}
           </BadgeButton>
@@ -645,7 +650,7 @@
               {$t('delete_project_modal.submit')}
               <TrashIcon />
             </button>
-            <Button outline variant="btn-warning" onclick={projectConfidentialityModal.openModal}>
+            <Button outline variant="btn-warning" onclick={projectConfidentialityModal!.openModal}>
               {$t('project.confidential.set_confidentiality')}
               <Icon icon="i-mdi-shield-lock-outline" />
             </Button>

@@ -7,8 +7,8 @@
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let alertMessageElem: HTMLElement = $state()!;
-  let traceIdElem: HTMLElement = $state()!;
+  let alertMessageElem: HTMLElement | undefined = $state();
+  let traceIdElem: HTMLElement | undefined = $state();
 
   const error = derived(useError(), (error) => {
     if (error) {
@@ -35,9 +35,12 @@
     error.subscribe((e) => {
       if (e) {
         alertMessageElem =
-          alertMessageElem ?? (browser ? document.querySelector('.error-message') : undefined) ?? undefined;
+          alertMessageElem ??
+          (browser ? (document.querySelector('.error-message') as HTMLElement) : undefined) ??
+          undefined;
         if (alertMessageElem) alertMessageElem.textContent = e.message;
-        traceIdElem = traceIdElem ?? (browser ? document.querySelector('.trace-id') : undefined) ?? undefined;
+        traceIdElem =
+          traceIdElem ?? (browser ? (document.querySelector('.trace-id') as HTMLElement) : undefined) ?? undefined;
         if (traceIdElem) traceIdElem.textContent = e.traceId;
       }
     }),
@@ -89,7 +92,8 @@
 
   <div>
     <span>{$t('errors.error_code')}:</span>
-    <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <span onclick={onTraceIdClick} class="trace-id" bind:this={traceIdElem}>{$error?.traceId}</span>
   </div>
 </div>

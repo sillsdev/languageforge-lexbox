@@ -32,6 +32,7 @@
   let done = $state(false);
 
   export async function open(onSubmit: () => Promise<ErrorMessage>): Promise<boolean> {
+    if (!modal) return false;
     done = false;
     if ((await modal.openModal()) === DialogResponse.Cancel) {
       error = undefined;
@@ -48,7 +49,7 @@
     return true;
   }
 
-  let modal: Modal = $state()!;
+  let modal: Modal | undefined = $state();
   let error: ErrorMessage = $state(undefined);
 </script>
 
@@ -60,13 +61,13 @@
   <FormError {error} right />
   {#snippet actions({ submitting, close })}
     {#if !done}
-      <Button variant={submitVariant} loading={submitting} onclick={() => modal.submitModal()}>
+      <Button variant={submitVariant} loading={submitting} onclick={() => modal?.submitModal()}>
         {submitText}
         {#if submitIcon}
           <Icon icon={submitIcon} />
         {/if}
       </Button>
-      <Button disabled={submitting} onclick={() => modal.cancelModal()}>
+      <Button disabled={submitting} onclick={() => modal?.cancelModal()}>
         {cancelText}
       </Button>
     {:else}

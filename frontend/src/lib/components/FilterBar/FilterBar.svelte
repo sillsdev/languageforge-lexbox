@@ -29,7 +29,7 @@
     change: Readonly<Filter<Filters>[]>;
   }>();
 
-  let searchInput: PlainInput = $state()!;
+  let searchInput: PlainInput | undefined = $state();
 
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
@@ -66,6 +66,7 @@
   let activeFilters: Readonly<Filter<Filters>[]> = $state([]);
 
   function onClearFiltersClick(): void {
+    if (!searchInput) return;
     searchInput.clear();
     $allFilters = {
       ...$allFilters,

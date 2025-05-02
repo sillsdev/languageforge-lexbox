@@ -27,10 +27,11 @@
     changeMemberRole: OrgUser;
   }>();
 
-  let removeMemberModal: DeleteModal = $state()!;
+  let removeMemberModal: DeleteModal | undefined = $state();
   let memberToRemove: string = $state('');
 
   async function removeMember(member: User): Promise<void> {
+    if (!removeMemberModal) return;
     memberToRemove = member.name;
     const removed = await removeMemberModal.prompt(async () => {
       const { error } = await _deleteOrgUser(org.id, member.id);
@@ -72,7 +73,7 @@
                   variant="btn-ghost"
                   size="btn-sm"
                   class="max-w-full"
-                  on:click={() => dispatch('openUserModal', memberUser)}
+                  onclick={() => dispatch('openUserModal', memberUser)}
                 >
                   <span class="x-ellipsis" title={memberUser.name}>
                     {memberUser.name}

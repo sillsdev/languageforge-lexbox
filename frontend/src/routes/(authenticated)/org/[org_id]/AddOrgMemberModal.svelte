@@ -28,7 +28,8 @@
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
     canInvite: z.boolean().default(false),
   });
-  let formModal: FormModal<typeof schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   const { notifySuccess } = useNotifications();
@@ -65,6 +66,7 @@
   }
 
   export async function openModal(): Promise<void> {
+    if (!formModal || !$form) return;
     resetProjects();
     let userInvited = false;
     const { response, formState } = await formModal.open(async () => {
@@ -120,7 +122,7 @@
         id="usernameOrEmail"
         label={$t('login.label_email')}
         isAdmin={$page.data.user?.isAdmin}
-        bind:value={$form.usernameOrEmail}
+        bind:value={$form!.usernameOrEmail}
         error={errors.usernameOrEmail}
         on:selectedUserChange={(event) => populateUserProjects(event.detail)}
         autofocus
@@ -131,12 +133,12 @@
         id="usernameOrEmail"
         type="text"
         label={$t('login.label_email')}
-        bind:value={$form.usernameOrEmail}
+        bind:value={$form!.usernameOrEmail}
         error={errors.usernameOrEmail}
         autofocus
       />
     {/if}
-    <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+    <OrgRoleSelect bind:value={$form!.role} error={errors.role} />
     {#if newProjects.length || alreadyAddedProjects.length}
       <div class="label label-text">
         {$t('org_page.add_user.also_add_projects')}
@@ -156,12 +158,12 @@
       label={$t('org_page.add_user.invite')}
       variant="checkbox-warning"
       labelColor="text-warning"
-      bind:value={$form.canInvite}
+      bind:value={$form!.canInvite}
     />
   {/snippet}
   {#snippet submitText()}
     <span>
-      {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
+      {#if $form!.canInvite && $form!.usernameOrEmail.includes('@')}
         {$t('org_page.add_user.submit_button_email')}
       {:else}
         {$t('org_page.add_user.submit_button')}

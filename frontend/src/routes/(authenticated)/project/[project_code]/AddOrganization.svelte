@@ -21,10 +21,12 @@
   });
 
   type Schema = typeof schema;
-  let formModal: FormModal<Schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   async function openModal(): Promise<void> {
+    if (!formModal || !$form) return;
     orgList = await _getOrgs(userIsAdmin);
     const selected = orgList.length > 0 && orgList.length < 6 ? { orgId: orgList[0].id } : {};
 
@@ -50,7 +52,7 @@
     <span>{$t('project_page.add_org.modal_title')}</span>
   {/snippet}
   {#snippet children({ errors })}
-    <Select id="org" label={$t('project_page.organization.title')} bind:value={$form.orgId} error={errors.orgId}>
+    <Select id="org" label={$t('project_page.organization.title')} bind:value={$form!.orgId} error={errors.orgId}>
       {#each orgList as org}
         <option value={org.id}>{org.name}</option>
       {/each}

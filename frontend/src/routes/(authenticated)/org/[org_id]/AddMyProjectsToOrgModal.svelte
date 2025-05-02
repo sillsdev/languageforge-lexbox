@@ -21,7 +21,8 @@
 
   const schema = z.object({});
 
-  let formModal: FormModal<typeof schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<typeof schema> | undefined = $state();
   let newProjects: Project[] = $state([]);
   let alreadyAddedProjects: number = $state(0);
   let selectedProjects: string[] = $state([]);
@@ -42,7 +43,7 @@
       }
     });
 
-    const { response } = await formModal.open(undefined, async () => {
+    const { response } = await formModal!.open(undefined, async () => {
       if (!selectedProjects.length) {
         return $t('org_page.add_my_projects.no_projects_selected');
       }

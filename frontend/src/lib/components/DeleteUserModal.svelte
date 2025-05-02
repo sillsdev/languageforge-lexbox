@@ -10,10 +10,10 @@
 
   let { i18nScope }: Props = $props();
 
-  let modal: ConfirmDeleteModal = $state()!;
+  let modal: ConfirmDeleteModal | undefined = $state();
 
-  export async function open(user: { id: string; name: string }): ReturnType<(typeof modal)['open']> {
-    return await modal.open(user.name, async () => {
+  export async function open(user: { id: string; name: string }): ReturnType<Exclude<typeof modal, undefined>['open']> {
+    return await modal!.open(user.name, async () => {
       const deleteUserInput: DeleteUserByAdminOrSelfInput = {
         userId: user.id,
       };

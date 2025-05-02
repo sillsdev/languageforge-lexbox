@@ -1,5 +1,6 @@
 <script module lang="ts">
-  export enum UploadStatus {
+  // svelte-ignore non_reactive_update
+  export const enum UploadStatus {
     NoFile = 'NoFile',
     InvalidFile = 'InvalidFile',
     Ready = 'Ready',

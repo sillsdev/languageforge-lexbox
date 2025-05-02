@@ -86,12 +86,13 @@
     $queryParamValues.tab = 'projects';
   }
 
-  let userModal: UserModal = $state()!;
-  let createUserModal: CreateUserModal = $state()!;
-  let deleteUserModal: DeleteUserModal = $state()!;
-  let formModal: EditUserAccount = $state()!;
+  let userModal: UserModal | undefined = $state();
+  let createUserModal: CreateUserModal | undefined = $state();
+  let deleteUserModal: DeleteUserModal | undefined = $state();
+  let formModal: EditUserAccount | undefined = $state();
 
   async function deleteUser(user: User): Promise<void> {
+    if (!formModal || !deleteUserModal) return;
     formModal.close();
     const { response } = await deleteUserModal.open(user);
     if (response == DialogResponse.Submit) {
@@ -100,6 +101,7 @@
   }
 
   async function openModal(user: User): Promise<void> {
+    if (!formModal) return;
     const { response, formState } = await formModal.openModal(user);
     if (response == DialogResponse.Submit) {
       if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
@@ -152,7 +154,7 @@
           <svelte:element
             this={browser ? 'button' : 'div'}
             class="btn btn-sm btn-success max-xs:btn-square"
-            onclick={() => createUserModal.open()}
+            onclick={() => createUserModal?.open()}
           >
             <span class="admin-tabs:hidden">
               {$t('admin_dashboard.create_user_modal.create_user')}
@@ -175,7 +177,7 @@
       <div class="overflow-x-visible @container scroll-shadow">
         <UserTable
           {shownUsers}
-          on:openUserModal={(event) => userModal.open(event.detail)}
+          on:openUserModal={(event) => userModal?.open(event.detail)}
           on:editUser={(event) => openModal(event.detail)}
           on:filterProjectsByUser={(event) => filterProjectsByUser(event.detail)}
         />

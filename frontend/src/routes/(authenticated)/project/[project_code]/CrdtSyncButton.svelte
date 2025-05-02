@@ -95,9 +95,9 @@
   }
 
   async function useInFwLite(): Promise<void> {
-    await modal.openModal();
+    await modal?.openModal();
   }
-  let modal: Modal = $state()!;
+  let modal: Modal | undefined = $state();
 </script>
 
 {#if project.hasHarmonyCommits}

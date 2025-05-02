@@ -73,9 +73,9 @@
 
   const { notifySuccess } = useNotifications();
 
-  let changeMemberRoleModal: ChangeMemberRoleModal = $state()!;
+  let changeMemberRoleModal: ChangeMemberRoleModal | undefined = $state();
   async function changeMemberRole(member: Member): Promise<void> {
-    if (!member.user) return;
+    if (!member.user || !changeMemberRoleModal) return;
     const nameOrEmail = member.user.name ? member.user.name : (member.user.email ?? '');
     const { response, formState } = await changeMemberRoleModal.open({
       userId: member.user.id as UUID,

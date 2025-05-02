@@ -16,7 +16,8 @@
     role: z.enum([OrgRole.User, OrgRole.Admin]),
   });
   type Schema = typeof schema;
-  let formModal: FormModal<Schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   let name: string = $state('');
@@ -27,8 +28,8 @@
     role: OrgRole;
   }): Promise<FormModalResult<Schema>> {
     name = member.name;
-    return await formModal.open(tryParse(schema, member), async () => {
-      const result = await _changeOrgMemberRole(orgId, member.userId, $form.role);
+    return await formModal!.open(tryParse(schema, member), async () => {
+      const result = await _changeOrgMemberRole(orgId, member.userId, $form!.role);
       if (result.error?.byType('OrgMembersMustBeVerified')) {
         return { role: [$t('org_page.add_user.user_must_be_verified')] };
       }
@@ -45,7 +46,7 @@
     <span>{$t('org_page.change_role_modal.title', { name })}</span>
   {/snippet}
   {#snippet children({ errors })}
-    <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+    <OrgRoleSelect bind:value={$form!.role} error={errors.role} />
   {/snippet}
   {#snippet submitText()}
     <span>{$t('org_page.change_role_modal.button_label')}</span>

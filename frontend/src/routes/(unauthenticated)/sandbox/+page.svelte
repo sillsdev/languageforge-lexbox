@@ -46,9 +46,9 @@
 
   const { notifySuccess } = useNotifications();
 
-  let modal: ConfirmModal = $state()!;
-  let deleteModal: DeleteModal = $state()!;
-  let notificationModal: Modal = $state()!;
+  let modal: ConfirmModal | undefined = $state();
+  let deleteModal: DeleteModal | undefined = $state();
+  let notificationModal: Modal | undefined = $state();
   let notificationModalIsAtBottom = $state(false);
 </script>
 
@@ -184,7 +184,7 @@
       <Button
         variant="btn-primary"
         onclick={async () => {
-          const result = await modal.open(async () => delay(2000));
+          const result = await modal?.open(async () => delay(2000));
           if (result) alert('submitted');
         }}
       >
@@ -196,7 +196,7 @@
       <Button
         variant="btn-primary"
         onclick={async () => {
-          const result = await deleteModal.prompt(async () => delay(2000));
+          const result = await deleteModal?.prompt(async () => delay(2000));
           if (result) alert('deleted');
         }}
       >
@@ -212,7 +212,7 @@
       <Button
         variant="btn-primary"
         onclick={() => {
-          notificationModal.openModal();
+          notificationModal?.openModal();
         }}
       >
         Play with notifications

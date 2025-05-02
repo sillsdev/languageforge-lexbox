@@ -14,6 +14,7 @@
   import type { UUID } from 'crypto';
   import { invalidate } from '$app/navigation';
 
+  // svelte-ignore non_reactive_update
   enum BulkAddSteps {
     Add,
     Results,
@@ -30,7 +31,8 @@
     usernamesText: z.string().trim().min(1, $t('org_page.bulk_add_members.empty_user_field')),
   });
 
-  let formModal: FormModal<typeof schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   let addedMembers: BulkAddOrgMembersResult['addedMembers'] = $state([]);
@@ -51,6 +53,7 @@
   }
 
   export async function open(): Promise<void> {
+    if (!formModal) return;
     currentStep = BulkAddSteps.Add;
     const { response } = await formModal.open(undefined, async (state) => {
       const usernames = state.usernamesText.currentValue
@@ -94,7 +97,7 @@
           id="usernamesText"
           label={$t('org_page.bulk_add_members.usernames')}
           description={$t('org_page.bulk_add_members.usernames_description')}
-          bind:value={$form.usernamesText}
+          bind:value={$form!.usernamesText}
           error={errors.usernamesText}
         />
       </div>

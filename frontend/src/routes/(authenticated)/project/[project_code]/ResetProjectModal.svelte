@@ -11,6 +11,7 @@
   import { bounceIn } from 'svelte/easing';
   import { getErrorMessage } from '$lib/error/utils';
 
+  // svelte-ignore non_reactive_update
   enum ResetSteps {
     Download,
     Reset,
@@ -32,7 +33,7 @@
   }
 
   let code: string = $state('');
-  let modal: Modal = $state()!;
+  let modal: Modal | undefined = $state();
   let error: ErrorMessage | undefined = $state(undefined);
 
   export async function open(_code: string, resetStatus: ResetStatus): Promise<boolean> {
@@ -40,7 +41,7 @@
     if (resetStatus == ResetStatus.InProgress) {
       currentStep = ResetSteps.Upload;
     }
-    await modal.openModal(true, true);
+    await modal?.openModal(true, true);
     return currentStep == ResetSteps.Finished;
   }
 
@@ -107,7 +108,8 @@
     }
   }
 
-  let tusUpload: TusUpload = $state()!;
+  let tusUpload: TusUpload | undefined = $state();
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let uploadStatus: UploadStatus | undefined = $state();
 </script>
 
@@ -205,7 +207,7 @@
             loading={uploadStatus === UploadStatus.Uploading ||
               (uploadStatus === UploadStatus.Complete && changingSteps)}
             variant="btn-success"
-            onclick={tusUpload.startUpload}
+            onclick={tusUpload?.startUpload}
           >
             {$t('upload_project')}
           </Button>
@@ -216,7 +218,7 @@
           </Button>
         {/if}
       {:else if currentStep === ResetSteps.Finished}
-        <button class="btn btn-primary" onclick={() => modal.submitModal()}>
+        <button class="btn btn-primary" onclick={() => modal?.submitModal()}>
           {$t('close')}
         </button>
       {/if}

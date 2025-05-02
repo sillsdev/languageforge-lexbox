@@ -71,30 +71,31 @@
     notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
   }
 
-  let userModal: UserModal = $state()!;
+  let userModal: UserModal | undefined = $state();
   async function openUserModal(user: User): Promise<void> {
     const queryUser = await _orgMemberById(org.id as UUID, user.id as UUID);
-    return userModal.open(queryUser);
+    return userModal?.open(queryUser);
   }
 
-  let addOrgMemberModal: AddOrgMemberModal = $state()!;
+  let addOrgMemberModal: AddOrgMemberModal | undefined = $state();
   async function openAddOrgMemberModal(): Promise<void> {
-    await addOrgMemberModal.openModal();
+    await addOrgMemberModal?.openModal();
   }
 
-  let bulkAddMembersModal: BulkAddOrgMembers = $state()!;
+  let bulkAddMembersModal: BulkAddOrgMembers | undefined = $state();
 
-  let changeMemberRoleModal: ChangeOrgMemberRoleModal = $state()!;
+  let changeMemberRoleModal: ChangeOrgMemberRoleModal | undefined = $state();
   async function openChangeMemberRoleModal(member: OrgUser): Promise<void> {
-    await changeMemberRoleModal.open({
+    await changeMemberRoleModal?.open({
       userId: member.user.id,
       name: member.user.name,
       role: member.role,
     });
   }
 
-  let deleteOrgModal: ConfirmDeleteModal = $state()!;
+  let deleteOrgModal: ConfirmDeleteModal | undefined = $state();
   async function confirmDeleteOrg(): Promise<void> {
+    if (!deleteOrgModal) return;
     const result = await deleteOrgModal.open(org.name, async () => {
       const { error } = await _deleteOrg(org.id);
       return error?.message;
@@ -105,9 +106,10 @@
     }
   }
 
-  let removeProjectFromOrgModal: DeleteModal = $state()!;
+  let removeProjectFromOrgModal: DeleteModal | undefined = $state();
   let projectToRemove: string = $state('');
   async function removeProjectFromOrg(projectId: string, projectName: string): Promise<void> {
+    if (!removeProjectFromOrgModal) return;
     projectToRemove = projectName;
     const removed = await removeProjectFromOrgModal.prompt(async () => {
       const { error } = await _removeProjectFromOrg(projectId, org.id);
@@ -118,9 +120,10 @@
     }
   }
 
-  let leaveModal: ConfirmModal = $state()!;
+  let leaveModal: ConfirmModal | undefined = $state();
 
   async function leaveOrg(): Promise<void> {
+    if (!leaveModal) return;
     const left = await leaveModal.open(async () => {
       const result = await _leaveOrg(org.id);
       if (result.error?.byType('LastMemberCantLeaveError')) {
@@ -146,7 +149,7 @@
     return createGuestUserByAdmin(password, passwordStrength, name, email, locale, _turnstileToken, org.id);
   }
 
-  let createUserModal: CreateUserModal = $state()!;
+  let createUserModal: CreateUserModal | undefined = $state();
   function onUserCreated(user: LexAuthUser): void {
     notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
   }
@@ -170,13 +173,13 @@
           {#snippet content()}
             <ul class="menu">
               <li>
-                <button class="whitespace-nowrap" onclick={() => bulkAddMembersModal.open()}>
+                <button class="whitespace-nowrap" onclick={() => bulkAddMembersModal?.open()}>
                   {$t('org_page.bulk_add_members.add_button')}
                   <Icon icon="i-mdi-account-multiple-plus-outline" />
                 </button>
               </li>
               <li>
-                <button class="whitespace-nowrap" onclick={() => createUserModal.open()}>
+                <button class="whitespace-nowrap" onclick={() => createUserModal?.open()}>
                   {$t('admin_dashboard.create_user_modal.create_user')}
                   <Icon icon="i-mdi-plus" />
                 </button>

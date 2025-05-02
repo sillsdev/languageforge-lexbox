@@ -20,12 +20,14 @@
   });
 
   type Schema = typeof schema;
-  let formModal: FormModal<Schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
+    if (!formModal || !$form) return;
     const { response, formState } = await formModal.open(async () => {
       const { error } = await _setRetentionPolicy({
         projectId,
@@ -54,7 +56,7 @@
     <Select
       id="policy"
       label={$t('project.create.retention_policy')}
-      bind:value={$form.retentionPolicy}
+      bind:value={$form!.retentionPolicy}
       error={errors.retentionPolicy}
     >
       <option value={RetentionPolicy.Verified}>{$t('retention_policy.language_project')}</option>

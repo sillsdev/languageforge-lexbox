@@ -16,12 +16,14 @@
   const schema = z.object({
     isConfidential: z.boolean(),
   });
-  let formModal: FormModal<typeof schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
   export async function openModal(): Promise<void> {
+    if (!formModal || !$form) return;
     const originalValue = isConfidential;
     const { response, formState } = await formModal.open({ isConfidential: isConfidential ?? false }, async () => {
       const { error } = await _setProjectConfidentiality({
@@ -46,10 +48,10 @@
   {#snippet title()}
     <span>{$t('project.confidential.modal.title')}</span>
   {/snippet}
-  <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
+  <ProjectConfidentialityCombobox bind:value={$form!.isConfidential} />
   {#snippet submitText()}
     <span>
-      {#if $form.isConfidential}
+      {#if $form!.isConfidential}
         {$t('project.confidential.modal.submit_button_confidential')}
       {:else}
         {$t('project.confidential.modal.submit_button_not_confidential')}

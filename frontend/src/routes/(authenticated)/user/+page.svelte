@@ -23,7 +23,7 @@
 
   let { data }: Props = $props();
   let user = $derived(data.account);
-  let deleteModal: DeleteUserModal = $state()!;
+  let deleteModal: DeleteUserModal | undefined = $state();
 
   const emailResult = useEmailResult();
   const requestedEmail = useRequestedEmail();
@@ -34,6 +34,7 @@
   const { notifySuccess, notifyWarning } = useNotifications();
 
   async function openDeleteModal(): Promise<void> {
+    if (!deleteModal) return;
     let { response } = await deleteModal.open($user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));

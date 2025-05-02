@@ -7,7 +7,7 @@
   }
 
   let { el, tag = 'div' }: Props = $props();
-  let target: Element = $state()!;
+  let target: Element | undefined = $state();
   run(() => {
     if (target && el)
       // eslint-disable-next-line svelte/no-dom-manipulating

@@ -11,10 +11,10 @@
   }
 
   let { entityName, isRemoveDialog = false, children }: Props = $props();
-  let modal: ConfirmModal = $state()!;
+  let modal: ConfirmModal | undefined = $state();
 
   export async function prompt(deleteCallback: () => Promise<ErrorMessage>): Promise<boolean> {
-    return await modal.open(deleteCallback);
+    return (await modal?.open(deleteCallback)) ?? false;
   }
 </script>
 

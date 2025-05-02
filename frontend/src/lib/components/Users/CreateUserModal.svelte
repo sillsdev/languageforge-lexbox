@@ -12,7 +12,7 @@
     submitted: LexAuthUser;
   }>();
 
-  let createUserModal: Modal = $state()!;
+  let createUserModal: Modal | undefined = $state();
   interface Props {
     handleSubmit: (
       password: string,
@@ -29,7 +29,7 @@
   let formTainted = $state(false);
 
   export async function open(): Promise<void> {
-    await createUserModal.openModal(true, true);
+    await createUserModal?.openModal(true, true);
   }
 </script>
 
@@ -59,8 +59,10 @@
     skipTurnstile
     bind:formTainted
     on:submitted={(event) => {
-      createUserModal.submitModal();
-      dispatch('submitted', event.detail);
+      if (createUserModal) {
+        createUserModal.submitModal();
+        dispatch('submitted', event.detail);
+      }
     }}
     submitButtonText={$t('admin_dashboard.create_user_modal.create_user')}
   />

@@ -25,13 +25,15 @@
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });
-  let formModal: FormModal<typeof schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
   let selectedUserId: string | undefined = $state(undefined);
 
   const { notifySuccess } = useNotifications();
 
   export async function openModal(initialUserId?: string, initialUserName?: string): Promise<void> {
+    if (!formModal || !$form) return;
     let userInvited = false;
     const initialValue = initialUserName ? { usernameOrEmail: initialUserName } : undefined;
     if (initialUserId) selectedUserId = initialUserId;
@@ -89,7 +91,7 @@
       id="usernameOrEmail"
       isAdmin={$page.data.user?.isAdmin}
       label={$t('login.label_email')}
-      bind:value={$form.usernameOrEmail}
+      bind:value={$form!.usernameOrEmail}
       error={errors.usernameOrEmail}
       autofocus
       on:selectedUserChange={({ detail }) => {
@@ -97,7 +99,7 @@
       }}
       exclude={project.users.map((m) => m.user.id)}
     />
-    <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} />
   {/snippet}
   {#snippet extraActions()}
     <Checkbox
@@ -105,12 +107,12 @@
       label={$t('project_page.add_user.invite_checkbox')}
       variant="checkbox-warning"
       labelColor="text-warning"
-      bind:value={$form.canInvite}
+      bind:value={$form!.canInvite}
     />
   {/snippet}
   {#snippet submitText()}
     <span>
-      {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
+      {#if $form!.canInvite && $form!.usernameOrEmail.includes('@')}
         {$t('project_page.add_user.submit_button_invite')}
       {:else}
         {$t('project_page.add_user.submit_button')}

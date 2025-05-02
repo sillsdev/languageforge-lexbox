@@ -57,6 +57,7 @@
   // looks like it could be simplified, perhaps by turning it into a single $derived.by
   let initializedMode = $state(false);
   let defaultMode = $derived(allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table);
+  // svelte-ignore state_referenced_locally
   let mode: ViewMode = $state(defaultMode); // Only captures initial value, but that's okay; rest is captured in run() block
 
   run(() => {

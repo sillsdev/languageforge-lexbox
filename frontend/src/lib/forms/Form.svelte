@@ -5,7 +5,7 @@
   const bubble = createBubbler();
   import type { AnySuperForm } from './types';
 
-  let formElem: HTMLFormElement = $state()!;
+  let formElem: HTMLFormElement | undefined = $state();
 
   interface Props {
     id?: string | undefined;
@@ -20,7 +20,7 @@
   }
 
   export function requestSubmit(): void {
-    formElem.requestSubmit();
+    formElem?.requestSubmit();
   }
 </script>
 

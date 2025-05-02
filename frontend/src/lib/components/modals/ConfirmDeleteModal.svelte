@@ -28,7 +28,7 @@
 
   export async function open(_name: string, onSubmit: FormSubmitCallback<Schema>): Promise<FormModalResult<Schema>> {
     name = _name;
-    return await deletionFormModal.open(onSubmit);
+    return await deletionFormModal!.open(onSubmit);
   }
 
   let t = $derived(tTypeScoped<DeleteModalI18nShape>(i18nScope));
@@ -41,7 +41,8 @@
 
   type Schema = typeof verify;
 
-  let deletionFormModal: FormModal<Schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let deletionFormModal: FormModal<Schema> | undefined = $state();
   let deletionForm = $derived(deletionFormModal?.form());
 </script>
 
@@ -65,7 +66,7 @@
           { _value: $t('enter_to_delete.value'), name: name ?? '' },
         )}
         error={errors.keyphrase}
-        bind:value={$deletionForm.keyphrase}
+        bind:value={$deletionForm!.keyphrase}
       />
     {/snippet}
     {#snippet submitText()}

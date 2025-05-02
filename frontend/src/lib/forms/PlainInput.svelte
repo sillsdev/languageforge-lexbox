@@ -9,18 +9,18 @@
     input: string | undefined;
   }>();
 
-  let input: HTMLInputElement = $state()!;
+  let input: HTMLInputElement | undefined = $state();
 
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
 
   export function clear(): void {
     debouncer.clear();
-    input.value = ''; // if we cancel the debounce the input and the component can get out of sync
+    if (input) input.value = ''; // if we cancel the debounce the input and the component can get out of sync
     undebouncedValue = value = undefined;
   }
 
   export function focus(): void {
-    input.focus();
+    input?.focus();
   }
 
   interface Props {

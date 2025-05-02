@@ -52,9 +52,9 @@
     doneText,
   }: Props = $props();
 
-  const superForm = lexSuperForm(schema, () => modal.submitModal());
+  const superForm = lexSuperForm(schema, () => modal?.submitModal() ?? Promise.resolve(undefined));
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
-  let modal: Modal = $state()!;
+  let modal: Modal | undefined = $state();
   let done = $state(false);
 
   export async function open(
@@ -90,7 +90,7 @@
   }
 
   async function openModal(onSubmit: SubmitCallback): Promise<DialogResponse> {
-    const result = await modal.openModal();
+    const result = await modal!.openModal();
     if (result == DialogResponse.Cancel) return result;
 
     const error = await onSubmit($formState);

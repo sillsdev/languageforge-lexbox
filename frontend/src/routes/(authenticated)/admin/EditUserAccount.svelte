@@ -40,18 +40,19 @@
 
   type Schema = typeof schema;
   type RefinedSchema = typeof refinedSchema;
-  let formModal: FormModal<RefinedSchema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<RefinedSchema> | undefined = $state();
 
   export function close(): void {
-    formModal.close();
+    formModal?.close();
   }
 
-  let _user: User = $state();
+  let _user: User | undefined = $state();
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open(
+    return await formModal!.open(
       {
         name: user.name,
         email: user.email ?? null,
@@ -62,10 +63,10 @@
       async () => {
         const { error, data } = await _changeUserAccountByAdmin({
           userId: user.id,
-          email: $form.email,
-          name: $form.name,
-          featureFlags: $form.featureFlags as FeatureFlag[],
-          role: $form.role,
+          email: $form!.email,
+          name: $form!.name,
+          featureFlags: $form!.featureFlags as FeatureFlag[],
+          role: $form!.role,
         });
         if (data?.changeUserAccountByAdmin.errors?.some((e) => e.__typename === 'UniqueValueError')) {
           return { email: [$t('account_settings.email_taken')] };
@@ -73,13 +74,13 @@
         if (error) {
           return error.message;
         }
-        if ($form.password) {
+        if ($form!.password) {
           await fetch('/api/Admin/resetPassword', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              passwordHash: await hash($form.password),
-              passwordStrength: $form.score,
+              passwordHash: await hash($form!.password),
+              passwordStrength: $form!.score,
               userId: user.id,
             }),
           });
@@ -88,11 +89,12 @@
     );
   }
 
-  let userIsLocked: boolean = $state();
+  let userIsLocked: boolean = $state(false);
   let locking = $state(false);
   let lockUserError: string | undefined = $state();
 
   async function onLockedClicked(event: Event): Promise<void> {
+    if (!_user) return;
     event.preventDefault();
     lockUserError = undefined;
     const newLocked = !userIsLocked;
@@ -128,7 +130,7 @@
       id="email"
       type="email"
       label={$t('admin_dashboard.form_modal.email_label')}
-      bind:value={$form.email}
+      bind:value={$form!.email}
       error={errors.email}
       autofocus
     />
@@ -136,10 +138,10 @@
       id="name"
       type="text"
       label={$t('admin_dashboard.form_modal.name_label')}
-      bind:value={$form.name}
+      bind:value={$form!.name}
       error={errors.name}
     />
-    <SystemRoleSelect id="role" bind:value={$form.role} error={errors.role} disabled={_user.id === currUser.id} />
+    <SystemRoleSelect id="role" bind:value={$form!.role} error={errors.role} disabled={_user?.id === currUser.id} />
     <AdminContent>
       <div>
         Feature flags:
@@ -147,7 +149,7 @@
           {#each allPossibleFlags as flag}
             <li>
               <label
-                ><input type="checkbox" name="featureFlags" value={flag} bind:group={$form.featureFlags} />
+                ><input type="checkbox" name="featureFlags" value={flag} bind:group={$form!.featureFlags} />
                 {flag}</label
               >
             </li>
@@ -160,16 +162,20 @@
         id="new-password"
         type="password"
         label={$t('admin_dashboard.form_modal.password_label')}
-        bind:value={$form.password}
+        bind:value={$form!.password}
         autocomplete="new-password"
         error={errors.password}
       />
-      <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
+      <PasswordStrengthMeter bind:score={$form!.score} password={$form!.password} />
     </div>
     <FormError error={lockUserError} />
   {/snippet}
   {#snippet extraActions()}
-    <label class="btn btn-warning swap" class:btn-disabled={_user.id === currUser.id} class:btn-outline={!userIsLocked}>
+    <label
+      class="btn btn-warning swap"
+      class:btn-disabled={_user?.id === currUser.id}
+      class:btn-outline={!userIsLocked}
+    >
       <input readonly type="checkbox" checked={userIsLocked} onclick={onLockedClicked} />
       <span class="swap-on flex gap-2 items-center justify-between">
         {$t('admin_dashboard.form_modal.unlock')}
@@ -180,7 +186,13 @@
         <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock-open-outline'} />
       </span>
     </label>
-    <Button variant="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
+    <Button
+      variant="btn-error"
+      onclick={() => {
+        if (_user) deleteUser(_user);
+      }}
+      disabled={_user?.id === currUser.id}
+    >
       {$t('admin_dashboard.form_modal.delete_user.submit')}
       <TrashIcon />
     </Button>

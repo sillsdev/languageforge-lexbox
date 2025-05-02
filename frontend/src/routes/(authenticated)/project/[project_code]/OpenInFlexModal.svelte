@@ -12,10 +12,10 @@
   }
 
   let { project }: Props = $props();
-  let modal: Modal = $state()!;
+  let modal: Modal | undefined = $state();
 
   export async function open(): Promise<void> {
-    await modal.openModal(true, true);
+    await modal?.openModal(true, true);
   }
 </script>
 

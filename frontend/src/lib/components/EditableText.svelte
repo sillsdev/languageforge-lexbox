@@ -25,7 +25,7 @@
   let editing = $state(false);
   let saving = $state(false);
 
-  let formElem: Form = $state()!;
+  let formElem: Form | undefined = $state();
 
   const formSchema = z.object({ value: validation });
   let { form, errors, reset, enhance, message } = lexSuperForm(
@@ -91,7 +91,7 @@
 
   function submit(): void {
     //triggers callback in superForm with validation
-    formElem.requestSubmit();
+    formElem?.requestSubmit();
   }
 </script>
 

@@ -15,6 +15,7 @@
   import { SupHelp, helpLinks } from '$lib/components/help';
   import { usernameRe } from '$lib/user';
 
+  // svelte-ignore non_reactive_update
   enum BulkAddSteps {
     Add,
     Results,
@@ -32,7 +33,8 @@
     password: passwordFormRules($t),
   });
 
-  let formModal: FormModal<typeof schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   let addedMembers: BulkAddProjectMembersResult['addedMembers'] = $state([]);
@@ -54,6 +56,7 @@
   }
 
   async function openModal(): Promise<void> {
+    if (!formModal) return;
     currentStep = BulkAddSteps.Add;
     const { response } = await formModal.open(undefined, async (state) => {
       const passwordHash = await hash(state.password.currentValue);
@@ -114,16 +117,16 @@
           autocomplete="new-password"
           label={$t('project_page.bulk_add_members.shared_password')}
           description={$t('project_page.bulk_add_members.shared_password_description')}
-          bind:value={$form.password}
+          bind:value={$form!.password}
           error={errors.password}
         />
-        <PasswordStrengthMeter score={0} password={$form.password} />
+        <PasswordStrengthMeter score={0} password={$form!.password} />
         <div class="contents usernames">
           <TextArea
             id="usernamesText"
             label={$t('project_page.bulk_add_members.usernames')}
             description={$t('project_page.bulk_add_members.usernames_description')}
-            bind:value={$form.usernamesText}
+            bind:value={$form!.usernamesText}
             error={errors.usernamesText}
           />
         </div>

@@ -77,8 +77,9 @@
     limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects,
   );
 
-  let deleteProjectModal: ConfirmDeleteModal = $state()!;
+  let deleteProjectModal: ConfirmDeleteModal | undefined = $state();
   async function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
+    if (!deleteProjectModal) return;
     const deleteFn = project.isDraft ? _deleteDraftProject : _deleteProject;
     const result = await deleteProjectModal.open(project.name, async () => {
       const { error } = await deleteFn(project.id);

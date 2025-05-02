@@ -27,12 +27,12 @@
     canCreateProjects: boolean;
     createdBy?: Partial<User> | null;
   };
-  let userDetailsModal: Modal = $state()!;
-  let user: User = $state();
+  let userDetailsModal: Modal | undefined = $state();
+  let user: User | undefined = $state();
 
   export async function open(_user: User): Promise<void> {
     user = _user;
-    await userDetailsModal.openModal(true, true);
+    await userDetailsModal?.openModal(true, true);
   }
 
   const { notifySuccess } = useNotifications();
@@ -50,16 +50,16 @@
   <div class="p-4">
     <h2 class="text-secondary">
       <span class="text-2xl">
-        {user.name}
+        {user?.name}
       </span>
     </h2>
     <div class="divider"></div>
-    <UserLockedAlert locked={user.locked} />
+    <UserLockedAlert locked={user?.locked ?? false} />
     <div class="grid grid-cols-2 gap-4">
       <div>
         <h3>{$t('admin_dashboard.column_email')}</h3>
         <p class="value flex items-center gap-2 text-left">
-          {#if user.email}
+          {#if user?.email}
             {user.email}
             {#if !user.emailVerified}
               <span
@@ -76,7 +76,9 @@
                     outline={false}
                     variant="btn-primary"
                     loading={sendingVerificationEmail}
-                    onclick={() => sendVerificationEmail(user)}
+                    onclick={() => {
+                      if (user) void sendVerificationEmail(user);
+                    }}
                   />
                 </div>
               </AdminContent>
@@ -88,44 +90,44 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.column_role')}</h3>
-        <p class="value">{user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</p>
+        <p class="value">{user?.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.registered')}</h3>
         <p class="value">
-          {$date(user.createdDate)}
+          {$date(user?.createdDate)}
         </p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.column_login')}</h3>
         <p class="value">
-          {user.username ?? NULL_LABEL}
+          {user?.username ?? NULL_LABEL}
         </p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.last_active')}</h3>
-        <p class="value">{$date(user.lastActive)}</p>
+        <p class="value">{$date(user?.lastActive)}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
-        <p class="value" class:!text-success={user.canCreateProjects}>
-          {user.canCreateProjects ? $t('common.yes') : $t('common.no')}
+        <p class="value" class:!text-success={user?.canCreateProjects}>
+          {user?.canCreateProjects ? $t('common.yes') : $t('common.no')}
         </p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.updated')}</h3>
-        <p class="value">{$date(user.updatedDate)}</p>
+        <p class="value">{$date(user?.updatedDate)}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.locale')}</h3>
-        <p class="value">{user.localizationCode}</p>
+        <p class="value">{user?.localizationCode}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.createdBy')}</h3>
-        <p class="value">{user.createdBy?.name ?? NULL_LABEL}</p>
+        <p class="value">{user?.createdBy?.name ?? NULL_LABEL}</p>
       </div>
       <AdminContent>
-        {#if user.featureFlags && user.featureFlags.length}
+        {#if user?.featureFlags && user?.featureFlags.length}
           <div>
             Feature flags: {user.featureFlags.join(', ')}
           </div>
@@ -134,7 +136,7 @@
       <DevContent>
         <div>
           <h3>ID</h3>
-          <p class="value">{user.id}</p>
+          <p class="value">{user?.id}</p>
         </div>
       </DevContent>
     </div>

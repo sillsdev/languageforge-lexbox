@@ -17,7 +17,8 @@
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]),
   });
   type Schema = typeof schema;
-  let formModal: FormModal<Schema> = $state()!;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
   let name: string = $state('');
@@ -28,11 +29,11 @@
     role: ProjectRole;
   }): Promise<FormModalResult<Schema>> {
     name = member.name;
-    return await formModal.open(tryParse(schema, member), async () => {
+    return await formModal!.open(tryParse(schema, member), async () => {
       const result = await _changeProjectMemberRole({
         projectId: projectId,
         userId: member.userId,
-        role: $form.role as ProjectRole,
+        role: $form!.role as ProjectRole,
       });
       if (result.error?.byType('ProjectMembersMustBeVerified')) {
         return { role: [$t('project_page.add_user.user_must_be_verified')] };
