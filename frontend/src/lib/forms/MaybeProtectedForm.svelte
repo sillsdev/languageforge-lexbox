@@ -11,19 +11,25 @@
     children?: Snippet;
   }
 
-  let { enhance = undefined, turnstileToken = $bindable(''), skipTurnstile = false, children }: Props = $props();
+  let {
+    enhance = undefined,
+    turnstileToken = $bindable(''),
+    skipTurnstile = false,
+    children,
+    ...rest
+  }: Props = $props();
 </script>
 
 {#if skipTurnstile}
   <!-- TODO: This used to have an on:submit attribute to bubble up the submit event from HTML.
        Let's check if the createBubbler() call in Form makes that unnecessary now. -->
-  <Form {enhance}>
+  <Form {enhance} {...rest}>
     {@render children?.()}
   </Form>
 {:else}
   <!-- TODO: This used to have an on:submit attribute to bubble up the submit event from HTML.
        Let's check if the createBubbler() call in Form makes that unnecessary now. -->
-  <ProtectedForm {enhance} bind:turnstileToken>
+  <ProtectedForm {enhance} bind:turnstileToken {...rest}>
     {@render children?.()}
   </ProtectedForm>
 {/if}

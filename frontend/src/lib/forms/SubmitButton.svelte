@@ -14,10 +14,10 @@
     children?: Snippet;
   }
 
-  let { loading = false, form = undefined, variant = 'btn-primary', onclick, children }: Props = $props();
+  let { loading = false, form = undefined, variant = 'btn-primary', onclick, children, ...rest }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<Button type="submit" {onclick} {variant} {loading} {form}>
+<Button type="submit" {onclick} {variant} {loading} {form} {...rest}>
   {@render children?.()}
 </Button>

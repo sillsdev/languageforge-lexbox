@@ -16,6 +16,7 @@
     error = undefined,
     undefinedOptionLabel = undefined,
     includeUnknown = false,
+    ...rest
   }: Props = $props();
   const types = [
     ProjectType.FlEx,
@@ -29,7 +30,7 @@
 <div class="relative">
   <!-- TODO: This used to have an on:change attribute to bubble up the submit event from HTML.
        Let's check if the createBubbler() call in Form makes that unnecessary now. -->
-  <Select id="type" label={$t('project_type.type')} bind:value {error}>
+  <Select id="type" label={$t('project_type.type')} bind:value {error} {...rest}>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}
