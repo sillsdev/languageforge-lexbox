@@ -26,6 +26,11 @@ tasks:
     desc: The extra UI stuff the FW Lite Maui app needs to run. I.e. if you want to debug Maui, run this first, otherwise use a task that depends on this.
     aliases:
       - fi
+    deps: [ install ] # run install first, so the viewer and https-proxy don't both run in
+    cmds:
+      - task: fw-lite-infr-internal
+
+  fw-lite-infr-internal:
     deps: [ viewer-dev, https-oauth-authority ]
 
   playwright-tests:
@@ -70,6 +75,8 @@ tasks:
     method: checksum
     sources:
       - package.json
+      - ../pnpm-lock.yaml
+      - ../pnpm-workspace.yaml
     cmds:
       - corepack enable || true
       - pnpm install
