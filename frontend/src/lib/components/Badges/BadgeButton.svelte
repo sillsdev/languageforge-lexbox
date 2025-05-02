@@ -10,7 +10,7 @@
     icon?: IconString | undefined;
     hoverIcon?: IconString | undefined;
     disabled?: boolean;
-    onclick: () => void;
+    onclick?: () => void;
     children?: Snippet;
   }
 

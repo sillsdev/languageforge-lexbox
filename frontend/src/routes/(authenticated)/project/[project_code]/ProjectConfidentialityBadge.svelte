@@ -5,15 +5,16 @@
   interface Props {
     isConfidential: boolean | undefined;
     canManage: boolean;
+    onclick?: () => void;
   }
 
-  let { isConfidential, canManage }: Props = $props();
+  let { isConfidential, canManage, onclick }: Props = $props();
 </script>
 
 {#if isConfidential !== false}
   <BadgeButton
     variant={isConfidential ? 'badge-warning' : 'badge-neutral'}
-    onclick
+    {onclick}
     disabled={!canManage}
     icon={isConfidential === undefined && canManage ? 'i-mdi-pencil-outline' : 'i-mdi-shield-lock-outline'}
     hoverIcon="i-mdi-pencil-outline"

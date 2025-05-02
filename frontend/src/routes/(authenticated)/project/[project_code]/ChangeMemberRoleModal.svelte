@@ -51,7 +51,7 @@
     <span>{$t('project_page.change_role_modal.title', { name })}</span>
   {/snippet}
   {#snippet children({ errors })}
-    <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} />
   {/snippet}
   {#snippet submitText()}
     <span>{$t('project_page.change_role')}</span>

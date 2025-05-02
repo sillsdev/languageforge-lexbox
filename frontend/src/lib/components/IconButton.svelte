@@ -13,7 +13,7 @@
     size?: 'btn-sm' | undefined;
     outline?: boolean;
     fake?: boolean; // for display purposes only
-    onclick: () => void;
+    onclick?: () => void;
     [key: string]: unknown;
   }
 
