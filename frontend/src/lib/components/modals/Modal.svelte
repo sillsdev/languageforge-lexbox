@@ -31,7 +31,7 @@
     closeOnClickOutside?: boolean;
     hideActions?: boolean;
     children?: Snippet<[unknown]>;
-    actions?: Snippet<[{ submitting: boolean; close: () => void }]>;
+    actions?: Snippet<[{ submitting: boolean; closing?: boolean; close: () => void }]>;
     extraActions?: Snippet;
   }
 
