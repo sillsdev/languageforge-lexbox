@@ -1,6 +1,8 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
+using SIL.LCModel;
 using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
@@ -96,5 +98,66 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
         updatedExampleSentence.Translation.Should().ContainSingle();
         updatedExampleSentence.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task UpdateEntry_MoveSenseBetweenSubsenses(bool useNext)
+    {
+        // Arrange
+        var entryId = Guid.NewGuid();
+        var senseId1 = Guid.NewGuid();
+        var senseId2 = Guid.NewGuid();
+        var senseId1_1 = Guid.NewGuid();
+        var senseId1_2 = Guid.NewGuid();
+        await Api.CreateEntry(new Entry
+        {
+            Id = entryId,
+            LexemeForm = new MultiString { { "en", "entry" } },
+            Senses =
+            [
+                new Sense { Id = senseId1, Gloss = new MultiString { { "en", "sense 1" } }},
+                new Sense { Id = senseId2, Gloss = new MultiString { { "en", "sense 2" } }},
+            ]
+        });
+
+        var fwApi = (FwDataMiniLcmApi)Api;
+        var lexEntry = fwApi.EntriesRepository.GetObject(entryId);
+        var senseFactory = fwApi.Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add subsenses to sense 1",
+            "Remove subsenses from sense 1",
+            fwApi.Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var sense1 = lexEntry.SensesOS[0];
+                sense1.SensesOS.Add(senseFactory.Create(senseId1_1));
+                sense1.SensesOS.Add(senseFactory.Create(senseId1_2));
+            });
+
+        var entry = await Api.GetEntry(entryId);
+        entry.Should().NotBeNull();
+        entry.Senses.Select(s => s.Id).Should()
+            .BeEquivalentTo([senseId1, senseId1_1, senseId1_2, senseId2],
+            options => options.WithStrictOrdering());
+
+        // Act
+        var between = useNext
+            ? new BetweenPosition(null, senseId1_2)
+            : new BetweenPosition(senseId1_1, null);
+        await Api.MoveSense(entryId, senseId2, between);
+
+        // Assert
+        var updatedEntry = await Api.GetEntry(entryId);
+        updatedEntry.Should().NotBeNull();
+        updatedEntry.Senses.Select(s => s.Id).Should()
+            .BeEquivalentTo([senseId1, senseId1_1, senseId2, senseId1_2],
+            options => options.WithStrictOrdering());
+
+        lexEntry = fwApi.EntriesRepository.GetObject(entryId);
+        lexEntry.SensesOS.Select(s => s.Id.Guid).Should()
+            .BeEquivalentTo([senseId1]);
+        lexEntry.SensesOS[0].SensesOS.Select(s => s.Id.Guid).Should()
+            .BeEquivalentTo([senseId1_1, senseId2, senseId1_2]);
     }
 }
