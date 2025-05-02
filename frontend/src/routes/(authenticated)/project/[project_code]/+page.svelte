@@ -364,6 +364,7 @@
       {/if}
       {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
         <OpenInFlexModal bind:this={openInFlexModal} {project} />
+        <!-- TODO: Figure out how bubble('click') works in new Svelte 5 world, where `on:click` is now a type error: "Argument of type '"click"' is not assignable to parameter of type 'never'" -->
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open} />
       {:else if canAskToJoinProject}
         <Button variant="btn-primary" loading={askLoading} onclick={() => askToJoinProject(project.id, project.name)}>
@@ -448,7 +449,7 @@
     {#snippet headerContent()}
       <BadgeList>
         <ProjectConfidentialityBadge
-          on:click={projectConfidentialityModal!.openModal}
+          onclick={projectConfidentialityModal!.openModal}
           {canManage}
           isConfidential={project.isConfidential ?? undefined}
         />

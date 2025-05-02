@@ -10,7 +10,7 @@
     loading?: boolean;
     form?: string | undefined;
     variant?: SubmitVariant;
-    onclick: () => void;
+    onclick?: () => void;
     children?: Snippet;
   }
 

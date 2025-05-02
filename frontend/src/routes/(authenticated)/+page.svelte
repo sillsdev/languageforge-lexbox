@@ -90,12 +90,12 @@
         />
       </div>
       <div class="join">
-        <IconButton icon="i-mdi-grid" join active={mode === ViewMode.Grid} on:click={() => selectMode(ViewMode.Grid)} />
+        <IconButton icon="i-mdi-grid" join active={mode === ViewMode.Grid} onclick={() => selectMode(ViewMode.Grid)} />
         <IconButton
           icon="i-mdi-land-rows-horizontal"
           join
           active={mode === ViewMode.Table}
-          on:click={() => selectMode(ViewMode.Table)}
+          onclick={() => selectMode(ViewMode.Table)}
         />
       </div>
     </div>
@@ -126,7 +126,7 @@
     {/if}
 
     {#if shownProjects.length < filteredProjects.length}
-      <Button class="float-right mt-2" on:click={() => (limitResults = false)}>
+      <Button class="float-right mt-2" onclick={() => (limitResults = false)}>
         {$t('paging.load_more')}
       </Button>
     {/if}

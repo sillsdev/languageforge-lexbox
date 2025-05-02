@@ -8,15 +8,16 @@
   }
 
   let { isConfidential, canManage }: Props = $props();
-
 </script>
 
 {#if isConfidential !== false}
-  <BadgeButton variant={isConfidential ? 'badge-warning' : 'badge-neutral'}
-      on:click
-      disabled={!canManage}
-      icon={isConfidential === undefined && canManage ? 'i-mdi-pencil-outline' : 'i-mdi-shield-lock-outline'}
-      hoverIcon="i-mdi-pencil-outline">
+  <BadgeButton
+    variant={isConfidential ? 'badge-warning' : 'badge-neutral'}
+    onclick
+    disabled={!canManage}
+    icon={isConfidential === undefined && canManage ? 'i-mdi-pencil-outline' : 'i-mdi-shield-lock-outline'}
+    hoverIcon="i-mdi-pencil-outline"
+  >
     {#if isConfidential}
       {$t('project.confidential.confidential')}
     {:else if canManage}
