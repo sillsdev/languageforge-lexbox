@@ -39,7 +39,6 @@
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
-  import {isDev} from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
@@ -337,7 +336,7 @@
           <CrdtSyncButton {project} {isEmpty} />
         </FeatureFlagContent>
       {/if}
-      {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
+      {#if project.type === ProjectType.FlEx && !isEmpty}
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else if canAskToJoinProject}
