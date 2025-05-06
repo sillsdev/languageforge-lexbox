@@ -5,7 +5,7 @@
   import Scotty from '$lib/layout/Scotty.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {useCurrentView} from '$lib/views/view-service';
-  import {defaultExampleSentence, defaultSense} from '$lib/utils';
+  import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import {createEventDispatcher} from 'svelte';
@@ -15,7 +15,7 @@
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';
   import SenseEditorPrimitive from './SenseEditorPrimitive.svelte';
-  import {EditorGrid} from '$lib/components/editor';
+  import * as Editor from '$lib/components/editor';
   import EntryEditorPrimitive from './EntryEditorPrimitive.svelte';
 
   const dialogService = useDialogsService();
@@ -144,11 +144,11 @@
   let showHistoryView = false;
 </script>
 
-<EditorGrid bind:ref={editorElem}>
+<Editor.Grid bind:ref={editorElem}>
   <EntryEditorPrimitive {entry} {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
 
   {#each entry.senses as sense, i (sense.id)}
-    <div class="grid-layer" class:highlight={sense === highlightedEntity}>
+    <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
       <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
       <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
         <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
@@ -164,9 +164,9 @@
       <SenseEditorPrimitive {sense} {readonly} on:change={() => onSenseChange(sense)}/>
 
       {#if sense.exampleSentences.length}
-        <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+        <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
           {#each sense.exampleSentences as example, j (example.id)}
-            <div class="grid-layer" class:highlight={example === highlightedEntity}>
+            <Editor.SubGrid class={cn(example === highlightedEntity && 'highlight')}>
               <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
               <div class="col-span-full flex items-center mb-4">
                 <h3 class="text-surface-content mr-4">Example {j + 1}</h3>
@@ -188,16 +188,16 @@
                 {readonly}
                 on:change={() => onExampleChange(sense, example)}
                 />
-            </div>
+            </Editor.SubGrid>
           {/each}
-        </div>
+        </Editor.SubGrid>
       {/if}
       {#if !readonly && canAddExample}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
         </div>
       {/if}
-    </div>
+    </Editor.SubGrid>
   {/each}
   {#if !readonly && canAddSense}
     <hr class="col-span-full grow border-t-4 my-4">
@@ -209,7 +209,7 @@
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
     </div>
   {/if}
-</EditorGrid>
+</Editor.Grid>
 
 {#if !modalMode}
 {@const willRenderAnyButtons = features.history || !readonly}

@@ -7,6 +7,7 @@
   import {useWritingSystemService} from '../../writing-system-service.svelte';
   import {usePartsOfSpeech} from '../../parts-of-speech.svelte';
   import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
+  import {EditorSubGrid} from '$lib/components/editor';
 
   export let sense: ISense;
   export let readonly: boolean = false;
@@ -16,7 +17,7 @@
   const currentView = useCurrentView();
 </script>
 
-<div class="grid-layer" style:grid-template-areas={objectTemplateAreas($currentView, sense)}>
+<EditorSubGrid style="grid-template-areas: {objectTemplateAreas($currentView, sense)}">
   <MultiFieldEditor on:change
                     bind:value={sense.gloss}
                     {readonly}
@@ -43,4 +44,4 @@
                     {readonly}
                     id="semanticDomains"
                     wsType="first-analysis" />
-</div>
+</EditorSubGrid>

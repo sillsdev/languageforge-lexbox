@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {EditorSubGrid} from '$lib/components/editor';
   import type {IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
@@ -27,7 +28,7 @@
   }
 </script>
 
-<div class="grid-layer" style:grid-template-areas={`${objectTemplateAreas($currentView, entry)}`}>
+<EditorSubGrid style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
   <MultiFieldEditor on:change={onFieldChanged}
                     bind:value={entry.lexemeForm}
                     {readonly}
@@ -70,4 +71,4 @@
                     {readonly}
                     id="note"
                     wsType="analysis"/>
-</div>
+</EditorSubGrid>
