@@ -33,6 +33,7 @@
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
     sortValuesBy?: 'selectionOrder' | 'optionOrder' | NonNullable<Parameters<Array<Value>['sort']>[0]>;
+    onchange?: (value: Value[]) => void;
   } = $props();
 
   const {
@@ -45,6 +46,7 @@
     emptyResultsPlaceholder,
     drawerTitle,
     sortValuesBy = 'selectionOrder',
+    onchange,
   } = $derived(constProps);
 
   function getId(value: Value): Primitive {
@@ -96,6 +98,7 @@
   function submit() {
     open = false;
     values = pendingValues.map(p => p.value);
+    onchange?.(values);
     void tick().then(() => {
       triggerRef?.focus();
     });

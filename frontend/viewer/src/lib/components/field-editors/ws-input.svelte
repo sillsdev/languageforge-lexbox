@@ -10,13 +10,15 @@
     value: string | undefined;
     readonly?: boolean;
     writingSystem: ReadonlyDeep<IWritingSystem>;
+    onchange?: (value: string | undefined) => void;
   } = $props();
 
-  const { readonly = false, writingSystem: ws } = $derived(constProps);
+  const { readonly = false, writingSystem: ws, onchange } = $derived(constProps);
 </script>
 
 <Input
   {readonly}
   bind:value={value}
   title={`${ws.name} (${ws.wsId})`}
-  placeholder={ws.abbreviation} />
+  placeholder={ws.abbreviation}
+  onchange={() => onchange?.(value)} />

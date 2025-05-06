@@ -10,7 +10,7 @@
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
 
-  type Value = ReadonlyDeep<MutableValue>
+  type Value = ReadonlyDeep<MutableValue>;
 
   let {
     value = $bindable(),
@@ -27,6 +27,7 @@
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
+    onchange?: (value: Value) => void;
   } = $props();
 
   const {
@@ -38,6 +39,7 @@
     filterPlaceholder,
     emptyResultsPlaceholder,
     drawerTitle,
+    onchange,
   } = $derived(constProps);
 
   function getId(value: Value): Primitive {
@@ -65,6 +67,7 @@
 
   function selectValue(newValue: Value) {
     value = newValue;
+    onchange?.(newValue);
     open = false;
   }
 
