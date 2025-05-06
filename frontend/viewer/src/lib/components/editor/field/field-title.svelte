@@ -2,29 +2,22 @@
   import {t} from 'svelte-i18n-lingui';
   import FieldHelpIcon from '../../../entry-editor/FieldHelpIcon.svelte';
   import {useCurrentView} from '$lib/views/view-service';
+  import {pickViewText, type ViewText} from '$lib/views/view-text';
 
   const {
     name,
     helpId,
   }: {
-    name: string | { lite: string; classic: string };
+    name: ViewText;
     helpId?: string | undefined;
   } = $props();
 
   const view = useCurrentView();
-
-  const { label, title } = $derived(
-    typeof name === 'string' ? { label: name }
+  const label = $derived(pickViewText(name, $view.type));
+  const title = $derived(typeof name === 'string' ? undefined
     : $view.type === 'fw-classic'
-      ? {
-          label: name.classic,
-          title: $t`${name.lite} (FieldWorks Lite)`,
-        }
-      : {
-          label: name.lite,
-          title: $t`${name.classic} (FieldWorks)`,
-        },
-  );
+      ? $t`${name.lite} (FieldWorks Lite)`
+      : $t`${name.classic} (FieldWorks)`);
 
   // kind of crazy, but I don't think Svelte's white-space handling let's us use &nbsp; between the label and help icon
   const { lastWord, otherWords } = $derived.by(() => {

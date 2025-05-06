@@ -13,6 +13,7 @@
   import { fieldData } from '$lib/entry-editor/field-data';
   import ViewPicker from '../../project/browse/ViewPicker.svelte';
   import WsInput from '$lib/components/field-editors/ws-input.svelte';
+  import {vt} from '$lib/views/view-text';
 
   const allDomains = [
     { label: 'fruit' }, { label: 'tree' }, { label: 'stars' }, { label: 'earth' },
@@ -89,7 +90,7 @@
           </Editor.Field.Body>
         </Editor.Field.Root>
         <Editor.Field.Root>
-          <Editor.Field.Title name={{ lite: `Word`, classic: `Lexeme form`}} />
+          <Editor.Field.Title name={vt('Lexeme form', 'Word')} />
           <Editor.Field.Body class="grid-cols-subgrid">
             <MultiWsInput
               readonly={editorReadonly}
