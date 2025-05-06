@@ -134,6 +134,9 @@
     });
   });
 
+  const RENDER_LIMIT = 100;
+  const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
+
   function onkeydown(e: KeyboardEvent) {
     if (e.key === 'Enter' && dirty && (e.metaKey || e.ctrlKey)) {
       submit();
@@ -215,7 +218,7 @@
     <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
-        {#each filteredOptions as value, i (getId(value))}
+        {#each renderedOptions as value, i (getId(value))}
           {@const label = getLabel(value)}
           {@const id = getId(value)}
           {@const selected = pendingValues.some(v => v.id === id)}
@@ -247,6 +250,11 @@
             {label}
           </CommandItem>
         {/each}
+        {#if renderedOptions.length < filteredOptions.length}
+          <div class="text-muted-foreground text-sm px-2 py-1">
+            {$t`Refine your filter to see more...`}
+          </div>
+        {/if}
       </CommandGroup>
     </CommandList>
   </Command>

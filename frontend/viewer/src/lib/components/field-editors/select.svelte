@@ -78,6 +78,9 @@
       return label.includes(filterValueLower);
     });
   });
+
+  const RENDER_LIMIT = 100;
+  const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
 </script>
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
@@ -116,7 +119,7 @@
     <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
-        {#each filteredOptions as option, i (getId(option))}
+        {#each renderedOptions as option, i (getId(option))}
           {@const label = getLabel(option)}
           {@const id = getId(option)}
           {@const selected = value && getId(value) === id}
@@ -132,6 +135,11 @@
             {label}
           </CommandItem>
         {/each}
+        {#if renderedOptions.length < filteredOptions.length}
+          <div class="text-muted-foreground text-sm px-2 py-1">
+            {$t`Refine your filter to see more...`}
+          </div>
+        {/if}
       </CommandGroup>
     </CommandList>
   </Command>
