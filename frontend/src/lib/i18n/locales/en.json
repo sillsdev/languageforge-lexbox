@@ -668,6 +668,12 @@ If you don't see a dialog or already closed it, click the button below:",
     "admin": "Admin",
     "user": "User"
   },
+  "where_is_my_project": {
+    "title": "Where's my project?",
+    "body": "**TODO**: Add instructions for clicking on the button on the project page",
+    "user_not_in_beta": "FieldWorks Lite is currently in beta testing, and open to users who\n\
+ask to be part of the beta. (**TODO**: Add button to request beta access right now).",
+  },
   "errors": {
     "apology": "Woops, something went wrong on our end. Sorry!",
     "mail_us_at": "If you're stuck, let us know about this at",
