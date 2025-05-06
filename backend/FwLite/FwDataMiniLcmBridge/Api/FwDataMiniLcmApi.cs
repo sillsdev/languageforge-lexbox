@@ -1331,6 +1331,12 @@ public class FwDataMiniLcmApi(
             lexExampleSentence.Reference.get_WritingSystem(0));
     }
 
+    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    {
+        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        return CmTranslationFactory.Create(parent, freeTranslationType);
+    }
+
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)
     {
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
