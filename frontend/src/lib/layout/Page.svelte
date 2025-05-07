@@ -3,8 +3,8 @@
   import SetTitle from './SetTitle.svelte';
   import { PageBreadcrumb } from '$lib/layout';
 
-  interface Props {
-    title?: string | undefined;
+  export interface Props {
+    title?: string | Snippet | undefined;
     wide?: boolean;
     setBreadcrumb?: boolean;
     header?: Snippet;
@@ -16,7 +16,7 @@
   let maxWidth = $derived(wide ? 'md:max-w-4xl' : 'md:max-w-2xl');
 </script>
 
-{#if title}
+{#if title && typeof(title) === 'string'}
   <SetTitle {title} />
   {#if setBreadcrumb}
     <PageBreadcrumb>{title}</PageBreadcrumb>

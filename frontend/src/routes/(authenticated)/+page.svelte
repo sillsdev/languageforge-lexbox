@@ -78,7 +78,7 @@
   }
 </script>
 
-<HeaderPage wide titleText={$t('user_dashboard.title')}>
+<HeaderPage wide title={$t('user_dashboard.title')}>
   {#snippet headerContent()}
     <div class="flex gap-4 w-full">
       <div class="grow">

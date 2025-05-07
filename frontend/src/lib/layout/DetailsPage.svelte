@@ -2,10 +2,9 @@
   import type { Snippet } from 'svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import t from '$lib/i18n';
-  import HeaderPage from './HeaderPage.svelte';
+  import HeaderPage, { type Props as HeaderPageProps } from './HeaderPage.svelte';
 
-  interface Props {
-    titleText: string;
+  interface Props extends HeaderPageProps {
     wide?: boolean;
     setBreadcrumb?: boolean;
     banner?: Snippet;
@@ -18,42 +17,22 @@
   }
 
   let {
-    titleText,
-    wide = false,
-    setBreadcrumb = true,
-    banner,
-    actions,
-    title,
-    badges,
-    headerContent,
     details,
+    headerContent,
+    badges,
     children,
+    ...rest
   }: Props = $props();
-
-  // TODO: Can probably simplify this and get rid of the fooRender varaibles, I suspect. 2025-05 RM
-  const bannerRender = $derived(banner);
-  const actionsRender = $derived(actions);
-  const titleRender = $derived(title);
-  const headerContentRender = $derived(headerContent);
 </script>
 
-<HeaderPage {wide} {titleText} {setBreadcrumb}>
-  {#snippet banner()}
-    {@render bannerRender?.()}
-  {/snippet}
-  {#snippet actions()}
-    {@render actionsRender?.()}
-  {/snippet}
-  {#snippet title()}
-    {@render titleRender?.()}
-  {/snippet}
+<HeaderPage {...rest}>
   {#snippet headerContent()}
     {#if badges}
       <BadgeList>
         {@render badges?.()}
       </BadgeList>
     {/if}
-    {@render headerContentRender?.()}
+    {@render headerContent?.()}
   {/snippet}
   {#if details}
     <div class="my-4 space-y-2 details">
