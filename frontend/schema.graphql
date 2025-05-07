@@ -275,6 +275,7 @@ type Mutation {
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload! @cost(weight: "10")
   deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload! @cost(weight: "10")
+  sendFWLiteBetaRequestEmail(input: SendFWLiteBetaRequestEmailInput!): SendFWLiteBetaRequestEmailPayload! @cost(weight: "10")
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload! @cost(weight: "10")
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   sendNewVerificationEmailByAdmin(input: SendNewVerificationEmailByAdminInput!): SendNewVerificationEmailByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
@@ -493,6 +494,11 @@ type RequiredError implements Error {
   message: String!
 }
 
+type SendFWLiteBetaRequestEmailPayload {
+  meDto: MeDto
+  errors: [SendFWLiteBetaRequestEmailError!]
+}
+
 type SendNewVerificationEmailByAdminPayload {
   user: User
   errors: [SendNewVerificationEmailByAdminError!]
@@ -644,6 +650,8 @@ union LeaveOrgError = NotFoundError | LastMemberCantLeaveError
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
+
+union SendFWLiteBetaRequestEmailError = NotFoundError | DbError | UniqueValueError
 
 union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
@@ -1092,6 +1100,11 @@ input RetentionPolicyOperationFilterInput {
   neq: RetentionPolicy @cost(weight: "10")
   in: [RetentionPolicy!] @cost(weight: "10")
   nin: [RetentionPolicy!] @cost(weight: "10")
+}
+
+input SendFWLiteBetaRequestEmailInput {
+  userId: UUID!
+  name: String!
 }
 
 input SendNewVerificationEmailByAdminInput {
