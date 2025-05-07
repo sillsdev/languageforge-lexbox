@@ -144,72 +144,74 @@
   let showHistoryView = false;
 </script>
 
-<Editor.Grid bind:ref={editorElem}>
-  <EntryEditorPrimitive {entry} {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
+<Editor.Root>
+  <Editor.Grid bind:ref={editorElem}>
+    <EntryEditorPrimitive {entry} {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
 
-  {#each entry.senses as sense, i (sense.id)}
-    <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
-      <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-      <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
-        <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
-        <hr class="grow border-t-2">
-        <div class="bg-surface-100">
-          <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
-              {readonly}
-              on:move={(e) => moveSense(sense, e.detail)}
-              on:delete={() => deleteSense(sense)} id={sense.id} />
-        </div>
-      </div>
-
-      <SenseEditorPrimitive {sense} {readonly} on:change={() => onSenseChange(sense)}/>
-
-      {#if sense.exampleSentences.length}
-        <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
-          {#each sense.exampleSentences as example, j (example.id)}
-            <Editor.SubGrid class={cn(example === highlightedEntity && 'highlight')}>
-              <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-              <div class="col-span-full flex items-center mb-4">
-                <h3 class="text-surface-content mr-4">Example {j + 1}</h3>
-                <!--
-                  <hr class="grow">
-                  collapse/expand toggle
-                -->
-                <hr class="grow">
-                <EntityListItemActions i={j} {readonly}
-                                      items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
-                                      on:move={(e) => moveExample(sense, example, e.detail)}
-                                      on:delete={() => deleteExample(sense, example)}
-                                      id={example.id}
-                />
-              </div>
-
-              <ExampleEditorPrimitive
-                {example}
+    {#each entry.senses as sense, i (sense.id)}
+      <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
+        <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
+        <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
+          <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
+          <hr class="grow border-t-2">
+          <div class="bg-surface-100">
+            <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
                 {readonly}
-                on:change={() => onExampleChange(sense, example)}
-                />
-            </Editor.SubGrid>
-          {/each}
-        </Editor.SubGrid>
-      {/if}
-      {#if !readonly && canAddExample}
-        <div class="col-span-full flex justify-end mt-4">
-          <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
+                on:move={(e) => moveSense(sense, e.detail)}
+                on:delete={() => deleteSense(sense)} id={sense.id} />
+          </div>
         </div>
-      {/if}
-    </Editor.SubGrid>
-  {/each}
-  {#if !readonly && canAddSense}
-    <hr class="col-span-full grow border-t-4 my-4">
-    <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
-      <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
-      <AddSenseFab on:click={addSense} />
-    </div>
-    <div class="col-span-full flex justify-end" class:sm-view:hidden={!modalMode}>
-      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
-    </div>
-  {/if}
-</Editor.Grid>
+
+        <SenseEditorPrimitive {sense} {readonly} on:change={() => onSenseChange(sense)}/>
+
+        {#if sense.exampleSentences.length}
+          <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+            {#each sense.exampleSentences as example, j (example.id)}
+              <Editor.SubGrid class={cn(example === highlightedEntity && 'highlight')}>
+                <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
+                <div class="col-span-full flex items-center mb-4">
+                  <h3 class="text-surface-content mr-4">Example {j + 1}</h3>
+                  <!--
+                    <hr class="grow">
+                    collapse/expand toggle
+                  -->
+                  <hr class="grow">
+                  <EntityListItemActions i={j} {readonly}
+                                        items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
+                                        on:move={(e) => moveExample(sense, example, e.detail)}
+                                        on:delete={() => deleteExample(sense, example)}
+                                        id={example.id}
+                  />
+                </div>
+
+                <ExampleEditorPrimitive
+                  {example}
+                  {readonly}
+                  on:change={() => onExampleChange(sense, example)}
+                  />
+              </Editor.SubGrid>
+            {/each}
+          </Editor.SubGrid>
+        {/if}
+        {#if !readonly && canAddExample}
+          <div class="col-span-full flex justify-end mt-4">
+            <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
+          </div>
+        {/if}
+      </Editor.SubGrid>
+    {/each}
+    {#if !readonly && canAddSense}
+      <hr class="col-span-full grow border-t-4 my-4">
+      <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
+        <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
+        <AddSenseFab on:click={addSense} />
+      </div>
+      <div class="col-span-full flex justify-end" class:sm-view:hidden={!modalMode}>
+        <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
+      </div>
+    {/if}
+  </Editor.Grid>
+</Editor.Root>
 
 {#if !modalMode}
 {@const willRenderAnyButtons = features.history || !readonly}
