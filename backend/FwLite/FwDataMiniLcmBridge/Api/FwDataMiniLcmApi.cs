@@ -1324,8 +1324,7 @@ public class FwDataMiniLcmApi(
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        var translation = CmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
+        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
         UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
         lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
             lexExampleSentence.Reference.get_WritingSystem(0));
