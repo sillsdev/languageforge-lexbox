@@ -187,7 +187,7 @@
                 <ExampleEditorPrimitive
                   {example}
                   {readonly}
-                  on:change={() => onExampleChange(sense, example)}
+                  onchange={() => onExampleChange(sense, example)}
                   />
               </Editor.SubGrid>
             {/each}
