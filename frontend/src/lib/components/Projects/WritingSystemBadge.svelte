@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { Badge } from '../Badges';
   import type { BadgeVariant } from '../Badges/Badge.svelte';
 
@@ -12,11 +10,9 @@
 
   let { tag, isActive, isDefault }: Props = $props();
 
-  let variant: BadgeVariant = $state('badge-info');
-  run(() => {
-    variant = isActive ? (isDefault ? 'badge-primary' : 'badge-info') : 'badge-neutral';
-  });
-
+  let variant: BadgeVariant = $derived(
+    isActive ? (isDefault ? 'badge-primary' : 'badge-info') : 'badge-neutral'
+  );
 </script>
 
 <Badge {variant}>

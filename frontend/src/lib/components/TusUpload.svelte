@@ -11,9 +11,8 @@
 </script>
 
 <script lang="ts">
-  import { run, createBubbler, stopPropagation } from 'svelte/legacy';
+  import { run } from 'svelte/legacy';
 
-  const bubble = createBubbler();
   import { Upload, type DetailedError } from 'tus-js-client';
   import { Button, FormError, FormField } from '$lib/forms';
   import { env } from '$env/dynamic/public';
@@ -163,7 +162,7 @@
           class="file-input file-input-bordered file-input-primary grow"
           disabled={status === UploadStatus.Uploading || status === UploadStatus.Complete}
           bind:this={fileInput}
-          oncancel={stopPropagation(bubble('cancel'))}
+          oncancel={e => e.stopPropagation()}
           onchange={fileChanged}
         />
         <IconButton

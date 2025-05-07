@@ -12,7 +12,7 @@
 
   let modal: ConfirmDeleteModal | undefined = $state();
 
-  export async function open(user: { id: string; name: string }): ReturnType<Exclude<typeof modal, undefined>['open']> {
+  export async function open(user: { id: string; name: string }): ReturnType<ConfirmDeleteModal['open']> {
     return await modal!.open(user.name, async () => {
       const deleteUserInput: DeleteUserByAdminOrSelfInput = {
         userId: user.id,
