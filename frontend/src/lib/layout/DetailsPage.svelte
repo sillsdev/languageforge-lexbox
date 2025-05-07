@@ -16,6 +16,8 @@
     children,
     ...rest
   }: Props = $props();
+
+  const headerContentRender = $derived(headerContent);
 </script>
 
 <HeaderPage {...rest}>
@@ -25,7 +27,7 @@
         {@render badges?.()}
       </BadgeList>
     {/if}
-    {@render headerContent?.()}
+    {@render headerContentRender?.()}
   {/snippet}
   {#if details}
     <div class="my-4 space-y-2 details">
