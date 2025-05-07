@@ -3,7 +3,7 @@
   import Select, { type SelectProps } from './Select.svelte';
   import type { UserType } from '$lib/components/Users';
 
-  interface Props extends SelectProps {
+  interface Props extends Omit<SelectProps, 'label'> {
     value: UserType;
     undefinedOptionLabel?: string | undefined;
   }
@@ -18,7 +18,6 @@
 </script>
 
 <div class="relative">
-  <!-- Note: important that ...rest be at the start of the attributes list so that `label={$t(...)}` will not be overridden by the `label` prop in ...rest -->
   <Select {...rest} id="type" label={$t('admin_dashboard.user_filter.user_type.label')} bind:value>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>

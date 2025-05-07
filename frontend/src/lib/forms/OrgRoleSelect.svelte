@@ -3,7 +3,7 @@
   import t from '$lib/i18n';
   import Select, { type SelectProps } from './Select.svelte';
 
-  interface Props extends SelectProps {
+  interface Props extends Omit<SelectProps, 'label'> {
     id?: string;
     value: OrgRole;
   }
