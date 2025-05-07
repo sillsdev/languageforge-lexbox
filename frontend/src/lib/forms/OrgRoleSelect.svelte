@@ -1,7 +1,7 @@
 <script lang="ts">
   import { OrgRole } from '$lib/gql/types';
   import t from '$lib/i18n';
-  import Select, { type Props as SelectProps } from './Select.svelte';
+  import Select, { type SelectProps } from './Select.svelte';
 
   interface Props extends SelectProps {
     id?: string;

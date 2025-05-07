@@ -2,7 +2,7 @@
   import t from '$lib/i18n';
   import { availableLocales } from '$locales';
 
-  import Select, { type Props as SelectProps } from './Select.svelte';
+  import Select, { type SelectProps } from './Select.svelte';
 
   interface Props extends SelectProps {
     id?: string;

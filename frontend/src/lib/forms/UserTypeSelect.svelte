@@ -1,6 +1,6 @@
 <script lang="ts">
   import t, { type I18nKey } from '$lib/i18n';
-  import Select, { type Props as SelectProps } from './Select.svelte';
+  import Select, { type SelectProps } from './Select.svelte';
   import type { UserType } from '$lib/components/Users';
 
   interface Props extends SelectProps {

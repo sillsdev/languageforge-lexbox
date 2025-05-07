@@ -4,7 +4,7 @@
   import FormField from './FormField.svelte';
   import { randomFormId } from './utils';
 
-  export interface Props {
+  export interface SelectProps {
     label: string;
     value: string | undefined;
     id?: string;
@@ -24,7 +24,7 @@
     disabled = false,
     helpLink = undefined,
     children,
-  }: Props = $props();
+  }: SelectProps = $props();
 </script>
 
 <FormField {id} {label} {error} {autofocus} {helpLink}>

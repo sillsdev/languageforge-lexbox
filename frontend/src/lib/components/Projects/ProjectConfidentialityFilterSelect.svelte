@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Select } from '$lib/forms';
-  import { type Props as SelectProps } from '$lib/forms/Select.svelte';
+  import { type SelectProps } from '$lib/forms/Select.svelte';
   import t, { type I18nKey } from '$lib/i18n';
   import { helpLinks } from '../help';
   import type { Confidentiality } from './ProjectFilter.svelte';
