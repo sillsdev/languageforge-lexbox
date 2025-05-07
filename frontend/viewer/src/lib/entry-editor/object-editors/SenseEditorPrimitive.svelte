@@ -11,15 +11,17 @@
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
 
-  const {
-    sense,
-    readonly = false,
-    onchange,
-  }: {
+  type Props = {
     sense: ISense;
     readonly?: boolean;
     onchange?: (sense: ISense, field: FieldId) => void;
-  } = $props();
+  }
+
+  const {
+    sense = $bindable(),
+    readonly = false,
+    onchange,
+  }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();

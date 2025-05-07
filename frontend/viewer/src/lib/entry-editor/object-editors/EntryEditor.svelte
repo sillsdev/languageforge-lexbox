@@ -148,7 +148,7 @@
 
 <Editor.Root>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive {entry} {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
+    <EntryEditorPrimitive bind:entry {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
@@ -162,7 +162,7 @@
               on:delete={() => deleteSense(sense)} id={sense.id} />
         </div>
 
-        <SenseEditorPrimitive {sense} {readonly} onchange={() => onSenseChange(sense)}/>
+        <SenseEditorPrimitive bind:sense {readonly} onchange={() => onSenseChange(sense)}/>
 
         {#if sense.exampleSentences.length}
           <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
@@ -185,7 +185,7 @@
                 </div>
 
                 <ExampleEditorPrimitive
-                  {example}
+                  bind:example
                   {readonly}
                   onchange={() => onExampleChange(sense, example)}
                   />

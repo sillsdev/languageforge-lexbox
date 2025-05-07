@@ -20,7 +20,7 @@
   }
 
   const {
-    entry,
+    entry = $bindable(),
     onchange,
     readonly = false,
     modalMode = false,

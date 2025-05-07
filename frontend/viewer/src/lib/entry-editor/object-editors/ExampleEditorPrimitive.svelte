@@ -9,15 +9,17 @@
   import {t} from 'svelte-i18n-lingui';
   import {MultiWsInput, WsInput} from '$lib/components/field-editors';
 
-  const {
-    example,
-    readonly = false,
-    onchange,
-  }: {
+  type Props = {
     example: IExampleSentence;
     readonly?: boolean;
     onchange?: (sense: IExampleSentence, field: FieldId) => void;
-  } = $props();
+  }
+
+  const {
+    example = $bindable(),
+    readonly = false,
+    onchange,
+  }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
   const currentView = useCurrentView();
