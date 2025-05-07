@@ -162,7 +162,7 @@
           </div>
         </div>
 
-        <SenseEditorPrimitive {sense} {readonly} on:change={() => onSenseChange(sense)}/>
+        <SenseEditorPrimitive {sense} {readonly} onchange={() => onSenseChange(sense)}/>
 
         {#if sense.exampleSentences.length}
           <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">

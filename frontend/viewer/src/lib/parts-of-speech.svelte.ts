@@ -24,12 +24,16 @@ export class PartOfSpeechService {
   current: LabeledPartOfSpeech[] = $derived.by(() => {
     return this.#posResource.current.map(pos => ({
       ...pos,
-      label: this.writingSystemService.pickBestAlternative(pos.name, 'analysis')
-    }));
+      label: this.getLabel(pos),
+    })).sort((a, b) => a.label.localeCompare(b.label));
   });
 
   async refetch() {
     await this.#posResource.refetch();
     return this.current;
+  }
+
+  getLabel(pos: IPartOfSpeech): string {
+    return this.writingSystemService.pickBestAlternative(pos.name, 'analysis');
   }
 }

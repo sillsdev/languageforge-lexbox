@@ -1,47 +1,86 @@
 ﻿<script lang="ts">
   import type {ISense} from '$lib/dotnet-types';
-  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
-  import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
-  import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
-  import {useSemanticDomains} from '../../semantic-domains';
-  import {useWritingSystemService} from '../../writing-system-service.svelte';
-  import {usePartsOfSpeech} from '../../parts-of-speech.svelte';
+  import {useSemanticDomains} from '$lib/semantic-domains';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
   import {useCurrentView, objectTemplateAreas} from '$lib/views/view-service';
-  import {EditorSubGrid} from '$lib/components/editor';
+  import * as Editor from '$lib/components/editor';
+  import {t} from 'svelte-i18n-lingui';
+  import {vt} from '$lib/views/view-text';
+  import {MultiSelect, MultiWsInput, Select} from '$lib/components/field-editors';
+  import {fieldData, type FieldId} from '../field-data';
+  import {cn} from '$lib/utils';
 
-  export let sense: ISense;
-  export let readonly: boolean = false;
+  const {
+    sense,
+    readonly = false,
+    onchange,
+  }: {
+    sense: ISense;
+    readonly?: boolean;
+    onchange?: (sense: ISense, field: FieldId) => void;
+  } = $props();
+
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
   const currentView = useCurrentView();
+
+  function onFieldChanged(field: FieldId) {
+    onchange?.(sense, field);
+  }
 </script>
 
-<EditorSubGrid style="grid-template-areas: {objectTemplateAreas($currentView, sense)}">
-  <MultiFieldEditor on:change
-                    bind:value={sense.gloss}
-                    {readonly}
-                    id="gloss"
-                    wsType="analysis" />
-  <MultiFieldEditor on:change
-                    bind:value={sense.definition}
-                    {readonly}
-                    id="definition"
-                    wsType="analysis" />
-  <SingleOptionEditor on:change={() => sense.partOfSpeechId = sense.partOfSpeech?.id}
-                      on:change
-                      bind:value={sense.partOfSpeech}
-                      options={partsOfSpeech.current}
-                      getOptionLabel={(pos) => pos.label}
-                      {readonly}
-                      id="partOfSpeechId"
-                      wsType="first-analysis" />
-  <MultiOptionEditor
-                    on:change
-                    bind:value={sense.semanticDomains}
-                    options={semanticDomains.current}
-                    getOptionLabel={(sd) => `${sd.code} ${writingSystemService.pickBestAlternative(sd.name, 'analysis')}`}
-                    {readonly}
-                    id="semanticDomains"
-                    wsType="first-analysis" />
-</EditorSubGrid>
+<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, sense)}">
+  <Editor.Field.Root style="grid-area: gloss" class={cn($currentView.fields.gloss.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Gloss`} helpId={fieldData.gloss.helpId} />
+    <Editor.Field.Body subGrid>
+      <MultiWsInput
+          onchange={() => onFieldChanged('gloss')}
+          bind:value={sense.gloss}
+          {readonly}
+          writingSystems={writingSystemService.analysis} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root style="grid-area: definition" class={cn($currentView.fields.definition.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Definition`} helpId={fieldData.definition.helpId} />
+    <Editor.Field.Body subGrid>
+      <MultiWsInput
+          onchange={() => onFieldChanged('definition')}
+          bind:value={sense.definition}
+          {readonly}
+          writingSystems={writingSystemService.analysis} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root style="grid-area: partOfSpeechId" class={cn($currentView.fields.partOfSpeechId.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Grammatical info.`, $t`Part of speech`)} helpId={fieldData.partOfSpeechId.helpId}/>
+    <Editor.Field.Body>
+      <Select
+          onchange={() => {
+            sense.partOfSpeechId = sense.partOfSpeech?.id;
+            onFieldChanged('partOfSpeechId');
+          }}
+          bind:value={sense.partOfSpeech}
+          options={partsOfSpeech.current}
+          labelSelector={(pos) => partsOfSpeech.getLabel(pos)}
+          idSelector="id"
+          {readonly} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root style="grid-area: semanticDomains" class={cn($currentView.fields.semanticDomains.show || 'hidden')}>
+    <Editor.Field.Title name={$t`Semantic domains`} helpId={fieldData.semanticDomains.helpId} />
+    <Editor.Field.Body>
+      <MultiSelect
+          onchange={() => onFieldChanged('semanticDomains')}
+          bind:values={sense.semanticDomains}
+          options={semanticDomains.current}
+          labelSelector={(sd) => `${sd.code} ${writingSystemService.pickBestAlternative(sd.name, 'analysis')}`}
+          idSelector="id"
+          sortValuesBy="optionOrder"
+          {readonly} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+</Editor.SubGrid>
