@@ -4,7 +4,7 @@
   import FormField from './FormField.svelte';
   import { randomFormId } from './utils';
 
-  interface Props {
+  export interface Props {
     label: string;
     value: string | undefined;
     id?: string;

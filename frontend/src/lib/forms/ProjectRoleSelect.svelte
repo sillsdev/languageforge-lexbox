@@ -2,18 +2,17 @@
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  import { Select } from '.';
+  import Select, { type Props as SelectProps } from './Select.svelte';
 
-  interface Props {
+  interface Props extends SelectProps {
     id?: string;
     value: ProjectRole;
-    error: string[] | undefined;
   }
 
-  let { id = 'role', value = $bindable(), error }: Props = $props();
+  let { id = 'role', value = $bindable(), ...rest }: Props = $props();
 </script>
 
-<Select {id} bind:value label={$t('project_role.label')} {error}>
+<Select {...rest} {id} bind:value label={$t('project_role.label')}>
   <option value={ProjectRole.Editor}>
     {$t('project_role.editor_description')}
   </option>

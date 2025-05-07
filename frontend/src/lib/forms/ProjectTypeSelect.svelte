@@ -2,18 +2,16 @@
   import { FormatProjectType, ProjectTypeIcon } from '$lib/components/ProjectType';
   import { ProjectType } from '$lib/gql/types';
   import t from '$lib/i18n';
-  import Select from './Select.svelte';
+  import Select, { type Props as SelectProps } from './Select.svelte';
 
-  interface Props {
+  interface Props extends SelectProps {
     value: ProjectType | undefined;
-    error?: string | string[] | undefined;
     undefinedOptionLabel?: string | undefined;
     includeUnknown?: boolean;
   }
 
   let {
     value = $bindable(),
-    error = undefined,
     undefinedOptionLabel = undefined,
     includeUnknown = false,
     ...rest
@@ -28,7 +26,7 @@
 </script>
 
 <div class="relative">
-  <Select id="type" label={$t('project_type.type')} bind:value {error} {...rest}>
+  <Select {...rest} id="type" label={$t('project_type.type')} bind:value>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}

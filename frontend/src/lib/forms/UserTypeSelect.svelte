@@ -1,9 +1,9 @@
 <script lang="ts">
   import t, { type I18nKey } from '$lib/i18n';
-  import Select from './Select.svelte';
+  import Select, { type Props as SelectProps } from './Select.svelte';
   import type { UserType } from '$lib/components/Users';
 
-  interface Props {
+  interface Props extends SelectProps {
     value: UserType;
     undefinedOptionLabel?: string | undefined;
   }
@@ -18,7 +18,8 @@
 </script>
 
 <div class="relative">
-  <Select id="type" label={$t('admin_dashboard.user_filter.user_type.label')} bind:value {...rest}>
+  <!-- Note: important that ...rest be at the start of the attributes list so that `label={$t(...)}` will not be overridden by the `label` prop in ...rest -->
+  <Select {...rest} id="type" label={$t('admin_dashboard.user_filter.user_type.label')} bind:value>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}

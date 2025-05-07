@@ -1,15 +1,16 @@
 <script lang="ts">
   import { Select } from '$lib/forms';
+  import { type Props as SelectProps } from '$lib/forms/Select.svelte';
   import t, { type I18nKey } from '$lib/i18n';
   import { helpLinks } from '../help';
   import type { Confidentiality } from './ProjectFilter.svelte';
 
-  interface Props {
+  interface Props extends SelectProps {
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
     value: Confidentiality | undefined;
   }
 
-  let { value = $bindable() }: Props = $props();
+  let { value = $bindable(), ...rest }: Props = $props();
   const options: Record<Confidentiality, I18nKey> = {
     true: 'project.confidential.confidential',
     false: 'project.confidential.not_confidential',
@@ -18,8 +19,7 @@
 </script>
 
 <div class="relative">
-  <!-- TODO: Used to have an on:change attribute below, let's remove it and see if the bubbler function works as it should -->
-  <Select label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value>
+  <Select {...rest} label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value>
     <option value={undefined}>{$t('common.any')}</option>
     {#each Object.entries(options) as [value, label]}
       <option {value}>{$t(label)}</option>
