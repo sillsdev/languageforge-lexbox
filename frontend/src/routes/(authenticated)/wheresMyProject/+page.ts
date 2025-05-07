@@ -23,7 +23,7 @@ export async function _sendFWLiteBetaRequestEmail(userId: UUID, name: string): $
   const result = await getClient()
     .mutation(
       graphql(`
-        mutation SendFWLiteBetaRequestEmail($input: SendFwLiteBetaRequestEmailInput!) {
+        mutation SendFWLiteBetaRequestEmail($input: SendFWLiteBetaRequestEmailInput!) {
           sendFWLiteBetaRequestEmail(input: $input)
             user {
               id
