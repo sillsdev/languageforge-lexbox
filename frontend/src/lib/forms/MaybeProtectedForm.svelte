@@ -16,20 +16,15 @@
     turnstileToken = $bindable(''),
     skipTurnstile = false,
     children,
-    ...rest
   }: Props = $props();
 </script>
 
 {#if skipTurnstile}
-  <!-- TODO: This used to have an on:submit attribute to bubble up the submit event from HTML.
-       Let's check if the createBubbler() call in Form makes that unnecessary now. -->
-  <Form {enhance} {...rest}>
+  <Form {enhance}>
     {@render children?.()}
   </Form>
 {:else}
-  <!-- TODO: This used to have an on:submit attribute to bubble up the submit event from HTML.
-       Let's check if the createBubbler() call in Form makes that unnecessary now. -->
-  <ProtectedForm {enhance} bind:turnstileToken {...rest}>
+  <ProtectedForm {enhance} bind:turnstileToken>
     {@render children?.()}
   </ProtectedForm>
 {/if}

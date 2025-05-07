@@ -11,8 +11,6 @@
 
   let input: HTMLInputElement | undefined = $state();
 
-  // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-
   export function clear(): void {
     debouncer.clear();
     if (input) input.value = ''; // if we cancel the debounce the input and the component can get out of sync
@@ -31,6 +29,7 @@
     readonly?: boolean;
     error?: string | string[] | undefined;
     placeholder?: string;
+    // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
     autocomplete?: 'new-password' | 'current-password' | 'off' | undefined;
     debounce?: number | boolean;

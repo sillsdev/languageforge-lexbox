@@ -18,16 +18,14 @@
     children?: Snippet;
   }
 
-  let { enhance = undefined, turnstileToken = $bindable(''), children, ...rest }: Props = $props();
+  let { enhance = undefined, turnstileToken = $bindable(''), children }: Props = $props();
 
   function deliverToken({ detail: { token } }: CustomEvent<Token>): void {
     turnstileToken = token;
   }
 </script>
 
-<!-- TODO: This used to have an on:submit attribute to bubble up the submit event from HTML.
-     Let's check if the createBubbler() call in Form makes that unnecessary now. -->
-<Form {enhance} {...rest}>
+<Form {enhance}>
   {@render children?.()}
 </Form>
 

@@ -1,8 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { createBubbler } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import type { HelpLink } from '$lib/components/help';
   import FormField from './FormField.svelte';
   import { randomFormId } from './utils';
@@ -32,7 +29,7 @@
 
 <FormField {id} {label} {error} {autofocus} {helpLink}>
   <!-- svelte-ignore a11y_autofocus -->
-  <select {disabled} bind:value {id} class="select select-bordered" {autofocus} onchange={bubble('change')}>
+  <select {disabled} bind:value {id} class="select select-bordered" {autofocus}>
     {@render children?.()}
   </select>
 </FormField>

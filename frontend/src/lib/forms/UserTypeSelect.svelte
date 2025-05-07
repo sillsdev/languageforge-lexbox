@@ -18,8 +18,6 @@
 </script>
 
 <div class="relative">
-  <!-- TODO: This used to have an on:change attribute to bubble up the submit event from HTML.
-       Let's check if the createBubbler() call in Form makes that unnecessary now. -->
   <Select id="type" label={$t('admin_dashboard.user_filter.user_type.label')} bind:value {...rest}>
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>

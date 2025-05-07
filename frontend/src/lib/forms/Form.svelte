@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { createBubbler, preventDefault } from 'svelte/legacy';
 
-  const bubble = createBubbler();
   import type { AnySuperForm } from './types';
 
   let formElem: HTMLFormElement | undefined = $state();
@@ -30,7 +28,7 @@
   {id}
   use:enhanceIfRequested
   method="post"
-  onsubmit={preventDefault(bubble('submit'))}
+  onsubmit={e => e.preventDefault()}
   class="flex flex-col"
 >
   {@render children?.()}

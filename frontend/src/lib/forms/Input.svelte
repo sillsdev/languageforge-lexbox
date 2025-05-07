@@ -4,8 +4,6 @@
   import FormField from './FormField.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
 
-  // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-
   interface Props {
     id?: string;
     label: string;
@@ -16,6 +14,7 @@
     readonly?: boolean;
     error?: string | string[] | undefined;
     placeholder?: string;
+    // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
     autocomplete?: 'new-password' | 'current-password' | undefined;
   }
