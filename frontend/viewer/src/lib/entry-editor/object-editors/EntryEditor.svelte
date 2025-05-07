@@ -17,6 +17,8 @@
   import SenseEditorPrimitive from './SenseEditorPrimitive.svelte';
   import * as Editor from '$lib/components/editor';
   import EntryEditorPrimitive from './EntryEditorPrimitive.svelte';
+  import {t} from 'svelte-i18n-lingui';
+  import {pt} from '$lib/views/view-text';
 
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
@@ -151,15 +153,13 @@
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-        <div class="col-span-full flex items-center py-2 my-2 sticky top-[-1px] sm-view:top-12 bg-surface-100/70 z-[1]">
-          <h2 class="text-lg text-surface-content mr-4">{fieldName({id: 'sense'}, $currentView.i18nKey)} {i + 1}</h2>
+        <div class="col-span-full flex items-center py-2 sticky top-0 bg-background z-[1]">
+          <h2 class="text-lg text-muted-foreground mr-4">{pt($t`Sense`, $t`Meaning`, $currentView.type)} {i + 1}</h2>
           <hr class="grow border-t-2">
-          <div class="bg-surface-100">
-            <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
-                {readonly}
-                on:move={(e) => moveSense(sense, e.detail)}
-                on:delete={() => deleteSense(sense)} id={sense.id} />
-          </div>
+          <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
+              {readonly}
+              on:move={(e) => moveSense(sense, e.detail)}
+              on:delete={() => deleteSense(sense)} id={sense.id} />
         </div>
 
         <SenseEditorPrimitive {sense} {readonly} onchange={() => onSenseChange(sense)}/>
@@ -169,8 +169,8 @@
             {#each sense.exampleSentences as example, j (example.id)}
               <Editor.SubGrid class={cn(example === highlightedEntity && 'highlight')}>
                 <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
-                <div class="col-span-full flex items-center mb-4">
-                  <h3 class="text-surface-content mr-4">Example {j + 1}</h3>
+                <div class="col-span-full flex items-center mb-2">
+                  <h3 class="text-muted-foreground mr-4">{$t`Example`} {j + 1}</h3>
                   <!--
                     <hr class="grow">
                     collapse/expand toggle
