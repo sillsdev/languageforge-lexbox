@@ -2,26 +2,26 @@
   import type { Snippet } from 'svelte';
   import Page, { type Props as PageProps } from './Page.svelte';
 
-  export interface Props extends PageProps {
-    titleText?: string;
+  export interface Props extends Omit<PageProps, 'title'> {
+    titleText: string;
     banner?: Snippet;
     actions?: Snippet;
+    title?: Snippet;
     headerContent?: Snippet;
   }
 
   let {
-    wide = false,
-    setBreadcrumb = true,
+    titleText,
     banner,
     actions,
     title,
-    titleText,
     headerContent,
     children,
+    ...rest
   }: Props = $props();
 </script>
 
-<Page title={titleText ?? title} {wide} {setBreadcrumb}>
+<Page {...rest} title={titleText}>
   {#snippet header()}
     {@render banner?.()}
     <div class="flex flex-row-reverse flex-wrap justify-between mb-4 gap-y-2 gap-x-4">
@@ -29,11 +29,9 @@
         {@render actions?.()}
       </div>
       <h1 class="text-3xl text-left grow max-w-full flex gap-4 items-end flex-wrap">
-        {#if title && typeof(title) === 'function'}
+        {#if title}
           {@render title?.()}
-        {:else if title}
-          {title}
-        {:else if titleText}
+        {:else}
           {titleText}
         {/if}
       </h1>

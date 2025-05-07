@@ -5,15 +5,8 @@
   import HeaderPage, { type Props as HeaderPageProps } from './HeaderPage.svelte';
 
   interface Props extends HeaderPageProps {
-    wide?: boolean;
-    setBreadcrumb?: boolean;
-    banner?: Snippet;
-    actions?: Snippet;
-    title?: Snippet;
     badges?: Snippet;
-    headerContent?: Snippet;
     details?: Snippet;
-    children?: Snippet;
   }
 
   let {

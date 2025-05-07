@@ -4,7 +4,7 @@
   import { PageBreadcrumb } from '$lib/layout';
 
   export interface Props {
-    title?: string | Snippet | undefined;
+    title?: string;
     wide?: boolean;
     setBreadcrumb?: boolean;
     header?: Snippet;
@@ -16,7 +16,7 @@
   let maxWidth = $derived(wide ? 'md:max-w-4xl' : 'md:max-w-2xl');
 </script>
 
-{#if title && typeof(title) === 'string'}
+{#if title}
   <SetTitle {title} />
   {#if setBreadcrumb}
     <PageBreadcrumb>{title}</PageBreadcrumb>
