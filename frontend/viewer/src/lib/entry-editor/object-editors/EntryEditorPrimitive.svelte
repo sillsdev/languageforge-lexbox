@@ -1,17 +1,22 @@
 <script lang="ts">
-  import {EditorSubGrid} from '$lib/components/editor';
+  import * as Editor from '$lib/components/editor';
   import type {IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
+  import {vt} from '$lib/views/view-text';
+  import {t} from 'svelte-i18n-lingui';
+  import {fieldData, type FieldId} from '../field-data';
+  import {cn} from '$lib/utils';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {MultiSelect, MultiWsInput} from '$lib/components/field-editors';
+  import {useComplexFormTypes} from '$lib/complex-form-types';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
-  import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
-  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
 
   type Props = {
     entry: IEntry;
     readonly?: boolean;
     modalMode?: boolean;
-    onchange?: (entry: IEntry) => void; // Added onchange prop
+    onchange?: (entry: IEntry, field: FieldId) => void;
   }
 
   const {
@@ -21,54 +26,86 @@
     modalMode = false,
   }: Props = $props();
 
+  const writingSystemService = useWritingSystemService();
+  const complexFormTypes = useComplexFormTypes();
   const currentView = useCurrentView();
 
-  function onFieldChanged(): void {
-    onchange?.(entry);
+  function onFieldChanged(field: FieldId) {
+    onchange?.(entry, field);
   }
 </script>
 
-<EditorSubGrid style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
-  <MultiFieldEditor on:change={onFieldChanged}
-                    bind:value={entry.lexemeForm}
-                    {readonly}
-                    autofocus={modalMode}
-                    id="lexemeForm"
-                    wsType="vernacular"/>
+<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
+  <Editor.Field.Root style="grid-area: lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.lexemeForm.helpId} />
+    <Editor.Field.Body subGrid>
+      <MultiWsInput
+          onchange={() => onFieldChanged('lexemeForm')}
+          bind:value={entry.lexemeForm}
+          {readonly}
+          autofocus={modalMode}
+          writingSystems={writingSystemService.vernacular} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
 
-  <MultiFieldEditor on:change={onFieldChanged}
-                    bind:value={entry.citationForm}
-                    {readonly}
-                    id="citationForm"
-                    wsType="vernacular"/>
+  <Editor.Field.Root style="grid-area: citationForm" class={cn($currentView.fields.citationForm.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Citation form`, $t`Display as`)} helpId={fieldData.citationForm.helpId} />
+    <Editor.Field.Body subGrid>
+      <MultiWsInput
+          onchange={() => onFieldChanged('citationForm')}
+          bind:value={entry.citationForm}
+          {readonly}
+          writingSystems={writingSystemService.vernacular} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
 
   {#if !modalMode}
-    <ComplexForms on:change={onFieldChanged}
+    <ComplexForms on:change={() => onFieldChanged('complexForms')}
                   bind:value={entry.complexForms}
                   {readonly}
                   {entry}
                   id="complexForms" />
 
-    <ComplexFormTypes on:change={onFieldChanged}
-                  bind:value={entry.complexFormTypes}
-                  {readonly}
-                  id="complexFormTypes" />
+    <Editor.Field.Root style="grid-area: complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
+      <Editor.Field.Title name={vt($t`Complex form types`)} helpId={fieldData.complexFormTypes.helpId} />
+      <Editor.Field.Body>
+        <MultiSelect
+          onchange={() => onFieldChanged('complexFormTypes')}
+          bind:values={entry.complexFormTypes}
+          sortValuesBy="selectionOrder"
+          options={complexFormTypes.current}
+          labelSelector={(cft) => writingSystemService.pickBestAlternative(cft.name, 'analysis')}
+          {readonly}
+          idSelector="id" />
+      </Editor.Field.Body>
+    </Editor.Field.Root>
 
-    <ComplexFormComponents  on:change={onFieldChanged}
+    <ComplexFormComponents  on:change={() => onFieldChanged('complexForms')}
                             bind:value={entry.components}
                             {readonly}
                             {entry}
                             id="components" />
   {/if}
 
-  <MultiFieldEditor on:change={onFieldChanged}
-                    bind:value={entry.literalMeaning}
-                    {readonly}
-                    id="literalMeaning"
-                    wsType="vernacular"/>
-  <MultiFieldEditor on:change={onFieldChanged}
-                    bind:value={entry.note}
-                    {readonly}
-                    id="note"
-                    wsType="analysis"/>
-</EditorSubGrid>
+  <Editor.Field.Root style="grid-area: literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Literal meaning`)} helpId={fieldData.literalMeaning.helpId} />
+    <Editor.Field.Body subGrid>
+      <MultiWsInput
+          onchange={() => onFieldChanged('literalMeaning')}
+          bind:value={entry.literalMeaning}
+          {readonly}
+          writingSystems={writingSystemService.vernacular} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root style="grid-area: note" class={cn($currentView.fields.note.show || 'hidden')}>
+    <Editor.Field.Title name={vt($t`Note`)} helpId={fieldData.note.helpId} />
+    <Editor.Field.Body subGrid>
+      <MultiWsInput
+          onchange={() => onFieldChanged('note')}
+          bind:value={entry.note}
+          {readonly}
+          writingSystems={writingSystemService.analysis} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+</Editor.SubGrid>
