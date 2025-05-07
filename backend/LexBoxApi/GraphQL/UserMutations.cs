@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -36,6 +36,32 @@ public class UserMutations
         string PasswordHash,
         int PasswordStrength,
         Guid? OrgId);
+    public record SendFWLiteBetaRequestEmailInput(Guid UserId, string Name);
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UniqueValueException>]
+    [UseMutationConvention]
+    [RefreshJwt]
+    public async Task<MeDto> SendFWLiteBetaRequestEmail(
+        LoggedInContext loggedInContext,
+        SendFWLiteBetaRequestEmailInput input,
+        LexBoxDbContext dbContext,
+        IEmailService emailService
+    )
+    {
+        if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        NotFoundException.ThrowIfNull(user);
+        await emailService.SendJoinFWLiteBetaEmail(user);
+        return new MeDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Locale = user.LocalizationCode
+        };
+    }
 
     [Error<NotFoundException>]
     [Error<DbError>]
