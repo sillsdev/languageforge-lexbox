@@ -16,8 +16,18 @@
     onSelect: (project: IProjectModel) => void;
   }>();
   const projectsService = useProjectsService();
-  const projectsResource = resource(() => projectsService, (projectsService) => {
-      return projectsService.localProjects();
+  const projectsResource = resource(() => projectsService, async (projectsService) => {
+      const projects = await projectsService.localProjects();
+      return projects.flatMap((project) => {
+        if (project.fwdata && project.crdt) {
+          return [
+            { ...project, fwdata: false },
+            { ...project, crdt: false }
+          ];
+        }
+        return [project];
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, {lazy: true});
 
   let open = $state(false);
