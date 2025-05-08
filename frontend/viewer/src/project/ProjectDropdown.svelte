@@ -96,7 +96,7 @@
         {:else}
           {#each projectsResource.current ?? [] as project}
             <Command.Item
-              value={project.name}
+              value={project.name + project.crdt}
               onSelect={() => handleSelect(project)}
               class={cn('cursor-pointer', project.name === projectName && 'bg-secondary')}
             >
