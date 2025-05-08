@@ -171,9 +171,9 @@
       <div class="overflow-x-visible @container scroll-shadow">
         <UserTable
           {shownUsers}
-          on:openUserModal={(event) => userModal?.open(event.detail)}
-          on:editUser={(event) => openModal(event.detail)}
-          on:filterProjectsByUser={(event) => filterProjectsByUser(event.detail)}
+          onOpenUserModal={(user) => userModal?.open(user)}
+          onEditUser={openModal}
+          onFilterProjectsByUser={filterProjectsByUser}
         />
         <RefineFilterMessage total={filteredUserCount} showing={shownUsers.length} />
       </div>

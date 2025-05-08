@@ -2,21 +2,17 @@
   import { Button } from '$lib/forms';
   import t from '$lib/i18n';
   import { AdminIcon, Icon } from '$lib/icons';
-  import { createEventDispatcher } from 'svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import type { User } from '../../../routes/(authenticated)/admin/+page';
 
   interface Props {
     shownUsers: User[];
+    onOpenUserModal: (user: User) => void;
+    onEditUser: (user: User) => void;
+    onFilterProjectsByUser: (user: User) => void;
   }
 
-  const { shownUsers }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    openUserModal: User;
-    editUser: User;
-    filterProjectsByUser: User;
-  }>();
+  const { shownUsers, onOpenUserModal, onEditUser, onFilterProjectsByUser }: Props = $props();
 </script>
 
 <table class="table table-lg">
@@ -38,12 +34,7 @@
       <tr>
         <td>
           <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
-            <Button
-              variant="btn-ghost"
-              size="btn-sm"
-              class="max-w-full"
-              onclick={() => dispatch('openUserModal', user)}
-            >
+            <Button variant="btn-ghost" size="btn-sm" class="max-w-full" onclick={() => onOpenUserModal(user)}>
               <span class="x-ellipsis" title={user.name}>
                 {user.name}
               </span>
@@ -99,13 +90,13 @@
             {#snippet content()}
               <ul class="menu">
                 <li>
-                  <button class="whitespace-nowrap" onclick={() => dispatch('editUser', user)}>
+                  <button class="whitespace-nowrap" onclick={() => onEditUser(user)}>
                     <Icon icon="i-mdi-pencil-outline" />
                     {$t('admin_dashboard.form_modal.title')}
                   </button>
                 </li>
                 <li>
-                  <button class="whitespace-nowrap" onclick={() => dispatch('filterProjectsByUser', user)}>
+                  <button class="whitespace-nowrap" onclick={() => onFilterProjectsByUser(user)}>
                     <Icon icon="i-mdi-filter-outline" />
                     {$t('project.filter.filter_user_projects')}
                   </button>
