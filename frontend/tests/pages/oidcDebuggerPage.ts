@@ -1,4 +1,4 @@
-﻿import {BasePage} from './basePage';
+import {BasePage} from './basePage';
 import {expect, type Page} from '@playwright/test';
 
 export class OidcDebuggerPage extends BasePage {
@@ -11,7 +11,7 @@ export class OidcDebuggerPage extends BasePage {
     super(page, page.getByText('OpenID Connect Debugger'), 'https://oidcdebugger.com');
   }
 
-  async fillForm(baseURL: string) {
+  async fillForm(baseURL: string): Promise<void> {
     await this.page.locator('#authorizeUri').fill(`${baseURL}/api/oauth/open-id-auth`);
     await this.page.locator('#redirectUri').fill(OidcDebuggerPage.redirectUrl);
     await this.page.locator('#clientId').fill(OidcDebuggerPage.clientId);

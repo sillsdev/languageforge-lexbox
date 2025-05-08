@@ -1,21 +1,32 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import type { PageData } from './$types';
   import t from '$lib/i18n';
   import ProjectList from '$lib/components/ProjectList.svelte';
   import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItemWithDraftStatus } from '$lib/components/Projects';
+  import {
+    ProjectFilter,
+    filterProjects,
+    type ProjectFilters,
+    type ProjectItemWithDraftStatus,
+  } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
   import { limit } from '$lib/components/Paging';
   import IconButton from '$lib/components/IconButton.svelte';
-  import Cookies from 'js-cookie'
+  import Cookies from 'js-cookie';
   import { STORAGE_VIEW_MODE_KEY, ViewMode } from './shared';
 
-  export let data: PageData;
-  $: projects = data.projects;
-  $: draftProjects = data.draftProjects;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let projects = $derived(data.projects);
+  let draftProjects = $derived(data.draftProjects);
 
   type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
 
@@ -24,24 +35,32 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
   });
 
-  let allProjects: ProjectItemWithDraftStatus[] = [];
-  let filteredProjects: ProjectItemWithDraftStatus[] = [];
-  let limitResults = true;
-  $: allProjects = [
-    ...$draftProjects.map(p => ({
-      ...p, isDraft: true as const,
-      createUrl: ''
-    })),
-    ...$projects.map(p => ({ ...p, isDraft: false as const })),
-  ];
-  $: filteredProjects = filterProjects(allProjects, $filters);
-  $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
+  let allProjects: ProjectItemWithDraftStatus[] = $state([]);
+  let filteredProjects: ProjectItemWithDraftStatus[] = $state([]);
+  let limitResults = $state(true);
+  run(() => {
+    allProjects = [
+      ...$draftProjects.map((p) => ({
+        ...p,
+        isDraft: true as const,
+        createUrl: '',
+      })),
+      ...$projects.map((p) => ({ ...p, isDraft: false as const })),
+    ];
+  });
+  run(() => {
+    filteredProjects = filterProjects(allProjects, $filters);
+  });
+  let shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
 
-  let initializedMode = false;
-  let mode: ViewMode;
-  $: defaultMode = allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table;
+  // TODO: This whole thing with initializedMode, defaultMode, and mode *and* the run() block below
+  // looks like it could be simplified, perhaps by turning it into a single $derived.by
+  let initializedMode = $state(false);
+  let defaultMode = $derived(allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table);
+  // svelte-ignore state_referenced_locally
+  let mode: ViewMode = $state(defaultMode); // Only captures initial value, but that's okay; rest is captured in run() block
 
-  $: {
+  run(() => {
     if (!initializedMode) {
       const storedMode = data.projectViewMode;
       if (storedMode === ViewMode.Table || storedMode === ViewMode.Grid) {
@@ -51,7 +70,7 @@
       }
       initializedMode = true;
     }
-  }
+  });
 
   function selectMode(selectedMode: ViewMode): void {
     mode = selectedMode;
@@ -60,7 +79,7 @@
 </script>
 
 <HeaderPage wide titleText={$t('user_dashboard.title')}>
-  <svelte:fragment slot="headerContent">
+  {#snippet headerContent()}
     <div class="flex gap-4 w-full">
       <div class="grow">
         <ProjectFilter
@@ -71,31 +90,28 @@
         />
       </div>
       <div class="join">
-        <IconButton
-          icon="i-mdi-grid"
-          join
-          active={mode === ViewMode.Grid}
-          on:click={() => selectMode(ViewMode.Grid)} />
+        <IconButton icon="i-mdi-grid" join active={mode === ViewMode.Grid} onclick={() => selectMode(ViewMode.Grid)} />
         <IconButton
           icon="i-mdi-land-rows-horizontal"
           join
           active={mode === ViewMode.Table}
-          on:click={() => selectMode(ViewMode.Table)} />
+          onclick={() => selectMode(ViewMode.Table)}
+        />
       </div>
     </div>
-  </svelte:fragment>
-  <svelte:fragment slot="actions">
+  {/snippet}
+  {#snippet actions()}
     {#if data.user.emailVerified && !data.user.createdByAdmin}
       <a href="/project/create" class="btn btn-success">
         {$t('project.create.title')}
-        <span class="i-mdi-plus text-2xl" />
+        <span class="i-mdi-plus text-2xl"></span>
       </a>
     {/if}
-  </svelte:fragment>
+  {/snippet}
 
   {#if !allProjects.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
-      <span class="i-mdi-creation-outline text-xl shrink-0" />
+      <span class="i-mdi-creation-outline text-xl shrink-0"></span>
       {#if !data.user.emailVerified && !data.user.createdByAdmin}
         {$t('user_dashboard.not_verified')}
       {:else}
@@ -110,7 +126,7 @@
     {/if}
 
     {#if shownProjects.length < filteredProjects.length}
-      <Button class="float-right mt-2" on:click={() => (limitResults = false)}>
+      <Button class="float-right mt-2" onclick={() => (limitResults = false)}>
         {$t('paging.load_more')}
       </Button>
     {/if}

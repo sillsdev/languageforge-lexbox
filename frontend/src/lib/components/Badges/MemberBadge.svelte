@@ -3,12 +3,16 @@
   import FormatUserProjectRole from '../Projects/FormatUserProjectRole.svelte';
   import ActionBadge from './ActionBadge.svelte';
   import Badge from './Badge.svelte';
-  export let member: { name: string; role: ProjectRole };
-  export let canManage = false;
 
-  export let type: 'existing' | 'new' = 'existing';
-  $: actionIcon = (type === 'existing' ? 'i-mdi-dots-vertical' as const : 'i-mdi-close' as const);
-  $: variant = member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const;
+  interface Props {
+    member: { name: string; role: ProjectRole };
+    canManage?: boolean;
+    type?: 'existing' | 'new';
+  }
+
+  let { member, canManage = false, type = 'existing' }: Props = $props();
+  let actionIcon = ($derived(type === 'existing' ? 'i-mdi-dots-vertical' as const : 'i-mdi-close' as const));
+  let variant = $derived(member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const);
 </script>
 
 <ActionBadge {actionIcon} {variant} disabled={!canManage} on:action>
@@ -17,7 +21,7 @@
   </span>
 
   <!-- justify the name left and the role right -->
-  <span class="flex-grow" />
+  <span class="flex-grow"></span>
 
   <Badge>
     <FormatUserProjectRole role={member.role} />

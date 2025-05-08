@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   import { ProjectType } from '$lib/gql/types';
   import t, { type I18nKey } from '$lib/i18n';
 
@@ -17,7 +17,11 @@
 </script>
 
 <script lang="ts">
-  export let type: ProjectType;
+  interface Props {
+    type: ProjectType;
+  }
+
+  let { type }: Props = $props();
 </script>
 
 {$t(getProjectTypeI18nKey(type))}

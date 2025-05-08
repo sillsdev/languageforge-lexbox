@@ -17,7 +17,7 @@
     email: z.string().email($t('form.invalid_email')),
   });
 
-  let turnstileToken = '';
+  let turnstileToken = $state('');
 
   let { form, errors, enhance, submitting, message } = lexSuperForm(formSchema, async () => {
     const response = await fetch(`api/login/forgotPassword`, {

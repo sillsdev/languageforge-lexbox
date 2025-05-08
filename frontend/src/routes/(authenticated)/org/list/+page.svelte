@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { FilterBar } from '$lib/components/FilterBar';
   import type { OrgListPageQuery } from '$lib/gql/types';
   import t, { date, number } from '$lib/i18n';
@@ -10,9 +12,13 @@
   import type { OrgListSearchParams } from './+page';
   import orderBy from 'just-order-by';
 
-  export let data: PageData;
-  $: orgs = data.orgs;
-  $: myOrgsMap = data.myOrgsMap;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let orgs = $derived(data.orgs);
+  let myOrgsMap = $derived(data.myOrgsMap);
 
   const queryParams = getSearchParams<OrgListSearchParams>({
     search: queryParam.string<string>(''),
@@ -23,9 +29,9 @@
   type Org = OrgList[number];
 
   type Column = keyof Pick<Org, 'name' | 'memberCount' | 'createdDate'>;
-  let sortColumn: Column = 'name';
+  let sortColumn: Column = $state('name');
   type Dir = 'asc' | 'desc';
-  let sortDir: Dir = 'asc';
+  let sortDir: Dir = $state('asc');
 
   function swapSortDir(): void {
     sortDir = sortDir === 'asc' ? 'desc' : 'asc';
@@ -58,13 +64,13 @@
     ]);
   }
 
-  $: filteredOrgs = $orgs ? filterOrgs($orgs, $queryParamValues.search) : [];
-  $: displayOrgs = sortOrgs(filteredOrgs, sortColumn, sortDir);
-  $: filtering = filteredOrgs.length !== $orgs.length;
+  let filteredOrgs = $derived($orgs ? filterOrgs($orgs, $queryParamValues.search) : []);
+  let displayOrgs = $derived(sortOrgs(filteredOrgs, sortColumn, sortDir));
+  let filtering = $derived(filteredOrgs.length !== $orgs.length);
 
-  let myOrgs: OrgList = [];
-  let otherOrgs: OrgList = [];
-  $: {
+  let myOrgs: OrgList = $state([]);
+  let otherOrgs: OrgList = $state([]);
+  run(() => {
     myOrgs = [];
     otherOrgs = [];
     displayOrgs.forEach(org => {
@@ -74,7 +80,7 @@
         otherOrgs.push(org);
       }
     });
-  }
+  });
 </script>
 
 <!--
@@ -85,41 +91,47 @@ TODO:
 -->
 
 <HeaderPage wide titleText={$t('org.table.title')}>
-  <svelte:fragment slot="actions">
-    <AdminContent>
-      <a href="/org/create" class="btn btn-success">
-        {$t('org.create.title')}
-        <span class="i-mdi-plus text-2xl" />
-      </a>
-    </AdminContent>
-  </svelte:fragment>
-  <svelte:fragment slot="title">
-    {$t('org.table.title')}
-    <Icon icon="i-mdi-account-group-outline" size="text-5xl" y="10%" />
-  </svelte:fragment>
-  <svelte:fragment slot="headerContent">
-    <FilterBar
-      searchKey="search"
-      filterKeys={['search']}
-      filters={queryParamValues}
-      filterDefaults={defaultQueryParamValues}
-    />
-  </svelte:fragment>
+  {#snippet actions()}
+  
+      <AdminContent>
+        <a href="/org/create" class="btn btn-success">
+          {$t('org.create.title')}
+          <span class="i-mdi-plus text-2xl"></span>
+        </a>
+      </AdminContent>
+    
+  {/snippet}
+  {#snippet title()}
+  
+      {$t('org.table.title')}
+      <Icon icon="i-mdi-account-group-outline" size="text-5xl" y="10%" />
+    
+  {/snippet}
+  {#snippet headerContent()}
+  
+      <FilterBar
+        searchKey="search"
+        filterKeys={['search']}
+        filters={queryParamValues}
+        filterDefaults={defaultQueryParamValues}
+      />
+    
+  {/snippet}
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
       <thead>
         <tr class="bg-base-200">
-          <th on:click={() => handleSortClick('name')} class="cursor-pointer hover:bg-base-300">
+          <th onclick={() => handleSortClick('name')} class="cursor-pointer hover:bg-base-300">
             {$t('org.table.name')}
-            <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2" />
+            <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
           </th>
-          <th on:click={() => handleSortClick('memberCount')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
+          <th onclick={() => handleSortClick('memberCount')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
             {$t('org.table.members')}
-            <span class:invisible={sortColumn !== 'memberCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2" />
+            <span class:invisible={sortColumn !== 'memberCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
           </th>
-          <th on:click={() => handleSortClick('createdDate')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
+          <th onclick={() => handleSortClick('createdDate')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
             {$t('org.table.created_at')}
-            <span class:invisible={sortColumn !== 'createdDate'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2" />
+            <span class:invisible={sortColumn !== 'createdDate'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
           </th>
         </tr>
       </thead>

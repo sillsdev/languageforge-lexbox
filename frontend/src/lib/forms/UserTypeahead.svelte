@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
   import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
@@ -8,14 +10,27 @@
 
   type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
 
-  export let label: string;
-  export let error: string | string[] | undefined = undefined;
-  export let id: string = randomFormId();
-  export let autofocus: true | undefined = undefined;
-  export let value: string;
-  export let debounceMs = 200;
-  export let isAdmin: boolean = false;
-  export let exclude: string[] = [];
+  interface Props {
+    label: string;
+    error?: string | string[] | undefined;
+    id?: string;
+    autofocus?: true | undefined;
+    value: string;
+    debounceMs?: number;
+    isAdmin?: boolean;
+    exclude?: string[];
+  }
+
+  let {
+    label,
+    error = undefined,
+    id = randomFormId(),
+    autofocus = undefined,
+    value = $bindable(),
+    debounceMs = 200,
+    isAdmin = false,
+    exclude = []
+  }: Props = $props();
 
   function typeaheadSearch(): Promise<UserTypeaheadResult[]> {
     return isAdmin ? _userTypeaheadSearch(value) : _usersTypeaheadSearch(value);
@@ -30,8 +45,6 @@
     [],
     debounceMs);
 
-  $: typeaheadResults = $_typeaheadResults;
-  $: filteredResults = typeaheadResults.filter(user => !exclude.includes(user.id));
 
   const dispatch = createEventDispatcher<{
       selectedUserChange: UserTypeaheadResult | null;
@@ -45,10 +58,6 @@
     value = getInputValue(user);
   }
 
-  $: if ($selectedUser && value !== getInputValue($selectedUser)) {
-    $selectedUser = null;
-    dispatch('selectedUserChange', $selectedUser);
-  }
 
   function formatResult(user: UserTypeaheadResult): string {
     const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
@@ -65,15 +74,8 @@
     return '';
   }
 
-  let highlightIdx: number | undefined = undefined;
-  let typeaheadOpen = false;
-  $: {
-    if (typeaheadOpen) {
-      highlightIdx ??= filteredResults.length ? 0 : undefined;
-    } else {
-      highlightIdx = undefined;
-    }
-  }
+  let highlightIdx: number | undefined = $state(undefined);
+  let typeaheadOpen = $state(false);
   function keydownHandler(event: KeyboardEvent): void
   {
     if (!typeaheadOpen) return;
@@ -98,18 +100,31 @@
     }
   }
 
-  function onOverlayOpen(e: CustomEvent): void {
-    typeaheadOpen = e.detail;
+  function onOverlayOpen(open: boolean): void {
+    typeaheadOpen = open;
     if (!typeaheadOpen) {
-      // eslint-disable-next-line svelte/no-reactive-reassign
       typeaheadResults = []; // prevent old results showing when opening next time
     }
   }
+  let typeaheadResults = $derived($_typeaheadResults);
+  let filteredResults = $derived(typeaheadResults.filter(user => !exclude.includes(user.id)));
+  run(() => {
+    if ($selectedUser && value !== getInputValue($selectedUser)) {
+      $selectedUser = null;
+      dispatch('selectedUserChange', $selectedUser);
+    }
+  });
+  run(() => {
+    if (typeaheadOpen) {
+      highlightIdx ??= filteredResults.length ? 0 : undefined;
+    } else {
+      highlightIdx = undefined;
+    }
+  });
 </script>
 
 <FormField {id} {label} {error} {autofocus}>
-  <div use:overlay={{ closeClickSelector: '.menu li'}}
-    on:overlayOpen={onOverlayOpen}>
+  <div use:overlay={{ closeClickSelector: '.menu li', onOverlayOpen}}>
     <PlainInput
       style="w-full"
       bind:value {id}
@@ -122,7 +137,7 @@
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each filteredResults as user, idx}
-        <li class={(highlightIdx == idx) ? 'p-0 bg-primary text-white' : 'p-0'}><button class="whitespace-nowrap" on:click={() => {
+        <li class={(highlightIdx == idx) ? 'p-0 bg-primary text-white' : 'p-0'}><button class="whitespace-nowrap" onclick={() => {
           setTimeout(() => selectUser(user));
         }}>{formatResult(user)}</button></li>
       {/each}

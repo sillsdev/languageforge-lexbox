@@ -1,11 +1,11 @@
-<script context="module" lang="ts">
-  import {type Project, type ProjectType} from '$lib/gql/types';
-  import type {DraftProject} from '../../../routes/(authenticated)/admin/+page';
+<script module lang="ts">
+  import { type Project, type ProjectType } from '$lib/gql/types';
+  import type { DraftProject } from '../../../routes/(authenticated)/admin/+page';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
   export type ProjectItemWithDraftStatus =
-    ProjectItem & { isDraft?: false } |
-    DraftProject & { isDraft: true; createUrl: string };
+    | (ProjectItem & { isDraft?: false })
+    | (DraftProject & { isDraft: true; createUrl: string });
 
   export type Confidentiality = `${boolean}` | 'unset';
 
@@ -33,8 +33,8 @@
         (!projectFilters.hideDraftProjects || !p.isDraft) &&
         (!projectFilters.emptyProjects || p.isDraft || !p.lastCommit) &&
         (projectFilters.confidential === undefined ||
-          (projectFilters.confidential === p.isConfidential?.toString()) ||
-          (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined))
+          projectFilters.confidential === p.isConfidential?.toString() ||
+          (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined)),
     );
   }
 </script>
@@ -54,20 +54,48 @@
   import BypassCloudflareEmailObfuscation from '$lib/components/BypassCloudflareEmailObfuscation.svelte';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
-  export let filters: Writable<Filters>;
-  export let filterDefaults: Filters;
-  export let hasActiveFilter: boolean = false;
-  export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'confidential', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects', 'emptyProjects'];
-  export let loading = false;
+  interface Props {
+    filters: Writable<Filters>;
+    filterDefaults: Filters;
+    hasActiveFilter?: boolean;
+    autofocus?: true | undefined;
+    filterKeys?: (keyof Filters)[];
+    loading?: boolean;
+  }
+
+  let {
+    filters,
+    filterDefaults,
+    hasActiveFilter = $bindable(false),
+    autofocus = undefined,
+    filterKeys = [
+      'projectSearch',
+      'projectType',
+      'confidential',
+      'showDeletedProjects',
+      'memberSearch',
+      'hideDraftProjects',
+      'emptyProjects',
+    ],
+    loading = false,
+  }: Props = $props();
 
   function filterEnabled(filter: keyof Filters): boolean {
     return filterKeys.includes(filter);
   }
 </script>
 
-<FilterBar on:change searchKey="projectSearch" {autofocus} {filters} {filterDefaults} bind:hasActiveFilter {filterKeys} {loading}>
-  <svelte:fragment slot="activeFilterSlot" let:activeFilters>
+<FilterBar
+  on:change
+  searchKey="projectSearch"
+  {autofocus}
+  {filters}
+  {filterDefaults}
+  bind:hasActiveFilter
+  {filterKeys}
+  {loading}
+>
+  {#snippet activeFilterSlot({ activeFilters })}
     {#each activeFilters as filter}
       {#if filter.key === 'projectType'}
         <ActiveFilter {filter}>
@@ -94,9 +122,9 @@
       {:else if filter.key === 'memberSearch' && filter.value}
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
-            <BypassCloudflareEmailObfuscation>
-              {filter.value}
-            </BypassCloudflareEmailObfuscation>
+          <BypassCloudflareEmailObfuscation>
+            {filter.value}
+          </BypassCloudflareEmailObfuscation>
         </ActiveFilter>
       {:else if filter.key === 'hideDraftProjects' && filter.value}
         <ActiveFilter {filter}>
@@ -110,20 +138,16 @@
         </ActiveFilter>
       {/if}
     {/each}
-  </svelte:fragment>
-  <svelte:fragment slot="filterSlot">
+  {/snippet}
+  {#snippet filterSlot()}
     <h2 class="card-title">{$t('project.filter.title')}</h2>
     {#if filterEnabled('memberSearch')}
       <FormField label={$t('project.filter.project_member')}>
         {#if $filters.memberSearch}
           <div class="join">
-            <input
-              class="input input-bordered join-item flex-grow"
-              readonly
-              value={$filters.memberSearch}
-            />
+            <input class="input input-bordered join-item flex-grow" readonly value={$filters.memberSearch} />
             <div class="join-item isolate">
-              <IconButton icon="i-mdi-close" on:click={() => ($filters.memberSearch = undefined)} />
+              <IconButton icon="i-mdi-close" onclick={() => ($filters.memberSearch = undefined)} />
             </div>
           </div>
         {:else}
@@ -190,5 +214,5 @@
         </label>
       </div>
     {/if}
-  </svelte:fragment>
+  {/snippet}
 </FilterBar>

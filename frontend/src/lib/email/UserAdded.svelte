@@ -2,10 +2,19 @@
   import Email from '$lib/email/Email.svelte';
   import t from '$lib/i18n';
 
-  export let name: string;
-  export let baseUrl: string;
-  export let projectName: string;
-  export let projectCode: string;
+  interface Props {
+    name: string;
+    baseUrl: string;
+    projectName: string;
+    projectCode: string;
+  }
+
+  let {
+    name,
+    baseUrl,
+    projectName,
+    projectCode
+  }: Props = $props();
   let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(projectCode)}`, baseUrl);
 </script>
 

@@ -1,26 +1,30 @@
 <script lang="ts">
-  import {getErrorMessage} from '$lib/error/utils';
-  import {Button, FormError} from '$lib/forms';
+  import { getErrorMessage } from '$lib/error/utils';
+  import { Button, FormError } from '$lib/forms';
   import t from '$lib/i18n';
-  import {Icon} from '$lib/icons';
-  import {useNotifications} from '$lib/notify';
-  import {bounceIn} from 'svelte/easing';
-  import {scale} from 'svelte/transition';
-  import {_refreshProjectRepoInfo, type Project} from './+page';
-  import {Modal} from '$lib/components/modals';
-  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
-  import {Duration} from '$lib/util/time';
+  import { Icon } from '$lib/icons';
+  import { useNotifications } from '$lib/notify';
+  import { bounceIn } from 'svelte/easing';
+  import { scale } from 'svelte/transition';
+  import { _refreshProjectRepoInfo, type Project } from './+page';
+  import { Modal } from '$lib/components/modals';
+  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
+  import { Duration } from '$lib/util/time';
 
-  export let project: Project;
-  export let isEmpty: boolean;
-  type SyncResult = {crdtChanges: number, fwdataChanges: number};
+  interface Props {
+    project: Project;
+    isEmpty: boolean;
+  }
+
+  let { project, isEmpty }: Props = $props();
+  type SyncResult = { crdtChanges: number; fwdataChanges: number };
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
-  let syncing = false;
-  let done = false;
-  $: modalState = isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle';
-  let error: string | undefined = undefined;
+  let syncing = $state(false);
+  let done = $state(false);
+  let modalState = $derived(isEmpty ? 'empty' : done ? 'done' : syncing ? 'syncing' : 'idle');
+  let error: string | undefined = $state(undefined);
 
   async function triggerSync(): Promise<string | undefined> {
     syncing = true;
@@ -62,12 +66,14 @@
   async function awaitSyncFinished(): Promise<SyncResult | string> {
     while (true) {
       try {
-        const response = await fetch(`/api/fw-lite/sync/await-sync-finished/${project.id}`, {signal: AbortSignal.timeout(30_000)});
+        const response = await fetch(`/api/fw-lite/sync/await-sync-finished/${project.id}`, {
+          signal: AbortSignal.timeout(30_000),
+        });
         if (response.status === 500) {
           return $t('project.crdt.sync_failed');
         }
         if (response.status === 200) {
-          const result = await response.json() as SyncResult;
+          const result = (await response.json()) as SyncResult;
           return result;
         }
       } catch (error) {
@@ -76,7 +82,6 @@
         }
         return getErrorMessage(error);
       }
-
     }
   }
 
@@ -90,13 +95,20 @@
   }
 
   async function useInFwLite(): Promise<void> {
-    await modal.openModal();
+    await modal?.openModal();
   }
-  let modal: Modal;
+  let modal: Modal | undefined = $state();
 </script>
 
 {#if project.hasHarmonyCommits}
-  <Button variant="btn-primary" class="gap-1 indicator" on:click={syncProject} loading={syncing} active={syncing} customLoader>
+  <Button
+    variant="btn-primary"
+    class="gap-1 indicator"
+    onclick={syncProject}
+    loading={syncing}
+    active={syncing}
+    customLoader
+  >
     <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     {$t('project.crdt.sync_fwlite')}
     <span style="transform: rotateY(180deg)">
@@ -104,7 +116,7 @@
     </span>
   </Button>
 {:else}
-  <Button variant="btn-primary" class="indicator" on:click={useInFwLite}>
+  <Button variant="btn-primary" class="indicator" onclick={useInFwLite}>
     <span class="indicator-item badge badge-sm badge-accent translate-x-[calc(50%-16px)] shadow">Beta</span>
     <span>
       {$t('project.crdt.try_fw_lite')}
@@ -148,28 +160,28 @@
       <NewTabLinkMarkdown md={$t('project.crdt.try_info')} />
       {#if error}
         <NewTabLinkMarkdown
-          md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code }))})}`}
+          md={`${$t('errors.apology')} ${$t('project.crdt.reach_out_for_help', { subject: encodeURIComponent($t('project.crdt.email_subject', { projectCode: project.code })) })}`}
         />
       {/if}
     </div>
-    <FormError {error} right/>
+    <FormError {error} right />
   {/if}
-  <svelte:fragment slot="actions" let:close>
+  {#snippet actions({ close })}
     {#if modalState === 'idle'}
-      <Button variant="btn-primary" on:click={onSubmit}>
+      <Button variant="btn-primary" onclick={onSubmit}>
         {$t('project.crdt.submit')}
       </Button>
-      <Button on:click={close}>
+      <Button onclick={close}>
         {$t('project.crdt.cancel')}
       </Button>
     {:else if modalState === 'empty'}
-      <Button on:click={close}>
+      <Button onclick={close}>
         {$t('common.close')}
       </Button>
     {:else if modalState === 'done'}
-      <Button variant="btn-primary" on:click={close}>
+      <Button variant="btn-primary" onclick={close}>
         {$t('project.crdt.finish')}
       </Button>
     {/if}
-  </svelte:fragment>
+  {/snippet}
 </Modal>

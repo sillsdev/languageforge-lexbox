@@ -1,17 +1,29 @@
 <script lang="ts">
-  export let icon1: string;
-  export let icon2: string;
-  export let text1: string;
-  export let text2: string;
-  export let style: string;
-  let isIconOne = true;
+  import { preventDefault } from 'svelte/legacy';
+
+  interface Props {
+    icon1: string;
+    icon2: string;
+    text1: string;
+    text2: string;
+    style: string;
+  }
+
+  let {
+    icon1,
+    icon2,
+    text1,
+    text2,
+    style
+  }: Props = $props();
+  let isIconOne = $state(true);
 
   function handleClick(): void {
     isIconOne = !isIconOne;
   }
 </script>
 
-<button on:click|preventDefault={handleClick} class="btn {style} flex items-center">
+<button onclick={preventDefault(handleClick)} class="btn {style} flex items-center">
   {#if isIconOne}
     <span>{text1} </span>
     <span class="{icon1} text-lg"></span>

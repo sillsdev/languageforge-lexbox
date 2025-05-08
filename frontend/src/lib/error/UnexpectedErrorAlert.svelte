@@ -1,12 +1,12 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
-  import {useDismiss, useError} from '.';
+  import { useDismiss, useError } from '.';
   import t from '$lib/i18n';
   import UnexpectedError from './UnexpectedError.svelte';
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let dialog: HTMLDialogElement;
+  let dialog: HTMLDialogElement | undefined = $state();
   const error = useError();
   const dismiss = useDismiss();
   beforeNavigate(dismiss);
@@ -14,11 +14,12 @@
   onDestroy(
     // subscribe() is more durable than reactive syntax
     error.subscribe((e) => {
-      dialog = dialog ?? (browser ? document.querySelector('.error-alert') : undefined) ?? undefined;
+      dialog =
+        dialog ?? (browser ? (document.querySelector('.error-alert') as HTMLDialogElement) : undefined) ?? undefined;
       if (!dialog) return;
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       e ? open() : close();
-    })
+    }),
   );
 
   function dismissClick(): void {
@@ -27,13 +28,13 @@
   }
 
   function open(): void {
-    dialog.showModal?.call(dialog);
-    dialog.classList.add('modal-open');
+    dialog?.showModal?.call(dialog);
+    dialog?.classList.add('modal-open');
   }
 
   function close(): void {
-    dialog.close?.call(dialog);
-    dialog.classList.remove('modal-open');
+    dialog?.close?.call(dialog);
+    dialog?.classList.remove('modal-open');
   }
 </script>
 
@@ -45,7 +46,7 @@
         {$t('errors.go_home')}
         <span class="i-mdi-home-outline text-xl"></span>
       </a>
-      <button on:click={dismissClick} class="btn btn-outline self-end">
+      <button onclick={dismissClick} class="btn btn-outline self-end">
         {$t('modal.dismiss')}
         <span class="i-mdi-close text-xl"></span>
       </button>

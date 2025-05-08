@@ -2,7 +2,11 @@
   import t from '$lib/i18n';
   import { Icon } from '$lib/icons';
 
-  export let locked: boolean;
+  interface Props {
+    locked: boolean;
+  }
+
+  let { locked }: Props = $props();
 </script>
 
 {#if locked}

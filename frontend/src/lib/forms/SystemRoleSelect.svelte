@@ -2,16 +2,22 @@
   import { UserRole } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  import { Select } from '.';
+  import Select, { type SelectProps } from './Select.svelte';
 
-  export let id = 'role';
-  export let value: UserRole;
-  export let error: string[] | undefined;
-  export let disabled = false;
+  interface Props extends Omit<SelectProps, 'label'> {
+    id?: string;
+    value: UserRole;
+  }
+
+  let {
+    id = 'role',
+    value = $bindable(),
+    ...rest
+  }: Props = $props();
 </script>
 
 <div class="contents" class:text-accent={value === UserRole.Admin}>
-  <Select {id} bind:value label={$t('system_role.label')} {error} {disabled}>
+  <Select {...rest} {id} bind:value label={$t('system_role.label')} >
     <option value={UserRole.User} class="text-base-content">
       {$t('system_role.user_description')}
     </option>

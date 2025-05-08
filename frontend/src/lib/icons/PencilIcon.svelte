@@ -1,1 +1,1 @@
-<span class="i-mdi-pencil-outline text-2xl" />
+<span class="i-mdi-pencil-outline text-2xl"></span>

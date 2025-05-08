@@ -1,11 +1,17 @@
 <script lang="ts">
-  export let href: string;
-  export let title: string | undefined = undefined;
+  import type { Snippet } from 'svelte';
+  interface Props {
+    href: string;
+    title?: string | undefined;
+    children?: Snippet;
+  }
+
+  let { href, title = undefined, children }: Props = $props();
 </script>
 
 <a {href} {title} target="_blank" class="external-link link link-hover">
   <!-- &nbsp; prevents the link from ever being at the very beginning of a new line -->
-  <slot />&nbsp;<span class="i-mdi-open-in-new external-link-icon" />
+  {@render children?.()}&nbsp;<span class="i-mdi-open-in-new external-link-icon"></span>
 </a>
 
 <style>

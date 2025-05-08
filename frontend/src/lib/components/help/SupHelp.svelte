@@ -2,7 +2,11 @@
   import { Icon } from '$lib/icons';
   import type { HelpLink } from '.';
 
-  export let helpLink: HelpLink;
+  interface Props {
+    helpLink: HelpLink;
+  }
+
+  let { helpLink }: Props = $props();
 </script>
 
 <sup>

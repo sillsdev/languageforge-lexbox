@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import { Badge } from '$lib/components/Badges';
   import type { I18nKey } from '$lib/i18n';
 
@@ -20,11 +20,19 @@
     clickTab: OrgTabId
   }>();
 
-  export let hideSettingsTab: boolean = false;
-  $: visibleTabs = hideSettingsTab ? orgTabs.filter(t => t !== 'settings') : orgTabs;
-  export let activeTab: OrgTabId = 'projects';
-  export let projectCount: number;
-  export let memberCount: number;
+  interface Props {
+    hideSettingsTab?: boolean;
+    activeTab?: OrgTabId;
+    projectCount: number;
+    memberCount: number;
+  }
+
+  let {
+    hideSettingsTab = false,
+    activeTab = $bindable('projects'),
+    projectCount,
+    memberCount
+  }: Props = $props();
 
   function handleTabChange(tab: OrgTabId): void {
     const proceed = dispatch('clickTab', tab);
@@ -32,13 +40,14 @@
       activeTab = tab;
     }
   }
+  let visibleTabs = $derived(hideSettingsTab ? orgTabs.filter(t => t !== 'settings') : orgTabs);
 </script>
 
 <div role="tablist" class="flex tabs tabs-lifted tabs-lg overflow-x-auto">
-  <div class="tab tab-divider" />
+  <div class="tab tab-divider"></div>
   {#each visibleTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <button on:click={() => handleTabChange(tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
+    <button onclick={() => handleTabChange(tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
       <h2 class="text-lg flex gap-4 items-center">
         {$t(DEFAULT_TAB_I18N[tab])}
         {#if tab === 'projects'}
@@ -48,6 +57,6 @@
         {/if}
       </h2>
     </button>
-    <div class="tab tab-divider" />
+    <div class="tab tab-divider"></div>
   {/each}
 </div>

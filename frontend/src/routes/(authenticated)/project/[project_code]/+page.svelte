@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { Badge, BadgeButton, BadgeList } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
@@ -24,22 +26,22 @@
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
-  import {DialogResponse, Modal} from '$lib/components/modals';
+  import { DialogResponse, Modal } from '$lib/components/modals';
   import { Button, type ErrorMessage } from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import {_deleteProject} from '$lib/gql/mutations';
+  import { _deleteProject } from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import {AdminContent, FeatureFlagContent, PageBreadcrumb} from '$lib/layout';
+  import { AdminContent, FeatureFlagContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
-  import {isDev} from '$lib/layout/DevContent.svelte';
+  import { isDev } from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
@@ -56,29 +58,39 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
   import CrdtSyncButton from './CrdtSyncButton.svelte';
-  import {_askToJoinProject} from '../create/+page'; // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
-  import {Duration} from '$lib/util/time';
+  import { _askToJoinProject } from '../create/+page'; // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
+  import { Duration } from '$lib/util/time';
 
-  export let data: PageData;
-  $: user = data.user;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let user = $derived(data.user);
   let projectStore = data.project;
-  $: project = $projectStore;
-  $: changesetStore = data.changesets;
-  let isEmpty: boolean = false;
-  $: isEmpty = project?.lastCommit == null;
-  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
-  $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
-  $: members = project.users.sort((a, b) => {
-    if (a.role !== b.role) {
-      return a.role === ProjectRole.Manager ? -1 : 1;
-    }
-    return a.user.name.localeCompare(b.user.name);
+  let project = $derived($projectStore);
+  let changesetStore = $derived(data.changesets);
+  let isEmpty: boolean = $state(false);
+  run(() => {
+    isEmpty = project?.lastCommit == null;
   });
+  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
+  run(() => {
+    if (!$changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
+  });
+  let members = $derived(
+    project.users.sort((a, b) => {
+      if (a.role !== b.role) {
+        return a.role === ProjectRole.Manager ? -1 : 1;
+      }
+      return a.user.name.localeCompare(b.user.name);
+    }),
+  );
 
-  $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
-  $: flexModelVersion = project.flexProjectMetadata?.flexModelVersion;
-  $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
-  $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
+  let lexEntryCount = $derived(project.flexProjectMetadata?.lexEntryCount);
+  let flexModelVersion = $derived(project.flexProjectMetadata?.flexModelVersion);
+  let vernacularLangTags = $derived(project.flexProjectMetadata?.writingSystems?.vernacularWss);
+  let analysisLangTags = $derived(project.flexProjectMetadata?.writingSystems?.analysisWss);
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -87,7 +99,8 @@
     addUserName: string;
   };
 
-  onMount(() => { // query params not available during SSR
+  onMount(() => {
+    // query params not available during SSR
     const urlValues = getSearchParamValues<ProjectPageQueryParams>();
     if (urlValues.addUserId && urlValues.addUserName && addProjectMember) {
       void addProjectMember.openModal(urlValues.addUserId, urlValues.addUserName);
@@ -98,11 +111,11 @@
     }
   });
 
-  let addProjectMember: AddProjectMember;
+  let addProjectMember: AddProjectMember | undefined = $state();
 
-  let userModal: UserModal;
+  let userModal: UserModal | undefined = $state();
 
-  let loadingRepoSize = false;
+  let loadingRepoSize = $state(false);
   async function updateRepoSize(): Promise<void> {
     loadingRepoSize = true;
     await _updateProjectRepoSizeInKb(project.code);
@@ -110,54 +123,55 @@
   }
 
   function sizeStrInMb(sizeInKb: number): string {
-    return `${$number(sizeInKb / 1024, {maximumFractionDigits: 1})} MB`;
+    return `${$number(sizeInKb / 1024, { maximumFractionDigits: 1 })} MB`;
   }
 
-  let loadingEntryCount = false;
+  let loadingEntryCount = $state(false);
   async function updateEntryCount(): Promise<void> {
     loadingEntryCount = true;
     await _updateProjectLexEntryCount(project.code);
     loadingEntryCount = false;
   }
 
-  let loadingModelVersion = false;
+  let loadingModelVersion = $state(false);
   async function updateModelVersion(): Promise<void> {
     loadingModelVersion = true;
     await _updateFLExModelVersion(project.code);
     loadingModelVersion = false;
   }
 
-  let loadingLanguageList = false;
+  let loadingLanguageList = $state(false);
   async function updateLanguageList(): Promise<void> {
     loadingLanguageList = true;
     await _updateProjectLanguageList(project.code);
     loadingLanguageList = false;
   }
 
-  $: orgRoles = project.organizations
-    ?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role)
-    .filter(r => !!r) ?? [];
-  $: projectRole = project?.users.find((u) => u.user.id == user.id)?.role;
+  let orgRoles = $derived(
+    project.organizations?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role).filter((r) => !!r) ?? [],
+  );
+  let projectRole = $derived(project?.users.find((u) => u.user.id == user.id)?.role);
 
   // Mirrors PermissionService.CanViewProjectMembers() in C#
-  $: canViewOtherMembers = user.isAdmin
-    || projectRole == ProjectRole.Manager
-    || projectRole && !project.isConfidential // public by default for members (non-members shouldn't even be here)
-    || orgRoles.some(role => role === OrgRole.Admin);
+  let canViewOtherMembers = $derived(
+    user.isAdmin ||
+      projectRole == ProjectRole.Manager ||
+      (projectRole && !project.isConfidential) || // public by default for members (non-members shouldn't even be here)
+      orgRoles.some((role) => role === OrgRole.Admin),
+  );
 
   // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
-  $: canAskToJoinProject = !user.isAdmin
-    && !projectRole
-    && orgRoles.some((_) => true);
+  let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
 
-  let resetProjectModal: ResetProjectModal;
+  let resetProjectModal: ResetProjectModal | undefined = $state();
   async function resetProject(): Promise<void> {
-    await resetProjectModal.open(project.code, project.resetStatus);
+    await resetProjectModal?.open(project.code, project.resetStatus);
   }
 
-  let removeUserModal: DeleteModal;
-  let userToDelete: ProjectUser | undefined;
+  let removeUserModal: DeleteModal | undefined = $state();
+  let userToDelete: ProjectUser | undefined = $state();
   async function deleteProjectUser(projectUser: ProjectUser): Promise<void> {
+    if (!removeUserModal) return;
     userToDelete = projectUser;
     const deleted = await removeUserModal.prompt(async () => {
       const { error } = await _deleteProjectUser(project.id, projectUser.user.id);
@@ -168,16 +182,17 @@
     }
   }
 
-  let removeProjectFromOrgModal: DeleteModal;
-  let orgToRemove: string;
+  let removeProjectFromOrgModal: DeleteModal | undefined = $state();
+  let orgToRemove: string = $state('');
   async function removeProjectFromOrg(orgId: string, orgName: string): Promise<void> {
+    if (!removeProjectFromOrgModal) return;
     orgToRemove = orgName;
     const removed = await removeProjectFromOrgModal.prompt(async () => {
       const { error } = await _removeProjectFromOrg(project.id, orgId);
       return error?.message;
     });
     if (removed) {
-      notifyWarning($t('project_page.notifications.remove_project_from_org', {orgName: orgToRemove}));
+      notifyWarning($t('project_page.notifications.remove_project_from_org', { orgName: orgToRemove }));
     }
   }
 
@@ -200,15 +215,20 @@
     notifySuccess($t('project_page.notifications.describe', { description: newDescription }));
   }
 
-  $: userId = user.id;
-  $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
-  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations?.find((o) => orgsManagedByUser.includes(o.id));
+  let userId = $derived(user.id);
+  let orgsManagedByUser = $derived(user.orgs.filter((o) => o.role === OrgRole.Admin).map((o) => o.orgId));
+  let canManage = $derived(
+    user.isAdmin ||
+      project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager ||
+      !!project?.organizations?.find((o) => orgsManagedByUser.includes(o.id)),
+  );
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
-  let deleteProjectModal: ConfirmDeleteModal;
+  let deleteProjectModal: ConfirmDeleteModal | undefined = $state();
 
   async function softDeleteProject(): Promise<void> {
+    if (!deleteProjectModal) return;
     projectStore.pause();
     changesetStore.pause();
     let deleted = false;
@@ -230,9 +250,9 @@
     }
   }
 
-  let hgCommandResultModal: Modal;
-  let hgCommandResponse = '';
-  let hgCommandRunning = false;
+  let hgCommandResultModal: Modal | undefined = $state();
+  let hgCommandResponse = $state('');
+  let hgCommandRunning = $state(false);
 
   async function verify(): Promise<void> {
     await hgCommand(async () => fetch(`/api/project/hgVerify/${project.code}`));
@@ -254,17 +274,18 @@
     let done = false;
     let value;
     while (!done) {
-      ({done, value} = await reader.read());
+      ({ done, value } = await reader.read());
       // The {stream: true} is important here; without it, in theory the output could be
       // broken in the middle of a UTF-8 byte sequence and get garbled. But with stream: true,
       // TextDecoder() will know to expect more output, so if the stream returns a partial
       // UTF-8 sequence, TextDecoder() will return everything except that sequence and wait
       // for more bytes before decoding that sequence.
-      if (value) hgCommandResponse += decoder.decode(value, {stream: true});
+      if (value) hgCommandResponse += decoder.decode(value, { stream: true });
     }
   }
 
-  async function hgCommand(execute: ()=> Promise<Response>): Promise<void> {
+  async function hgCommand(execute: () => Promise<Response>): Promise<void> {
+    if (!hgCommandResultModal) return;
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
@@ -278,7 +299,7 @@
     }
   }
 
-  let askLoading = false;
+  let askLoading = $state(false);
   async function askToJoinProject(projectId: string, projectName: string): Promise<void> {
     askLoading = true;
     const joinResult = await _askToJoinProject(projectId);
@@ -291,11 +312,12 @@
     }
   }
 
-  let projectConfidentialityModal: ProjectConfidentialityModal;
-  let openInFlexModal: OpenInFlexModal;
-  let leaveModal: ConfirmModal;
+  let projectConfidentialityModal: ProjectConfidentialityModal | undefined = $state();
+  let openInFlexModal: OpenInFlexModal | undefined = $state();
+  let leaveModal: ConfirmModal | undefined = $state();
 
   async function leaveProject(): Promise<void> {
+    if (!leaveModal) return;
     projectStore.pause();
     changesetStore.pause();
     let left = false;
@@ -307,7 +329,7 @@
         }
       });
       if (left) {
-        notifySuccess($t('project_page.leave.leave_success', {projectName: project.name}))
+        notifySuccess($t('project_page.leave.leave_success', { projectName: project.name }));
         await goto(data.home);
       }
     } finally {
@@ -324,12 +346,15 @@
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
   <DetailsPage wide titleText={project.name}>
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       {#if project.isLanguageForgeProject}
-        <a href="./{project.code}/viewer" target="_blank"
-           class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
+        <a
+          href="./{project.code}/viewer"
+          target="_blank"
+          class="btn btn-neutral text-[#DCA54C] flex items-center gap-2"
+        >
           {$t('project_page.open_with_viewer')}
-          <span class="i-mdi-dictionary text-2xl"/>
+          <span class="i-mdi-dictionary text-2xl"></span>
         </a>
       {/if}
       {#if project.type === ProjectType.FlEx}
@@ -338,14 +363,11 @@
         </FeatureFlagContent>
       {/if}
       {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
-        <OpenInFlexModal bind:this={openInFlexModal} {project}/>
-        <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
+        <OpenInFlexModal bind:this={openInFlexModal} {project} />
+        <!-- TODO: Figure out how bubble('click') works in new Svelte 5 world, where `on:click` is now a type error: "Argument of type '"click"' is not assignable to parameter of type 'never'" -->
+        <OpenInFlexButton projectId={project.id} onclick={openInFlexModal.open} />
       {:else if canAskToJoinProject}
-        <Button
-          variant="btn-primary"
-          loading={askLoading}
-          on:click={() => askToJoinProject(project.id, project.name)}
-        >
+        <Button variant="btn-primary" loading={askLoading} onclick={() => askToJoinProject(project.id, project.name)}>
           {#if !askLoading}
             <span class="i-mdi-email text-2xl"></span>
           {/if}
@@ -354,58 +376,64 @@
       {:else}
         <Dropdown>
           <button class="btn btn-primary">
-            {$t('project_page.get_project.label', {isEmpty: isEmpty.toString()})}
-            <span class="i-mdi-dots-vertical text-2xl" />
+            {$t('project_page.get_project.label', { isEmpty: isEmpty.toString() })}
+            <span class="i-mdi-dots-vertical text-2xl"></span>
           </button>
-          <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-            <div class="card-body max-sm:p-4">
-              <div class="prose">
-                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal', isEmpty: isEmpty.toString()})}</h3>
-                {#if project.type === ProjectType.WeSay}
-                  {#if isEmpty}
-                    <Markdown
+          {#snippet content()}
+            <div class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+              <div class="card-body max-sm:p-4">
+                <div class="prose">
+                  <h3>
+                    {$t('project_page.get_project.instructions_header', {
+                      type: project.type,
+                      mode: 'normal',
+                      isEmpty: isEmpty.toString(),
+                    })}
+                  </h3>
+                  {#if project.type === ProjectType.WeSay}
+                    {#if isEmpty}
+                      <Markdown
                         md={$t('project_page.get_project.instructions_wesay_empty', {
+                          code: project.code,
+                          login: encodeURIComponent(user.emailOrUsername),
+                          name: project.name,
+                        })}
+                      />
+                    {:else}
+                      <Markdown
+                        md={$t('project_page.get_project.instructions_wesay', {
+                          code: project.code,
+                          login: encodeURIComponent(user.emailOrUsername),
+                          name: project.name,
+                        })}
+                      />
+                    {/if}
+                  {:else if isEmpty}
+                    <Markdown
+                      md={$t('project_page.get_project.instructions_flex_empty', {
                         code: project.code,
-                        login: encodeURIComponent(user.emailOrUsername),
+                        login: user.emailOrUsername,
                         name: project.name,
                       })}
                     />
                   {:else}
                     <Markdown
-                        md={$t('project_page.get_project.instructions_wesay', {
+                      md={$t('project_page.get_project.instructions_flex', {
                         code: project.code,
-                        login: encodeURIComponent(user.emailOrUsername),
+                        login: user.emailOrUsername,
                         name: project.name,
                       })}
                     />
                   {/if}
-                {:else}
-                  {#if isEmpty}
-                  <Markdown
-                    md={$t('project_page.get_project.instructions_flex_empty', {
-                    code: project.code,
-                    login: user.emailOrUsername,
-                    name: project.name,
-                  })}
-                  />
-                  {:else}
-                  <Markdown
-                    md={$t('project_page.get_project.instructions_flex', {
-                    code: project.code,
-                    login: user.emailOrUsername,
-                    name: project.name,
-                  })}
-                  />
-                  {/if}
-                {/if}
+                </div>
+                <SendReceiveUrlField projectCode={project.code} />
               </div>
-              <SendReceiveUrlField projectCode={project.code} />
             </div>
-          </div>
+          {/snippet}
         </Dropdown>
       {/if}
-    </svelte:fragment>
-    <svelte:fragment slot="title">
+    {/snippet}
+    {#snippet title()}
       <div class="max-w-full flex items-baseline flex-wrap">
         <span class="mr-2">{$t('project_page.project')}:</span>
         <span class="text-primary max-w-full">
@@ -417,10 +445,14 @@
           />
         </span>
       </div>
-    </svelte:fragment>
-    <svelte:fragment slot="headerContent">
+    {/snippet}
+    {#snippet headerContent()}
       <BadgeList>
-        <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
+        <ProjectConfidentialityBadge
+          onclick={projectConfidentialityModal?.openModal}
+          {canManage}
+          isConfidential={project.isConfidential ?? undefined}
+        />
         <ProjectTypeBadge type={project.type} />
         {#if project.retentionPolicy === RetentionPolicy.Unknown}
           {#if canManage}
@@ -436,11 +468,11 @@
             class:tooltip={user.isAdmin}
             data-tip={$t('project_page.reset_project_modal.click_to_continue')}
             disabled={!user.isAdmin}
-            on:click={resetProject}
+            onclick={resetProject}
           >
             <Badge variant="badge-warning">
               {$t('project_page.reset_project_modal.reset_in_progress')}
-              <span class="i-mdi-warning text-xl mb-[-2px]" />
+              <span class="i-mdi-warning text-xl mb-[-2px]"></span>
             </Badge>
           </button>
         {/if}
@@ -450,40 +482,52 @@
           </Badge>
         {/if}
       </BadgeList>
-      <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
-    </svelte:fragment>
-    <svelte:fragment slot="details">
+      <ProjectConfidentialityModal
+        bind:this={projectConfidentialityModal}
+        projectId={project.id}
+        isConfidential={project.isConfidential ?? undefined}
+      />
+    {/snippet}
+    {#snippet details()}
       <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
       <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
       <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
-      <DetailItem title={$t('project_page.repo_size')} loading={loadingRepoSize} text={sizeStrInMb(project.repoSizeInKb ?? 0)} />
+      <DetailItem
+        title={$t('project_page.repo_size')}
+        loading={loadingRepoSize}
+        text={sizeStrInMb(project.repoSizeInKb ?? 0)}
+      />
       {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
-          <AdminContent slot="extras">
-            <IconButton
-              loading={loadingEntryCount}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateEntryCount}
-            />
-          </AdminContent>
+          {#snippet extras()}
+            <AdminContent>
+              <IconButton
+                loading={loadingEntryCount}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                onclick={updateEntryCount}
+              />
+            </AdminContent>
+          {/snippet}
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
         <DetailItem title={$t('project_page.model_version')}>
           <FlexModelVersionText modelVersion={flexModelVersion ?? 0} />
-          <AdminContent slot="extras">
-            <IconButton
-              loading={loadingModelVersion}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateModelVersion}
-            />
-          </AdminContent>
+          {#snippet extras()}
+            <AdminContent>
+              <IconButton
+                loading={loadingModelVersion}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                onclick={updateModelVersion}
+              />
+            </AdminContent>
+          {/snippet}
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
@@ -496,7 +540,7 @@
                 size="btn-sm"
                 variant="btn-ghost"
                 outline={false}
-                on:click={updateLanguageList}
+                onclick={updateLanguageList}
               />
             </AdminContent>
             <WritingSystemList writingSystems={vernacularLangTags} />
@@ -509,7 +553,7 @@
                 size="btn-sm"
                 variant="btn-ghost"
                 outline={false}
-                on:click={updateLanguageList}
+                onclick={updateLanguageList}
               />
             </AdminContent>
             <WritingSystemList writingSystems={analysisLangTags} />
@@ -526,25 +570,25 @@
           multiline
         />
       </div>
-    </svelte:fragment>
+    {/snippet}
 
     <div class="space-y-4">
       <OrgList
-        canManage={canManage}
+        {canManage}
         organizations={project.organizations}
         on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.orgId, event.detail.orgName)}
       >
-        <svelte:fragment slot="extraButtons">
+        {#snippet extraButtons()}
           {#if canManage}
             <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
           {/if}
-        </svelte:fragment>
+        {/snippet}
         <DeleteModal
-            bind:this={removeProjectFromOrgModal}
-            entityName={$t('project_page.remove_project_from_org_title')}
-            isRemoveDialog
-          >
-          {$t('project_page.confirm_remove_org', {orgName: orgToRemove})}
+          bind:this={removeProjectFromOrgModal}
+          entityName={$t('project_page.remove_project_from_org_title')}
+          isRemoveDialog
+        >
+          {$t('project_page.confirm_remove_org', { orgName: orgToRemove })}
         </DeleteModal>
       </OrgList>
       <MembersList
@@ -553,78 +597,88 @@
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
         {canViewOtherMembers}
-        on:openUserModal={(event) => userModal.open(event.detail.user)}
+        on:openUserModal={(event) => userModal?.open(event.detail.user)}
         on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
-        >
-          <svelte:fragment slot="extraButtons">
-            <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={() => addProjectMember.openModal(undefined, undefined)}>
-              {$t('project_page.add_user.add_button')}
-            </BadgeButton>
-
-            <AddProjectMember bind:this={addProjectMember} {project} />
-            <BulkAddProjectMembers projectId={project.id} />
-          </svelte:fragment>
-          <UserModal bind:this={userModal}/>
-
-          <DeleteModal
-            bind:this={removeUserModal}
-            entityName={$t('project_page.remove_project_user_title')}
-            isRemoveDialog
+      >
+        {#snippet extraButtons()}
+          <BadgeButton
+            variant="badge-success"
+            icon="i-mdi-account-plus-outline"
+            onclick={() => addProjectMember?.openModal(undefined, undefined)}
           >
-            {$t('project_page.confirm_remove', {
-              userName: userToDelete?.user.name ?? '',
-            })}
-          </DeleteModal>
+            {$t('project_page.add_user.add_button')}
+          </BadgeButton>
+
+          <AddProjectMember bind:this={addProjectMember} {project} />
+          <BulkAddProjectMembers projectId={project.id} />
+        {/snippet}
+        <UserModal bind:this={userModal} />
+
+        <DeleteModal
+          bind:this={removeUserModal}
+          entityName={$t('project_page.remove_project_user_title')}
+          isRemoveDialog
+        >
+          {$t('project_page.confirm_remove', {
+            userName: userToDelete?.user.name ?? '',
+          })}
+        </DeleteModal>
       </MembersList>
-      <div class="divider" />
+      <div class="divider"></div>
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">
           {$t('project_page.history')}
           <a class="btn btn-sm btn-outline btn-info" href="/hg/{project.code}" target="_blank">
-            {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl" />
+            {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl"></span>
           </a>
         </p>
 
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} projectCode={project.code} />
+          <HgLogView
+            logEntries={$changesetStore.changesets}
+            loading={$changesetStore.fetching}
+            projectCode={project.code}
+          />
         </div>
       </div>
 
-      <div class="divider"/>
+      <div class="divider"></div>
 
       <MoreSettings column>
         <div class="flex gap-4 max-sm:flex-col-reverse">
           {#if canManage}
-            <button class="btn btn-error" on:click={softDeleteProject}>
+            <button class="btn btn-error" onclick={softDeleteProject}>
               {$t('delete_project_modal.submit')}
-              <TrashIcon/>
+              <TrashIcon />
             </button>
-            <Button outline variant="btn-warning" on:click={projectConfidentialityModal.openModal}>
+            <Button outline variant="btn-warning" onclick={projectConfidentialityModal?.openModal}>
               {$t('project.confidential.set_confidentiality')}
-              <Icon icon="i-mdi-shield-lock-outline"/>
+              <Icon icon="i-mdi-shield-lock-outline" />
             </Button>
-            {/if}
-          <Button outline variant="btn-error" on:click={leaveProject}>
+          {/if}
+          <Button outline variant="btn-error" onclick={leaveProject}>
             {$t('project_page.leave.leave_project')}
-            <Icon icon="i-mdi-exit-run"/>
+            <Icon icon="i-mdi-exit-run" />
           </Button>
-          <ConfirmModal bind:this={leaveModal}
-                        title={$t('project_page.leave.confirm_title')}
-                        submitText={$t('project_page.leave.leave_action')}
-                        submitIcon="i-mdi-exit-run"
-                        submitVariant="btn-error"
-                        cancelText={$t('project_page.leave.dont_leave')}>
+          <ConfirmModal
+            bind:this={leaveModal}
+            title={$t('project_page.leave.confirm_title')}
+            submitText={$t('project_page.leave.leave_action')}
+            submitIcon="i-mdi-exit-run"
+            submitVariant="btn-error"
+            cancelText={$t('project_page.leave.dont_leave')}
+          >
             <p>{$t('project_page.leave.confirm_leave')}</p>
           </ConfirmModal>
         </div>
         <AdminContent>
-          <div class="divider m-0" />
+          <div class="divider m-0"></div>
           <div class="flex gap-4 max-sm:flex-col-reverse">
-            <button class="btn btn-accent" on:click={resetProject}>
+            <button class="btn btn-accent" onclick={resetProject}>
               {$t('project_page.reset_project_modal.submit')}
-              <CircleArrowIcon/>
+              <CircleArrowIcon />
             </button>
-            <ResetProjectModal bind:this={resetProjectModal}/>
+            <ResetProjectModal bind:this={resetProjectModal} />
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
               <div class="card">
                 <div class="card-body overflow-auto">
@@ -639,13 +693,12 @@
                 </div>
               </div>
             </Modal>
-            <Button on:click={recover}>HG Recover</Button>
-            <Button on:click={verify}>HG Verify</Button>
+            <Button onclick={recover}>HG Recover</Button>
+            <Button onclick={verify}>HG Verify</Button>
           </div>
         </AdminContent>
-        <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
+        <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
       </MoreSettings>
-
     </div>
   </DetailsPage>
 {/if}

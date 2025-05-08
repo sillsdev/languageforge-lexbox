@@ -1,30 +1,39 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import t from '$lib/i18n';
-  import HeaderPage from './HeaderPage.svelte';
+  import HeaderPage, { type Props as HeaderPageProps } from './HeaderPage.svelte';
 
-  export let titleText: string;
-  export let wide = false;
-  export let setBreadcrumb = true;
+  interface Props extends HeaderPageProps {
+    badges?: Snippet;
+    details?: Snippet;
+  }
+
+  let {
+    details,
+    headerContent,
+    badges,
+    children,
+    ...rest
+  }: Props = $props();
+
+  const headerContentRender = $derived(headerContent);
 </script>
 
-<HeaderPage {wide} titleText={titleText} {setBreadcrumb}>
-  <svelte:fragment slot="banner"><slot name="banner"></slot></svelte:fragment>
-  <svelte:fragment slot="actions"><slot name="actions"></slot></svelte:fragment>
-  <svelte:fragment slot="title"><slot name="title"></slot></svelte:fragment>
-  <svelte:fragment slot="headerContent">
-    {#if $$slots.badges}
+<HeaderPage {...rest}>
+  {#snippet headerContent()}
+    {#if badges}
       <BadgeList>
-        <slot name="badges" />
+        {@render badges?.()}
       </BadgeList>
     {/if}
-    <slot name="headerContent" />
-  </svelte:fragment>
-  {#if $$slots.details}
+    {@render headerContentRender?.()}
+  {/snippet}
+  {#if details}
     <div class="my-4 space-y-2 details">
       <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
-      <slot name="details" />
+      {@render details?.()}
     </div>
   {/if}
-  <slot />
+  {@render children?.()}
 </HeaderPage>
