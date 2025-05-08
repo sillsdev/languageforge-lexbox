@@ -46,7 +46,7 @@
 
 {#snippet preview(entry: IEntry)}
   <div class="pb-4">
-    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/30 p-4')}>
+    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
         <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
           aria-label={`Toggle pinned`} class="aspect-square" size="xs">

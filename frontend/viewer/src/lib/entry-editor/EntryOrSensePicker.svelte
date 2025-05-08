@@ -23,6 +23,7 @@
   import EntryRow from '../../project/browse/EntryRow.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {t, T} from 'svelte-i18n-lingui';
+  import ListItem from '$lib/components/ListItem.svelte';
 
   const dialogsService = useDialogsService();
   const saveHandler = useSaveHandler();
@@ -211,22 +212,20 @@
       {#if !onlyEntries && selectedEntry}
         <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 max-h-[min(50cqh,20rem)] overflow-y-auto overscroll-contains">
           <p class="text-muted-foreground p-2 text-sm">Senses:</p>
-          <button
-            class="w-full bg-muted/30 hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
-            role="row"
+          <ListItem
+            class="flex"
             aria-selected={!selectedSense}
             onclick={() => select(selectedEntry, undefined)}>
             <div class="flex flex-col items-start">
               <p class="font-medium">{$t`Entry Only`}</p>
             </div>
-          </button>
+          </ListItem>
           {#each selectedEntry.senses as sense}
             {@const disabledSense = disableSense?.(sense, selectedEntry)}
-            <button
-              class="w-full bg-muted/30 hover:bg-muted flex-1 flex justify-between items-center text-left max-w-full overflow-hidden p-2 pl-4 aria-selected:ring-2 ring-primary ring-offset-background rounded"
-              role="row"
+            <ListItem
+              class="flex"
               aria-selected={selectedSense?.id === sense.id}
-              class:disabled={disabledSense}
+              disabled={!!disabledSense}
               onclick={() => select(selectedEntry, sense)}>
               <div class="flex flex-col items-start">
                 <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
@@ -238,7 +237,7 @@
                   {disabledSense}
                 </span>
               {/if}
-            </button>
+            </ListItem>
           {/each}
 <!--          disabled for now because this didn't prompt the user to define the sense, it just created it with no data-->
 <!--          <button

@@ -5,6 +5,8 @@
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import ListItem from '$lib/components/ListItem.svelte';
+  import {cn} from '$lib/utils';
 
   const { entry, isSelected = false, onclick, skeleton = false, badge = undefined, previewDictionary = false }: {
     entry?: IEntry;
@@ -34,12 +36,9 @@
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
 </script>
 
-<button
-  class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:ring-2 ring-primary ring-offset-background hover:bg-muted rounded"
-  role="row"
+<ListItem
   aria-selected={isSelected}
-  class:cursor-default={skeleton}
-  class:hover:bg-transparent={skeleton}
+  class={cn(skeleton && 'cursor-default hover:bg-transparent')}
   onclick={skeleton ? undefined : onclick}
   disabled={skeleton}
 >
@@ -69,4 +68,4 @@
     </div>
 
   {/if}
-</button>
+</ListItem>
