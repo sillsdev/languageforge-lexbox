@@ -153,7 +153,7 @@
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-        <div class="col-span-full flex items-center py-2 sticky top-0 bg-background z-[1]">
+        <div class="col-span-full flex items-center py-2 sticky top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px]">
           <h2 class="text-lg text-muted-foreground mr-4">{pt($t`Sense`, $t`Meaning`, $currentView.type)} {i + 1}</h2>
           <hr class="grow border-t-2">
           <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
