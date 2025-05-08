@@ -35,7 +35,7 @@
   }, {lazy: true});
 
   let open = $state(false);
-  let triggerRef = $state<HTMLButtonElement>(null!);
+  let triggerRef = $state<HTMLButtonElement | null>(null);
 
 
   // Simulate loading delay

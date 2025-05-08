@@ -32,7 +32,6 @@
   const entryResource = resource(
     () => entryId,
     async (id) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
       return miniLcmApi.getEntry(id);
     },
   );

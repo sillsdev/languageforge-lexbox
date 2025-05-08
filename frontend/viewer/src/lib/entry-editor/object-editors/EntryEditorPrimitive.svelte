@@ -60,11 +60,15 @@
   </Editor.Field.Root>
 
   {#if !modalMode}
-    <ComplexForms on:change={() => onFieldChanged('complexForms')}
-                  bind:value={entry.complexForms}
-                  {readonly}
-                  {entry}
-                  id="complexForms" />
+    <Editor.Field.Root style="grid-area: complexForms" class={cn($currentView.fields.complexForms.show || 'hidden')}>
+      <Editor.Field.Title name={vt($t`Complex forms`, $t`Part of`)} helpId={fieldData.complexForms.helpId} />
+      <Editor.Field.Body>
+        <ComplexForms onchange={() => onFieldChanged('complexForms')}
+                      bind:value={entry.complexForms}
+                      {readonly}
+                      {entry} />
+      </Editor.Field.Body>
+    </Editor.Field.Root>
 
     <Editor.Field.Root style="grid-area: complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
       <Editor.Field.Title name={vt($t`Complex form types`)} helpId={fieldData.complexFormTypes.helpId} />
@@ -80,11 +84,16 @@
       </Editor.Field.Body>
     </Editor.Field.Root>
 
-    <ComplexFormComponents  on:change={() => onFieldChanged('complexForms')}
-                            bind:value={entry.components}
-                            {readonly}
-                            {entry}
-                            id="components" />
+    <Editor.Field.Root style="grid-area: components" class={cn($currentView.fields.components.show || 'hidden')}>
+      <Editor.Field.Title name={vt($t`Components`, $t`Made of`)} helpId={fieldData.components.helpId} />
+      <Editor.Field.Body>
+        <ComplexFormComponents
+          onchange={() => onFieldChanged('components')}
+          bind:value={entry.components}
+          {readonly}
+          {entry} />
+      </Editor.Field.Body>
+    </Editor.Field.Root>
   {/if}
 
   <Editor.Field.Root style="grid-area: literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>

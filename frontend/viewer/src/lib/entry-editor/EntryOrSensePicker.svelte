@@ -24,6 +24,7 @@
   import Loading from '$lib/components/Loading.svelte';
   import {t, T} from 'svelte-i18n-lingui';
   import ListItem from '$lib/components/ListItem.svelte';
+  import type {DialogTriggerProps} from 'bits-ui';
 
   const dialogsService = useDialogsService();
   const saveHandler = useSaveHandler();
@@ -36,15 +37,17 @@
     disableSense?: ((sense: ISense, entry: IEntry) => false | string) | undefined;
     mode?: 'entries-and-senses' | 'only-entries';
     pick?: (selection: EntrySenseSelection) => void;
+    trigger?: DialogTriggerProps['child'];
   }
 
   let {
     open = $bindable(false),
     title,
-    disableEntry = undefined,
-    disableSense = undefined,
+    disableEntry,
+    disableSense,
     mode = 'entries-and-senses',
-    pick = undefined,
+    pick,
+    trigger,
   }: Props = $props();
   let onlyEntries = $derived(mode === 'only-entries');
 
@@ -143,6 +146,7 @@
 </script>
 
 <Dialog.Root bind:open>
+  <Dialog.Trigger child={trigger} />
   <Dialog.Content class="pb-0 @container" style="grid-template-rows: auto 1fr auto">
     <Dialog.Header>
       <Dialog.Title class="mb-4">
