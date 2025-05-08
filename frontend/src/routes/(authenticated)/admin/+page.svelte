@@ -183,9 +183,5 @@
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
   <UserModal bind:this={userModal} />
-  <CreateUserModal
-    handleSubmit={createGuestUserByAdmin}
-    on:submitted={(e) => onUserCreated(e.detail)}
-    bind:this={createUserModal}
-  />
+  <CreateUserModal handleSubmit={createGuestUserByAdmin} onSubmitted={onUserCreated} bind:this={createUserModal} />
 </main>

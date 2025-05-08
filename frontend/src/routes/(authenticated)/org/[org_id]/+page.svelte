@@ -188,11 +188,7 @@
           {/snippet}
         </Dropdown>
       </div>
-      <CreateUserModal
-        handleSubmit={createGuestUser}
-        on:submitted={(e) => onUserCreated(e.detail)}
-        bind:this={createUserModal}
-      />
+      <CreateUserModal handleSubmit={createGuestUser} onSubmitted={onUserCreated} bind:this={createUserModal} />
       <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
       <BulkAddOrgMembers bind:this={bulkAddMembersModal} orgId={org.id} />
     {/if}
