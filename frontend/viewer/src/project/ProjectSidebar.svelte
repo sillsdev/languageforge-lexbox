@@ -13,8 +13,7 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
 
-  let { projectName, currentView = $bindable() } = $props<{
-    projectName: string;
+  let { currentView = $bindable() } = $props<{
     currentView: View;
   }>();
 
@@ -46,7 +45,6 @@
     <div class="flex flex-col gap-2">
       <div class="flex flex-row items-center gap-1">
         <ProjectDropdown
-          {projectName}
           onSelect={handleProjectSelect}
         />
         <div class="flex-1" ></div>

@@ -15,7 +15,7 @@
   const projectServicesProvider = useProjectServicesProvider();
   const projectContext = initProjectContext();
 
-  const {code, type}: {
+  const {code, type: projectType}: {
     code: string; // Code for CRDTs, project-name for FWData
     type: 'fwdata' | 'crdt'
   } = $props();
@@ -28,7 +28,7 @@
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
-    if (type === 'crdt') {
+    if (projectType === 'crdt') {
       const projectData = await projectServicesProvider.getCrdtProjectData(code);
       projectName = projectData.name;
       projectScope = await projectServicesProvider.openCrdtProject(code);
@@ -45,7 +45,7 @@
       historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
     }
     const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
-    projectContext.setup({api, historyService, projectName});
+    projectContext.setup({api, historyService, projectName, projectType});
     serviceLoaded = true;
   });
   onDestroy(() => {
@@ -67,5 +67,5 @@
 <ThemeSyncer />
 
 <ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
-  <ProjectView {projectName} isConnected onloaded={onProjectLoaded}></ProjectView>
+  <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>
 </ProjectLoader>

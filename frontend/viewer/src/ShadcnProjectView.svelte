@@ -22,14 +22,12 @@
 
   const {
     onloaded,
-    projectName,
     // isConnected,
     // showHomeButton = true,
     // about = undefined,
   }: {
     onloaded: (loaded: boolean) => void;
     about?: string | undefined;
-    projectName: string;
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
@@ -45,7 +43,7 @@
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
-      <ProjectSidebar {projectName} bind:currentView />
+      <ProjectSidebar bind:currentView />
       <Sidebar.Inset class="flex-1 relative">
         {#if currentView === 'browse'}
           <BrowseView />

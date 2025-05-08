@@ -7,10 +7,14 @@ import {resource, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
 
 const projectContextKey = 'current-project';
+
+type ProjectType = 'crdt' | 'fwdata' | undefined;
+
 interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
   projectName: string;
+  projectType?: 'crdt' | 'fwdata';
 }
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
@@ -24,6 +28,7 @@ export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
   #api: IMiniLcmJsInvokable | undefined = $state(undefined);
   #projectName: string | undefined = $state(undefined);
+  #projectType: ProjectType = $state(undefined);
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
@@ -40,6 +45,9 @@ export class ProjectContext {
     if (!this.#projectName) throw new Error('projectName not set');
     return this.#projectName;
   }
+  public get projectType(): ProjectType {
+    return this.#projectType;
+  }
   public get features(): IMiniLcmFeatures {
     return this.#features.current;
   }
@@ -51,12 +59,14 @@ export class ProjectContext {
     this.#api = args?.api;
     this.#historyService = args?.historyService;
     this.#projectName = args?.projectName;
+    this.#projectType = args?.projectType;
   }
 
   public setup(args: ProjectContextSetup) {
     this.#api = args.api;
     this.#historyService = args.historyService;
-    this.#projectName = args?.projectName;
+    this.#projectName = args.projectName;
+    this.#projectType = args.projectType;
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {

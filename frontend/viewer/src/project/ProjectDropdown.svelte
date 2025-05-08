@@ -11,11 +11,14 @@
   import {resource} from 'runed';
   import type {IProjectModel} from '$lib/dotnet-types';
   import ProjectTitle from '../home/ProjectTitle.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
-  let { projectName, onSelect } = $props<{
-    projectName: string;
+  let { onSelect } = $props<{
     onSelect: (project: IProjectModel) => void;
   }>();
+  const projectContext = useProjectContext();
+  const projectName = $derived(projectContext.projectName);
+  const isCrdt = $derived(projectContext.projectType === 'crdt');
   const projectsService = useProjectsService();
   const projectsResource = resource(() => projectsService, async (projectsService) => {
       const projects = await projectsService.localProjects();
@@ -99,7 +102,7 @@
             <Command.Item
               value={project.name + project.crdt}
               onSelect={() => handleSelect(project)}
-              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && 'bg-secondary')}
+              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
             >
               {#if project.fwdata}
                 <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0"/>
