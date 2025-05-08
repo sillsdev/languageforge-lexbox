@@ -14,6 +14,7 @@
   const { href = undefined, children }: Props = $props();
   let isCurrentPath = $derived(page.url.pathname === href);
 
+  // TODO: Now that we're in Svelte 5, let's store snippets instead of Elements
   let crumbs: Writable<Element[]> = getContext('breadcrumb-store');
 
   let setup = false;

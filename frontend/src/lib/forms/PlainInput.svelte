@@ -65,7 +65,8 @@
     debouncer.debounce(currValue);
     handlingInputEventTimeout = setTimeout(() => (handlingInputEvent = false));
   }
-  let debouncer = $derived(makeDebouncer((newValue: string | undefined) => (value = newValue), debounce));
+  // TODO: Switch to using a Svelte 5 debouncer like https://runed.dev/docs/utilities/debounced
+  let debouncer = makeDebouncer((newValue: string | undefined) => (value = newValue), debounce);
   run(() => {
     undebouncedValue = value;
   });

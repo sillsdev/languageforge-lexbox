@@ -11,12 +11,10 @@
 </script>
 
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { Upload, type DetailedError } from 'tus-js-client';
   import { Button, FormError, FormField } from '$lib/forms';
   import { env } from '$env/dynamic/public';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import t from '$lib/i18n';
   import IconButton from './IconButton.svelte';
 
@@ -41,7 +39,8 @@
   }>();
 
   let status = $state(UploadStatus.NoFile);
-  run(() => {
+  // We used to dispatch in an onMount() call, but $effect runs on mount so the onMount() dispatch is redundant
+  $effect(() => {
     dispatch('status', status);
   });
 
@@ -123,11 +122,6 @@
       return 'unknown';
     }
   }
-
-  onMount(() => {
-    // make sure listeners are ready
-    dispatch('status', status);
-  });
 
   //svelte on on mount
   onDestroy(() => {

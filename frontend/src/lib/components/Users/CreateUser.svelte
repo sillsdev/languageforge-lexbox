@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import {
     SubmitButton,
@@ -106,7 +104,7 @@
     }
     throw new Error('Unknown error, no error from server, but also no user.');
   });
-  run(() => {
+  $effect(() => {
     formTainted = !!$tainted;
   });
   onMount(() => {

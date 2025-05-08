@@ -7,8 +7,6 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { run } from 'svelte/legacy';
-
   import t from '$lib/i18n';
   import Notify from '$lib/notify/Notify.svelte';
   import { OverlayContainer } from '$lib/overlay';
@@ -92,19 +90,19 @@
     $open = false;
   }
 
-  run(() => {
+  $effect(() => {
     if ($dialogResponse === DialogResponse.Submit) {
       dispatch('submit');
     }
   });
-  run(() => {
+  $effect(() => {
     if (!$open && $dialogResponse !== null) {
       dispatch('close', $dialogResponse);
     }
   });
   let dialog: HTMLDialogElement | undefined = $state();
   //dialog will still work if the browser doesn't support it, but this enables focus trapping and other features
-  run(() => {
+  $effect(() => {
     if (dialog) {
       if ($open) {
         //showModal might be undefined if the browser doesn't support dialog
