@@ -23,9 +23,9 @@
 
   function handleProjectSelect(selectedProject: IProjectModel) {
     if (selectedProject.fwdata) {
-      navigate('/fwdata/' + selectedProject.name);
+      navigate('/fwdata/' + selectedProject.code);
     } else if (selectedProject.crdt) {
-      navigate('/project/' + selectedProject.code)
+      navigate('/project/' + selectedProject.code);
     }
   }
 
