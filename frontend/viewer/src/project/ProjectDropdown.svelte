@@ -10,6 +10,7 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import {resource} from 'runed';
   import type {IProjectModel} from '$lib/dotnet-types';
+  import ProjectTitle from '../home/ProjectTitle.svelte';
 
   let { projectName, onSelect } = $props<{
     projectName: string;
@@ -98,14 +99,14 @@
             <Command.Item
               value={project.name + project.crdt}
               onSelect={() => handleSelect(project)}
-              class={cn('cursor-pointer', project.name === projectName && 'bg-secondary')}
+              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && 'bg-secondary')}
             >
               {#if project.fwdata}
                 <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0"/>
-                {:else}
+              {:else}
                 <Icon icon="i-mdi-book-edit-outline"/>
               {/if}
-              {project.name}
+              <ProjectTitle {project} />
             </Command.Item>
           {/each}
         {/if}
