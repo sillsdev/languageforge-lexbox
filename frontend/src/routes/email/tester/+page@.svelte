@@ -108,6 +108,7 @@
 
   let currEmail = $state(emails[0]);
   let emailJson: RenderEmailResult | undefined = $state();
+  // TODO: Convert this to async derived once available (see svelte discussion #15845)
   run(() => {
     if (browser) {
       void fetch('.', { method: 'POST', body: JSON.stringify(currEmail) })

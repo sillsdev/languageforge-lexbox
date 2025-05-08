@@ -101,7 +101,6 @@
     }
   });
 
-  const asyncCodeError = writable<string | undefined>();
   const codeStore = derivedStore(form, (f) => f.code);
   const codeIsAvailable = deriveAsync(
     codeStore,
@@ -112,9 +111,8 @@
     true,
     true,
   );
-  run(() => {
-    $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
-  });
+  const asyncCodeError = writable<string | undefined>($t('project.create.code_exists'));
+  onMount(() => codeIsAvailable.subscribe((_) => ($asyncCodeError = undefined)));
   const codeErrors = derivedStore([errors, asyncCodeError], () => [
     ...new Set(concatAll($errors.code, $asyncCodeError)),
   ]);
@@ -205,14 +203,13 @@
     );
   });
 
+  const calculatedCode = $derived(buildProjectCode($form.languageCode, $form.type, $form.retentionPolicy));
+  // TODO: This causes an infinite loop when converted to $effect. Need to do something clever with superforms to avoid the infinite loop.
   run(() => {
     if (!$form.customCode) {
-      const type = $form.type;
-      const retentionPolicy = $form.retentionPolicy;
-      const languageCode = $form.languageCode;
       form.update(
         (form) => {
-          form.code = buildProjectCode(languageCode, type, retentionPolicy);
+          form.code = calculatedCode;
           return form;
         },
         { taint: false },

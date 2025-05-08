@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { FormModal } from '$lib/components/modals';
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
@@ -111,11 +109,10 @@
     userIsLocked = data!.setUserLocked.user!.locked;
   }
   let form = $derived(formModal?.form());
-  // This is a bit of a hack to make sure that the email field is not required if the user has no email
-  // even if the user edited the email field
-  run(() => {
-    if (form && $form && !$form.email && _user && !_user.email) $form.email = null;
-  });
+  // TODO: We used to have a hack here to make sure that the email field is not required if the user
+  // has no email even if the user edited the email field, by setting $form.email to null if _user.email was
+  // falsy and $form.email became an empty string. In Svelte 5 that creates an infinite update loop, so we
+  // need better validation logic on the email field.
 </script>
 
 <FormModal bind:this={formModal} schema={refinedSchema}>

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { FilterBar } from '$lib/components/FilterBar';
   import type { OrgListPageQuery } from '$lib/gql/types';
   import t, { date, number } from '$lib/i18n';
@@ -11,6 +9,7 @@
   import type { PageData } from './$types';
   import type { OrgListSearchParams } from './+page';
   import orderBy from 'just-order-by';
+  import { partition } from '$lib/util/array';
 
   interface Props {
     data: PageData;
@@ -68,19 +67,7 @@
   let displayOrgs = $derived(sortOrgs(filteredOrgs, sortColumn, sortDir));
   let filtering = $derived(filteredOrgs.length !== $orgs.length);
 
-  let myOrgs: OrgList = $state([]);
-  let otherOrgs: OrgList = $state([]);
-  run(() => {
-    myOrgs = [];
-    otherOrgs = [];
-    displayOrgs.forEach(org => {
-      if ($myOrgsMap.has(org.id)) {
-        myOrgs.push(org);
-      } else {
-        otherOrgs.push(org);
-      }
-    });
-  });
+  const [myOrgs, otherOrgs]: [OrgList, OrgList] = $derived(partition(displayOrgs, (org) => $myOrgsMap.has(org.id)));
 </script>
 
 <!--

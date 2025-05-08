@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
@@ -27,7 +25,7 @@
 
   const emailResult = useEmailResult();
   const requestedEmail = useRequestedEmail();
-  run(() => {
+  $effect(() => {
     if (data.emailResult) emailResult.set(data.emailResult);
   });
 
@@ -73,11 +71,10 @@
     }
   });
 
-  // This is a bit of a hack to make sure that the email field is not required if the user has no email
-  // even if the user edited the email field
-  run(() => {
-    if (!$form.email && $user && !$user.email) $form.email = null;
-  });
+  // TODO: We used to have a hack here to make sure that the email field is not required if the user
+  // has no email even if the user edited the email field, by setting $form.email to null if $user.email was
+  // falsy and $form.email became an empty string. In Svelte 5 that creates an infinite update loop, so we
+  // need better validation logic on the email field.
 
   onMount(() => {
     form.set(

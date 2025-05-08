@@ -11,8 +11,6 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { run } from 'svelte/legacy';
-
   import t from '$lib/i18n';
   import { BadgeList, MemberBadge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -55,13 +53,12 @@
   let showAllMembers = $state(false);
 
   let memberSearch = $state('');
-  let filteredMembers: Member[] = $state(members);
-  run(() => {
+  let filteredMembers: Member[] = $derived.by(() => {
     const search = memberSearch?.trim().toLowerCase();
     if (!search) {
-      filteredMembers = members;
+      return members;
     } else {
-      filteredMembers = members.filter(
+      return members.filter(
         (m) =>
           m.user.name.toLowerCase().includes(search) ||
           m.user.email?.toLowerCase().includes(search) ||
