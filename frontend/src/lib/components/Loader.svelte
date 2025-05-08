@@ -4,7 +4,7 @@
     size?: undefined | 'loading-xs';
   }
 
-  let { loading = false, size = undefined }: Props = $props();
+  const { loading = false, size = undefined }: Props = $props();
 </script>
 
 {#if loading}

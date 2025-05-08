@@ -13,7 +13,7 @@
     extras?: Snippet;
   }
 
-  let {
+  const {
     title,
     text = undefined,
     copyToClipboard = false,

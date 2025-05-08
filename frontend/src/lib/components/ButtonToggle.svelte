@@ -9,13 +9,7 @@
     style: string;
   }
 
-  let {
-    icon1,
-    icon2,
-    text1,
-    text2,
-    style
-  }: Props = $props();
+  const { icon1, icon2, text1, text2, style }: Props = $props();
   let isIconOne = $state(true);
 
   function handleClick(): void {

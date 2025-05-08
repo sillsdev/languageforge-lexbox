@@ -18,7 +18,7 @@
     canManage: boolean;
   }
 
-  let { org, user, shownUsers, canManage }: Props = $props();
+  const { org, user, shownUsers, canManage }: Props = $props();
 
   const { notifyWarning } = useNotifications();
 

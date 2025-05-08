@@ -24,7 +24,7 @@
     ) => Promise<RegisterResponse>;
   }
 
-  let { handleSubmit }: Props = $props();
+  const { handleSubmit }: Props = $props();
 
   let formTainted = $state(false);
 

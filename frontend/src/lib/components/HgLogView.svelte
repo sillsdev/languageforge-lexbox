@@ -25,7 +25,7 @@
     projectCode: string;
   }
 
-  let { logEntries, loading, projectCode }: Props = $props();
+  const { logEntries, loading, projectCode }: Props = $props();
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")

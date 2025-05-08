@@ -10,7 +10,7 @@
     projects: ProjectItemWithDraftStatus[];
   }
 
-  let { projects }: Props = $props();
+  const { projects }: Props = $props();
 </script>
 
 <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4 max-xs:justify-items-center">

@@ -23,7 +23,7 @@
     colors?: string[];
   }
 
-  let {
+  const {
     paths = [],
     circles = [],
     rowHeights = [],

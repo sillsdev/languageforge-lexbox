@@ -35,7 +35,7 @@
     extraActions?: Snippet;
   }
 
-  let {
+  const {
     bottom = false,
     showCloseButton = true,
     closeOnClickOutside = true,

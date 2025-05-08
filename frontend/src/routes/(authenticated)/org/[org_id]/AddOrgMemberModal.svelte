@@ -17,7 +17,7 @@
     org: Org;
   }
 
-  let { org }: Props = $props();
+  const { org }: Props = $props();
 
   const schema = z.object({
     usernameOrEmail: z

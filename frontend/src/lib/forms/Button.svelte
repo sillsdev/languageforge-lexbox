@@ -16,7 +16,7 @@
     [key: string]: unknown;
   }
 
-  let {
+  const {
     loading = false,
     active = false,
     variant = undefined,

@@ -22,7 +22,7 @@
     children?: Snippet;
   }
 
-  let { data, children }: Props = $props();
+  const { data, children }: Props = $props();
   const { page, updated } = getStores();
 
   const { t, locale } = initI18n(data.activeLocale);

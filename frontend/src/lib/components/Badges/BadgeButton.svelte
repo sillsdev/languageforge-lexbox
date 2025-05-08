@@ -14,7 +14,7 @@
     children?: Snippet;
   }
 
-  let {
+  const {
     variant = undefined,
     icon = undefined,
     hoverIcon = undefined,

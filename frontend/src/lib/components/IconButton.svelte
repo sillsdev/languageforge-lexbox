@@ -17,7 +17,7 @@
     [key: string]: unknown;
   }
 
-  let {
+  const {
     icon,
     disabled = false,
     loading = false,

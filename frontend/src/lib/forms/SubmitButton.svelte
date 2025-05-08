@@ -14,7 +14,7 @@
     children?: Snippet;
   }
 
-  let { loading = false, form = undefined, variant = 'btn-primary', onclick, children }: Props = $props();
+  const { loading = false, form = undefined, variant = 'btn-primary', onclick, children }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->

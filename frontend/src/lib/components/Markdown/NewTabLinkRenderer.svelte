@@ -6,7 +6,7 @@
     children?: Snippet;
   }
 
-  let { href, title = undefined, children }: Props = $props();
+  const { href, title = undefined, children }: Props = $props();
 </script>
 
 <a {href} {title} target="_blank" class="external-link link link-hover">

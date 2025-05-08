@@ -21,7 +21,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let user = $derived(data.account);
   let deleteModal: DeleteUserModal | undefined = $state();
 

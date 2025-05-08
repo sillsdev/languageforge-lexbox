@@ -33,7 +33,7 @@
     queryParams: QueryParams<AdminSearchParams>;
   }
 
-  let { projects, draftProjects, queryParams }: Props = $props();
+  const { projects, draftProjects, queryParams }: Props = $props();
   let queryParamValues = $derived(queryParams.queryParamValues);
   let filters = $derived(queryParamValues);
   let filterDefaults = $derived(queryParams.defaultQueryParamValues);

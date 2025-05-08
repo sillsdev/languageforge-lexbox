@@ -17,7 +17,7 @@
     children?: Snippet<[{ done: boolean; error: ErrorMessage }]>;
   }
 
-  let {
+  const {
     title,
     submitText,
     submitIcon = undefined,

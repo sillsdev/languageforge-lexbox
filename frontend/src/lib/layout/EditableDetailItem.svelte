@@ -12,7 +12,7 @@
     multiline?: boolean;
   }
 
-  let {
+  const {
     title,
     value,
     disabled = false,

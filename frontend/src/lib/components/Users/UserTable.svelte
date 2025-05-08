@@ -10,7 +10,7 @@
     shownUsers: User[];
   }
 
-  let { shownUsers }: Props = $props();
+  const { shownUsers }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     openUserModal: User;

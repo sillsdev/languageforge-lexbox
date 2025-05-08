@@ -40,7 +40,7 @@
     doneText?: Snippet;
   }
 
-  let {
+  const {
     schema,
     submitVariant = 'btn-primary',
     hideActions = false,

@@ -16,7 +16,7 @@
     children?: Snippet;
   }
 
-  let { canManage, organizations = [], extraButtons, children }: Props = $props();
+  const { canManage, organizations = [], extraButtons, children }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     removeProjectFromOrg: { orgId: string; orgName: string };

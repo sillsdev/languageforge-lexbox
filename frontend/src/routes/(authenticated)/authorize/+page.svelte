@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import ProjectTypeIcon from '$lib/components/ProjectType/ProjectTypeIcon.svelte';
   import { ProjectType } from '$lib/gql/types';
   import { AuthenticatedUserIcon } from '$lib/icons';
@@ -10,7 +10,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
 </script>
 
 <div class="flex flex-col items-center grow">

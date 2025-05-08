@@ -15,7 +15,7 @@
     project: Project;
   }
 
-  let { project }: Props = $props();
+  const { project }: Props = $props();
   const schema = z.object({
     usernameOrEmail: z
       .string()

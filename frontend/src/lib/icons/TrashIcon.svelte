@@ -6,7 +6,7 @@
     color?: 'text-error' | undefined;
   }
 
-  let { pale = false, color = undefined }: Props = $props();
+  const { pale = false, color = undefined }: Props = $props();
 </script>
 
 <Icon icon="i-mdi-trash-can" size="text-2xl" {color} {pale} />

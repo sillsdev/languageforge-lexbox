@@ -43,7 +43,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let user = $derived(data.user);
   let orgStore = data.org;
   let org = $derived($orgStore);

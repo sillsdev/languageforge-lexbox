@@ -21,7 +21,7 @@
     children?: Snippet;
   }
 
-  let {
+  const {
     variant = 'badge-neutral',
     icon = undefined,
     hoverIcon = undefined,

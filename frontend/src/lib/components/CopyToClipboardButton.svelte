@@ -13,7 +13,7 @@
     outline?: boolean;
   }
 
-  let { textToCopy, delayMs = Duration.Default, size = undefined, outline = true }: Props = $props();
+  const { textToCopy, delayMs = Duration.Default, size = undefined, outline = true }: Props = $props();
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;

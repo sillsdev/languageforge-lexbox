@@ -11,7 +11,7 @@
     children?: Snippet;
   }
 
-  let { id = undefined, enhance = undefined, children }: Props = $props();
+  const { id = undefined, enhance = undefined, children }: Props = $props();
   function enhanceIfRequested(...args: Parameters<AnySuperForm['enhance']>): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     enhance && enhance(...args);

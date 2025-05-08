@@ -26,7 +26,7 @@
     orgId: string;
   }
 
-  let { orgId }: Props = $props();
+  const { orgId }: Props = $props();
   const schema = z.object({
     usernamesText: z.string().trim().min(1, $t('org_page.bulk_add_members.empty_user_field')),
   });

@@ -10,7 +10,7 @@
     lifetime: string;
   }
 
-  let {
+  const {
     name,
     verifyUrl,
     newAddress,

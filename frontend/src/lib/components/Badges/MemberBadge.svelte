@@ -10,7 +10,7 @@
     type?: 'existing' | 'new';
   }
 
-  let { member, canManage = false, type = 'existing' }: Props = $props();
+  const { member, canManage = false, type = 'existing' }: Props = $props();
   let actionIcon = ($derived(type === 'existing' ? 'i-mdi-dots-vertical' as const : 'i-mdi-close' as const));
   let variant = $derived(member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const);
 </script>

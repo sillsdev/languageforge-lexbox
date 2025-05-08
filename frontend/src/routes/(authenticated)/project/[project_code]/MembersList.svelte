@@ -36,7 +36,7 @@
     children?: Snippet;
   }
 
-  let {
+  const {
     members = [],
     canManageMember,
     canManageList,

@@ -23,7 +23,7 @@
     children?: Snippet;
   }
 
-  let { activeTab = 'projects', children }: Props = $props();
+  const { activeTab = 'projects', children }: Props = $props();
 </script>
 
 <div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg overflow-x-auto">

@@ -22,7 +22,7 @@
     deleteUser: (user: User) => void;
   }
 
-  let { currUser, deleteUser }: Props = $props();
+  const { currUser, deleteUser }: Props = $props();
 
   const schema = z.object({
     email: z.string().email($t('form.invalid_email')).nullish(),

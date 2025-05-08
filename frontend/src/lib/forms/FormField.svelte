@@ -21,7 +21,7 @@
     children?: Snippet;
   }
 
-  let {
+  const {
     label,
     description = undefined,
     error = undefined,

@@ -6,7 +6,7 @@
     tag?: string;
   }
 
-  let { el, tag = 'div' }: Props = $props();
+  const { el, tag = 'div' }: Props = $props();
   let target: Element | undefined = $state();
   run(() => {
     if (target && el)

@@ -16,7 +16,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let orgs = $derived(data.orgs);
   let myOrgsMap = $derived(data.myOrgsMap);
 
@@ -25,7 +25,7 @@
   });
   const { queryParamValues, defaultQueryParamValues } = queryParams;
 
-  type OrgList = OrgListPageQuery['orgs']
+  type OrgList = OrgListPageQuery['orgs'];
   type Org = OrgList[number];
 
   type Column = keyof Pick<Org, 'name' | 'memberCount' | 'createdDate'>;

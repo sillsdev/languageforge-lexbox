@@ -9,7 +9,7 @@
     children?: Snippet;
   }
 
-  let { disabled = false, actionIcon, variant = 'btn-neutral', children }: Props = $props();
+  const { disabled = false, actionIcon, variant = 'btn-neutral', children }: Props = $props();
   let iconHoverColor = $derived(variant === 'btn-neutral' ? 'group-hover:bg-base-200' : 'group-hover:bg-neutral/50');
 
   const dispatch = createEventDispatcher<{

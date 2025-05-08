@@ -11,7 +11,7 @@
     children?: Snippet;
   }
 
-  let { href = undefined, children }: Props = $props();
+  const { href = undefined, children }: Props = $props();
   let isCurrentPath = $derived(page.url.pathname === href);
 
   let crumbs: Writable<Element[]> = getContext('breadcrumb-store');

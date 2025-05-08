@@ -4,7 +4,7 @@
     children?: Snippet;
   }
 
-  let { children }: Props = $props();
+  const { children }: Props = $props();
 </script>
 
 <!--cloudflare replaces email addresses with a hash, however this can mess up the dom and break svelte, so sometimes we need to bypass it-->

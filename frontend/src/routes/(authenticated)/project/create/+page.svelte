@@ -41,7 +41,7 @@
   import { projectUrl } from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
 
-  let { data } = $props();
+  const { data } = $props();
   let user = $derived(data.user);
   let requestingUser: typeof data.requestingUser = $state();
   let myOrgs = $derived(data.myOrgs ?? []);

@@ -28,7 +28,7 @@
     internalButton?: boolean;
   }
 
-  let {
+  const {
     endpoint,
     accept,
     inputLabel = $t('tus.select_file'),

@@ -65,7 +65,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let user = $derived(data.user);
   let projectStore = data.project;
   let project = $derived($projectStore);

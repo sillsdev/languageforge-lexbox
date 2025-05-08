@@ -6,7 +6,6 @@
 <script lang="ts">
   import type { IconString } from '$lib/icons';
 
-  
   interface Props {
     icon?: IconString | undefined;
     size?: IconSize;
@@ -18,7 +17,7 @@
     y?: string | undefined;
   }
 
-  let {
+  const {
     icon = undefined,
     size = 'text-lg',
     color = undefined,

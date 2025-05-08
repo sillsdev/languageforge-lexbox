@@ -30,7 +30,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let projects = $derived(data.projects);
   let draftProjects = $derived(data.draftProjects);
   let userData = $derived(data.users);
