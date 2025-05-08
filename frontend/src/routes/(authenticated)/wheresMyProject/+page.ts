@@ -3,7 +3,7 @@ import {getClient, graphql} from '$lib/gql';
 
 import type {UUID} from 'crypto';
 
-export async function _sendFWLiteBetaRequestEmail(userId: UUID, name: string): $OpResult<SendFwLiteBetaRequestEmailMutation> { // SendFwLiteBetaRequestEmailPayload
+export async function _sendFWLiteBetaRequestEmail(userId: UUID, name: string): $OpResult<SendFwLiteBetaRequestEmailMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
