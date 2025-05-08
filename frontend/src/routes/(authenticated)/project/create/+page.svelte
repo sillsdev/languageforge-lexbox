@@ -279,7 +279,7 @@
               canManage
               member={{ ...requestingUser, role: ProjectRole.Manager }}
               type="new"
-              on:action={() => (requestingUser = undefined)}
+              onAction={() => (requestingUser = undefined)}
             />
           {:else}
             <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>

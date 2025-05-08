@@ -44,7 +44,7 @@
         </Badge>
       {:else}
         <Dropdown>
-          <ActionBadge actionIcon="i-mdi-dots-vertical" on:action>
+          <ActionBadge actionIcon="i-mdi-dots-vertical">
             <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={org.name}>
               {org.name}
             </span>
