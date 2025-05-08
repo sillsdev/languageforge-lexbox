@@ -5,10 +5,10 @@
   interface Props {
     loading?: boolean;
     active?: boolean;
-    variant?: 'btn-primary' | 'btn-success' | 'btn-error' | 'btn-ghost' | 'btn-warning' | 'btn-accent' | undefined;
+    variant?: 'btn-primary' | 'btn-success' | 'btn-error' | 'btn-ghost' | 'btn-warning' | 'btn-accent';
     outline?: boolean;
-    type?: undefined | 'submit';
-    size?: undefined | 'btn-sm';
+    type?: 'submit';
+    size?: 'btn-sm';
     disabled?: boolean;
     customLoader?: boolean;
     children?: Snippet;
@@ -19,10 +19,10 @@
   const {
     loading = false,
     active = false,
-    variant = undefined,
+    variant,
     outline = false,
-    type = undefined,
-    size = undefined,
+    type,
+    size,
     disabled = false,
     customLoader = false,
     children,

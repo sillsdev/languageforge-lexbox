@@ -22,7 +22,7 @@
     endpoint: string;
     accept: string;
     inputLabel?: string;
-    inputDescription?: string | undefined;
+    inputDescription?: string;
     internalButton?: boolean;
   }
 
@@ -30,7 +30,7 @@
     endpoint,
     accept,
     inputLabel = $t('tus.select_file'),
-    inputDescription = undefined,
+    inputDescription,
     internalButton = false,
   }: Props = $props();
   const dispatch = createEventDispatcher<{

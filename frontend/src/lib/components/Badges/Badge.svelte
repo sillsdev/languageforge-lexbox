@@ -15,8 +15,8 @@
 
   interface Props {
     variant?: BadgeVariant;
-    icon?: IconString | undefined;
-    hoverIcon?: IconString | undefined;
+    icon?: IconString;
+    hoverIcon?: IconString;
     outline?: boolean;
     children?: Snippet;
   }

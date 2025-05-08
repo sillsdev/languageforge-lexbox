@@ -27,7 +27,7 @@
 
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
-    autofocus?: true | undefined;
+    autofocus?: true;
     filters: Writable<Filters>;
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
@@ -35,7 +35,7 @@
     /**
      * Explicitly specify the filter object keys that should be used from the `filters` (optional)
      */
-    filterKeys?: Readonly<(keyof Filters)[]> | undefined;
+    filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
     debounce?: number | boolean;
     debouncing?: boolean;
@@ -45,12 +45,12 @@
 
   let {
     searchKey,
-    autofocus = undefined,
+    autofocus,
     filters: allFilters,
     filterDefaults: allFilterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
-    filterKeys = undefined,
+    filterKeys,
     loading = false,
     debounce = $bindable(false),
     debouncing = $bindable(false),

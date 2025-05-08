@@ -12,9 +12,9 @@
 
   interface Props {
     label: string;
-    error?: string | string[] | undefined;
+    error?: string | string[];
     id?: string;
-    autofocus?: true | undefined;
+    autofocus?: true;
     value: string;
     debounceMs?: number;
     isAdmin?: boolean;
@@ -23,9 +23,9 @@
 
   let {
     label,
-    error = undefined,
+    error,
     id = randomFormId(),
-    autofocus = undefined,
+    autofocus,
     value = $bindable(),
     debounceMs = 200,
     isAdmin = false,
@@ -127,7 +127,8 @@
   <div use:overlay={{ closeClickSelector: '.menu li', onOverlayOpen}}>
     <PlainInput
       style="w-full"
-      bind:value {id}
+      bind:value
+      {id}
       type="text"
       autocomplete="off"
       {autofocus}

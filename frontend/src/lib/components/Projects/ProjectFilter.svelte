@@ -59,7 +59,7 @@
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
-    autofocus?: true | undefined;
+    autofocus?: true;
     filterKeys?: (keyof Filters)[];
     loading?: boolean;
   }
@@ -69,7 +69,7 @@
     filterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
-    autofocus = undefined,
+    autofocus,
     filterKeys = [
       'projectSearch',
       'projectType',

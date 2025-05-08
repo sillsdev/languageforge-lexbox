@@ -22,8 +22,8 @@
     filterDefaults: Filters;
     onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
-    autofocus?: true | undefined;
-    filterKeys?: ReadonlyArray<(keyof Filters)>;
+    autofocus?: true;
+    filterKeys?: ReadonlyArray<keyof Filters>;
     loading?: boolean;
   }
 
@@ -32,7 +32,7 @@
     filterDefaults,
     onFiltersChanged,
     hasActiveFilter = $bindable(false),
-    autofocus = undefined,
+    autofocus,
     filterKeys = ['userSearch', 'usersICreated', 'userType'],
     loading = false
   }: Props = $props();

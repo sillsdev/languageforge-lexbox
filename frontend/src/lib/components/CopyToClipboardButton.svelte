@@ -9,11 +9,11 @@
   interface Props {
     textToCopy: string;
     delayMs?: Duration | number;
-    size?: 'btn-sm' | undefined;
+    size?: 'btn-sm';
     outline?: boolean;
   }
 
-  const { textToCopy, delayMs = Duration.Default, size = undefined, outline = true }: Props = $props();
+  const { textToCopy, delayMs = Duration.Default, size, outline = true }: Props = $props();
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;

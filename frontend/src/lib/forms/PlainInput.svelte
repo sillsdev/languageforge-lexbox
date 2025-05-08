@@ -23,36 +23,36 @@
 
   interface Props {
     id?: string;
-    value?: string | undefined | null;
+    value?: string | null;
     type?: 'text' | 'email' | 'password';
-    autofocus?: true | undefined;
+    autofocus?: true;
     readonly?: boolean;
-    error?: string | string[] | undefined;
+    error?: string | string[];
     placeholder?: string;
     // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-    autocomplete?: 'new-password' | 'current-password' | 'off' | undefined;
+    autocomplete?: 'new-password' | 'current-password' | 'off';
     debounce?: number | boolean;
     debouncing?: boolean;
-    undebouncedValue?: string | undefined | null;
-    style?: string | undefined;
-    keydownHandler?: ((event: KeyboardEvent) => void) | undefined;
+    undebouncedValue?: string | null;
+    style?: string;
+    keydownHandler?: (event: KeyboardEvent) => void;
   }
 
   let {
     id = randomFormId(),
-    value = $bindable(undefined),
+    value = $bindable(),
     type = 'text',
-    autofocus = undefined,
+    autofocus,
     readonly = false,
-    error = undefined,
+    error,
     placeholder = '',
-    autocomplete = undefined,
+    autocomplete,
     debounce = $bindable(false),
     debouncing = $bindable(false),
     undebouncedValue = $bindable(),
-    style = undefined,
-    keydownHandler = undefined,
+    style,
+    keydownHandler,
   }: Props = $props();
 
   let handlingInputEvent = $state(false);

@@ -5,10 +5,10 @@
 
   interface Props extends Omit<SelectProps, 'label'> {
     value: UserType;
-    undefinedOptionLabel?: string | undefined;
+    undefinedOptionLabel?: string;
   }
 
-  let { value = $bindable(), undefinedOptionLabel = undefined, ...rest }: Props = $props();
+  let { value = $bindable(), undefinedOptionLabel, ...rest }: Props = $props();
 
   const options: Record<Exclude<UserType, undefined>, I18nKey> = {
     admin: 'admin_dashboard.user_filter.user_type.admin',

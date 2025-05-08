@@ -2,13 +2,12 @@
   import EditableText from '$lib/components/EditableText.svelte';
   import type { ErrorMessage } from '$lib/forms';
 
-
   interface Props {
     title: string;
     value: string | null | undefined;
     disabled?: boolean;
     saveHandler: (newValue: string) => Promise<ErrorMessage>;
-    placeholder?: string | undefined;
+    placeholder?: string;
     multiline?: boolean;
   }
 
@@ -17,7 +16,7 @@
     value,
     disabled = false,
     saveHandler,
-    placeholder = undefined,
+    placeholder,
     multiline = false
   }: Props = $props();
 </script>

@@ -2,11 +2,11 @@
   import type { Snippet } from 'svelte';
   interface Props {
     href: string;
-    title?: string | undefined;
+    title?: string;
     children?: Snippet;
   }
 
-  const { href, title = undefined, children }: Props = $props();
+  const { href, title, children }: Props = $props();
 </script>
 
 <a {href} {title} target="_blank" class="external-link link link-hover">

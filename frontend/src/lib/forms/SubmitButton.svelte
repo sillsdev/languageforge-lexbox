@@ -8,13 +8,13 @@
 
   interface Props {
     loading?: boolean;
-    form?: string | undefined;
+    form?: string;
     variant?: SubmitVariant;
     onclick?: () => void;
     children?: Snippet;
   }
 
-  const { loading = false, form = undefined, variant = 'btn-primary', onclick, children }: Props = $props();
+  const { loading = false, form, variant = 'btn-primary', onclick, children }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->

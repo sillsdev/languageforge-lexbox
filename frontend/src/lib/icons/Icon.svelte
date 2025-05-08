@@ -7,24 +7,24 @@
   import type { IconString } from '$lib/icons';
 
   interface Props {
-    icon?: IconString | undefined;
+    icon?: IconString;
     size?: IconSize;
-    color?: `text-${string}` | undefined;
+    color?: `text-${string}`;
     pale?: boolean;
     spin?: boolean;
     spinReverse?: boolean;
     // For pixel perfect text alignment, because the svgs often contain vertical white-space
-    y?: string | undefined;
+    y?: string;
   }
 
   const {
-    icon = undefined,
+    icon,
     size = 'text-lg',
-    color = undefined,
+    color,
     pale = false,
     spin = false,
     spinReverse = false,
-    y = undefined
+    y
   }: Props = $props();
 
   let transform = $derived(y ? `translateY(${y})` : '');

@@ -9,8 +9,8 @@
     loading?: boolean;
     active?: boolean;
     join?: boolean;
-    variant?: 'btn-success' | 'btn-ghost' | 'btn-primary' | undefined;
-    size?: 'btn-sm' | undefined;
+    variant?: 'btn-success' | 'btn-ghost' | 'btn-primary';
+    size?: 'btn-sm';
     outline?: boolean;
     fake?: boolean; // for display purposes only
     onclick?: () => void;
@@ -23,8 +23,8 @@
     loading = false,
     active = false,
     join = false,
-    variant = undefined,
-    size = undefined,
+    variant,
+    size,
     outline = variant !== 'btn-ghost',
     fake = false,
     onclick,

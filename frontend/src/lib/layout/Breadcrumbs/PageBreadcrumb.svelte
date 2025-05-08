@@ -7,11 +7,11 @@
   import type { Action } from 'svelte/action';
 
   interface Props {
-    href?: string | undefined;
+    href?: string;
     children?: Snippet;
   }
 
-  const { href = undefined, children }: Props = $props();
+  const { href, children }: Props = $props();
   let isCurrentPath = $derived(page.url.pathname === href);
 
   // TODO: Now that we're in Svelte 5, let's store snippets instead of Elements
