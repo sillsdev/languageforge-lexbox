@@ -1,4 +1,4 @@
-<script  module lang="ts">
+<script module lang="ts">
   export type UserType = 'admin' | 'nonAdmin' | 'guest' | undefined;
 
   export type UserFilters = {
@@ -10,17 +10,17 @@
 
 <script lang="ts">
   import type { Writable } from 'svelte/store';
-  import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
+  import FilterBar, { type OnFiltersChanged } from '$lib/components/FilterBar/FilterBar.svelte';
   import ActiveFilter from '$lib/components/FilterBar/ActiveFilter.svelte';
   import { Icon } from '$lib/icons';
   import t from '$lib/i18n';
   import UserTypeSelect from '$lib/forms/UserTypeSelect.svelte';
 
-
   type Filters = Partial<UserFilters> & Pick<UserFilters, 'userSearch'>;
   interface Props {
     filters: Writable<Filters>;
     filterDefaults: Filters;
+    onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
     autofocus?: true | undefined;
     filterKeys?: ReadonlyArray<(keyof Filters)>;
@@ -30,6 +30,7 @@
   let {
     filters,
     filterDefaults,
+    onFiltersChanged,
     hasActiveFilter = $bindable(false),
     autofocus = undefined,
     filterKeys = ['userSearch', 'usersICreated', 'userType'],
@@ -43,7 +44,7 @@
 
 <FilterBar
   debounce
-  on:change
+  {onFiltersChanged}
   searchKey="userSearch"
   {autofocus}
   {filters}

@@ -7,12 +7,10 @@
       }[keyof T]
     >
   >;
+  export type OnFiltersChanged = (newFilters: Readonly<Filter[]>) => void;
 </script>
 
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
-  import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
   import { PlainInput } from '$lib/forms';
@@ -25,10 +23,6 @@
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Filters = DumbFilters & Record<typeof searchKey, string>;
 
-  const dispatch = createEventDispatcher<{
-    change: Readonly<Filter<Filters>[]>;
-  }>();
-
   let searchInput: PlainInput | undefined = $state();
 
   interface Props {
@@ -36,6 +30,7 @@
     autofocus?: true | undefined;
     filters: Writable<Filters>;
     filterDefaults: Filters;
+    onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
     /**
      * Explicitly specify the filter object keys that should be used from the `filters` (optional)
@@ -53,6 +48,7 @@
     autofocus = undefined,
     filters: allFilters,
     filterDefaults: allFilterDefaults,
+    onFiltersChanged,
     hasActiveFilter = $bindable(false),
     filterKeys = undefined,
     loading = false,
@@ -62,8 +58,6 @@
     filterSlot,
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
-
-  let activeFilters: Readonly<Filter<Filters>[]> = $state([]);
 
   function onClearFiltersClick(): void {
     if (!searchInput) return;
@@ -92,18 +86,16 @@
     }
     return Object.freeze(filters);
   }
+
   let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
   let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
-  run(() => {
-    const currFilters = activeFilters;
-    const newFilters = pickActiveFilters(filters, filterDefaults);
-    if (JSON.stringify(currFilters) !== JSON.stringify(newFilters)) {
-      activeFilters = newFilters;
-      dispatch('change', activeFilters);
-    }
-  });
-  run(() => {
+  let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
+  $effect(() => {
     hasActiveFilter = activeFilters.length > 0;
+  });
+  $effect(() => {
+    // TODO: Check whether this fires too often
+    onFiltersChanged?.(activeFilters);
   });
 </script>
 

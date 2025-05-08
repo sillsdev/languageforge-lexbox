@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -52,28 +50,19 @@
     );
   });
 
-  let allProjects: ProjectItemWithDraftStatus[] = $state([]);
-  let filteredProjects: ProjectItemWithDraftStatus[] = $state([]);
-  let limitResults = $state(true);
   let hasActiveFilter = $state(false);
-  let lastLoadUsedActiveFilter = $state(false);
-  run(() => {
-    if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
-  });
-  run(() => {
-    allProjects = [
-      ...draftProjects.map((p) => ({
-        ...p,
-        isDraft: true as const,
-        createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */,
-      })),
-      ...projects.map((p) => ({ ...p, isDraft: false as const })),
-    ];
-  });
-  run(() => {
-    filteredProjects = filterProjects(allProjects, $filters);
-  });
-  let shownProjects = $derived(
+  let lastLoadUsedActiveFilter = $derived($loading ? false : hasActiveFilter);
+  let limitResults = $state(true);
+  const allProjects: ProjectItemWithDraftStatus[] = $derived([
+    ...draftProjects.map((p) => ({
+      ...p,
+      isDraft: true as const,
+      createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */,
+    })),
+    ...projects.map((p) => ({ ...p, isDraft: false as const })),
+  ]);
+  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, $filters));
+  const shownProjects = $derived(
     limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects,
   );
 
@@ -121,7 +110,7 @@
       {filters}
       {filterDefaults}
       bind:hasActiveFilter
-      on:change={() => (limitResults = true)}
+      onFiltersChanged={() => (limitResults = true)}
       loading={$loading}
     />
   </div>

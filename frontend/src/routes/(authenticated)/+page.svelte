@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import type { PageData } from './$types';
   import t from '$lib/i18n';
   import ProjectList from '$lib/components/ProjectList.svelte';
@@ -35,42 +33,20 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
   });
 
-  let allProjects: ProjectItemWithDraftStatus[] = $state([]);
-  let filteredProjects: ProjectItemWithDraftStatus[] = $state([]);
   let limitResults = $state(true);
-  run(() => {
-    allProjects = [
-      ...$draftProjects.map((p) => ({
-        ...p,
-        isDraft: true as const,
-        createUrl: '',
-      })),
-      ...$projects.map((p) => ({ ...p, isDraft: false as const })),
-    ];
-  });
-  run(() => {
-    filteredProjects = filterProjects(allProjects, $filters);
-  });
-  let shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
+  const allProjects: ProjectItemWithDraftStatus[] = $derived([
+    ...$draftProjects.map((p) => ({
+      ...p,
+      isDraft: true as const,
+      createUrl: '',
+    })),
+    ...$projects.map((p) => ({ ...p, isDraft: false as const })),
+  ]);
+  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, $filters));
+  const shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
 
-  // TODO: This whole thing with initializedMode, defaultMode, and mode *and* the run() block below
-  // looks like it could be simplified, perhaps by turning it into a single $derived.by
-  let initializedMode = $state(false);
   let defaultMode = $derived(allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table);
-  // svelte-ignore state_referenced_locally
-  let mode: ViewMode = $state(defaultMode); // Only captures initial value, but that's okay; rest is captured in run() block
-
-  run(() => {
-    if (!initializedMode) {
-      const storedMode = data.projectViewMode;
-      if (storedMode === ViewMode.Table || storedMode === ViewMode.Grid) {
-        mode = storedMode;
-      } else {
-        mode = defaultMode;
-      }
-      initializedMode = true;
-    }
-  });
+  let mode: ViewMode = $derived(data.projectViewMode ?? defaultMode);
 
   function selectMode(selectedMode: ViewMode): void {
     mode = selectedMode;
@@ -85,7 +61,7 @@
         <ProjectFilter
           {filters}
           filterDefaults={defaultFilterValues}
-          on:change={() => (limitResults = true)}
+          onFiltersChanged={() => (limitResults = true)}
           filterKeys={['projectSearch', 'projectType', 'confidential']}
         />
       </div>

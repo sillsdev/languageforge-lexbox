@@ -44,7 +44,7 @@
   import type { Writable } from 'svelte/store';
   import { ProjectTypeIcon } from '../ProjectType';
   import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
-  import FilterBar from '../FilterBar/FilterBar.svelte';
+  import FilterBar, { type OnFiltersChanged } from '../FilterBar/FilterBar.svelte';
   import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
@@ -57,6 +57,7 @@
   interface Props {
     filters: Writable<Filters>;
     filterDefaults: Filters;
+    onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
     autofocus?: true | undefined;
     filterKeys?: (keyof Filters)[];
@@ -66,6 +67,7 @@
   let {
     filters,
     filterDefaults,
+    onFiltersChanged,
     hasActiveFilter = $bindable(false),
     autofocus = undefined,
     filterKeys = [
@@ -86,7 +88,7 @@
 </script>
 
 <FilterBar
-  on:change
+  {onFiltersChanged}
   searchKey="projectSearch"
   {autofocus}
   {filters}

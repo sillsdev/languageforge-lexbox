@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import t, { number } from '$lib/i18n';
@@ -69,11 +67,7 @@
   });
 
   let hasActiveFilter = $state(false);
-  let lastLoadUsedActiveFilter = $state(false);
-  run(() => {
-    if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;
-  });
-
+  let lastLoadUsedActiveFilter = $derived($loadingUsers ? false : hasActiveFilter);
   let users = $derived($userData?.items ?? []);
   let filteredUserCount = $derived($userData?.totalCount ?? 0);
   let shownUsers = $derived(lastLoadUsedActiveFilter ? users : users.slice(0, 10));
