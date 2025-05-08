@@ -76,7 +76,7 @@
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
-      <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished} />
+      <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" onUploadComplete={uploadFinished} />
     </div>
   </div>
 

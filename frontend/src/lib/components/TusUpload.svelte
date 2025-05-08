@@ -14,7 +14,7 @@
   import { Upload, type DetailedError } from 'tus-js-client';
   import { Button, FormError, FormField } from '$lib/forms';
   import { env } from '$env/dynamic/public';
-  import { createEventDispatcher, onDestroy } from 'svelte';
+  import { onDestroy } from 'svelte';
   import t from '$lib/i18n';
   import IconButton from './IconButton.svelte';
 
@@ -24,6 +24,8 @@
     inputLabel?: string;
     inputDescription?: string;
     internalButton?: boolean;
+    onUploadComplete?: (upload: Upload) => void;
+    onStatus?: (status: UploadStatus) => void;
   }
 
   const {
@@ -32,16 +34,14 @@
     inputLabel = $t('tus.select_file'),
     inputDescription,
     internalButton = false,
+    onUploadComplete,
+    onStatus,
   }: Props = $props();
-  const dispatch = createEventDispatcher<{
-    uploadComplete: { upload: Upload };
-    status: UploadStatus;
-  }>();
 
   let status = $state(UploadStatus.NoFile);
   // We used to dispatch in an onMount() call, but $effect runs on mount so the onMount() dispatch is redundant
   $effect(() => {
-    dispatch('status', status);
+    onStatus?.(status);
   });
 
   let percent = $state(0);
@@ -75,7 +75,7 @@
       onSuccess: () => {
         status = UploadStatus.Complete;
         percent = 100;
-        if (upload) dispatch('uploadComplete', { upload });
+        if (upload) onUploadComplete?.(upload);
       },
       onError: (err) => {
         status = UploadStatus.Error;
