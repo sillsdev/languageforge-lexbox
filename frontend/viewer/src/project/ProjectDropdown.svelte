@@ -10,14 +10,28 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import {resource} from 'runed';
   import type {IProjectModel} from '$lib/dotnet-types';
+  import ProjectTitle from '../home/ProjectTitle.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
-  let { projectName, onSelect } = $props<{
-    projectName: string;
+  let { onSelect } = $props<{
     onSelect: (project: IProjectModel) => void;
   }>();
+  const projectContext = useProjectContext();
+  const projectName = $derived(projectContext.projectName);
+  const isCrdt = $derived(projectContext.projectType === 'crdt');
   const projectsService = useProjectsService();
-  const projectsResource = resource(() => projectsService, (projectsService) => {
-      return projectsService.localProjects();
+  const projectsResource = resource(() => projectsService, async (projectsService) => {
+      const projects = await projectsService.localProjects();
+      return projects.flatMap((project) => {
+        if (project.fwdata && project.crdt) {
+          return [
+            { ...project, fwdata: false },
+            { ...project, crdt: false }
+          ];
+        }
+        return [project];
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, {lazy: true});
 
   let open = $state(false);
@@ -86,16 +100,16 @@
         {:else}
           {#each projectsResource.current ?? [] as project}
             <Command.Item
-              value={project.name}
+              value={project.name + project.crdt}
               onSelect={() => handleSelect(project)}
-              class={cn('cursor-pointer', project.name === projectName && 'bg-secondary')}
+              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
             >
               {#if project.fwdata}
                 <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0"/>
-                {:else}
+              {:else}
                 <Icon icon="i-mdi-book-edit-outline"/>
               {/if}
-              {project.name}
+              <ProjectTitle {project} />
             </Command.Item>
           {/each}
         {/if}

@@ -90,8 +90,8 @@
         {#if localProject?.crdt}
           <ButtonListItem href={`/project/${project.code}`}>
             <ListItem icon={mdiCloud}
-                      title={project.name}
                       loading={downloading === project.name}>
+              <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none shrink-0">
                 <Button disabled icon={mdiBookSyncOutline} class="p-2">
                   {$t`Synced`}

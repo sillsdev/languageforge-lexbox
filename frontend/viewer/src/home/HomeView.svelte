@@ -211,8 +211,9 @@
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
-                <ButtonListItem href={`/fwdata/${project.name}`}>
-                  <ListItem title={project.name}>
+                <ButtonListItem href={`/fwdata/${project.code}`}>
+                  <ListItem>
+                    <ProjectTitle slot="title" {project}/>
                     <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0" />
                     <div slot="actions" class="shrink-0">
                       <DevContent invisible>
