@@ -71,7 +71,9 @@
         </div>
       </div>
       {#if dictionaryPreview === 'sticky'}
-        {@render preview(entry)}
+        <div class="md:pr-2">
+          {@render preview(entry)}
+        </div>
       {/if}
     </header>
     <ScrollArea class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
@@ -79,7 +81,7 @@
         {@render preview(entry)}
       {/if}
       <div class="max-md:p-2 md:pr-2">
-        <EntryEditor {entry} disablePortalButtons {readonly} />
+        <EntryEditor {entry} {readonly} />
       </div>
     </ScrollArea>
   {/if}

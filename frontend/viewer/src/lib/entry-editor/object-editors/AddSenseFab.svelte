@@ -1,15 +1,19 @@
 <script lang="ts">
+  import {Button} from '$lib/components/ui/button';
   import {fieldName} from '$lib/i18n';
+  import {cn} from '$lib/utils';
   import {useCurrentView} from '$lib/views/view-service';
-  import {mdiPlus} from '@mdi/js';
   import throttle from 'just-throttle';
   import {onMount} from 'svelte';
-  import {Button} from 'svelte-ux';
+
+  const {
+    onclick,
+  } = $props<{ onclick: () => void }>();
 
   const currentView = useCurrentView();
 
-  let shrinkFab = false;
-  let atBottom = false;
+  let shrinkFab = $state(false);
+  let atBottom = $state(false);
 
   const handleScroll = throttle((element: Element | null) => {
     if (!element) return;
@@ -34,8 +38,9 @@
   });
 </script>
 
-<Button on:click icon={mdiPlus} variant="fill" color="success" size="md" iconOnly rounded="full"
-  class="gap-0 transition-all drop-shadow-md leading-none ease-in-out duration-300 {shrinkFab ? '' : 'px-4'}">
+<Button {onclick} icon="i-mdi-plus" size="fab"
+  class={cn('rounded-full gap-0 transition-all drop-shadow-md leading-none ease-in-out duration-300',
+    shrinkFab || 'px-4')}>
   <div class="overflow-hidden max-w-max transition-all ease-in-out duration-300" class:!max-w-0={shrinkFab}>
     {fieldName({id: 'sense'}, $currentView.i18nKey)}
   </div>

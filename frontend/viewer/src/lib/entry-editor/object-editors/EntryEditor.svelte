@@ -1,16 +1,9 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {fieldName} from '$lib/i18n';
-  import Scotty from '$lib/layout/Scotty.svelte';
-  import {useFeatures} from '$lib/services/feature-service';
   import {useCurrentView} from '$lib/views/view-service';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {mdiHistory, mdiPlus, mdiTrashCanOutline} from '@mdi/js';
-  import {createEventDispatcher} from 'svelte';
-  import {Button, MenuItem} from 'svelte-ux';
-  import HistoryView from '../../history/HistoryView.svelte';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';
@@ -19,16 +12,32 @@
   import EntryEditorPrimitive from './EntryEditorPrimitive.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
+  import {Button} from '$lib/components/ui/button';
+  import {watch} from 'runed';
+
+  type Props = {
+    entry: IEntry;
+    readonly?: boolean;
+    modalMode?: boolean;
+    canAddSense?: boolean;
+    canAddExample?: boolean;
+    onchange?: (changed: { entry: IEntry, sense?: ISense, example?: IExampleSentence}) => void;
+    ondelete?: (deleted: { entry: IEntry, sense?: ISense, example?: IExampleSentence}) => void;
+  };
+
+  let {
+    entry = $bindable(),
+    readonly = false,
+    modalMode = false,
+    canAddSense = true,
+    canAddExample = true,
+    onchange,
+    ondelete,
+  }: Props = $props();
 
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
-  const dispatch = createEventDispatcher<{
-    change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
-    delete: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
-  }>();
 
-  export let entry: IEntry;
-  export let disablePortalButtons = false;
   //used to not try to delete an object which has not been created yet
   let newSenses: ISense[] = [];
   let newExamples: IExampleSentence[] = [];
@@ -47,10 +56,6 @@
     entry = entry; // examples counts are not updated without this
     newExamples = [...newExamples, sentence];
   }
-  async function deleteEntry() {
-    if (!await dialogService.promptDelete('Entry')) return;
-    dispatch('delete', {entry});
-  }
 
   async function deleteSense(sense: ISense) {
     if (newSenses.some(s => s.id === sense.id)) {
@@ -60,7 +65,7 @@
     }
     if (!await dialogService.promptDelete('Sense')) return;
     entry.senses = entry.senses.filter(s => s.id !== sense.id);
-    dispatch('delete', {entry, sense});
+    ondelete?.({entry, sense});
   }
   function moveSense(sense: ISense, i: number) {
     entry.senses.splice(entry.senses.indexOf(sense), 1);
@@ -78,7 +83,7 @@
     }
     if (!await dialogService.promptDelete('Example sentence')) return;
     sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
-    dispatch('delete', {entry, sense, example});
+    ondelete?.({entry, sense, example});
     entry = entry; // examples are not updated without this
   }
   function moveExample(sense: ISense, example: IExampleSentence, i: number) {
@@ -91,22 +96,18 @@
 
   function onSenseChange(sense: ISense) {
     newSenses = newSenses.filter(s => s.id !== sense.id);
-    dispatch('change', {entry, sense});
+    onchange?.({entry, sense});
   }
   function onExampleChange(sense: ISense, example: IExampleSentence) {
     newExamples = newExamples.filter(e => e.id !== example.id);
-    dispatch('change', {entry, sense, example});
+    onchange?.({entry, sense, example});
   }
-  export let modalMode = false;
-  export let readonly = false;
-  export let canAddSense = true;
-  export let canAddExample = true;
 
-  let editorElem: HTMLDivElement | null = null;
-  let highlightedEntity: IExampleSentence | ISense | undefined;
+  let editorElem: HTMLDivElement | null = $state(null);
+  let highlightedEntity = $state<IExampleSentence | ISense | undefined>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
 
-  $: {
+  watch(() => highlightedEntity, () => {
     if (highlightedEntity) {
       clearTimeout(highlightTimeout);
       highlightTimeout = setTimeout(() => highlightedEntity = undefined, 3000);
@@ -125,7 +126,7 @@
         }
       });
     }
-  }
+  });
 
   function isBottomInView(element: Element): boolean {
     const elementRect = element.getBoundingClientRect();
@@ -140,52 +141,49 @@
     return elementRect.top <= viewportHeight;
   }
 
-  const features = useFeatures();
   const currentView = useCurrentView();
-
-  let showHistoryView = false;
 </script>
 
 <Editor.Root>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive bind:entry {readonly} {modalMode} onchange={(entry) => dispatch('change', {entry})} />
+    <EntryEditorPrimitive bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
-      <Editor.SubGrid class={cn(sense === highlightedEntity && 'highlight')}>
+      <Editor.SubGrid class={cn(sense.id === highlightedEntity?.id && 'highlight')}>
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-        <div class="col-span-full flex items-center py-2 mb-1 sticky top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px]">
-          <h2 class="text-lg text-muted-foreground mr-4">{pt($t`Sense`, $t`Meaning`, $currentView.type)} {i + 1}</h2>
-          <hr class="grow border-t-2">
+        <div class="col-span-full flex items-center py-2 mb-1 sticky top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll">
+          <h2 class="text-lg text-muted-foreground">{pt($t`Sense`, $t`Meaning`, $currentView)} {i + 1}</h2>
+          <hr class="grow border-t-2 mx-4">
           <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
               {readonly}
-              on:move={(e) => moveSense(sense, e.detail)}
-              on:delete={() => deleteSense(sense)} id={sense.id} />
+              onmove={(newIndex) => moveSense(sense, newIndex)}
+              ondelete={() => deleteSense(sense)} id={sense.id} />
         </div>
 
-        <SenseEditorPrimitive bind:sense {readonly} onchange={() => onSenseChange(sense)}/>
+        <SenseEditorPrimitive bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
         {#if sense.exampleSentences.length}
           <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
             {#each sense.exampleSentences as example, j (example.id)}
-              <Editor.SubGrid class={cn(example === highlightedEntity && 'highlight')}>
+              <Editor.SubGrid class={cn(example.id === highlightedEntity?.id && 'highlight')}>
                 <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
                 <div class="col-span-full flex items-center mb-2">
-                  <h3 class="text-muted-foreground mr-4">{$t`Example`} {j + 1}</h3>
+                  <h3 class="text-muted-foreground">{$t`Example`} {j + 1}</h3>
                   <!--
                     <hr class="grow">
                     collapse/expand toggle
                   -->
-                  <hr class="grow">
+                  <hr class="grow mx-4">
                   <EntityListItemActions i={j} {readonly}
                                         items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
-                                        on:move={(e) => moveExample(sense, example, e.detail)}
-                                        on:delete={() => deleteExample(sense, example)}
+                                        onmove={(newIndex) => moveExample(sense, example, newIndex)}
+                                        ondelete={() => deleteExample(sense, example)}
                                         id={example.id}
                   />
                 </div>
 
                 <ExampleEditorPrimitive
-                  bind:example
+                  bind:example={sense.exampleSentences[j]}
                   {readonly}
                   onchange={() => onExampleChange(sense, example)}
                   />
@@ -195,7 +193,9 @@
         {/if}
         {#if !readonly && canAddExample}
           <div class="col-span-full flex justify-end mt-4">
-            <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
+            <Button onclick={() => addExample(sense)} icon="i-mdi-plus" size="xs">
+              {$t`Add Example`}
+            </Button>
           </div>
         {/if}
       </Editor.SubGrid>
@@ -204,66 +204,16 @@
       <hr class="col-span-full grow border-t-4 my-4">
       <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
         <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
-        <AddSenseFab on:click={addSense} />
+        <AddSenseFab onclick={addSense} />
       </div>
       <div class="col-span-full flex justify-end" class:sm-view:hidden={!modalMode}>
-        <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add {fieldName({id: 'sense'}, $currentView.i18nKey)}</Button>
+        <Button onclick={addSense} icon="i-mdi-plus" size="xs" title={pt($t`Add Sense`, $t`Add Meaning`, $currentView)}>{pt($t`Add Sense`, $t`Add Meaning`, $currentView)}</Button>
       </div>
     {/if}
   </Editor.Grid>
 </Editor.Root>
 
-{#if !modalMode}
-{@const willRenderAnyButtons = features.history || !readonly}
-  {#if willRenderAnyButtons && !disablePortalButtons}
-  <div class="hidden">
-    <Scotty beamMeTo="right-toolbar" let:projectViewState>
-      {#if !readonly}
-        <Button on:click={addSense} title="Add sense" icon={mdiPlus} variant="fill-light" color="success" size="sm">
-          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
-            Add {fieldName({id: 'sense'}, $currentView.i18nKey)}
-          </div>
-        </Button>
-        <Button on:click={deleteEntry} title="Delete entry" icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
-          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
-            Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
-          </div>
-        </Button>
-      {/if}
-      {#if features.history}
-        <Button on:click={() => showHistoryView = true} title="View entry level history" icon={mdiHistory} variant="fill-light" color="info" size="sm">
-          <div class="sm-form:hidden" class:hidden={projectViewState.rightToolbarCollapsed}>
-            History
-          </div>
-        </Button>
-      {/if}
-    </Scotty>
-    <Scotty beamMeTo="app-bar-menu" let:projectViewState>
-      {#if projectViewState.userPickedEntry}
-        <div class="lg-view:hidden">
-          {#if !readonly}
-            <MenuItem on:click={deleteEntry} icon={mdiTrashCanOutline}>
-              Delete {fieldName({id: 'entry'}, $currentView.i18nKey)}
-            </MenuItem>
-          {/if}
-          {#if features.history}
-            <MenuItem on:click={() => showHistoryView = true} icon={mdiHistory}>
-              History
-            </MenuItem>
-          {/if}
-          <hr class="border-surface-300" />
-        </div>
-      {/if}
-    </Scotty>
-  </div>
-
-  {/if}
-  {#if features.history}
-    <HistoryView id={entry.id} bind:open={showHistoryView} />
-  {/if}
-{/if}
-
-<style lang="postcss">
+<style lang="postcss" global>
   .highlight {
     & :is(h2, h3) {
       @apply text-info-500;

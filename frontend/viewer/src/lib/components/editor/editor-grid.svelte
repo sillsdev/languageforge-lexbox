@@ -6,7 +6,7 @@
 
   type EditorGridProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
-  const {
+  let {
     class: className,
     children,
     ref = $bindable(null),
@@ -18,6 +18,6 @@
   '            grid-cols-[fit-content(70px)_1fr]',
   ' @lg/editor:grid-cols-[fit-content(70px)_1fr]',
   '@3xl/editor:grid-cols-[180px_fit-content(80px)_1fr]',
-  className)} {...restProps}>
+  className)} {...restProps} bind:this={ref}>
   {@render children?.()}
 </div>
