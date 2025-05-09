@@ -130,7 +130,7 @@
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
-      <AdminTabs activeTab="users" on:clickTab={(event) => ($queryParamValues.tab = event.detail)}>
+      <AdminTabs activeTab="users" onClickTab={(tab) => ($queryParamValues.tab = tab)}>
         <div class="flex gap-4 justify-between grow">
           <div class="flex gap-4 items-center">
             {$t('admin_dashboard.user_table_title')}

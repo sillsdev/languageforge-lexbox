@@ -12,18 +12,14 @@
 
 <script lang="ts">
   import t from '$lib/i18n';
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher<{
-    clickTab: AdminTabId;
-  }>();
 
   interface Props {
     activeTab?: AdminTabId;
+    onClickTab?: (tabId: AdminTabId) => void;
     children?: Snippet;
   }
 
-  const { activeTab = 'projects', children }: Props = $props();
+  const { activeTab = 'projects', onClickTab, children }: Props = $props();
 </script>
 
 <div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg overflow-x-auto">
@@ -31,7 +27,7 @@
   {#each adminTabs as tab}
     {@const isActiveTab = activeTab === tab}
     <button
-      onclick={() => dispatch('clickTab', tab)}
+      onclick={() => onClickTab?.(tab)}
       role="tab"
       class:tab-active={isActiveTab}
       class="tab grow flex-1 basis-1/2"

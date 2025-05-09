@@ -82,7 +82,7 @@
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 <div>
-  <AdminTabs activeTab="projects" on:clickTab={(event) => ($queryParamValues.tab = event.detail)}>
+  <AdminTabs activeTab="projects" onClickTab={(tab) => ($queryParamValues.tab = tab)}>
     <div class="flex gap-4 justify-between grow">
       <div class="flex gap-4 items-center">
         {$t('admin_dashboard.project_table_title')}
