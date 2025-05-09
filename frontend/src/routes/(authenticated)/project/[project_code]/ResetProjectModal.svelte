@@ -116,7 +116,7 @@
 <div class="reset-modal contents">
   <Modal
     bind:this={modal}
-    on:close={onClose}
+    {onClose}
     showCloseButton={false}
     closeOnClickOutside={uploadStatus !== UploadStatus.Uploading && !changingSteps && !$submitting}
   >
