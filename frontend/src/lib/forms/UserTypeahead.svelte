@@ -4,7 +4,6 @@
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
-  import { createEventDispatcher } from 'svelte';
 
   type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
   let inputComponent: DebouncedInput | undefined = $state();
@@ -18,6 +17,7 @@
     debounceMs?: number;
     isAdmin?: boolean;
     exclude?: string[];
+    onSelectedUserChange?: (selection: UserTypeaheadResult | null) => void;
   }
 
   let {
@@ -28,7 +28,8 @@
     value = $bindable(),
     debounceMs = 200,
     isAdmin = false,
-    exclude = []
+    exclude = [],
+    onSelectedUserChange,
   }: Props = $props();
 
   let selectedValue: string | undefined = $state();
@@ -42,16 +43,12 @@
   let trigger = writable('');
   const _typeaheadResults = deriveAsync(trigger, (value) => typeaheadSearch(value), [], debounceMs);
 
-  const dispatch = createEventDispatcher<{
-      selectedUserChange: UserTypeaheadResult | null;
-  }>();
-
   // TODO: Turn this into state instead of a store at some point
   let selectedUser = writable<UserTypeaheadResult | null>(null);
 
   function selectUser(user: UserTypeaheadResult): void {
     $selectedUser = user;
-    dispatch('selectedUserChange', $selectedUser);
+    onSelectedUserChange?.($selectedUser);
     selectedValue = getInputValue(user);
     inputComponent?.setValue(selectedValue);
   }
@@ -111,7 +108,7 @@
     if ($selectedUser && value !== selectedValue) {
       $selectedUser = null;
       selectedValue = undefined;
-      dispatch('selectedUserChange', $selectedUser);
+      onSelectedUserChange?.(null);
     }
   });
   $effect(() => {
