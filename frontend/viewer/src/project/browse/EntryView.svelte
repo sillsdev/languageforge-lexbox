@@ -32,7 +32,6 @@
   const entryResource = resource(
     () => entryId,
     async (id) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
       return miniLcmApi.getEntry(id);
     },
   );
@@ -46,7 +45,7 @@
 </script>
 
 {#snippet preview(entry: IEntry)}
-  <div class="pb-4">
+  <div class="md:pb-4">
     <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
       {#snippet actions()}
         <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
@@ -61,7 +60,7 @@
 <div class="h-full flex flex-col relative">
   {#if entry}
     <header>
-      <div class="mb-4 flex justify-between">
+      <div class="max-md:p-2 md:mb-4 flex justify-between">
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
@@ -72,14 +71,18 @@
         </div>
       </div>
       {#if dictionaryPreview === 'sticky'}
-        {@render preview(entry)}
+        <div class="md:pr-2">
+          {@render preview(entry)}
+        </div>
       {/if}
     </header>
-    <ScrollArea class={cn('grow md:pr-4', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
       {#if dictionaryPreview === 'show'}
         {@render preview(entry)}
       {/if}
-      <EntryEditor {entry} disablePortalButtons {readonly} />
+      <div class="max-md:p-2 md:pr-2">
+        <EntryEditor {entry} {readonly} />
+      </div>
     </ScrollArea>
   {/if}
   {#if loadingDebounced.current}

@@ -15,12 +15,15 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
   const writingSystemService = useWritingSystemService();
   const miniLcmApi = useMiniLcmApi();
+  const currentView = useCurrentView();
 
   let { entry, contextMenu = false, children = undefined } = $props<{
     entry: IEntry;
@@ -41,7 +44,7 @@
 </script>
 
 {#snippet items()}
-  {@render menuItem('i-mdi-delete', $t`Delete Entry`, () => void onDelete())}
+  {@render menuItem('i-mdi-delete', pt($t`Delete Entry`, $t`Delete Word`, $currentView), () => void onDelete())}
   {@render menuItem('i-mdi-history', $t`History`, () => {})}
   {#if multiWindowService}
     {@render menuItem('i-mdi-open-in-new', $t`Open in new Window`, () => void multiWindowService.openEntryInNewWindow(entry.id))}

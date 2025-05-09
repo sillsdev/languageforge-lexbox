@@ -56,8 +56,8 @@
 <div id="entry" class:hide-unused={!$viewSettings.showEmptyFields}>
   {#key entry.id}
     <EntryEditor
-      on:change={e => onChange(e.detail)}
-      on:delete={e => onDelete(e.detail)}
+      onchange={onChange}
+      ondelete={onDelete}
       entry={entry}
       {readonly}/>
   {/key}
