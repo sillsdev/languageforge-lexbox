@@ -34,11 +34,11 @@ export class WritingSystemService {
     return this.pickWritingSystems('vernacular');
   }
 
-  defaultVernacular(): IWritingSystem | undefined {
+  get defaultVernacular(): IWritingSystem | undefined {
     return this.writingSystems.vernacular[0];
   }
 
-  defaultAnalysis(): IWritingSystem | undefined {
+  get defaultAnalysis(): IWritingSystem | undefined {
     return this.writingSystems.analysis[0];
   }
 
@@ -65,7 +65,7 @@ export class WritingSystemService {
   }
 
   indexExemplars(): string[] | undefined {
-    return this.defaultVernacular()?.exemplars;
+    return this.defaultVernacular?.exemplars;
   }
 
   headword(entry: IEntry, ws?: string): string {

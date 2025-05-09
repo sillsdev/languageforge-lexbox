@@ -42,6 +42,7 @@
   let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
+  let readonly = $state(false);
 </script>
 
 {#snippet preview(entry: IEntry)}
@@ -66,7 +67,7 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <ViewPicker bind:dictionaryPreview />
+          <ViewPicker bind:dictionaryPreview bind:readonly />
           <EntryMenu {entry} />
         </div>
       </div>
@@ -78,7 +79,7 @@
       {#if dictionaryPreview === 'show'}
         {@render preview(entry)}
       {/if}
-      <EntryEditor {entry} disablePortalButtons />
+      <EntryEditor {entry} disablePortalButtons {readonly} />
     </ScrollArea>
   {/if}
   {#if loadingDebounced.current}

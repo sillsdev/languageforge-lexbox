@@ -4,17 +4,15 @@
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import type {FieldIds} from '$lib/entry-editor/field-data';
-  import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
+  import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
-  import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
   import {tryUseService} from '$lib/services/service-provider';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {delay} from '$lib/utils/time';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import {dndzone} from 'svelte-dnd-action';
-  import {Button as UxButton, type MenuOption} from 'svelte-ux';
-  import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
+  import {Button as UxButton} from 'svelte-ux';
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
@@ -26,14 +24,6 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
-
-  const crdtOptions: MenuOption[] = [
-    {value: 'a', label: 'Alpha'},
-    {value: 'b', label: 'Beta'},
-    {value: 'c', label: 'Charlie'},
-  ];
-
-  let crdtValue = $state(['a']);
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -163,30 +153,6 @@
   </h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
-      MultiOptionEditor configurations
-      <svelte:boundary>
-        <OptionSandbox/>
-        {#snippet failed(error)}
-          Error opening options sandbox {error}
-        {/snippet}
-      </svelte:boundary>
-    </div>
-
-    <div class="flex flex-col gap-2 border p-4 justify-between">
-      <div class="flex flex-col gap-2">
-        Lower level editor
-        <div class="mb-4">
-          String values and MenuOptions
-          <CrdtMultiOptionField bind:value={crdtValue} options={crdtOptions}/>
-        </div>
-      </div>
-      <div class="flex flex-col">
-        <p>selected: {crdtValue.join('|')}</p>
-        <UxButton variant="fill" on:click={() => crdtValue = ['c']}>Select Charlie only</UxButton>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-2 border p-4 justify-between">
       <div class="flex flex-col gap-2">
         Notifications
         <UxButton variant="fill" on:click={() => testingService?.throwException()}>Throw Exception</UxButton>
@@ -235,7 +201,7 @@
       <svelte:boundary>
         <EditorGrid class="border p-4">
           <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
-            <SenseEditor
+            <SenseEditorPrimitive
               sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
           </OverrideFields>
         </EditorGrid>

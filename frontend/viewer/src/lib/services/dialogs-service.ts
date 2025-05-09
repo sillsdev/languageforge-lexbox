@@ -27,7 +27,7 @@ export class DialogsService {
     if (!this.#invokeNewEntryDialog) throw new Error('No new entry dialog');
     const partialEntry: Partial<IEntry> = {};
     if (headword) {
-      const defaultWs = this.writingSystemService.defaultVernacular()?.wsId;
+      const defaultWs = this.writingSystemService.defaultVernacular?.wsId;
       if (defaultWs === undefined) throw new Error('No default vernacular');
       partialEntry.lexemeForm = {[defaultWs]: headword};
     }
