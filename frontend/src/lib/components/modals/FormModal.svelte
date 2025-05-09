@@ -109,7 +109,7 @@
   const extraActionsRender = $derived(extraActions);
 </script>
 
-<Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted} {hideActions}>
+<Modal bind:this={modal} onClose={() => reset()} bottom closeOnClickOutside={!$tainted} {hideActions}>
   <Form id="modalForm" {enhance}>
     <p class="mb-4 text-lg font-bold">{@render title?.()}</p>
     {@render children?.({ errors: $errors })}

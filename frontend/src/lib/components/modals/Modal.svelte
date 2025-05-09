@@ -10,14 +10,7 @@
   import t from '$lib/i18n';
   import Notify from '$lib/notify/Notify.svelte';
   import { OverlayContainer } from '$lib/overlay';
-  import { createEventDispatcher } from 'svelte';
   import { writable } from 'svelte/store';
-
-  const dispatch = createEventDispatcher<{
-    close: DialogResponse;
-    open: void;
-    submit: void;
-  }>();
 
   let dialogResponse = writable<DialogResponse | null>(null);
   let open = writable(false);
@@ -28,6 +21,9 @@
     showCloseButton?: boolean;
     closeOnClickOutside?: boolean;
     hideActions?: boolean;
+    onClose?: (reponse: DialogResponse) => void;
+    onOpen?: () => void;
+    onSubmit?: () => void;
     children?: Snippet<[unknown]>;
     actions?: Snippet<[{ submitting: boolean; closing?: boolean; close: () => void }]>;
     extraActions?: Snippet;
@@ -38,6 +34,9 @@
     showCloseButton = true,
     closeOnClickOutside = true,
     hideActions = false,
+    onClose,
+    onOpen,
+    onSubmit,
     children,
     actions,
     extraActions,
@@ -46,7 +45,7 @@
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
     $dialogResponse = null;
     $open = true;
-    dispatch('open');
+    onOpen?.();
     const response = await new Promise<DialogResponse>((resolve) => {
       const unsub = dialogResponse.subscribe((reason) => {
         if (reason) {
@@ -92,12 +91,12 @@
 
   $effect(() => {
     if ($dialogResponse === DialogResponse.Submit) {
-      dispatch('submit');
+      onSubmit?.();
     }
   });
   $effect(() => {
     if (!$open && $dialogResponse !== null) {
-      dispatch('close', $dialogResponse);
+      onClose?.($dialogResponse);
     }
   });
   let dialog: HTMLDialogElement | undefined = $state();
