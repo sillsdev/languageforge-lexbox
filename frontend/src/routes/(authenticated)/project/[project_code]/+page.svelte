@@ -592,8 +592,8 @@
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
         {canViewOtherMembers}
-        on:openUserModal={(event) => userModal?.open(event.detail.user)}
-        on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
+        onOpenUserModal={(member) => userModal?.open(member.user)}
+        onDeleteProjectUser={deleteProjectUser}
       >
         {#snippet extraButtons()}
           <BadgeButton
