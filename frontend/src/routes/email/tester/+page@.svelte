@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { EmailTemplate, type EmailTemplateProps } from '../emails';
   import { browser } from '$app/environment';
   import { ProjectType, RetentionPolicy } from '$lib/gql/generated/graphql';
@@ -109,7 +107,7 @@
   let currEmail = $state(emails[0]);
   let emailJson: RenderEmailResult | undefined = $state();
   // TODO: Convert this to async derived once available (see svelte discussion #15845)
-  run(() => {
+  $effect(() => {
     if (browser) {
       void fetch('.', { method: 'POST', body: JSON.stringify(currEmail) })
         .then((res) => res.json())
