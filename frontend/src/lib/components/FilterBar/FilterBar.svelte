@@ -13,7 +13,7 @@
 <script lang="ts">
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
-  import { PlainInput } from '$lib/forms';
+  import { DebouncedInput } from '$lib/forms';
   import { pick } from '$lib/util/object';
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
@@ -23,7 +23,7 @@
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Filters = DumbFilters & Record<typeof searchKey, string>;
 
-  let searchInput: PlainInput | undefined = $state();
+  let searchInput: DebouncedInput | undefined = $state();
 
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
@@ -38,7 +38,6 @@
     filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
     debounce?: number | boolean;
-    debouncing?: boolean;
     activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
   }
@@ -52,12 +51,12 @@
     hasActiveFilter = $bindable(false),
     filterKeys,
     loading = false,
-    debounce = $bindable(false),
-    debouncing = $bindable(false),
+    debounce = false,
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
+  let debouncing = $state(false);
 
   function onClearFiltersClick(): void {
     if (!searchInput) return;
@@ -102,9 +101,9 @@
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
-    <PlainInput
+    <DebouncedInput
       bind:value={$allFilters[searchKey]}
-      bind:debounce
+      {debounce}
       bind:debouncing
       bind:undebouncedValue={undebouncedSearch}
       bind:this={searchInput}

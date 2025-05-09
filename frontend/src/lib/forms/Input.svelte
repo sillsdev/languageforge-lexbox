@@ -47,7 +47,6 @@
       <PlainInput
         {id}
         bind:value
-        on:input
         type={currentType}
         {autofocus}
         {readonly}
@@ -65,7 +64,7 @@
       >
     </div>
   {:else}
-    <PlainInput {id} bind:value on:input {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
+    <PlainInput {id} bind:value {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
   {/if}
 </FormField>
 
