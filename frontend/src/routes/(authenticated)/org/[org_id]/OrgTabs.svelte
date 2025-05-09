@@ -14,29 +14,26 @@
 
 <script lang="ts">
   import t, { number } from '$lib/i18n';
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher<{
-    clickTab: OrgTabId
-  }>();
 
   interface Props {
     hideSettingsTab?: boolean;
     activeTab?: OrgTabId;
     projectCount: number;
     memberCount: number;
+    onClickTab?: (tabId: OrgTabId) => boolean | undefined;
   }
 
   let {
     hideSettingsTab = false,
     activeTab = $bindable('projects'),
     projectCount,
-    memberCount
+    memberCount,
+    onClickTab,
   }: Props = $props();
 
   function handleTabChange(tab: OrgTabId): void {
-    const proceed = dispatch('clickTab', tab);
-    if (proceed) {
+    const canceled = onClickTab?.(tab);
+    if (!canceled) {
       activeTab = tab;
     }
   }
