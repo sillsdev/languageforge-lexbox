@@ -571,7 +571,7 @@
       <OrgList
         {canManage}
         organizations={project.organizations}
-        on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.orgId, event.detail.orgName)}
+        onRemoveProjectFromOrg={(org) => removeProjectFromOrg(org.orgId, org.orgName)}
       >
         {#snippet extraButtons()}
           {#if canManage}

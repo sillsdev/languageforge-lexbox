@@ -3,7 +3,6 @@
   import t from '$lib/i18n';
   import { Badge, BadgeList } from '$lib/components/Badges';
   import type { Organization } from '$lib/gql/types';
-  import { createEventDispatcher } from 'svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import ActionBadge from '$lib/components/Badges/ActionBadge.svelte';
@@ -14,13 +13,10 @@
     organizations?: Org[];
     extraButtons?: Snippet;
     children?: Snippet;
+    onRemoveProjectFromOrg?: (org: { orgId: string; orgName: string }) => void;
   }
 
-  const { canManage, organizations = [], extraButtons, children }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    removeProjectFromOrg: { orgId: string; orgName: string };
-  }>();
+  const { canManage, organizations = [], extraButtons, children, onRemoveProjectFromOrg }: Props = $props();
 
   const TRUNCATED_MEMBER_COUNT = 5;
 </script>
@@ -60,7 +56,7 @@
               <li>
                 <button
                   class="text-error"
-                  onclick={() => dispatch('removeProjectFromOrg', { orgId: org.id, orgName: org.name })}
+                  onclick={() => onRemoveProjectFromOrg?.({ orgId: org.id, orgName: org.name })}
                 >
                   <TrashIcon />
                   {$t('project_page.remove_project_from_org')}
