@@ -252,8 +252,8 @@
         {user}
         shownUsers={org.members}
         {canManage}
-        on:openUserModal={(event) => openUserModal(event.detail)}
-        on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
+        onOpenUserModal={openUserModal}
+        onChangeMemberRole={openChangeMemberRoleModal}
       />
     {:else if $queryParamValues.tab === 'history'}
       <div class="space-y-2">

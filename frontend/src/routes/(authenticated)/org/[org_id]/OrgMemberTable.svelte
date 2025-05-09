@@ -2,7 +2,6 @@
   import { Button } from '$lib/forms';
   import t from '$lib/i18n';
   import { Icon } from '$lib/icons';
-  import { createEventDispatcher } from 'svelte';
   import FormatUserOrgRole from '$lib/components/Orgs/FormatUserOrgRole.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { _deleteOrgUser, type Org, type OrgUser, type User } from './+page';
@@ -16,16 +15,13 @@
     user: LexAuthUser;
     shownUsers: OrgUser[];
     canManage: boolean;
+    onOpenUserModal: (user: User) => void;
+    onChangeMemberRole: (orgUser: OrgUser) => void;
   }
 
-  const { org, user, shownUsers, canManage }: Props = $props();
+  const { org, user, shownUsers, canManage, onOpenUserModal, onChangeMemberRole }: Props = $props();
 
   const { notifyWarning } = useNotifications();
-
-  const dispatch = createEventDispatcher<{
-    openUserModal: User;
-    changeMemberRole: OrgUser;
-  }>();
 
   let removeMemberModal: DeleteModal | undefined = $state();
   let memberToRemove: string = $state('');
@@ -73,7 +69,7 @@
                   variant="btn-ghost"
                   size="btn-sm"
                   class="max-w-full"
-                  onclick={() => dispatch('openUserModal', memberUser)}
+                  onclick={() => onOpenUserModal?.(memberUser)}
                 >
                   <span class="x-ellipsis" title={memberUser.name}>
                     {memberUser.name}
@@ -113,7 +109,7 @@
                 {#snippet content()}
                   <ul class="menu">
                     <li>
-                      <button class="whitespace-nowrap" onclick={() => dispatch('changeMemberRole', member)}>
+                      <button class="whitespace-nowrap" onclick={() => onChangeMemberRole?.(member)}>
                         <Icon icon="i-mdi-pencil-outline" />
                         {$t('org_page.edit_member_role')}
                       </button>
