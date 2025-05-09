@@ -55,7 +55,9 @@
     keydownHandler,
   }: Props = $props();
 
-  const debounceTime: number = $derived(typeof debounce === 'boolean' ? DEFAULT_DEBOUNCE_TIME : debounce);
+  const debounceTime: number = $derived(
+    typeof debounce === 'boolean' ? (debounce ? DEFAULT_DEBOUNCE_TIME : 0) : debounce,
+  );
 
   let inputValue = $state(value);
   let debouncer = new Debounced(
