@@ -186,6 +186,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
+        await validators.ValidateAndThrow(update);
         if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
         {
             throw new InvalidOperationException($"Writing system {id.Code} not found");
