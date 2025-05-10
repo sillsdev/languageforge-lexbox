@@ -21,13 +21,7 @@
     children?: Snippet;
   }
 
-  const {
-    variant = 'badge-neutral',
-    icon = undefined,
-    hoverIcon = undefined,
-    outline = false,
-    children,
-  }: Props = $props();
+  const { variant = 'badge-neutral', icon, hoverIcon, outline = false, children }: Props = $props();
 </script>
 
 <span
