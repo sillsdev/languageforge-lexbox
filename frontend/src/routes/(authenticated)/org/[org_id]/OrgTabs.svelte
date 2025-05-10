@@ -20,7 +20,6 @@
     activeTab?: OrgTabId;
     projectCount: number;
     memberCount: number;
-    onClickTab?: (tabId: OrgTabId) => boolean | undefined;
   }
 
   let {
@@ -28,15 +27,8 @@
     activeTab = $bindable('projects'),
     projectCount,
     memberCount,
-    onClickTab,
   }: Props = $props();
 
-  function handleTabChange(tab: OrgTabId): void {
-    const canceled = onClickTab?.(tab);
-    if (!canceled) {
-      activeTab = tab;
-    }
-  }
   let visibleTabs = $derived(hideSettingsTab ? orgTabs.filter(t => t !== 'settings') : orgTabs);
 </script>
 
@@ -44,7 +36,7 @@
   <div class="tab tab-divider"></div>
   {#each visibleTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <button onclick={() => handleTabChange(tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
+    <button onclick={() => activeTab = tab} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
       <h2 class="text-lg flex gap-4 items-center">
         {$t(DEFAULT_TAB_I18N[tab])}
         {#if tab === 'projects'}
