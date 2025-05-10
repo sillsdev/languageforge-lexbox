@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { FormField, DebouncedInput, randomFormId } from '$lib/forms';
+  import { FormField, PlainInput, randomFormId } from '$lib/forms';
   import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
 
   type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
-  let inputComponent: DebouncedInput | undefined = $state();
+  let inputComponent: PlainInput | undefined = $state();
 
   interface Props {
     label: string;
@@ -50,7 +50,7 @@
     $selectedUser = user;
     onSelectedUserChange?.($selectedUser);
     selectedValue = getInputValue(user);
-    inputComponent?.setValue(selectedValue);
+    value = selectedValue;
   }
 
   function formatResult(user: UserTypeaheadResult): string {
@@ -122,7 +122,7 @@
 
 <FormField {id} {label} {error} {autofocus}>
   <div use:overlay={{ closeClickSelector: '.menu li', onOverlayOpen }}>
-    <DebouncedInput
+    <PlainInput
       bind:this={inputComponent}
       style="w-full"
       bind:value
