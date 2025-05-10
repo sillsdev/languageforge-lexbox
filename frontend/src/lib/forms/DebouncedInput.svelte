@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { randomFormId } from './utils';
   import { DEFAULT_DEBOUNCE_TIME } from '$lib/util/time';
   import { Debounced } from 'runed';
+  import PlainInput, { type PlainInputProps } from './PlainInput.svelte';
 
-  let input: HTMLInputElement | undefined = $state();
+  let input: PlainInput | undefined = $state();
 
   export function clear(): void {
     debouncer.setImmediately(undefined);
-    inputValue = undefined;
+    input?.clear();
   }
 
   export function focus(): void {
@@ -19,40 +19,18 @@
     inputValue = newValue;
   }
 
-  interface Props {
-    id?: string;
-    value?: string | null;
-    onInput?: (value: string | null | undefined) => void;
-    type?: 'text' | 'email' | 'password';
-    autofocus?: true;
-    readonly?: boolean;
-    error?: string | string[];
-    placeholder?: string;
-    // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-    autocomplete?: 'new-password' | 'current-password' | 'off';
+  interface Props extends PlainInputProps {
     debounce?: number | boolean;
     debouncing?: boolean;
     undebouncedValue?: string | null;
-    style?: string;
-    keydownHandler?: (event: KeyboardEvent) => void;
   }
 
   let {
-    id = randomFormId(),
     value = $bindable(),
-    onInput,
-    type = 'text',
-    autofocus,
-    readonly = false,
-    error,
-    placeholder = '',
-    autocomplete,
-    debounce = false,
+    debounce = true,
     debouncing = $bindable(false),
     undebouncedValue = $bindable(),
-    style,
-    keydownHandler,
+    ...rest
   }: Props = $props();
 
   const debounceTime: number = $derived(
@@ -75,19 +53,4 @@
   });
 </script>
 
-<!-- https://daisyui.com/components/input -->
-<!-- svelte-ignore a11y_autofocus -->
-<input
-  bind:this={input}
-  {id}
-  {type}
-  bind:value={inputValue}
-  oninput={() => onInput?.(inputValue)}
-  class:input-error={error && error.length}
-  {placeholder}
-  class="input input-bordered {style ?? ''}"
-  {readonly}
-  {autofocus}
-  {autocomplete}
-  onkeydown={keydownHandler}
-/>
+<PlainInput bind:this={input} bind:value={inputValue} {...rest} />
