@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { goto } from '$app/navigation';
   import {
     Checkbox,
@@ -29,7 +27,7 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived as derivedStore, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
@@ -208,9 +206,9 @@
 
   const calculatedCode = $derived(buildProjectCode($form.languageCode, $form.type, $form.retentionPolicy));
   // TODO: This causes an infinite loop when converted to $effect. Need to do something clever with superforms to avoid the infinite loop.
-  run(() => {
-    if (!$form.customCode) {
-      form.update(
+  $effect(() => {
+    if (!untrack(() => $form).customCode) {
+      untrack(() => form).update(
         (form) => {
           form.code = calculatedCode;
           return form;
