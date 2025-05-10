@@ -31,7 +31,7 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived as derivedStore, writable, type Readable } from 'svelte/store';
+  import { derived as derivedStore, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -111,8 +111,11 @@
     true,
     true,
   );
-  const asyncCodeError = writable<string | undefined>($t('project.create.code_exists'));
-  onMount(() => codeIsAvailable.subscribe((_) => ($asyncCodeError = undefined)));
+  const asyncCodeError = derivedStore(
+    codeIsAvailable,
+    (avail) => (avail ? undefined : $t('project.create.code_exists')),
+    $t('project.create.code_exists'),
+  );
   const codeErrors = derivedStore([errors, asyncCodeError], () => [
     ...new Set(concatAll($errors.code, $asyncCodeError)),
   ]);
