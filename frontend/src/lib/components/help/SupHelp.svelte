@@ -6,7 +6,7 @@
     helpLink: HelpLink;
   }
 
-  let { helpLink }: Props = $props();
+  const { helpLink }: Props = $props();
 </script>
 
 <sup>

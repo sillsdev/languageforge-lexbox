@@ -22,7 +22,7 @@
     user: LexAuthUser;
   }
 
-  let { user }: Props = $props();
+  const { user }: Props = $props();
 
   let sendingVerificationEmail = $state(false);
   let sentVerificationEmail = $state(false);

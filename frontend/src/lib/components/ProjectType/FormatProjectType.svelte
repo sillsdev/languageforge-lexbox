@@ -21,7 +21,7 @@
     type: ProjectType;
   }
 
-  let { type }: Props = $props();
+  const { type }: Props = $props();
 </script>
 
 {$t(getProjectTypeI18nKey(type))}

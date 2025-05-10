@@ -9,10 +9,10 @@
 
   interface Props {
     label: string;
-    description?: string | undefined;
-    error?: string | string[] | undefined;
+    description?: string;
+    error?: string | string[];
     id?: string;
-    helpLink?: HelpLink | undefined;
+    helpLink?: HelpLink;
     /**
      * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
      * So we allow/support it and disable a11y-autofocus warnings in generic places.
@@ -21,15 +21,7 @@
     children?: Snippet;
   }
 
-  let {
-    label,
-    description = undefined,
-    error = undefined,
-    id = randomFormId(),
-    helpLink = undefined,
-    autofocus = false,
-    children,
-  }: Props = $props();
+  const { label, description, error, id = randomFormId(), helpLink, autofocus = false, children }: Props = $props();
 
   let elem: HTMLDivElement | undefined = $state();
 

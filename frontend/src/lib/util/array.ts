@@ -15,3 +15,17 @@ export function concatAll<T>(...values: (T | T[] | undefined)[]): T[] {
 export function distinct(value: unknown, index: number, array: unknown[]): boolean {
   return array.indexOf(value) === index;
 }
+
+// Split an array into two based on a predicate, in just one pass
+export function partition<T>(arr: T[], pred: (t: T) => boolean): [T[], T[]] {
+  return arr.reduce((result: [T[], T[]], item: T) => {
+    if (pred(item)) {
+      result[0].push(item)
+    } else {
+      result[1].push(item)
+    }
+    return result;
+  },
+    // Second parameter to reduce is initial state of accumulator, e.g. the two arrays we're building
+    [[], []])
+}

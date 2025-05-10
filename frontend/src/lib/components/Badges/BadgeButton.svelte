@@ -4,17 +4,17 @@
   import Badge from './Badge.svelte';
 
   // Add more as necessary. Should be as limited as possible to maximize consistency.
-  type BadgeButtonVariant = 'badge-success' | 'badge-warning' | 'badge-neutral' | undefined;
+  type BadgeButtonVariant = 'badge-success' | 'badge-warning' | 'badge-neutral';
   interface Props {
     variant?: BadgeButtonVariant;
-    icon?: IconString | undefined;
-    hoverIcon?: IconString | undefined;
+    icon?: IconString;
+    hoverIcon?: IconString;
     disabled?: boolean;
     onclick?: () => void;
     children?: Snippet;
   }
 
-  let {
+  const {
     variant = undefined,
     icon = undefined,
     hoverIcon = undefined,

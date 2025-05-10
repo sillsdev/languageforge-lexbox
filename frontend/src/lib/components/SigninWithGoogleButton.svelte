@@ -5,7 +5,7 @@
     text?: 'sign_in_with_google' | 'register_with_google';
   }
 
-  let { href, text = 'sign_in_with_google' }: Props = $props();
+  const { href, text = 'sign_in_with_google' }: Props = $props();
 </script>
 
 <!--
@@ -133,7 +133,7 @@
 
   .gsi-material-button .gsi-material-button-state {
     -webkit-transition: opacity 0.218s;
-    transition: opacity .218s;
+    transition: opacity 0.218s;
     bottom: 0;
     left: 0;
     opacity: 0;

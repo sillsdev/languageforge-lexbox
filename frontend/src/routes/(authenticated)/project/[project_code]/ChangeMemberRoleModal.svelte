@@ -11,7 +11,7 @@
     projectId: string;
   }
 
-  let { projectId }: Props = $props();
+  const { projectId }: Props = $props();
 
   const schema = z.object({
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]),

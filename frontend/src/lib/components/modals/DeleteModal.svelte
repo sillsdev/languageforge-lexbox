@@ -10,7 +10,7 @@
     children?: Snippet;
   }
 
-  let { entityName, isRemoveDialog = false, children }: Props = $props();
+  const { entityName, isRemoveDialog = false, children }: Props = $props();
   let modal: ConfirmModal | undefined = $state();
 
   export async function prompt(deleteCallback: () => Promise<ErrorMessage>): Promise<boolean> {

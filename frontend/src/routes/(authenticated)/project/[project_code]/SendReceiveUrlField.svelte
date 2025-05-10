@@ -9,7 +9,7 @@
     projectCode: string;
   }
 
-  let { projectCode }: Props = $props();
+  const { projectCode }: Props = $props();
 
   let projectHgUrl = $derived(import.meta.env.DEV ? `http://hg.${page.url.hostname}/${projectCode}`
     : page.url.host.includes('develop') || page.url.host.includes('.dev') ? `https://hg-develop.lexbox.org/${projectCode}`

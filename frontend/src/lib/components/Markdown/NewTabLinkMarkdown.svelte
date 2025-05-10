@@ -6,7 +6,7 @@
     md: string;
   }
 
-  let { md }: Props = $props();
+  const { md }: Props = $props();
   const renderer: ComponentsMap = { a: NewTabLinkRenderer };
 </script>
 

@@ -15,7 +15,7 @@
     project: Project;
   }
 
-  let { project }: Props = $props();
+  const { project }: Props = $props();
   const schema = z.object({
     usernameOrEmail: z
       .string()
@@ -94,8 +94,8 @@
       bind:value={$form!.usernameOrEmail}
       error={errors.usernameOrEmail}
       autofocus
-      on:selectedUserChange={({ detail }) => {
-        selectedUserId = detail?.id;
+      onSelectedUserChange={(user) => {
+        selectedUserId = user?.id;
       }}
       exclude={project.users.map((m) => m.user.id)}
     />

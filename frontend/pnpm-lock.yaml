@@ -131,6 +131,9 @@ importers:
       mjml:
         specifier: ^4.15.3
         version: 4.15.3
+      runed:
+        specifier: ^0.26.0
+        version: 0.26.0(svelte@5.28.2)
       set-cookie-parser:
         specifier: ^2.7.1
         version: 2.7.1
@@ -5332,6 +5335,11 @@ packages:
     peerDependencies:
       svelte: ^5.7.0
 
+  runed@0.26.0:
+    resolution: {integrity: sha512-qWFv0cvLVRd8pdl/AslqzvtQyEn5KaIugEernwg9G98uJVSZcs/ygvPBvF80LA46V8pwRvSKnaVLDI3+i2wubw==}
+    peerDependencies:
+      svelte: ^5.7.0
+
   rxjs@6.6.7:
     resolution: {integrity: sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==}
     engines: {npm: '>=2.0.0'}
@@ -8970,7 +8978,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/debug@4.1.12)(@types/node@22.15.3)(@vitest/ui@3.0.5)(happy-dom@17.1.0)(jiti@2.4.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/debug@4.1.12)(@types/node@20.17.32)(@vitest/ui@3.0.5)(happy-dom@17.1.0)(jiti@2.4.2)(yaml@2.7.1)
 
   '@vitest/utils@3.0.5':
     dependencies:
@@ -12134,6 +12142,11 @@ snapshots:
       svelte: 5.28.2
 
   runed@0.24.1(svelte@5.28.2):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.28.2
+
+  runed@0.26.0(svelte@5.28.2):
     dependencies:
       esm-env: 1.2.2
       svelte: 5.28.2

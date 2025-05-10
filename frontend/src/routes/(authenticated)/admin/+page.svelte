@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import t, { number } from '$lib/i18n';
@@ -25,12 +23,13 @@
   import { browser } from '$app/environment';
   import UserTable from '$lib/components/Users/UserTable.svelte';
   import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
+  import { untrack } from 'svelte';
 
   interface Props {
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let projects = $derived(data.projects);
   let draftProjects = $derived(data.draftProjects);
   let userData = $derived(data.users);
@@ -70,10 +69,12 @@
 
   let hasActiveFilter = $state(false);
   let lastLoadUsedActiveFilter = $state(false);
-  run(() => {
-    if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;
+  // Not using $derived here because we want lastLoadUsedActiveFilter to only change value when $loadingUsers becomes false
+  $effect(() => {
+    if (!$loadingUsers) {
+      lastLoadUsedActiveFilter = untrack(() => hasActiveFilter);
+    }
   });
-
   let users = $derived($userData?.items ?? []);
   let filteredUserCount = $derived($userData?.totalCount ?? 0);
   let shownUsers = $derived(lastLoadUsedActiveFilter ? users : users.slice(0, 10));
@@ -136,7 +137,7 @@
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
-      <AdminTabs activeTab="users" on:clickTab={(event) => ($queryParamValues.tab = event.detail)}>
+      <AdminTabs activeTab="users" onClickTab={(tab) => ($queryParamValues.tab = tab)}>
         <div class="flex gap-4 justify-between grow">
           <div class="flex gap-4 items-center">
             {$t('admin_dashboard.user_table_title')}
@@ -177,9 +178,9 @@
       <div class="overflow-x-visible @container scroll-shadow">
         <UserTable
           {shownUsers}
-          on:openUserModal={(event) => userModal?.open(event.detail)}
-          on:editUser={(event) => openModal(event.detail)}
-          on:filterProjectsByUser={(event) => filterProjectsByUser(event.detail)}
+          onOpenUserModal={(user) => userModal?.open(user)}
+          onEditUser={openModal}
+          onFilterProjectsByUser={filterProjectsByUser}
         />
         <RefineFilterMessage total={filteredUserCount} showing={shownUsers.length} />
       </div>
@@ -189,9 +190,5 @@
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
   <UserModal bind:this={userModal} />
-  <CreateUserModal
-    handleSubmit={createGuestUserByAdmin}
-    on:submitted={(e) => onUserCreated(e.detail)}
-    bind:this={createUserModal}
-  />
+  <CreateUserModal handleSubmit={createGuestUserByAdmin} onSubmitted={onUserCreated} bind:this={createUserModal} />
 </main>

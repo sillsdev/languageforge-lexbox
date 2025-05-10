@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
@@ -21,13 +19,13 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let user = $derived(data.account);
   let deleteModal: DeleteUserModal | undefined = $state();
 
   const emailResult = useEmailResult();
   const requestedEmail = useRequestedEmail();
-  run(() => {
+  $effect(() => {
     if (data.emailResult) emailResult.set(data.emailResult);
   });
 
@@ -75,8 +73,8 @@
 
   // This is a bit of a hack to make sure that the email field is not required if the user has no email
   // even if the user edited the email field
-  run(() => {
-    if (!$form.email && $user && !$user.email) $form.email = null;
+  $effect(() => {
+    if ($form && !$form.email && $form.email !== null && $user && !$user.email) $form.email = null;
   });
 
   onMount(() => {

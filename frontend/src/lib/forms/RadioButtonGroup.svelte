@@ -15,11 +15,11 @@
     label: string; // This is for the group as a whole
     value?: string; // Should be used with `bind:value={localVariable}`
     id?: string;
-    error?: string | string[] | undefined;
-    description?: string | undefined;
-    variant?: 'radio-warning' | undefined;
-    labelColor?: 'text-warning' | undefined;
-    divClass?: string | undefined;
+    error?: string | string[];
+    description?: string;
+    variant?: 'radio-warning';
+    labelColor?: 'text-warning';
+    divClass?: string;
   }
 
   let {
@@ -27,11 +27,11 @@
     label,
     value = $bindable(''),
     id = randomFormId(),
-    error = undefined,
-    description = undefined,
-    variant = undefined,
-    labelColor = undefined,
-    divClass = undefined,
+    error,
+    description,
+    variant,
+    labelColor,
+    divClass,
   }: Props = $props();
 </script>
 

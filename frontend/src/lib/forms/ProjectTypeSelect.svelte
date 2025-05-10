@@ -6,16 +6,11 @@
 
   interface Props extends Omit<SelectProps, 'label'> {
     value: ProjectType | undefined;
-    undefinedOptionLabel?: string | undefined;
+    undefinedOptionLabel?: string;
     includeUnknown?: boolean;
   }
 
-  let {
-    value = $bindable(),
-    undefinedOptionLabel = undefined,
-    includeUnknown = false,
-    ...rest
-  }: Props = $props();
+  let { value = $bindable(), undefinedOptionLabel, includeUnknown = false, ...rest }: Props = $props();
   const types = [
     ProjectType.FlEx,
     ProjectType.WeSay,

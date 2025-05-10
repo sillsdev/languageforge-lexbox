@@ -8,7 +8,7 @@
     isDefault: boolean;
   }
 
-  let { tag, isActive, isDefault }: Props = $props();
+  const { tag, isActive, isDefault }: Props = $props();
 
   let variant: BadgeVariant = $derived(
     isActive ? (isDefault ? 'badge-primary' : 'badge-info') : 'badge-neutral'

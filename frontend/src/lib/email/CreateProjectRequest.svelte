@@ -13,7 +13,7 @@
         user: { name: string; email: string };
     }
 
-    let {
+    const {
         name,
         baseUrl,
         project,

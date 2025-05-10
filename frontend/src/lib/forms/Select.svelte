@@ -9,9 +9,9 @@
     value: string | undefined;
     id?: string;
     autofocus?: boolean;
-    error?: string | string[] | undefined;
+    error?: string | string[];
     disabled?: boolean;
-    helpLink?: HelpLink | undefined;
+    helpLink?: HelpLink;
     children?: Snippet;
   }
 
@@ -20,9 +20,9 @@
     value = $bindable(),
     id = randomFormId(),
     autofocus = false,
-    error = undefined,
+    error,
     disabled = false,
-    helpLink = undefined,
+    helpLink,
     children,
   }: SelectProps = $props();
 </script>

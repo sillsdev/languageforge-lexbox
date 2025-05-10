@@ -6,7 +6,7 @@
     role: OrgRole;
   }
 
-  let { role }: Props = $props();
+  const { role }: Props = $props();
 
   const roles: Record<OrgRole, string | undefined> = {
     [OrgRole.Admin]: $t('org_role.admin'),

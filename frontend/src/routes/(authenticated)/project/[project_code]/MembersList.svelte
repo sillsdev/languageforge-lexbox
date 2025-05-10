@@ -11,15 +11,12 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { run } from 'svelte/legacy';
-
   import t from '$lib/i18n';
   import { BadgeList, MemberBadge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import { Button } from '$lib/forms';
-  import { createEventDispatcher } from 'svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { useNotifications } from '$lib/notify';
   import type { UUID } from 'crypto';
@@ -34,9 +31,11 @@
     canViewOtherMembers: boolean;
     extraButtons?: Snippet;
     children?: Snippet;
+    onOpenUserModal: (member: Member) => void;
+    onDeleteProjectUser: (member: Member) => void;
   }
 
-  let {
+  const {
     members = [],
     canManageMember,
     canManageList,
@@ -44,24 +43,20 @@
     canViewOtherMembers,
     extraButtons,
     children,
+    onOpenUserModal,
+    onDeleteProjectUser,
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    openUserModal: Member;
-    deleteProjectUser: Member;
-  }>();
 
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = $state(false);
 
   let memberSearch = $state('');
-  let filteredMembers: Member[] = $state(members);
-  run(() => {
+  let filteredMembers: Member[] = $derived.by(() => {
     const search = memberSearch?.trim().toLowerCase();
     if (!search) {
-      filteredMembers = members;
+      return members;
     } else {
-      filteredMembers = members.filter(
+      return members.filter(
         (m) =>
           m.user.name.toLowerCase().includes(search) ||
           m.user.email?.toLowerCase().includes(search) ||
@@ -131,7 +126,7 @@
           <ul class="menu">
             <AdminContent>
               <li>
-                <button onclick={() => dispatch('openUserModal', member)}>
+                <button onclick={() => onOpenUserModal(member)}>
                   <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
                   {$t('project_page.view_user_details')}
                 </button>
@@ -144,7 +139,7 @@
               </button>
             </li>
             <li>
-              <button class="text-error" onclick={() => dispatch('deleteProjectUser', member)}>
+              <button class="text-error" onclick={() => onDeleteProjectUser(member)}>
                 <TrashIcon />
                 {$t('project_page.remove_user')}
               </button>

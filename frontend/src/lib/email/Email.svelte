@@ -9,7 +9,7 @@
     children?: Snippet;
   }
 
-  let { subject, name, children }: Props = $props();
+  const { subject, name, children }: Props = $props();
 </script>
 
 <Subject value={subject} />

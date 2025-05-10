@@ -6,7 +6,7 @@
     locked: boolean;
   }
 
-  let { locked }: Props = $props();
+  const { locked }: Props = $props();
 </script>
 
 {#if locked}

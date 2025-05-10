@@ -17,7 +17,7 @@
     user: LexAuthUser | null;
   }
 
-  let { user }: Props = $props();
+  const { user }: Props = $props();
   let loggedIn = $derived(!!user);
 </script>
 

@@ -1,11 +1,11 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type { PageData } from './$types';
 
   interface Props {
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
 
 </script>
 

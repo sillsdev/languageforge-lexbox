@@ -10,7 +10,7 @@
     orgId: string;
   }
 
-  let { orgId }: Props = $props();
+  const { orgId }: Props = $props();
 
   const schema = z.object({
     role: z.enum([OrgRole.User, OrgRole.Admin]),

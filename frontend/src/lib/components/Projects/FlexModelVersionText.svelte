@@ -22,12 +22,11 @@
 </script>
 
 <script lang="ts">
-
   interface Props {
     modelVersion: number;
   }
 
-  let { modelVersion }: Props = $props();
+  const { modelVersion }: Props = $props();
   let fwModel = $derived(versionLookupTable[modelVersion] ?? 'Unknown FieldWorks version');
 </script>
 

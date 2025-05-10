@@ -6,7 +6,7 @@
     policy: number | RetentionPolicy;
   }
 
-  let { policy }: Props = $props();
+  const { policy }: Props = $props();
 
   const policies: Record<number | RetentionPolicy, string | undefined> = {
     1: $t('retention_policy.language_project'),

@@ -9,7 +9,7 @@
     project: CreateProjectInput;
   }
 
-  let { name, baseUrl, project }: Props = $props();
+  const { name, baseUrl, project }: Props = $props();
   let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(project.code)}`, baseUrl);
   let projectName = project.name;
 </script>

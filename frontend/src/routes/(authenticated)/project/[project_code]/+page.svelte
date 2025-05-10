@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { Badge, BadgeButton, BadgeList } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
@@ -65,19 +63,16 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let user = $derived(data.user);
   let projectStore = data.project;
   let project = $derived($projectStore);
   let changesetStore = $derived(data.changesets);
-  let isEmpty: boolean = $state(false);
-  run(() => {
-    isEmpty = project?.lastCommit == null;
-  });
-  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
-  run(() => {
-    if (!$changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
-  });
+  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the `$changesetStore.fetching` part
+  // and just let this logic be `project?.lastCommit == null`
+  const isEmpty: boolean = $derived(
+    !$changesetStore.fetching ? $changesetStore.changesets.length === 0 : project?.lastCommit == null,
+  );
   let members = $derived(
     project.users.sort((a, b) => {
       if (a.role !== b.role) {
@@ -576,7 +571,7 @@
       <OrgList
         {canManage}
         organizations={project.organizations}
-        on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.orgId, event.detail.orgName)}
+        onRemoveProjectFromOrg={(org) => removeProjectFromOrg(org.orgId, org.orgName)}
       >
         {#snippet extraButtons()}
           {#if canManage}
@@ -597,8 +592,8 @@
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
         {canViewOtherMembers}
-        on:openUserModal={(event) => userModal?.open(event.detail.user)}
-        on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
+        onOpenUserModal={(member) => userModal?.open(member.user)}
+        onDeleteProjectUser={deleteProjectUser}
       >
         {#snippet extraButtons()}
           <BadgeButton

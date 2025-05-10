@@ -15,7 +15,7 @@
     org: Org;
   }
 
-  let { user, org }: Props = $props();
+  const { user, org }: Props = $props();
 
   const { notifySuccess } = useNotifications();
 

@@ -10,15 +10,7 @@
     headerContent?: Snippet;
   }
 
-  let {
-    titleText,
-    banner,
-    actions,
-    title,
-    headerContent,
-    children,
-    ...rest
-  }: Props = $props();
+  const { titleText, banner, actions, title, headerContent, children, ...rest }: Props = $props();
 </script>
 
 <Page {...rest} title={titleText}>

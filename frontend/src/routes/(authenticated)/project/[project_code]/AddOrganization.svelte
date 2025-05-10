@@ -13,7 +13,7 @@
     userIsAdmin: boolean;
   }
 
-  let { projectId, userIsAdmin }: Props = $props();
+  const { projectId, userIsAdmin }: Props = $props();
   let orgList: Org[] = $state([]);
 
   const schema = z.object({

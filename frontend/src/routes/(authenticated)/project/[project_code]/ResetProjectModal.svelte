@@ -116,7 +116,7 @@
 <div class="reset-modal contents">
   <Modal
     bind:this={modal}
-    on:close={onClose}
+    {onClose}
     showCloseButton={false}
     closeOnClickOutside={uploadStatus !== UploadStatus.Uploading && !changingSteps && !$submitting}
   >
@@ -160,12 +160,12 @@
       </div>
       <TusUpload
         bind:this={tusUpload}
-        on:status={(e) => (uploadStatus = e.detail)}
+        onStatus={(status) => (uploadStatus = status)}
         endpoint={'/api/project/upload-zip/' + code}
         inputLabel={$t('select_zip')}
         inputDescription={$t('should_only_contain_hg')}
         accept="application/zip"
-        on:uploadComplete={uploadComplete}
+        onUploadComplete={uploadComplete}
       />
     {:else if currentStep === ResetSteps.Finished}
       <div class="text-center">

@@ -19,7 +19,7 @@
     password?: string;
   }
 
-  let { bad = 0, poor = 2, onScoreUpdated, scoreOverride, password = '' }: Props = $props();
+  const { bad = 0, poor = 2, onScoreUpdated, scoreOverride, password = '' }: Props = $props();
 
   let strength = $derived(zxcvbn(password));
   let score = $derived(scoreOverride ?? strength.score);

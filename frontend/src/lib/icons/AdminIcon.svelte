@@ -3,7 +3,7 @@
     size?: 'text-2xl' | 'text-xl';
   }
 
-  let { size = 'text-2xl' }: Props = $props();
+  const { size = 'text-2xl' }: Props = $props();
 </script>
 
 <span class="i-mdi-security {size}"></span>

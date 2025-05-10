@@ -1,7 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { run } from 'svelte/legacy';
-
   import { getStores, navigating } from '$app/stores';
   import '$lib/app.postcss';
   import { initErrorStore } from '$lib/error';
@@ -22,11 +20,11 @@
     children?: Snippet;
   }
 
-  let { data, children }: Props = $props();
+  const { data, children }: Props = $props();
   const { page, updated } = getStores();
 
   const { t, locale } = initI18n(data.activeLocale);
-  run(() => {
+  $effect(() => {
     if (data.activeLocale) locale.set(data.activeLocale);
   });
 
@@ -34,10 +32,10 @@
   setContext('breadcrumb-store', writable([] as Element[]));
 
   const error = initErrorStore($page.error);
-  run(() => {
+  $effect(() => {
     $error = $page.error;
   });
-  run(() => {
+  $effect(() => {
     if (browser && $updated) {
       notifyWarning($t('notifications.update_detected'), Duration.Long);
     }

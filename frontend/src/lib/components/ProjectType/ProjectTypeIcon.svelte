@@ -29,7 +29,7 @@
     size?: string;
   }
 
-  let { type, size = 'h-6' }: Props = $props();
+  const { type, size = 'h-6' }: Props = $props();
 
   let src = $derived(getProjectTypeIcon(type));
 </script>

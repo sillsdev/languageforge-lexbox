@@ -5,7 +5,7 @@
     children?: Snippet;
   }
 
-  let { grid = false, children }: Props = $props();
+  const { grid = false, children }: Props = $props();
 </script>
 
 <span class:grid class:inline-flex={!grid} class="badge-list flex-wrap gap-3 justify-items-stretch">

@@ -5,7 +5,7 @@
     title: string;
   }
 
-  let { title }: Props = $props();
+  const { title }: Props = $props();
 </script>
 
 <SetTitle {title} />

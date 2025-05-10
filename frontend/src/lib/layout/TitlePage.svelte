@@ -8,7 +8,7 @@
     children?: Snippet;
   }
 
-  let { title, children }: Props = $props();
+  const { title, children }: Props = $props();
 </script>
 
 <Page {title}>

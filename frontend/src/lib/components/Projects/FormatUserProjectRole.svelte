@@ -6,7 +6,7 @@
     role: ProjectRole;
   }
 
-  let { role }: Props = $props();
+  const { role }: Props = $props();
 
   const roles: Record<ProjectRole, string | undefined> = {
     [ProjectRole.Manager]: $t('project_role.manager'),

@@ -11,7 +11,7 @@
     children?: Snippet;
   }
 
-  let { title = undefined, wide = false, setBreadcrumb = true, header, children }: Props = $props();
+  const { title = undefined, wide = false, setBreadcrumb = true, header, children }: Props = $props();
 
   let maxWidth = $derived(wide ? 'md:max-w-4xl' : 'md:max-w-2xl');
 </script>

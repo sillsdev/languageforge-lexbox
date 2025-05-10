@@ -9,7 +9,7 @@
     projectCode: string;
   }
 
-  let {
+  const {
     name,
     baseUrl,
     projectName,

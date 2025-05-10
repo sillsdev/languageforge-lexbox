@@ -14,7 +14,7 @@
     user: LexAuthUser;
   }
 
-  let { serverVersion, apiVersion, user }: Props = $props();
+  const { serverVersion, apiVersion, user }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/menu  -->

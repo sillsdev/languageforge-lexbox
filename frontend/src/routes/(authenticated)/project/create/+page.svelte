@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { goto } from '$app/navigation';
   import {
     Checkbox,
@@ -29,9 +27,9 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived as derivedStore, writable, type Readable } from 'svelte/store';
+  import { derived as derivedStore, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -41,7 +39,7 @@
   import { projectUrl } from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
 
-  let { data } = $props();
+  const { data } = $props();
   let user = $derived(data.user);
   let requestingUser: typeof data.requestingUser = $state();
   let myOrgs = $derived(data.myOrgs ?? []);
@@ -101,7 +99,6 @@
     }
   });
 
-  const asyncCodeError = writable<string | undefined>();
   const codeStore = derivedStore(form, (f) => f.code);
   const codeIsAvailable = deriveAsync(
     codeStore,
@@ -112,9 +109,11 @@
     true,
     true,
   );
-  run(() => {
-    $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
-  });
+  const asyncCodeError = derivedStore(
+    codeIsAvailable,
+    (avail) => (avail ? undefined : $t('project.create.code_exists')),
+    $t('project.create.code_exists'),
+  );
   const codeErrors = derivedStore([errors, asyncCodeError], () => [
     ...new Set(concatAll($errors.code, $asyncCodeError)),
   ]);
@@ -205,14 +204,13 @@
     );
   });
 
-  run(() => {
-    if (!$form.customCode) {
-      const type = $form.type;
-      const retentionPolicy = $form.retentionPolicy;
-      const languageCode = $form.languageCode;
-      form.update(
+  const calculatedCode = $derived(buildProjectCode($form.languageCode, $form.type, $form.retentionPolicy));
+  // TODO: This causes an infinite loop when converted to $effect. Need to do something clever with superforms to avoid the infinite loop.
+  $effect(() => {
+    if (!untrack(() => $form).customCode) {
+      untrack(() => form).update(
         (form) => {
-          form.code = buildProjectCode(languageCode, type, retentionPolicy);
+          form.code = calculatedCode;
           return form;
         },
         { taint: false },
@@ -282,7 +280,7 @@
               canManage
               member={{ ...requestingUser, role: ProjectRole.Manager }}
               type="new"
-              on:action={() => (requestingUser = undefined)}
+              onAction={() => (requestingUser = undefined)}
             />
           {:else}
             <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>

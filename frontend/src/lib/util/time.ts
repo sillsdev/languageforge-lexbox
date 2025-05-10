@@ -11,7 +11,7 @@ export async function delay<T>(ms: Duration | number = Duration.Default): Promis
   return new Promise<T>(resolve => setTimeout(resolve, ms));
 }
 
-const DEFAULT_DEBOUNCE_TIME = 400;
+export const DEFAULT_DEBOUNCE_TIME = 400;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Debouncer<P extends any[]> {

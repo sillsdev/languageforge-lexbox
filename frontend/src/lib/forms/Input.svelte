@@ -7,29 +7,29 @@
   interface Props {
     id?: string;
     label: string;
-    description?: string | undefined;
-    value?: string | undefined | null;
+    description?: string;
+    value?: string | null;
     type?: 'text' | 'email' | 'password';
-    autofocus?: true | undefined;
+    autofocus?: true;
     readonly?: boolean;
-    error?: string | string[] | undefined;
+    error?: string | string[];
     placeholder?: string;
     // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-    autocomplete?: 'new-password' | 'current-password' | undefined;
+    autocomplete?: 'new-password' | 'current-password';
   }
 
   let {
     id = randomFormId(),
     label,
-    description = undefined,
-    value = $bindable(undefined),
+    description,
+    value = $bindable(),
     type = 'text',
-    autofocus = undefined,
+    autofocus,
     readonly = false,
-    error = undefined,
+    error,
     placeholder = '',
-    autocomplete = undefined,
+    autocomplete,
   }: Props = $props();
 
   let currentType = $state(type);
@@ -47,7 +47,6 @@
       <PlainInput
         {id}
         bind:value
-        on:input
         type={currentType}
         {autofocus}
         {readonly}
@@ -65,7 +64,7 @@
       >
     </div>
   {:else}
-    <PlainInput {id} bind:value on:input {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
+    <PlainInput {id} bind:value {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
   {/if}
 </FormField>
 

@@ -8,7 +8,7 @@
     adminEmail: string;
   }
 
-  let { name, adminName, adminEmail }: Props = $props();
+  const { name, adminName, adminEmail }: Props = $props();
 </script>
 
 <Email subject={$t('emails.new_admin.subject', {adminName})} {name}>

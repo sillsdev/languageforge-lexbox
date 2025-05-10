@@ -11,7 +11,7 @@
     baseUrl: string;
   }
 
-  let {
+  const {
     managerName,
     requestingUserName,
     requestingUserId,

@@ -9,7 +9,7 @@
     children?: Snippet;
   }
 
-  let { flag, children }: Props = $props();
+  const { flag, children }: Props = $props();
 </script>
 
 <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-argument -->

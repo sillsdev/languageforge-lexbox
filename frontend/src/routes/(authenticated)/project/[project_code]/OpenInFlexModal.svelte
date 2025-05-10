@@ -11,7 +11,7 @@
     project: Project;
   }
 
-  let { project }: Props = $props();
+  const { project }: Props = $props();
   let modal: Modal | undefined = $state();
 
   export async function open(): Promise<void> {

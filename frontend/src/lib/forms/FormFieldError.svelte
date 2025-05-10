@@ -4,7 +4,7 @@
     id: string;
   }
 
-  let { error, id }: Props = $props();
+  const { error, id }: Props = $props();
 </script>
 
 {#if error}

@@ -6,7 +6,7 @@
     showing: number;
   }
 
-  let { total, showing }: Props = $props();
+  const { total, showing }: Props = $props();
 </script>
 
 {#if showing < total}

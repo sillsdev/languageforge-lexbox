@@ -3,7 +3,7 @@
     value?: string;
   }
 
-  let { value = '' }: Props = $props();
+  const { value = '' }: Props = $props();
 </script>
 
 <svelte:head>
