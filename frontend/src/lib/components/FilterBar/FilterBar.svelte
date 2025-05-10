@@ -18,6 +18,7 @@
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
+  import { Previous } from 'runed';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -89,12 +90,14 @@
   let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
   let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
   let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
+  let prevActiveFilters = new Previous(() => activeFilters, []);
   $effect(() => {
     hasActiveFilter = activeFilters.length > 0;
   });
   $effect(() => {
-    // TODO: Check whether this fires too often
-    onFiltersChanged?.(activeFilters);
+    if (JSON.stringify(prevActiveFilters.current) !== JSON.stringify(activeFilters)) {
+      onFiltersChanged?.(activeFilters);
+    }
   });
 </script>
 
