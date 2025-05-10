@@ -23,6 +23,7 @@
   import { browser } from '$app/environment';
   import UserTable from '$lib/components/Users/UserTable.svelte';
   import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
+  import { untrack } from 'svelte';
 
   interface Props {
     data: PageData;
@@ -67,7 +68,13 @@
   });
 
   let hasActiveFilter = $state(false);
-  let lastLoadUsedActiveFilter = $derived($loadingUsers ? false : hasActiveFilter);
+  let lastLoadUsedActiveFilter = $state(false);
+  // Not using $derived here because we want lastLoadUsedActiveFilter to only change value when $loadingUsers becomes false
+  $effect(() => {
+    if (!$loadingUsers) {
+      lastLoadUsedActiveFilter = untrack(() => hasActiveFilter);
+    }
+  });
   let users = $derived($userData?.items ?? []);
   let filteredUserCount = $derived($userData?.totalCount ?? 0);
   let shownUsers = $derived(lastLoadUsedActiveFilter ? users : users.slice(0, 10));
