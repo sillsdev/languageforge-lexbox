@@ -14,6 +14,7 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { allPossibleFlags } from '$lib/user';
   import AdminContent from '$lib/layout/AdminContent.svelte';
+  import { untrack } from 'svelte';
 
   interface Props {
     currUser: LexAuthUser;
@@ -165,7 +166,7 @@
       />
       <PasswordStrengthMeter
         onScoreUpdated={(score) => {
-          if ($form) $form.score = score;
+          if (untrack(() => $form)) $form!.score = score;
         }}
         password={$form!.password}
       />
