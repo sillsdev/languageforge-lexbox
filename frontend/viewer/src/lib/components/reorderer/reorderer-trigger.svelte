@@ -14,7 +14,6 @@
 <script lang="ts">
   import {Icon} from '$lib/components/ui/icon';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-  import {pickIcon} from './icon-util';
   import {buttonVariants} from '../ui/button';
   import type {IconClass} from '$lib/icon-class';
   import {useReordererTrigger} from './reorderer.svelte';
@@ -23,6 +22,14 @@
     child,
     ...props
   } : ReordererTriggerProps = $props();
+
+  function pickIcon(direction: 'horizontal' | 'vertical', first = false, last = false): IconClass {
+    if (direction === 'horizontal') {
+      return first ? 'i-mdi-arrow-right-bold' : last ? 'i-mdi-arrow-left-bold' : 'i-mdi-arrow-left-right-bold';
+    } else {
+      return first ? 'i-mdi-arrow-down-bold' : last ? 'i-mdi-arrow-up-bold' : 'i-mdi-arrow-up-down-bold';
+    }
+  }
 
   const itemListState = useReordererTrigger();
   const {first, last, direction} = $derived(itemListState);
