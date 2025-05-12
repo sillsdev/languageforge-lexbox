@@ -154,7 +154,9 @@
         <div class="col-span-full flex items-center py-2 mb-1 sticky top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll">
           <h2 class="text-lg text-muted-foreground">{pt($t`Sense`, $t`Meaning`, $currentView)} {i + 1}</h2>
           <hr class="grow border-t-2 mx-4">
-          <EntityListItemActions {i} items={entry.senses.map(sense => writingSystemService.firstDefOrGlossVal(sense))}
+          <EntityListItemActions {i}
+              items={entry.senses}
+              getDisplayName={(sense) => writingSystemService.firstDefOrGlossVal(sense)}
               {readonly}
               onmove={(newIndex) => moveSense(sense, newIndex)}
               ondelete={() => deleteSense(sense)} id={sense.id} />
@@ -175,7 +177,8 @@
                   -->
                   <hr class="grow mx-4">
                   <EntityListItemActions i={j} {readonly}
-                                        items={sense.exampleSentences.map(example => writingSystemService.firstSentenceOrTranslationVal(example))}
+                                        items={sense.exampleSentences}
+                                        getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
                                         onmove={(newIndex) => moveExample(sense, example, newIndex)}
                                         ondelete={() => deleteExample(sense, example)}
                                         id={example.id}

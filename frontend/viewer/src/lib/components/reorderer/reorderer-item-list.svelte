@@ -1,12 +1,5 @@
 <script lang="ts" module>
-  import {type Snippet} from 'svelte';
-
-  export type ReordererItemListProps<T> = Omit<HTMLAttributes<HTMLElement>, 'onchange'> & {
-    item: T;
-    items: T[];
-    getDisplayName: (item: T) => string | undefined;
-    onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
-    child?: Snippet<[{ props: Record<string, unknown>, itemList: Snippet }]>;
+  export type ReordererItemListProps = Omit<HTMLAttributes<HTMLElement>, 'onchange'> & {
     id?: string;
   };
 </script>
@@ -18,15 +11,14 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {mergeProps} from 'bits-ui';
   import {cn} from '$lib/utils';
+  import {useReordererItemList} from './reorderer.svelte';
 
   let {
-    item,
-    items = $bindable<T[]>(),
-    getDisplayName,
-    onchange,
-    child,
     ...rest
-  } : ReordererItemListProps<T> = $props();
+  } : ReordererItemListProps = $props();
+
+  const itemListState = useReordererItemList<T>();
+  const {item, items, getDisplayName, onchange} = $derived(itemListState);
 
   const currIndex = $derived(items.indexOf(item));
   let displayItems = $derived(items);
@@ -40,7 +32,7 @@
   });
 
   function move(): void {
-    items = displayItems;
+    itemListState.items = displayItems;
     onchange?.(items, currIndex, displayIndex);
   }
 
@@ -51,7 +43,7 @@
   }, rest));
 </script>
 
-{#snippet itemList()}
+<DropdownMenu.Group {...mergedProps}>
   {#each displayItems as item, i}
     {@const reorderName = getDisplayName(item) || '–'}
     <DropdownMenu.Item class="grid grid-cols-subgrid col-span-full justify-items-start items-center cursor-pointer"
@@ -67,12 +59,4 @@
       {/if}
     </DropdownMenu.Item>
   {/each}
-{/snippet}
-
-{#if child}
-  {@render child({ props: mergedProps, itemList })}
-{:else}
-  <DropdownMenu.Group {...mergedProps}>
-    {@render itemList()}
-  </DropdownMenu.Group>
-{/if}
+</DropdownMenu.Group>

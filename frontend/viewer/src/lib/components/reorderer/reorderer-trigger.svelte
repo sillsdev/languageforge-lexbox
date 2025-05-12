@@ -2,12 +2,12 @@
   import type {Snippet} from 'svelte';
   import type {HTMLAttributes} from 'svelte/elements';
 
-  export type ReordererTriggerProps = HTMLAttributes<HTMLElement> & {
-    first: boolean;
-    last: boolean;
-    child?: Snippet<[{ content: Snippet, props: HTMLAttributes<HTMLElement> }]>;
+  type TriggerHTMLAttributes = HTMLAttributes<HTMLElement> & {
     id?: string;
-    direction?: 'horizontal' | 'vertical';
+  };
+
+  export type ReordererTriggerProps = TriggerHTMLAttributes & {
+    child?: Snippet<[{ arrowIcon: IconClass, props: TriggerHTMLAttributes }]>;
   };
 </script>
 
@@ -16,24 +16,23 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {pickIcon} from './icon-util';
   import {buttonVariants} from '../ui/button';
+  import type {IconClass} from '$lib/icon-class';
+  import {useReordererTrigger} from './reorderer.svelte';
 
   let {
-    first,
-    last,
     child,
-    direction = 'horizontal',
     ...props
   } : ReordererTriggerProps = $props();
+
+  const itemListState = useReordererTrigger();
+  const {first, last, direction} = $derived(itemListState);
+  const arrowIcon = $derived(pickIcon(direction, first, last));
 </script>
 
-{#snippet content()}
-  <Icon icon={pickIcon(direction, first, last)} />
-{/snippet}
-
 {#if child}
-  {@render child({ content, props })}
+  {@render child({ arrowIcon, props })}
 {:else}
   <DropdownMenu.Trigger class={buttonVariants({ variant: 'secondary', size: 'icon' })} {...props}>
-    {@render content()}
+    <Icon icon={arrowIcon} />
   </DropdownMenu.Trigger>
 {/if}

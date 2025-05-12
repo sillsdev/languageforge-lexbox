@@ -1,5 +1,6 @@
 <script lang="ts" module>
-  import {type Snippet} from 'svelte';
+  import type {Snippet} from 'svelte';
+  import {Context} from 'runed';
 
   export type ReordererProps<T> = {
     item: T;
@@ -7,14 +8,41 @@
     direction?: 'horizontal' | 'vertical';
     getDisplayName: (item: T) => string | undefined;
     onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
-    swapper?: ReordererSwapperProps<T>['child'];
     children?: Snippet<[{first: boolean, last: boolean}]>;
   };
+
+  type ReordererRootStateProps<T = unknown> = {
+    item: T;
+    items: T[];
+    first: boolean;
+    last: boolean;
+    direction: 'horizontal' | 'vertical';
+    getDisplayName: (item: T) => string | undefined;
+    onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
+  };
+
+  const reordererRootContext = new Context<ReordererRootStateProps>('Reorderer.Root');
+
+  export function useReordererRoot<T>(props: ReordererRootStateProps<T>): ReordererRootStateProps<T> {
+    reordererRootContext.set(props as ReordererRootStateProps);
+    return props;
+  }
+
+  type ReordererItemListStateProps<T> = ReordererRootStateProps<T>;
+
+  export function useReordererItemList<T>(): ReordererItemListStateProps<T> {
+    return reordererRootContext.get() as ReordererItemListStateProps<T>;
+  }
+
+  type ReordererTriggerStateProps<T> = ReordererRootStateProps<T>;
+
+  export function useReordererTrigger<T = unknown>(): ReordererTriggerStateProps<T> {
+    return reordererRootContext.get() as ReordererTriggerStateProps<T>;
+  }
 </script>
 
 <script lang="ts" generics="T">
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-  import ReordererSwapper, {type ReordererSwapperProps} from './reorderer-swapper.svelte';
   import ReordererTrigger from './reorderer-trigger.svelte';
   import ReordererItemList from './reorderer-item-list.svelte';
 
@@ -23,7 +51,6 @@
     items = $bindable(),
     getDisplayName,
     onchange,
-    swapper,
     children,
     direction = 'horizontal',
   } : ReordererProps<T> = $props();
@@ -32,19 +59,28 @@
   const count = $derived(items.length);
   const first = $derived(index === 0);
   const last = $derived(index === count - 1);
+
+  const rootStateProps = $state({
+    item,
+    get items() { return items; },
+    set items(value) { items = value; },
+    get first() { return first; },
+    get last() { return last; },
+    direction,
+    getDisplayName,
+    onchange,
+  });
+
+  useReordererRoot(rootStateProps);
 </script>
 
-{#if count > 1}
-  {#if count === 2}
-    <ReordererSwapper child={swapper} {first} {items} {onchange} {direction} />
-  {:else if children}
-    {@render children({first, last})}
-  {:else}
+{#if children}
+  {@render children({first, last})}
+{:else}
   <DropdownMenu.Root>
-    <ReordererTrigger {first} {last} {direction} />
+    <ReordererTrigger />
     <DropdownMenu.Content>
-      <ReordererItemList {items} {item} {getDisplayName} {onchange} />
+      <ReordererItemList />
     </DropdownMenu.Content>
   </DropdownMenu.Root>
-  {/if}
 {/if}

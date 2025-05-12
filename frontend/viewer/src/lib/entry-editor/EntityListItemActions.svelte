@@ -1,26 +1,28 @@
-<script lang="ts">
+<script lang="ts" generics="T">
   import HistoryView from '../history/HistoryView.svelte';
   import {useFeatures} from '$lib/services/feature-service';
-  import * as Reorderer from '$lib/components/reorderer';
+  import { Reorderer } from '$lib/components/reorderer';
   import {Button} from '$lib/components/ui/button';
 
-  type Props = {
-    items: string[];
+  type Props<T> = {
+    items: T[];
     i: number;
     id?: string;
+    getDisplayName: (item: T) => string | undefined;
     readonly: boolean;
     onmove?: (newIndex: number) => void;
     ondelete?: () => void;
   };
 
-  const {
-    items,
+  let {
+    items = $bindable(),
     i,
     id,
+    getDisplayName,
     readonly,
     onmove,
     ondelete,
-  }: Props = $props();
+  }: Props<T> = $props();
 
   const features = useFeatures();
 
@@ -30,7 +32,13 @@
 {#if !readonly || features.history}
 <div class="flex gap-2">
   {#if !readonly}
-    <Reorderer.Root direction="vertical" item={items[i]} {items} getDisplayName={(item) => item} onchange={(_, _fromIndex, newIndex) => onmove?.(newIndex)} />
+    <Reorderer
+      direction="vertical"
+      item={items[i]}
+      {items}
+      {getDisplayName}
+      onchange={(_newItems, _fromIndex, newIndex) => onmove?.(newIndex)}
+    />
   {/if}
   {#if features.history && id}
     <Button onclick={() => showHistoryView = true} size="icon" variant="secondary" icon="i-mdi-history" />

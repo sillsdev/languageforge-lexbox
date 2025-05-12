@@ -52,33 +52,21 @@
       {#if !readonly}
         <DropdownMenu.Group>
           {#if orderable}
-          <Reorderer.Root {item} {items} {getDisplayName} {onchange}>
-            {#snippet swapper({props, arrow})}
-              <DropdownMenu.Item {...props}>
-                {@render arrow()}
-                {$t`Move`}
-              </DropdownMenu.Item>
-            {/snippet}
-            {#snippet children({first, last})}
-              <Reorderer.Trigger {first} {last}>
-                {#snippet child({arrow})}
-                  <DropdownMenu.Sub>
-                    <DropdownMenu.SubTrigger>
-                      {@render arrow()}
-                      {$t`Move`}
-                    </DropdownMenu.SubTrigger>
-                    <Reorderer.ItemList {item} bind:items {getDisplayName}>
-                      {#snippet child({props, itemList})}
-                      <DropdownMenu.SubContent {...props}>
-                        {@render itemList()}
-                      </DropdownMenu.SubContent>
-                      {/snippet}
-                    </Reorderer.ItemList>
-                  </DropdownMenu.Sub>
+          <DropdownMenu.Sub>
+            <Reorderer.Root {item} bind:items {getDisplayName} {onchange}>
+              <Reorderer.Trigger>
+                {#snippet child({arrowIcon, props})}
+                  <DropdownMenu.SubTrigger {...props}>
+                    <Icon icon={arrowIcon} />
+                    {$t`Move`}
+                  </DropdownMenu.SubTrigger>
                 {/snippet}
               </Reorderer.Trigger>
-            {/snippet}
-          </Reorderer.Root>
+              <DropdownMenu.SubContent>
+                <Reorderer.ItemList />
+              </DropdownMenu.SubContent>
+            </Reorderer.Root>
+          </DropdownMenu.Sub>
           {/if}
           <DropdownMenu.Item onSelect={() => remove(item)}>
             <Icon icon="i-mdi-trash-can-outline" />
