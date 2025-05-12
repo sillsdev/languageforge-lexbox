@@ -74,13 +74,15 @@
   useReordererRoot(rootStateProps);
 </script>
 
-{#if children}
-  {@render children({first, last})}
-{:else}
-  <DropdownMenu.Root>
-    <ReordererTrigger />
-    <DropdownMenu.Content>
-      <ReordererItemList />
-    </DropdownMenu.Content>
-  </DropdownMenu.Root>
+{#if count > 1}
+  {#if children}
+    {@render children({first, last})}
+  {:else}
+    <DropdownMenu.Root>
+      <ReordererTrigger />
+      <DropdownMenu.Content>
+        <ReordererItemList />
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  {/if}
 {/if}
