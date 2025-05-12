@@ -14,6 +14,8 @@
   import {pt} from '$lib/views/view-text';
   import {Button} from '$lib/components/ui/button';
   import {watch} from 'runed';
+  import FabContainer from '$lib/components/fab/fab-container.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   type Props = {
     entry: IEntry;
@@ -204,14 +206,17 @@
       </Editor.SubGrid>
     {/each}
     {#if !readonly && canAddSense}
-      <hr class="col-span-full grow border-t-4 my-4">
-      <div class="lg-view:hidden flex col-span-full justify-end sticky bottom-3 right-3 z-[2]" class:hidden={modalMode}>
-        <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
-        <AddSenseFab onclick={addSense} />
-      </div>
-      <div class="col-span-full flex justify-end" class:sm-view:hidden={!modalMode}>
-        <Button onclick={addSense} icon="i-mdi-plus" size="xs" title={pt($t`Add Sense`, $t`Add Meaning`, $currentView)}>{pt($t`Add Sense`, $t`Add Meaning`, $currentView)}</Button>
-      </div>
+      <hr class="col-span-full grow border-t-4">
+      {#if IsMobile.value && !modalMode}
+        <FabContainer class="sticky col-span-full mt-2">
+          <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
+          <AddSenseFab onclick={addSense} />
+        </FabContainer>
+      {:else}
+        <div class="col-span-full flex justify-end">
+          <Button onclick={addSense} icon="i-mdi-plus" size="xs" title={pt($t`Add Sense`, $t`Add Meaning`, $currentView)}>{pt($t`Add Sense`, $t`Add Meaning`, $currentView)}</Button>
+        </div>
+      {/if}
     {/if}
   </Editor.Grid>
 </Editor.Root>
