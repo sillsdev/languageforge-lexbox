@@ -57,7 +57,6 @@
     filterSlot,
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
-  let debouncing = $state(false);
 
   function onClearFiltersClick(): void {
     if (!searchInput) return;
@@ -107,7 +106,6 @@
     <DebouncedInput
       bind:value={$allFilters[searchKey]}
       {debounce}
-      bind:debouncing
       bind:undebouncedValue={undebouncedSearch}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
@@ -115,7 +113,7 @@
       {autofocus}
     />
     <div class="ml-auto flex join">
-      {#if loading || debouncing}
+      {#if loading}
         <div class="flex mr-2">
           <Loader loading />
         </div>
