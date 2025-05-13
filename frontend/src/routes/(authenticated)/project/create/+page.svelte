@@ -114,7 +114,7 @@
     codeIsAvailable,
     (avail) => (avail ? undefined : $t('project.create.code_exists')),
   );
-  const codeErrors = derivedStore([errors, asyncCodeError], () => [
+  const codeErrors = derivedStore([errors, asyncCodeError], ([$errors, $asyncCodeError]) => [
     ...new Set(concatAll($errors.code, $asyncCodeError)),
   ]);
 
