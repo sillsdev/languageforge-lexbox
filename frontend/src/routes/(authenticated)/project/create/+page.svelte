@@ -27,7 +27,7 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount, untrack } from 'svelte';
+  import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived as derivedStore, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
@@ -38,6 +38,7 @@
   import Button from '$lib/forms/Button.svelte';
   import { projectUrl } from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import {watch} from 'runed';
 
   const { data } = $props();
   let user = $derived(data.user);
@@ -205,17 +206,15 @@
   });
 
   const calculatedCode = $derived(buildProjectCode($form.languageCode, $form.type, $form.retentionPolicy));
-  // TODO: This causes an infinite loop when converted to $effect. Need to do something clever with superforms to avoid the infinite loop.
-  $effect(() => {
-    if (!untrack(() => $form).customCode) {
-      untrack(() => form).update(
-        (form) => {
-          form.code = calculatedCode;
-          return form;
-        },
-        { taint: false },
-      );
-    }
+  const code = $derived($form.customCode ? $form.code : calculatedCode);
+
+  watch(() => code, () => {
+    form.update((form) => {
+      form.code = code;
+      return form;
+    },
+    { taint: false },
+    );
   });
 
   let selectedProject: { name: string; id: string } | undefined = $state(undefined);
