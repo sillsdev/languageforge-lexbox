@@ -102,7 +102,7 @@ interface UserAddedProps extends EmailTemplatePropsBase<EmailTemplate.UserAdded>
 
 interface JoinFwLiteBetaRequestProps extends EmailTemplatePropsBase<EmailTemplate.JoinFwLiteBetaRequest> {
   name: string;
-  userId: string;
+  email: string;
 }
 
 export type EmailTemplateProps =
