@@ -5,7 +5,7 @@ namespace LcmCrdt.Tests.Changes;
 public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>
 {
     [Fact]
-    public async Task CreatingTheSameWritingSystemShouldWork()
+    public async Task CreatingTheSameWritingSystemShouldResultInOnlyOne()
     {
         var writingSystem = new WritingSystem()
         {
@@ -22,6 +22,25 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
         await fixture.DataModel.AddChange(Guid.NewGuid(),
             new CreateWritingSystemChange(writingSystem, WritingSystemType.Analysis, Guid.NewGuid(), 2));
         var writingSystems = await fixture.Api.GetWritingSystems();
-        writingSystems.Analysis.Should().Contain(ws => ws.WsId == "de");
+        writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "de");
+    }
+
+    [Fact]
+    public async Task Creating2SimilarWritingSystemsWorks()
+    {
+        var writingSystem = new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "de",
+            Abbreviation = "De",
+            Font = "test",
+            Name = "German",
+            Type = WritingSystemType.Analysis//ignored by create api
+        };
+        await fixture.Api.CreateWritingSystem(WritingSystemType.Analysis, writingSystem);
+        await fixture.Api.CreateWritingSystem(WritingSystemType.Vernacular, writingSystem);
+        var writingSystems = await fixture.Api.GetWritingSystems();
+        writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "de");
+        writingSystems.Vernacular.Should().ContainSingle(ws => ws.WsId == "de");
     }
 }
