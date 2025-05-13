@@ -78,20 +78,20 @@ public class CrdtMiniLcmApi(
         };
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
         await validators.ValidateAndThrow(writingSystem);
         var entityId = Guid.NewGuid();
-        var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
+        var wsCount = await WritingSystems.CountAsync(ws => ws.Type == writingSystem.Type);
         try
         {
-            await AddChange(new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+            await AddChange(new CreateWritingSystemChange(writingSystem, entityId, wsCount));
         }
         catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.CausedByUniqueConstraintViolation())
         {
             throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
         }
-        return await GetWritingSystem(writingSystem.WsId, type) ?? throw new NullReferenceException();
+        return await GetWritingSystem(writingSystem.WsId, writingSystem.Type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)

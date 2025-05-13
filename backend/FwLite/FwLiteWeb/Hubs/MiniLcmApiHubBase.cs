@@ -15,7 +15,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
 
     public virtual async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        var newWritingSystem = await miniLcmApi.CreateWritingSystem(type, writingSystem);
+        var newWritingSystem = await miniLcmApi.CreateWritingSystem(writingSystem);
         return newWritingSystem;
     }
 

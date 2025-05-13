@@ -146,9 +146,10 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
         await validators.ValidateAndThrow(writingSystem);
+        var type = writingSystem.Type;
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {

@@ -19,7 +19,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     public required double Order { get; init; }
 
     [SetsRequiredMembers]
-    public CreateWritingSystemChange(WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
+    public CreateWritingSystemChange(WritingSystem writingSystem, Guid entityId, double order) :
         base(entityId)
     {
         WsId = writingSystem.WsId;
@@ -27,7 +27,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
         Abbreviation = writingSystem.Abbreviation;
         Font = writingSystem.Font;
         Exemplars = writingSystem.Exemplars;
-        Type = type;
+        Type = writingSystem.Type;
         Order = order;
     }
 

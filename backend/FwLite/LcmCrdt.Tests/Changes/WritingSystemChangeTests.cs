@@ -16,11 +16,11 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
             Name = "German",
             Type = WritingSystemType.Analysis
         };
-        await fixture.Api.CreateWritingSystem(WritingSystemType.Analysis, writingSystem);
+        await fixture.Api.CreateWritingSystem(writingSystem);
 
         //added via sync
         await fixture.DataModel.AddChange(Guid.NewGuid(),
-            new CreateWritingSystemChange(writingSystem, WritingSystemType.Analysis, Guid.NewGuid(), 2));
+            new CreateWritingSystemChange(writingSystem, Guid.NewGuid(), 2));
         var writingSystems = await fixture.Api.GetWritingSystems();
         writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "de");
     }
@@ -37,8 +37,8 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
             Name = "German",
             Type = WritingSystemType.Analysis//ignored by create api
         };
-        await fixture.Api.CreateWritingSystem(WritingSystemType.Analysis, writingSystem);
-        await fixture.Api.CreateWritingSystem(WritingSystemType.Vernacular, writingSystem);
+        await fixture.Api.CreateWritingSystem(writingSystem);
+        await fixture.Api.CreateWritingSystem(writingSystem with {Type = WritingSystemType.Vernacular});
         var writingSystems = await fixture.Api.GetWritingSystems();
         writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "de");
         writingSystems.Vernacular.Should().ContainSingle(ws => ws.WsId == "de");

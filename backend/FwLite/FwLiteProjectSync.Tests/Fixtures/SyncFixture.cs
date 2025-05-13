@@ -102,7 +102,7 @@ public class SyncFixture : IAsyncLifetime
             if ((await CrdtApi.GetWritingSystems()).Vernacular.Length == 0)
             {
                 var firstVernacularWs = (await FwDataApi.GetWritingSystems()).Vernacular.First();
-                await CrdtApi.CreateWritingSystem(WritingSystemType.Vernacular, firstVernacularWs);
+                await CrdtApi.CreateWritingSystem(firstVernacularWs);
             }
         }
         finally
