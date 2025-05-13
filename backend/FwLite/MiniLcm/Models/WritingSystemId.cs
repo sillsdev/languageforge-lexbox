@@ -30,6 +30,7 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<WritingSystemId>
 {
     public string Code { get; init; }
+    public bool IsAudio => Code.EndsWith("-audio", StringComparison.InvariantCultureIgnoreCase);
 
     public static readonly WritingSystemId Default = "default";
 

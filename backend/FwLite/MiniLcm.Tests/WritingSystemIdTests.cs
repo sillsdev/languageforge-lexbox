@@ -13,6 +13,14 @@ public class WritingSystemIdTests
     }
 
     [Theory]
+    [InlineData("en-Zxxx-x-audio")]
+    public void DetectsAudioWritingSystems(string code)
+    {
+        var ws = new WritingSystemId(code);
+        ws.IsAudio.Should().BeTrue();
+    }
+
+    [Theory]
     [InlineData("gx")]
     [InlineData("oo")]
     [InlineData("eng")] // Three-letter codes not allowed when there's a valid two-letter code
