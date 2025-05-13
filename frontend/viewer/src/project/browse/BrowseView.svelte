@@ -106,7 +106,7 @@
               <p>{$t`Select an entry to view details`}</p>
             </div>
           {:else}
-            <div class="p-2 md:p-4 md:pl-6 h-full">
+            <div class="md:p-4 md:pl-6 h-full">
               <EntryView
                 entryId={selectedEntry.id}
                 onClose={() => (selectedEntry = undefined)}

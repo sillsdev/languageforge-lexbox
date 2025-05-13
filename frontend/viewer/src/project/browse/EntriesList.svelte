@@ -14,6 +14,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import EntryMenu from './EntryMenu.svelte';
+  import FabContainer from '$lib/components/fab/fab-container.svelte';
 
   const {
     search = '',
@@ -80,7 +81,7 @@
   }
 </script>
 
-<div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
+<FabContainer>
   <DevContent>
     <Button
       icon={loading.current ? 'i-mdi-loading' : 'i-mdi-refresh'}
@@ -92,7 +93,7 @@
     />
   </DevContent>
   <NewEntryButton onclick={handleNewEntry} shortForm />
-</div>
+</FabContainer>
 
 <ScrollArea class="md:pr-3 flex-1" role="table">
   {#if entriesResource.error}

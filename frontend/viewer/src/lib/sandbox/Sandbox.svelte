@@ -24,6 +24,7 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
+  import {Reorderer} from '$lib/components/reorderer/index.js';
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -74,6 +75,19 @@
       reason: 'You cannot select an entry that you have already selected',
       disableSenses: true
     };
+  }
+
+  //reorderer
+  let direction: 'vertical' | 'horizontal' = $state('vertical');
+  let items: string[] = $state(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
+  let currentItem = $state('1');
+  let display: 'x100' | 'x1' = $state('x1');
+  function displayFunc(item: string) {
+    return (Number(item) * (display === 'x100' ? 100 : 1)).toString();
+  }
+  function randomItems() {
+    items = Array.from({length: 10}, () => (Math.random() * 100).toFixed(0));
+    currentItem = items[0];
   }
 </script>
 <DialogsProvider/>
@@ -141,6 +155,32 @@
           {/if}
         </p>
       {/each}
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Reorder example</h3>
+    <Tabs bind:value={direction} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="vertical">Vertical</TabsTrigger>
+        <TabsTrigger value="horizontal">Horizontal</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Tabs bind:value={display} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="x1">Times 1</TabsTrigger>
+        <TabsTrigger value="x100">Times 100</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Button onclick={randomItems}>Randomize items</Button>
+    <div>
+      <p>Current item: {currentItem}</p>
+      <Reorderer {direction}
+                 item={currentItem}
+                 bind:items
+                 getDisplayName={displayFunc}/>
+    </div>
+    <div>
+      <code>{JSON.stringify(items)}</code>
     </div>
   </div>
 </div>

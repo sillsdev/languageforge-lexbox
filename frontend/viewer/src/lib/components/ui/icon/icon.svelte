@@ -13,4 +13,7 @@
   const { icon, class: className, ...restProps }: IconProps = $props();
 </script>
 
-<span {...restProps} class={cn('size-6 inline-block shrink-0', className, icon)}></span>
+<span {...restProps} class={cn('size-6 inline-block shrink-0', className, icon)}>
+  <!-- ensures that baseline alignment works for consumers of this component -->
+  &nbsp;
+</span>
