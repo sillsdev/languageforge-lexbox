@@ -28,6 +28,7 @@ const context = new Map<string, unknown>([
       exemplars: ['test'],
       order: 0,
       type: WritingSystemType.Vernacular,
+      isAudio: false,
     }],
   }))],
   ['currentView', readable(views[0])],

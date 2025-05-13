@@ -18,6 +18,7 @@
       exemplars: [],
       type: WritingSystemType.Analysis,
       order: 0,
+      isAudio: false,
     }],
     vernacular: [],
   }));
