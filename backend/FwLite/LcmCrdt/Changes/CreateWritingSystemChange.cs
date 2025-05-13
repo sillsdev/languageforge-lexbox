@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using LcmCrdt.Utils;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -35,9 +36,10 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     {
     }
 
-    public override ValueTask<WritingSystem> NewEntity(Commit commit, IChangeContext context)
+    public override async ValueTask<WritingSystem> NewEntity(Commit commit, IChangeContext context)
     {
-        return ValueTask.FromResult(new WritingSystem
+        var alreadyExists = await context.GetObjectsOfType<WritingSystem>().AnyAsync(ws => ws.WsId == WsId && ws.Type == Type);
+        return new WritingSystem
         {
             Id = EntityId,
             WsId = WsId,
@@ -46,7 +48,8 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
             Font = Font,
             Exemplars = Exemplars,
             Type = Type,
-            Order = Order
-        });
+            Order = Order,
+            DeletedAt = alreadyExists ? commit.DateTime : null
+        };
     }
 }

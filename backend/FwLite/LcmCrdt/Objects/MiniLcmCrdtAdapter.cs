@@ -39,8 +39,14 @@ public class MiniLcmCrdtAdapter : ICustomAdapter<MiniLcmCrdtAdapter, IObjectWith
 
     public string GetObjectTypeName()
     {
+        return GetObjectTypeName(Obj.GetType());
+    }
+
+    public static string GetObjectTypeName(Type type)
+    {
         //todo we might not want to do this as a refactor rename of any of our objects will cause problems
-        return Obj.GetType().Name;
+        //however for now we will just special case that if it happens
+        return type.Name;
     }
 
     public object DbObject => Obj;
