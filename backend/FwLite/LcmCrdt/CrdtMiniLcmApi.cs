@@ -27,6 +27,7 @@ public class CrdtMiniLcmApi(
     CurrentProjectService projectService,
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
+    LcmCrdtDbContext dbContext,
     IOptions<LcmCrdtConfig> config) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -60,10 +61,24 @@ public class CrdtMiniLcmApi(
         return commit;
     }
 
-    private async Task<Commit> AddChanges(IEnumerable<IChange> changes)
+    private async Task AddChanges(IEnumerable<IChange> changes)
     {
-        var commit = await dataModel.AddChanges(ClientId, changes, commitMetadata: NewMetadata());
-        return commit;
+        await AddChanges(changes.Chunk(100));
+    }
+
+    /// <summary>
+    /// use when making a large number of changes at once
+    /// </summary>
+    /// <param name="changeChunks"></param>
+    private async Task AddChanges(IEnumerable<IChange[]> changeChunks)
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        foreach (var chunk in changeChunks)
+        {
+            await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
+        }
+        await dataModel.FlushDeferredCommits();
+        await transaction.CommitAsync();
     }
 
     public async Task<WritingSystems> GetWritingSystems()
@@ -404,7 +419,7 @@ public class CrdtMiniLcmApi(
         var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
             .AsComplexFormComparer();
         var entries = queryable.AsAsyncEnumerable();
-        await foreach (var entry in entries)
+        await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
             entry.ApplySortOrder(complexFormComparer);
             yield return entry;
@@ -434,12 +449,10 @@ public class CrdtMiniLcmApi(
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        await AddChanges(
-            entries.ToBlockingEnumerable()
-                .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
-                //force entries to be created first, this avoids issues where references are created before the entry is created
-                .OrderBy(c => c is CreateEntryChange ? 0 : 1)
-        );
+        await AddChanges(entries.ToBlockingEnumerable()
+            .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
+            //force entries to be created first, this avoids issues where references are created before the entry is created
+            .OrderBy(c => c is CreateEntryChange ? 0 : 1));
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)

@@ -3,7 +3,11 @@
   import BadgeList from '../Badges/BadgeList.svelte';
   import WritingSystemBadge from './WritingSystemBadge.svelte';
 
-  export let writingSystems: FlExWsId[] = [];
+  interface Props {
+    writingSystems?: FlExWsId[];
+  }
+
+  let { writingSystems = [] }: Props = $props();
 </script>
 
 <div class="w-full">

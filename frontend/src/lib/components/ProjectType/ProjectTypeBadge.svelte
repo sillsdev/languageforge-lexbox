@@ -4,7 +4,11 @@
   import type { ProjectType } from '$lib/gql/types';
   import { Badge } from '../Badges';
 
-  export let type: ProjectType;
+  interface Props {
+    type: ProjectType;
+  }
+
+  let { type }: Props = $props();
 </script>
 
 <Badge>

@@ -2,12 +2,16 @@
   import t from '$lib/i18n';
   import { availableLocales } from '$locales';
 
-  import { Select } from '.';
+  import Select, { type SelectProps } from './Select.svelte';
 
-  export let id = 'display-language';
-  export let value: string;
+  interface Props extends Omit<SelectProps, 'label'> {
+    id?: string;
+    value: string;
+  }
 
-  $: currentValueNotSupported = value && !availableLocales.includes(value);
+  let { id = 'display-language', value = $bindable(), ...rest }: Props = $props();
+
+  let currentValueNotSupported = $derived(value && !availableLocales.includes(value));
   const localNames: Record<string, string> = {
     en: 'English',
     es: 'Español',
@@ -16,7 +20,7 @@
   };
 </script>
 
-<Select {id} bind:value label={$t('account_settings.language.title')}>
+<Select {...rest} {id} bind:value label={$t('account_settings.language.title')}>
   {#if currentValueNotSupported}
     <!-- Make sure we don't overwrite persisted locales that we don't support yet -->
     <option {value}>{value} ({$t('account_settings.language.not_supported')})</option>

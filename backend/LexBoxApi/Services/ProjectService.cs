@@ -53,19 +53,18 @@ public class ProjectService(
             });
         // Also delete draft project, if any
         await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
-        if (input.ProjectManagerId.HasValue)
-        {
-            var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
-            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
-            if (draftProject != null && manager != null)
-            {
-                await emailService.SendApproveProjectRequestEmail(manager, input);
-            }
-        }
+
+        var manager = input.ProjectManagerId.HasValue ? await dbContext.Users.FindAsync(input.ProjectManagerId.Value) : null;
+        manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
+
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         InvalidateProjectOrgIdsCache(projectId);
         InvalidateProjectConfidentialityCache(projectId);
+        if (draftProject != null && manager != null)
+        {
+            await emailService.SendApproveProjectRequestEmail(manager, input);
+        }
         await transaction.CommitAsync();
         return projectId;
     }
@@ -107,6 +106,12 @@ public class ProjectService(
 
     public async Task<Guid> CreateDraftProject(CreateProjectInput input)
     {
+        var existingProject = await dbContext.Projects.FindAsync(input.Id);
+        if (existingProject is not null)
+        {
+            throw new InvalidOperationException($"Project was already approved ({input.Id}: {existingProject.Code})");
+        }
+
         // No need for a transaction if we're just saving a single item
         var projectId = input.Id ?? Guid.NewGuid();
         dbContext.DraftProjects.Add(

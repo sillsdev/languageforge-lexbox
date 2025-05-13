@@ -16,7 +16,7 @@ namespace LcmCrdt.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
 
             modelBuilder.Entity("LcmCrdt.ProjectData", b =>
                 {
@@ -475,6 +475,8 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex("CommitId", "EntityId")
                         .IsUnique();

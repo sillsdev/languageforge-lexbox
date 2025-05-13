@@ -87,8 +87,18 @@ tasks:
 
   prod-db-forward:
     cmds:
-      - kubectl port-forward service/db 5435:5432 -n languagedepot --context aws-rke
-
+      - kubectl port-forward service/db 5435:5432 -n languagedepot --context aws-prod
+  download-sqlite-file:
+    desc: 'example: `task download-sqlite-file id="<project id here>" code="<project code here>" context="dallas-stage"` the namespace can also be set'
+    requires:
+      vars: [id, code]
+    vars:
+      context: '{{.context| default "docker-desktop"}}'
+      namespace: '{{.namespace| default "languagedepot"}}'
+      pod:
+        sh: kubectl get pods -l app=fw-headless -o jsonpath='{.items[0].metadata.name}' --context {{.context}} --namespace {{.namespace}}
+    cmds:
+      - kubectl cp {{.pod}}:/var/lib/fw-headless/projects/{{.code}}-{{.id}}/crdt.sqlite ./{{.code}}.sqlite --context {{.context}} --namespace {{.namespace}}
 
   diff-staging:
     dir: ./staging

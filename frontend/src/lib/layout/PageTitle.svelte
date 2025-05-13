@@ -1,7 +1,11 @@
 <script lang="ts">
   import SetTitle from './SetTitle.svelte';
 
-  export let title: string;
+  interface Props {
+    title: string;
+  }
+
+  let { title }: Props = $props();
 </script>
 
 <SetTitle {title} />

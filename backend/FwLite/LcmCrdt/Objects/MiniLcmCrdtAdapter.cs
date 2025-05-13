@@ -1,4 +1,5 @@
-﻿using SIL.Harmony;
+﻿using System.Text.Json.Serialization;
+using SIL.Harmony;
 using SIL.Harmony.Adapters;
 using SIL.Harmony.Core;
 
@@ -49,6 +50,7 @@ public class MiniLcmCrdtAdapter : ICustomAdapter<MiniLcmCrdtAdapter, IObjectWith
         return type.Name;
     }
 
+    [JsonIgnore]
     public object DbObject => Obj;
 
     public static MiniLcmCrdtAdapter Create(IObjectWithId obj)

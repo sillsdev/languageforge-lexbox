@@ -1,7 +1,13 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
   import { Layout } from '$lib/layout';
+  interface Props {
+    children?: Snippet;
+  }
+
+  let { children }: Props = $props();
 </script>
 
 <Layout>
-  <slot />
+  {@render children?.()}
 </Layout>

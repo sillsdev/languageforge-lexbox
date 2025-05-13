@@ -1,12 +1,17 @@
-<script lang="ts" context="module">
-  export type Filter<T = Record<string, unknown>> = Readonly<NonNullable<
-    {
-      [K in keyof T]: { value: T[K]; key: K & string, clear: () => void };
-    }[keyof T]
-  >>;
+<script lang="ts" module>
+  import type { Snippet } from 'svelte';
+  export type Filter<T = Record<string, unknown>> = Readonly<
+    NonNullable<
+      {
+        [K in keyof T]: { value: T[K]; key: K & string; clear: () => void };
+      }[keyof T]
+    >
+  >;
 </script>
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
@@ -24,40 +29,44 @@
     change: Readonly<Filter<Filters>[]>;
   }>();
 
-  let searchInput: PlainInput;
+  let searchInput: PlainInput | undefined = $state();
 
-  export let searchKey: keyof ConditionalPick<DumbFilters, string>;
-  export let autofocus: true | undefined = undefined;
-  let allFilters: Writable<Filters>;
-  export { allFilters as filters };
-  let allFilterDefaults: Filters;
-  export { allFilterDefaults as filterDefaults };
-  export let hasActiveFilter: boolean = false;
-
-  /**
-   * Explicitly specify the filter object keys that should be used from the `filters` (optional)
-   */
-  export let filterKeys: Readonly<(keyof Filters)[]> | undefined = undefined;
-
-  export let loading = false;
-  export let debounce: number | boolean = false;
-  export let debouncing = false;
-  let undebouncedSearch: string | undefined = undefined;
-
-  $: filters = Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters);
-  $: filterDefaults = Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults);
-  let activeFilters: Readonly<Filter<Filters>[]>;
-  $: {
-    const currFilters = activeFilters;
-    const newFilters = pickActiveFilters(filters, filterDefaults);
-    if (JSON.stringify(currFilters) !== JSON.stringify(newFilters)) {
-      activeFilters = newFilters;
-      dispatch('change', activeFilters);
-    }
+  interface Props {
+    searchKey: keyof ConditionalPick<DumbFilters, string>;
+    autofocus?: true | undefined;
+    filters: Writable<Filters>;
+    filterDefaults: Filters;
+    hasActiveFilter?: boolean;
+    /**
+     * Explicitly specify the filter object keys that should be used from the `filters` (optional)
+     */
+    filterKeys?: Readonly<(keyof Filters)[]> | undefined;
+    loading?: boolean;
+    debounce?: number | boolean;
+    debouncing?: boolean;
+    activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
+    filterSlot?: Snippet;
   }
-  $: hasActiveFilter = activeFilters.length > 0;
+
+  let {
+    searchKey,
+    autofocus = undefined,
+    filters: allFilters,
+    filterDefaults: allFilterDefaults,
+    hasActiveFilter = $bindable(false),
+    filterKeys = undefined,
+    loading = false,
+    debounce = $bindable(false),
+    debouncing = $bindable(false),
+    activeFilterSlot,
+    filterSlot,
+  }: Props = $props();
+  let undebouncedSearch: string | undefined = $state(undefined);
+
+  let activeFilters: Readonly<Filter<Filters>[]> = $state([]);
 
   function onClearFiltersClick(): void {
+    if (!searchInput) return;
     searchInput.clear();
     $allFilters = {
       ...$allFilters,
@@ -83,10 +92,23 @@
     }
     return Object.freeze(filters);
   }
+  let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
+  let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
+  run(() => {
+    const currFilters = activeFilters;
+    const newFilters = pickActiveFilters(filters, filterDefaults);
+    if (JSON.stringify(currFilters) !== JSON.stringify(newFilters)) {
+      activeFilters = newFilters;
+      dispatch('change', activeFilters);
+    }
+  });
+  run(() => {
+    hasActiveFilter = activeFilters.length > 0;
+  });
 </script>
 
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
-  <slot name="activeFilterSlot" {activeFilters} />
+  {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
       bind:value={$allFilters[searchKey]}
@@ -105,22 +127,24 @@
         </div>
       {/if}
       <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
-      {#if !!undebouncedSearch || activeFilters.find(f => f.key !== searchKey)}
-        <button class="btn btn-square btn-sm join-item" on:click={onClearFiltersClick}>
+      {#if !!undebouncedSearch || activeFilters.find((f) => f.key !== searchKey)}
+        <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>
       {/if}
-      {#if $$slots.filterSlot}
+      {#if filterSlot}
         <div class="join-item">
           <Dropdown>
             <button class="btn btn-square join-item btn-sm gap-2" aria-label={$t('filter.aria_open_filters')}>
-              <span class="i-mdi-filter-outline text-xl" />
+              <span class="i-mdi-filter-outline text-xl"></span>
             </button>
-            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-              <div class="card-body max-sm:p-4">
-                <slot name="filterSlot" />
+            {#snippet content()}
+              <div class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+                <div class="card-body max-sm:p-4">
+                  {@render filterSlot?.()}
+                </div>
               </div>
-            </div>
+            {/snippet}
           </Dropdown>
         </div>
       {/if}

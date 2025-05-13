@@ -161,8 +161,15 @@ public class SyncWorker(
             result.FwdataChanges);
 
         await crdtSyncService.SyncHarmonyProject();
-        var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
-        logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+        if (result.FwdataChanges == 0)
+        {
+            logger.LogInformation("No Send/Receive needed after CRDT sync as no FW changes were made by the sync");
+        }
+        else
+        {
+            var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
+            logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+        }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return new SyncJobResult(SyncJobResultEnum.Success, null, result);
     }
@@ -175,8 +182,16 @@ public class SyncWorker(
     {
         if (File.Exists(fwDataProject.FilePath))
         {
-            var srResult = await srService.SendReceive(fwDataProject, projectCode);
-            logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
+            var pendingHgCommits = await srService.PendingCommitCount(fwDataProject, projectCode);
+            if (pendingHgCommits == 0)
+            {
+                logger.LogInformation("No Send/Receive needed before CRDT sync as there are no pending commits");
+            }
+            else
+            {
+                var srResult = await srService.SendReceive(fwDataProject, projectCode);
+                logger.LogInformation("Send/Receive result before CRDT sync: {srResult}", srResult.Output);
+            }
         }
         else
         {

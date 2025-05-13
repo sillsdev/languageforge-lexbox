@@ -3,9 +3,13 @@
   import type { CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  export let name: string;
-  export let baseUrl: string;
-  export let project: CreateProjectInput;
+  interface Props {
+    name: string;
+    baseUrl: string;
+    project: CreateProjectInput;
+  }
+
+  let { name, baseUrl, project }: Props = $props();
   let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(project.code)}`, baseUrl);
   let projectName = project.name;
 </script>

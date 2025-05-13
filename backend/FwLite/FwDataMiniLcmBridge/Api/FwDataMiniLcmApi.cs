@@ -334,7 +334,7 @@ public class FwDataMiniLcmApi(
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
-            Code = GetSemanticDomainCode(semanticDomain),
+            Code = LcmHelpers.GetSemanticDomainCode(semanticDomain),
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -344,7 +344,7 @@ public class FwDataMiniLcmApi(
         return
             SemanticDomainRepository
             .AllInstances()
-            .OrderBy(GetSemanticDomainCode)
+            .OrderBy(LcmHelpers.GetSemanticDomainCode)
             .ToAsyncEnumerable()
             .Select(FromLcmSemanticDomain);
     }
@@ -353,13 +353,6 @@ public class FwDataMiniLcmApi(
     {
         var semDom = GetLcmSemanticDomain(id);
         return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
-    }
-
-    private string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
-    {
-        var abbr = semanticDomain.Abbreviation;
-        // UiString can be null even though there is an abbreviation available
-        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
@@ -1333,11 +1326,16 @@ public class FwDataMiniLcmApi(
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        var translation = CmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
+        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
         UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
         lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
             lexExampleSentence.Reference.get_WritingSystem(0));
+    }
+
+    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    {
+        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        return CmTranslationFactory.Create(parent, freeTranslationType);
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)

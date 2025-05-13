@@ -1,4 +1,5 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
+  import type { Snippet } from 'svelte';
   import type { I18nKey } from '$lib/i18n';
 
   export const adminTabs = ['projects', 'users'] as const;
@@ -14,33 +15,43 @@
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher<{
-    clickTab: AdminTabId
+    clickTab: AdminTabId;
   }>();
 
-  export let activeTab: AdminTabId = 'projects';
+  interface Props {
+    activeTab?: AdminTabId;
+    children?: Snippet;
+  }
+
+  let { activeTab = 'projects', children }: Props = $props();
 </script>
 
 <div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg overflow-x-auto">
-  <div class="tab tab-divider" />
+  <div class="tab tab-divider"></div>
   {#each adminTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <button on:click={() => dispatch('clickTab', tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
+    <button
+      onclick={() => dispatch('clickTab', tab)}
+      role="tab"
+      class:tab-active={isActiveTab}
+      class="tab grow flex-1 basis-1/2"
+    >
       <h2 class="text-lg flex gap-4 items-center">
         {#if isActiveTab}
-          <slot>
+          {#if children}{@render children()}{:else}
             {$t(DEFAULT_TAB_I18N[tab])}
-          </slot>
+          {/if}
         {:else}
           {$t(DEFAULT_TAB_I18N[tab])}
         {/if}
       </h2>
     </button>
-    <div class="tab tab-divider" />
+    <div class="tab tab-divider"></div>
   {/each}
 </div>
 
 <h2 class="admin-tabs:hidden text-2xl flex gap-4">
-  <slot>
+  {#if children}{@render children()}{:else}
     {$t(DEFAULT_TAB_I18N[activeTab])}
-  </slot>
+  {/if}
 </h2>

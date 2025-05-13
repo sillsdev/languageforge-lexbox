@@ -4,17 +4,14 @@ import {autoUpdate, computePosition, flip, offset, type Placement} from '@floati
 import {browser} from '$app/environment';
 
 export { default as OverlayContainer } from './OverlayContainer.svelte';
-
-type OverlayAttributes = {
-  'on:overlayOpen': (event: CustomEvent<boolean>) => void;
-}
-type OverlayParams = { disabled?: boolean, closeClickSelector?: string } | undefined;
-type OverlayAction = Action<HTMLElement, OverlayParams, OverlayAttributes>;
+type OverlayOpenCallback = (open: boolean) => void;
+type OverlayParams = { disabled?: boolean, closeClickSelector?: string, onOverlayOpen?: OverlayOpenCallback } | undefined;
+type OverlayAction = Action<HTMLElement, OverlayParams>;
 
 class SharedOverlay {
   private containerStack: HTMLElement[] = [];
   private containerElem: HTMLElement | undefined;
-  private activeOverlay: { targetElem: HTMLElement; contentElem: HTMLElement } | undefined;
+  private activeOverlay: OverlayTarget | undefined;
   private cleanupOverlay: (() => void) | undefined;
 
 
@@ -22,23 +19,23 @@ class SharedOverlay {
     if (browser) document.addEventListener('click', this.closeHandler.bind(this));
   }
 
-  public openOverlay(targetElem: HTMLElement, contentElem: HTMLElement, placement: Placement): void {
-    if (this.isActive(targetElem)) return;
+  public openOverlay(target: OverlayTarget, placement: Placement): void {
+    if (this.isActive(target.targetElem)) return;
     this.closeOverlay();
-    this.openOverlayInternal(targetElem, contentElem, placement);
+    this.openOverlayInternal(target, placement);
   }
 
-  private openOverlayInternal(targetElem: HTMLElement, contentElem: HTMLElement, placement: Placement): void {
+  private openOverlayInternal(target: OverlayTarget, placement: Placement): void {
     if (!this.containerElem) throw new Error('No overlay container has been provided');
-    this.activeOverlay = {targetElem, contentElem};
-    this.dispatchOpenEvent(targetElem, true);
-    this.containerElem.replaceChildren(contentElem);
+    this.activeOverlay = target;
+    target.dispatchOpenEvent(true)
+    this.containerElem.replaceChildren(target.contentElem);
     this.cleanupOverlay = autoUpdate(
-      targetElem,
+      target.targetElem,
       this.containerElem,
       () => {
         if (!this.containerElem) return;
-        void computePosition(targetElem, this.containerElem, {
+        void computePosition(target.targetElem, this.containerElem, {
           placement,
           middleware: [offset(2), flip()],
         }).then(({x, y}) => {
@@ -55,7 +52,7 @@ class SharedOverlay {
   public closeOverlay(): void {
     this.resetDom();
     if (this.activeOverlay) {
-      this.dispatchOpenEvent(this.activeOverlay.targetElem, false);
+      this.activeOverlay.dispatchOpenEvent(false);
       this.activeOverlay = undefined;
     }
   }
@@ -75,10 +72,6 @@ class SharedOverlay {
     if (!eventPath.includes(this.activeOverlay.targetElem) && !eventPath.includes(this.activeOverlay.contentElem)) {
       this.closeOverlay();
     }
-  }
-
-  private dispatchOpenEvent(targetElem: HTMLElement, open: boolean): void {
-    targetElem.dispatchEvent(new CustomEvent('overlayOpen', {detail: open}));
   }
 
   public overlayContainer(element: HTMLElement): ActionReturn {
@@ -107,6 +100,7 @@ class SharedOverlay {
     const overlayTarget = new OverlayTarget(target,
       params?.disabled ?? false,
       params?.closeClickSelector ?? '',
+      params?.onOverlayOpen ?? (() => {}),
       this);
     return {
       update: overlayTarget.update.bind(overlayTarget),
@@ -115,14 +109,15 @@ class SharedOverlay {
   }
 }
 
-class OverlayTarget implements ActionReturn<OverlayParams, OverlayAttributes> {
-  private contentElem: HTMLElement;
+class OverlayTarget implements ActionReturn<OverlayParams> {
+  public readonly contentElem: HTMLElement;
   private abortController = new AbortController();
   private useInputConfig = false;
 
-  constructor(private targetElem: HTMLElement,
+  constructor(public readonly targetElem: HTMLElement,
               private disabled: boolean,
               private closeClickSelector: string,
+              private onOverlayOpen: OverlayOpenCallback,
               private sharedOverlay: SharedOverlay) {
     this.contentElem = this.targetElem.querySelector<HTMLElement>('.overlay-content') as HTMLElement;
     if (!this.contentElem) throw new Error('Overlay target must have a child with class "overlay-content"');
@@ -181,7 +176,7 @@ class OverlayTarget implements ActionReturn<OverlayParams, OverlayAttributes> {
 
   private openOverlay(): void {
     if (!this.disabled) {
-      this.sharedOverlay.openOverlay(this.targetElem, this.contentElem,
+      this.sharedOverlay.openOverlay(this,
         this.useInputConfig ? 'bottom-start' : 'bottom-end');
     }
   }
@@ -190,6 +185,10 @@ class OverlayTarget implements ActionReturn<OverlayParams, OverlayAttributes> {
     if (this.isActive()) {
       this.sharedOverlay.closeOverlay();
     }
+  }
+
+  public dispatchOpenEvent(open: boolean): void {
+    this.onOverlayOpen(open);
   }
 }
 

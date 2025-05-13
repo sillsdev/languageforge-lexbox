@@ -6,25 +6,30 @@
   import { z } from 'zod';
   import { _changeOrgMemberRole } from './+page';
 
-  export let orgId: string;
+  interface Props {
+    orgId: string;
+  }
+
+  let { orgId }: Props = $props();
 
   const schema = z.object({
-    role: z.enum([OrgRole.User, OrgRole.Admin])
+    role: z.enum([OrgRole.User, OrgRole.Admin]),
   });
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
-  $: form = formModal?.form();
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<Schema> | undefined = $state();
+  let form = $derived(formModal?.form());
 
-  let name: string;
+  let name: string = $state('');
 
-  export async function open(member: { userId: string; name: string; role: OrgRole }): Promise<FormModalResult<Schema>> {
+  export async function open(member: {
+    userId: string;
+    name: string;
+    role: OrgRole;
+  }): Promise<FormModalResult<Schema>> {
     name = member.name;
-    return await formModal.open(tryParse(schema, member), async () => {
-      const result = await _changeOrgMemberRole(
-        orgId,
-        member.userId,
-        $form.role,
-      );
+    return await formModal!.open(tryParse(schema, member), async () => {
+      const result = await _changeOrgMemberRole(orgId, member.userId, $form!.role);
       if (result.error?.byType('OrgMembersMustBeVerified')) {
         return { role: [$t('org_page.add_user.user_must_be_verified')] };
       }
@@ -36,8 +41,14 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{$t('org_page.change_role_modal.title', { name })}</span>
-  <OrgRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="submitText">{$t('org_page.change_role_modal.button_label')}</span>
+<FormModal bind:this={formModal} {schema}>
+  {#snippet title()}
+    <span>{$t('org_page.change_role_modal.title', { name })}</span>
+  {/snippet}
+  {#snippet children({ errors })}
+    <OrgRoleSelect bind:value={$form!.role} error={errors.role} />
+  {/snippet}
+  {#snippet submitText()}
+    <span>{$t('org_page.change_role_modal.button_label')}</span>
+  {/snippet}
 </FormModal>

@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Gridify;
 using Gridify.Syntax;
 using MiniLcm.Models;
@@ -13,6 +13,7 @@ public class EntryFilter
         mapper.Configuration.DisableCollectionNullChecks = true;
         mapper.AddMap(nameof(Entry.Senses), provider.EntrySenses);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}", provider.EntrySensesSemanticDomains, provider.EntrySensesSemanticDomainsConverter);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition);
@@ -28,9 +29,15 @@ public class EntryFilter
     }
 
     //used by the database for json columns which are lists, we want to treat null as an empty list
-    public static object ConvertNullToEmptyList<T>(string value)
+    public static object NormalizeEmptyToEmptyList<T>(string value)
     {
         if (value is "null" or "" or "[]") return new List<T>();
+        throw new Exception($"Invalid value {value} for {typeof(T).Name}");
+    }
+
+    public static object NormalizeEmptyToNullString<T>(string value)
+    {
+        if (value is "null" or "" or "[]") return "null";
         throw new Exception($"Invalid value {value} for {typeof(T).Name}");
     }
 

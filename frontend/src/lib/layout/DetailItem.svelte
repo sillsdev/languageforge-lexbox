@@ -1,12 +1,27 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import Loader from '$lib/components/Loader.svelte';
 
-  export let title: string;
-  export let text: string | null | undefined = undefined;
-  export let copyToClipboard = false;
-  export let loading = false;
-  export let wrap = false;
+  interface Props {
+    title: string;
+    text?: string | null | undefined;
+    copyToClipboard?: boolean;
+    loading?: boolean;
+    wrap?: boolean;
+    children?: Snippet;
+    extras?: Snippet;
+  }
+
+  let {
+    title,
+    text = undefined,
+    copyToClipboard = false,
+    loading = false,
+    wrap = false,
+    children,
+    extras,
+  }: Props = $props();
 </script>
 
 <div class="text-lg flex items-center gap-2 detail-item whitespace-nowrap" class:flex-wrap={wrap}>
@@ -16,12 +31,12 @@
   {:else if text}
     <span class="text-secondary x-ellipsis">{text}</span>
   {:else}
-    <slot/>
+    {@render children?.()}
   {/if}
   {#if copyToClipboard}
     <CopyToClipboardButton textToCopy={text ?? ''} size="btn-sm" outline={false} />
   {/if}
-  {#if $$slots.extras}
-    <slot name="extras" />
+  {#if extras}
+    {@render extras?.()}
   {/if}
 </div>

@@ -10,7 +10,11 @@
   import { getAspResponseErrorMessage } from '$lib/util/asp-response';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const { notifySuccess } = useNotifications();
 
@@ -47,7 +51,7 @@
       error={$errors.password}
       autofocus
     />
-    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
+    <PasswordStrengthMeter onScoreUpdated={(score) => ($form.score = score)} password={$form.password} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>

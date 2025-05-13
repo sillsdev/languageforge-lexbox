@@ -9,8 +9,9 @@
   import { _refreshProjectRepoInfo } from './+page';
   import { scale } from 'svelte/transition';
   import { bounceIn } from 'svelte/easing';
-  import {getErrorMessage} from '$lib/error/utils';
+  import { getErrorMessage } from '$lib/error/utils';
 
+  // svelte-ignore non_reactive_update
   enum ResetSteps {
     Download,
     Reset,
@@ -18,8 +19,8 @@
     Finished,
   }
 
-  let currentStep = ResetSteps.Download;
-  let changingSteps = false; // only some steps set and use this
+  let currentStep = $state(ResetSteps.Download);
+  let changingSteps = $state(false); // only some steps set and use this
 
   function nextStep(): void {
     currentStep++;
@@ -31,16 +32,16 @@
     error = undefined;
   }
 
-  let code: string;
-  let modal: Modal;
-  let error: ErrorMessage | undefined = undefined;
+  let code: string = $state('');
+  let modal: Modal | undefined = $state();
+  let error: ErrorMessage | undefined = $state(undefined);
 
   export async function open(_code: string, resetStatus: ResetStatus): Promise<boolean> {
     code = _code;
     if (resetStatus == ResetStatus.InProgress) {
       currentStep = ResetSteps.Upload;
     }
-    await modal.openModal(true, true);
+    await modal?.openModal(true, true);
     return currentStep == ResetSteps.Finished;
   }
 
@@ -49,11 +50,11 @@
   let verify = z.object({
     confirmProjectCode: z.string().refine(
       (value) => value === code,
-      () => ({ message: $t('confirm_project_code_error') })
+      () => ({ message: $t('confirm_project_code_error') }),
     ),
     confirmDownloaded: z.boolean().refine(
       (value) => value,
-      () => ({ message: $t('confirm_downloaded_error') })
+      () => ({ message: $t('confirm_downloaded_error') }),
     ),
   });
 
@@ -107,12 +108,18 @@
     }
   }
 
-  let tusUpload: TusUpload;
-  let uploadStatus: UploadStatus;
+  let tusUpload: TusUpload | undefined = $state();
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let uploadStatus: UploadStatus | undefined = $state();
 </script>
 
 <div class="reset-modal contents">
-  <Modal bind:this={modal} on:close={onClose} showCloseButton={false} closeOnClickOutside={uploadStatus !== UploadStatus.Uploading && !changingSteps && !$submitting}>
+  <Modal
+    bind:this={modal}
+    on:close={onClose}
+    showCloseButton={false}
+    closeOnClickOutside={uploadStatus !== UploadStatus.Uploading && !changingSteps && !$submitting}
+  >
     <h2 class="text-xl mb-4">{$t('title', { code })}</h2>
     <ul class="steps w-full mb-2">
       <li class="step step-primary">{$t('backup_step')}</li>
@@ -121,7 +128,7 @@
       <li class="step" class:step-primary={currentStep >= ResetSteps.Finished}>{$t('finished_step')}</li>
     </ul>
 
-    <div class="divider my-2" />
+    <div class="divider my-2"></div>
 
     {#if currentStep === ResetSteps.Download}
       <p class="mb-2 label">
@@ -129,7 +136,7 @@
       </p>
       <a rel="external" href="/api/project/backupProject/{code}" class="btn btn-success" download>
         {$t('download_button')}
-        <span class="i-mdi-download text-2xl" />
+        <span class="i-mdi-download text-2xl"></span>
       </a>
     {:else if currentStep === ResetSteps.Reset}
       <Form id="reset-form" {enhance}>
@@ -168,49 +175,53 @@
         <span
           class="i-mdi-check-circle-outline text-7xl text-success"
           transition:scale={{ duration: 600, start: 0.7, easing: bounceIn }}
-        />
+        ></span>
       </div>
     {:else}
       <span>Unknown step</span>
     {/if}
     <FormError {error} />
-    <svelte:fragment slot="extraActions">
+    {#snippet extraActions()}
       {#if currentStep === ResetSteps.Reset}
-        <button class="btn btn-secondary" on:click={previousStep}>
-          <span class="i-mdi-chevron-left text-2xl" />
+        <button class="btn btn-secondary" onclick={previousStep}>
+          <span class="i-mdi-chevron-left text-2xl"></span>
           {$t('back')}
         </button>
       {/if}
-    </svelte:fragment>
-    <svelte:fragment slot="actions">
+    {/snippet}
+    {#snippet actions()}
       {#if currentStep === ResetSteps.Download}
-      <Button variant="btn-primary" on:click={nextStep}>
-        {$t('i_have_working_backup')}
-        <span class="i-mdi-chevron-right text-2xl" />
-      </Button>
+        <Button variant="btn-primary" onclick={nextStep}>
+          {$t('i_have_working_backup')}
+          <span class="i-mdi-chevron-right text-2xl"></span>
+        </Button>
       {:else if currentStep === ResetSteps.Reset}
-      <Button variant="btn-accent" type="submit" form="reset-form" loading={$submitting}>
-        {$t('submit')}
-        <CircleArrowIcon />
-      </Button>
+        <Button variant="btn-accent" type="submit" form="reset-form" loading={$submitting}>
+          {$t('submit')}
+          <CircleArrowIcon />
+        </Button>
       {:else if currentStep === ResetSteps.Upload}
         {#if uploadStatus !== UploadStatus.NoFile}
-          <Button disabled={uploadStatus !== UploadStatus.Ready && uploadStatus !== UploadStatus.Uploading}
-                  loading={uploadStatus === UploadStatus.Uploading || (uploadStatus === UploadStatus.Complete && changingSteps)}
-                  variant="btn-success" on:click={tusUpload.startUpload}>
+          <Button
+            disabled={uploadStatus !== UploadStatus.Ready && uploadStatus !== UploadStatus.Uploading}
+            loading={uploadStatus === UploadStatus.Uploading ||
+              (uploadStatus === UploadStatus.Complete && changingSteps)}
+            variant="btn-success"
+            onclick={tusUpload?.startUpload}
+          >
             {$t('upload_project')}
           </Button>
         {:else}
-          <Button variant="btn-primary" on:click={leaveProjectEmpty} loading={changingSteps}>
+          <Button variant="btn-primary" onclick={leaveProjectEmpty} loading={changingSteps}>
             {$t('leave_project_empty')}
-            <span class="i-mdi-chevron-right text-2xl" />
+            <span class="i-mdi-chevron-right text-2xl"></span>
           </Button>
         {/if}
       {:else if currentStep === ResetSteps.Finished}
-        <button class="btn btn-primary" on:click={() => modal.submitModal()}>
+        <button class="btn btn-primary" onclick={() => modal?.submitModal()}>
           {$t('close')}
         </button>
       {/if}
-    </svelte:fragment>
+    {/snippet}
   </Modal>
 </div>

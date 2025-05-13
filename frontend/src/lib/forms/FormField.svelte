@@ -1,29 +1,43 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFormId } from './utils';
-  import {NewTabLinkMarkdown} from '$lib/components/Markdown';
+  import { NewTabLinkMarkdown } from '$lib/components/Markdown';
   import type { HelpLink } from '$lib/components/help';
   import SupHelp from '$lib/components/help/SupHelp.svelte';
 
-  export let label: string;
-  export let description: string | undefined = undefined;
-  export let error: string | string[] | undefined = undefined;
-  export let id: string = randomFormId();
-  export let helpLink: HelpLink | undefined = undefined;
-  /**
-   * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
-   * So we allow/support it and disable a11y-autofocus warnings in generic places.
-   */
-  export let autofocus = false;
+  interface Props {
+    label: string;
+    description?: string | undefined;
+    error?: string | string[] | undefined;
+    id?: string;
+    helpLink?: HelpLink | undefined;
+    /**
+     * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
+     * So we allow/support it and disable a11y-autofocus warnings in generic places.
+     */
+    autofocus?: boolean;
+    children?: Snippet;
+  }
 
-  let elem: HTMLDivElement;
+  let {
+    label,
+    description = undefined,
+    error = undefined,
+    id = randomFormId(),
+    helpLink = undefined,
+    autofocus = false,
+    children,
+  }: Props = $props();
+
+  let elem: HTMLDivElement | undefined = $state();
 
   onMount(autofocusIfRequested);
 
   function autofocusIfRequested(): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    autofocus && elem.querySelector<HTMLElement>('input, select, textarea')?.focus();
+    autofocus && elem?.querySelector<HTMLElement>('input, select, textarea')?.focus();
   }
 </script>
 
@@ -36,7 +50,7 @@
       {/if}
     </span>
   </label>
-  <slot />
+  {@render children?.()}
   {#if description}
     <label for={id} class="label pb-0 underline-links">
       <span class="label-text-alt description">

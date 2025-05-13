@@ -6,6 +6,9 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from 'svelte';
+  import { run } from 'svelte/legacy';
+
   import t from '$lib/i18n';
   import Notify from '$lib/notify/Notify.svelte';
   import { OverlayContainer } from '$lib/overlay';
@@ -20,13 +23,27 @@
 
   let dialogResponse = writable<DialogResponse | null>(null);
   let open = writable(false);
-  $: closing = $dialogResponse !== null && $open;
-  // eslint-disable-next-line svelte/valid-compile
-  $: submitting = $dialogResponse === DialogResponse.Submit && $open;
-  export let bottom = false;
-  export let showCloseButton = true;
-  export let closeOnClickOutside = true;
-  export let hideActions: boolean = false;
+  let closing = $derived($dialogResponse !== null && $open);
+  let submitting = $derived($dialogResponse === DialogResponse.Submit && $open);
+  interface Props {
+    bottom?: boolean;
+    showCloseButton?: boolean;
+    closeOnClickOutside?: boolean;
+    hideActions?: boolean;
+    children?: Snippet<[unknown]>;
+    actions?: Snippet<[{ submitting: boolean; closing?: boolean; close: () => void }]>;
+    extraActions?: Snippet;
+  }
+
+  let {
+    bottom = false,
+    showCloseButton = true,
+    closeOnClickOutside = true,
+    hideActions = false,
+    children,
+    actions,
+    extraActions,
+  }: Props = $props();
 
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
     $dialogResponse = null;
@@ -75,29 +92,29 @@
     $open = false;
   }
 
-  // eslint-disable-next-line svelte/valid-compile
-  $: if ($dialogResponse === DialogResponse.Submit) {
-    dispatch('submit');
-  }
-  $: if (!$open && $dialogResponse !== null) {
-    dispatch('close', $dialogResponse);
-  }
-  let dialog: HTMLDialogElement | undefined;
-  //dialog will still work if the browser doesn't support it, but this enables focus trapping and other features
-  $: if (dialog) {
-    if ($open) {
-      //showModal might be undefined if the browser doesn't support dialog
-      dialog.showModal?.call(dialog);
-    } else {
-      dialog.close?.call(dialog);
+  run(() => {
+    if ($dialogResponse === DialogResponse.Submit) {
+      dispatch('submit');
     }
-  }
+  });
+  run(() => {
+    if (!$open && $dialogResponse !== null) {
+      dispatch('close', $dialogResponse);
+    }
+  });
+  let dialog: HTMLDialogElement | undefined = $state();
+  //dialog will still work if the browser doesn't support it, but this enables focus trapping and other features
+  run(() => {
+    if (dialog) {
+      if ($open) {
+        //showModal might be undefined if the browser doesn't support dialog
+        dialog.showModal?.call(dialog);
+      } else {
+        dialog.close?.call(dialog);
+      }
+    }
+  });
 </script>
-<style>
-  .modal-action {
-    justify-content: var(--justify-actions, space-between)
-  }
-</style>
 
 {#if $open}
   <!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
@@ -105,25 +122,25 @@
     bind:this={dialog}
     class="modal justify-items-center"
     class:modal-bottom={bottom}
-    on:cancel={cancelModal}
-    on:close={cancelModal}
+    oncancel={cancelModal}
+    onclose={cancelModal}
   >
     <OverlayContainer />
 
     <div class="modal-box max-w-3xl">
       {#if showCloseButton}
-        <button class="btn btn-sm btn-circle absolute right-2 top-2 z-10" aria-label={$t('close')} on:click={cancelModal}
+        <button class="btn btn-sm btn-circle absolute right-2 top-2 z-10" aria-label={$t('close')} onclick={cancelModal}
           >✕
         </button>
       {/if}
-      <slot {closing} {submitting} />
-      {#if $$slots.actions && !hideActions}
+      {@render children?.({ closing, submitting })}
+      {#if actions && !hideActions}
         <div class="modal-action">
           <div class="flex gap-4">
-            <slot name="extraActions" />
+            {@render extraActions?.()}
           </div>
           <div class="flex gap-4">
-            <slot name="actions" {closing} {submitting} {close} />
+            {@render actions?.({ closing, submitting, close })}
           </div>
         </div>
       {/if}
@@ -136,3 +153,9 @@
     <Notify />
   </dialog>
 {/if}
+
+<style>
+  .modal-action {
+    justify-content: var(--justify-actions, space-between);
+  }
+</style>

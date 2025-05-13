@@ -86,20 +86,40 @@
 }
 
 @layer components {
+  /* shadcn grid start */
   .sm-form {
     grid-template-columns: fit-content(70px) 1fr 1fr;
   }
 
-  .xs-form {
-    grid-template-columns: fit-content(70px) 1fr;
+  .lg-form {
+    grid-template-columns: 180px fit-content(80px) 1fr;
   }
 
   .editor-grid {
     display: grid;
-    grid-template-columns: 170px fit-content(80px) 1fr;
-    @apply sm-form:sm-form;
-    @apply xs-form:xs-form;
+    grid-template-columns: fit-content(70px) 1fr;
+    @apply @lg:sm-form;
+    @apply @3xl:lg-form;
   }
+
+  .field-root {
+    @apply grid grid-cols-subgrid col-span-full items-baseline;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  .field-title {
+    @apply col-span-full ms-2 me-2 mb-2;
+    @apply @3xl:col-span-1;
+  }
+
+  .field-body {
+    @apply grid grid-cols-subgrid;
+    @apply col-span-full;
+    @apply @3xl:col-start-2 @3xl:col-end-4;
+  }
+  /* shadcn grid end */
 
   .collapsible-col {
     overflow-x: hidden;

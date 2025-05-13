@@ -38,7 +38,6 @@
 
   function handleSelect(project: { id: string; name: string }) {
     onSelect(project.name);
-    open = false;
     closeAndFocusTrigger();
   }
 

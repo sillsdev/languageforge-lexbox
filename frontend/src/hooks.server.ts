@@ -28,7 +28,7 @@ async function initI18n(event: RequestEvent): Promise<void> {
   await loadI18n();
 }
 
-// eslint-disable-next-line func-style, @typescript-eslint/unbound-method
+// eslint-disable-next-line func-style
 export const handle: Handle = ({event, resolve}) => {
   console.log(`HTTP request: ${event.request.method} ${event.request.url}`);
   event.locals.getUser = () => getUser(event.cookies);

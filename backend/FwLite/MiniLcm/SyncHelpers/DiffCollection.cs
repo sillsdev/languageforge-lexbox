@@ -52,33 +52,33 @@ public static class DiffCollection
         CollectionDiffApi<T, TId> diffApi) where TId : notnull
     {
         var changes = 0;
-        var afterEntriesDict = after.ToDictionary(diffApi.GetId);
 
-        foreach (var beforeEntry in before)
+        var beforeEntriesDict = before.ToDictionary(diffApi.GetId);
+
+        var postAddUpdates = new List<(T created, T after)>(after.Count);
+        foreach (var afterEntry in after)
         {
-            if (afterEntriesDict.TryGetValue(diffApi.GetId(beforeEntry), out var afterEntry))
+            if (beforeEntriesDict.Remove(diffApi.GetId(afterEntry), out var beforeEntry))
             {
-                changes += await diffApi.Replace(beforeEntry, afterEntry);
+                postAddUpdates.Add((beforeEntry, afterEntry)); // defer updating existing entry
             }
             else
             {
-                changes += await diffApi.Remove(beforeEntry);
+                var (change, created) = await diffApi.AddAndGet(afterEntry); // create new entry
+                changes += change;
+                postAddUpdates.Add((created, afterEntry)); // defer updating new entry
             }
-
-            afterEntriesDict.Remove(diffApi.GetId(beforeEntry));
         }
 
-        var postAddUpdates = new List<(T created, T after)>(afterEntriesDict.Values.Count);
-        foreach (var value in afterEntriesDict.Values)
-        {
-            var (change, created) = await diffApi.AddAndGet(value);
-            changes += change;
-            postAddUpdates.Add((created, value));
-        }
         foreach ((var createdItem, var afterItem) in postAddUpdates)
         {
             //todo this may do a lot more work than it needs to, eg sense will be created during add, but they will be checked again here when we know they didn't change
-            await diffApi.Replace(createdItem, afterItem);
+            changes += await diffApi.Replace(createdItem, afterItem);
+        }
+
+        foreach (var beforeEntry in beforeEntriesDict.Values)
+        {
+            changes += await diffApi.Remove(beforeEntry);
         }
 
         return changes;
