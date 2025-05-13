@@ -10,10 +10,10 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
         var writingSystem = new WritingSystem()
         {
             Id = Guid.NewGuid(),
-            WsId = "de",
-            Abbreviation = "De",
+            WsId = "es",
+            Abbreviation = "Es",
             Font = "test",
-            Name = "German",
+            Name = "Spanish",
             Type = WritingSystemType.Analysis
         };
         await fixture.Api.CreateWritingSystem(writingSystem);
@@ -22,7 +22,7 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
         await fixture.DataModel.AddChange(Guid.NewGuid(),
             new CreateWritingSystemChange(writingSystem, Guid.NewGuid(), 2));
         var writingSystems = await fixture.Api.GetWritingSystems();
-        writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "de");
+        writingSystems.Analysis.Should().ContainSingle(ws => ws.WsId == "es");
     }
 
     [Fact]
