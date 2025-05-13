@@ -5,7 +5,7 @@
   export let name: string;
   export let email: string;
   export let baseUrl: string;
-  let approveUrl = new URL(`/admin/approveFWBetaRequest?userEmail=${encodeURIComponent(email)}`, baseUrl);
+  let approveUrl = new URL(`/admin/?userSearch=${encodeURIComponent(email)}`, baseUrl);
 </script>
 
 <Email subject={$t('emails.join_fw_lite_beta_request_email.subject')} {name}>

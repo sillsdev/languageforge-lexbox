@@ -3,7 +3,7 @@ import NewAdmin from '$lib/email/NewAdmin.svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
 import JoinProjectRequest from '$lib/email/JoinProjectRequest.svelte';
-import JoinFWLiteBetaRequest from '$lib/email/JoinFWLiteBetaRequest.svelte';
+import JoinFwLiteBetaRequest from '$lib/email/JoinFwLiteBetaRequest.svelte';
 import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
 import ApproveProjectRequest from '$lib/email/ApproveProjectRequest.svelte';
@@ -22,7 +22,7 @@ export const enum EmailTemplate {
     JoinProjectRequest = 'JOIN_PROJECT_REQUEST',
     CreateProjectRequest = 'CREATE_PROJECT_REQUEST',
     ApproveProjectRequest = 'APPROVE_PROJECT_REQUEST',
-    JoinFWLiteBetaRequest = 'JOIN_FW_LITE_BETA_REQUEST',
+    JoinFwLiteBetaRequest = 'JOIN_FW_LITE_BETA_REQUEST',
     UserAdded = 'USER_ADDED',
 }
 
@@ -36,7 +36,7 @@ export const componentMap = {
     [EmailTemplate.JoinProjectRequest]: JoinProjectRequest,
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
     [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
-    [EmailTemplate.JoinFWLiteBetaRequest]: JoinFWLiteBetaRequest,
+    [EmailTemplate.JoinFwLiteBetaRequest]: JoinFwLiteBetaRequest,
     [EmailTemplate.UserAdded]: UserAdded,
 } satisfies Record<EmailTemplate, Component<never>>;
 // Note: Foo<never> means "Foo<T> but I don't care what T is" and is apparently preferred over Foo<any> in modern Typescript
@@ -100,7 +100,7 @@ interface UserAddedProps extends EmailTemplatePropsBase<EmailTemplate.UserAdded>
   projectCode: string;
 }
 
-interface JoinFWLiteBetaRequestProps extends EmailTemplatePropsBase<EmailTemplate.JoinFWLiteBetaRequest> {
+interface JoinFwLiteBetaRequestProps extends EmailTemplatePropsBase<EmailTemplate.JoinFwLiteBetaRequest> {
   name: string;
   userId: string;
 }
@@ -115,5 +115,5 @@ export type EmailTemplateProps =
     | CreateProjectProps
     | ApproveProjectProps
     | UserAddedProps
-    | JoinFWLiteBetaRequestProps
+    | JoinFwLiteBetaRequestProps
     | EmailTemplatePropsBase<EmailTemplate>;

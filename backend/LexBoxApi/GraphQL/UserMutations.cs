@@ -53,7 +53,7 @@ public class UserMutations
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
         var user = await dbContext.Users.FindAsync(input.UserId);
         NotFoundException.ThrowIfNull(user);
-        await emailService.SendJoinFWLiteBetaEmail(user);
+        await emailService.SendJoinFwLiteBetaEmail(user);
         return new MeDto
         {
             Id = user.Id,

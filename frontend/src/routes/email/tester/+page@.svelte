@@ -18,6 +18,13 @@
       lifetime: '3.00:00:00', // 3 days
     },
     {
+      template: EmailTemplate.JoinFwLiteBetaRequest,
+      label: 'Join FW Lite Beta',
+      baseUrl: location.origin,
+      name: 'Test Editor',
+      email: 'editor@test.com',
+    },
+    {
       template: EmailTemplate.VerifyEmailAddress,
       name: 'Bob',
       verifyUrl: absoluteUrl('user?emailResult=verifiedEmail'),

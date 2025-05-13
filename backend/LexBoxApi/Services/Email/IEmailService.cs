@@ -57,6 +57,6 @@ public interface IEmailService
     public Task SendCreateProjectRequestEmail(LexAuthUser user, CreateProjectInput projectInput);
     public Task SendApproveProjectRequestEmail(User user, CreateProjectInput projectInput);
     public Task SendUserAddedEmail(User user, string projectName, string projectCode);
-    public Task SendJoinFWLiteBetaEmail(User user);
+    public Task SendJoinFwLiteBetaEmail(User user);
     public Task SendEmailAsync(MimeMessage message);
 }

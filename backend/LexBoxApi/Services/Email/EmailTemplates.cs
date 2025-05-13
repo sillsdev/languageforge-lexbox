@@ -23,7 +23,7 @@ public enum EmailTemplate
     CreateProjectRequest,
     ApproveProjectRequest,
     UserAdded,
-    JoinFWLiteBetaRequest,
+    JoinFwLiteBetaRequest,
 }
 
 public record ForgotPasswordEmail(string Name, string ResetUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.ForgotPassword);
@@ -42,4 +42,4 @@ public record CreateProjectRequestUser(string Name, string Email);
 public record CreateProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.CreateProjectRequest);
 public record ApproveProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.ApproveProjectRequest);
 public record UserAddedEmail(string Name, string Email, string ProjectName, string ProjectCode) : EmailTemplateBase(EmailTemplate.UserAdded);
-public record JoinFWLiteBetaEmail(string Name, string Email) : EmailTemplateBase(EmailTemplate.JoinFWLiteBetaRequest);
+public record JoinFwLiteBetaEmail(string Name, string Email) : EmailTemplateBase(EmailTemplate.JoinFwLiteBetaRequest);
