@@ -97,15 +97,10 @@ public class CrdtMiniLcmApi(
     {
         await validators.ValidateAndThrow(writingSystem);
         var entityId = Guid.NewGuid();
+        var exists = await WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == writingSystem.Type);
+        if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == writingSystem.Type);
-        try
-        {
-            await AddChange(new CreateWritingSystemChange(writingSystem, entityId, wsCount));
-        }
-        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.CausedByUniqueConstraintViolation())
-        {
-            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
-        }
+        await AddChange(new CreateWritingSystemChange(writingSystem, entityId, wsCount));
         return await GetWritingSystem(writingSystem.WsId, writingSystem.Type) ?? throw new NullReferenceException();
     }
 
