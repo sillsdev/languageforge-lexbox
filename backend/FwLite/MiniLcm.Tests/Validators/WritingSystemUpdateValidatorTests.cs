@@ -29,6 +29,14 @@ public class WritingSystemUpdateValidatorTests
     }
 
     [Fact]
+    public void Fails_WhenTryingToUpdateType()
+    {
+        var update = NewUpdate();
+        update.Set(ws => ws.Type, WritingSystemType.Analysis);
+        _validator.TestValidate(update).ShouldHaveValidationErrorFor(nameof(WritingSystem.Type));
+    }
+
+    [Fact]
     public void Fails_WhenThereAreNoChanges()
     {
         var update = NewUpdate();

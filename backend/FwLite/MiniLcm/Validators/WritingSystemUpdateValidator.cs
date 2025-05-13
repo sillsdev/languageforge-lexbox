@@ -16,6 +16,9 @@ public class WritingSystemUpdateValidator : AbstractValidator<UpdateObjectInput<
                         StringComparison.InvariantCultureIgnoreCase)))
                 context.AddFailure(nameof(WritingSystem.WsId), "Not allowed to update WsId");
         });
+        RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.WsId));
+        RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.Type));
+        RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.DeletedAt));
         RuleFor(u => u.Patch.Operations).NotEmpty();
     }
 }
