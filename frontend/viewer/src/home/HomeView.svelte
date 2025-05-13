@@ -206,6 +206,15 @@
           </div>
         </div>
         <ServersList localProjects={projects} {refreshProjects} />
+        <div>
+          <h2>{$t`Where's my project?`}</h2>
+          <p>
+            <a href="https://lexbox.org/wheresMyProject"
+              >{$t`If you don't see your project, click here for instructions`}</a
+            >
+          </p>
+          <!-- TODO: Get link target from config so it can be http://localhost during development -->
+        </div>
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
