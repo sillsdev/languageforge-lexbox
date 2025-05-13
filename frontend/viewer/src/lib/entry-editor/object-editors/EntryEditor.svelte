@@ -65,7 +65,7 @@
       entry.senses = entry.senses.filter(s => s.id !== sense.id);
       return;
     }
-    if (!await dialogService.promptDelete('Sense')) return;
+    if (!await dialogService.promptDelete(pt($t`Sense`, $t`Meaning`, $currentView), writingSystemService.firstGloss(sense))) return;
     entry.senses = entry.senses.filter(s => s.id !== sense.id);
     ondelete?.({entry, sense});
   }
@@ -83,7 +83,7 @@
       entry = entry; // examples are not updated without this
       return;
     }
-    if (!await dialogService.promptDelete('Example sentence')) return;
+    if (!await dialogService.promptDelete($t`Example sentence`, '#' + (sense.exampleSentences.indexOf(example) + 1))) return;
     sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
     ondelete?.({entry, sense, example});
     entry = entry; // examples are not updated without this
