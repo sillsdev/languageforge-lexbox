@@ -12,13 +12,13 @@
   };
 
   type ReordererRootStateProps<T = unknown> = {
-    item: T;
+    readonly item: T;
     items: T[];
-    first: boolean;
-    last: boolean;
-    direction: 'horizontal' | 'vertical';
-    getDisplayName: (item: T) => string | undefined;
-    onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
+    readonly first: boolean;
+    readonly last: boolean;
+    readonly direction: 'horizontal' | 'vertical';
+    readonly getDisplayName: (item: T) => string | undefined;
+    readonly onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
   };
 
   const reordererRootContext = new Context<ReordererRootStateProps>('Reorderer.Root');
@@ -60,16 +60,16 @@
   const first = $derived(index === 0);
   const last = $derived(index === count - 1);
 
-  const rootStateProps = $state({
-    item,
+  const rootStateProps = {
+    get item() { return item; },
     get items() { return items; },
     set items(value) { items = value; },
     get first() { return first; },
     get last() { return last; },
-    direction,
-    getDisplayName,
-    onchange,
-  });
+    get direction() { return direction; },
+    get getDisplayName() { return getDisplayName; },
+    get onchange() { return onchange; },
+  };
 
   useReordererRoot(rootStateProps);
 </script>
