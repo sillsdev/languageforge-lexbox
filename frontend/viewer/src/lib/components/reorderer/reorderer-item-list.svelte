@@ -5,7 +5,6 @@
 </script>
 
 <script lang="ts" generics="T">
-  import {watch} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import type {HTMLAttributes} from 'svelte/elements';
@@ -21,14 +20,12 @@
   const {item, items, getDisplayName, onchange} = $derived(itemListState);
 
   const currIndex = $derived(items.indexOf(item));
-  let displayItems = $derived(items);
   let displayIndex = $derived(currIndex);
-
-  watch([() => items, () => displayIndex], () => {
+  let displayItems = $derived.by(() => {
     const newDisplayItems = [...items];
     newDisplayItems.splice(currIndex, 1);
     newDisplayItems.splice(displayIndex, 0, items[currIndex]);
-    displayItems = newDisplayItems;
+    return newDisplayItems;
   });
 
   function move(): void {
