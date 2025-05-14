@@ -49,7 +49,7 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
         {
             Code = code;
             VariantSubtag audioVariant = WellKnownSubtags.AudioPrivateUse;
-            IsAudio = scriptSubtag.Code.Equals(WellKnownSubtags.AudioScript, StringComparison.OrdinalIgnoreCase) &&
+            IsAudio = scriptSubtag?.Code.Equals(WellKnownSubtags.AudioScript, StringComparison.OrdinalIgnoreCase) == true &&
                       variantSubtags.Any(v => v == audioVariant);
         }
         else

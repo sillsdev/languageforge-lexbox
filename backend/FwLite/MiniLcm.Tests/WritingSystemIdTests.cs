@@ -1,10 +1,23 @@
-﻿namespace MiniLcm.Tests;
+﻿using SIL.WritingSystems;
+
+namespace MiniLcm.Tests;
 
 public class WritingSystemIdTests
 {
+    public WritingSystemIdTests()
+    {
+        if (!Sldr.IsInitialized)
+            Sldr.Initialize();
+    }
+
+    public static IEnumerable<object[]> ValidWritingSystemIds =>
+        WritingSystemCodes.ValidTwoLetterCodes.Select(code => new object[] { code });
+
     [Theory]
+    [MemberData(nameof(ValidWritingSystemIds))]
     [InlineData("en")]
     [InlineData("th")]
+    [InlineData("xba")]
     [InlineData("en-Zxxx-x-audio")]
     public void ValidWritingSystemId_ShouldNotThrow(string code)
     {
