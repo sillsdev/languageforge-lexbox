@@ -27,7 +27,7 @@
     projectId: string;
   }
 
-  let { projectId }: Props = $props();
+  const { projectId }: Props = $props();
   const schema = z.object({
     usernamesText: z.string().trim().min(1, $t('project_page.bulk_add_members.empty_user_field')),
     password: passwordFormRules($t),

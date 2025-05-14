@@ -4,8 +4,6 @@
 </script>
 
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import t, { date } from '$lib/i18n';
 
   import type { Circle, Path } from './TrainTracks.svelte';
@@ -27,7 +25,7 @@
     projectCode: string;
   }
 
-  let { logEntries, loading, projectCode }: Props = $props();
+  const { logEntries, loading, projectCode }: Props = $props();
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -104,33 +102,33 @@
     return paths;
   }
 
-  let expandedLog: ExpandedLogEntry[] = $state([]);
-
   function trimEntry(orig: string): string {
     // The [program: version string] part of log entries can get quite long, so let's trim it for the graph
     return orig.replace(logEntryRe, '');
   }
 
-  let heights: number[] = $state([]);
-  run(() => {
-    expandedLog = (logEntries ?? []) as ExpandedLogEntry[];
+  const heights: number[] = $state([]);
+  function expandLog(logEntries: LogEntries): ExpandedLogEntry[] {
+    let expandedLog = (logEntries ?? []).slice() as ExpandedLogEntry[];
     assignRowsAndColumns(expandedLog);
     expandedLog = expandedLog.map((e) => ({
       ...e,
       trimmedLog: trimEntry(e.desc),
     }));
-  });
-  let circles = $derived(expandedLog.map((entry, idx): Circle => ({ row: idx, col: entry.col })));
-  let paths = $derived(assignPaths(expandedLog));
+    return expandedLog;
+  }
+  const expandedLog = $derived(expandLog(logEntries));
+  const circles = $derived(expandedLog.map((entry, idx): Circle => ({ row: idx, col: entry.col })));
+  const paths = $derived(assignPaths(expandedLog));
 </script>
 
 <table class="table table-zebra">
   <thead>
     <tr class="sticky top-0 z-[1] bg-base-100">
-      <th></th>
       <!-- No header on train-tracks column -->
+      <th></th>
+      <!-- "Revision" is too long for this column so we use # -->
       <th>#</th>
-      <!-- "Revision" is too long -->
       <th>{$t('project_page.hg.date_header')}</th>
       <th>{$t('project_page.hg.author_header')}</th>
       <th>{$t('project_page.hg.log_header')}</th>

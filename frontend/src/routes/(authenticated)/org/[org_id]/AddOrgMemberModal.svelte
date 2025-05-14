@@ -17,7 +17,7 @@
     org: Org;
   }
 
-  let { org }: Props = $props();
+  const { org }: Props = $props();
 
   const schema = z.object({
     usernameOrEmail: z
@@ -124,7 +124,7 @@
         isAdmin={$page.data.user?.isAdmin}
         bind:value={$form!.usernameOrEmail}
         error={errors.usernameOrEmail}
-        on:selectedUserChange={(event) => populateUserProjects(event.detail)}
+        onSelectedUserChange={populateUserProjects}
         autofocus
         exclude={org.members.map((m) => m.user.id)}
       />

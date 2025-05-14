@@ -4,7 +4,7 @@
         size?: IconSize;
     }
 
-    let { size = 'text-2xl' }: Props = $props();
+  const { size = 'text-2xl' }: Props = $props();
 </script>
 
 <!-- https://icon-sets.iconify.design/healthicons/ui-user-profile/ -->

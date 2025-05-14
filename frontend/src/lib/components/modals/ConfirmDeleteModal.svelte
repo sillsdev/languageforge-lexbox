@@ -23,7 +23,7 @@
     i18nScope: I18nShapeKey<DeleteModalI18nShape>;
   }
 
-  let { i18nScope }: Props = $props();
+  const { i18nScope }: Props = $props();
   let name: string | undefined = $state();
 
   export async function open(_name: string, onSubmit: FormSubmitCallback<Schema>): Promise<FormModalResult<Schema>> {

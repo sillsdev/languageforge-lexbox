@@ -14,11 +14,6 @@
 
 <script lang="ts">
   import t, { number } from '$lib/i18n';
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher<{
-    clickTab: OrgTabId
-  }>();
 
   interface Props {
     hideSettingsTab?: boolean;
@@ -31,15 +26,9 @@
     hideSettingsTab = false,
     activeTab = $bindable('projects'),
     projectCount,
-    memberCount
+    memberCount,
   }: Props = $props();
 
-  function handleTabChange(tab: OrgTabId): void {
-    const proceed = dispatch('clickTab', tab);
-    if (proceed) {
-      activeTab = tab;
-    }
-  }
   let visibleTabs = $derived(hideSettingsTab ? orgTabs.filter(t => t !== 'settings') : orgTabs);
 </script>
 
@@ -47,7 +36,7 @@
   <div class="tab tab-divider"></div>
   {#each visibleTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <button onclick={() => handleTabChange(tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
+    <button onclick={() => activeTab = tab} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
       <h2 class="text-lg flex gap-4 items-center">
         {$t(DEFAULT_TAB_I18N[tab])}
         {#if tab === 'projects'}

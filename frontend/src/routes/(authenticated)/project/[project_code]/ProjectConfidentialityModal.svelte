@@ -11,7 +11,7 @@
     isConfidential: boolean | undefined;
   }
 
-  let { projectId, isConfidential }: Props = $props();
+  const { projectId, isConfidential }: Props = $props();
 
   const schema = z.object({
     isConfidential: z.boolean(),

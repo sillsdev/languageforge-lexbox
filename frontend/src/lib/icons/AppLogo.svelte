@@ -1,15 +1,14 @@
-﻿<script lang="ts">
+<script lang="ts">
   import logoDark from '$lib/assets/logo-dark.svg';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoMono from '$lib/assets/logo-mono.svg?raw';
-  
 
   interface Props {
     class?: string;
     mono?: boolean;
   }
 
-  let { class: className = '', mono = false }: Props = $props();
+  const { class: className = '', mono = false }: Props = $props();
 </script>
 
 {#if mono}

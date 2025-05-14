@@ -16,7 +16,7 @@
     isEmpty: boolean;
   }
 
-  let { project, isEmpty }: Props = $props();
+  const { project, isEmpty }: Props = $props();
   type SyncResult = { crdtChanges: number; fwdataChanges: number };
 
   const { notifySuccess, notifyWarning } = useNotifications();

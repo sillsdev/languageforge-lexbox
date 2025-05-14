@@ -16,5 +16,5 @@
     <RegisterWithGoogleButton href={`/api/login/google`}/>
   </div>
   <div class="divider lowercase">{$t('common.or')}</div>
-  <CreateUser handleSubmit={register} on:submitted={onSubmit} />
+  <CreateUser handleSubmit={register} onSubmitted={onSubmit} />
 </TitlePage>

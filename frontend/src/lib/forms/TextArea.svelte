@@ -4,23 +4,23 @@
 
   interface Props {
     label: string;
-    description?: string | undefined;
-    value?: string | undefined;
+    description?: string;
+    value?: string;
     id?: string;
     autofocus?: boolean;
     readonly?: boolean;
-    error?: string | string[] | undefined;
+    error?: string | string[];
     placeholder?: string;
   }
 
   let {
     label,
-    description = undefined,
-    value = $bindable(undefined),
+    description,
+    value = $bindable(),
     id = randomFormId(),
     autofocus = false,
     readonly = false,
-    error = undefined,
+    error,
     placeholder = '',
   }: Props = $props();
 </script>

@@ -11,12 +11,10 @@
 </script>
 
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { Upload, type DetailedError } from 'tus-js-client';
   import { Button, FormError, FormField } from '$lib/forms';
   import { env } from '$env/dynamic/public';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy } from 'svelte';
   import t from '$lib/i18n';
   import IconButton from './IconButton.svelte';
 
@@ -24,25 +22,26 @@
     endpoint: string;
     accept: string;
     inputLabel?: string;
-    inputDescription?: string | undefined;
+    inputDescription?: string;
     internalButton?: boolean;
+    onUploadComplete?: (upload: Upload) => void;
+    onStatus?: (status: UploadStatus) => void;
   }
 
-  let {
+  const {
     endpoint,
     accept,
     inputLabel = $t('tus.select_file'),
-    inputDescription = undefined,
+    inputDescription,
     internalButton = false,
+    onUploadComplete,
+    onStatus,
   }: Props = $props();
-  const dispatch = createEventDispatcher<{
-    uploadComplete: { upload: Upload };
-    status: UploadStatus;
-  }>();
 
   let status = $state(UploadStatus.NoFile);
-  run(() => {
-    dispatch('status', status);
+  // We used to dispatch in an onMount() call, but $effect runs on mount so the onMount() dispatch is redundant
+  $effect(() => {
+    onStatus?.(status);
   });
 
   let percent = $state(0);
@@ -76,7 +75,7 @@
       onSuccess: () => {
         status = UploadStatus.Complete;
         percent = 100;
-        if (upload) dispatch('uploadComplete', { upload });
+        if (upload) onUploadComplete?.(upload);
       },
       onError: (err) => {
         status = UploadStatus.Error;
@@ -123,11 +122,6 @@
       return 'unknown';
     }
   }
-
-  onMount(() => {
-    // make sure listeners are ready
-    dispatch('status', status);
-  });
 
   //svelte on on mount
   onDestroy(() => {

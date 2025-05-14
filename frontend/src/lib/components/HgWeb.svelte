@@ -3,7 +3,7 @@
     code: string;
   }
 
-  let { code }: Props = $props();
+  const { code }: Props = $props();
   function injectStyles(arg: Event | HTMLIFrameElement): void {
     const iframe = 'target' in arg ? (arg.target as HTMLIFrameElement) : arg;
     iframe.contentDocument?.head.insertAdjacentHTML(

@@ -8,7 +8,7 @@
     content?: Snippet;
   }
 
-  let { disabled = false, children, content }: Props = $props();
+  const { disabled = false, children, content }: Props = $props();
 </script>
 
 <div class="dropdown-container inline-flex" use:overlay={{ disabled, closeClickSelector: '.menu li' }}>

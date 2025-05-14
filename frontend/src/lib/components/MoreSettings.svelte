@@ -7,7 +7,7 @@
     children?: Snippet;
   }
 
-  let { column = false, children }: Props = $props();
+  const { column = false, children }: Props = $props();
 </script>
 
 <div class="collapse border-2 border-base-200 collapse-arrow mt-4">

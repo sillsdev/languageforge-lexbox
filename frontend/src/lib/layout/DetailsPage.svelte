@@ -9,13 +9,7 @@
     details?: Snippet;
   }
 
-  let {
-    details,
-    headerContent,
-    badges,
-    children,
-    ...rest
-  }: Props = $props();
+  const { details, headerContent, badges, children, ...rest }: Props = $props();
 
   const headerContentRender = $derived(headerContent);
 </script>

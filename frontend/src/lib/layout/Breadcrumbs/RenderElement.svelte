@@ -1,17 +1,16 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   interface Props {
     el: Element;
     tag?: string;
   }
 
-  let { el, tag = 'div' }: Props = $props();
+  const { el, tag = 'div' }: Props = $props();
   let target: Element | undefined = $state();
-  run(() => {
-    if (target && el)
+  // TODO: Once PageBreadcrumb stores snippets, just render them instead of manipulating DOM ourselves
+  $effect(() => {
+    if (el)
       // eslint-disable-next-line svelte/no-dom-manipulating
-      target.replaceChildren(el);
+      target?.replaceChildren(el);
   });
 </script>
 

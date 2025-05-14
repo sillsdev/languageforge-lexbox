@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import {
     SubmitButton,
@@ -15,7 +13,7 @@
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
   import { z } from 'zod';
   import type { StringifyValues } from '$lib/type.utils';
@@ -33,6 +31,7 @@
       locale: string,
       turnstileToken: string,
     ) => Promise<RegisterResponse>;
+    onSubmitted?: (submittedUser: LexAuthUser) => void;
     formTainted?: boolean;
   }
 
@@ -42,12 +41,9 @@
     skipTurnstile = false,
     submitButtonText = $t('register.button_register'),
     handleSubmit,
+    onSubmitted,
     formTainted = $bindable(false),
   }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    submitted: LexAuthUser;
-  }>();
 
   type RegisterPageQueryParams = {
     name: string;
@@ -101,12 +97,12 @@
       return;
     }
     if (user) {
-      dispatch('submitted', user);
+      onSubmitted?.(user);
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
   });
-  run(() => {
+  $effect(() => {
     formTainted = !!$tainted;
   });
   onMount(() => {

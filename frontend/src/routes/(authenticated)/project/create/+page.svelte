@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { goto } from '$app/navigation';
   import {
     Checkbox,
@@ -31,7 +29,7 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived as derivedStore, writable, type Readable } from 'svelte/store';
+  import { derived as derivedStore, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -40,8 +38,9 @@
   import Button from '$lib/forms/Button.svelte';
   import { projectUrl } from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import {watch} from 'runed';
 
-  let { data } = $props();
+  const { data } = $props();
   let user = $derived(data.user);
   let requestingUser: typeof data.requestingUser = $state();
   let myOrgs = $derived(data.myOrgs ?? []);
@@ -101,7 +100,6 @@
     }
   });
 
-  const asyncCodeError = writable<string | undefined>();
   const codeStore = derivedStore(form, (f) => f.code);
   const codeIsAvailable = deriveAsync(
     codeStore,
@@ -112,10 +110,11 @@
     true,
     true,
   );
-  run(() => {
-    $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
-  });
-  const codeErrors = derivedStore([errors, asyncCodeError], () => [
+  const asyncCodeError = derivedStore(
+    codeIsAvailable,
+    (avail) => (avail ? undefined : $t('project.create.code_exists')),
+  );
+  const codeErrors = derivedStore([errors, asyncCodeError], ([$errors, $asyncCodeError]) => [
     ...new Set(concatAll($errors.code, $asyncCodeError)),
   ]);
 
@@ -205,19 +204,16 @@
     );
   });
 
-  run(() => {
-    if (!$form.customCode) {
-      const type = $form.type;
-      const retentionPolicy = $form.retentionPolicy;
-      const languageCode = $form.languageCode;
-      form.update(
-        (form) => {
-          form.code = buildProjectCode(languageCode, type, retentionPolicy);
-          return form;
-        },
-        { taint: false },
-      );
-    }
+  const calculatedCode = $derived(buildProjectCode($form.languageCode, $form.type, $form.retentionPolicy));
+  const code = $derived($form.customCode ? $form.code : calculatedCode);
+
+  watch(() => code, () => {
+    form.update((form) => {
+      form.code = code;
+      return form;
+    },
+    { taint: false },
+    );
   });
 
   let selectedProject: { name: string; id: string } | undefined = $state(undefined);
@@ -282,7 +278,7 @@
               canManage
               member={{ ...requestingUser, role: ProjectRole.Manager }}
               type="new"
-              on:action={() => (requestingUser = undefined)}
+              onAction={() => (requestingUser = undefined)}
             />
           {:else}
             <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>
