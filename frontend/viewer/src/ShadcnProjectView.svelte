@@ -19,6 +19,8 @@
   import TasksView from './project/tasks/TasksView.svelte';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {navigate, Route, Router, useLocation, useRouter} from 'svelte-routing';
+  import {untrack} from 'svelte';
 
   const {
     onloaded,
@@ -32,8 +34,13 @@
     showHomeButton?: boolean;
   } = $props();
   let currentView: View = $state('browse');
+  $effect(() => {
+    let newLocation = '/' + untrack(() => $base.path) + currentView;
+    setTimeout(() => navigate(newLocation));
+  });
   const fieldView = initView();
   const viewSettings = initViewSettings();
+  const {base} = useRouter();
 
   onMount(() => {
     onloaded(true);
@@ -45,11 +52,12 @@
   <Sidebar.Provider bind:open>
       <ProjectSidebar bind:currentView />
       <Sidebar.Inset class="flex-1 relative">
-        {#if currentView === 'browse'}
-          <BrowseView />
-        {:else if currentView === 'tasks'}
-          <TasksView />
-        {/if}
+          <Route path="">
+            <BrowseView />
+          </Route>
+          <Route path="/tasks">
+            <TasksView />
+          </Route>
       </Sidebar.Inset>
   </Sidebar.Provider>
 </div>

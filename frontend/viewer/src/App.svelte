@@ -76,21 +76,21 @@
   <nav>
   </nav>
   <div class="app">
-    <Route path="/project/:code" let:params>
+    <Route path="/project/:code/*" let:params>
       <Router {url} basepath="/project/{params.code}">
         {#key params.code}
           <DotnetProjectView code={params.code} type="crdt"/>
         {/key}
       </Router>
     </Route>
-    <Route path="/fwdata/:name" let:params>
+    <Route path="/fwdata/:name/*" let:params>
       <Router {url} basepath="/fwdata/{params.name}">
         {#key params.name}
           <DotnetProjectView code={params.name} type="fwdata"/>
         {/key}
       </Router>
     </Route>
-    <Route path="/testing/project-view">
+    <Route path="/testing/project-view/*">
       <Router {url} basepath="/testing/project-view">
         <TestProjectView/>
       </Router>
