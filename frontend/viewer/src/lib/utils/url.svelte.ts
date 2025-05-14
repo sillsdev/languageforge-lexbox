@@ -40,7 +40,6 @@ export class QueryParamState {
     this.#subscribe = createSubscriber(update => {
       const off = location.subscribe(() => {
         this.#current = this.readUrlValue();
-        console.log(this.#current);
         update();
       });
       return () => off();

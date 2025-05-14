@@ -195,7 +195,7 @@
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <h3 class="font-medium">Search Params binding</h3>
     <input bind:value={nameSearchParam.current}/>
-    <Link to="/sandbox?name=batman" class={buttonVariants({variant: 'default'})}>Go to Batman</Link>
+    <Link to="/sandbox?name=batman" class={buttonVariants({variant: 'default'})} preserveScroll>Go to Batman</Link>
     <Switch label="Good" bind:checked={goodSearchParam.current}/>
   </div>
 </div>
