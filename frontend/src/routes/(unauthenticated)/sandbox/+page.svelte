@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { Button, Form, Input, lexSuperForm, SubmitButton } from '$lib/forms';
@@ -13,6 +13,7 @@
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import { Modal } from '$lib/components/modals';
   import { useNotifications } from '$lib/notify';
+  import {DebouncedInput} from '$lib/forms';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -50,6 +51,9 @@
   let deleteModal: DeleteModal | undefined = $state();
   let notificationModal: Modal | undefined = $state();
   let notificationModalIsAtBottom = $state(false);
+
+  let inputValue = $state('');
+  let inputUndebouncedValue = $state('');
 </script>
 
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
@@ -217,6 +221,14 @@
       >
         Play with notifications
       </Button>
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title">Debounced input</h2>
+      <DebouncedInput bind:value={inputValue} bind:undebouncedValue={inputUndebouncedValue}/>
+      <p>Raw value: {inputUndebouncedValue}, debounced value: {inputValue}</p>
     </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DEFAULT_DEBOUNCE_TIME } from '$lib/util/time';
-  import { Debounced } from 'runed';
+  import { Debounced, watch } from 'runed';
   import PlainInput, { type PlainInputProps } from './PlainInput.svelte';
 
   let input: PlainInput | undefined = $state();
@@ -31,7 +31,7 @@
     ...rest
   }: Props = $props();
 
-  $effect(() => {
+  watch(() => value, () => {
     undebouncedValue = value;
   });
 
@@ -43,7 +43,7 @@
     () => undebouncedValue,
     () => debounceTime,
   );
-  $effect(() => {
+  watch(() => debouncer.current, () => {
     value = debouncer.current;
   });
 </script>
