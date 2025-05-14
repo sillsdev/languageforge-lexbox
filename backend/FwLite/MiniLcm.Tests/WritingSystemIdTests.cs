@@ -14,6 +14,7 @@ public class WritingSystemIdTests
 
     [Theory]
     [InlineData("en-Zxxx-x-audio")]
+    [InlineData("seh-Zxxx-x-audio-var")]
     public void DetectsAudioWritingSystems(string code)
     {
         var ws = new WritingSystemId(code);
