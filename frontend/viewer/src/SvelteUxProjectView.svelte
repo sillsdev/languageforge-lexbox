@@ -119,7 +119,9 @@
 
   const writingSystemService = initWritingSystemService(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.getWritingSystems();
+    return lexboxApi.getWritingSystems().then(ws => {
+      return {analysis: ws.analysis.filter(ws => !ws.isAudio), vernacular: ws.vernacular.filter(ws => !ws.isAudio)};
+    });
   }).value);
 
   const trigger = writable(0);
