@@ -38,6 +38,9 @@
   const {base} = useRouter();
 
   watch(() => currentView, () => {
+    const urlView = location.pathname.split('/').pop();
+    if (urlView === currentView) return; // avoid losing query params
+
     let newLocation = `${$base.uri}/${currentView}`;
     setTimeout(() => navigate(newLocation));
   });
