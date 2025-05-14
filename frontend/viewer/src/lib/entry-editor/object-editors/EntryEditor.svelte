@@ -224,11 +224,9 @@
 <style lang="postcss" global>
   .highlight {
     & :is(h2, h3) {
-      @apply text-info-500;
     }
 
     & hr {
-      @apply border-info-500;
     }
   }
 </style>

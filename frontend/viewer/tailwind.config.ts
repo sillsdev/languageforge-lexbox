@@ -29,7 +29,6 @@ export default {
       // Search showing aliases and version (of root source) icons were introduced: https://pictogrammers.com/library/mdi/
       collections: getIconCollections(['mdi']),
     }),
-    svelteUx({colorSpace: 'hsl'}),
     typography,
     containerQueries,
     tailwindcssAnimate,

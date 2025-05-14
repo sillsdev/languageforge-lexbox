@@ -16,7 +16,6 @@
   @apply block min-h-full;
   height: max(auto, 100%);
   scroll-behavior: smooth;
-  @apply bg-surface-100;
   interpolate-size: allow-keywords;
 }
 
@@ -56,7 +55,6 @@
   @apply max-md:rounded-none;
 
   .actions {
-    @apply bg-surface-200;
     position: sticky;
     bottom: 0;
     z-index: 2;
@@ -108,7 +106,7 @@
   }
 
   .text-field-sibling-button {
-    @apply h-[37.6px] p-1.5 aspect-square text-[0.9em] text-surface-content;
+    @apply h-[37.6px] p-1.5 aspect-square text-[0.9em];
   }
 
   .key {
@@ -116,7 +114,7 @@
     padding: 0.15em 0.4em;
     margin: 0 0.1em;
     font-size: 0.8em;
-    @apply border border-surface-content rounded-md shadow-md;
+    @apply border rounded-md shadow-md;
   }
 
   .icon-button-group-container {

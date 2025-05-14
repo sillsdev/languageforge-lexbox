@@ -68,7 +68,7 @@
       <!--override the defaults from App.svelte-->
       <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
       <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
-        <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50'}}>
+        <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50', root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}>
           <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
           </div>
           <div slot="actions" class="pointer-events-none">
@@ -90,6 +90,7 @@
         {#if localProject?.crdt}
           <ButtonListItem href={`/project/${project.code}`}>
             <ListItem icon={mdiCloud}
+                      classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}
                       loading={downloading === project.name}>
               <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none shrink-0">
@@ -103,6 +104,7 @@
           {@const loading = downloading === project.code}
           <ButtonListItem on:click={() => downloadCrdtProject(project)} disabled={!!downloading}>
             <ListItem icon={mdiCloud}
+                      classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}
                       {loading}>
               <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none shrink-0">

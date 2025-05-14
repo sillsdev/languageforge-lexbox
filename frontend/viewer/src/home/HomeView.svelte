@@ -156,6 +156,7 @@
                   icon={mdiBookEditOutline}
                   subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                   {loading}
+                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10', subheading: 'text-muted-foreground'}}
                 >
                   <ProjectTitle slot="title" {project}/>
                   <div slot="actions" class="shrink-0">
@@ -177,7 +178,8 @@
             {/each}
             <DevContent>
               <ButtonListItem href={`/testing/project-view`}>
-                <ListItem title={$t`Test Project`} icon={mdiTestTube}>
+                <ListItem title={$t`Test Project`} icon={mdiTestTube}
+                          classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}>
                   <div slot="actions" class="pointer-events-none shrink-0">
                     <Button icon={mdiChevronRight} class="p-2" />
                   </div>
@@ -189,6 +191,7 @@
                 <ListItem
                   title={$t`Create Example Project`}
                   loading={createProjectLoading}
+                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}
                 >
                   <div slot="actions" class="flex flex-nowrap gap-2">
                     {#if $isDev}
@@ -212,7 +215,7 @@
             <div>
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
                 <ButtonListItem href={`/fwdata/${project.code}`}>
-                  <ListItem>
+                  <ListItem classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10' }}>
                     <ProjectTitle slot="title" {project}/>
                     <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0" />
                     <div slot="actions" class="shrink-0">
@@ -256,7 +259,7 @@
 
     :global(.sub-title) {
       @apply m-2;
-      @apply text-surface-content/50 text-sm;
+      @apply text-sm text-muted-foreground;
     }
   }
 </style>
