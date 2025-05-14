@@ -1,15 +1,7 @@
-﻿using SIL.WritingSystems;
-
-namespace MiniLcm.Tests;
+﻿namespace MiniLcm.Tests;
 
 public class WritingSystemIdTests
 {
-    public WritingSystemIdTests()
-    {
-        if (!Sldr.IsInitialized)
-            Sldr.Initialize();
-    }
-
     public static IEnumerable<object[]> ValidWritingSystemIds =>
         WritingSystemCodes.ValidTwoLetterCodes.Select(code => new object[] { code });
 

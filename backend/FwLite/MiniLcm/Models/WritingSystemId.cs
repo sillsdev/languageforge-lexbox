@@ -41,16 +41,15 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
         {
             Code = code;
         }
-        else if (IetfLanguageTag.TryGetSubtags(code,
-                     out LanguageSubtag subtag,
-                     out ScriptSubtag scriptSubtag,
-                     out RegionSubtag regionSubtag,
-                     out IEnumerable<VariantSubtag> variantSubtags))
+        else if (IetfLanguageTag.TryGetParts(code,
+                     out string? subtag,
+                     out string? script,
+                     out string? region,
+                     out string? variants))
         {
             Code = code;
-            VariantSubtag audioVariant = WellKnownSubtags.AudioPrivateUse;
-            IsAudio = scriptSubtag?.Code.Equals(WellKnownSubtags.AudioScript, StringComparison.OrdinalIgnoreCase) == true &&
-                      variantSubtags.Any(v => v == audioVariant);
+            IsAudio = script?.Equals(WellKnownSubtags.AudioScript, StringComparison.OrdinalIgnoreCase) == true &&
+                      variants?.Split('-').Any(v => v == WellKnownSubtags.AudioPrivateUse) == true;
         }
         else
         {
