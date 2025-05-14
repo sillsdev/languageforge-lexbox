@@ -50,14 +50,17 @@
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
-      <ProjectSidebar bind:currentView />
-      <Sidebar.Inset class="flex-1 relative">
-          <Route path="">
-            <BrowseView />
-          </Route>
-          <Route path="/tasks">
-            <TasksView />
-          </Route>
-      </Sidebar.Inset>
+    <ProjectSidebar bind:currentView/>
+    <Sidebar.Inset class="flex-1 relative">
+      <Route path="/browse">
+        <BrowseView/>
+      </Route>
+      <Route path="/tasks">
+        <TasksView/>
+      </Route>
+      <Route path="/*">
+        Unknown view {currentView}
+      </Route>
+    </Sidebar.Inset>
   </Sidebar.Provider>
 </div>
