@@ -1,6 +1,5 @@
 <script lang="ts">
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '$lib/components/ui/resizable';
-  import type { IEntry } from '$lib/dotnet-types';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
@@ -14,9 +13,10 @@
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Button} from '$lib/components/ui/button';
+  import {QueryParamState} from '$lib/utils/url.svelte';
 
   const dialogsService = useDialogsService();
-  let selectedEntry = $state<IEntry | undefined>(undefined);
+  const selectedEntryId = new QueryParamState('entryId', true);
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string | undefined>(undefined);
@@ -30,7 +30,7 @@
   async function newEntry() {
     const entry = await dialogsService.createNewEntry();
     if (!entry) return;
-    selectedEntry = entry;
+    selectedEntryId.current = entry.id;
   }
 
   let leftPane: ResizablePane | undefined = $state();
@@ -43,7 +43,7 @@
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
-    {#if !IsMobile.value || !selectedEntry}
+    {#if !IsMobile.value || !selectedEntryId.current}
       <ResizablePane
         bind:this={leftPane}
         defaultSize={defaultLayout[0]}
@@ -86,10 +86,10 @@
             </div>
           </div>
           <EntriesList {search}
-                       {selectedEntry}
+                       selectedEntryId={selectedEntryId.current}
                        {sortDirection}
                        {gridifyFilter}
-                       onSelectEntry={(e) => (selectedEntry = e)}
+                       onSelectEntry={(e) => (selectedEntryId.current = e?.id ?? '')}
                        previewDictionary={entryMode === 'preview'}/>
         </div>
       </ResizablePane>
@@ -97,19 +97,19 @@
     {#if !IsMobile.value}
       <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
     {/if}
-    {#if selectedEntry || !IsMobile.value}
+    {#if selectedEntryId.current || !IsMobile.value}
       <ResizablePane
         bind:this={rightPane}
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
-          {#if !selectedEntry}
+          {#if !selectedEntryId.current}
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
               <p>{$t`Select an entry to view details`}</p>
             </div>
           {:else}
             <div class="md:p-4 md:pl-6 h-full">
               <EntryView
-                entryId={selectedEntry.id}
-                onClose={() => (selectedEntry = undefined)}
+                entryId={selectedEntryId.current}
+                onClose={() => (selectedEntryId.current = '')}
                 showClose={IsMobile.value}
               />
             </div>
