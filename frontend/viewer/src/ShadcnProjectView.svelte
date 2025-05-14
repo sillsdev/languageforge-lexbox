@@ -19,8 +19,8 @@
   import TasksView from './project/tasks/TasksView.svelte';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
-  import {navigate, Route, Router, useLocation, useRouter} from 'svelte-routing';
-  import {untrack} from 'svelte';
+  import {navigate, Route, useRouter} from 'svelte-routing';
+  import {watch} from 'runed';
 
   const {
     onloaded,
@@ -33,14 +33,17 @@
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
+
   let currentView: View = $state('browse');
-  $effect(() => {
-    let newLocation = '/' + untrack(() => $base.path) + currentView;
+  const {base} = useRouter();
+
+  watch(() => currentView, () => {
+    let newLocation = `${$base.uri}/${currentView}`;
     setTimeout(() => navigate(newLocation));
   });
+
   const fieldView = initView();
   const viewSettings = initViewSettings();
-  const {base} = useRouter();
 
   onMount(() => {
     onloaded(true);
