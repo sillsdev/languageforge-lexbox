@@ -9,7 +9,6 @@
     IHistoryServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
   import ProjectLoader from './ProjectLoader.svelte';
-  import ThemeSyncer from '$lib/ThemeSyncer.svelte';
   import {initProjectContext} from '$lib/project-context.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
@@ -62,9 +61,6 @@
     }, 1000);
   }
 </script>
-
-<!-- Keeps Svelte-UX and Shadcn theme/mode options in sync. Will die with Svelte-UX -->
-<ThemeSyncer />
 
 <ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
   <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>

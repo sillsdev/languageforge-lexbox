@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import {onMount} from 'svelte';
-  import {getSettings} from 'svelte-ux';
+  import {mode, theme} from 'mode-watcher';
   import {
     HttpTransportType,
     type IHttpConnectionOptions
@@ -33,8 +33,6 @@
       abortController.abort();
     }
   });
-
-  const { currentTheme } = getSettings();
 </script>
 
 <svelte:options customElement={{ tag: 'fw-data-project-view' }} />
@@ -43,6 +41,6 @@
   {css}
 </svelte:element>
 
-<div class="app contents" class:dark={$currentTheme.dark}>
+<div class="app contents" class:dark={mode.current === 'dark'} data-theme={theme.current}>
   <FwDataProjectView {projectName} {baseUrl} {signalrConnectionOptions}></FwDataProjectView>
 </div>

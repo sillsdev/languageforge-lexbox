@@ -10,7 +10,7 @@
   let {class: className, ref = $bindable(null), children, ...restProps}: ListItemProps = $props();
 </script>
 
-<button class={cn('w-full px-4 py-3 dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10 justify-between items-center text-left max-w-full overflow-hidden aria-selected:ring-2 ring-primary ring-offset-background rounded',
+<button class={cn('w-full px-4 py-3 dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 justify-between items-center text-left max-w-full overflow-hidden aria-selected:ring-2 ring-primary ring-offset-background rounded',
   className)}
   role="row"
   bind:this={ref}

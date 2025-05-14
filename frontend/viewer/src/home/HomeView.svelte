@@ -28,6 +28,7 @@
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import ProjectTitle from './ProjectTitle.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
+  import ThemePicker from '$lib/ThemePicker.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -129,6 +130,7 @@
       <Button href="/sandbox" size="sm" variant="outline" icon={mdiTestTube}>Sandbox</Button>
     </DevContent>
     <LocalizationPicker/>
+    <ThemePicker />
   </div>
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
@@ -147,7 +149,7 @@
                     class="mb-2"
                     on:click={() => refreshProjects()}/>
           </div>
-          <div>
+          <div class="shadow rounded">
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
@@ -156,7 +158,7 @@
                   icon={mdiBookEditOutline}
                   subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                   {loading}
-                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10', subheading: 'text-muted-foreground'}}
+                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted', subheading: 'text-muted-foreground'}}
                 >
                   <ProjectTitle slot="title" {project}/>
                   <div slot="actions" class="shrink-0">
@@ -179,7 +181,7 @@
             <DevContent>
               <ButtonListItem href={`/testing/project-view`}>
                 <ListItem title={$t`Test Project`} icon={mdiTestTube}
-                          classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}>
+                          classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
                   <div slot="actions" class="pointer-events-none shrink-0">
                     <Button icon={mdiChevronRight} class="p-2" />
                   </div>
@@ -191,7 +193,7 @@
                 <ListItem
                   title={$t`Create Example Project`}
                   loading={createProjectLoading}
-                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10'}}
+                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}
                 >
                   <div slot="actions" class="flex flex-nowrap gap-2">
                     {#if $isDev}
@@ -212,10 +214,10 @@
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
-            <div>
+            <div class="shadow rounded">
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
                 <ButtonListItem href={`/fwdata/${project.code}`}>
-                  <ListItem classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-primary/10 hover:dark:bg-primary/10' }}>
+                  <ListItem classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted' }}>
                     <ProjectTitle slot="title" {project}/>
                     <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0" />
                     <div slot="actions" class="shrink-0">

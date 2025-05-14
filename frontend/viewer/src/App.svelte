@@ -18,7 +18,7 @@
   import {settings} from 'svelte-ux';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
-  import {ModeWatcher} from 'mode-watcher';
+  import {ModeWatcher, mode, theme} from 'mode-watcher';
   import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
 
   export let url = '';
@@ -71,11 +71,12 @@
   setupGlobalErrorHandlers();
   initScottyPortalContext();
 </script>
-<ModeWatcher/>
-<Router {url}>
-  <nav>
-  </nav>
-  <div class="app">
+
+<ModeWatcher />
+
+<!-- we set the mode and theme manually, because blazor scrubbs them off the html tag during/after the initial page load -->
+<div class="app" class:dark={mode.current === 'dark'} data-theme={theme.current}>
+  <Router {url}>
     <Route path="/project/:code" let:params>
       <Router {url} basepath="/project/{params.code}">
         {#key params.code}
@@ -104,6 +105,6 @@
     <Route path="/*">
       {setTimeout(() => navigate('/', {replace: true}))}
     </Route>
-  </div>
-</Router>
-<NotificationOutlet/>
+  </Router>
+  <NotificationOutlet/>
+</div>

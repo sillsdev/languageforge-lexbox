@@ -6,7 +6,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import ProjectView from './ProjectView.svelte';
-  import { getSettings } from 'svelte-ux';
+  import {mode, theme} from 'mode-watcher';
   import css from './app.postcss?inline';
   import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -54,7 +54,6 @@
   serviceProvider.setService(DotnetService.JsEventListener, {
     nextEventAsync: () => new Promise((_) => {}),
   });
-  const { currentTheme } = getSettings();
 </script>
 
 <svelte:options customElement={{ tag: 'lexbox-svelte' }} />
@@ -63,7 +62,7 @@
   {css}
 </svelte:element>
 
-<div class="app contents" class:dark={$currentTheme.dark}>
+<div class="app contents" class:dark={mode.current === 'dark'} data-theme={theme.current}>
   <ProjectLoader readyToLoadProject={!loading} {projectName} let:onProjectLoaded>
     <ProjectView isConnected showHomeButton={false} {about}  onloaded={onProjectLoaded} />
   </ProjectLoader>

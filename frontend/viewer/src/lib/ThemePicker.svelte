@@ -38,7 +38,7 @@
         </div>
         <div class="grid grid-cols-3 gap-2">
           {#each themes as themeName (themeName)}
-            {@const isActive = $theme === themeName}
+            {@const isActive = theme.current === themeName}
             <Button
               variant="outline"
               size="sm"
@@ -50,8 +50,8 @@
               <span
                 data-theme={themeName}
                 class={cn('flex size-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-primary',
-                $mode === 'dark' && 'dark',
-                $mode === 'light' && 'light')}
+                mode.current === 'dark' && 'dark',
+                mode.current === 'light' && 'light')}
               >
                 {#if isActive}
                   <Icon icon="i-mdi-check" class="text-white size-4"/>
@@ -71,7 +71,7 @@
             variant="outline"
             size="sm"
             onclick={() => setMode('light')}
-            class={cn($userPrefersMode === 'light' && 'border-primary border-2')}
+            class={cn(userPrefersMode.current === 'light' && 'border-primary border-2')}
             icon="i-mdi-white-balance-sunny"
           >
             Light
@@ -80,7 +80,7 @@
             variant="outline"
             size="sm"
             onclick={() => setMode('dark')}
-            class={cn($userPrefersMode === 'dark' && 'border-primary border-2')}
+            class={cn(userPrefersMode.current === 'dark' && 'border-primary border-2')}
             icon="i-mdi-weather-night"
           >
             Dark
@@ -89,7 +89,7 @@
             variant="outline"
             size="sm"
             onclick={() => resetMode()}
-            class={cn($userPrefersMode === 'system' && 'border-primary border-2')}
+            class={cn(userPrefersMode.current === 'system' && 'border-primary border-2')}
             icon="i-mdi-laptop"
           >
             System
