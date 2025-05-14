@@ -22,13 +22,13 @@
                     classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces', actions: notification.action ? '' : 'hidden'}}>
         <div slot="icon">
           {#if notification.type === 'success'}
-            <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-success"/>
+            <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-primary"/>
           {:else if notification.type === 'error'}
-            <Icon path={mdiAlert} size="1.5rem" class="text-danger"/>
+            <Icon path={mdiAlert} size="1.5rem" class="text-destructive"/>
           {:else if notification.type === 'info'}
-            <Icon path={mdiInformationOutline} size="1.5rem" class="text-info"/>
+            <Icon path={mdiInformationOutline} size="1.5rem" class="text-primary"/>
           {:else if notification.type === 'warning'}
-            <Icon path={mdiAlertCircleOutline} size="1.5rem" class="text-warning"/>
+            <Icon path={mdiAlertCircleOutline} size="1.5rem" class="text-primary"/>
           {/if}
         </div>
         <div slot="title">{notification.message}</div>

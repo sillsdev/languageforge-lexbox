@@ -50,7 +50,7 @@
       {#if server}
         {$t`${server.displayName} Server`}
       {:else}
-        <div class="h-2 w-28 bg-surface-content/50 rounded-full animate-pulse"></div>
+        <div class="h-2 w-28 bg-secondary/50 rounded-full animate-pulse"></div>
       {/if}
     </div>
     <div class="flex-grow"></div>
@@ -77,7 +77,7 @@
         </ListItem>
       </Settings>
     {:else if !projects.length}
-      <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
+      <p class="text-center elevation-1 md:rounded p-4">
         {#if status.loggedIn}
           {$t`No projects`}
         {:else}
