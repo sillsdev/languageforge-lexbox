@@ -1,4 +1,4 @@
-﻿<script lang="ts" context="module">
+﻿<script lang="ts" module>
   import {navigate} from 'svelte-routing';
   declare global {
     interface Window {
@@ -21,7 +21,7 @@
   import {ModeWatcher, mode, theme} from 'mode-watcher';
   import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
 
-  export let url = '';
+  let url = '';
 
   /* eslint-disable @typescript-eslint/naming-convention */
   settings({
@@ -38,7 +38,7 @@
       },
       ListItem: {
         classes: {
-          root: 'cursor-pointer hover:bg-surface-300 hover:border-surface-300 overflow-hidden',
+          root: 'cursor-pointer overflow-hidden',
           subheading: 'whitespace-nowrap overflow-hidden overflow-x-clip text-ellipsis',
         }
       },
@@ -70,12 +70,17 @@
 
   setupGlobalErrorHandlers();
   initScottyPortalContext();
+
+  $effect(() => {
+    // we set the mode and theme manually, because blazor scrubbs them off the html tag during/after the initial page load
+    document.documentElement.classList.toggle('dark', mode.current === 'dark');
+    document.documentElement.setAttribute('data-theme', theme.current ?? '');
+  });
 </script>
 
 <ModeWatcher />
 
-<!-- we set the mode and theme manually, because blazor scrubbs them off the html tag during/after the initial page load -->
-<div class="app" class:dark={mode.current === 'dark'} data-theme={theme.current}>
+<div class="app">
   <Router {url}>
     <Route path="/project/:code" let:params>
       <Router {url} basepath="/project/{params.code}">
