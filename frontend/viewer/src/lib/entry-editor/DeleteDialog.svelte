@@ -3,6 +3,7 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {t} from 'svelte-i18n-lingui';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
 
   const dialogsService = useDialogsService();
   dialogsService.invokeDeleteDialog = prompt;
@@ -10,7 +11,7 @@
   let description = $state<string>();
   const subjectWithDescription = $derived(description ? `${subject}: ${description}` : subject);
 
-  let open = $state(false);
+  const open = new QueryParamStateBool('deleteDialogOpen', true);
   let requester: {
     resolve: (result: boolean) => void
   } | undefined = undefined;
@@ -29,7 +30,7 @@
   function resolve(shouldDelete: boolean) {
     requester?.resolve(shouldDelete);
     requester = undefined;
-    open = false;
+    open.current = false;
   }
 
   export function prompt(promptSubject: string, subjectDescription?: string): Promise<boolean> {
@@ -38,13 +39,13 @@
       requester = { resolve };
       subject = promptSubject;
       description = subjectDescription;
-      open = true;
+      open.current = true;
     });
   }
 </script>
 
-{#if open}
-<AlertDialog.Root bind:open>
+{#if open.current}
+<AlertDialog.Root bind:open={open.current}>
   <AlertDialog.Content>
     <AlertDialog.Header>
       <AlertDialog.Title>{$t`Delete ${subject}`}</AlertDialog.Title>
