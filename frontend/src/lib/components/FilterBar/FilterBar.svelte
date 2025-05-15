@@ -56,7 +56,7 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  let undebouncedSearch: string | null = $state(null);
+  let undebouncedSearch: string = $state('');
 
   function onClearFiltersClick(): void {
     if (!searchInput) return;

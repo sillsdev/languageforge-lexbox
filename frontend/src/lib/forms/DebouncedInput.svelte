@@ -6,7 +6,7 @@
   let input: PlainInput | undefined = $state();
 
   export function clear(): void {
-    debouncer.setImmediately(undefined);
+    debouncer.setImmediately(null);
     input?.clear();
   }
 
@@ -15,6 +15,7 @@
   }
 
   export function setValue(newValue: string | undefined | null): void {
+    newValue ??= null;
     debouncer.setImmediately(newValue);
     value = undebouncedValue = newValue;
   }
@@ -27,7 +28,7 @@
   let {
     value = $bindable(),
     debounce = true,
-    undebouncedValue = $bindable<string | null | undefined>(value),
+    undebouncedValue = $bindable<string | null>(value),
     ...rest
   }: Props = $props();
 
