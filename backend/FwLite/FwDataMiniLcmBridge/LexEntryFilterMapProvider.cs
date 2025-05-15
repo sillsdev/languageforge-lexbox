@@ -17,7 +17,7 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
             // ReSharper disable once ConvertClosureToMethodGroup
             .Select(domain => LcmHelpers.GetSemanticDomainCode(domain));
     public override Func<string, object>? EntrySensesSemanticDomainsConverter => EntryFilter.NormalizeEmptyToNullString<ICmSemanticDomain>;
-    public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentences => e => e.AllSenses.Select(s => EmptyToNull(s.ExamplesOS));
+    public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentences => e => e.AllSenses.Select(s => EmptyToNull(s.ExamplesOS.Where(e => !string.IsNullOrWhiteSpace(e.Example.BestVernacularAlternative.Text))));
     public override Expression<Func<ILexEntry, string, object?>> EntrySensesExampleSentencesSentence => (entry, ws) =>
         entry.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => example.PickText(example.Example, ws));
 

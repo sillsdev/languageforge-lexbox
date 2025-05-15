@@ -150,9 +150,20 @@ public static class Json
         return values.Values.Values.AsQueryable();
     }
 
+    [ExpressionMethod(nameof(QueryExpressionRichMultiString))]
+    public static IQueryable<string> QueryValues(RichMultiString values)
+    {
+        return values.Values.AsQueryable();
+    }
+
     private static Expression<Func<MultiString, IQueryable<string>>> QueryExpressionMultiString()
     {
         return (values) => values.QueryInternal().Select(v => v.Value);
+    }
+
+    private static Expression<Func<RichMultiString, IQueryable<string>>> QueryExpressionRichMultiString()
+    {
+        return (values) => values.QueryInternal().Select(v => v.Value.Value);
     }
 
     //indicates that linq2db should rewrite Sense.SemanticDomains.Query(d => d.Code)
