@@ -3,11 +3,15 @@
   import t from '$lib/i18n';
   import { toI18nKey } from '$lib/util/timespan';
 
-  export let name: string;
-  export let resetUrl: string;
-  export let lifetime: string;
+  interface Props {
+    name: string;
+    resetUrl: string;
+    lifetime: string;
+  }
 
-  $: [expirationText, expirationParam] = toI18nKey(lifetime);
+  const { name, resetUrl, lifetime }: Props = $props();
+
+  let [expirationText, expirationParam] = $derived(toI18nKey(lifetime));
 </script>
 
 <Email subject={$t('emails.forgot_password.subject')} {name}>

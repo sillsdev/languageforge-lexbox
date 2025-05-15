@@ -1,5 +1,6 @@
-﻿<script context="module" lang="ts">
-  export enum UploadStatus {
+<script module lang="ts">
+  // svelte-ignore non_reactive_update
+  export const enum UploadStatus {
     NoFile = 'NoFile',
     InvalidFile = 'InvalidFile',
     Ready = 'Ready',
@@ -13,28 +14,41 @@
   import { Upload, type DetailedError } from 'tus-js-client';
   import { Button, FormError, FormField } from '$lib/forms';
   import { env } from '$env/dynamic/public';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy } from 'svelte';
   import t from '$lib/i18n';
   import IconButton from './IconButton.svelte';
 
-  export let endpoint: string;
-  export let accept: string;
-  export let inputLabel: string = $t('tus.select_file');
-  export let inputDescription: string | undefined = undefined;
-  export let internalButton = false;
-  const dispatch = createEventDispatcher<{
-    uploadComplete: { upload: Upload };
-    status: UploadStatus;
-  }>();
+  interface Props {
+    endpoint: string;
+    accept: string;
+    inputLabel?: string;
+    inputDescription?: string;
+    internalButton?: boolean;
+    onUploadComplete?: (upload: Upload) => void;
+    onStatus?: (status: UploadStatus) => void;
+  }
 
-  let status = UploadStatus.NoFile;
-  $: dispatch('status', status);
+  const {
+    endpoint,
+    accept,
+    inputLabel = $t('tus.select_file'),
+    inputDescription,
+    internalButton = false,
+    onUploadComplete,
+    onStatus,
+  }: Props = $props();
 
-  let percent = 0;
-  let fileError: string | undefined = undefined;
-  let uploadError: string | undefined = undefined;
+  let status = $state(UploadStatus.NoFile);
+  // We used to dispatch in an onMount() call, but $effect runs on mount so the onMount() dispatch is redundant
+  $effect(() => {
+    onStatus?.(status);
+  });
+
+  let percent = $state(0);
+  let fileError: string | undefined = $state(undefined);
+  let uploadError: string | undefined = $state(undefined);
   let upload: Upload | undefined;
-  let fileInput: HTMLInputElement | undefined;
+  let fileInput: HTMLInputElement | undefined = $state();
   const maxUploadChunkSizeMb = parseInt(env.PUBLIC_TUS_CHUNK_SIZE_MB);
 
   function fileChanged(): void {
@@ -61,7 +75,7 @@
       onSuccess: () => {
         status = UploadStatus.Complete;
         percent = 100;
-        if (upload) dispatch('uploadComplete', { upload });
+        if (upload) onUploadComplete?.(upload);
       },
       onError: (err) => {
         status = UploadStatus.Error;
@@ -109,11 +123,6 @@
     }
   }
 
-  onMount(() => {
-    // make sure listeners are ready
-    dispatch('status', status);
-  });
-
   //svelte on on mount
   onDestroy(() => {
     if (upload) {
@@ -147,12 +156,14 @@
           class="file-input file-input-bordered file-input-primary grow"
           disabled={status === UploadStatus.Uploading || status === UploadStatus.Complete}
           bind:this={fileInput}
-          on:cancel|stopPropagation
-          on:change={fileChanged}
+          oncancel={e => e.stopPropagation()}
+          onchange={fileChanged}
         />
-        <IconButton icon="i-mdi-close"
-          on:click={clearFile}
-          disabled={status !== UploadStatus.Ready && status !== UploadStatus.InvalidFile} />
+        <IconButton
+          icon="i-mdi-close"
+          onclick={clearFile}
+          disabled={status !== UploadStatus.Ready && status !== UploadStatus.InvalidFile}
+        />
       </div>
     </FormField>
     <FormError error={uploadError} />
@@ -161,10 +172,12 @@
 
 <div class="mt-6 flex items-center gap-6">
   {#if internalButton}
-    <Button variant="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{$t('tus.upload')}</Button>
+    <Button variant="btn-success" disabled={status > UploadStatus.Ready} onclick={startUpload}
+      >{$t('tus.upload')}</Button
+    >
   {/if}
   <div class="flex-1">
     <p class="label label-text py-0">{$t('tus.upload_progress')}</p>
-    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100" />
+    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100"></progress>
   </div>
 </div>

@@ -1,63 +1,65 @@
-<script lang="ts" context="module">
-  export type Filter<T = Record<string, unknown>> = Readonly<NonNullable<
-    {
-      [K in keyof T]: { value: T[K]; key: K & string, clear: () => void };
-    }[keyof T]
-  >>;
+<script lang="ts" module>
+  import type { Snippet } from 'svelte';
+  export type Filter<T = Record<string, unknown>> = Readonly<
+    NonNullable<
+      {
+        [K in keyof T]: { value: T[K]; key: K & string; clear: () => void };
+      }[keyof T]
+    >
+  >;
+  export type OnFiltersChanged = (newFilters: Readonly<Filter[]>) => void;
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
-  import { PlainInput } from '$lib/forms';
+  import { DebouncedInput } from '$lib/forms';
   import { pick } from '$lib/util/object';
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
+  import { Previous } from 'runed';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Filters = DumbFilters & Record<typeof searchKey, string>;
 
-  const dispatch = createEventDispatcher<{
-    change: Readonly<Filter<Filters>[]>;
-  }>();
+  let searchInput: DebouncedInput | undefined = $state();
 
-  let searchInput: PlainInput;
-
-  export let searchKey: keyof ConditionalPick<DumbFilters, string>;
-  export let autofocus: true | undefined = undefined;
-  let allFilters: Writable<Filters>;
-  export { allFilters as filters };
-  let allFilterDefaults: Filters;
-  export { allFilterDefaults as filterDefaults };
-  export let hasActiveFilter: boolean = false;
-
-  /**
-   * Explicitly specify the filter object keys that should be used from the `filters` (optional)
-   */
-  export let filterKeys: Readonly<(keyof Filters)[]> | undefined = undefined;
-
-  export let loading = false;
-  export let debounce: number | boolean = false;
-  export let debouncing = false;
-  let undebouncedSearch: string | undefined = undefined;
-
-  $: filters = Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters);
-  $: filterDefaults = Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults);
-  let activeFilters: Readonly<Filter<Filters>[]>;
-  $: {
-    const currFilters = activeFilters;
-    const newFilters = pickActiveFilters(filters, filterDefaults);
-    if (JSON.stringify(currFilters) !== JSON.stringify(newFilters)) {
-      activeFilters = newFilters;
-      dispatch('change', activeFilters);
-    }
+  interface Props {
+    searchKey: keyof ConditionalPick<DumbFilters, string>;
+    autofocus?: true;
+    filters: Writable<Filters>;
+    filterDefaults: Filters;
+    onFiltersChanged?: OnFiltersChanged;
+    hasActiveFilter?: boolean;
+    /**
+     * Explicitly specify the filter object keys that should be used from the `filters` (optional)
+     */
+    filterKeys?: Readonly<(keyof Filters)[]>;
+    loading?: boolean;
+    debounce?: number | boolean;
+    activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
+    filterSlot?: Snippet;
   }
-  $: hasActiveFilter = activeFilters.length > 0;
+
+  let {
+    searchKey,
+    autofocus,
+    filters: allFilters,
+    filterDefaults: allFilterDefaults,
+    onFiltersChanged,
+    hasActiveFilter = $bindable(false),
+    filterKeys,
+    loading = false,
+    debounce = false,
+    activeFilterSlot,
+    filterSlot,
+  }: Props = $props();
+  let undebouncedSearch: string | undefined = $state(undefined);
 
   function onClearFiltersClick(): void {
+    if (!searchInput) return;
     searchInput.clear();
     $allFilters = {
       ...$allFilters,
@@ -83,15 +85,27 @@
     }
     return Object.freeze(filters);
   }
+
+  let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
+  let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
+  let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
+  let prevActiveFilters = new Previous(() => activeFilters, []);
+  $effect(() => {
+    hasActiveFilter = activeFilters.length > 0;
+  });
+  $effect(() => {
+    if (JSON.stringify(prevActiveFilters.current) !== JSON.stringify(activeFilters)) {
+      onFiltersChanged?.(activeFilters);
+    }
+  });
 </script>
 
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
-  <slot name="activeFilterSlot" {activeFilters} />
+  {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
-    <PlainInput
+    <DebouncedInput
       bind:value={$allFilters[searchKey]}
-      bind:debounce
-      bind:debouncing
+      {debounce}
       bind:undebouncedValue={undebouncedSearch}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
@@ -99,28 +113,30 @@
       {autofocus}
     />
     <div class="ml-auto flex join">
-      {#if loading || debouncing}
+      {#if loading}
         <div class="flex mr-2">
           <Loader loading />
         </div>
       {/if}
       <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
-      {#if !!undebouncedSearch || activeFilters.find(f => f.key !== searchKey)}
-        <button class="btn btn-square btn-sm join-item" on:click={onClearFiltersClick}>
+      {#if !!undebouncedSearch || activeFilters.find((f) => f.key !== searchKey)}
+        <button class="btn btn-square btn-sm join-item" onclick={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>
       {/if}
-      {#if $$slots.filterSlot}
+      {#if filterSlot}
         <div class="join-item">
           <Dropdown>
             <button class="btn btn-square join-item btn-sm gap-2" aria-label={$t('filter.aria_open_filters')}>
-              <span class="i-mdi-filter-outline text-xl" />
+              <span class="i-mdi-filter-outline text-xl"></span>
             </button>
-            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-              <div class="card-body max-sm:p-4">
-                <slot name="filterSlot" />
+            {#snippet content()}
+              <div class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+                <div class="card-body max-sm:p-4">
+                  {@render filterSlot?.()}
+                </div>
               </div>
-            </div>
+            {/snippet}
           </Dropdown>
         </div>
       {/if}

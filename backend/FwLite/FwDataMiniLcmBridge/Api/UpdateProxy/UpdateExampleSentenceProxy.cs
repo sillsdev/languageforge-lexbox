@@ -1,10 +1,10 @@
-﻿using MiniLcm.Models;
+using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMiniLcmApi lexboxLcmApi): ExampleSentence
+public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMiniLcmApi lexboxLcmApi) : ExampleSentence
 {
     public override Guid Id
     {
@@ -23,7 +23,13 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
         get
         {
             var firstTranslation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
-            return firstTranslation is null ? new RichMultiString() : new UpdateRichMultiStringProxy(firstTranslation, lexboxLcmApi);
+            if (firstTranslation is null)
+            {
+                var translation = lexboxLcmApi.CreateExampleSentenceTranslation(sentence);
+                sentence.TranslationsOC.Add(translation);
+                firstTranslation = translation.Translation;
+            }
+            return new UpdateRichMultiStringProxy(firstTranslation, lexboxLcmApi);
         }
         set => throw new NotImplementedException();
     }

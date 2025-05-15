@@ -134,6 +134,9 @@ importers:
       mjml:
         specifier: ^4.15.3
         version: 4.15.3
+      runed:
+        specifier: ^0.26.0
+        version: 0.26.0(svelte@5.28.2)
       set-cookie-parser:
         specifier: ^2.7.1
         version: 2.7.1
@@ -5340,6 +5343,11 @@ packages:
 
   runed@0.25.0:
     resolution: {integrity: sha512-7+ma4AG9FT2sWQEA0Egf6mb7PBT2vHyuHail1ie8ropfSjvZGtEAx8YTmUjv/APCsdRRxEVvArNjALk9zFSOrg==}
+    peerDependencies:
+      svelte: ^5.7.0
+
+  runed@0.26.0:
+    resolution: {integrity: sha512-qWFv0cvLVRd8pdl/AslqzvtQyEn5KaIugEernwg9G98uJVSZcs/ygvPBvF80LA46V8pwRvSKnaVLDI3+i2wubw==}
     peerDependencies:
       svelte: ^5.7.0
 
@@ -12152,6 +12160,11 @@ snapshots:
       svelte: 5.28.2
 
   runed@0.25.0(svelte@5.28.2):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.28.2
+
+  runed@0.26.0(svelte@5.28.2):
     dependencies:
       esm-env: 1.2.2
       svelte: 5.28.2

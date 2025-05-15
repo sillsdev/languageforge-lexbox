@@ -6,10 +6,19 @@
     import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
     import { toSearchParams } from '$lib/util/query-params';
 
-    export let name: string;
-    export let baseUrl: string;
-    export let project: CreateProjectInput;
-    export let user: { name: string; email: string };
+    interface Props {
+        name: string;
+        baseUrl: string;
+        project: CreateProjectInput;
+        user: { name: string; email: string };
+    }
+
+    const {
+        name,
+        baseUrl,
+        project,
+        user
+    }: Props = $props();
     let createUrl = new URL(`/project/create?${toSearchParams<CreateProjectInput>(project)}`, baseUrl);
 </script>
 

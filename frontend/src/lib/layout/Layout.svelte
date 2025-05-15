@@ -1,21 +1,30 @@
 <script lang="ts">
-  import EmailVerificationStatus, { initEmailResult, initRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
+  import type { Snippet } from 'svelte';
+  import EmailVerificationStatus, {
+    initEmailResult,
+    initRequestedEmail,
+  } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
   import { AdminIcon, HomeIcon, Icon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
   import { onMount } from 'svelte';
   import { ensureClientMatchesUser } from '$lib/gql';
   import { beforeNavigate } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import type { LayoutData } from '../../routes/$types';
   import DevContent from './DevContent.svelte';
   import { helpLinks } from '$lib/components/help';
 
-  export let hideToolbar = false;
+  interface Props {
+    hideToolbar?: boolean;
+    children?: Snippet;
+  }
 
-  let menuToggle = false;
-  $: data = $page.data as LayoutData;
-  $: user = data.user;
+  const { hideToolbar = false, children }: Props = $props();
+
+  let menuToggle = $state(false);
+  let data = $derived(page.data as LayoutData);
+  let user = $derived(data.user);
 
   function close(): void {
     menuToggle = false;
@@ -33,7 +42,7 @@
   initEmailResult();
 </script>
 
-<svelte:window on:keydown={closeOnEscape} />
+<svelte:window onkeydown={closeOnEscape} />
 
 {#if user?.audience === 'LexboxApi' || user?.scope?.includes('lexboxapi')}
   <div class="drawer drawer-end grow">
@@ -50,8 +59,12 @@
                 <Icon size="text-2xl" icon="i-mdi-package-variant" />
               </a>
             </DevContent>
-            <a href={helpLinks.helpList} target="_blank" rel="external"
-              class="btn btn-sm btn-info btn-outline hidden lg:flex">
+            <a
+              href={helpLinks.helpList}
+              target="_blank"
+              rel="external"
+              class="btn btn-sm btn-info btn-outline hidden lg:flex"
+            >
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
@@ -84,12 +97,12 @@
       </div>
 
       <Content>
-        <slot />
+        {@render children?.()}
       </Content>
     </div>
     <div class="drawer-side z-10">
       <!-- using a label means it works before hydration is complete -->
-      <label for="drawer-toggle" class="drawer-overlay" />
+      <label for="drawer-toggle" class="drawer-overlay"></label>
       <AppMenu {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
     </div>
   </div>
@@ -99,7 +112,7 @@
   <AppBar {user} />
 
   <Content>
-    <slot />
+    {@render children?.()}
   </Content>
 {/if}
 

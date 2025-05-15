@@ -5,17 +5,26 @@
   import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItemWithDraftStatus } from '$lib/components/Projects';
+  import {
+    ProjectFilter,
+    filterProjects,
+    type ProjectFilters,
+    type ProjectItemWithDraftStatus,
+  } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
   import { limit } from '$lib/components/Paging';
   import IconButton from '$lib/components/IconButton.svelte';
-  import Cookies from 'js-cookie'
+  import Cookies from 'js-cookie';
   import { STORAGE_VIEW_MODE_KEY, ViewMode } from './shared';
 
-  export let data: PageData;
-  $: projects = data.projects;
-  $: draftProjects = data.draftProjects;
+  interface Props {
+    data: PageData;
+  }
+
+  const { data }: Props = $props();
+  let projects = $derived(data.projects);
+  let draftProjects = $derived(data.draftProjects);
 
   type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
 
@@ -24,34 +33,20 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
   });
 
-  let allProjects: ProjectItemWithDraftStatus[] = [];
-  let filteredProjects: ProjectItemWithDraftStatus[] = [];
-  let limitResults = true;
-  $: allProjects = [
-    ...$draftProjects.map(p => ({
-      ...p, isDraft: true as const,
-      createUrl: ''
+  let limitResults = $state(true);
+  const allProjects: ProjectItemWithDraftStatus[] = $derived([
+    ...$draftProjects.map((p) => ({
+      ...p,
+      isDraft: true as const,
+      createUrl: '',
     })),
-    ...$projects.map(p => ({ ...p, isDraft: false as const })),
-  ];
-  $: filteredProjects = filterProjects(allProjects, $filters);
-  $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
+    ...$projects.map((p) => ({ ...p, isDraft: false as const })),
+  ]);
+  const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, $filters));
+  const shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
 
-  let initializedMode = false;
-  let mode: ViewMode;
-  $: defaultMode = allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table;
-
-  $: {
-    if (!initializedMode) {
-      const storedMode = data.projectViewMode;
-      if (storedMode === ViewMode.Table || storedMode === ViewMode.Grid) {
-        mode = storedMode;
-      } else {
-        mode = defaultMode;
-      }
-      initializedMode = true;
-    }
-  }
+  let defaultMode = $derived(allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table);
+  let mode: ViewMode = $derived(data.projectViewMode ?? defaultMode);
 
   function selectMode(selectedMode: ViewMode): void {
     mode = selectedMode;
@@ -60,42 +55,39 @@
 </script>
 
 <HeaderPage wide titleText={$t('user_dashboard.title')}>
-  <svelte:fragment slot="headerContent">
+  {#snippet headerContent()}
     <div class="flex gap-4 w-full">
       <div class="grow">
         <ProjectFilter
           {filters}
           filterDefaults={defaultFilterValues}
-          on:change={() => (limitResults = true)}
+          onFiltersChanged={() => (limitResults = true)}
           filterKeys={['projectSearch', 'projectType', 'confidential']}
         />
       </div>
       <div class="join">
-        <IconButton
-          icon="i-mdi-grid"
-          join
-          active={mode === ViewMode.Grid}
-          on:click={() => selectMode(ViewMode.Grid)} />
+        <IconButton icon="i-mdi-grid" join active={mode === ViewMode.Grid} onclick={() => selectMode(ViewMode.Grid)} />
         <IconButton
           icon="i-mdi-land-rows-horizontal"
           join
           active={mode === ViewMode.Table}
-          on:click={() => selectMode(ViewMode.Table)} />
+          onclick={() => selectMode(ViewMode.Table)}
+        />
       </div>
     </div>
-  </svelte:fragment>
-  <svelte:fragment slot="actions">
+  {/snippet}
+  {#snippet actions()}
     {#if data.user.emailVerified && !data.user.createdByAdmin}
       <a href="/project/create" class="btn btn-success">
         {$t('project.create.title')}
-        <span class="i-mdi-plus text-2xl" />
+        <span class="i-mdi-plus text-2xl"></span>
       </a>
     {/if}
-  </svelte:fragment>
+  {/snippet}
 
   {#if !allProjects.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
-      <span class="i-mdi-creation-outline text-xl shrink-0" />
+      <span class="i-mdi-creation-outline text-xl shrink-0"></span>
       {#if !data.user.emailVerified && !data.user.createdByAdmin}
         {$t('user_dashboard.not_verified')}
       {:else}
@@ -110,7 +102,7 @@
     {/if}
 
     {#if shownProjects.length < filteredProjects.length}
-      <Button class="float-right mt-2" on:click={() => (limitResults = false)}>
+      <Button class="float-right mt-2" onclick={() => (limitResults = false)}>
         {$t('paging.load_more')}
       </Button>
     {/if}

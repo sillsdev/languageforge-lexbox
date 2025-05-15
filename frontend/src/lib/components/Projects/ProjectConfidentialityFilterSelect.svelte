@@ -1,11 +1,16 @@
 <script lang="ts">
   import { Select } from '$lib/forms';
+  import { type SelectProps } from '$lib/forms/Select.svelte';
   import t, { type I18nKey } from '$lib/i18n';
   import { helpLinks } from '../help';
   import type { Confidentiality } from './ProjectFilter.svelte';
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
-  export let value: Confidentiality | undefined;
+  interface Props extends Omit<SelectProps, 'label'> {
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
+    value: Confidentiality | undefined;
+  }
+
+  let { value = $bindable(), ...rest }: Props = $props();
   const options: Record<Confidentiality, I18nKey> = {
     true: 'project.confidential.confidential',
     false: 'project.confidential.not_confidential',
@@ -14,10 +19,10 @@
 </script>
 
 <div class="relative">
-  <Select label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value on:change>
+  <Select {...rest} label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value>
     <option value={undefined}>{$t('common.any')}</option>
     {#each Object.entries(options) as [value, label]}
-      <option value={value}>{$t(label)}</option>
+      <option {value}>{$t(label)}</option>
     {/each}
   </Select>
 </div>

@@ -2,7 +2,11 @@
   import Email from '$lib/email/Email.svelte';
   import t from '$lib/i18n';
 
-  export let name: string;
+  interface Props {
+    name: string;
+  }
+
+  const { name }: Props = $props();
 </script>
 
 <Email subject={$t('emails.password_changed.subject')} {name}>

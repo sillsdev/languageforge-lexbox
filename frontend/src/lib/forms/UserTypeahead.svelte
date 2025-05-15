@@ -4,50 +4,53 @@
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
-  import { createEventDispatcher } from 'svelte';
 
   type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
+  let inputComponent: PlainInput | undefined = $state();
 
-  export let label: string;
-  export let error: string | string[] | undefined = undefined;
-  export let id: string = randomFormId();
-  export let autofocus: true | undefined = undefined;
-  export let value: string;
-  export let debounceMs = 200;
-  export let isAdmin: boolean = false;
-  export let exclude: string[] = [];
+  interface Props {
+    label: string;
+    error?: string | string[];
+    id?: string;
+    autofocus?: true;
+    value: string;
+    debounceMs?: number;
+    isAdmin?: boolean;
+    exclude?: string[];
+    onSelectedUserChange?: (selection: UserTypeaheadResult | null) => void;
+  }
 
-  function typeaheadSearch(): Promise<UserTypeaheadResult[]> {
+  let {
+    label,
+    error,
+    id = randomFormId(),
+    autofocus,
+    value = $bindable(),
+    debounceMs = 200,
+    isAdmin = false,
+    exclude = [],
+    onSelectedUserChange,
+  }: Props = $props();
+
+  let selectedValue: string | undefined = $state();
+
+  function typeaheadSearch(value: string): Promise<UserTypeaheadResult[]> {
     return isAdmin ? _userTypeaheadSearch(value) : _usersTypeaheadSearch(value);
   }
 
   // making this explicit allows us to only react to input events,
   // rather than programmatic changes like selecting a user
-  let trigger = writable(0);
-  const _typeaheadResults = deriveAsync(
-    trigger,
-    typeaheadSearch,
-    [],
-    debounceMs);
+  let trigger = writable('');
+  const _typeaheadResults = deriveAsync(trigger, (value) => typeaheadSearch(value), [], debounceMs);
 
-  $: typeaheadResults = $_typeaheadResults;
-  $: filteredResults = typeaheadResults.filter(user => !exclude.includes(user.id));
-
-  const dispatch = createEventDispatcher<{
-      selectedUserChange: UserTypeaheadResult | null;
-  }>();
-
+  // TODO: Turn this into state instead of a store at some point
   let selectedUser = writable<UserTypeaheadResult | null>(null);
 
   function selectUser(user: UserTypeaheadResult): void {
     $selectedUser = user;
-    dispatch('selectedUserChange', $selectedUser);
-    value = getInputValue(user);
-  }
-
-  $: if ($selectedUser && value !== getInputValue($selectedUser)) {
-    $selectedUser = null;
-    dispatch('selectedUserChange', $selectedUser);
+    onSelectedUserChange?.($selectedUser);
+    selectedValue = getInputValue(user);
+    value = selectedValue;
   }
 
   function formatResult(user: UserTypeaheadResult): string {
@@ -65,17 +68,9 @@
     return '';
   }
 
-  let highlightIdx: number | undefined = undefined;
-  let typeaheadOpen = false;
-  $: {
-    if (typeaheadOpen) {
-      highlightIdx ??= filteredResults.length ? 0 : undefined;
-    } else {
-      highlightIdx = undefined;
-    }
-  }
-  function keydownHandler(event: KeyboardEvent): void
-  {
+  let highlightIdx: number | undefined = $state(undefined);
+  let typeaheadOpen = $state(false);
+  function keydownHandler(event: KeyboardEvent): void {
     if (!typeaheadOpen) return;
     if (!filteredResults.length) return;
     if (highlightIdx === undefined) return;
@@ -98,31 +93,50 @@
     }
   }
 
-  function onOverlayOpen(e: CustomEvent): void {
-    typeaheadOpen = e.detail;
+  function onOverlayOpen(open: boolean): void {
+    typeaheadOpen = open;
     if (!typeaheadOpen) {
-      // eslint-disable-next-line svelte/no-reactive-reassign
       typeaheadResults = []; // prevent old results showing when opening next time
     }
   }
+  let typeaheadResults = $derived($_typeaheadResults);
+  let filteredResults = $derived(typeaheadResults.filter((user) => !exclude.includes(user.id)));
+  // TODO: Can this be simplified by making the "value !== selectedValue" part into a $derived?
+  // Then we'd be able to just do `$effect(() => { if (changedSelection) dispatch(...)})`
+  // And, of course, change the dispatch into calling a prop function
+  $effect(() => {
+    if ($selectedUser && value !== selectedValue) {
+      $selectedUser = null;
+      selectedValue = undefined;
+      onSelectedUserChange?.(null);
+    }
+  });
+  $effect(() => {
+    if (typeaheadOpen) {
+      highlightIdx ??= filteredResults.length ? 0 : undefined;
+    } else {
+      highlightIdx = undefined;
+    }
+  });
 </script>
 
 <FormField {id} {label} {error} {autofocus}>
-  <div use:overlay={{ closeClickSelector: '.menu li'}}
-    on:overlayOpen={onOverlayOpen}>
+  <div use:overlay={{ closeClickSelector: '.menu li', onOverlayOpen }}>
     <PlainInput
+      bind:this={inputComponent}
       style="w-full"
-      bind:value {id}
+      bind:value
+      {id}
       type="text"
       autocomplete="off"
       {autofocus}
       {keydownHandler}
-      on:input={() => $trigger++}
+      onInput={(value) => trigger.set(value ?? '')}
     />
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each filteredResults as user, idx}
-        <li class={(highlightIdx == idx) ? 'p-0 bg-primary text-white' : 'p-0'}><button class="whitespace-nowrap" on:click={() => {
+        <li class={(highlightIdx == idx) ? 'p-0 bg-primary text-white' : 'p-0'}><button class="whitespace-nowrap" onclick={() => {
           setTimeout(() => selectUser(user));
         }}>{formatResult(user)}</button></li>
       {/each}

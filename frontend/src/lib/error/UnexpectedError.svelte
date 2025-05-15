@@ -7,8 +7,8 @@
   import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
 
-  let alertMessageElem: HTMLElement;
-  let traceIdElem: HTMLElement;
+  let alertMessageElem: HTMLElement | undefined = $state();
+  let traceIdElem: HTMLElement | undefined = $state();
 
   const error = derived(useError(), (error) => {
     if (error) {
@@ -34,12 +34,16 @@
     // subscribe() is more durable than reactive syntax
     error.subscribe((e) => {
       if (e) {
-        alertMessageElem = alertMessageElem ?? (browser ? document.querySelector('.error-message') : undefined) ?? undefined;
+        alertMessageElem =
+          alertMessageElem ??
+          (browser ? (document.querySelector('.error-message') as HTMLElement) : undefined) ??
+          undefined;
         if (alertMessageElem) alertMessageElem.textContent = e.message;
-        traceIdElem = traceIdElem ?? (browser ? document.querySelector('.trace-id') : undefined) ?? undefined;
+        traceIdElem =
+          traceIdElem ?? (browser ? (document.querySelector('.trace-id') as HTMLElement) : undefined) ?? undefined;
         if (traceIdElem) traceIdElem.textContent = e.traceId;
       }
-    })
+    }),
   );
 
   const TIME_RANGE_2024_TO_2040 = 'trace_start_ts=1704286862&trace_end_ts=2209042862';
@@ -68,11 +72,15 @@
 
 <div class="flex flex-col gap-4 items-start">
   <div class="flex gap-4">
-    <span class="i-mdi-alert-circle-outline text-3xl" />
+    <span class="i-mdi-alert-circle-outline text-3xl"></span>
     <span class="text-2xl">{$t('errors.apology')}</span>
   </div>
 
-  <div class="max-w-full whitespace-pre-wrap error-message" style="overflow-wrap: break-word" bind:this={alertMessageElem}>
+  <div
+    class="max-w-full whitespace-pre-wrap error-message"
+    style="overflow-wrap: break-word"
+    bind:this={alertMessageElem}
+  >
     {$error?.message}
   </div>
 
@@ -84,7 +92,8 @@
 
   <div>
     <span>{$t('errors.error_code')}:</span>
-    <!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
-    <span on:click={onTraceIdClick} class="trace-id" bind:this={traceIdElem}>{$error?.traceId}</span>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <span onclick={onTraceIdClick} class="trace-id" bind:this={traceIdElem}>{$error?.traceId}</span>
   </div>
 </div>

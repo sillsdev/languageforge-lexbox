@@ -4,7 +4,6 @@ import type { LayoutServerLoadEvent } from './$types'
 import { USER_LOAD_KEY } from '$lib/user';
 import { getRootTraceparent } from '$lib/otel/otel.server'
 
-// eslint-disable-next-line @typescript-eslint/unbound-method
 export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
   const user = locals.getUser();
   const traceParent = getRootTraceparent()

@@ -1324,11 +1324,16 @@ public class FwDataMiniLcmApi(
         var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id);
         InsertExampleSentence(lexSense, lexExampleSentence, between);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        var translation = CmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
+        var translation = CreateExampleSentenceTranslation(lexExampleSentence);
         UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
         lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
             lexExampleSentence.Reference.get_WritingSystem(0));
+    }
+
+    public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
+    {
+        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        return CmTranslationFactory.Create(parent, freeTranslationType);
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? between = null)

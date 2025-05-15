@@ -1,4 +1,4 @@
-﻿import {getClient, graphql} from '$lib/gql';
+import {getClient, graphql} from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import type {Readable} from 'svelte/store';
