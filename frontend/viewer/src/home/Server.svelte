@@ -4,11 +4,13 @@
   import {createEventDispatcher} from 'svelte';
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import {Button, ListItem, Settings} from 'svelte-ux';
+  import {Button as UxButton, ListItem, Settings} from 'svelte-ux';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
   import ProjectTitle from './ProjectTitle.svelte';
+  import {Button} from '$lib/components/ui/button';
+  import {Icon} from '$lib/components/ui/icon';
 
   const projectsService = useProjectsService();
 
@@ -55,7 +57,7 @@
     </div>
     <div class="flex-grow"></div>
     {#if status?.loggedIn}
-      <Button icon={mdiRefresh}
+      <UxButton icon={mdiRefresh}
               title={$t`Refresh Projects`}
               disabled={loading}
               class="mr-2"
@@ -77,9 +79,12 @@
         </ListItem>
       </Settings>
     {:else if !projects.length}
-      <p class="text-surface-content/50 text-center elevation-1 md:rounded p-4">
+      <p class="text-center md:rounded p-4">
         {#if status.loggedIn}
-          {$t`No projects`}
+          <Button class="border border-primary" variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
+            {$t`Where are my projects?`}
+            <Icon icon="i-mdi-open-in-new" class="size-4" />
+          </Button>
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
@@ -93,9 +98,9 @@
                       title={project.name}
                       loading={downloading === project.name}>
               <div slot="actions" class="pointer-events-none shrink-0">
-                <Button disabled icon={mdiBookSyncOutline} class="p-2">
+                <UxButton disabled icon={mdiBookSyncOutline} class="p-2">
                   {$t`Synced`}
-                </Button>
+                </UxButton>
               </div>
             </ListItem>
           </ButtonListItem>
@@ -106,14 +111,20 @@
                       {loading}>
               <ProjectTitle slot="title" {project}/>
               <div slot="actions" class="pointer-events-none shrink-0">
-                <Button icon={mdiBookArrowDownOutline} class="p-2">
+                <UxButton icon={mdiBookArrowDownOutline} class="p-2">
                   {$t`Download`}
-                </Button>
+                </UxButton>
               </div>
             </ListItem>
           </ButtonListItem>
         {/if}
       {/each}
+      <div class="text-center mt-4">
+        <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
+          {$t`I don't see my project`}
+          <Icon icon="i-mdi-open-in-new" class="size-4" />
+        </Button>
+      </div>
     {/if}
   </div>
 </div>

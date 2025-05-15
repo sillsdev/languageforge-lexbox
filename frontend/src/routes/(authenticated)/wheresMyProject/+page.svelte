@@ -22,7 +22,9 @@
       {/snippet}
       {#snippet missingFlagContent()}
         <Markdown md={$t('where_is_my_project.user_not_in_beta')} />
-        <Button onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
+        <div class="text-center">
+          <Button variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
+        </div>
       {/snippet}
     </FeatureFlagAlternateContent>
   </div>
