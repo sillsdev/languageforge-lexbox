@@ -5,13 +5,15 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
-  import {useFwLiteConfig} from '../lib/services/service-provider';
+  import {useFwLiteConfig, useTroubleshootingService} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {navigate, useRouter} from 'svelte-routing';
   import type {IProjectModel} from '$lib/dotnet-types';
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
@@ -32,6 +34,9 @@
     let newLocation = `${$base.uri}/${view}`;
     navigate(newLocation);
   }
+
+  const supportsTroubleshooting = useTroubleshootingService();
+  let troubleshootDialogOpen = $state(false);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -62,45 +67,51 @@
       <Sidebar.GroupLabel>{$t`Dictionary`}</Sidebar.GroupLabel>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
+          <DevContent>
+            {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
+          </DevContent>
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
-          {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-          {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          <DevContent>
+            {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          </DevContent>
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
     <div class="grow"></div>
-    <Sidebar.Group>
-      <Sidebar.GroupContent>
-        <Sidebar.Menu>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton class="justify-between">
-              <div class="flex items-center gap-2">
-                <Icon icon="i-mdi-sync" />
-                <span>{$t`Synchronize`}</span>
-              </div>
-              <div
-                class="size-2 rounded-full"
-                class:bg-red-500={isSynchronizing}
-                class:bg-green-500={!isSynchronizing}
-              ></div>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton>
-              <Icon icon="i-mdi-account" />
-              <span>{$t`Account`}</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton>
-              <Icon icon="i-mdi-cog" />
-              <span>{$t`Settings`}</span>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.GroupContent>
-    </Sidebar.Group>
+    <DevContent>
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton class="justify-between">
+                <div class="flex items-center gap-2">
+                  <Icon icon="i-mdi-sync" />
+                  <span>{$t`Synchronize`}</span>
+                </div>
+                <div
+                  class="size-2 rounded-full"
+                  class:bg-red-500={isSynchronizing}
+                  class:bg-green-500={!isSynchronizing}
+                ></div>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton>
+                <Icon icon="i-mdi-account" />
+                <span>{$t`Account`}</span>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton>
+                <Icon icon="i-mdi-cog" />
+                <span>{$t`Settings`}</span>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    </DevContent>
 
     <Sidebar.Group>
       <Sidebar.Menu>
@@ -115,16 +126,23 @@
 
     <Sidebar.Group>
       <Sidebar.Menu>
+        {#if supportsTroubleshooting}
+          <TroubleshootDialog bind:open={troubleshootDialogOpen} />
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton onclick={() => troubleshootDialogOpen = true}>
+              <Icon icon="i-mdi-help-circle" />
+              <span>{$t`Troubleshoot`}</span>
+            </Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        {/if}
         <Sidebar.MenuItem>
           <Sidebar.MenuButton>
-            <Icon icon="i-mdi-help-circle" />
-            <span>{$t`Troubleshoot`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            <Icon icon="i-mdi-message" />
-            <span>{$t`Feedback`}</span>
+            {#snippet child({ props })}
+              <a {...props} href={config.feedbackUrl} target="_blank">
+                <Icon icon="i-mdi-message" />
+                <span>{$t`Feedback`}</span>
+              </a>
+            {/snippet}
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
       </Sidebar.Menu>

@@ -5,10 +5,30 @@
   import { useFwLiteConfig, useTroubleshootingService } from '$lib/services/service-provider';
   import { AppNotification } from '$lib/notifications/notifications';
   import { t } from 'svelte-i18n-lingui';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {watch} from 'runed';
+
+  let {
+    open = $bindable(),
+  } = $props<{
+    open: boolean;
+  }>();
+
+  const openQueryParam = new QueryParamStateBool('troubleshootDialogOpen', true);
+
+  watch(() => open, (newOpen) => {
+    openQueryParam.current = newOpen;
+  });
+  // 	Detect when the dialog is closed via back-navigation
+  watch(() => openQueryParam.current, () => {
+    if (!openQueryParam.current) {
+      open = false;
+    }
+  });
+
 
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
-  export let open = false;
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {
@@ -17,8 +37,8 @@
   }
 </script>
 
-<Dialog bind:open>
-  <DialogContent>
+<Dialog bind:open={openQueryParam.current}>
+  <DialogContent class="sm:min-h-fit">
     <DialogHeader>
       <DialogTitle>{$t`Troubleshoot`}</DialogTitle>
     </DialogHeader>
