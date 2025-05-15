@@ -2,16 +2,18 @@
   const hasSetLang = {value: false};
 </script>
 <script lang="ts">
-import {mdiTranslate} from '@mdi/js';
-import {MenuButton, type MenuOption} from 'svelte-ux';
 import {locale} from 'svelte-i18n-lingui';
 import {onMount} from 'svelte';
+import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+import {Button} from '$lib/components/ui/button';
+import {Icon} from '$lib/components/ui/icon';
 
-const languages: MenuOption[] = [
-  {value: 'en', label: 'English'},
-  {value: 'fr', label: 'Français'},
-  {value: 'es', label: 'Español'},
-];
+const languages: Record<string, string> = {
+  'en': 'English',
+  'fr': 'Français',
+  'es': 'Español'
+};
+const currentLanguage = $derived(languages[$locale] ?? 'Unknown: ' + $locale);
 async function setLanguage(lang: string) {
   const wasDefault = lang === 'default';
   if (!lang || wasDefault) lang = localStorage.getItem('locale') ?? 'en';
@@ -27,9 +29,20 @@ onMount(() => {
   }
 });
 </script>
-<MenuButton
-  options={languages}
-  value={$locale}
-  icon={mdiTranslate}
-  on:change={(e) => setLanguage(e.detail.value)}
-/>
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger>
+    {#snippet child({props})}
+      <Button {...props} icon="i-mdi-translate" variant="ghost">
+        {currentLanguage}
+        <Icon icon="i-mdi-menu-down"/>
+      </Button>
+    {/snippet}
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.RadioGroup bind:value={() => $locale, l => setLanguage(l)}>
+      {#each Object.entries(languages) as [lang, label]}
+        <DropdownMenu.RadioItem class="cursor-pointer" value={lang}>{label}</DropdownMenu.RadioItem>
+      {/each}
+    </DropdownMenu.RadioGroup>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>
