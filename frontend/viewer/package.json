@@ -90,7 +90,7 @@
     "prosemirror-model": "^1.25.0",
     "prosemirror-state": "^1.4.3",
     "prosemirror-view": "^1.38.1",
-    "runed": "^0.24.1",
+    "runed": "catalog:",
     "svelte-dnd-action": "^0.9.57",
     "svelte-exmarkdown": "catalog:",
     "svelte-i18n-lingui": "^0.2.2",

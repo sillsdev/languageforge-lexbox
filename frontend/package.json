@@ -102,7 +102,7 @@
     "js-cookie": "^3.0.5",
     "just-order-by": "^1.0.0",
     "mjml": "^4.15.3",
-    "runed": "^0.26.0",
+    "runed": "catalog:",
     "set-cookie-parser": "^2.7.1",
     "svelte-exmarkdown": "catalog:",
     "svelte-intl-precompile": "^0.12.3",
