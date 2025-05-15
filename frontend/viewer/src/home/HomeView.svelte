@@ -134,7 +134,7 @@
       <TroubleshootDialog bind:open={showTroubleshooting} />
     {/if}
     <DevContent>
-      <UxButton href="/sandbox" size="sm" variant="outline" icon={mdiTestTube}>Sandbox</UxButton>
+      <UxButton href="/sandbox" size="sm" variant="outline" icon={mdiTestTube} class="hover:bg-muted">Sandbox</UxButton>
     </DevContent>
     <LocalizationPicker/>
     <ThemePicker />
@@ -241,6 +241,7 @@
                             e.preventDefault();
                             await importFwDataProject(project.name);
                           }}
+                          class="hover:bg-primary/20"
                         ></UxButton>
                       </DevContent>
                     </div>
