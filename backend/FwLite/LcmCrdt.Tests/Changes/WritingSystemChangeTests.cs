@@ -35,7 +35,7 @@ public class WritingSystemChangeTests(MiniLcmApiFixture fixture) : IClassFixture
             Abbreviation = "De",
             Font = "test",
             Name = "German",
-            Type = WritingSystemType.Analysis//ignored by create api
+            Type = WritingSystemType.Analysis
         };
         await fixture.Api.CreateWritingSystem(writingSystem);
         await fixture.Api.CreateWritingSystem(writingSystem with {Type = WritingSystemType.Vernacular});
