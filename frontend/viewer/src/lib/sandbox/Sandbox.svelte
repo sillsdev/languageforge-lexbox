@@ -12,7 +12,6 @@
   import {delay} from '$lib/utils/time';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import {dndzone} from 'svelte-dnd-action';
-  import {Button as UxButton} from 'svelte-ux';
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
@@ -203,40 +202,30 @@
 <hr class="border-t border-gray-200 my-6"/>
 
 <div class="p-6 overflow-hidden">
-  <h2 class="mb-4">
-    Svelte-UX Sandbox
-  </h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <div class="flex flex-col gap-2">
         Notifications
-        <UxButton variant="fill" on:click={() => testingService?.throwException()}>Throw Exception</UxButton>
-        <UxButton variant="fill" on:click={() => testingService?.throwExceptionAsync()}>Throw Exception Async</UxButton>
-        <UxButton variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple
+        <Button onclick={() => testingService?.throwException()}>Throw Exception</Button>
+        <Button onclick={() => testingService?.throwExceptionAsync()}>Throw Exception Async</Button>
+        <Button onclick={() => AppNotification.display('This is a simple notification', 'info')}>Simple
           Notification
-        </UxButton>
-        <UxButton variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
+        </Button>
+        <Button onclick={() => AppNotification.displayAction('This is a notification with an action', 'info', {
           label: 'Action',
           callback: () => alert('Action clicked')
         })}>Notification with action
-        </UxButton>
-        <UxButton variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
-        </UxButton>
+        </Button>
+        <Button onclick={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
+        </Button>
       </div>
     </div>
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <div class="flex flex-col gap-2">
         Button
-        <UxButton variant="fill" disabled={loading} {loading} on:click={incrementAsync}>
+        <Button disabled={loading} {loading} onclick={incrementAsync}>
           Increment Async
-        </UxButton>
-        click count: {count}
-      </div>
-      <div class="flex flex-col gap-2">
-        ButtonListItem
-        <ButtonListItem disabled={loading} on:click={incrementAsync}>
-          Increment Async
-        </ButtonListItem>
+        </Button>
         click count: {count}
       </div>
     </div>
