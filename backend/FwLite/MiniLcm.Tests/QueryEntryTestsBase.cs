@@ -5,6 +5,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Apple = "Apple";
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
+    private readonly string Kiwi = "Kiwi";
 
     public override async Task InitializeAsync()
     {
@@ -59,6 +60,27 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 }
             ]
         });
+        await Api.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", Kiwi } },
+            Senses =
+            [
+                new()
+                {
+                    Gloss = { { "en", "Fruit" } },
+                    Definition = { { "en", "Fruit, fuzzy with green flesh" } },
+                    PartOfSpeechId = nounPos.Id,
+                    SemanticDomains = [semanticDomain],
+                    ExampleSentences =
+                    [
+                        new ExampleSentence()
+                        {
+                            Sentence = { { "en", "I like eating Kiwis, they taste good" } }
+                        },
+                    ]
+                }
+            ]
+        });
     }
 
     [Fact]
@@ -72,6 +94,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterToMissingPartOfSpeech()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=null" })).ToArrayAsync();
+        //does not include entries with no senses
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
 
@@ -79,7 +102,9 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterToMissingExamples()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo([Apple, Peach]);
+        //Senses.ExampleSentences=null matches entries which have senses but no examples
+        //it does not include Apple because it has no senses, to include it a filter Senses=null is needed
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach, Banana);
     }
 
     [Fact]
