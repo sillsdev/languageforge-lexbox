@@ -34,17 +34,6 @@
     showHomeButton?: boolean;
   } = $props();
 
-  let currentView: View = $state('browse');
-  const {base} = useRouter();
-
-  watch(() => currentView, () => {
-    const urlView = location.pathname.split('/').pop();
-    if (urlView === currentView) return; // avoid losing query params
-
-    let newLocation = `${$base.uri}/${currentView}`;
-    setTimeout(() => navigate(newLocation));
-  });
-
   const fieldView = initView();
   const viewSettings = initViewSettings();
 
@@ -52,11 +41,12 @@
     onloaded(true);
   });
   let open = $state(true);
+  const {base} = useRouter();
 </script>
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
-    <ProjectSidebar bind:currentView/>
+    <ProjectSidebar/>
     <Sidebar.Inset class="flex-1 relative">
       <Route path="/browse">
         <BrowseView/>
@@ -64,8 +54,11 @@
       <Route path="/tasks">
         <TasksView/>
       </Route>
+      <Route path="/">
+        {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
+      </Route>
       <Route path="/*">
-        Unknown view {currentView}
+        Unknown route
       </Route>
     </Sidebar.Inset>
   </Sidebar.Provider>
