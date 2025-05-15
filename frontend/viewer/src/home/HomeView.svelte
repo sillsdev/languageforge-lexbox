@@ -3,11 +3,8 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiChatQuestion,
     mdiChevronRight,
     mdiDelete,
-    mdiFaceAgent,
-    mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
   import {AppBar, Button as UxButton, ListItem, TextField} from 'svelte-ux';
@@ -113,28 +110,25 @@
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex gap-2">
-    <UxButton href={fwLiteConfig.feedbackUrl}
+    <Button href={fwLiteConfig.feedbackUrl}
               target="_blank"
-              size="sm"
-              variant="outline"
-              icon={mdiChatQuestion}
-              classes={{root: 'hover:bg-muted'}}>
+              variant="ghost"
+              icon="i-mdi-chat-question">
       {$t`Feedback`}
-    </UxButton>
+    </Button>
     {#if supportsTroubleshooting}
-      <UxButton
-        size="sm"
-        variant="outline"
-        classes={{root: 'hover:bg-muted'}}
-        icon={mdiFaceAgent}
+      <Button
+        variant="ghost"
+        icon="i-mdi-face-agent"
         title={$t`Troubleshoot`}
-        iconOnly={false}
-        on:click={() => (showTroubleshooting = !showTroubleshooting)}
-      ></UxButton>
+        onclick={() => (showTroubleshooting = !showTroubleshooting)}
+      >
+        {$t`Troubleshoot`}
+      </Button>
       <TroubleshootDialog bind:open={showTroubleshooting} />
     {/if}
     <DevContent>
-      <UxButton href="/sandbox" size="sm" variant="outline" icon={mdiTestTube} class="hover:bg-muted">Sandbox</UxButton>
+      <Button href="/sandbox" variant="ghost" icon="i-mdi-test-tube">Sandbox</Button>
     </DevContent>
     <LocalizationPicker/>
     <ThemePicker />
