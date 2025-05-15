@@ -22,7 +22,6 @@ export class QueryParamState {
     } else {
       currentUrl.searchParams.set(this.key, value);
     }
-    if (currentUrl.href == document.location.href) return;
     if (this.allowBack) {
       history.pushState(null, '', currentUrl.href);
     } else {
