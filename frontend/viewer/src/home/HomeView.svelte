@@ -113,13 +113,19 @@
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex gap-2">
-    <UxButton href={fwLiteConfig.feedbackUrl} target="_blank" size="sm" variant="outline" icon={mdiChatQuestion}>
+    <UxButton href={fwLiteConfig.feedbackUrl}
+              target="_blank"
+              size="sm"
+              variant="outline"
+              icon={mdiChatQuestion}
+              classes={{root: 'hover:bg-muted'}}>
       {$t`Feedback`}
     </UxButton>
     {#if supportsTroubleshooting}
       <UxButton
         size="sm"
         variant="outline"
+        classes={{root: 'hover:bg-muted'}}
         icon={mdiFaceAgent}
         title={$t`Troubleshoot`}
         iconOnly={false}
