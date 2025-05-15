@@ -32,7 +32,7 @@
     ...rest
   }: Props = $props();
 
-  watch(() => value, setValue);
+  watch.pre(() => value, setValue);
 
   const debounceTime: number = $derived(
     typeof debounce === 'boolean' ? (debounce ? DEFAULT_DEBOUNCE_TIME : 0) : debounce,
@@ -42,7 +42,7 @@
     () => undebouncedValue,
     () => debounceTime,
   );
-  $effect(() => {
+  $effect.pre(() => {
     if (debounceTime)
       undebouncedValue = value = debouncer.current;
     else
