@@ -109,7 +109,7 @@
             {@const loading = downloading === project.code}
             <ButtonListItem on:click={() => downloadCrdtProject(project)} disabled={!!downloading}>
               <ListItem icon={mdiCloud}
-                        classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}
+                        classes={{root: cn('dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted', loading && 'brightness-50')}}
                         {loading}>
                 <ProjectTitle slot="title" {project}/>
                 <div slot="actions" class="pointer-events-none shrink-0">
