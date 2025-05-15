@@ -9,6 +9,7 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
   import ProjectTitle from './ProjectTitle.svelte';
+  import {cn} from '$lib/utils';
 
   const projectsService = useProjectsService();
 
@@ -63,7 +64,7 @@
       <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
     {/if}
   </div>
-  <div>
+  <div class={cn('rounded', !projects.length && 'border')}>
     {#if !status || loading}
       <!--override the defaults from App.svelte-->
       <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
