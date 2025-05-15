@@ -4,12 +4,13 @@
   import {createEventDispatcher} from 'svelte';
   import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import {Button, ListItem, Settings} from 'svelte-ux';
+  import {ListItem, Settings} from 'svelte-ux';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
   import ProjectTitle from './ProjectTitle.svelte';
   import {cn} from '$lib/utils';
+  import {Button} from '$lib/components/ui/button';
 
   const projectsService = useProjectsService();
 
@@ -56,11 +57,13 @@
     </div>
     <div class="flex-grow"></div>
     {#if status?.loggedIn}
-      <Button icon={mdiRefresh}
+      <Button icon="i-mdi-refresh"
               title={$t`Refresh Projects`}
               disabled={loading}
               class="mr-2"
-              on:click={() => dispatch('refreshProjects')}/>
+              variant="ghost"
+              size="icon"
+              onclick={() => dispatch('refreshProjects')}/>
       <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
     {/if}
   </div>
@@ -96,7 +99,7 @@
                         loading={downloading === project.name}>
                 <ProjectTitle slot="title" {project}/>
                 <div slot="actions" class="pointer-events-none shrink-0">
-                  <Button disabled icon={mdiBookSyncOutline} class="p-2">
+                  <Button disabled icon="i-mdi-book-sync-outline" variant="ghost" class="p-2">
                     {$t`Synced`}
                   </Button>
                 </div>
@@ -110,7 +113,7 @@
                         {loading}>
                 <ProjectTitle slot="title" {project}/>
                 <div slot="actions" class="pointer-events-none shrink-0">
-                  <Button icon={mdiBookArrowDownOutline} class="p-2">
+                  <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
                     {$t`Download`}
                   </Button>
                 </div>
