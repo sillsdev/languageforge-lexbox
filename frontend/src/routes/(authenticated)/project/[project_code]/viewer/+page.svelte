@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import 'viewer/component';
   import { LfClassicLexboxApi } from './lfClassicLexboxApi';
   import 'viewer/service-declaration';
@@ -14,7 +12,6 @@
   let { data }: Props = $props();
   let project = $derived(data.project);
 
-  const serviceProvider = window.lexbox.ServiceProvider;
   let service = $derived(new LfClassicLexboxApi($project.code));
 </script>
 
