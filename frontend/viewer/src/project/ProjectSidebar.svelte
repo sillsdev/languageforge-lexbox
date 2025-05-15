@@ -9,13 +9,9 @@
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
-  import {navigate} from 'svelte-routing';
+  import {navigate, useRouter} from 'svelte-routing';
   import type {IProjectModel} from '$lib/dotnet-types';
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
-
-  let { currentView = $bindable() } = $props<{
-    currentView: View;
-  }>();
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
@@ -30,11 +26,17 @@
 
   let sidebar: Sidebar.Root | undefined = $state();
   const primaryAction = usePrimaryAction();
+
+  const {base, activeRoute} = useRouter();
+  function goto(view: string) {
+    let newLocation = `${$base.uri}/${view}`;
+    navigate(newLocation);
+  }
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
   <Sidebar.MenuItem>
-    <Sidebar.MenuButton onclick={() => (currentView = view)} isActive={currentView === view}>
+    <Sidebar.MenuButton onclick={() => goto(view)} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
     </Sidebar.MenuButton>
