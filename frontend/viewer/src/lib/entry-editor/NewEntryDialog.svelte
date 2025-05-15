@@ -13,8 +13,9 @@
   import OverrideFields from '$lib/OverrideFields.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
 
-  let open = $state(false);
+  const open = new QueryParamStateBool('newEntryDialogOpen', true);
   let loading = $state(false);
   let entry: IEntry = $state(defaultEntry());
 
@@ -30,7 +31,7 @@
 
   // Watch for changes in the open state to detect when the dialog is closed
   $effect(() => {
-    if (!open) {
+    if (!open.current) {
       onClosing();
     }
   });
@@ -46,7 +47,7 @@
     requester.resolve(entry);
     requester = undefined;
     loading = false;
-    open = false;
+    open.current = false;
   }
 
   let errors: string[] = $state([]);
@@ -62,7 +63,7 @@
       if (requester) requester.resolve(undefined);
       requester = { resolve };
       const tmpEntry = defaultEntry();
-      open = true;
+      open.current = true;
       entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
       if (entry.senses.length === 0) {
         entry.senses.push(defaultSense(entry.id));
@@ -82,8 +83,8 @@
   let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
 </script>
 
-{#if open}
-<Dialog.Root bind:open>
+{#if open.current}
+<Dialog.Root bind:open={open.current}>
   <Dialog.DialogContent>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
@@ -99,7 +100,7 @@
       </div>
     {/if}
     <Dialog.DialogFooter>
-      <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
+      <Button onclick={() => open.current = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
         {$t`Create ${entryLabel}`}
       </Button>

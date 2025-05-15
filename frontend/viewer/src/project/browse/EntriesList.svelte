@@ -18,14 +18,14 @@
 
   const {
     search = '',
-    selectedEntry = undefined,
+    selectedEntryId = undefined,
     sortDirection = 'asc',
     onSelectEntry,
     gridifyFilter = undefined,
     previewDictionary = false
   }: {
     search?: string;
-    selectedEntry?: IEntry;
+    selectedEntryId?: string;
     sortDirection: 'asc' | 'desc';
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
@@ -36,7 +36,7 @@
   const projectEventBus = useProjectEventBus();
 
   projectEventBus.onEntryDeleted(entryId => {
-    if (selectedEntry?.id === entryId) onSelectEntry(undefined);
+    if (selectedEntryId === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
     entriesResource.refetch();
   });
@@ -112,7 +112,7 @@
         {#each entries as entry}
           <EntryMenu {entry} contextMenu>
               <EntryRow {entry}
-                isSelected={selectedEntry?.id === entry.id}
+                isSelected={selectedEntryId === entry.id}
                 onclick={() => onSelectEntry(entry)}
                 {previewDictionary} />
           </EntryMenu>

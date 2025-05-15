@@ -20,7 +20,7 @@
   getDisplayName={getHeadword}>
   {#snippet menuItems(entry)}
     <DropdownMenu.Item>
-      <Link to="?entryId={getEntryId(entry)}}">
+      <Link to="?entryId={getEntryId(entry)}">
         <Icon icon="i-mdi-book-outline" />
         {$t`Go to ${getHeadword(entry) || '–'}`}
       </Link>

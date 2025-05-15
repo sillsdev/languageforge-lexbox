@@ -19,6 +19,8 @@
   import TasksView from './project/tasks/TasksView.svelte';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {navigate, Route, useRouter} from 'svelte-routing';
+  import {watch} from 'runed';
 
   const {
     onloaded,
@@ -31,7 +33,7 @@
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
-  let currentView: View = $state('browse');
+
   const fieldView = initView();
   const viewSettings = initViewSettings();
 
@@ -39,17 +41,25 @@
     onloaded(true);
   });
   let open = $state(true);
+  const {base} = useRouter();
 </script>
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
-      <ProjectSidebar bind:currentView />
-      <Sidebar.Inset class="flex-1 relative">
-        {#if currentView === 'browse'}
-          <BrowseView />
-        {:else if currentView === 'tasks'}
-          <TasksView />
-        {/if}
-      </Sidebar.Inset>
+    <ProjectSidebar/>
+    <Sidebar.Inset class="flex-1 relative">
+      <Route path="/browse">
+        <BrowseView/>
+      </Route>
+      <Route path="/tasks">
+        <TasksView/>
+      </Route>
+      <Route path="/">
+        {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
+      </Route>
+      <Route path="/*">
+        Unknown route
+      </Route>
+    </Sidebar.Inset>
   </Sidebar.Provider>
 </div>

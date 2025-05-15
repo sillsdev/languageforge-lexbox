@@ -1,6 +1,6 @@
 <script lang="ts">
   import OverrideFields from '$lib/OverrideFields.svelte';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
   import type {FieldIds} from '$lib/entry-editor/field-data';
@@ -25,6 +25,10 @@
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
   import {Reorderer} from '$lib/components/reorderer/index.js';
+  import {Switch} from '$lib/components/ui/switch';
+  import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {Link} from 'svelte-routing';
+
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -89,6 +93,11 @@
     items = Array.from({length: 10}, () => (Math.random() * 100).toFixed(0));
     currentItem = items[0];
   }
+
+
+
+  let nameSearchParam = new QueryParamState('name');
+  let goodSearchParam = new QueryParamStateBool('good', true, true);
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -182,6 +191,12 @@
     <div>
       <code>{JSON.stringify(items)}</code>
     </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Search Params binding</h3>
+    <input bind:value={nameSearchParam.current}/>
+    <Link to="/sandbox?name=batman" class={buttonVariants({variant: 'default'})} preserveScroll>Go to Batman</Link>
+    <Switch label="Good" bind:checked={goodSearchParam.current}/>
   </div>
 </div>
 
