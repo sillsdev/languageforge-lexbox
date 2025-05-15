@@ -71,15 +71,13 @@
     {#if !status || loading}
       <!--override the defaults from App.svelte-->
       <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-      <Settings components={{ListItem: {classes: {root: 'animate-pulse'}}}}>
-        <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50', root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
-          <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
-          </div>
-          <div slot="actions" class="pointer-events-none">
-            <div class="h-4 my-3 bg-neutral-50/50 rounded-full w-20"></div>
-          </div>
-        </ListItem>
-      </Settings>
+      <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50', root: 'animate-pulse dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
+        <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
+        </div>
+        <div slot="actions" class="pointer-events-none">
+          <div class="h-4 my-3 bg-neutral-50/50 rounded-full w-20"></div>
+        </div>
+      </ListItem>
     {:else if !projects.length}
       <p class="text-center elevation-1 md:rounded p-4">
         {#if status.loggedIn}
