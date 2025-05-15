@@ -97,6 +97,17 @@
 
   let nameSearchParam = new QueryParamState('name');
   let goodSearchParam = new QueryParamStateBool('good', true, true);
+
+  const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
+  const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];
+
+  let buttonsLoading = $state(false);
+  function testLoading() {
+    buttonsLoading = true;
+    setTimeout(() => {
+      buttonsLoading = false;
+    }, 1000);
+  }
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -255,6 +266,26 @@
       </svelte:boundary>
     </div>
 
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div>
+        <h3>Buttons</h3>
+      </div>
+      <div><Button onclick={testLoading}>Test loading</Button></div>
+      <div class="flex gap-2 flex-wrap">
+        {#each variants as variant}
+          <Button loading={buttonsLoading} {variant}>{variant} button</Button>
+        {/each}
+        {#each variants as variant}
+          <Button loading={buttonsLoading} {variant} icon="i-mdi-auto-fix"></Button>
+        {/each}
+        {#each sizes as size}
+          <Button loading={buttonsLoading} {size}>Size: {size}</Button>
+        {/each}
+        {#each sizes as size}
+          <Button loading={buttonsLoading} {size} icon="i-mdi-auto-fix"/>
+        {/each}
+      </div>
+    </div>
   </div>
 </div>
 <div id="bottom" class="fixed bottom-0 left-1/2"></div>

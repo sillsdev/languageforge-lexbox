@@ -6,7 +6,7 @@
   import type {IconProps} from '../icon/icon.svelte';
 
   export const buttonVariants = tv({
-    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center space-x-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -69,7 +69,7 @@
 
 {#snippet content()}
   {#if loading || icon}
-    <span class="pr-2 mr-0" transition:slide={{axis: 'x',}}>
+    <span transition:slide={{axis: 'x',}}>
     {#if loading}
       <Icon icon="i-mdi-loading" class="animate-spin"/>
     {:else if icon}
