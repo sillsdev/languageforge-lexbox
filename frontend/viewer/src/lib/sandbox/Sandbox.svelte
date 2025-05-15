@@ -111,6 +111,8 @@
     flexToLbCount={3}
     syncLbToLocal={() => console.log('Would sync LexBox to local CRDT')}
     syncLbToFlex={() => console.log('Would sync LexBox to FLEx')}
+    lastLocalSyncDate={new Date(2025, 4, 10)}
+    lastFlexSyncDate={new Date(2025, 4, 12)}
   />
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
