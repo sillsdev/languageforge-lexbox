@@ -371,7 +371,7 @@
             }}
             on:delete={onEntryDeleted} />
         {:else}
-          <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
+          <div class="w-full h-full z-10 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !readonly}
               <NewEntryButton onclick={() => openNewEntryDialog()} />

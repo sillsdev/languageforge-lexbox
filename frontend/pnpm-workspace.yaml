@@ -23,3 +23,4 @@ catalog:
   "@stylistic/eslint-plugin": ^2.12.1
   "@vitejs/plugin-basic-ssl": ^1.2.0
   "@playwright/test": ^1.49.1
+  runed: ^0.27.0

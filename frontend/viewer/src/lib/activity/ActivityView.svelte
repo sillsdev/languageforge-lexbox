@@ -90,8 +90,8 @@
                 title={row.changeName}
                 noShadow
                 on:click={() => selectedRow = row}
-                class={cls(selectedRow?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : '')}>
-                <div slot="subheading" class="text-sm text-surface-content/50">
+                class={cls(selectedRow?.commitId === row.commitId ? 'bg-primary/20 dark:bg-primary/20 selected-entry' : 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted')}>
+                <div slot="subheading" class="text-sm">
                   {#if row.previousTimestamp}
                     <Duration totalUnits={2} start={new Date(row.timestamp)}
                               end={new Date(row.previousTimestamp)}
