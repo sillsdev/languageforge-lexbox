@@ -27,7 +27,7 @@
   let {
     value = $bindable(),
     debounce = true,
-    undebouncedValue = $bindable(),
+    undebouncedValue = $bindable<string | null | undefined>(value),
     ...rest
   }: Props = $props();
 
@@ -44,7 +44,10 @@
     () => debounceTime,
   );
   $effect(() => {
-    value = debouncer.current;
+    if (debounceTime)
+      value = debouncer.current;
+    else
+      value = undebouncedValue;
   });
 </script>
 
