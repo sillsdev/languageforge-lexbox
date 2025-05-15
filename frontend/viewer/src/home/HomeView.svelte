@@ -170,7 +170,7 @@
                       <UxButton
                         icon={mdiDelete}
                         title={$t`Delete`}
-                        class="p-2"
+                        class="p-2 hover:bg-primary/20"
                         on:click={(e) => {
                           e.preventDefault();
                           void deleteProject(project);
