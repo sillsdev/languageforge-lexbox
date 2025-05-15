@@ -19,7 +19,14 @@ export class WritingSystemService {
   }
 
   constructor(projectContext: ProjectContext) {
-    this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, api => api.getWritingSystems());
+    this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, async api => {
+      const result = await api.getWritingSystems();
+      return {
+        //hide audio writing systems since we don't support them for now
+        vernacular: result.vernacular.filter(ws => !ws.isAudio),
+        analysis: result.analysis.filter(ws => !ws.isAudio)
+      };
+    });
   }
 
   allWritingSystems(selection: Extract<WritingSystemSelection, 'vernacular-analysis' | 'analysis-vernacular'> = 'vernacular-analysis'): IWritingSystem[] {
