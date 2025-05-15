@@ -104,7 +104,14 @@
   <h2 class="mb-4 flex gap-8 items-center">
     Shadcn Sandbox <ThemePicker />
   </h2>
-  <SyncDialog lbToLocalCount={15} localToLbCount={2} lbToFlexCount={25} flexToLbCount={3} />
+  <SyncDialog
+    lbToLocalCount={15}
+    localToLbCount={2}
+    lbToFlexCount={25}
+    flexToLbCount={3}
+    syncLbToLocal={() => console.log('Would sync LexBox to local CRDT')}
+    syncLbToFlex={() => console.log('Would sync LexBox to FLEx')}
+  />
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <Button onclick={incrementAsync} {loading} icon="i-mdi-ab-testing">Shadcn FTW {count}</Button>
