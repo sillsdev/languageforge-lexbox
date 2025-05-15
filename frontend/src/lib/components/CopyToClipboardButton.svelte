@@ -3,13 +3,17 @@
   import IconButton from './IconButton.svelte';
   import t from '$lib/i18n';
 
-  var copyingToClipboard = false;
-  var copiedToClipboard = false;
+  var copyingToClipboard = $state(false);
+  var copiedToClipboard = $state(false);
 
-  export let textToCopy: string;
-  export let delayMs: Duration | number = Duration.Default;
-  export let size: 'btn-sm' | undefined = undefined;
-  export let outline: boolean = true;
+  interface Props {
+    textToCopy: string;
+    delayMs?: Duration | number;
+    size?: 'btn-sm';
+    outline?: boolean;
+  }
+
+  const { textToCopy, delayMs = Duration.Default, size, outline = true }: Props = $props();
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;
@@ -22,15 +26,21 @@
 </script>
 
 {#if copiedToClipboard}
-<div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
-  <IconButton fake icon="i-mdi-check" {size} variant={outline ? undefined : 'btn-ghost'} class={outline ? 'btn-success' : 'text-success'} />
-</div>
+  <div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
+    <IconButton
+      fake
+      icon="i-mdi-check"
+      {size}
+      variant={outline ? undefined : 'btn-ghost'}
+      class={outline ? 'btn-success' : 'text-success'}
+    />
+  </div>
 {:else}
   <IconButton
-  loading={copyingToClipboard}
-  icon="i-mdi-content-copy"
-  {size}
-  variant={outline ? undefined : 'btn-ghost'}
-  on:click={copyToClipboard}
-/>
+    loading={copyingToClipboard}
+    icon="i-mdi-content-copy"
+    {size}
+    variant={outline ? undefined : 'btn-ghost'}
+    onclick={copyToClipboard}
+  />
 {/if}

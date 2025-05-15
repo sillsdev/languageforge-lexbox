@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import {ProjectType} from '$lib/gql/types';
   import flexLogo from '$lib/assets/flex-logo.png';
   import oneStoryLogo from '$lib/assets/onestory-editor-logo.svg';
@@ -24,14 +24,18 @@
 <script lang="ts">
   import t from '$lib/i18n';
 
-  export let type: ProjectType | undefined;
-  export let size = 'h-6';
+  interface Props {
+    type: ProjectType | undefined;
+    size?: string;
+  }
 
-  $: src = getProjectTypeIcon(type);
+  const { type, size = 'h-6' }: Props = $props();
+
+  let src = $derived(getProjectTypeIcon(type));
 </script>
 
 {#if src}
   <img {src} alt={$t('project_type.logo', { type: type ?? ProjectType.Unknown })} class={size}>
 {:else if type}
-  <span class="i-mdi-help-circle-outline text-2xl" />
+  <span class="i-mdi-help-circle-outline text-2xl"></span>
 {/if}

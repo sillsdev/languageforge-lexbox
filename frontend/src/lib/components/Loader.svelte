@@ -1,8 +1,12 @@
 <script lang="ts">
-  export let loading = false;
-  export let size: undefined | 'loading-xs' = undefined;
+  interface Props {
+    loading?: boolean;
+    size?: 'loading-xs';
+  }
+
+  const { loading = false, size }: Props = $props();
 </script>
 
 {#if loading}
-  <span class="loading loading-spinner {size ?? ''}" />
+  <span class="loading loading-spinner {size ?? ''}"></span>
 {/if}

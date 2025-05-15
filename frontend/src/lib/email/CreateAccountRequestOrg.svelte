@@ -3,12 +3,16 @@
   import t from '$lib/i18n';
   import { toI18nKey } from '$lib/util/timespan';
 
-  export let verifyUrl: string;
-  export let orgName: string;
-  export let managerName: string;
-  export let lifetime: string;
+  interface Props {
+    verifyUrl: string;
+    orgName: string;
+    managerName: string;
+    lifetime: string;
+  }
 
-  $: [expirationText, expirationParam] = toI18nKey(lifetime);
+  const { verifyUrl, orgName, managerName, lifetime }: Props = $props();
+
+  let [expirationText, expirationParam] = $derived(toI18nKey(lifetime));
 </script>
 
 <Email subject={$t('emails.create_account_request_email_org.subject', {orgName})} name="">

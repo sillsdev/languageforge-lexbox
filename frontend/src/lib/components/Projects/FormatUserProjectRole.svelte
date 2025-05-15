@@ -2,7 +2,11 @@
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  export let role: ProjectRole;
+  interface Props {
+    role: ProjectRole;
+  }
+
+  const { role }: Props = $props();
 
   const roles: Record<ProjectRole, string | undefined> = {
     [ProjectRole.Manager]: $t('project_role.manager'),
@@ -10,7 +14,7 @@
     [ProjectRole.Unknown]: $t('unknown'),
   };
 
-  $: _role = roles[role];
+  let _role = $derived(roles[role]);
 </script>
 
 {_role ?? $t('unknown')}

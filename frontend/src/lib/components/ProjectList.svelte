@@ -6,14 +6,18 @@
   import { getProjectTypeIcon } from './ProjectType';
   import type { ProjectItemWithDraftStatus } from './Projects';
 
-  export let projects: ProjectItemWithDraftStatus[];
+  interface Props {
+    projects: ProjectItemWithDraftStatus[];
+  }
+
+  const { projects }: Props = $props();
 </script>
 
 <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4 max-xs:justify-items-center">
   {#each projects as project}
     {#if project.isDraft}
       <div class="draft card aspect-square bg-base-200 overflow-hidden">
-        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
+        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')"></div>
         <div class="card-body z-[1] max-sm:p-6">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
             <span class="text-primary inline-flex gap-2 items-center">
@@ -35,7 +39,7 @@
       </div>
     {:else}
       <a class="card aspect-square bg-base-200 shadow-base-300 overflow-hidden" href={projectUrl(project)}>
-        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
+        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')"></div>
         <div class="card-body z-[1] max-sm:p-6">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
             <span class="text-primary inline-flex gap-2 items-center">
@@ -44,7 +48,7 @@
           </h2>
           <p>{project.code}</p>
             <p>
-              <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
+              <span class="i-mdi-account text-xl mb-[-4px]"></span> {project.userCount}
             </p>
             <p class="flex items-end">
               {#if project.lastCommit}

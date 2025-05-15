@@ -1,5 +1,9 @@
 <script lang="ts">
-  export let value = '';
+  interface Props {
+    value?: string;
+  }
+
+  const { value = '' }: Props = $props();
 </script>
 
 <svelte:head>

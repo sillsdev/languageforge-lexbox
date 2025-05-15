@@ -44,8 +44,9 @@ public class User : EntityBase
     public List<OrgMember> Organizations { get; set; } = [];
     public List<FeatureFlag> FeatureFlags
     {
-        get;
         //even though this may not be null EF still sets it to null based on what's in the db.
+        //also, EF may set the underlying field to null directly, bypassing the setter, so we need to do this.
+        get => field ??= [];
         set => field = value ?? [];
     } = [];
 

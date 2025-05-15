@@ -15,17 +15,24 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { delay } from '$lib/util/time';
 
-  export let data: PageData;
-  $: user = data.account;
-  let deleteModal: DeleteUserModal;
+  interface Props {
+    data: PageData;
+  }
+
+  const { data }: Props = $props();
+  let user = $derived(data.account);
+  let deleteModal: DeleteUserModal | undefined = $state();
 
   const emailResult = useEmailResult();
   const requestedEmail = useRequestedEmail();
-  $: if (data.emailResult) emailResult.set(data.emailResult);
+  $effect(() => {
+    if (data.emailResult) emailResult.set(data.emailResult);
+  });
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
   async function openDeleteModal(): Promise<void> {
+    if (!deleteModal) return;
     let { response } = await deleteModal.open($user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
@@ -47,7 +54,7 @@
       locale: $form.locale,
       userId: $user.id,
     });
-    if (data?.changeUserAccountBySelf.errors?.some(e => e.__typename === 'UniqueValueError')) {
+    if (data?.changeUserAccountBySelf.errors?.some((e) => e.__typename === 'UniqueValueError')) {
       $errors.email = [$t('account_settings.email_taken')];
       return;
     }
@@ -66,7 +73,9 @@
 
   // This is a bit of a hack to make sure that the email field is not required if the user has no email
   // even if the user edited the email field
-  $: if(!$form.email && $user && !$user.email) $form.email = null;
+  $effect(() => {
+    if ($form && !$form.email && $form.email !== null && $user && !$user.email) $form.email = null;
+  });
 
   onMount(() => {
     form.set(
@@ -75,7 +84,7 @@
         name: $user.name,
         locale: $user.locale,
       },
-      { taint: false }
+      { taint: false },
     );
   });
 </script>
@@ -97,9 +106,7 @@
       error={$errors.email}
       bind:value={$form.email}
     />
-    <DisplayLanguageSelect
-      bind:value={$form.locale}
-    />
+    <DisplayLanguageSelect bind:value={$form.locale} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('account_settings.button_update')}</SubmitButton>
   </Form>
@@ -109,7 +116,7 @@
     </a>
   </div>
   <MoreSettings>
-    <button class="btn btn-error" on:click={openDeleteModal}>
+    <button class="btn btn-error" onclick={openDeleteModal}>
       {$t('account_settings.delete_account.submit')}<TrashIcon />
     </button>
   </MoreSettings>

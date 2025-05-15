@@ -1,16 +1,21 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import t, { date, number } from '$lib/i18n';
   import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
   import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import Icon from '$lib/icons/Icon.svelte';
-  import {projectUrl} from '$lib/util/project';
-
-  export let projects: ProjectItemWithDraftStatus[];
+  import { projectUrl } from '$lib/util/project';
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
-  export let columns: Readonly<ProjectTableColumn[]> = allColumns;
+  interface Props {
+    projects: ProjectItemWithDraftStatus[];
+    columns?: Readonly<ProjectTableColumn[]>;
+    actions?: Snippet<[{ project: ProjectItemWithDraftStatus }]>;
+  }
+
+  const { projects, columns = allColumns, actions }: Props = $props();
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
@@ -33,7 +38,7 @@
         {#if isColumnVisible('createdAt')}
           <th class="hidden @xl:table-cell">
             {$t('project.table.created_at')}
-            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2" />
+            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2"></span>
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
@@ -44,8 +49,8 @@
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
         {/if}
-        {#if $$slots.actions}
-          <th />
+        {#if actions}
+          <th></th>
         {/if}
       </tr>
     </thead>
@@ -61,7 +66,8 @@
                   </a>
                   <span
                     class="tooltip text-warning text-xl shrink-0 leading-0"
-                    data-tip={$t('admin_dashboard.is_draft')}>
+                    data-tip={$t('admin_dashboard.is_draft')}
+                  >
                     <Icon icon="i-mdi-script" />
                   </span>
                 {:else if project.deletedDate}
@@ -77,7 +83,8 @@
                 {#if project.isConfidential}
                   <span
                     class="tooltip text-warning text-xl shrink-0 leading-0"
-                    data-tip={$t('project.confidential.confidential')}>
+                    data-tip={$t('project.confidential.confidential')}
+                  >
                     <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
                   </span>
                 {/if}
@@ -119,8 +126,8 @@
               </span>
             </td>
           {/if}
-          {#if $$slots.actions}
-            <slot name="actions" {project} />
+          {#if actions}
+            {@render actions?.({ project })}
           {/if}
         </tr>
       {/each}

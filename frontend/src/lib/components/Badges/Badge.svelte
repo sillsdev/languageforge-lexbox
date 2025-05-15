@@ -1,22 +1,34 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
+  import type { Snippet } from 'svelte';
   // Add more as necessary. Should be as limited as possible to maximize consistency. https://daisyui.com/components/badge/
-  export type BadgeVariant = 'badge-neutral' | 'badge-info' | 'badge-primary' | 'badge-warning' | 'badge-success' | undefined;
+  export type BadgeVariant =
+    | 'badge-neutral'
+    | 'badge-info'
+    | 'badge-primary'
+    | 'badge-warning'
+    | 'badge-success'
+    | undefined;
 </script>
 
 <script lang="ts">
   import { Icon, type IconString } from '$lib/icons';
 
-  export let variant: BadgeVariant = 'badge-neutral';
-  export let icon: IconString | undefined = undefined;
-  export let hoverIcon: IconString | undefined = undefined;
-  export let outline = false;
+  interface Props {
+    variant?: BadgeVariant;
+    icon?: IconString;
+    hoverIcon?: IconString;
+    outline?: boolean;
+    children?: Snippet;
+  }
+
+  const { variant = 'badge-neutral', icon, hoverIcon, outline = false, children }: Props = $props();
 </script>
 
 <span
   class="badge {variant ?? ''} whitespace-nowrap inline-flex gap-2 items-center group"
   class:badge-outline={outline}
 >
-  <slot />
+  {@render children?.()}
   <span class="contents" class:group-hover:hidden={!!hoverIcon}>
     <Icon {icon} />
   </span>

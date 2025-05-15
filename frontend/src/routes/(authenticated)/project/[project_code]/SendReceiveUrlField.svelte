@@ -1,16 +1,20 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import { FormField } from '$lib/forms';
   import t from '$lib/i18n';
   import { AdminContent } from '$lib/layout';
 
-  export let projectCode: string;
+  interface Props {
+    projectCode: string;
+  }
 
-  $: projectHgUrl = import.meta.env.DEV ? `http://hg.${$page.url.hostname}/${projectCode}`
-    : $page.url.host.includes('develop') || $page.url.host.includes('.dev') ? `https://hg-develop.lexbox.org/${projectCode}`
-    : $page.url.host.includes('staging') ? `https://hg-${$page.url.host.replace('depot', 'forge')}/${projectCode}`
-    : `https://hg-public.${$page.url.host.replace('depot', 'forge')}/${projectCode}`;
+  const { projectCode }: Props = $props();
+
+  let projectHgUrl = $derived(import.meta.env.DEV ? `http://hg.${page.url.hostname}/${projectCode}`
+    : page.url.host.includes('develop') || page.url.host.includes('.dev') ? `https://hg-develop.lexbox.org/${projectCode}`
+    : page.url.host.includes('staging') ? `https://hg-${page.url.host.replace('depot', 'forge')}/${projectCode}`
+    : `https://hg-public.${page.url.host.replace('depot', 'forge')}/${projectCode}`);
 </script>
 
 <AdminContent>

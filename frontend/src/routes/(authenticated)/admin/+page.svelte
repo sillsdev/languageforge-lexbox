@@ -12,7 +12,7 @@
   import { type AdminSearchParams, type User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { derived } from 'svelte/store';
+  import { derived as derivedStore } from 'svelte/store';
   import AdminProjects from './AdminProjects.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { PageBreadcrumb } from '$lib/layout';
@@ -23,11 +23,16 @@
   import { browser } from '$app/environment';
   import UserTable from '$lib/components/Users/UserTable.svelte';
   import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
+  import { untrack } from 'svelte';
 
-  export let data: PageData;
-  $: projects = data.projects;
-  $: draftProjects = data.draftProjects;
-  $: userData = data.users;
+  interface Props {
+    data: PageData;
+  }
+
+  const { data }: Props = $props();
+  let projects = $derived(data.projects);
+  let draftProjects = $derived(data.draftProjects);
+  let userData = $derived(data.users);
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -49,22 +54,30 @@
   const userFilterKeys = ['userSearch', 'usersICreated', 'userType'] as const satisfies Readonly<(keyof UserFilters)[]>;
 
   const { queryParamValues, defaultQueryParamValues } = queryParams;
-  $: tab = $queryParamValues.tab;
+  let tab = $derived($queryParamValues.tab);
 
-  const loadingUsers = derived(navigating, (nav) => {
+  const loadingUsers = derivedStore(navigating, (nav) => {
     if (!nav?.to?.route.id?.endsWith('/admin')) return false;
     const fromUrl = nav?.from?.url;
-    return fromUrl && userFilterKeys.some((key) =>
-      (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key]);
+    return (
+      fromUrl &&
+      userFilterKeys.some(
+        (key) => (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key],
+      )
+    );
   });
 
-  let hasActiveFilter = false;
-  let lastLoadUsedActiveFilter = false;
-  $: if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;
-
-  $: users = $userData?.items ?? [];
-  $: filteredUserCount = $userData?.totalCount ?? 0;
-  $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
+  let hasActiveFilter = $state(false);
+  let lastLoadUsedActiveFilter = $state(false);
+  // Not using $derived here because we want lastLoadUsedActiveFilter to only change value when $loadingUsers becomes false
+  $effect(() => {
+    if (!$loadingUsers) {
+      lastLoadUsedActiveFilter = untrack(() => hasActiveFilter);
+    }
+  });
+  let users = $derived($userData?.items ?? []);
+  let filteredUserCount = $derived($userData?.totalCount ?? 0);
+  let shownUsers = $derived(lastLoadUsedActiveFilter ? users : users.slice(0, 10));
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
@@ -74,12 +87,13 @@
     $queryParamValues.tab = 'projects';
   }
 
-  let userModal: UserModal;
-  let createUserModal: CreateUserModal;
-  let deleteUserModal: DeleteUserModal;
-  let formModal: EditUserAccount;
+  let userModal: UserModal | undefined = $state();
+  let createUserModal: CreateUserModal | undefined = $state();
+  let deleteUserModal: DeleteUserModal | undefined = $state();
+  let formModal: EditUserAccount | undefined = $state();
 
   async function deleteUser(user: User): Promise<void> {
+    if (!formModal || !deleteUserModal) return;
     formModal.close();
     const { response } = await deleteUserModal.open(user);
     if (response == DialogResponse.Submit) {
@@ -88,6 +102,7 @@
   }
 
   async function openModal(user: User): Promise<void> {
+    if (!formModal) return;
     const { response, formState } = await formModal.openModal(user);
     if (response == DialogResponse.Submit) {
       if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
@@ -122,7 +137,7 @@
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
-      <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
+      <AdminTabs activeTab="users" onClickTab={(tab) => ($queryParamValues.tab = tab)}>
         <div class="flex gap-4 justify-between grow">
           <div class="flex gap-4 items-center">
             {$t('admin_dashboard.user_table_title')}
@@ -136,13 +151,16 @@
               </Badge>
             </div>
           </div>
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
-            on:click={() => createUserModal.open()}>
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <svelte:element
+            this={browser ? 'button' : 'div'}
+            class="btn btn-sm btn-success max-xs:btn-square"
+            onclick={() => createUserModal?.open()}
+          >
             <span class="admin-tabs:hidden">
               {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
-            <span class="i-mdi-plus text-2xl" />
+            <span class="i-mdi-plus text-2xl"></span>
           </svelte:element>
         </div>
       </AdminTabs>
@@ -156,13 +174,13 @@
         />
       </div>
 
-      <div class="divider" />
+      <div class="divider"></div>
       <div class="overflow-x-visible @container scroll-shadow">
         <UserTable
           {shownUsers}
-          on:openUserModal={(event) => userModal.open(event.detail)}
-          on:editUser={(event) => openModal(event.detail)}
-          on:filterProjectsByUser={(event) => filterProjectsByUser(event.detail)}
+          onOpenUserModal={(user) => userModal?.open(user)}
+          onEditUser={openModal}
+          onFilterProjectsByUser={filterProjectsByUser}
         />
         <RefineFilterMessage total={filteredUserCount} showing={shownUsers.length} />
       </div>
@@ -171,6 +189,6 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
-  <UserModal bind:this={userModal}/>
-  <CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
+  <UserModal bind:this={userModal} />
+  <CreateUserModal handleSubmit={createGuestUserByAdmin} onSubmitted={onUserCreated} bind:this={createUserModal} />
 </main>

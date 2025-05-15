@@ -1,24 +1,49 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Loader from '$lib/components/Loader.svelte';
 
-  export let loading = false;
-  export let active = false;
-  export let variant: 'btn-primary' | 'btn-success' | 'btn-error' | 'btn-ghost' | 'btn-warning' | 'btn-accent' | undefined = undefined;
-  export let outline = false;
-  export let type: undefined | 'submit' = undefined;
-  export let size: undefined | 'btn-sm' = undefined;
-  export let disabled = false;
-  export let customLoader = false;
+  interface Props {
+    loading?: boolean;
+    active?: boolean;
+    variant?: 'btn-primary' | 'btn-success' | 'btn-error' | 'btn-ghost' | 'btn-warning' | 'btn-accent';
+    outline?: boolean;
+    type?: 'submit';
+    size?: 'btn-sm';
+    disabled?: boolean;
+    customLoader?: boolean;
+    children?: Snippet;
+    onclick?: () => void;
+    [key: string]: unknown;
+  }
+
+  const {
+    loading = false,
+    active = false,
+    variant,
+    outline = false,
+    type,
+    size,
+    disabled = false,
+    customLoader = false,
+    children,
+    onclick,
+    ...rest
+  }: Props = $props();
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<button on:click {...$$restProps} class="btn whitespace-nowrap {variant ?? ''} {$$restProps.class ?? ''} {size ?? ''}" {type}
+<button
+  {onclick}
+  {...rest}
+  class="btn whitespace-nowrap {variant ?? ''} {rest.class ?? ''} {size ?? ''}"
+  {type}
   class:btn-outline={outline}
   class:btn-active={active}
   disabled={disabled && !loading}
-  class:pointer-events-none={loading || $$restProps.class?.includes('pointer-events-none')}>
+  class:pointer-events-none={loading || (rest.class as string)?.includes('pointer-events-none')}
+>
   {#if !customLoader}
     <Loader {loading} />
   {/if}
-  <slot />
+  {@render children?.()}
 </button>

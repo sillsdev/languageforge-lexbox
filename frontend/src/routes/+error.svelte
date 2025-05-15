@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
   import { Layout, Page, HomeBreadcrumb, PageBreadcrumb } from '$lib/layout';
 
-  const status = $page.status;
+  const status = page.status;
 </script>
 
-{#if $page.data.user}
+{#if page.data.user}
   <HomeBreadcrumb />
-  {#each $page.url.pathname.split('/').slice(1) as path}
+  {#each page.url.pathname.split('/').slice(1) as path}
     <PageBreadcrumb>{path}</PageBreadcrumb>
   {/each}
 {/if}
@@ -20,7 +20,7 @@
       {#if status === 404}
         <div class="flex flex-col gap-4 items-center">
           <div class="flex gap-2">
-            <span class="i-mdi-emoticon-confused-outline text-3xl" />
+            <span class="i-mdi-emoticon-confused-outline text-3xl"></span>
             <span class="text-2xl">{$t('errors.not_found')}</span>
           </div>
         </div>
