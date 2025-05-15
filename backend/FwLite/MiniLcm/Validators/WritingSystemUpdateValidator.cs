@@ -7,15 +7,6 @@ public class WritingSystemUpdateValidator : AbstractValidator<UpdateObjectInput<
 {
     public WritingSystemUpdateValidator()
     {
-        RuleFor(u => u.Patch).Custom((document, context) =>
-        {
-            //todo pull this out to make it easy to define properties that aren't allowed to be changed
-            if (document.Operations.Any(o =>
-                    string.Equals(o.Path,
-                        $"/{nameof(WritingSystem.WsId)}",
-                        StringComparison.InvariantCultureIgnoreCase)))
-                context.AddFailure(nameof(WritingSystem.WsId), "Not allowed to update WsId");
-        });
         RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.WsId));
         RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.Type));
         RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.DeletedAt));
