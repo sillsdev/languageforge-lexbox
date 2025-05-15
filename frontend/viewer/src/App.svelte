@@ -18,7 +18,7 @@
   import {settings} from 'svelte-ux';
   import DotnetProjectView from './DotnetProjectView.svelte';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
-  import {ModeWatcher, mode, theme} from 'mode-watcher';
+  import {ModeWatcher} from 'mode-watcher';
   import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
 
   let url = '';
@@ -70,12 +70,6 @@
 
   setupGlobalErrorHandlers();
   initScottyPortalContext();
-
-  $effect(() => {
-    // we set the mode and theme manually, because blazor scrubbs them off the html tag during/after the initial page load
-    document.documentElement.classList.toggle('dark', mode.current === 'dark');
-    document.documentElement.setAttribute('data-theme', theme.current ?? '');
-  });
 </script>
 
 <ModeWatcher />
