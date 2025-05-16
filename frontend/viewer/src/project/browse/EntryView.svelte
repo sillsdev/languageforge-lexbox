@@ -15,6 +15,7 @@
   import {Toggle} from '$lib/components/ui/toggle';
   import {XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
+  import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
@@ -42,6 +43,7 @@
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
+  const entryPersistence = new EntryPersistence(() => entry, () => entryResource.refetch());
 </script>
 
 {#snippet preview(entry: IEntry)}
@@ -81,7 +83,7 @@
         {@render preview(entry)}
       {/if}
       <div class="max-md:p-2 md:pr-2">
-        <EntryEditor {entry} {readonly} />
+        <EntryEditor {entry} {readonly} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}

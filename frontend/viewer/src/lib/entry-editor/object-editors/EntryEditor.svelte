@@ -1,3 +1,14 @@
+<script lang="ts" module>
+  export type Props = {
+    entry: IEntry;
+    readonly?: boolean;
+    modalMode?: boolean;
+    canAddSense?: boolean;
+    canAddExample?: boolean;
+    onchange?: (changed: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) => void;
+    ondelete?: (deleted: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) => void;
+  };
+</script>
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -16,16 +27,6 @@
   import {watch} from 'runed';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-
-  type Props = {
-    entry: IEntry;
-    readonly?: boolean;
-    modalMode?: boolean;
-    canAddSense?: boolean;
-    canAddExample?: boolean;
-    onchange?: (changed: { entry: IEntry, sense?: ISense, example?: IExampleSentence}) => void;
-    ondelete?: (deleted: { entry: IEntry, sense?: ISense, example?: IExampleSentence}) => void;
-  };
 
   let {
     entry = $bindable(),
