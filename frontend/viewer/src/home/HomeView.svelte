@@ -27,6 +27,7 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {Button} from '$lib/components/ui/button';
+  import {mode} from 'mode-watcher';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -100,13 +101,9 @@
 
 </script>
 
-<AppBar title={$t`Dictionaries`} class="bg-primary/25 min-h-12 shadow-md justify-between" menuIcon={null}>
+<AppBar title={$t`Dictionaries`} class="bg-primary/10 min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
-    <picture>
-      <source srcset={logoLight} media="(prefers-color-scheme: dark)" />
-      <source srcset={logoDark} media="(prefers-color-scheme: light)" />
-      <img src={logoDark} alt={$t`Lexbox logo`} class="h-6" />
-    </picture>
+    <img src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`} class="h-6 shrink-0" />
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex gap-2">
