@@ -7,9 +7,9 @@ public class WritingSystemUpdateValidator : AbstractValidator<UpdateObjectInput<
 {
     public WritingSystemUpdateValidator()
     {
-        RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.WsId));
-        RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.Type));
-        RuleFor(u => u.Patch).NoOperation(nameof(WritingSystem.DeletedAt));
+        RuleFor(u => u.Patch).DoesNotChangeProperty(nameof(WritingSystem.WsId));
+        RuleFor(u => u.Patch).DoesNotChangeProperty(nameof(WritingSystem.Type));
+        RuleFor(u => u.Patch).DoesNotChangeProperty(nameof(WritingSystem.DeletedAt));
         RuleFor(u => u.Patch.Operations).NotEmpty();
     }
 }

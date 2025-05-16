@@ -5,7 +5,7 @@ namespace MiniLcm.Validators;
 
 internal static class JsonPatchValidator
 {
-    public static IRuleBuilderOptionsConditions<UpdateObjectInput<T>, JsonPatchDocument<T>> NoOperation<T>(
+    public static IRuleBuilderOptionsConditions<UpdateObjectInput<T>, JsonPatchDocument<T>> DoesNotChangeProperty<T>(
         this IRuleBuilder<UpdateObjectInput<T>, JsonPatchDocument<T>> builder,
         string propertyName//todo handle this better
     ) where T : class
