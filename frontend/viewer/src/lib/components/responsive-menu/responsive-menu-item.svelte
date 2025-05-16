@@ -14,15 +14,12 @@
   type Props = {
     children?: Snippet;
     icon?: IconClass;
-    label?: string;
     onSelect?: () => void;
     href?: string;
-    child?: Snippet;
   } & ContextMenuItemProps & ButtonProps;
 
   let {
     icon,
-    label,
     onSelect,
     children,
     ref = $bindable(null),
@@ -46,15 +43,22 @@
     <Icon {icon} />
   {/if}
   {@render children?.()}
-  {label}
+{/snippet}
+
+{#snippet anchorChild({ props }: { props: Record<string, unknown> })}
+  <a {...props}>
+    {@render content()}
+  </a>
 {/snippet}
 
 {#if state.contextMenu}
-  <ContextMenu.Item class={cn('cursor-pointer gap-2', className)} onclick={onSelect} bind:ref {...rest}>
+  <ContextMenu.Item class={cn('cursor-pointer gap-2 w-full', className)} onclick={onSelect} bind:ref
+    child={rest.href ? anchorChild : undefined} {...rest}>
     {@render content()}
   </ContextMenu.Item>
 {:else if !IsMobile.value}
-  <DropdownMenu.Item class={cn('cursor-pointer gap-2', className)} {onSelect} bind:ref {...rest}>
+  <DropdownMenu.Item class={cn('cursor-pointer gap-2 w-full', className)} {onSelect} bind:ref
+    child={rest.href ? anchorChild : undefined} {...rest}>
     {@render content()}
   </DropdownMenu.Item>
 {:else if rest.child}
