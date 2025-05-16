@@ -1,11 +1,12 @@
 ﻿<script lang="ts">
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import { Field } from 'svelte-ux';
   import { useFwLiteConfig, useTroubleshootingService } from '$lib/services/service-provider';
   import { AppNotification } from '$lib/notifications/notifications';
   import { t } from 'svelte-i18n-lingui';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import InputShell from '$lib/components/ui/input/input-shell.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
 
   const openQueryParam = new QueryParamStateBool('troubleshootDialogOpen', true);
 
@@ -30,16 +31,15 @@
     </DialogHeader>
     <div class="flex flex-col gap-4 items-start">
       <p>{$t`Application version`}: <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span></p>
-
-      {#await service?.getDataDirectory() then value}
-        <Field label={$t`Data Directory`} {value} class="self-stretch">
-          <span slot="append">
-            <Button variant="ghost" size="icon" title={$t`Open Data Directory`} onclick={() => tryOpenDataDirectory()}>
-              <i class="i-mdi-folder-search"></i>
-            </Button>
-          </span>
-        </Field>
-      {/await}
+      <div class="w-full">
+        <Label>{$t`Data Directory`}</Label>
+        <InputShell class="ps-2 pe-1">
+          {#await service?.getDataDirectory() then value}
+            {value}
+          {/await}
+          <Button variant="ghost" icon="i-mdi-folder-search" size="xs-icon" title={$t`Open Data Directory`} onclick={() => tryOpenDataDirectory()} />
+        </InputShell>
+      </div>
       <div class="flex gap-2">
         <Button variant="outline" onclick={() => service?.openLogFile()}>
           <i class="i-mdi-file-eye"></i>
