@@ -1,15 +1,5 @@
 <script lang="ts" module>
-  import type {Snippet} from 'svelte';
   import {Context} from 'runed';
-
-  export type ReordererProps<T> = {
-    item: T;
-    items: T[];
-    direction?: 'horizontal' | 'vertical';
-    getDisplayName: (item: T) => string | undefined;
-    onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
-    children?: Snippet<[{first: boolean, last: boolean}]>;
-  };
 
   type ReordererRootStateProps<T = unknown> = {
     readonly item: T;
@@ -42,9 +32,19 @@
 </script>
 
 <script lang="ts" generics="T">
+  import type {Snippet} from 'svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import ReordererTrigger from './reorderer-trigger.svelte';
   import ReordererItemList from './reorderer-item-list.svelte';
+
+  type ReordererProps<T> = {
+    item: T;
+    items: T[];
+    direction?: 'horizontal' | 'vertical';
+    getDisplayName: (item: T) => string | undefined;
+    onchange?: (value: T[], fromIndex: number, toIndex: number) => void;
+    children?: Snippet<[{first: boolean, last: boolean}]>;
+  };
 
   let {
     item,

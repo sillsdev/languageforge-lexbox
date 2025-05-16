@@ -3,8 +3,8 @@
   import * as Popover from '$lib/components/ui/popover';
   import * as Drawer from '$lib/components/ui/drawer';
   import { buttonVariants } from '$lib/components/ui/button';
-  import { t } from 'svelte-i18n-lingui';
   import type {PopoverTriggerProps, WithChildren} from 'bits-ui';
+  import {Icon} from '../ui/icon';
 
   type TriggerSnippet = PopoverTriggerProps['child'];
 
@@ -27,6 +27,9 @@
   <Drawer.Root bind:open>
     <Drawer.Trigger child={trigger} />
     <Drawer.Content>
+      <Drawer.Close class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10' })}>
+        <Icon icon="i-mdi-close" />
+      </Drawer.Close>
       <div class="mx-auto w-full max-w-sm p-4">
         <Drawer.Header>
           <Drawer.Title>{title}</Drawer.Title>
@@ -34,9 +37,6 @@
         {#if children}
           {@render children()}
         {/if}
-        <Drawer.Footer>
-          <Drawer.Close class={buttonVariants({ variant: 'outline' })}>{$t`Close`}</Drawer.Close>
-        </Drawer.Footer>
       </div>
     </Drawer.Content>
   </Drawer.Root>

@@ -2,8 +2,7 @@
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import { t } from 'svelte-i18n-lingui';
   import { views } from '$lib/views/view-data';
-  import { useCurrentView, useViewSettings } from '$lib/views/view-service';
-  import Label from '$lib/components/ui/label/label.svelte';
+  import { useCurrentView } from '$lib/views/view-service';
   import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -17,7 +16,6 @@
     readonly?: boolean
   } = $props();
   const currentView = useCurrentView();
-  const viewSettings = useViewSettings();
   function getCurrentView() {
     return $currentView.id;
   }
@@ -29,49 +27,18 @@
   {#snippet trigger({props})}
     <Button {...props} size="icon" variant="ghost" icon="i-mdi-layers" />
   {/snippet}
-  <div class="space-y-4">
+  <div class="space-y-2 md:space-y-4">
     <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
-      <h3 class="font-normal">{$t`Field Labels`}</h3>
+      <h3 class="font-normal max-md:mb-1">{$t`Field Labels`}</h3>
       {#each views as view}
-        <div class="flex items-center space-x-2">
-          <RadioGroup.Item value={view.id} id={view.id} />
-          <Label for={view.id}>
-            {view.label}
-          </Label>
-        </div>
+        <RadioGroup.Item value={view.id} label={view.label} />
       {/each}
     </RadioGroup.Root>
-    <div class="space-y-2">
-      <h3 class="font-normal">{$t`View Settings`}</h3>
-      <div class="flex items-center space-x-2">
-        <Switch
-          id="showEmptyFields"
-          bind:checked={() => $viewSettings.showEmptyFields,
-            (value) => ($viewSettings = { ...$viewSettings, showEmptyFields: value })}
-        />
-        <Label for="showEmptyFields">{$t`Show Empty Fields`}</Label>
-      </div>
-    </div>
     <RadioGroup.Root bind:value={dictionaryPreview}>
-      <h3 class="font-normal">{$t`Dictionary Preview`}</h3>
-      <div class="flex items-center space-x-2">
-        <RadioGroup.Item value="show" id="show"/>
-        <Label for="show">
-          {$t`Show`}
-        </Label>
-      </div>
-      <div class="flex items-center space-x-2">
-        <RadioGroup.Item value="hide" id="hide"/>
-        <Label for="hide">
-          {$t`Hide`}
-        </Label>
-      </div>
-      <div class="flex items-center space-x-2">
-        <RadioGroup.Item value="sticky" id="sticky"/>
-        <Label for="sticky">
-          {$t`Pinned`}
-        </Label>
-      </div>
+      <h3 class="font-normal max-md:mb-1">{$t`Dictionary Preview`}</h3>
+      <RadioGroup.Item value="show" label={$t`Show`} />
+      <RadioGroup.Item value="hide" label={$t`Hide`}/>
+      <RadioGroup.Item value="sticky" label={$t`Pinned`}/>
     </RadioGroup.Root>
     <DevContent>
       <div class="space-y-2">

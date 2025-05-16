@@ -4,9 +4,10 @@
 <script lang="ts">
 import {locale} from 'svelte-i18n-lingui';
 import {onMount} from 'svelte';
-import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 import {Button} from '$lib/components/ui/button';
 import {Icon} from '$lib/components/ui/icon';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
 const languages: Record<string, string> = {
   'en': 'English',
@@ -32,9 +33,11 @@ onMount(() => {
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
     {#snippet child({props})}
-      <Button {...props} icon="i-mdi-translate" variant="ghost">
-        {currentLanguage}
-        <Icon icon="i-mdi-menu-down"/>
+      <Button {...props} icon="i-mdi-translate" size={IsMobile.value ? 'icon' : undefined} variant="ghost">
+        {#if !IsMobile.value}
+          {currentLanguage}
+          <Icon icon="i-mdi-menu-down"/>
+        {/if}
       </Button>
     {/snippet}
   </DropdownMenu.Trigger>
