@@ -18,9 +18,9 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public record DryRunRecord(string Method, string Description);
 
-    public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateWritingSystem), $"Create writing system {type}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateWritingSystem), $"Create writing system {writingSystem.Type}"));
         return Task.FromResult(writingSystem);
     }
 

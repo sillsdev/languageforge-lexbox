@@ -68,7 +68,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     private async Task WorkaroundMissingWritingSystems()
     {
         //must have at least one writing system to query for entries
-        await _crdtApi.CreateWritingSystem(WritingSystemType.Vernacular, (await _fwDataApi.GetWritingSystems()).Vernacular.First());
+        await _crdtApi.CreateWritingSystem((await _fwDataApi.GetWritingSystems()).Vernacular.First());
 
     }
 
