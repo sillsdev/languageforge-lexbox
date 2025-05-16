@@ -17,6 +17,8 @@
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
+  import {useFeatures} from '$lib/services/feature-service';
+  import HistoryView from '$lib/history/HistoryView.svelte';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();
@@ -41,11 +43,18 @@
     await miniLcmApi.deleteEntry(entry.id);
     projectEventBus.notifyEntryDeleted(entry.id);
   }
-</script>
 
+  const features = useFeatures();
+  const showHistoryView = $state(false);
+</script>
+{#if features.history}
+  <HistoryView bind:open={showHistoryView} id={entry.id}/>
+{/if}
 {#snippet items()}
   {@render menuItem('i-mdi-delete', pt($t`Delete Entry`, $t`Delete Word`, $currentView), () => void onDelete())}
-  {@render menuItem('i-mdi-history', $t`History`, () => {})}
+  {#if features.history}
+    {@render menuItem('i-mdi-history', $t`History`, () => showHistoryView = true)}
+  {/if}
   {#if multiWindowService}
     {@render menuItem('i-mdi-open-in-new', $t`Open in new Window`, () => void multiWindowService.openEntryInNewWindow(entry.id))}
   {/if}
