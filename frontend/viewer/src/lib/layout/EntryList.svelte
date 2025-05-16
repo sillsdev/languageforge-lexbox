@@ -139,11 +139,11 @@
     cursor: pointer;
 
     &.selected-entry > :global(*) {
-      @apply lg-view:bg-surface-200;
+      /*@apply lg-view:bg-surface-200;*/
     }
 
     &:hover > :global(*) {
-      @apply bg-surface-300;
+      /*@apply bg-surface-300;*/
     }
   }
 </style>

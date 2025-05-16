@@ -141,6 +141,6 @@
 
 <style lang="postcss">
   :global(.unresolved-merge .field-container) {
-    @apply !border-warning;
+    /*@apply !border-warning;*/
   }
 </style>
