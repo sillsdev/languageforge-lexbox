@@ -96,7 +96,7 @@
 
 
   let nameSearchParam = new QueryParamState('name');
-  let goodSearchParam = new QueryParamStateBool('good', true, true);
+  let goodSearchParam = new QueryParamStateBool({key: 'good', allowBack: true}, true);
 
   const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
   const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];

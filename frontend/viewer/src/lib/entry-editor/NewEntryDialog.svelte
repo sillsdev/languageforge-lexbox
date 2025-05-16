@@ -15,7 +15,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
 
-  const open = new QueryParamStateBool('newEntryDialogOpen', true);
+  const open = new QueryParamStateBool({key: 'newEntryDialogOpen', allowBack: true, replaceOnDefaultValue: true});
   let loading = $state(false);
   let entry: IEntry = $state(defaultEntry());
 

@@ -1,6 +1,12 @@
 import {createSubscriber} from 'svelte/reactivity';
 import {useLocation} from 'svelte-routing';
 
+export interface QueryParamStateConfig {
+  key: string;
+  allowBack?: boolean;
+  replaceOnDefaultValue?: boolean;
+}
+
 /**
  *
  * A reactive query parameter state
@@ -17,13 +23,21 @@ export class QueryParamState {
   public set current(value: string) {
     if (value === this.#current) return;
     const currentUrl = new URL(document.location.href);
-    if (value === this.defaultValue) {
-      currentUrl.searchParams.delete(this.key);
+    const isDefault = value === this.defaultValue;
+    if (isDefault) {
+      currentUrl.searchParams.delete(this.config.key);
     } else {
-      currentUrl.searchParams.set(this.key, value);
+      currentUrl.searchParams.set(this.config.key, value);
     }
-    if (this.allowBack) {
-      history.pushState(null, '', currentUrl.href);
+    if (this.config.replaceOnDefaultValue && isDefault) {
+      if (history.state?.push === this.config.key) {
+        //the last history event was push by us so we need to just go back otherwise the next back will do nothing
+        history.go(-1);
+      } else {
+        history.replaceState(null, '', currentUrl.href);
+      }
+    } else if (this.config.allowBack) {
+      history.pushState({push: this.config.key}, '', currentUrl.href);
     } else {
       history.replaceState(null, '', currentUrl.href);
     }
@@ -31,7 +45,7 @@ export class QueryParamState {
     this.#current = value;
   }
 
-  constructor(private key: string, private allowBack: boolean = false, private defaultValue: string = '') {
+  constructor(private config: QueryParamStateConfig, private defaultValue: string = '') {
     const location = useLocation();
 
     this.#current = this.readUrlValue();
@@ -46,7 +60,7 @@ export class QueryParamState {
   }
 
   private readUrlValue(): string {
-    return new URL(document.location.href).searchParams.get(this.key) ?? this.defaultValue;
+    return new URL(document.location.href).searchParams.get(this.config.key) ?? this.defaultValue;
   }
 }
 
@@ -61,7 +75,7 @@ export class QueryParamStateBool {
     this.#stringState.current = value.toString();
   }
 
-  constructor(private key: string, allowBack: boolean = false, defaultValue: boolean = false) {
-    this.#stringState = new QueryParamState(key, allowBack, defaultValue.toString());
+  constructor(config: QueryParamStateConfig, defaultValue: boolean = false) {
+    this.#stringState = new QueryParamState(config, defaultValue.toString());
   }
 }

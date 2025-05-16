@@ -11,7 +11,7 @@
   let description = $state<string>();
   const subjectWithDescription = $derived(description ? `${subject}: ${description}` : subject);
 
-  const open = new QueryParamStateBool('deleteDialogOpen', true);
+  const open = new QueryParamStateBool({key: 'deleteDialogOpen', allowBack: true, replaceOnDefaultValue: true});
   let requester: {
     resolve: (result: boolean) => void
   } | undefined = undefined;

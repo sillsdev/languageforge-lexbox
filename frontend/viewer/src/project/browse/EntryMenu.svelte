@@ -45,7 +45,7 @@
   }
 
   const features = useFeatures();
-  const showHistoryView = $state(false);
+  let showHistoryView = $state(false);
 </script>
 {#if features.history}
   <HistoryView bind:open={showHistoryView} id={entry.id}/>
