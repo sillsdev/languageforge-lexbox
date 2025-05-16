@@ -8,7 +8,7 @@
   import DictionaryEntry from '../DictionaryEntry.svelte';
   import {useCurrentView} from '$lib/views/view-service';
   import {fieldName} from '$lib/i18n';
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
@@ -139,11 +139,11 @@
     cursor: pointer;
 
     &.selected-entry > :global(*) {
-      @apply lg-view:bg-surface-200;
+      /*@apply lg-view:bg-surface-200;*/
     }
 
     &:hover > :global(*) {
-      @apply bg-surface-300;
+      /*@apply bg-surface-300;*/
     }
   }
 </style>

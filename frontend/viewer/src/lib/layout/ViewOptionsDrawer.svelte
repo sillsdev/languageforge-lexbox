@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Button, Drawer, SelectField, Switch, ThemeSwitch} from 'svelte-ux';
+  import {Button, Drawer, SelectField, Switch} from 'svelte-ux';
   import DevContent from './DevContent.svelte';
   import {type View, views} from '$lib/views/view-data';
   import type {ViewSettings} from '$lib/views/view-service';
@@ -41,14 +41,6 @@
     <div class="h-10">
       <ShowEmptyFieldsSwitch bind:value={viewSettings.showEmptyFields} />
     </div>
-
-    {#if !isWebComponent}
-      <div class="h-10">
-        <label class="flex gap-2 items-center text-sm">
-          <ThemeSwitch /> Dark mode
-        </label>
-      </div>
-    {/if}
 
     <div class="grow"></div>
     <DevContent>

@@ -1,13 +1,13 @@
 ﻿<script lang="ts">
   import {AppNotification} from './notifications';
-  import {Notification, Icon, Button, Collapse} from 'svelte-ux';
+  import {Notification, Icon, Collapse} from 'svelte-ux';
   import {
     mdiAlert,
     mdiAlertCircleOutline,
     mdiCheckCircleOutline,
-    mdiClose,
     mdiInformationOutline
   } from '@mdi/js';
+  import {Button} from '$lib/components/ui/button';
 
   const notifications = AppNotification.notifications;
 </script>
@@ -19,16 +19,16 @@
                     on:close={() => AppNotification.remove(notification)}
                     closeIcon
                     actionsPlacement="inline"
-                    classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces', actions: notification.action ? '' : 'hidden'}}>
+                    classes={{title: 'max-h-[30vh] overflow-y-auto px-2 whitespace-break-spaces', actions: notification.action ? '' : 'hidden', root: 'bg-background'}}>
         <div slot="icon">
           {#if notification.type === 'success'}
-            <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-success"/>
+            <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-primary"/>
           {:else if notification.type === 'error'}
-            <Icon path={mdiAlert} size="1.5rem" class="text-danger"/>
+            <Icon path={mdiAlert} size="1.5rem" class="text-destructive"/>
           {:else if notification.type === 'info'}
-            <Icon path={mdiInformationOutline} size="1.5rem" class="text-info"/>
+            <Icon path={mdiInformationOutline} size="1.5rem" class="text-primary"/>
           {:else if notification.type === 'warning'}
-            <Icon path={mdiAlertCircleOutline} size="1.5rem" class="text-warning"/>
+            <Icon path={mdiAlertCircleOutline} size="1.5rem" class="text-primary"/>
           {/if}
         </div>
         <div slot="title">{notification.message}</div>
@@ -44,14 +44,14 @@
 
         <svelte:fragment slot="actions">
           {#if notification.action}
-            <Button color="primary" on:click={notification.action.callback}>{notification.action.label}</Button>
+            <Button onclick={notification.action.callback}>{notification.action.label}</Button>
           {/if}
         </svelte:fragment>
       </Notification>
     </div>
   {/each}
   {#if $notifications.length > 1}
-    <Button class="w-[min(400px,100%)] shadow-lg" variant="fill-outline" on:click={() => AppNotification.clear()} icon={mdiClose}>
+    <Button class="w-[min(400px,100%)] shadow-lg" variant="outline" onclick={() => AppNotification.clear()} icon="i-mdi-close">
       Close all
     </Button>
   {/if}

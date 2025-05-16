@@ -3,26 +3,70 @@
   import { type IconClass } from '$lib/icon-class';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Drawer from '$lib/components/ui/drawer';
+  import * as ContextMenu from '$lib/components/ui/context-menu';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { t } from 'svelte-i18n-lingui';
   import { buttonVariants } from '$lib/components/ui/button';
   import Button from '$lib/components/ui/button/button.svelte';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
+  import type {IEntry} from '$lib/dotnet-types';
+  import type {Snippet} from 'svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
+  import {useFeatures} from '$lib/services/feature-service';
+  import HistoryView from '$lib/history/HistoryView.svelte';
 
-  let { onDelete } = $props<{
-    onDelete?: () => void;
+  const multiWindowService = useMultiWindowService();
+  const dialogsService = useDialogsService();
+  const projectEventBus = useProjectEventBus();
+  const writingSystemService = useWritingSystemService();
+  const miniLcmApi = useMiniLcmApi();
+  const currentView = useCurrentView();
+
+  let { entry, contextMenu = false, children = undefined } = $props<{
+    entry: IEntry;
+    contextMenu?: boolean;
+    children?: Snippet
   }>();
 
-  let open = $state(false);
-  const triggerVariant = buttonVariants({ variant: 'ghost', size: 'sm', class: 'float-right' });
-</script>
+  const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
 
+  let open = $state(false);
+  const triggerVariant = buttonVariants({ variant: 'ghost', size: 'icon' });
+
+  async function onDelete() {
+    if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
+    await miniLcmApi.deleteEntry(entry.id);
+    projectEventBus.notifyEntryDeleted(entry.id);
+  }
+
+  const features = useFeatures();
+  const showHistoryView = $state(false);
+</script>
+{#if features.history}
+  <HistoryView bind:open={showHistoryView} id={entry.id}/>
+{/if}
 {#snippet items()}
-  {@render menuItem('i-mdi-delete', $t`Delete Entry`, onDelete)}
-  {@render menuItem('i-mdi-history', $t`History`, () => {})}
+  {@render menuItem('i-mdi-delete', pt($t`Delete Entry`, $t`Delete Word`, $currentView), () => void onDelete())}
+  {#if features.history}
+    {@render menuItem('i-mdi-history', $t`History`, () => showHistoryView = true)}
+  {/if}
+  {#if multiWindowService}
+    {@render menuItem('i-mdi-open-in-new', $t`Open in new Window`, () => void multiWindowService.openEntryInNewWindow(entry.id))}
+  {/if}
 {/snippet}
 
 {#snippet menuItem(icon: IconClass, label: string, onSelect: () => void)}
-  {#if !IsMobile.value}
+  {#if contextMenu}
+    <ContextMenu.Item class="cursor-pointer" onclick={onSelect}>
+      <Icon icon={icon} class="mr-2"/>
+      {label}
+    </ContextMenu.Item>
+  {:else if !IsMobile.value}
     <DropdownMenu.Item class="cursor-pointer" {onSelect}>
       <Icon {icon} class="mr-2" />
       {label}
@@ -38,11 +82,19 @@
     </Button>
   {/if}
 {/snippet}
-
-{#if !IsMobile.value}
+{#if contextMenu}
+  <ContextMenu.Root>
+    <ContextMenu.Trigger>
+      {@render children?.()}
+    </ContextMenu.Trigger>
+    <ContextMenu.Content>
+      {@render items()}
+    </ContextMenu.Content>
+  </ContextMenu.Root>
+{:else if !IsMobile.value}
   <DropdownMenu.Root bind:open>
     <DropdownMenu.Trigger class={triggerVariant}>
-      <Icon icon="i-mdi-dots-vertical" class="cursor-pointer" />
+      <Icon icon="i-mdi-dots-vertical" />
     </DropdownMenu.Trigger>
     <DropdownMenu.Content align="end">
       {@render items()}
@@ -51,7 +103,7 @@
 {:else}
   <Drawer.Root bind:open>
     <Drawer.Trigger class={triggerVariant}>
-      <Icon icon="i-mdi-dots-vertical" class="cursor-pointer" />
+      <Icon icon="i-mdi-dots-vertical" />
     </Drawer.Trigger>
     <Drawer.Content>
       <div class="mx-auto w-full max-w-sm p-4">

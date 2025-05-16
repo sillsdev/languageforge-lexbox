@@ -47,7 +47,7 @@
       <button class="w-full" on:click={toggleOff}>
         <div class="contents" use:asScottyPortal={'app-bar-menu'}></div>
         <div class="contents" class:sm-view:hidden={$projectViewState.userPickedEntry}>
-          {#if $features.history}
+          {#if features.history}
             <MenuItem icon={mdiHistory} on:click={() => activityViewOpen = true}>Activity</MenuItem>
           {/if}
         </div>
@@ -77,7 +77,7 @@
 </Toggle>
 {/key}
 
-{#if $features.history}
+{#if features.history}
   <ActivityView bind:open={activityViewOpen} {projectName} />
 {/if}
 {#if about}

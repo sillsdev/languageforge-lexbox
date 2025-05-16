@@ -8,41 +8,35 @@
   import {useFwLiteConfig} from '../lib/services/service-provider';
   import ProjectDropdown from './ProjectDropdown.svelte';
   import { t } from 'svelte-i18n-lingui';
-  import {onDestroy} from 'svelte';
   import ThemePicker from '$lib/ThemePicker.svelte';
-  import {navigate} from 'svelte-routing';
-  import NewEntryButton from './NewEntryButton.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-
-  let { projectName, currentView = $bindable() } = $props<{
-    projectName: string;
-    currentView: View;
-  }>();
+  import {navigate, useRouter} from 'svelte-routing';
+  import type {IProjectModel} from '$lib/dotnet-types';
+  import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
-  let intervalId = setInterval(() => {
-    isSynchronizing = !isSynchronizing;
-  }, 2000);
 
-  onDestroy(() => {
-    clearInterval(intervalId);
-  });
-
-  function handleProjectSelect(selectedProjectName: string) {
-    console.log('selectedProjectName', selectedProjectName);
-  }
-
-  function handleNewEntry() {
-    console.log('handleNewEntry');
+  function handleProjectSelect(selectedProject: IProjectModel) {
+    if (selectedProject.fwdata) {
+      navigate('/fwdata/' + selectedProject.code);
+    } else if (selectedProject.crdt) {
+      navigate('/project/' + selectedProject.code);
+    }
   }
 
   let sidebar: Sidebar.Root | undefined = $state();
+  const primaryAction = usePrimaryAction();
+
+  const {base, activeRoute} = useRouter();
+  function goto(view: string) {
+    let newLocation = `${$base.uri}/${view}`;
+    navigate(newLocation);
+  }
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
   <Sidebar.MenuItem>
-    <Sidebar.MenuButton onclick={() => (currentView = view)} isActive={currentView === view}>
+    <Sidebar.MenuButton onclick={() => goto(view)} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
     </Sidebar.MenuButton>
@@ -53,14 +47,13 @@
     <div class="flex flex-col gap-2">
       <div class="flex flex-row items-center gap-1">
         <ProjectDropdown
-          {projectName}
           onSelect={handleProjectSelect}
         />
         <div class="flex-1" ></div>
         <ThemePicker />
       </div>
       <div class="mx-auto">
-        <NewEntryButton active={!IsMobile.value && sidebar?.isOpen()} onclick={handleNewEntry} />
+        {@render primaryAction.snippet?.(sidebar?.isOpen())}
       </div>
     </div>
   </Sidebar.Header>

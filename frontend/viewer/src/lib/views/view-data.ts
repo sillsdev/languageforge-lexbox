@@ -88,9 +88,11 @@ function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, ob
   return result as T;
 }
 
+export type ViewType = 'fw-lite' | 'fw-classic';
+
 interface ViewDefinition {
   id: string;
-  type: 'fw-lite' | 'fw-classic';
+  type: ViewType;
   i18nKey: I18nType;
   label: string;
 }

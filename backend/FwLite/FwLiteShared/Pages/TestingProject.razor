@@ -1,3 +1,10 @@
-﻿@page "/testing/project-view"
+﻿@page "/testing/project-view/{*path}"
 @using FwLiteShared.Layout
 @layout SvelteLayout;
+
+@code {
+
+    [Parameter]
+    public required string Path { get; set; }
+
+}

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
 using SIL.Harmony;
+using SIL.Harmony.Changes;
 
 namespace FwLiteShared.Sync;
 
@@ -94,6 +95,13 @@ public class SyncService(
                 {
                     logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
                 }
+            }
+
+            foreach (var deleteChange in syncResults.MissingFromLocal
+                         .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+                         .OfType<DeleteChange<Entry>>())
+            {
+                changeEventBus.PublishEvent(currentProjectService.Project, new EntryDeletedEvent(deleteChange.EntityId));
             }
         }
         catch (Exception e)

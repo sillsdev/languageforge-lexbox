@@ -31,7 +31,8 @@ tasks:
       - task: fw-lite-infr-internal
 
   fw-lite-infr-internal:
-    deps: [ viewer-dev, https-oauth-authority ]
+    internal: true
+    deps: [ viewer:run-app, run-https-proxy ]
 
   playwright-tests:
     aliases: [ pt ]
@@ -80,6 +81,9 @@ tasks:
     cmds:
       - corepack enable || true
       - pnpm install
+  run-https-proxy:
+    dir: ./https-proxy
+    cmd: pnpm run dev
   https-proxy:
     dir: ./https-proxy
     desc: "MSAL requires the oauth authority to be available over https. That's why this is here. As a bonus it dynamically looks for the UI either locally or in k8s."

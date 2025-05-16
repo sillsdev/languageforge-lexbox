@@ -45,7 +45,7 @@
                >
             <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
             <div class="contents">
-              <OpenInFieldWorksButton {entryId} {projectName} show={$features.openWithFlex}/>
+              <OpenInFieldWorksButton {entryId} {projectName} show={features.openWithFlex}/>
             </div>
           </div>
           <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
@@ -60,7 +60,7 @@
           {/if}
         </div>
         <span
-          class="text-surface-content whitespace-nowrap bg-surface-100/75 !pt-2 text-sm lg-form:absolute -bottom-4 -right-4 inline-flex gap-2 text-end items-center"
+          class="whitespace-nowrap !pt-2 text-sm lg-form:absolute -bottom-4 -right-4 inline-flex gap-2 text-end items-center"
           class:lg-form:!static={$state.rightToolbarCollapsed} class:lg-form:p-2={!$state.rightToolbarCollapsed}>
                 <span class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
                   {$currentView.label}

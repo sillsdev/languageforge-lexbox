@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Icon } from '$lib/components/ui/icon';
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import { t } from 'svelte-i18n-lingui';
   import { views } from '$lib/views/view-data';
@@ -7,6 +6,16 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
+  import {Button} from '$lib/components/ui/button';
+  import DevContent from '$lib/layout/DevContent.svelte';
+
+  let {
+    dictionaryPreview = $bindable('show'),
+    readonly = $bindable(false),
+  }: {
+    dictionaryPreview?: 'show' | 'hide' | 'sticky'
+    readonly?: boolean
+  } = $props();
   const currentView = useCurrentView();
   const viewSettings = useViewSettings();
   function getCurrentView() {
@@ -17,10 +26,10 @@
   }
 </script>
 <ResponsivePopup title={$t`View Configuration`}>
-  {#snippet trigger()}
-    <Icon icon="i-mdi-layers" />
+  {#snippet trigger({props})}
+    <Button {...props} size="icon" variant="ghost" icon="i-mdi-layers" />
   {/snippet}
-  <div class="space-y-6">
+  <div class="space-y-4">
     <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
       <h3 class="font-normal">{$t`Field Labels`}</h3>
       {#each views as view}
@@ -32,18 +41,45 @@
         </div>
       {/each}
     </RadioGroup.Root>
-    <div>
-      <h3 class="font-normal mb-2">{$t`View Settings`}</h3>
+    <div class="space-y-2">
+      <h3 class="font-normal">{$t`View Settings`}</h3>
       <div class="flex items-center space-x-2">
         <Switch
           id="showEmptyFields"
-          bind:checked={
-            () => $viewSettings.showEmptyFields,
-            (value) => ($viewSettings = { ...$viewSettings, showEmptyFields: value })
-          }
+          bind:checked={() => $viewSettings.showEmptyFields,
+            (value) => ($viewSettings = { ...$viewSettings, showEmptyFields: value })}
         />
         <Label for="showEmptyFields">{$t`Show Empty Fields`}</Label>
       </div>
     </div>
+    <RadioGroup.Root bind:value={dictionaryPreview}>
+      <h3 class="font-normal">{$t`Dictionary Preview`}</h3>
+      <div class="flex items-center space-x-2">
+        <RadioGroup.Item value="show" id="show"/>
+        <Label for="show">
+          {$t`Show`}
+        </Label>
+      </div>
+      <div class="flex items-center space-x-2">
+        <RadioGroup.Item value="hide" id="hide"/>
+        <Label for="hide">
+          {$t`Hide`}
+        </Label>
+      </div>
+      <div class="flex items-center space-x-2">
+        <RadioGroup.Item value="sticky" id="sticky"/>
+        <Label for="sticky">
+          {$t`Pinned`}
+        </Label>
+      </div>
+    </RadioGroup.Root>
+    <DevContent>
+      <div class="space-y-2">
+        <h3 class="font-normal">Dev Options</h3>
+        <div class="flex items-center space-x-2">
+          <Switch bind:checked={readonly} label="Readonly" />
+        </div>
+      </div>
+    </DevContent>
   </div>
 </ResponsivePopup>
