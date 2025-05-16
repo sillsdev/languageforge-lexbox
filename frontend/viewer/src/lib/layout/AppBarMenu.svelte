@@ -16,8 +16,6 @@
   import {useProjectViewState} from '$lib/views/project-view-state-service';
   import WritingSystemDialog from '$lib/writing-system/WritingSystemDialog.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
-  import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
-  import {useTroubleshootingService} from '$lib/services/service-provider';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
 
   const dispatch = createEventDispatcher<{
@@ -29,13 +27,11 @@
 
   const features = useFeatures();
   const projectViewState = useProjectViewState();
-  const supportsTroubleshooting = useTroubleshootingService();
   const multiWindowService = useMultiWindowService();
 
   let activityViewOpen = false;
   let aboutDialogOpen = false;
   let wsEditDialogOpen = false;
-  let troubleshootDialogOpen = false;
 </script>
 
 <!-- #key prevents rendering ugly delayed state updates -->
@@ -68,9 +64,6 @@
             Edit WS
           </MenuItem>
         </DevContent>
-        {#if supportsTroubleshooting}
-          <MenuItem icon={mdiFaceAgent} on:click={() => troubleshootDialogOpen = true}>Troubleshoot</MenuItem>
-        {/if}
       </button>
     </ResponsiveMenu>
   </Button>
@@ -82,9 +75,6 @@
 {/if}
 {#if about}
   <AboutDialog bind:open={aboutDialogOpen} text={about} />
-{/if}
-{#if supportsTroubleshooting}
-  <TroubleshootDialog bind:open={troubleshootDialogOpen}/>
 {/if}
 <WritingSystemDialog bind:open={wsEditDialogOpen}/>
 

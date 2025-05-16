@@ -36,7 +36,7 @@
   }
 
   const supportsTroubleshooting = useTroubleshootingService();
-  let troubleshootDialogOpen = $state(false);
+  let troubleshootDialog = $state<TroubleshootDialog>();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -127,9 +127,9 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:open={troubleshootDialogOpen} />
+          <TroubleshootDialog bind:this={troubleshootDialog} />
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton onclick={() => troubleshootDialogOpen = true}>
+            <Sidebar.MenuButton onclick={() => troubleshootDialog?.open()}>
               <Icon icon="i-mdi-help-circle" />
               <span>{$t`Troubleshoot`}</span>
             </Sidebar.MenuButton>

@@ -96,7 +96,7 @@
   }
 
   const supportsTroubleshooting = useTroubleshootingService();
-  let showTroubleshooting = false;
+  let troubleshootDialog: TroubleshootDialog | undefined;
 
 </script>
 
@@ -121,11 +121,11 @@
         variant="ghost"
         icon="i-mdi-face-agent"
         title={$t`Troubleshoot`}
-        onclick={() => (showTroubleshooting = !showTroubleshooting)}
+        onclick={() => troubleshootDialog?.open()}
       >
         {$t`Troubleshoot`}
       </Button>
-      <TroubleshootDialog bind:open={showTroubleshooting} />
+      <TroubleshootDialog bind:this={troubleshootDialog} />
     {/if}
     <DevContent>
       <Button href="/sandbox" variant="ghost" icon="i-mdi-test-tube">Sandbox</Button>

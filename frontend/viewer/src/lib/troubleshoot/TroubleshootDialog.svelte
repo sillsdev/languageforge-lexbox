@@ -6,26 +6,12 @@
   import { AppNotification } from '$lib/notifications/notifications';
   import { t } from 'svelte-i18n-lingui';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
-  import {watch} from 'runed';
-
-  let {
-    open = $bindable(),
-  } = $props<{
-    open: boolean;
-  }>();
 
   const openQueryParam = new QueryParamStateBool('troubleshootDialogOpen', true);
 
-  watch(() => open, (newOpen) => {
-    openQueryParam.current = newOpen;
-  });
-  // 	Detect when the dialog is closed via back-navigation
-  watch(() => openQueryParam.current, () => {
-    if (!openQueryParam.current) {
-      open = false;
-    }
-  });
-
+  export function open(): void {
+    openQueryParam.current = true;
+  }
 
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
