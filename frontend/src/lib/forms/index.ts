@@ -5,7 +5,6 @@ import FormField from './FormField.svelte';
 import FormError from './FormError.svelte';
 import Input from './Input.svelte';
 import PlainInput from './PlainInput.svelte';
-import DebouncedInput from './DebouncedInput.svelte';
 import Checkbox from './Checkbox.svelte';
 import ProtectedForm, { type Token } from './ProtectedForm.svelte';
 import MaybeProtectedForm from './MaybeProtectedForm.svelte';
@@ -29,7 +28,6 @@ export {
   FormError,
   Input,
   PlainInput,
-  DebouncedInput,
   ProtectedForm,
   MaybeProtectedForm,
   Select,
