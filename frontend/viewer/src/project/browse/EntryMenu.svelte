@@ -12,6 +12,9 @@
   import {useFeatures} from '$lib/services/feature-service';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
+  import {useAppLauncherService} from '$lib/services/app-launcher-service';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();
@@ -38,6 +41,7 @@
 
   const features = useFeatures();
   let showHistoryView = $state(false);
+  const appLauncher = useAppLauncherService();
 </script>
 {#if features.history}
   <HistoryView bind:open={showHistoryView} id={entry.id}/>
@@ -57,6 +61,13 @@
     {#if multiWindowService}
       <ResponsiveMenu.Item icon="i-mdi-open-in-new" onSelect={() => void multiWindowService.openEntryInNewWindow(entry.id)}>
         {$t`Open in new Window`}
+      </ResponsiveMenu.Item>
+    {/if}
+    {#if appLauncher || !IsMobile.value}
+      <ResponsiveMenu.Item>
+        {#snippet child({props})}
+          <OpenInFieldWorksButton {entry} {...props} />
+        {/snippet}
       </ResponsiveMenu.Item>
     {/if}
   </ResponsiveMenu.Content>
