@@ -123,7 +123,7 @@
             </ButtonListItem>
           {/if}
         {/each}
-        <div class="text-center mt-4">
+        <div class="text-center py-2">
           <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
             {$t`I don't see my project`}
             <Icon icon="i-mdi-open-in-new" class="size-4" />
