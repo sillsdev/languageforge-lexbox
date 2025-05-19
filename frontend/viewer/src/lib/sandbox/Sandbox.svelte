@@ -28,6 +28,7 @@
   import {QueryParamState} from '$lib/utils/url.svelte';
   import {Link} from 'svelte-routing';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import * as Dialog from '$lib/components/ui/dialog';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -101,6 +102,8 @@
   let isBetter = $state(false);
   useBackHandler({addToStack: () => isGood, onBack: () => isGood = false});
   useBackHandler({addToStack: () => isBetter, onBack: () => isBetter = false});
+  let dialogOpen = $state(false);
+  useBackHandler({addToStack: () => dialogOpen, onBack: () => dialogOpen = false});
 
   const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
   const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];
@@ -213,6 +216,14 @@
     <p>These switches should respect the back button but only for being turned off</p>
     <Switch label="Good" bind:checked={isGood}/>
     <Switch label="Better" bind:checked={isBetter}/>
+    <Dialog.Root bind:open={dialogOpen}>
+      <Dialog.Trigger class={buttonVariants({variant: 'default'})}>Show Dialog</Dialog.Trigger>
+      <Dialog.Content>
+        <div>
+          <Link to="/testing/project-view" class={buttonVariants({variant: 'default'})}>Goto Project view</Link>
+        </div>
+      </Dialog.Content>
+    </Dialog.Root>
   </div>
 </div>
 

@@ -49,10 +49,19 @@ class BackHandler {
   private remove() {
     const count = BackHandler.#backStack.length;
     BackHandler.#backStack = BackHandler.#backStack.filter(b => b !== this);
-    if (count === BackHandler.#backStack.length) return;
-    //if we removed the last back state, we need to remove the history entry that was pushed when we went here
-    this.ignoreNextBack();
-    history.back();
+    if (count !== BackHandler.#backStack.length) {
+      //if we removed the last back state, we need to remove the history entry that was pushed
+      const currentLocation = location.href;
+      setTimeout(() => {
+        //navigation triggered since remove was called, we don't want to go back now as that would not undo our history but a navigation event
+        if (currentLocation !== location.href) {
+          console.warn('BackHandler: remove called while navigating, ignoring, history entry not removed. Navigation should happen after remove is called, eg: after closing the modal which triggers a navigation.');
+          return;
+        }
+        this.ignoreNextBack();
+        history.back();
+      });
+    }
   }
 
   private ignoreNextBack() {
