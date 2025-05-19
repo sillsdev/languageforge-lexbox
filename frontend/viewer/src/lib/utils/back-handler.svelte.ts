@@ -9,6 +9,10 @@ export interface BackHandlerConfig {
    */
   addToStack: Getter<boolean>;
   onBack: () => void;
+  /**
+   * Identifies the back handler, used for warnings and debugging.
+   */
+  key?: string;
 }
 
 
@@ -55,7 +59,7 @@ class BackHandler {
       setTimeout(() => {
         //navigation triggered since remove was called, we don't want to go back now as that would not undo our history but a navigation event
         if (currentLocation !== location.href) {
-          console.warn('BackHandler: remove called while navigating, ignoring, history entry not removed. Navigation should happen after remove is called, eg: after closing the modal which triggers a navigation.');
+          console.warn(`BackHandler${this.config.key ? '-' + this.config.key : ''}: remove called while navigating, ignoring, history entry not removed. Navigation should happen after remove is called, eg: after closing the modal which triggers a navigation.`);
           return;
         }
         this.ignoreNextBack();
