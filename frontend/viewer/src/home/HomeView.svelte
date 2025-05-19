@@ -3,11 +3,8 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiChatQuestion,
     mdiChevronRight,
     mdiDelete,
-    mdiFaceAgent,
-    mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
   import {AppBar, Button as UxButton, ListItem, TextField} from 'svelte-ux';
@@ -30,6 +27,8 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {Button} from '$lib/components/ui/button';
+  import {mode} from 'mode-watcher';
+  import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -99,45 +98,39 @@
   }
 
   const supportsTroubleshooting = useTroubleshootingService();
-  let showTroubleshooting = false;
+  let troubleshootDialog: TroubleshootDialog | undefined;
 
 </script>
 
-<AppBar title={$t`Dictionaries`} class="bg-primary/25 min-h-12 shadow-md justify-between" menuIcon={null}>
+<AppBar title={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
-    <picture>
-      <source srcset={logoLight} media="(prefers-color-scheme: dark)" />
-      <source srcset={logoDark} media="(prefers-color-scheme: light)" />
-      <img src={logoDark} alt={$t`Lexbox logo`} class="h-6" />
-    </picture>
+    <img src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`} class="h-6 shrink-0" />
     <h3>{$t`Dictionaries`}</h3>
   </div>
-  <div slot="actions" class="flex gap-2">
-    <UxButton href={fwLiteConfig.feedbackUrl}
-              target="_blank"
-              size="sm"
-              variant="outline"
-              icon={mdiChatQuestion}
-              classes={{root: 'hover:bg-muted'}}>
-      {$t`Feedback`}
-    </UxButton>
-    {#if supportsTroubleshooting}
-      <UxButton
-        size="sm"
-        variant="outline"
-        classes={{root: 'hover:bg-muted'}}
-        icon={mdiFaceAgent}
-        title={$t`Troubleshoot`}
-        iconOnly={false}
-        on:click={() => (showTroubleshooting = !showTroubleshooting)}
-      ></UxButton>
-      <TroubleshootDialog bind:open={showTroubleshooting} />
-    {/if}
+  <div slot="actions" class="flex">
     <DevContent>
-      <UxButton href="/sandbox" size="sm" variant="outline" icon={mdiTestTube} class="hover:bg-muted">Sandbox</UxButton>
+      <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube" />
     </DevContent>
     <LocalizationPicker/>
     <ThemePicker />
+    <ResponsiveMenu.Root>
+      <ResponsiveMenu.Trigger />
+      <ResponsiveMenu.Content>
+        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} icon="i-mdi-chat-question">
+          {$t`Feedback`}
+        </ResponsiveMenu.Item>
+        {#if supportsTroubleshooting}
+          <ResponsiveMenu.Item
+            icon="i-mdi-face-agent"
+            onSelect={() => troubleshootDialog?.open()}>
+            {$t`Troubleshoot`}
+          </ResponsiveMenu.Item>
+        {/if}
+      </ResponsiveMenu.Content>
+    </ResponsiveMenu.Root>
+    {#if supportsTroubleshooting}
+      <TroubleshootDialog bind:this={troubleshootDialog} />
+    {/if}
   </div>
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">

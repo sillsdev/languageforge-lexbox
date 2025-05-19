@@ -33,7 +33,7 @@
     flex-shrink: 0;
 
     &:hover {
-      @apply bg-surface-300;
+      /*@apply bg-surface-300;*/
     }
 
     white-space: nowrap;

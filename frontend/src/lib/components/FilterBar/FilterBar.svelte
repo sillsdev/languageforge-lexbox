@@ -13,18 +13,19 @@
 <script lang="ts">
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
-  import { DebouncedInput } from '$lib/forms';
+  import { PlainInput } from '$lib/forms';
   import { pick } from '$lib/util/object';
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
-  import { Previous } from 'runed';
+  import { Previous, Debounced, watch } from 'runed';
+  import { DEFAULT_DEBOUNCE_TIME } from '$lib/util/time';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Filters = DumbFilters & Record<typeof searchKey, string>;
 
-  let searchInput: DebouncedInput | undefined = $state();
+  let searchInput: PlainInput | undefined = $state();
 
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
@@ -57,6 +58,17 @@
     filterSlot,
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
+  let watcher: () => string | undefined;
+  if (debounce === false) {
+    watcher = () => undebouncedSearch;
+  } else {
+    const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
+    const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
+    watcher = () => debouncer.current;
+  }
+  watch(watcher, (value) => {
+    $allFilters[searchKey] = value as Filters[typeof searchKey];
+  });
 
   function onClearFiltersClick(): void {
     if (!searchInput) return;
@@ -103,10 +115,8 @@
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
-    <DebouncedInput
-      bind:value={$allFilters[searchKey]}
-      {debounce}
-      bind:undebouncedValue={undebouncedSearch}
+    <PlainInput
+      bind:value={undebouncedSearch}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"

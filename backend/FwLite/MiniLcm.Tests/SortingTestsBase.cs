@@ -37,16 +37,15 @@ public abstract class SortingTestsBase : MiniLcmTestBase
     //note this test does not ensure the sorting works, just that it doesn't crash when creating or querying the data
     public async Task CanUseValidWritingSystems(string wsId)
     {
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = wsId,
-                Name = "custom",
-                Abbreviation = "Cs",
-                Font = "Arial"
-            });
+        await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = wsId,
+            Name = "custom",
+            Abbreviation = "Cs",
+            Font = "Arial"
+        });
         await Api.GetEntries(new QueryOptions(new SortOptions(SortField.Headword, wsId)))
             .ToArrayAsync();
     }

@@ -108,10 +108,6 @@ export function useProjectServicesProvider(): IProjectServicesProvider {
   return window.lexbox.ServiceProvider.getService(DotnetService.ProjectServicesProvider);
 }
 
-export function useAppLauncher(): IAppLauncher | undefined {
-  return window.lexbox.ServiceProvider.tryGetService(DotnetService.AppLauncher);
-}
-
 export function useTroubleshootingService(): ITroubleshootingService | undefined {
   return window.lexbox.ServiceProvider.tryGetService(DotnetService.TroubleshootingService);
 }

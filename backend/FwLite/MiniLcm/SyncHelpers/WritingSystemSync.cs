@@ -60,7 +60,7 @@ public static class WritingSystemSync
 
         public override async Task<int> Add(WritingSystem currentWs)
         {
-            await api.CreateWritingSystem(currentWs.Type, currentWs);
+            await api.CreateWritingSystem(currentWs);
             return 1;
         }
 

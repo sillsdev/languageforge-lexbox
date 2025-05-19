@@ -97,9 +97,9 @@ public class CrdtMiniLcmApiHub(
         return base.SearchEntries(query, options);
     }
 
-    public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public override async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
-        var newWritingSystem = await base.CreateWritingSystem(type, writingSystem);
+        var newWritingSystem = await base.CreateWritingSystem(writingSystem);
         TriggerSync();
         return newWritingSystem;
     }

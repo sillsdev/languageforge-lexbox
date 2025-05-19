@@ -146,9 +146,10 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
         await validators.ValidateAndThrow(writingSystem);
+        var type = writingSystem.Type;
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {
@@ -186,6 +187,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
+        await validators.ValidateAndThrow(update);
         if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
         {
             throw new InvalidOperationException($"Writing system {id.Code} not found");

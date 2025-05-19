@@ -103,13 +103,13 @@ public class MiniLcmImport(
         var writingSystems = await importFrom.GetWritingSystems();
         foreach (var ws in writingSystems.Analysis)
         {
-            await importTo.CreateWritingSystem(WritingSystemType.Analysis, ws);
+            await importTo.CreateWritingSystem(ws);
             logger.LogInformation("Imported ws {WsId}", ws.WsId);
         }
 
         foreach (var ws in writingSystems.Vernacular)
         {
-            await importTo.CreateWritingSystem(WritingSystemType.Vernacular, ws);
+            await importTo.CreateWritingSystem(ws);
             logger.LogInformation("Imported ws {WsId}", ws.WsId);
         }
     }

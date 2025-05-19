@@ -1,4 +1,5 @@
-﻿using SIL.Harmony.Changes;
+﻿using LcmCrdt.Objects;
+using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 
 namespace LcmCrdt.Utils;
@@ -24,5 +25,11 @@ public static class ChangeContextHelpers
             if (await context.IsObjectDeleted(objectWithId.Id)) continue;
             yield return objectWithId;
         }
+    }
+
+    public static IAsyncEnumerable<T> GetObjectsOfType<T>(this IChangeContext context)
+        where T : class, IObjectWithId
+    {
+        return context.GetObjectsOfType<T>(MiniLcmCrdtAdapter.GetObjectTypeName(typeof(T)));
     }
 }
