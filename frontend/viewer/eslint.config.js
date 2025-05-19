@@ -118,7 +118,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['lingui.config.ts', 'tailwind.config.ts'],
+          allowDefaultProject: ['lingui.config.ts', 'tailwind.config.ts', 'playwright.config.ts'],
         },
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files

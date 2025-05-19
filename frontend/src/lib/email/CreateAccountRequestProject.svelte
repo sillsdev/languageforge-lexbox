@@ -10,12 +10,7 @@
     lifetime: string;
   }
 
-  let {
-    verifyUrl,
-    projectName,
-    managerName,
-    lifetime
-  }: Props = $props();
+  const { verifyUrl, projectName, managerName, lifetime }: Props = $props();
 
   let [expirationText, expirationParam] = $derived(toI18nKey(lifetime));
 </script>

@@ -3,7 +3,7 @@
     title: string;
   }
 
-  let { title }: Props = $props();
+  const { title }: Props = $props();
 </script>
 
 <svelte:head>

@@ -1,10 +1,10 @@
 <script lang="ts">
   interface Props {
     loading?: boolean;
-    size?: undefined | 'loading-xs';
+    size?: 'loading-xs';
   }
 
-  let { loading = false, size = undefined }: Props = $props();
+  const { loading = false, size }: Props = $props();
 </script>
 
 {#if loading}

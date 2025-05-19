@@ -14,52 +14,51 @@
 
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
+  import ProjectSidebar from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
-  import {cn} from '$lib/utils';
   import {initView, initViewSettings} from '$lib/views/view-service';
-  import {initDialogService} from '$lib/entry-editor/dialog-service';
-  import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
-  import {useWritingSystemRunes} from '$lib/writing-system-runes.svelte';
-  import {initFeatures} from '$lib/services/feature-service';
+  import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {navigate, Route, useRouter} from 'svelte-routing';
 
   const {
     onloaded,
-    projectName,
     // isConnected,
     // showHomeButton = true,
     // about = undefined,
   }: {
     onloaded: (loaded: boolean) => void;
     about?: string | undefined;
-    projectName: string;
     isConnected: boolean;
     showHomeButton?: boolean;
   } = $props();
-  let currentView: View = $state('browse');
-  const fieldView = initView();
-  const viewSettings = initViewSettings();
-  let deleteDialog = $state<DeleteDialog | undefined>(undefined);
-  const dialogService = initDialogService(() => deleteDialog);
-  const writingSystemService = useWritingSystemRunes();
-  const features = initFeatures({});
+
+  initView();
+  initViewSettings();
 
   onMount(() => {
     onloaded(true);
   });
   let open = $state(true);
+  const {base} = useRouter();
 </script>
-<DeleteDialog bind:this={deleteDialog} />
+<DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
-      <ProjectSidebar {projectName} bind:currentView />
-      <Sidebar.Inset class="flex-1 relative">
-        {#if currentView === 'browse'}
-          <BrowseView />
-        {:else if currentView === 'tasks'}
-          <TasksView />
-        {/if}
-      </Sidebar.Inset>
+    <ProjectSidebar/>
+    <Sidebar.Inset class="flex-1 relative">
+      <Route path="/browse">
+        <BrowseView/>
+      </Route>
+      <Route path="/tasks">
+        <TasksView/>
+      </Route>
+      <Route path="/">
+        {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
+      </Route>
+      <Route path="/*">
+        Unknown route
+      </Route>
+    </Sidebar.Inset>
   </Sidebar.Provider>
 </div>

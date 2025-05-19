@@ -6,11 +6,6 @@
   import CreateUser from '$lib/components/Users/CreateUser.svelte';
   import { NewTabLinkMarkdown } from '$lib/components/Markdown';
   import Icon from '$lib/icons/Icon.svelte';
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher<{
-    submitted: LexAuthUser;
-  }>();
 
   let createUserModal: Modal | undefined = $state();
   interface Props {
@@ -22,9 +17,10 @@
       locale: string,
       turnstileToken: string,
     ) => Promise<RegisterResponse>;
+    onSubmitted?: (submittedUser: LexAuthUser) => void;
   }
 
-  let { handleSubmit }: Props = $props();
+  const { handleSubmit, onSubmitted }: Props = $props();
 
   let formTainted = $state(false);
 
@@ -58,10 +54,10 @@
     allowUsernames
     skipTurnstile
     bind:formTainted
-    on:submitted={(event) => {
+    onSubmitted={(user) => {
       if (createUserModal) {
         createUserModal.submitModal();
-        dispatch('submitted', event.detail);
+        onSubmitted?.(user);
       }
     }}
     submitButtonText={$t('admin_dashboard.create_user_modal.create_user')}

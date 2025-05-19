@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
   import { FormModal } from '$lib/components/modals';
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
@@ -16,13 +14,14 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { allPossibleFlags } from '$lib/user';
   import AdminContent from '$lib/layout/AdminContent.svelte';
+  import { untrack } from 'svelte';
 
   interface Props {
     currUser: LexAuthUser;
     deleteUser: (user: User) => void;
   }
 
-  let { currUser, deleteUser }: Props = $props();
+  const { currUser, deleteUser }: Props = $props();
 
   const schema = z.object({
     email: z.string().email($t('form.invalid_email')).nullish(),
@@ -113,8 +112,8 @@
   let form = $derived(formModal?.form());
   // This is a bit of a hack to make sure that the email field is not required if the user has no email
   // even if the user edited the email field
-  run(() => {
-    if (form && $form && !$form.email && _user && !_user.email) $form.email = null;
+  $effect(() => {
+    if (form && $form && !$form.email && $form.email !== null && _user && !_user.email) $form.email = null;
   });
 </script>
 
@@ -168,7 +167,7 @@
       />
       <PasswordStrengthMeter
         onScoreUpdated={(score) => {
-          if ($form) $form.score = score;
+          if (untrack(() => $form)) $form!.score = score;
         }}
         password={$form!.password}
       />

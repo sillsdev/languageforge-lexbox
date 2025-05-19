@@ -1,19 +1,24 @@
 <script lang="ts">
   import { Icon } from '$lib/components/ui/icon';
-  import type { IEntry } from '$lib/dotnet-types';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
-  import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
   import { useViewSettings } from '$lib/views/view-service';
-  import { resource, Debounced } from 'runed';
+  import {resource, Debounced} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
   import EntryMenu from './EntryMenu.svelte';
-  import Button from '$lib/components/ui/button/button.svelte';
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import {cn} from '$lib/utils';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {t} from 'svelte-i18n-lingui';
+  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import {Toggle} from '$lib/components/ui/toggle';
+  import {XButton} from '$lib/components/ui/button';
+  import type {IEntry} from '$lib/dotnet-types';
+  import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
 
   const viewSettings = useViewSettings();
+  const writingSystemService = useWritingSystemService();
   const miniLcmApi = useMiniLcmApi();
   const {
     entryId,
@@ -28,34 +33,58 @@
   const entryResource = resource(
     () => entryId,
     async (id) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
       return miniLcmApi.getEntry(id);
     },
   );
   const entry = $derived(entryResource.current ?? undefined);
+  const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
+  let dictionaryPreview: 'show' | 'hide' | 'sticky' = $state('show');
+  const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
-  const writingSystemService = $derived(useWritingSystemRunes());
-
-  function handleDelete() {
-    // TODO: Implement delete functionality
-    console.log('Delete entry:', entryId);
-  }
+  let readonly = $state(false);
+  const entryPersistence = new EntryPersistence(() => entry, () => void entryResource.refetch());
 </script>
 
-<div class="h-full md:px-6 pt-2 relative">
+{#snippet preview(entry: IEntry)}
+  <div class="md:pb-4">
+    <DictionaryEntry {entry} showLinks class={cn('rounded bg-muted/80 dark:bg-muted/50 p-4')}>
+      {#snippet actions()}
+        <Toggle bind:pressed={() => sticky, (value) => dictionaryPreview = value ? 'sticky' : 'show'}
+          aria-label={`Toggle pinned`} class="aspect-square" size="xs">
+          <Icon icon="i-mdi-pin-outline" class="size-5" />
+        </Toggle>
+      {/snippet}
+    </DictionaryEntry>
+  </div>
+{/snippet}
+
+<div class="h-full flex flex-col relative">
   {#if entry}
-    <header class="mb-4 flex">
-      {#if showClose && onClose}
-        <Button icon="i-mdi-close" onclick={onClose} variant="ghost" size="icon"></Button>
+    <header>
+      <div class="max-md:p-2 md:mb-4 flex justify-between">
+        {#if showClose && onClose}
+          <XButton onclick={onClose} size="icon" />
+        {/if}
+        <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
+        <div class="flex">
+          <ViewPicker bind:dictionaryPreview bind:readonly />
+          <EntryMenu {entry} />
+        </div>
+      </div>
+      {#if dictionaryPreview === 'sticky'}
+        <div class="md:pr-2">
+          {@render preview(entry)}
+        </div>
       {/if}
-      <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{writingSystemService.headword(entry) || 'Untitled'}</h2>
-      <div class="flex-1"></div>
-      <ViewPicker/>
-      <EntryMenu onDelete={handleDelete} />
     </header>
-    <ScrollArea class={cn('h-full md:pr-5', !$viewSettings.showEmptyFields && 'hide-unused')}>
-      <EntryEditor {entry} disablePortalButtons />
+    <ScrollArea class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
+      {#if dictionaryPreview === 'show'}
+        {@render preview(entry)}
+      {/if}
+      <div class="max-md:p-2 md:pr-2">
+        <EntryEditor {entry} {readonly} {...entryPersistence.entryEditorProps} />
+      </div>
     </ScrollArea>
   {/if}
   {#if loadingDebounced.current}

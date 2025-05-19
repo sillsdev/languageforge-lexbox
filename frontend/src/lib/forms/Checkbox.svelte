@@ -7,21 +7,13 @@
     label: string;
     value: boolean;
     id?: string;
-    error?: string | string[] | undefined;
-    description?: string | undefined;
-    variant?: 'checkbox-warning' | undefined;
-    labelColor?: 'text-warning' | undefined;
+    error?: string | string[];
+    description?: string;
+    variant?: 'checkbox-warning';
+    labelColor?: 'text-warning';
   }
 
-  let {
-    label,
-    value = $bindable(),
-    id = randomFormId(),
-    error = undefined,
-    description = undefined,
-    variant = undefined,
-    labelColor = undefined,
-  }: Props = $props();
+  let { label, value = $bindable(), id = randomFormId(), error, description, variant, labelColor }: Props = $props();
 </script>
 
 <div class="form-control w-full">

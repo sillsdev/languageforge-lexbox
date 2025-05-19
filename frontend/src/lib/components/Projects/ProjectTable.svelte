@@ -15,7 +15,7 @@
     actions?: Snippet<[{ project: ProjectItemWithDraftStatus }]>;
   }
 
-  let { projects, columns = allColumns, actions }: Props = $props();
+  const { projects, columns = allColumns, actions }: Props = $props();
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);

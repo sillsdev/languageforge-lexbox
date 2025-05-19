@@ -8,12 +8,12 @@
     type: ProjectType;
   }
 
-  let { type }: Props = $props();
+  const { type }: Props = $props();
 </script>
 
 <Badge>
   <span class="flex items-center gap-2">
-    <FormatProjectType {type}  />
+    <FormatProjectType {type} />
     <ProjectTypeIcon {type} />
   </span>
 </Badge>

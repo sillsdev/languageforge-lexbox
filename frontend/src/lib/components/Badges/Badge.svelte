@@ -15,19 +15,13 @@
 
   interface Props {
     variant?: BadgeVariant;
-    icon?: IconString | undefined;
-    hoverIcon?: IconString | undefined;
+    icon?: IconString;
+    hoverIcon?: IconString;
     outline?: boolean;
     children?: Snippet;
   }
 
-  let {
-    variant = 'badge-neutral',
-    icon = undefined,
-    hoverIcon = undefined,
-    outline = false,
-    children,
-  }: Props = $props();
+  const { variant = 'badge-neutral', icon, hoverIcon, outline = false, children }: Props = $props();
 </script>
 
 <span

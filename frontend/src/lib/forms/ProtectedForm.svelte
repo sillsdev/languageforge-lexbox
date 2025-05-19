@@ -13,12 +13,12 @@
 
   const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
   interface Props {
-    enhance?: AnySuperForm['enhance'] | undefined;
+    enhance?: AnySuperForm['enhance'];
     turnstileToken?: string;
     children?: Snippet;
   }
 
-  let { enhance = undefined, turnstileToken = $bindable(''), children }: Props = $props();
+  let { enhance, turnstileToken = $bindable(''), children }: Props = $props();
 
   function deliverToken({ detail: { token } }: CustomEvent<Token>): void {
     turnstileToken = token;

@@ -13,7 +13,7 @@
     projectId: string;
   }
 
-  let { projectId }: Props = $props();
+  const { projectId }: Props = $props();
 
   const schema = z.object({
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),

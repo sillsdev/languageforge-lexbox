@@ -8,7 +8,7 @@
     right?: boolean; // when the form submit button is on the right
   }
 
-  let { error = undefined, markdown = false, right = false }: Props = $props();
+  const { error = undefined, markdown = false, right = false }: Props = $props();
 </script>
 
 {#if error}

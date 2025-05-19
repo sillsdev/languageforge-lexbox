@@ -43,7 +43,7 @@
     data: PageData;
   }
 
-  let { data }: Props = $props();
+  const { data }: Props = $props();
   let user = $derived(data.user);
   let orgStore = data.org;
   let org = $derived($orgStore);
@@ -188,11 +188,7 @@
           {/snippet}
         </Dropdown>
       </div>
-      <CreateUserModal
-        handleSubmit={createGuestUser}
-        on:submitted={(e) => onUserCreated(e.detail)}
-        bind:this={createUserModal}
-      />
+      <CreateUserModal handleSubmit={createGuestUser} onSubmitted={onUserCreated} bind:this={createUserModal} />
       <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
       <BulkAddOrgMembers bind:this={bulkAddMembersModal} orgId={org.id} />
     {/if}
@@ -256,8 +252,8 @@
         {user}
         shownUsers={org.members}
         {canManage}
-        on:openUserModal={(event) => openUserModal(event.detail)}
-        on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
+        onOpenUserModal={openUserModal}
+        onChangeMemberRole={openChangeMemberRoleModal}
       />
     {:else if $queryParamValues.tab === 'history'}
       <div class="space-y-2">

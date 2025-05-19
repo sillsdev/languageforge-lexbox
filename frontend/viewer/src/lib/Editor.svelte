@@ -1,13 +1,13 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
-  import {createEventDispatcher, getContext} from 'svelte';
+  import {createEventDispatcher} from 'svelte';
   import {useLexboxApi} from './services/service-provider';
-  import type { SaveHandler } from './services/save-event-service';
+  import {useSaveHandler} from './services/save-event-service.svelte';
   import {useViewSettings} from '$lib/views/view-service';
 
   const lexboxApi = useLexboxApi();
-  const saveHandler = getContext<SaveHandler>('saveHandler');
+  const saveHandler = useSaveHandler();
 
   const dispatch = createEventDispatcher<{
     delete: { entry: IEntry };
@@ -35,11 +35,11 @@
   async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     if (readonly) return;
     if (e.example !== undefined && e.sense !== undefined) {
-      await saveHandler(() => lexboxApi.deleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
+      await saveHandler.handleSave(() => lexboxApi.deleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
     } else if (e.sense !== undefined) {
-      await saveHandler(() => lexboxApi.deleteSense(e.entry.id, e.sense!.id));
+      await saveHandler.handleSave(() => lexboxApi.deleteSense(e.entry.id, e.sense!.id));
     } else {
-      await saveHandler(() => lexboxApi.deleteEntry(e.entry.id));
+      await saveHandler.handleSave(() => lexboxApi.deleteEntry(e.entry.id));
       dispatch('delete', {entry: e.entry});
       return;
     }
@@ -49,15 +49,15 @@
   async function updateEntry(updatedEntry: IEntry) {
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
     console.debug('Updating entry', updatedEntry);
-    return saveHandler(() => lexboxApi.updateEntry(initialEntry, updatedEntry));
+    return saveHandler.handleSave(() => lexboxApi.updateEntry(initialEntry, updatedEntry));
   }
 </script>
 
 <div id="entry" class:hide-unused={!$viewSettings.showEmptyFields}>
   {#key entry.id}
     <EntryEditor
-      on:change={e => onChange(e.detail)}
-      on:delete={e => onDelete(e.detail)}
+      onchange={onChange}
+      ondelete={onDelete}
       entry={entry}
       {readonly}/>
   {/key}

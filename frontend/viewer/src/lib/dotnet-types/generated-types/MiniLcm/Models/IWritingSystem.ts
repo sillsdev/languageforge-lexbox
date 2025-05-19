@@ -10,6 +10,7 @@ export interface IWritingSystem extends IObjectWithId
 {
 	id: string;
 	wsId: string;
+	isAudio: boolean;
 	name: string;
 	abbreviation: string;
 	font: string;

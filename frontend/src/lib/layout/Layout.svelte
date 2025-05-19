@@ -20,7 +20,7 @@
     children?: Snippet;
   }
 
-  let { hideToolbar = false, children }: Props = $props();
+  const { hideToolbar = false, children }: Props = $props();
 
   let menuToggle = $state(false);
   let data = $derived(page.data as LayoutData);

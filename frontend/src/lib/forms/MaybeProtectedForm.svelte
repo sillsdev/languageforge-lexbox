@@ -5,18 +5,13 @@
   import type { AnySuperForm } from './types';
 
   interface Props {
-    enhance?: AnySuperForm['enhance'] | undefined;
+    enhance?: AnySuperForm['enhance'];
     turnstileToken?: string;
     skipTurnstile?: boolean;
     children?: Snippet;
   }
 
-  let {
-    enhance = undefined,
-    turnstileToken = $bindable(''),
-    skipTurnstile = false,
-    children,
-  }: Props = $props();
+  let { enhance, turnstileToken = $bindable(''), skipTurnstile = false, children }: Props = $props();
 </script>
 
 {#if skipTurnstile}

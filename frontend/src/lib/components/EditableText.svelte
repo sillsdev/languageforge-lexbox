@@ -4,19 +4,19 @@
   import IconButton from './IconButton.svelte';
 
   interface Props {
-    value?: string | undefined | null;
+    value?: string | null;
     disabled?: boolean;
     saveHandler: (newValue: string) => Promise<ErrorMessage>;
-    placeholder?: string | undefined;
+    placeholder?: string;
     multiline?: boolean;
     validation?: ZodString;
   }
 
   let {
-    value = $bindable(undefined),
+    value = $bindable(),
     disabled = false,
     saveHandler,
-    placeholder = undefined,
+    placeholder,
     multiline = false,
     validation = z.string(),
   }: Props = $props();

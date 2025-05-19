@@ -15,7 +15,8 @@ import type {
   CloseReason,
 } from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
 import {useEventBus} from './event-bus';
-import {DotnetService, type IMiniLcmFeatures, type IEntry, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+import {type IMiniLcmFeatures, type IEntry, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+import {initProjectContext} from '$lib/project-context.svelte';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type ErrorContext = {error: Error|unknown, methodName?: string, origin: 'method'|'connection'};
@@ -56,7 +57,7 @@ export function SetupSignalR(
       return Promise.resolve();
     }
   });
-  window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, lexboxApiHubProxy);
+  initProjectContext({api: lexboxApiHubProxy, projectName: 'todo-change-me', projectCode: 'todo-change-me'});
   return {connected, lexboxApi: lexboxApiHubProxy};
 }
 

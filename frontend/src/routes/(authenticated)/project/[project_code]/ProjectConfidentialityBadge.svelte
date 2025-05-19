@@ -8,7 +8,7 @@
     onclick?: () => void;
   }
 
-  let { isConfidential, canManage, onclick }: Props = $props();
+  const { isConfidential, canManage, onclick }: Props = $props();
 </script>
 
 {#if isConfidential !== false}

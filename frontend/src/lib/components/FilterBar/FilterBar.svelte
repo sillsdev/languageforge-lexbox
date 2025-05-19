@@ -7,12 +7,10 @@
       }[keyof T]
     >
   >;
+  export type OnFiltersChanged = (newFilters: Readonly<Filter[]>) => void;
 </script>
 
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
-  import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
   import { PlainInput } from '$lib/forms';
@@ -20,50 +18,57 @@
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
+  import { Previous, Debounced, watch } from 'runed';
+  import { DEFAULT_DEBOUNCE_TIME } from '$lib/util/time';
 
   type DumbFilters = $$Generic<Record<string, unknown>>;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Filters = DumbFilters & Record<typeof searchKey, string>;
 
-  const dispatch = createEventDispatcher<{
-    change: Readonly<Filter<Filters>[]>;
-  }>();
-
   let searchInput: PlainInput | undefined = $state();
 
   interface Props {
     searchKey: keyof ConditionalPick<DumbFilters, string>;
-    autofocus?: true | undefined;
+    autofocus?: true;
     filters: Writable<Filters>;
     filterDefaults: Filters;
+    onFiltersChanged?: OnFiltersChanged;
     hasActiveFilter?: boolean;
     /**
      * Explicitly specify the filter object keys that should be used from the `filters` (optional)
      */
-    filterKeys?: Readonly<(keyof Filters)[]> | undefined;
+    filterKeys?: Readonly<(keyof Filters)[]>;
     loading?: boolean;
     debounce?: number | boolean;
-    debouncing?: boolean;
     activeFilterSlot?: Snippet<[{ activeFilters: Readonly<Filter<Filters>[]> }]>;
     filterSlot?: Snippet;
   }
 
   let {
     searchKey,
-    autofocus = undefined,
+    autofocus,
     filters: allFilters,
     filterDefaults: allFilterDefaults,
+    onFiltersChanged,
     hasActiveFilter = $bindable(false),
-    filterKeys = undefined,
+    filterKeys,
     loading = false,
-    debounce = $bindable(false),
-    debouncing = $bindable(false),
+    debounce = false,
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
   let undebouncedSearch: string | undefined = $state(undefined);
-
-  let activeFilters: Readonly<Filter<Filters>[]> = $state([]);
+  let watcher: () => string | undefined;
+  if (debounce === false) {
+    watcher = () => undebouncedSearch;
+  } else {
+    const debounceTime: number = debounce === true ? DEFAULT_DEBOUNCE_TIME : debounce;
+    const debouncer = new Debounced(() => undebouncedSearch, debounceTime);
+    watcher = () => debouncer.current;
+  }
+  watch(watcher, (value) => {
+    $allFilters[searchKey] = value as Filters[typeof searchKey];
+  });
 
   function onClearFiltersClick(): void {
     if (!searchInput) return;
@@ -92,18 +97,18 @@
     }
     return Object.freeze(filters);
   }
+
   let filters = $derived(Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters));
   let filterDefaults = $derived(Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults));
-  run(() => {
-    const currFilters = activeFilters;
-    const newFilters = pickActiveFilters(filters, filterDefaults);
-    if (JSON.stringify(currFilters) !== JSON.stringify(newFilters)) {
-      activeFilters = newFilters;
-      dispatch('change', activeFilters);
-    }
-  });
-  run(() => {
+  let activeFilters: Readonly<Filter<Filters>[]> = $derived(pickActiveFilters(filters, filterDefaults));
+  let prevActiveFilters = new Previous(() => activeFilters, []);
+  $effect(() => {
     hasActiveFilter = activeFilters.length > 0;
+  });
+  $effect(() => {
+    if (JSON.stringify(prevActiveFilters.current) !== JSON.stringify(activeFilters)) {
+      onFiltersChanged?.(activeFilters);
+    }
   });
 </script>
 
@@ -111,17 +116,14 @@
   {@render activeFilterSlot?.({ activeFilters })}
   <div class="flex grow">
     <PlainInput
-      bind:value={$allFilters[searchKey]}
-      bind:debounce
-      bind:debouncing
-      bind:undebouncedValue={undebouncedSearch}
+      bind:value={undebouncedSearch}
       bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
       {autofocus}
     />
     <div class="ml-auto flex join">
-      {#if loading || debouncing}
+      {#if loading}
         <div class="flex mr-2">
           <Loader loading />
         </div>

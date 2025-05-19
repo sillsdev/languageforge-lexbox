@@ -5,7 +5,6 @@ import {iconsPlugin} from '@egoist/tailwindcss-icons';
 import containerQueries from '@tailwindcss/container-queries';
 import typography from '@tailwindcss/typography';
 import type {Config} from 'tailwindcss';
-import svelteUx from 'svelte-ux/plugins/tailwind.cjs';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import {fontFamily} from 'tailwindcss/defaultTheme';
 import {MOBILE_BREAKPOINT} from './src/css-breakpoints';
@@ -29,50 +28,10 @@ export default {
       // Search showing aliases and version (of root source) icons were introduced: https://pictogrammers.com/library/mdi/
       collections: getIconCollections(['mdi']),
     }),
-    svelteUx({colorSpace: 'hsl'}),
     typography,
     containerQueries,
     tailwindcssAnimate,
   ],
-  ux: {
-    themeRoot: ':root, :host',
-    themes: {
-      'light': {
-        'color-scheme': 'light',
-        '--base-text': '#394E6A',
-        'primary': '#0050CC',
-        'secondary': '#D6E6FF',
-        'accent': '#75d7ce',
-        'neutral': '#70acc7',
-        'surface-100': '#ffffff',
-        'surface-200': '#f4f5f6',
-        'surface-300': '#d1d5db',
-        'surface-content': '#394E6A',
-        'info': '#0E94FF',
-        'warning': '#ff6c00',
-        '--rounded-btn': '1.9rem',
-        '--tab-radius': '0.7rem',
-      },
-      'dark': {
-        'color-scheme': 'dark',
-        '--base-text': '#e6e6e6',
-        'primary': '#4882D0',
-        'secondary': '#152747',
-        'accent': '#1b4d4d',
-        'neutral': '#331800',
-        'neutral-content': '#FFE7A3',
-        'surface-100': '#151515',
-        'surface-200': '#252426',
-        'surface-300': '#2e2d2f',
-        'surface-content': '#dca54c',
-        'info': '#66c6ff',
-        'success': '#87d039',
-        'warning': '#ff6c00',
-        'danger': '#ff6f6f',
-      }
-    }
-  },
-
   theme: {
     container: {
       center: true,

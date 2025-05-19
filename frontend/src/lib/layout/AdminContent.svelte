@@ -5,7 +5,7 @@
     children?: Snippet;
   }
 
-  let { children }: Props = $props();
+  const { children }: Props = $props();
 </script>
 
 <!-- eslint-disable-next-line @typescript-eslint/no-unsafe-argument -->

@@ -6,7 +6,7 @@
     name: string;
   }
 
-  let { name }: Props = $props();
+  const { name }: Props = $props();
 </script>
 
 <Email subject={$t('emails.password_changed.subject')} {name}>

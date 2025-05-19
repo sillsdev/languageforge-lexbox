@@ -30,15 +30,26 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<WritingSystemId>
 {
     public string Code { get; init; }
+    public bool IsAudio { get; } = false;
 
     public static readonly WritingSystemId Default = "default";
 
     public WritingSystemId(string code)
     {
         //__key is used by the LfClassicMiniLcmApi to smuggle non guid ids with possibilitie lists
-        if (code == "default" || code == "__key" || IetfLanguageTag.IsValid(code))
+        if (code == "default" || code == "__key")
         {
             Code = code;
+        }
+        else if (IetfLanguageTag.TryGetParts(code,
+                     out string? subtag,
+                     out string? script,
+                     out string? region,
+                     out string? variants))
+        {
+            Code = code;
+            IsAudio = script?.Equals(WellKnownSubtags.AudioScript, StringComparison.OrdinalIgnoreCase) == true &&
+                      variants?.Split('-').Any(v => v == WellKnownSubtags.AudioPrivateUse) == true;
         }
         else
         {

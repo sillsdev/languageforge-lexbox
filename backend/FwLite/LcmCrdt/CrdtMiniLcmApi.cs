@@ -93,24 +93,20 @@ public class CrdtMiniLcmApi(
         };
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
         await validators.ValidateAndThrow(writingSystem);
         var entityId = Guid.NewGuid();
-        var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
-        try
-        {
-            await AddChange(new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
-        }
-        catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.CausedByUniqueConstraintViolation())
-        {
-            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists", e);
-        }
-        return await GetWritingSystem(writingSystem.WsId, type) ?? throw new NullReferenceException();
+        var exists = await WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == writingSystem.Type);
+        if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
+        var wsCount = await WritingSystems.CountAsync(ws => ws.Type == writingSystem.Type);
+        await AddChange(new CreateWritingSystemChange(writingSystem, entityId, wsCount));
+        return await GetWritingSystem(writingSystem.WsId, writingSystem.Type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
+        await validators.ValidateAndThrow(update);
         var ws = await GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);

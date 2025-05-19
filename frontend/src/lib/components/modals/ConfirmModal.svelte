@@ -8,7 +8,7 @@
   interface Props {
     title: string;
     submitText: string;
-    submitIcon?: IconString | undefined;
+    submitIcon?: IconString;
     submitVariant?: 'btn-primary' | 'btn-error';
     cancelText: string;
     hideActions?: boolean;
@@ -17,10 +17,10 @@
     children?: Snippet<[{ done: boolean; error: ErrorMessage }]>;
   }
 
-  let {
+  const {
     title,
     submitText,
-    submitIcon = undefined,
+    submitIcon,
     submitVariant = 'btn-primary',
     cancelText,
     hideActions = false,

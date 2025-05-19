@@ -8,7 +8,7 @@
     i18nScope: I18nShapeKey<DeleteModalI18nShape>;
   }
 
-  let { i18nScope }: Props = $props();
+  const { i18nScope }: Props = $props();
 
   let modal: ConfirmDeleteModal | undefined = $state();
 

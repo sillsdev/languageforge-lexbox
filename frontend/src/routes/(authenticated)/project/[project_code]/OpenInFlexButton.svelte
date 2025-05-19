@@ -8,7 +8,7 @@
     onclick?: () => void;
   }
 
-  let { projectId, onclick }: Props = $props();
+  const { projectId, onclick }: Props = $props();
 </script>
 
 <a

@@ -5,7 +5,7 @@
 
   interface Props {
     title: string;
-    text?: string | null | undefined;
+    text?: string | null;
     copyToClipboard?: boolean;
     loading?: boolean;
     wrap?: boolean;
@@ -13,9 +13,9 @@
     extras?: Snippet;
   }
 
-  let {
+  const {
     title,
-    text = undefined,
+    text,
     copyToClipboard = false,
     loading = false,
     wrap = false,

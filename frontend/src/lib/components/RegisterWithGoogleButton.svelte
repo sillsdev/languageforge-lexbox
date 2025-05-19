@@ -5,7 +5,7 @@
     href: string;
   }
 
-  let { href }: Props = $props();
+  const { href }: Props = $props();
 </script>
 
 <SigninWithGoogleButton {href} text="register_with_google" />
