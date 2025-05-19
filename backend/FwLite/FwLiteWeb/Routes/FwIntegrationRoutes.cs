@@ -20,7 +20,7 @@ public static class FwIntegrationRoutes
                 });
                 return operation;
             });
-        group.MapGet("/open/entry/{id}",
+        group.MapGet("/link/entry/{id}",
             async ([FromServices] FwDataProjectContext context,
                 [FromServices] IHubContext<FwDataMiniLcmHub, ILexboxHubClient> hubContext,
                 [FromServices] FwDataFactory factory,
@@ -29,8 +29,8 @@ public static class FwIntegrationRoutes
                 if (context.Project is null) return Results.BadRequest("No project is set in the context");
                 await hubContext.Clients.Group(context.Project.Name).OnProjectClosed(CloseReason.Locked);
                 factory.CloseProject(context.Project);
-                //need to use redirect as a way to not trigger flex until after we have closed the project
-                return Results.Redirect(FwLink.ToEntry(id, context.Project.Name));
+                var link = FwLink.ToEntry(id, context.Project.Name);
+                return Results.Text(link, "text/plain");
             });
         return group;
     }

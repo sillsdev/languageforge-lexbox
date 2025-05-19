@@ -41,7 +41,7 @@
   let filtersExpanded = $state(false);
 </script>
 
-<Collapsible.Root bind:open={filtersExpanded} class={cn(filtersExpanded && 'bg-[hsl(var(--sidebar-background))] rounded-b')}>
+<Collapsible.Root bind:open={filtersExpanded} class={cn(filtersExpanded && 'bg-muted/50 rounded-b')}>
   <div class="relative">
     <ComposableInput bind:value={search} placeholder={$t`Filter`} autofocus class="px-1">
       {#snippet before()}
