@@ -14,6 +14,7 @@ interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
   projectName: string;
+  projectCode: string;
   projectType?: 'crdt' | 'fwdata';
 }
 export function initProjectContext(args?: ProjectContextSetup) {
@@ -28,6 +29,7 @@ export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
   #api: IMiniLcmJsInvokable | undefined = $state(undefined);
   #projectName: string | undefined = $state(undefined);
+  #projectCode: string | undefined = $state(undefined);
   #projectType: ProjectType = $state(undefined);
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #features = resource(() => this.#api, (api) => {
@@ -45,6 +47,10 @@ export class ProjectContext {
     if (!this.#projectName) throw new Error('projectName not set');
     return this.#projectName;
   }
+  public get projectCode(): string {
+    if (!this.#projectCode) throw new Error('projectCode not set');
+    return this.#projectCode;
+  }
   public get projectType(): ProjectType {
     return this.#projectType;
   }
@@ -59,6 +65,7 @@ export class ProjectContext {
     this.#api = args?.api;
     this.#historyService = args?.historyService;
     this.#projectName = args?.projectName;
+    this.#projectCode = args?.projectCode;
     this.#projectType = args?.projectType;
   }
 
@@ -66,6 +73,7 @@ export class ProjectContext {
     this.#api = args.api;
     this.#historyService = args.historyService;
     this.#projectName = args.projectName;
+    this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
   }
 
