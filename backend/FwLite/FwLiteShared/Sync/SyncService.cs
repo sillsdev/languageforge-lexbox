@@ -1,12 +1,14 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
+using LexCore.Sync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
 using SIL.Harmony;
@@ -21,6 +23,7 @@ public class SyncService(
     ProjectEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
+    IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
     LcmCrdtDbContext dbContext)
 {
@@ -72,6 +75,14 @@ public class SyncService(
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
         return syncResults;
+    }
+
+    public async Task<ProjectSyncStatus?> GetSyncStatus()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var server = authOptions.Value.GetServer(project);
+        var status = await lexboxProjectService.GetLexboxSyncStatus(server, project.Id);
+        return status;
     }
 
     private async Task SendNotifications(SyncResults syncResults)

@@ -1,8 +1,9 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
@@ -99,6 +100,21 @@ public class LexboxProjectService : IDisposable
         catch (Exception e)
         {
             logger.LogError(e, "Error getting lexbox project id");
+            return null;
+        }
+    }
+
+    public async Task<ProjectSyncStatus?> GetLexboxSyncStatus(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return (await httpClient.GetFromJsonAsync<ProjectSyncStatus?>($"/api/fw-lite/sync/status/{projectId}"));
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting lexbox sync status");
             return null;
         }
     }

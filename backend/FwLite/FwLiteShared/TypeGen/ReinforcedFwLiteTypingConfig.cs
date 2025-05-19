@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Attributes;
@@ -116,6 +117,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ServerStatus),
             typeof(ProjectModel),
             typeof(ServerProjects),
+            typeof(ProjectSyncStatus),
             typeof(LexboxServer),
             typeof(CrdtProject),
             typeof(ProjectData),
