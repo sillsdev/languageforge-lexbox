@@ -45,11 +45,11 @@ public class UserMutations
 
     [Error<NotFoundException>]
     [UseMutationConvention]
-    [RefreshJwt]
     public async Task<SendFWLiteBetaRequestEmailResult> SendFWLiteBetaRequestEmail(
         LoggedInContext loggedInContext,
         SendFWLiteBetaRequestEmailInput input,
         LexBoxDbContext dbContext,
+        LexAuthService lexAuthService,
         IEmailService emailService
     )
     {
@@ -58,6 +58,8 @@ public class UserMutations
         NotFoundException.ThrowIfNull(user);
         if (user.FeatureFlags.Contains(FeatureFlag.FwLiteBeta))
         {
+            if (!loggedInContext.User.FeatureFlags.Contains(FeatureFlag.FwLiteBeta))
+                await lexAuthService.RefreshUser();
             return SendFWLiteBetaRequestEmailResult.UserAlreadyInBeta;
         }
         await emailService.SendJoinFwLiteBetaEmail(user);
