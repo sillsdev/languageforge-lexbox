@@ -6,10 +6,25 @@
   import Button from '$lib/forms/Button.svelte';
   import { page } from '$app/state';
   import { _sendFWLiteBetaRequestEmail } from './+page';
-  import type {UUID} from 'crypto';
+  import type { UUID } from 'crypto';
+  import { SendFwLiteBetaRequestEmailResult } from '$lib/gql/generated/graphql';
+  import { useNotifications } from '$lib/notify';
 
+  const { notifySuccess } = useNotifications();
   async function requestBetaAccess(): Promise<void> {
-    await _sendFWLiteBetaRequestEmail(page.data.user.id as UUID, page.data.user.name);
+    const gqlResult = await _sendFWLiteBetaRequestEmail(page.data.user.id as UUID, page.data.user.name);
+    if (gqlResult.error) {
+      if (gqlResult.error.byType('NotFoundError')) {
+        console.log('User not found, no dialog shown');
+      }
+    }
+    const result = gqlResult.data?.sendFWLiteBetaRequestEmail.sendFWLiteBetaRequestEmailResult;
+    if (result === SendFwLiteBetaRequestEmailResult.BetaAccessRequestSent) {
+      notifySuccess($t('where_is_my_project.access_request_sent'));
+    }
+    if (result === SendFwLiteBetaRequestEmailResult.UserAlreadyInBeta) {
+      notifySuccess($t('where_is_my_project.already_in_beta'));
+    }
   }
 </script>
 

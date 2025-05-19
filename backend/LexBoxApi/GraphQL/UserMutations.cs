@@ -37,13 +37,16 @@ public class UserMutations
         int PasswordStrength,
         Guid? OrgId);
     public record SendFWLiteBetaRequestEmailInput(Guid UserId, string Name);
+    public enum SendFWLiteBetaRequestEmailResult
+    {
+        UserAlreadyInBeta,
+        BetaAccessRequestSent,
+    };
 
     [Error<NotFoundException>]
-    [Error<DbError>]
-    [Error<UniqueValueException>]
     [UseMutationConvention]
     [RefreshJwt]
-    public async Task<MeDto> SendFWLiteBetaRequestEmail(
+    public async Task<SendFWLiteBetaRequestEmailResult> SendFWLiteBetaRequestEmail(
         LoggedInContext loggedInContext,
         SendFWLiteBetaRequestEmailInput input,
         LexBoxDbContext dbContext,
@@ -53,14 +56,12 @@ public class UserMutations
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
         var user = await dbContext.Users.FindAsync(input.UserId);
         NotFoundException.ThrowIfNull(user);
-        await emailService.SendJoinFwLiteBetaEmail(user);
-        return new MeDto
+        if (user.FeatureFlags.Contains(FeatureFlag.FwLiteBeta))
         {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email,
-            Locale = user.LocalizationCode
-        };
+            return SendFWLiteBetaRequestEmailResult.UserAlreadyInBeta;
+        }
+        await emailService.SendJoinFwLiteBetaEmail(user);
+        return SendFWLiteBetaRequestEmailResult.BetaAccessRequestSent;
     }
 
     [Error<NotFoundException>]

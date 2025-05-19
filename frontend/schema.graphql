@@ -495,7 +495,7 @@ type RequiredError implements Error {
 }
 
 type SendFWLiteBetaRequestEmailPayload {
-  meDto: MeDto
+  sendFWLiteBetaRequestEmailResult: SendFWLiteBetaRequestEmailResult
   errors: [SendFWLiteBetaRequestEmailError!]
 }
 
@@ -651,7 +651,7 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SendFWLiteBetaRequestEmailError = NotFoundError | DbError | UniqueValueError
+union SendFWLiteBetaRequestEmailError = NotFoundError
 
 union SendNewVerificationEmailByAdminError = NotFoundError | DbError | InvalidOperationError
 
@@ -1293,6 +1293,11 @@ enum RetentionPolicy {
   TEST
   DEV
   TRAINING
+}
+
+enum SendFWLiteBetaRequestEmailResult {
+  USER_ALREADY_IN_BETA
+  BETA_ACCESS_REQUEST_SENT
 }
 
 enum SortEnumType {

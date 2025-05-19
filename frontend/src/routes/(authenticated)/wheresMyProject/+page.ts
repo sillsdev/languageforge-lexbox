@@ -10,10 +10,7 @@ export async function _sendFWLiteBetaRequestEmail(userId: UUID, name: string): $
       graphql(`
         mutation SendFWLiteBetaRequestEmail($input: SendFWLiteBetaRequestEmailInput!) {
           sendFWLiteBetaRequestEmail(input: $input) {
-            meDto {
-              id
-              email
-            }
+            sendFWLiteBetaRequestEmailResult
             errors {
                 __typename
               ... on Error {
@@ -23,7 +20,7 @@ export async function _sendFWLiteBetaRequestEmail(userId: UUID, name: string): $
           }
         }
       `),
-      {input: {userId, name}}
+      { input: { userId, name } }
     )
   return result;
 }
