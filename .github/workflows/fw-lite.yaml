@@ -21,6 +21,7 @@ on:
     branches:
       - develop
       - main
+      - shadcn-ui-main #just for now ensure PRs to this branch have checks run
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:

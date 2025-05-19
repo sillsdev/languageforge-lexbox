@@ -56,8 +56,8 @@
     <Toggle let:on={open} let:toggle let:toggleOff>
       <Button onclick={toggle} {loading} icon="i-mdi-account-circle">
         {status.loggedInAs}
-        <Menu {open} on:close={toggleOff} placement="bottom-end">
-          <MenuItem icon={mdiLogout} on:click={() => logout(server)}>{$t`Logout`}</MenuItem>
+        <Menu {open} on:close={toggleOff} placement="bottom-end" classes={{root: 'bg-background'}}>
+          <MenuItem classes={{root: 'hover:bg-muted'}} icon={mdiLogout} on:click={() => logout(server)}>{$t`Logout`}</MenuItem>
         </Menu>
       </Button>
     </Toggle>

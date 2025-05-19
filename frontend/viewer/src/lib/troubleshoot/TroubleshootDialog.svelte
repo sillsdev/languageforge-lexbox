@@ -1,37 +1,55 @@
 ﻿<script lang="ts">
-  import {Button, Dialog, Field} from 'svelte-ux';
-  import {useFwLiteConfig, useTroubleshootingService} from '$lib/services/service-provider';
-  import {AppNotification} from '$lib/notifications/notifications';
-  import {mdiFileExport, mdiFileEye, mdiFolderSearch} from '@mdi/js';
+  import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
+  import { Button } from '$lib/components/ui/button';
+  import { useFwLiteConfig, useTroubleshootingService } from '$lib/services/service-provider';
+  import { AppNotification } from '$lib/notifications/notifications';
+  import { t } from 'svelte-i18n-lingui';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import InputShell from '$lib/components/ui/input/input-shell.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+
+  const openQueryParam = new QueryParamStateBool({ key: 'troubleshootDialogOpen', replaceOnDefaultValue: true, allowBack: true }, true);
+
+  export function open(): void {
+    openQueryParam.current = true;
+  }
 
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
-  export let open = false;
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {
-      AppNotification.display('Failed to open data directory, use the path in the text field instead', 'error');
+      AppNotification.display($t`Failed to open data directory, use the path in the text field instead`, 'error');
     }
   }
 </script>
-<Dialog bind:open={open} style="height: auto">
-  <div slot="title">Troubleshoot</div>
-  <div class="flex flex-col gap-4 items-start p-4">
-    <p>Application version: <span class="font-mono text-surface-content/50 border-b">{config.appVersion}</span></p>
 
-    {#await service?.getDataDirectory() then value}
-      <Field label="Data Directory" {value} class="self-stretch">
-          <span slot="append">
-            <Button icon={mdiFolderSearch} title="Open Data Directory" class="text-surface-content/50 p-2" on:click={() => tryOpenDataDirectory()}/>
-          </span>
-      </Field>
-    {/await}
-    <div>
-      <Button variant="fill-light" icon={mdiFileEye} on:click={() => service?.openLogFile()}>Open Log file</Button>
-      <Button variant="fill-light" icon={mdiFileExport} on:click={() => service?.shareLogFile()}>Share Log file</Button>
+<Dialog bind:open={openQueryParam.current}>
+  <DialogContent class="sm:min-h-fit">
+    <DialogHeader>
+      <DialogTitle>{$t`Troubleshoot`}</DialogTitle>
+    </DialogHeader>
+    <div class="flex flex-col gap-4 items-start">
+      <p>{$t`Application version`}: <span class="font-mono text-muted-foreground border-b">{config.appVersion}</span></p>
+      <div class="w-full">
+        <Label>{$t`Data Directory`}</Label>
+        <InputShell class="ps-2 pe-1">
+          {#await service?.getDataDirectory() then value}
+            {value}
+          {/await}
+          <Button variant="ghost" icon="i-mdi-folder-search" size="xs-icon" title={$t`Open Data Directory`} onclick={() => tryOpenDataDirectory()} />
+        </InputShell>
+      </div>
+      <div class="flex gap-2">
+        <Button variant="outline" onclick={() => service?.openLogFile()}>
+          <i class="i-mdi-file-eye"></i>
+          {$t`Open Log file`}
+        </Button>
+        <Button variant="outline" onclick={() => service?.shareLogFile()}>
+          <i class="i-mdi-file-export"></i>
+          {$t`Share Log file`}
+        </Button>
+      </div>
     </div>
-  </div>
-  <div slot="actions">
-    <Button on:click={() => open = false}>Close</Button>
-  </div>
+  </DialogContent>
 </Dialog>

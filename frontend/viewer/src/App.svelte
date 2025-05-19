@@ -1,4 +1,4 @@
-﻿<script lang="ts" context="module">
+﻿<script lang="ts" module>
   import {navigate} from 'svelte-routing';
   declare global {
     interface Window {
@@ -21,7 +21,7 @@
   import {ModeWatcher} from 'mode-watcher';
   import {initScottyPortalContext} from '$lib/layout/Scotty.svelte';
 
-  export let url = '';
+  let url = '';
 
   /* eslint-disable @typescript-eslint/naming-convention */
   settings({
@@ -38,7 +38,7 @@
       },
       ListItem: {
         classes: {
-          root: 'cursor-pointer hover:bg-surface-300 hover:border-surface-300 overflow-hidden',
+          root: 'cursor-pointer overflow-hidden',
           subheading: 'whitespace-nowrap overflow-hidden overflow-x-clip text-ellipsis',
         }
       },
@@ -71,26 +71,26 @@
   setupGlobalErrorHandlers();
   initScottyPortalContext();
 </script>
-<ModeWatcher/>
-<Router {url}>
-  <nav>
-  </nav>
-  <div class="app">
-    <Route path="/project/:code" let:params>
+
+<ModeWatcher />
+
+<div class="app">
+  <Router {url}>
+    <Route path="/project/:code/*" let:params>
       <Router {url} basepath="/project/{params.code}">
         {#key params.code}
           <DotnetProjectView code={params.code} type="crdt"/>
         {/key}
       </Router>
     </Route>
-    <Route path="/fwdata/:name" let:params>
+    <Route path="/fwdata/:name/*" let:params>
       <Router {url} basepath="/fwdata/{params.name}">
         {#key params.name}
           <DotnetProjectView code={params.name} type="fwdata"/>
         {/key}
       </Router>
     </Route>
-    <Route path="/testing/project-view">
+    <Route path="/testing/project-view/*">
       <Router {url} basepath="/testing/project-view">
         <TestProjectView/>
       </Router>
@@ -104,6 +104,6 @@
     <Route path="/*">
       {setTimeout(() => navigate('/', {replace: true}))}
     </Route>
-  </div>
-</Router>
-<NotificationOutlet/>
+  </Router>
+  <NotificationOutlet/>
+</div>

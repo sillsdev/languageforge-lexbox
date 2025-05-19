@@ -5,6 +5,9 @@ tasks:
     interactive: true
     deps: [ install ]
     cmd: pnpm run dev-app
+  run-app:
+    interactive: true
+    cmd: pnpm run dev-app
   web-component:
     aliases: [ wc ]
     interactive: true
@@ -13,6 +16,7 @@ tasks:
   check:
     aliases: [ sc, svelte-check ]
     deps: [ install ]
+    ignore_error: true
     cmds:
       - pnpm run --filter viewer check
       - pnpm run --filter viewer lint
@@ -34,3 +38,14 @@ tasks:
       - pnpm install
   test:
     cmd: pnpm test
+
+  playwright-test:
+    desc: 'runs playwright tests against already running server'
+    cmd: pnpm run test:playwright {{.CLI_ARGS}}
+  playwright-test-standalone:
+    desc: 'runs playwright tests and runs dev-app automatically, run ui mode by calling with -- --ui or use --update-snapshots'
+    env:
+      AUTO_START_SERVER: true
+    cmd: pnpm run test:playwright {{.CLI_ARGS}}
+  playwright-test-report:
+    cmd: pnpm run test:playwright-report

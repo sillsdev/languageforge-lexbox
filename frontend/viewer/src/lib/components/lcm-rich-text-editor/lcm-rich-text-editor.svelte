@@ -42,14 +42,17 @@
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
   import {onDestroy, onMount} from 'svelte';
+  import {watch} from 'runed';
 
   let {
     value = $bindable(),
-    label
+    label,
+    readonly = false,
   }:
     {
       value: IRichString,
       label?: string,
+      readonly?: boolean,
     } = $props();
 
   let elementRef: HTMLElement | null = $state(null);
@@ -68,8 +71,18 @@
           return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
         });
         editor.updateState(newState);
-      }
+      },
+      editable() {
+        return !readonly;
+      },
     });
+
+    editor.dom.setAttribute('tabindex', '0');
+  });
+
+  watch(() => readonly, () => {
+    // Triggers a refresh immediately rather than when the user next interacts with the editor
+    editor?.setProps({});
   });
 
   onDestroy(() => {
@@ -186,7 +199,12 @@
     white-space: pre-wrap;
   }
 </style>
-<div>
-  <Label>{label}</Label>
+
+{#if label}
+  <div>
+    <Label>{label}</Label>
+    <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
+  </div>
+{:else}
   <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
-</div>
+{/if}

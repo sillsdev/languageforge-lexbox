@@ -7,9 +7,6 @@ import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared
 import type {
   IProjectServicesProvider
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectServicesProvider';
-import type {
-  IHistoryServiceJsInvokable
-} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {IAppLauncher} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IAppLauncher';
 import type {
   ITroubleshootingService
@@ -18,16 +15,15 @@ import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShar
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
+import {useProjectContext} from '../project-context.svelte';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
-  [DotnetService.MiniLcmApi]: IMiniLcmJsInvokable,
   [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
   [DotnetService.FwLiteConfig]: IFwLiteConfig,
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
-  [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,
@@ -87,11 +83,11 @@ export function setupServiceProvider() {
 }
 
 export function useLexboxApi(): IMiniLcmJsInvokable {
-  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
+  return useMiniLcmApi();
 }
 
 export function useMiniLcmApi(): IMiniLcmJsInvokable {
-  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
+  return useProjectContext().api;
 }
 
 export function useProjectsService(): ICombinedProjectsService {
@@ -110,10 +106,6 @@ export function useFwLiteConfig(): IFwLiteConfig {
 
 export function useProjectServicesProvider(): IProjectServicesProvider {
   return window.lexbox.ServiceProvider.getService(DotnetService.ProjectServicesProvider);
-}
-
-export function useAppLauncher(): IAppLauncher | undefined {
-  return window.lexbox.ServiceProvider.tryGetService(DotnetService.AppLauncher);
 }
 
 export function useTroubleshootingService(): ITroubleshootingService | undefined {

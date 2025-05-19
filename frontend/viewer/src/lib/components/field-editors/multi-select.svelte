@@ -1,6 +1,6 @@
-<script lang="ts" generics="Value">
+<script lang="ts" generics="MutableValue">
   import { Badge } from '$lib/components/ui/badge';
-  import { Button } from '$lib/components/ui/button';
+  import { Button, XButton } from '$lib/components/ui/button';
   import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { tick } from 'svelte';
@@ -9,18 +9,20 @@
   import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
   import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
   import { Icon } from '../ui/icon';
-  import type {ConditionalKeys, Primitive} from 'type-fest';
+  import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import DrawerFooter from '../ui/drawer/drawer-footer.svelte';
   import {slide} from 'svelte/transition';
   import {watch} from 'runed';
+
+  type Value = ReadonlyDeep<MutableValue>;
 
   let {
     values = $bindable(),
     ...constProps
   }: {
     values: Value[];
-    options: Value[];
+    options: ReadonlyArray<Value>;
     readonly?: boolean;
     /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
@@ -31,6 +33,7 @@
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
     sortValuesBy?: 'selectionOrder' | 'optionOrder' | NonNullable<Parameters<Array<Value>['sort']>[0]>;
+    onchange?: (value: Value[]) => void;
   } = $props();
 
   const {
@@ -43,17 +46,18 @@
     emptyResultsPlaceholder,
     drawerTitle,
     sortValuesBy = 'selectionOrder',
+    onchange,
   } = $derived(constProps);
 
-  const getId = $derived.by(() => {
-    if (typeof idSelector === 'function') return idSelector;
-    return (value: Value) => value[idSelector] as Primitive;
-  });
+  function getId(value: Value): Primitive {
+    if (typeof idSelector === 'function') return idSelector(value);
+    return value[idSelector] as Primitive;
+  }
 
-  const getLabel = $derived.by(() => {
-    if (typeof labelSelector === 'function') return labelSelector;
-    return (value: Value) => value[labelSelector] as string;
-  });
+  function getLabel(value: Value): string {
+    if (typeof labelSelector === 'function') return labelSelector(value);
+    return value[labelSelector] as string;
+  }
 
   // A wrapper for caching calculated values
   type PendingValue = {
@@ -94,6 +98,7 @@
   function submit() {
     open = false;
     values = pendingValues.map(p => p.value);
+    onchange?.(values);
     void tick().then(() => {
       triggerRef?.focus();
     });
@@ -128,6 +133,9 @@
       return label.includes(filterValueLower);
     });
   });
+
+  const RENDER_LIMIT = 100;
+  const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
 
   function onkeydown(e: KeyboardEvent) {
     if (e.key === 'Enter' && dirty && (e.metaKey || e.ctrlKey)) {
@@ -193,9 +201,7 @@
       <div class="flex items-center gap-2 flex-nowrap">
         {#if IsMobile.value}
           {#if filterValue}
-            <Button variant="ghost" size="xs-icon" onclick={() => (filterValue = '')} aria-label={$t`clear`}>
-              <Icon icon="i-mdi-close" />
-            </Button>
+            <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
           {/if}
         {:else}
           {#if dirty}
@@ -205,16 +211,14 @@
               </Button>
             </div>
           {/if}
-          <Button variant={dirty ? 'secondary' : 'ghost'} size="xs-icon" onclick={dismiss} aria-label={$t`Close`}>
-              <Icon icon="i-mdi-close" />
-          </Button>
+          <XButton variant={dirty ? 'secondary' : 'ghost'} onclick={dismiss} aria-label={$t`Close`} />
         {/if}
       </div>
     </CommandInput>
-    <CommandList class="h-[300px] md:max-h-[50vh]">
+    <CommandList class="max-md:h-[300px] md:max-h-[50vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
-        {#each filteredOptions as value, i (getId(value))}
+        {#each renderedOptions as value, i (getId(value))}
           {@const label = getLabel(value)}
           {@const id = getId(value)}
           {@const selected = pendingValues.some(v => v.id === id)}
@@ -246,6 +250,11 @@
             {label}
           </CommandItem>
         {/each}
+        {#if renderedOptions.length < filteredOptions.length}
+          <div class="text-muted-foreground text-sm px-2 py-1">
+            {$t`Refine your filter to see more...`}
+          </div>
+        {/if}
       </CommandGroup>
     </CommandList>
   </Command>
