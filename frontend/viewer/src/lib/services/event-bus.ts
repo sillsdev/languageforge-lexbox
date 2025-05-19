@@ -58,8 +58,8 @@ export class ProjectEventBus {
   constructor(private projectContext: ProjectContext, private eventBus: EventBus) {
   }
 
-  get projectName() {
-    return this.projectContext.projectName;
+  get projectCode() {
+    return this.projectContext.projectCode;
   }
 
   public notifyEntryDeleted(entryId: string) {
@@ -70,7 +70,7 @@ export class ProjectEventBus {
     this.eventBus.notifyEvent({
       type: FwEventType.ProjectEvent,
       isGlobal: true,
-      project: {name: this.projectName, dataFormat: ProjectDataFormat.Harmony},
+      project: {name: this.projectCode, dataFormat: ProjectDataFormat.Harmony},
       event: event
     } as IProjectEvent);
   }
@@ -92,7 +92,7 @@ export class ProjectEventBus {
 
   private onProjectEvent(callback: (event: IFwEvent) => void) {
     const onProjectEventCallback = (event: IFwEvent) => {
-      if (isProjectEvent(event) && event.project.name === this.projectName) {
+      if (isProjectEvent(event) && event.project.name === this.projectCode) {
         callback(event.event);
       }
     }

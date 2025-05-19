@@ -116,6 +116,18 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntryDeleted(id);
     }
 
+    async Task IMiniLcmWriteApi.DeleteSense(Guid entryId, Guid senseId)
+    {
+        await _api.DeleteSense(entryId, senseId);
+        await NotifyEntryChangedAsync(entryId);
+    }
+
+    async Task IMiniLcmWriteApi.DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
+    {
+        await _api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        await NotifyEntryChangedAsync(entryId);
+    }
+
     void IDisposable.Dispose()
     {
     }

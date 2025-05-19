@@ -44,7 +44,7 @@
       historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
     }
     const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
-    projectContext.setup({api, historyService, projectName, projectType});
+    projectContext.setup({api, historyService, projectName, projectCode: code, projectType});
     serviceLoaded = true;
   });
   onDestroy(() => {

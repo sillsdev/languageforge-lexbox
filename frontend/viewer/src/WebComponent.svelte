@@ -11,14 +11,14 @@
   import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import ProjectLoader from './ProjectLoader.svelte';
-  import {initProjectContext, useProjectContext} from '$lib/project-context.svelte';
+  import {initProjectContext} from '$lib/project-context.svelte';
 
   let loading = true;
 
   export let projectName: string;
   export let api: IMiniLcmJsInvokable;
   export let about: string | undefined;
-  const projectContext = initProjectContext({api, projectName});
+  initProjectContext({api, projectName, projectCode: projectName});
 
   onMount(() => {
     const shadowRoot = document.querySelector('lexbox-svelte')?.shadowRoot;
