@@ -81,9 +81,9 @@ public class PermissionService(
         return isConfidential == false; // Explicitly set to public
     }
 
-    public async ValueTask AssertCanViewProject(Guid projectId)
+    public async ValueTask AssertCanViewProject(Guid projectId, LexAuthUser? overrideUser = null)
     {
-        if (!await CanViewProject(projectId)) throw new UnauthorizedAccessException();
+        if (!await CanViewProject(projectId, overrideUser)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask<bool> CanViewProject(string projectCode, LexAuthUser? overrideUser = null)
