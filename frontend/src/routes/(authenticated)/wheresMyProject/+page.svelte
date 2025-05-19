@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TitlePage, HomeBreadcrumb } from '$lib/layout';
+  import { TitlePage } from '$lib/layout';
   import t from '$lib/i18n';
   import Markdown from 'svelte-exmarkdown';
   import FeatureFlagAlternateContent from '$lib/layout/FeatureFlagAlternateContent.svelte';
@@ -11,19 +11,27 @@
   import { useNotifications } from '$lib/notify';
 
   const { notifySuccess } = useNotifications();
+
+  let requesting = $state(false);
+
   async function requestBetaAccess(): Promise<void> {
-    const gqlResult = await _sendFWLiteBetaRequestEmail(page.data.user.id as UUID, page.data.user.name);
-    if (gqlResult.error) {
-      if (gqlResult.error.byType('NotFoundError')) {
-        console.log('User not found, no dialog shown');
+    requesting = true;
+    try {
+      const gqlResult = await _sendFWLiteBetaRequestEmail(page.data.user.id as UUID, page.data.user.name);
+      if (gqlResult.error) {
+        if (gqlResult.error.byType('NotFoundError')) {
+          console.log('User not found, no dialog shown');
+        }
       }
-    }
-    const result = gqlResult.data?.sendFWLiteBetaRequestEmail.sendFWLiteBetaRequestEmailResult;
-    if (result === SendFwLiteBetaRequestEmailResult.BetaAccessRequestSent) {
-      notifySuccess($t('where_is_my_project.access_request_sent'));
-    }
-    if (result === SendFwLiteBetaRequestEmailResult.UserAlreadyInBeta) {
-      notifySuccess($t('where_is_my_project.already_in_beta'));
+      const result = gqlResult.data?.sendFWLiteBetaRequestEmail.sendFWLiteBetaRequestEmailResult;
+      if (result === SendFwLiteBetaRequestEmailResult.BetaAccessRequestSent) {
+        notifySuccess($t('where_is_my_project.access_request_sent'));
+      }
+      if (result === SendFwLiteBetaRequestEmailResult.UserAlreadyInBeta) {
+        notifySuccess($t('where_is_my_project.already_in_beta'));
+      }
+    } finally {
+      requesting = false;
     }
   }
 </script>
@@ -37,12 +45,9 @@
       {#snippet missingFlagContent()}
         <Markdown md={$t('where_is_my_project.user_not_in_beta')} />
         <div class="text-center">
-          <Button variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
+          <Button loading={requesting} variant="btn-primary" onclick={requestBetaAccess}>{$t('where_is_my_project.request_beta_access')}</Button>
         </div>
       {/snippet}
     </FeatureFlagAlternateContent>
   </div>
 </TitlePage>
-
-<style>
-</style>
