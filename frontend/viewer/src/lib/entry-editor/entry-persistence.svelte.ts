@@ -2,7 +2,7 @@ import { type Props } from './object-editors/EntryEditor.svelte';
 import { useLexboxApi } from '$lib/services/service-provider';
 import { useSaveHandler } from '$lib/services/save-event-service.svelte';
 import type { Getter } from 'runed';
-import type { IEntry } from '$lib/dotnet-types';
+import type { IEntry, IExampleSentence, ISense } from '$lib/dotnet-types';
 
 export class EntryPersistence {
   lexboxApi = useLexboxApi();
@@ -23,12 +23,12 @@ export class EntryPersistence {
 
   get entryEditorProps(): Partial<Props> {
     return {
-      onchange: async changed => {
+      onchange: async (changed: { entry: IEntry }) => {
         await this.updateEntry(changed.entry);
         this.onRefresh();
         this.updateInitialEntry();
       },
-      ondelete: async (e) => {
+      ondelete: async (e: { entry: IEntry, example?: IExampleSentence, sense?: ISense }) => {
         if (e.example !== undefined && e.sense !== undefined) {
           await this.saveHandler.handleSave(() => this.lexboxApi.deleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
         } else if (e.sense !== undefined) {
@@ -44,8 +44,9 @@ export class EntryPersistence {
   }
 
   async updateEntry(updatedEntry: IEntry) {
+    if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
     if (this.initialEntry.id != updatedEntry.id) throw new Error('Entry id mismatch');
-    await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry, updatedEntry));
+    await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, updatedEntry));
   }
 
   updateInitialEntry() {
