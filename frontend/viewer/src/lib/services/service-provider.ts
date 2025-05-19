@@ -18,6 +18,7 @@ import type {ITestingService} from '$lib/dotnet-types/generated-types/FwLiteShar
 import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMultiWindowService';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
+import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -28,6 +29,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.FwLiteConfig]: IFwLiteConfig,
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
   [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
+  [DotnetService.SyncService]: ISyncServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,
