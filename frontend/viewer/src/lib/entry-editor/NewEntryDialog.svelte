@@ -14,8 +14,10 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
-  const open = new QueryParamStateBool({key: 'newEntryDialogOpen', allowBack: true, replaceOnDefaultValue: true});
+  let open = $state(false);
+  useBackHandler({addToStack: () => open, onBack: () => open = false});
   let loading = $state(false);
   let entry: IEntry = $state(defaultEntry());
 
@@ -31,7 +33,7 @@
 
   // Watch for changes in the open state to detect when the dialog is closed
   $effect(() => {
-    if (!open.current) {
+    if (!open) {
       onClosing();
     }
   });
@@ -47,7 +49,7 @@
     requester.resolve(entry);
     requester = undefined;
     loading = false;
-    open.current = false;
+    open = false;
   }
 
   let errors: string[] = $state([]);
@@ -63,7 +65,7 @@
       if (requester) requester.resolve(undefined);
       requester = { resolve };
       const tmpEntry = defaultEntry();
-      open.current = true;
+      open = true;
       entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
       if (entry.senses.length === 0) {
         entry.senses.push(defaultSense(entry.id));
@@ -83,8 +85,8 @@
   let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
 </script>
 
-{#if open.current}
-<Dialog.Root bind:open={open.current}>
+{#if open}
+<Dialog.Root bind:open={open}>
   <Dialog.DialogContent>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
@@ -100,7 +102,7 @@
       </div>
     {/if}
     <Dialog.DialogFooter>
-      <Button onclick={() => open.current = false} variant="secondary">{$t`Cancel`}</Button>
+      <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
         {$t`Create ${entryLabel}`}
       </Button>

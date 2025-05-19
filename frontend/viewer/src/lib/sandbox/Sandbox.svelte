@@ -27,6 +27,7 @@
   import {Switch} from '$lib/components/ui/switch';
   import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
   import {Link} from 'svelte-routing';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -95,8 +96,11 @@
 
 
 
-  let nameSearchParam = new QueryParamState('name');
-  let goodSearchParam = new QueryParamStateBool({key: 'good', allowBack: true}, true);
+  let nameSearchParam = new QueryParamState({key: 'name'});
+  let isGood = $state(false);
+  let isBetter = $state(false);
+  useBackHandler({addToStack: () => isGood, onBack: () => isGood = false});
+  useBackHandler({addToStack: () => isBetter, onBack: () => isBetter = false});
 
   const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
   const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];
@@ -206,7 +210,9 @@
     <h3 class="font-medium">Search Params binding</h3>
     <input bind:value={nameSearchParam.current}/>
     <Link to="/sandbox?name=batman" class={buttonVariants({variant: 'default'})} preserveScroll>Go to Batman</Link>
-    <Switch label="Good" bind:checked={goodSearchParam.current}/>
+    <p>These switches should respect the back button but only for being turned off</p>
+    <Switch label="Good" bind:checked={isGood}/>
+    <Switch label="Better" bind:checked={isBetter}/>
   </div>
 </div>
 
