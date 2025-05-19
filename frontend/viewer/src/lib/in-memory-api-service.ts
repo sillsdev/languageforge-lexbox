@@ -50,13 +50,13 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
   public static newProjectContext() {
     const projectContext = new ProjectContext();
-    projectContext.setup({api: new InMemoryApiService(projectContext), projectName});
+    projectContext.setup({api: new InMemoryApiService(projectContext), projectName, projectCode: projectName});
     return projectContext;
   }
   public static setup(): InMemoryApiService {
     const projectContext = initProjectContext();
     const inMemoryLexboxApi = new InMemoryApiService(projectContext);
-    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName})
+    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
       appVersion: `dev`,
       feedbackUrl: '',

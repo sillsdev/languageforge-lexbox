@@ -57,7 +57,7 @@ export function SetupSignalR(
       return Promise.resolve();
     }
   });
-  initProjectContext({api: lexboxApiHubProxy, projectName: 'todo-change-me'});
+  initProjectContext({api: lexboxApiHubProxy, projectName: 'todo-change-me', projectCode: 'todo-change-me'});
   return {connected, lexboxApi: lexboxApiHubProxy};
 }
 
