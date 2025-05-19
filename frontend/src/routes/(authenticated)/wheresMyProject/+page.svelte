@@ -28,7 +28,6 @@
   }
 </script>
 
-<HomeBreadcrumb />
 <TitlePage title={$t('where_is_my_project.title')}>
   <div class="prose text-lg">
     <FeatureFlagAlternateContent flag="FwLiteBeta">
