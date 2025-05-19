@@ -40,7 +40,9 @@ public class PermissionService(
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        return await CanSyncProject(await projectService.LookupProjectId(projectCode));
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanSyncProject(projectId.Value);
     }
 
     public bool IsProjectMember(Guid projectId, LexAuthUser? overrideUser = null)
@@ -90,7 +92,9 @@ public class PermissionService(
     {
         var user = overrideUser ?? User;
         if (user is not null && user.Role == UserRole.admin) return true;
-        return await CanViewProject(await projectService.LookupProjectId(projectCode), overrideUser);
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanViewProject(projectId.Value, overrideUser);
     }
 
     public async ValueTask AssertCanViewProject(string projectCode, LexAuthUser? overrideUser = null)
@@ -125,7 +129,9 @@ public class PermissionService(
 
     public async ValueTask<bool> CanManageProject(string projectCode)
     {
-        return await CanManageProject(await projectService.LookupProjectId(projectCode));
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanManageProject(projectId.Value);
     }
 
     public async ValueTask AssertCanManageProject(string projectCode)
@@ -181,7 +187,9 @@ public class PermissionService(
 
     public async ValueTask<bool> CanAskToJoinProject(string projectCode)
     {
-        return await CanAskToJoinProject(await projectService.LookupProjectId(projectCode));
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanAskToJoinProject(projectId.Value);
     }
 
     public async ValueTask AssertCanAskToJoinProject(string projectCode)
