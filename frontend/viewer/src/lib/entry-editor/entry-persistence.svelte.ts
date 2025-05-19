@@ -1,18 +1,16 @@
 import {type Props} from './object-editors/EntryEditor.svelte';
 import {useLexboxApi} from '$lib/services/service-provider';
 import {useSaveHandler} from '$lib/services/save-event-service.svelte';
-import type {Getter} from 'runed';
+import {watch, type Getter} from 'runed';
 import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
-import {untrack} from 'svelte';
 
 export class EntryPersistence {
   lexboxApi = useLexboxApi();
   saveHandler = useSaveHandler();
   initialEntry: IEntry | undefined = undefined;
   constructor(private entryGetter: Getter<IEntry | undefined>, private onUpdated: () => void = () => { }) {
-    $effect(() => {
-      const entry = entryGetter();
-      if (entry?.id !== this.initialEntry?.id) untrack(() => this.updateInitialEntry());
+    watch(entryGetter, (entry) => {
+      if (entry?.id !== this.initialEntry?.id) this.updateInitialEntry();
     });
   }
 
