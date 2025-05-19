@@ -25,7 +25,7 @@
   import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
   import {Reorderer} from '$lib/components/reorderer/index.js';
   import {Switch} from '$lib/components/ui/switch';
-  import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {QueryParamState} from '$lib/utils/url.svelte';
   import {Link} from 'svelte-routing';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
 

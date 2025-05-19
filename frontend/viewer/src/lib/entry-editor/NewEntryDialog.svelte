@@ -13,7 +13,6 @@
   import OverrideFields from '$lib/OverrideFields.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
-  import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
   let open = $state(false);

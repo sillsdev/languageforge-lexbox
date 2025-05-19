@@ -23,14 +23,10 @@ class BackHandler {
         //add new history to ensure back doesn't pop some other state (like a url change)
         history.pushState(null, '');
       } else {
-        const count = BackHandler.#backStack.length;
-        BackHandler.#backStack = BackHandler.#backStack.filter(b => b !== this);
-        if (count === BackHandler.#backStack.length) return;
-        //if we removed the last back handler, we need to remove the history entry that was pushed when we went here
-        this.ignoreNextBack();
-        history.back();
+        this.remove();
       }
     });
+    onDestroy(() => this.remove());
     onDestroy(on(window, 'popstate', () => {
       if (this.#ignoreNextBack) {
         this.#ignoreNextBack = false;
@@ -50,7 +46,16 @@ class BackHandler {
     return BackHandler.#backStack.at(-1) === this;
   }
 
-  ignoreNextBack() {
+  private remove() {
+    const count = BackHandler.#backStack.length;
+    BackHandler.#backStack = BackHandler.#backStack.filter(b => b !== this);
+    if (count === BackHandler.#backStack.length) return;
+    //if we removed the last back state, we need to remove the history entry that was pushed when we went here
+    this.ignoreNextBack();
+    history.back();
+  }
+
+  private ignoreNextBack() {
     for (let backHandler of BackHandler.#backStack) {
       backHandler.#ignoreNextBack = true;
     }
