@@ -16,7 +16,7 @@
   import {QueryParamState} from '$lib/utils/url.svelte';
 
   const dialogsService = useDialogsService();
-  const selectedEntryId = new QueryParamState('entryId', true);
+  const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string | undefined>(undefined);
