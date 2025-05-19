@@ -119,7 +119,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        return _wrappedApi.CreateWritingSystem(type, writingSystem);
+        return _wrappedApi.CreateWritingSystem(writingSystem);
     }
 
     [JSInvokable]

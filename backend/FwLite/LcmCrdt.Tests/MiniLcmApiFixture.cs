@@ -38,27 +38,25 @@ public class MiniLcmApiFixture : IAsyncLifetime
             new ProjectData("Sena 3", "sena-3", Guid.NewGuid(), null, Guid.NewGuid()));
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().RefreshProjectData();
 
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "en",
-                Font = "Arial",
-                Exemplars = ["a", "b"],
-                Type = WritingSystemType.Vernacular
-            });
-        await Api.CreateWritingSystem(WritingSystemType.Analysis,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "en",
-                Font = "Arial",
-                Type = WritingSystemType.Analysis
-            });
+        await Api.CreateWritingSystem(new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "en",
+            Name = "English",
+            Abbreviation = "en",
+            Font = "Arial",
+            Exemplars = ["a", "b"],
+            Type = WritingSystemType.Vernacular
+        });
+        await Api.CreateWritingSystem(new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "en",
+            Name = "English",
+            Abbreviation = "en",
+            Font = "Arial",
+            Type = WritingSystemType.Analysis
+        });
     }
 
     ITestOutputHelper? _outputHelper;

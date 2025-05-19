@@ -23,16 +23,15 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreateWritingSystem_Works()
     {
-        var ws = await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "es",
-                Name = "Spanish",
-                Abbreviation = "Es",
-                Font = "Arial"
-            });
+        var ws = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        });
         ws.Should().NotBeNull();
         var writingSystems = await Api.GetWritingSystems();
         writingSystems.Vernacular.Should().ContainEquivalentOf(ws);
@@ -42,26 +41,24 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     public async Task CreateWritingSystem_DoesNothingIfAlreadyExists()
     {
         WritingSystemId wsId = "es";
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                WsId = wsId,
-                Type = WritingSystemType.Vernacular,
-                Name = "Spanish",
-                Abbreviation = "Es",
-                Font = "Arial"
-            });
-        var action = async () => await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                WsId = wsId,
-                Type = WritingSystemType.Vernacular,
-                Name = "Spanish",
-                Abbreviation = "Es",
-                Font = "Arial"
-            });
+        await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            WsId = wsId,
+            Type = WritingSystemType.Vernacular,
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        });
+        var action = async () => await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            WsId = wsId,
+            Type = WritingSystemType.Vernacular,
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        });
         await action.Should().ThrowAsync<DuplicateObjectException>();
     }
 
