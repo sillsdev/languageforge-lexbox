@@ -2,9 +2,9 @@
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import {createEventDispatcher} from 'svelte';
-  import {mdiBookArrowDownOutline, mdiBookSyncOutline, mdiCloud, mdiRefresh} from '@mdi/js';
+  import {mdiCloud} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import {ListItem, Settings} from 'svelte-ux';
+  import {ListItem} from 'svelte-ux';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';

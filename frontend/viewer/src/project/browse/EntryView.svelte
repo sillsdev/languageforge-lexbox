@@ -43,7 +43,7 @@
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
-  const entryPersistence = new EntryPersistence(() => entry, () => entryResource.refetch());
+  const entryPersistence = new EntryPersistence(() => entry, () => void entryResource.refetch());
 </script>
 
 {#snippet preview(entry: IEntry)}

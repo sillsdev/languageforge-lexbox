@@ -3,7 +3,6 @@
   import {fieldName} from '$lib/i18n';
   import {t} from 'svelte-i18n-lingui';
   import {useCurrentView} from '$lib/views/view-service';
-  import {getContext} from 'svelte';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {useSaveHandler} from '../services/save-event-service.svelte';

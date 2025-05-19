@@ -5,10 +5,8 @@
   import { ComposableInput } from '$lib/components/ui/input';
   import { t } from 'svelte-i18n-lingui';
   import {Switch} from '$lib/components/ui/switch';
-  import {Label} from '$lib/components/ui/label';
   import {Toggle} from '$lib/components/ui/toggle';
   import {cn} from '$lib/utils';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let {
     search = $bindable(),

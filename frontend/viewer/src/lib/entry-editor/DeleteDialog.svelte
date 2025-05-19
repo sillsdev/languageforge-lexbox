@@ -17,7 +17,7 @@
     resolve: (result: boolean) => void
   } | undefined = undefined;
   $effect(() => {
-    if (!open.current && requester) resolve(false);
+    if (!open && requester) resolve(false);
   });
 
   function confirm() {

@@ -30,14 +30,16 @@ export class QueryParamState {
       currentUrl.searchParams.set(this.config.key, value);
     }
     if (this.config.replaceOnDefaultValue && isDefault) {
-      if (history.state?.push === this.config.key) {
+      const state = history.state as unknown;
+      const pushKey = state && typeof state === 'object' && 'pushKey' in state ? state.pushKey as string : undefined;
+      if (pushKey === this.config.key) {
         //the last history event was push by us so we need to just go back otherwise the next back will do nothing
         history.go(-1);
       } else {
         history.replaceState(null, '', currentUrl.href);
       }
     } else if (this.config.allowBack) {
-      history.pushState({push: this.config.key}, '', currentUrl.href);
+      history.pushState({pushKey: this.config.key}, '', currentUrl.href);
     } else {
       history.replaceState(null, '', currentUrl.href);
     }

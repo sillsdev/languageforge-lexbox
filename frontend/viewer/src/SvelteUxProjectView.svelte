@@ -21,7 +21,6 @@
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import {initView, initViewSettings} from './lib/views/view-service';
   import {views} from './lib/views/view-data';
-  import {useEventBus} from './lib/services/event-bus';
   import {initProjectCommands, type NewEntryDialogOptions} from './lib/commands';
   import throttle from 'just-throttle';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';

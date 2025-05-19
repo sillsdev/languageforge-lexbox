@@ -9,9 +9,7 @@
 
 <script lang="ts">
   import {useLexboxApi} from '../services/service-provider';
-  import {defaultSense} from '../utils';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {useSaveHandler} from '../services/save-event-service.svelte';
   import {SortField} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import NewEntryButton from './NewEntryButton.svelte';
@@ -27,7 +25,6 @@
   import type {DialogTriggerProps} from 'bits-ui';
 
   const dialogsService = useDialogsService();
-  const saveHandler = useSaveHandler();
   const writingSystemService = useWritingSystemService();
 
   interface Props {
@@ -110,14 +107,14 @@
     addedEntries = [];
   }
 
-  async function onClickAddSense(entry: IEntry): Promise<void> {
-    const newSense = defaultSense(entry.id);
-    const savedSense = await saveHandler.handleSave(() => lexboxApi.createSense(entry.id, newSense));
-    entry.senses = [...entry.senses, savedSense];
-    selectedSense = savedSense;
-    onPick();
-    open = false;
-  }
+  // async function onClickAddSense(entry: IEntry): Promise<void> {
+  //   const newSense = defaultSense(entry.id);
+  //   const savedSense = await saveHandler.handleSave(() => lexboxApi.createSense(entry.id, newSense));
+  //   entry.senses = [...entry.senses, savedSense];
+  //   selectedSense = savedSense;
+  //   onPick();
+  //   open = false;
+  // }
 
 
   async function onClickCreateNewEntry(): Promise<void> {

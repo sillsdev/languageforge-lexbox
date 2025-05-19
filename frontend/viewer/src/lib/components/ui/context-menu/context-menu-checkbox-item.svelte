@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { ContextMenu as ContextMenuPrimitive, type WithoutChildrenOrChild } from "bits-ui";
-	import { cn } from "$lib/utils.js";
-	import type { Snippet } from "svelte";
-  import {Icon} from '$lib/components/ui/icon';
+	import {Icon} from '$lib/components/ui/icon';
+	import {cn} from '$lib/utils.js';
+	import {ContextMenu as ContextMenuPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
+	import type {Snippet} from 'svelte';
 
 	let {
 		ref = $bindable(null),
@@ -21,7 +21,7 @@
 	bind:checked
 	bind:indeterminate
 	class={cn(
-		"data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+		'data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
 		className
 	)}
 	{...restProps}

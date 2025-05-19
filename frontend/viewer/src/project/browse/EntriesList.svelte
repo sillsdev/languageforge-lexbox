@@ -38,11 +38,11 @@
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
-    entriesResource.refetch();
+    void entriesResource.refetch();
   });
-  projectEventBus.onEntryUpdated(entry => {
+  projectEventBus.onEntryUpdated(_entry => {
     if (entriesResource.loading) return;
-    entriesResource.refetch();
+    void entriesResource.refetch();
   });
 
 

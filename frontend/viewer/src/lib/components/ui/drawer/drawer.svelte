@@ -1,7 +1,5 @@
 <script lang="ts">
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {watch} from 'runed';
-  import {onDestroy, onMount} from 'svelte';
   import {Drawer as DrawerPrimitive} from 'vaul-svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
 

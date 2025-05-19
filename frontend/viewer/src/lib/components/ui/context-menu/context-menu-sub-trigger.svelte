@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { ContextMenu as ContextMenuPrimitive, type WithoutChild } from "bits-ui";
-	import { cn } from "$lib/utils.js";
-  import {Icon} from '$lib/components/ui/icon';
+	import {Icon} from '$lib/components/ui/icon';
+	import {cn} from '$lib/utils.js';
+	import {ContextMenu as ContextMenuPrimitive, type WithoutChild} from 'bits-ui';
 
 	let {
 		ref = $bindable(null),
@@ -17,8 +17,8 @@
 <ContextMenuPrimitive.SubTrigger
 	bind:ref
 	class={cn(
-		"data-[highlighted]:bg-accent data-[state=open]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:text-accent-foreground flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-		inset && "pl-8",
+		'data-[highlighted]:bg-accent data-[state=open]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:text-accent-foreground flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+		inset && 'pl-8',
 		className
 	)}
 	{...restProps}

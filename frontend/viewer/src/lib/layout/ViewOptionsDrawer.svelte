@@ -12,8 +12,6 @@
   export let viewSettings: ViewSettings;
   export let features: LexboxFeatures;
   export let open = false;
-
-  const isWebComponent = !!document.querySelector('lexbox-svelte')?.shadowRoot;
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>

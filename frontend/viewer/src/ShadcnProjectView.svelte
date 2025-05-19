@@ -14,13 +14,12 @@
 
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import ProjectSidebar, {type View} from './project/ProjectSidebar.svelte';
+  import ProjectSidebar from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {navigate, Route, useRouter} from 'svelte-routing';
-  import {watch} from 'runed';
 
   const {
     onloaded,
@@ -34,8 +33,8 @@
     showHomeButton?: boolean;
   } = $props();
 
-  const fieldView = initView();
-  const viewSettings = initViewSettings();
+  initView();
+  initViewSettings();
 
   onMount(() => {
     onloaded(true);

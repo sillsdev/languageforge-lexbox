@@ -8,7 +8,7 @@
   import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
 
-  const openQueryParam = new QueryParamStateBool('troubleshootDialogOpen', true);
+  const openQueryParam = new QueryParamStateBool({ key: 'troubleshootDialogOpen', replaceOnDefaultValue: true, allowBack: true }, true);
 
   export function open(): void {
     openQueryParam.current = true;

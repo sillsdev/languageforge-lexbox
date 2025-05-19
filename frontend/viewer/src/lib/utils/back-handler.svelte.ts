@@ -1,5 +1,5 @@
-import {on} from 'svelte/events';
 import type {Getter} from 'runed';
+import {on} from 'svelte/events';
 import {onDestroy} from 'svelte';
 
 export interface BackHandlerConfig {
@@ -69,7 +69,7 @@ class BackHandler {
   }
 
   private ignoreNextBack() {
-    for (let backHandler of BackHandler.#backStack) {
+    for (const backHandler of BackHandler.#backStack) {
       backHandler.#ignoreNextBack = true;
     }
   }

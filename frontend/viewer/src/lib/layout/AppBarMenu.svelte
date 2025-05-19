@@ -5,7 +5,6 @@
   import {
     mdiDotsVertical,
     mdiEyeSettingsOutline,
-    mdiFaceAgent,
     mdiHistory,
     mdiInformationVariantCircle,
     mdiNoteEdit, mdiOpenInNew

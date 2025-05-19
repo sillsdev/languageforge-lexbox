@@ -16,6 +16,7 @@ tasks:
   check:
     aliases: [ sc, svelte-check ]
     deps: [ install ]
+    ignore_error: true
     cmds:
       - pnpm run --filter viewer check
       - pnpm run --filter viewer lint

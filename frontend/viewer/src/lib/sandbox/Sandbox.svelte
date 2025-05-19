@@ -8,7 +8,6 @@
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
   import {tryUseService} from '$lib/services/service-provider';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {delay} from '$lib/utils/time';
   import {initView, initViewSettings} from '$lib/views/view-service';
   import {dndzone} from 'svelte-dnd-action';
