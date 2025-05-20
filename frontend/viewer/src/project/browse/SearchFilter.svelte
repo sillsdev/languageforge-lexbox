@@ -7,6 +7,7 @@
   import {Switch} from '$lib/components/ui/switch';
   import {Toggle} from '$lib/components/ui/toggle';
   import {cn} from '$lib/utils';
+  import {mergeProps} from 'bits-ui';
 
   let {
     search = $bindable(),
