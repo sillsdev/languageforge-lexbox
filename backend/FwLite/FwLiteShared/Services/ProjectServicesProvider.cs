@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -61,7 +61,9 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectData.Name);
             return Task.CompletedTask;
-        }), serviceScope, this, projectData.Name, miniLcm, ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices));
+        }), serviceScope, this, projectData.Name, miniLcm,
+                ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
+                ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices));
         _projectScopes.TryAdd(scope, scope);
         return scope;
     }
@@ -82,7 +84,7 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
             return Task.CompletedTask;
-        }), serviceScope, this, projectName, miniLcm, null);
+        }), serviceScope, this, projectName, miniLcm, null, null);
         _projectScopes.TryAdd(scope, scope);
         return scope;
     }
@@ -95,11 +97,13 @@ public class ProjectScope
         ProjectServicesProvider projectServicesProvider,
         string projectName,
         MiniLcmJsInvokable miniLcm,
-        HistoryServiceJsInvokable? historyService)
+        HistoryServiceJsInvokable? historyService,
+        SyncServiceJsInvokable? syncService)
     {
         ProjectName = projectName;
         MiniLcm = DotNetObjectReference.Create(miniLcm);
         HistoryService = historyService is null ? null : DotNetObjectReference.Create(historyService);
+        SyncService = syncService is null ? null : DotNetObjectReference.Create(syncService);
         Cleanup = DotNetObjectReference.Create(Defer.Async(async () =>
         {
             projectServicesProvider._projectScopes.TryRemove(this, out _);
@@ -107,6 +111,10 @@ public class ProjectScope
             if (HistoryService is not null)
             {
                 HistoryService.Dispose();
+            }
+            if (SyncService is not null)
+            {
+                SyncService.Dispose();
             }
 
             MiniLcm.Value.Dispose();
@@ -122,4 +130,5 @@ public class ProjectScope
     public string ProjectName { get; set; }
     public DotNetObjectReference<MiniLcmJsInvokable> MiniLcm { get; set; }
     public DotNetObjectReference<HistoryServiceJsInvokable>? HistoryService { get; set; }
+    public DotNetObjectReference<SyncServiceJsInvokable>? SyncService { get; set; }
 }

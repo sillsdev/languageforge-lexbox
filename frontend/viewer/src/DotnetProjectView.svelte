@@ -1,13 +1,16 @@
 ﻿<script lang="ts">
   import ProjectView from './ProjectView.svelte';
   import {onDestroy, onMount} from 'svelte';
-  import {type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+  import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
   import {wrapInProxy} from '$lib/services/service-provider-dotnet';
   import type {IProjectScope} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectScope';
   import type {
     IHistoryServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
+  import type {
+    ISyncServiceJsInvokable
+  } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
   import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$lib/project-context.svelte';
 
@@ -43,8 +46,12 @@
     if (projectScope.historyService) {
       historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
     }
+    let syncService: ISyncServiceJsInvokable | undefined = undefined;
+    if (projectScope.syncService) {
+      syncService = wrapInProxy(projectScope.syncService, DotnetService.SyncService) as ISyncServiceJsInvokable;
+    }
     const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
-    projectContext.setup({api, historyService, projectName, projectCode: code, projectType});
+    projectContext.setup({ api, historyService, syncService, projectName, projectCode: code, projectType });
     serviceLoaded = true;
   });
   onDestroy(() => {

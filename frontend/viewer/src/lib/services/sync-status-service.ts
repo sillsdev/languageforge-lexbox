@@ -1,34 +1,25 @@
-// import { DotnetService, type IEntry, type IExampleSentence, type ISense } from '$lib/dotnet-types';
-import { DotnetService } from '$lib/dotnet-types';
 import type { ISyncServiceJsInvokable } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import { getContext } from 'svelte';
 import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
+import { ProjectContext, useProjectContext } from '$lib/project-context.svelte';
 
 export function useSyncStatusService() {
-  const projectName = getContext<string>('project-name');
-  return new SyncStatusService(projectName);
+  const projectContext = useProjectContext();
+  return new SyncStatusService(projectContext);
 }
 
 export class SyncStatusService {
+  #projectContext: ProjectContext;
   get syncStatusApi(): ISyncServiceJsInvokable | undefined {
-    if (import.meta.env.DEV) {
-      //randomly return undefined to test fallback
-      if (Math.random() < 0.5) {
-        return undefined;
-      }
-    }
-    return window.lexbox.ServiceProvider.tryGetService(DotnetService.SyncService);
+    return this.#projectContext.syncService;
   }
 
-  constructor(private projectName: string) {
-    // TODO: Do we need a constructor?
+  constructor(private projectContext: ProjectContext) {
+    this.#projectContext = projectContext;
   }
 
-  async getStatus(projectId: string) {
-    const data = await (this.syncStatusApi?.getSyncStatus() ?? fetch(`/api/fw-lite/sync/status/{projectId}`)
-      .then(res => res.json()));
+  async getStatus() {
+    const data = this.syncStatusApi?.getSyncStatus();
     if (!data) {
-      console.error('Invalid syncStatus data', data);
       return undefined;
     }
     return data as Promise<IProjectSyncStatus>;

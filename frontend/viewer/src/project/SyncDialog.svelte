@@ -21,7 +21,7 @@
   export function open(): void {
     // status = await service.getStatus('How do I find the project ID to use in the fallback?'); // TODO
     loading = true;
-    service.getStatus('How do I find the project ID to use in the fallback?').then((result) => {
+    service.getStatus().then((result) => {
       status = result;
       loading = false;
     });
