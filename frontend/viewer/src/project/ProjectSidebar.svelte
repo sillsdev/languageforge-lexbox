@@ -1,6 +1,7 @@
 <script lang="ts" module>
   export type View = 'dashboard' | 'browse' | 'tasks' | 'activity';
 </script>
+
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
@@ -14,6 +15,7 @@
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
+  import SyncDialog from './SyncDialog.svelte';
 
   const config = useFwLiteConfig();
   let isSynchronizing = $state(false);
@@ -37,6 +39,7 @@
 
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
+  let syncDialog = $state<SyncDialog>();
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string)}
@@ -84,7 +87,12 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <Sidebar.MenuItem>
-              <Sidebar.MenuButton class="justify-between">
+              <SyncDialog
+                bind:this={syncDialog}
+                syncLbToLocal={() => console.log('Would sync Lexbox to local')}
+                syncLbToFlex={() => console.log('Would sync Lexbox to FieldWorks')}
+              />
+              <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                 <div class="flex items-center gap-2">
                   <Icon icon="i-mdi-sync" />
                   <span>{$t`Synchronize`}</span>
