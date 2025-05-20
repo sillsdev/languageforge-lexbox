@@ -3,9 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ProjectSyncStatusEnum} from './ProjectSyncStatusEnum';
+
 export interface IProjectSyncStatus
 {
-	status: number;
+	status: ProjectSyncStatusEnum;
 	pendingCrdtChanges: number;
 	pendingMercurialChanges: number;
 	lastCrdtCommitDate?: string;
