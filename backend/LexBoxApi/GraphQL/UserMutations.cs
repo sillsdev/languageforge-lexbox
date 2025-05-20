@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -36,6 +36,35 @@ public class UserMutations
         string PasswordHash,
         int PasswordStrength,
         Guid? OrgId);
+    public record SendFWLiteBetaRequestEmailInput(Guid UserId, string Name);
+    public enum SendFWLiteBetaRequestEmailResult
+    {
+        UserAlreadyInBeta,
+        BetaAccessRequestSent,
+    };
+
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    public async Task<SendFWLiteBetaRequestEmailResult> SendFWLiteBetaRequestEmail(
+        LoggedInContext loggedInContext,
+        SendFWLiteBetaRequestEmailInput input,
+        LexBoxDbContext dbContext,
+        LexAuthService lexAuthService,
+        IEmailService emailService
+    )
+    {
+        if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        NotFoundException.ThrowIfNull(user);
+        if (user.FeatureFlags.Contains(FeatureFlag.FwLiteBeta))
+        {
+            if (!loggedInContext.User.FeatureFlags.Contains(FeatureFlag.FwLiteBeta))
+                await lexAuthService.RefreshUser();
+            return SendFWLiteBetaRequestEmailResult.UserAlreadyInBeta;
+        }
+        await emailService.SendJoinFwLiteBetaEmail(user);
+        return SendFWLiteBetaRequestEmailResult.BetaAccessRequestSent;
+    }
 
     [Error<NotFoundException>]
     [Error<DbError>]

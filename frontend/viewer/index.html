@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>FieldWorks Lite</title>
     <style>
       body, html, #app {
@@ -12,11 +12,15 @@
         display: block;
       }
     </style>
-  </head>
-  <body>
-    <div id="svelte-app" class="contents">
-      <lexbox-svelte projectName="Test project"></lexbox-svelte>
-    </div>
-    <script type="module" src="./src/main.ts"></script>
-  </body>
+    <script>
+        if (location.pathname === '/')
+            setTimeout(() => window.history.pushState({}, '', '/testing/project-view'));
+    </script>
+</head>
+<body>
+<div id="svelte-app" class="contents">
+    <lexbox-svelte projectName="Test project"></lexbox-svelte>
+</div>
+<script type="module" src="./src/main.ts"></script>
+</body>
 </html>

@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
   import ProjectView from './ProjectView.svelte';
   import {onDestroy, onMount} from 'svelte';
-  import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+  import {type IMiniLcmJsInvokable} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
   import {wrapInProxy} from '$lib/services/service-provider-dotnet';
   import type {IProjectScope} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectScope';
@@ -9,14 +9,16 @@
     IHistoryServiceJsInvokable
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
   import ProjectLoader from './ProjectLoader.svelte';
-  import ThemeSyncer from '$lib/ThemeSyncer.svelte';
+  import {initProjectContext} from '$lib/project-context.svelte';
 
   const projectServicesProvider = useProjectServicesProvider();
+  const projectContext = initProjectContext();
 
-  const {code, type}: {
+  const {code, type: projectType}: {
     code: string; // Code for CRDTs, project-name for FWData
     type: 'fwdata' | 'crdt'
   } = $props();
+
 
 
   let projectName = $state<string>(code);
@@ -25,7 +27,7 @@
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
-    if (type === 'crdt') {
+    if (projectType === 'crdt') {
       const projectData = await projectServicesProvider.getCrdtProjectData(code);
       projectName = projectData.name;
       projectScope = await projectServicesProvider.openCrdtProject(code);
@@ -37,16 +39,17 @@
       cleanup();
       return;
     }
+    let historyService: IHistoryServiceJsInvokable | undefined = undefined;
     if (projectScope.historyService) {
-      window.lexbox.ServiceProvider.setService(DotnetService.HistoryService, wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable);
+      historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
     }
-    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable);
+    const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
+    projectContext.setup({api, historyService, projectName, projectCode: code, projectType});
     serviceLoaded = true;
   });
   onDestroy(() => {
     destroyed = true;
     if (serviceLoaded) {
-      window.lexbox.ServiceProvider.removeService(DotnetService.MiniLcmApi);
       cleanup();
     }
   });
@@ -59,9 +62,6 @@
   }
 </script>
 
-<!-- Keeps Svelte-UX and Shadcn theme/mode options in sync. Will die with Svelte-UX -->
-<ThemeSyncer />
-
 <ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
-  <ProjectView {projectName} isConnected onloaded={onProjectLoaded}></ProjectView>
+  <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>
 </ProjectLoader>

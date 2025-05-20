@@ -72,17 +72,16 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreatingMultipleWritingSystems_DoesNotHaveDuplicateOrders()
     {
-        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
-            new WritingSystem()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "es",
-                Name = "test",
-                Abbreviation = "test",
-                Font = "Arial",
-                Exemplars = ["test"]
-            });
+        await Api.CreateWritingSystem(new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "test",
+            Abbreviation = "test",
+            Font = "Arial",
+            Exemplars = ["test"]
+        });
         var writingSystems = (await Api.GetWritingSystems()).Vernacular;
         writingSystems.GroupBy(ws => ws.Order).Should().NotContain(g => g.Count() > 1);
     }

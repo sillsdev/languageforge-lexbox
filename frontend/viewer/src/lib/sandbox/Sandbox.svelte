@@ -1,42 +1,34 @@
 <script lang="ts">
-  import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '$lib/components/ui/resizable';
   import OverrideFields from '$lib/OverrideFields.svelte';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
-  import {DotnetService, type ISense} from '$lib/dotnet-types';
-  import {fieldData, type FieldIds} from '$lib/entry-editor/field-data';
-  import SenseEditor from '$lib/entry-editor/object-editors/SenseEditor.svelte';
+  import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
+  import type {FieldIds} from '$lib/entry-editor/field-data';
+  import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
-  import OptionSandbox from '$lib/sandbox/OptionSandbox.svelte';
   import {tryUseService} from '$lib/services/service-provider';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {delay} from '$lib/utils/time';
   import {initView, initViewSettings} from '$lib/views/view-service';
-  import {initWritingSystemService} from '$lib/writing-system-service';
   import {dndzone} from 'svelte-dnd-action';
-  import {Button as UxButton, type MenuOption} from 'svelte-ux';
-  import {writable} from 'svelte/store';
-  import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
   import * as Resizable from '$lib/components/ui/resizable';
   import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
-  import MultiSelect from '$lib/components/field-editors/multi-select.svelte';
-  import FieldTitle from '$lib/components/field-editors/field-title.svelte';
-  import {t} from 'svelte-i18n-lingui';
   import ThemePicker from '$lib/ThemePicker.svelte';
-  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
-  import {Label} from '$lib/components/ui/label';
+  import {EditorGrid} from '$lib/components/editor';
+  import EditorSandbox from './EditorSandbox.svelte';
+  import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import DialogsProvider from '$lib/DialogsProvider.svelte';
+  import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
+  import {Reorderer} from '$lib/components/reorderer/index.js';
   import {Switch} from '$lib/components/ui/switch';
+  import {QueryParamState} from '$lib/utils/url.svelte';
+  import {Link} from 'svelte-routing';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import * as Dialog from '$lib/components/ui/dialog';
 
-  const crdtOptions: MenuOption[] = [
-    {value: 'a', label: 'Alpha'},
-    {value: 'b', label: 'Beta'},
-    {value: 'c', label: 'Charlie'},
-  ];
-
-  let crdtValue = $state(['a']);
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -49,10 +41,10 @@
     AppNotification.display('This is a notification with a large detail', 'info', undefined, detail);
   }
 
-  const inMemoryLexboxApi = InMemoryApiService.setup();
-  initWritingSystemService(writable(inMemoryLexboxApi.getWritingSystemsSync()));
+  InMemoryApiService.setup();
   initView();
   initViewSettings();
+  const writingSystemService = useWritingSystemService();
 
   function makeSense(s: ISense) {
     return s;
@@ -75,30 +67,55 @@
   let richString: IRichString = $state({
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
   });
+  let readonly = $state(false);
+  let selectedEntryHistory: EntrySenseSelection[] = $state([]);
+  let openPicker = $state(false);
+  let pickerMode: 'entries-and-senses' | 'only-entries' = $state('only-entries');
 
-  const allDomains = $state<{label: string}[]>([
-    { label: 'fruit' }, { label: 'tree' }, { label: 'stars' }, { label: 'earth' },
-  ]);
-  for (let i = 0; i < 100; i++) {
-    allDomains.push({
-      label: allDomains[Math.floor(Math.random() * allDomains.length)].label + '-' + i
-    });
+  function disableEntry(entry: IEntry): false | { reason: string, disableSenses?: true } {
+    const selected = selectedEntryHistory.some(e => e.entry.id === entry.id);
+    if (!selected) return false;
+    return {
+      reason: 'You cannot select an entry that you have already selected',
+      disableSenses: true
+    };
   }
-  allDomains.sort((a, b) => a.label.localeCompare(b.label));
 
-  function randomSemanticDomainSorter() {
-    return Math.random() - 0.5;
+  //reorderer
+  let direction: 'vertical' | 'horizontal' = $state('vertical');
+  let items: string[] = $state(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
+  let currentItem = $state('1');
+  let display: 'x100' | 'x1' = $state('x1');
+  function displayFunc(item: string) {
+    return (Number(item) * (display === 'x100' ? 100 : 1)).toString();
+  }
+  function randomItems() {
+    items = Array.from({length: 10}, () => (Math.random() * 100).toFixed(0));
+    currentItem = items[0];
   }
 
-  let selectedDomains = $state([allDomains[0], allDomains[80]]);
 
-  let semanticDomainOrder = $state<'selectionOrder' | 'optionOrder' | 'randomOrder'>('selectionOrder');
-  const sortSemanticDomainValuesBy = $derived(semanticDomainOrder === 'randomOrder'
-    ? randomSemanticDomainSorter
-    : semanticDomainOrder);
-  let semanticDomainsReadonly = $state(false);
+
+  let nameSearchParam = new QueryParamState({key: 'name'});
+  let isGood = $state(false);
+  let isBetter = $state(false);
+  useBackHandler({addToStack: () => isGood, onBack: () => isGood = false});
+  useBackHandler({addToStack: () => isBetter, onBack: () => isBetter = false});
+  let dialogOpen = $state(false);
+  useBackHandler({addToStack: () => dialogOpen, onBack: () => dialogOpen = false});
+
+  const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
+  const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];
+
+  let buttonsLoading = $state(false);
+  function testLoading() {
+    buttonsLoading = true;
+    setTimeout(() => {
+      buttonsLoading = false;
+    }, 1000);
+  }
 </script>
-
+<DialogsProvider/>
 <div class="p-6 shadcn-root">
   <h2 class="mb-4 flex gap-8 items-center">
     Shadcn Sandbox <ThemePicker />
@@ -112,71 +129,15 @@
       </label>
     </div>
   </div>
-  <ResizablePaneGroup direction="horizontal">
-    <ResizablePane class="min-w-72_ !overflow-visible" defaultSize={100}>
-      <div class="@container my-4 border px-4 py-8 relative z-0">
-        <div class="breakpoint-marker w-[32rem] text-orange-600">
-          @lg
-        </div>
-        <div class="breakpoint-marker w-[48rem] text-green-600">
-          @3xl
-        </div>
-        <div class="editor-grid">
-          <div class="field-root">
-            <div class="field-body grid-cols-1">
-              <Label class="mb-2">Order of semantic domains</Label>
-              <Tabs bind:value={semanticDomainOrder} class="mb-1">
-                <TabsList>
-                  <TabsTrigger value="selectionOrder">Selection</TabsTrigger>
-                  <TabsTrigger value="optionOrder">Option</TabsTrigger>
-                  <TabsTrigger value="randomOrder">Random</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <p class="text-muted-foreground text-sm">
-                Only comes into effect while editing, because we don't want to make any changes implicitly.
-              </p>
-            </div>
-          </div>
-          <div class="field-root">
-            <div class="field-body grid-cols-1">
-              <Switch bind:checked={semanticDomainsReadonly} label="Readonly" />
-            </div>
-          </div>
-          <div class="field-root">
-            <FieldTitle
-              liteName={$t`Semantic domains`}
-              classicName={$t`Semantic domains`}
-              helpId={fieldData.semanticDomains.helpId}
-            />
-            <div class="field-body">
-              <div class="col-span-full">
-                <MultiSelect
-                  readonly={semanticDomainsReadonly}
-                  bind:values={() => selectedDomains,
-                  (newValues) => selectedDomains = newValues}
-                  idSelector="label"
-                  labelSelector={(item) => item.label}
-                  sortValuesBy={sortSemanticDomainValuesBy}
-                  drawerTitle={$t`Semantic domains`}
-                  filterPlaceholder={$t`Filter semantic domains...`}
-                  placeholder={$t`🤷 nothing here`}
-                  emptyResultsPlaceholder={$t`Looked hard, found nothing`}
-                  options={allDomains}>
-                </MultiSelect>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ResizablePane>
-    <!-- looks cool 🤷 https://github.com/huntabyte/shadcn-svelte/blob/bcbe10a4f65d244a19fb98ffb6a71d929d9603bc/sites/docs/src/lib/components/docs/block-preview.svelte#L65 -->
-    <ResizableHandle class="after:bg-border relative w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10" />
-    <ResizablePane>
-    </ResizablePane>
-  </ResizablePaneGroup>
+  <EditorSandbox />
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
-    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString}/>
+    <div>
+      <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
+      <label>
+        <Checkbox bind:checked={readonly}/> Readonly
+      </label>
+    </div>
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}/>
     <pre>{JSON.stringify(richString, null, 2).replaceAll(lineSeparator, '\n')}</pre>
   </div>
   <div class="flex flex-col gap-2 border p-4 justify-between">
@@ -195,64 +156,103 @@
       </Resizable.Pane>
     </Resizable.PaneGroup>
   </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Entry picker example</h3>
+
+    <Tabs bind:value={pickerMode} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="only-entries">Entry only</TabsTrigger>
+        <TabsTrigger value="entries-and-senses">Entry or Sense</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Button onclick={() => openPicker = true}>Open picker</Button>
+    <EntryOrSensePicker title="Test selecting something"
+                        bind:open={openPicker}
+                        disableEntry={disableEntry}
+                        mode={pickerMode}
+                        pick={(e) => selectedEntryHistory.push(e)}/>
+    <div>
+      {#each selectedEntryHistory as selected}
+        <p>
+          Entry: {writingSystemService.headword(selected.entry)}
+          {#if selected.sense}
+            Sense: {writingSystemService.firstGloss(selected.sense)}
+          {/if}
+        </p>
+      {/each}
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Reorder example</h3>
+    <Tabs bind:value={direction} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="vertical">Vertical</TabsTrigger>
+        <TabsTrigger value="horizontal">Horizontal</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Tabs bind:value={display} class="mb-1">
+      <TabsList>
+        <TabsTrigger value="x1">Times 1</TabsTrigger>
+        <TabsTrigger value="x100">Times 100</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    <Button onclick={randomItems}>Randomize items</Button>
+    <div>
+      <p>Current item: {currentItem}</p>
+      <Reorderer {direction}
+                 item={currentItem}
+                 bind:items
+                 getDisplayName={displayFunc}/>
+    </div>
+    <div>
+      <code>{JSON.stringify(items)}</code>
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 border p-4 justify-between">
+    <h3 class="font-medium">Search Params binding</h3>
+    <input bind:value={nameSearchParam.current}/>
+    <Link to="/sandbox?name=batman" class={buttonVariants({variant: 'default'})} preserveScroll>Go to Batman</Link>
+    <p>These switches should respect the back button but only for being turned off</p>
+    <Switch label="Good" bind:checked={isGood}/>
+    <Switch label="Better" bind:checked={isBetter}/>
+    <Dialog.Root bind:open={dialogOpen}>
+      <Dialog.Trigger class={buttonVariants({variant: 'default'})}>Show Dialog</Dialog.Trigger>
+      <Dialog.Content>
+        <div>
+          <Link to="/testing/project-view" class={buttonVariants({variant: 'default'})}>Goto Project view</Link>
+        </div>
+      </Dialog.Content>
+    </Dialog.Root>
+  </div>
 </div>
 
 <hr class="border-t border-gray-200 my-6"/>
 
 <div class="p-6 overflow-hidden">
-  <h2 class="mb-4">
-    Svelte-UX Sandbox
-  </h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div class="flex flex-col gap-2 border p-4 justify-between">
-      MultiOptionEditor configurations
-      <OptionSandbox/>
-    </div>
-
-    <div class="flex flex-col gap-2 border p-4 justify-between">
-      <div class="flex flex-col gap-2">
-        Lower level editor
-        <div class="mb-4">
-          String values and MenuOptions
-          <CrdtMultiOptionField bind:value={crdtValue} options={crdtOptions}/>
-        </div>
-      </div>
-      <div class="flex flex-col">
-        <p>selected: {crdtValue.join('|')}</p>
-        <UxButton variant="fill" on:click={() => crdtValue = ['c']}>Select Charlie only</UxButton>
-      </div>
-    </div>
-
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <div class="flex flex-col gap-2">
         Notifications
-        <UxButton variant="fill" on:click={() => testingService?.throwException()}>Throw Exception</UxButton>
-        <UxButton variant="fill" on:click={() => testingService?.throwExceptionAsync()}>Throw Exception Async</UxButton>
-        <UxButton variant="fill" on:click={() => AppNotification.display('This is a simple notification', 'info')}>Simple
+        <Button onclick={() => testingService?.throwException()}>Throw Exception</Button>
+        <Button onclick={() => testingService?.throwExceptionAsync()}>Throw Exception Async</Button>
+        <Button onclick={() => AppNotification.display('This is a simple notification', 'info')}>Simple
           Notification
-        </UxButton>
-        <UxButton variant="fill" on:click={() => AppNotification.displayAction('This is a notification with an action', 'info', {
+        </Button>
+        <Button onclick={() => AppNotification.displayAction('This is a notification with an action', 'info', {
           label: 'Action',
           callback: () => alert('Action clicked')
         })}>Notification with action
-        </UxButton>
-        <UxButton variant="fill" on:click={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
-        </UxButton>
+        </Button>
+        <Button onclick={() => triggerNotificationWithLargeDetail()}>Notification with a large detail
+        </Button>
       </div>
     </div>
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <div class="flex flex-col gap-2">
         Button
-        <UxButton variant="fill" disabled={loading} {loading} on:click={incrementAsync}>
+        <Button disabled={loading} {loading} onclick={incrementAsync}>
           Increment Async
-        </UxButton>
-        click count: {count}
-      </div>
-      <div class="flex flex-col gap-2">
-        ButtonListItem
-        <ButtonListItem disabled={loading} on:click={incrementAsync}>
-          Increment Async
-        </ButtonListItem>
+        </Button>
         click count: {count}
       </div>
     </div>
@@ -269,20 +269,39 @@
           {/each}
         </div>
       </div>
-      <div class="editor-grid border p-4">
-        <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
-          <SenseEditor
-            sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
-        </OverrideFields>
-      </div>
+      <svelte:boundary>
+        <EditorGrid class="border p-4">
+          <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder>
+            <SenseEditorPrimitive
+              sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+          </OverrideFields>
+        </EditorGrid>
+        {#snippet failed(error)}
+          Error opening override fields {error}
+        {/snippet}
+      </svelte:boundary>
     </div>
 
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div>
+        <h3>Buttons</h3>
+      </div>
+      <div><Button onclick={testLoading}>Test loading</Button></div>
+      <div class="flex gap-2 flex-wrap">
+        {#each variants as variant}
+          <Button loading={buttonsLoading} {variant}>{variant} button</Button>
+        {/each}
+        {#each variants as variant}
+          <Button loading={buttonsLoading} {variant} icon="i-mdi-auto-fix"></Button>
+        {/each}
+        {#each sizes as size}
+          <Button loading={buttonsLoading} {size}>Size: {size}</Button>
+        {/each}
+        {#each sizes as size}
+          <Button loading={buttonsLoading} {size} icon="i-mdi-auto-fix"/>
+        {/each}
+      </div>
+    </div>
   </div>
 </div>
 <div id="bottom" class="fixed bottom-0 left-1/2"></div>
-
-<style lang="postcss">
-  .breakpoint-marker {
-    @apply absolute h-full top-0 border-r-current border-r -z-10 text-right pr-2;
-  }
-</style>

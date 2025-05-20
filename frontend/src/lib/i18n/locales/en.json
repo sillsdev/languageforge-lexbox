@@ -668,6 +668,18 @@ If you don't see a dialog or already closed it, click the button below:",
     "admin": "Admin",
     "user": "User"
   },
+  "where_is_my_project": {
+    "title": "FieldWorks Lite - Where's my project?",
+    "body": "If you don't see your project in FieldWorks Lite, navigate to the project here on Lexbox and look for the \"Try FieldWorks Lite?\" button\n\
+near the top of the page. Use that button to make your project available in FieldWorks Lite. This process may take a few minutes. When\n\
+it's done, you should see your project in FieldWorks Lite and be able to use it.",
+    "user_not_in_beta": "FieldWorks Lite is currently in a beta testing phase. \n\
+Only selected early access users can download Lexbox projects in FieldWorks Lite. \n\
+Click the button below to request to join the early access program. It may take a few days for us to respond.",
+    "request_beta_access": "Request early access to FieldWorks Lite",
+    "access_request_sent": "Your request to join the early access program has been submitted",
+    "already_in_beta": "You're already in the early access program",
+  },
   "errors": {
     "apology": "Woops, something went wrong on our end. Sorry!",
     "mail_us_at": "If you're stuck, let us know about this at",
@@ -735,6 +747,11 @@ If you don't see a dialog or already closed it, click the button below:",
       "subject": "Project approved: {projectName}",
       "heading": "The project you requested, {projectName}, has been approved and created.",
       "view_button": "View Project"
+    },
+    "join_fw_lite_beta_request_email": {
+      "subject": "FW Lite Beta join request: {name}",
+      "body": "User {name} requested to join the FW Lite beta. Click below to approve this request.",
+      "approve_button": "Approve Request"
     },
     "user_added": {
       "subject": "You joined project: {projectName}!",

@@ -1,4 +1,4 @@
-﻿@page "/fwdata/{projectName}"
+﻿@page "/fwdata/{projectName}/{*path}"
 @using FwLiteShared.Layout
 @layout SvelteLayout;
 
@@ -6,5 +6,7 @@
 
     [Parameter]
     public required string ProjectName { get; set; }
+    [Parameter]
+    public required string Path { get; set; }
 
 }

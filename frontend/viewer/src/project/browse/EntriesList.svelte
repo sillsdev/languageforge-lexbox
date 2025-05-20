@@ -11,21 +11,40 @@
   import {ScrollArea} from '$lib/components/ui/scroll-area';
   import DevContent from '$lib/layout/DevContent.svelte';
   import NewEntryButton from '../NewEntryButton.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import EntryMenu from './EntryMenu.svelte';
+  import FabContainer from '$lib/components/fab/fab-container.svelte';
 
   const {
     search = '',
-    selectedEntry = undefined,
+    selectedEntryId = undefined,
     sortDirection = 'asc',
     onSelectEntry,
     gridifyFilter = undefined,
+    previewDictionary = false
   }: {
     search?: string;
-    selectedEntry?: IEntry;
+    selectedEntryId?: string;
     sortDirection: 'asc' | 'desc';
-    onSelectEntry: (entry: IEntry) => void;
+    onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
+    previewDictionary?: boolean
   } = $props();
   const miniLcmApi = useMiniLcmApi();
+  const dialogsService = useDialogsService();
+  const projectEventBus = useProjectEventBus();
+
+  projectEventBus.onEntryDeleted(entryId => {
+    if (selectedEntryId === entryId) onSelectEntry(undefined);
+    if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
+    void entriesResource.refetch();
+  });
+  projectEventBus.onEntryUpdated(_entry => {
+    if (entriesResource.loading) return;
+    void entriesResource.refetch();
+  });
+
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
@@ -55,33 +74,35 @@
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 
-  function handleNewEntry() {
-    console.log('handleNewEntry');
+  async function handleNewEntry() {
+    const entry = await dialogsService.createNewEntry();
+    if (!entry) return;
+    onSelectEntry(entry);
   }
 </script>
 
-<div class="absolute bottom-0 right-0 m-4 flex flex-col items-end z-10">
+<FabContainer>
   <DevContent>
     <Button
-      icon="i-mdi-refresh"
-      variant="secondary"
+      icon={loading.current ? 'i-mdi-loading' : 'i-mdi-refresh'}
+      variant="outline"
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
-      class="mt-4 mb-6"
+      class="mb-4"
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
   <NewEntryButton onclick={handleNewEntry} shortForm />
-</div>
+</FabContainer>
 
-<ScrollArea class="md:pr-5 flex-1" role="table">
+<ScrollArea class="md:pr-3 flex-1" role="table">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
       <p>{entriesResource.error.message}</p>
     </div>
   {:else}
-    <div class="space-y-2 pb-12">
+    <div class="space-y-2 p-0.5 pb-12">
       {#if loading.current}
         <!-- Show skeleton rows while loading -->
         {#each { length: skeletonRowCount }, _index}
@@ -89,7 +110,12 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => onSelectEntry(entry)} />
+          <EntryMenu {entry} contextMenu>
+              <EntryRow {entry}
+                isSelected={selectedEntryId === entry.id}
+                onclick={() => onSelectEntry(entry)}
+                {previewDictionary} />
+          </EntryMenu>
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using LcmCrdt.Utils;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
@@ -18,7 +19,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     public required double Order { get; init; }
 
     [SetsRequiredMembers]
-    public CreateWritingSystemChange(WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
+    public CreateWritingSystemChange(WritingSystem writingSystem, Guid entityId, double order) :
         base(entityId)
     {
         WsId = writingSystem.WsId;
@@ -26,7 +27,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
         Abbreviation = writingSystem.Abbreviation;
         Font = writingSystem.Font;
         Exemplars = writingSystem.Exemplars;
-        Type = type;
+        Type = writingSystem.Type;
         Order = order;
     }
 
@@ -35,9 +36,10 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     {
     }
 
-    public override ValueTask<WritingSystem> NewEntity(Commit commit, IChangeContext context)
+    public override async ValueTask<WritingSystem> NewEntity(Commit commit, IChangeContext context)
     {
-        return ValueTask.FromResult(new WritingSystem
+        var alreadyExists = await context.GetObjectsOfType<WritingSystem>().AnyAsync(ws => ws.WsId == WsId && ws.Type == Type);
+        return new WritingSystem
         {
             Id = EntityId,
             WsId = WsId,
@@ -46,7 +48,8 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
             Font = Font,
             Exemplars = Exemplars,
             Type = Type,
-            Order = Order
-        });
+            Order = Order,
+            DeletedAt = alreadyExists ? commit.DateTime : null
+        };
     }
 }

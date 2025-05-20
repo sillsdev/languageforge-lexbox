@@ -44,5 +44,5 @@
 </script>
 
 <ProjectLoader {projectName} let:onProjectLoaded>
-  <ProjectView {projectName} isConnected={$connected} onloaded={onProjectLoaded}></ProjectView>
+  <ProjectView isConnected={$connected} onloaded={onProjectLoaded}></ProjectView>
 </ProjectLoader>

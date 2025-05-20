@@ -3,14 +3,11 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiChatQuestion,
     mdiChevronRight,
     mdiDelete,
-    mdiFaceAgent,
-    mdiRefresh,
     mdiTestTube,
   } from '@mdi/js';
-  import {AppBar, Button, ListItem, TextField} from 'svelte-ux';
+  import {AppBar, Button as UxButton, ListItem, TextField} from 'svelte-ux';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
@@ -28,6 +25,10 @@
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import ProjectTitle from './ProjectTitle.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
+  import ThemePicker from '$lib/ThemePicker.svelte';
+  import {Button} from '$lib/components/ui/button';
+  import {mode} from 'mode-watcher';
+  import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -97,38 +98,39 @@
   }
 
   const supportsTroubleshooting = useTroubleshootingService();
-  let showTroubleshooting = false;
+  let troubleshootDialog: TroubleshootDialog | undefined;
 
 </script>
 
-<AppBar title={$t`Dictionaries`} class="bg-primary/25 min-h-12 shadow-md justify-between" menuIcon={null}>
+<AppBar title={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
-    <picture>
-      <source srcset={logoLight} media="(prefers-color-scheme: dark)" />
-      <source srcset={logoDark} media="(prefers-color-scheme: light)" />
-      <img src={logoDark} alt={$t`Lexbox logo`} class="h-6" />
-    </picture>
+    <img src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`} class="h-6 shrink-0" />
     <h3>{$t`Dictionaries`}</h3>
   </div>
-  <div slot="actions" class="flex gap-2">
-    <Button href={fwLiteConfig.feedbackUrl} target="_blank" size="sm" variant="outline" icon={mdiChatQuestion}>
-      {$t`Feedback`}
-    </Button>
-    {#if supportsTroubleshooting}
-      <Button
-        size="sm"
-        variant="outline"
-        icon={mdiFaceAgent}
-        title={$t`Troubleshoot`}
-        iconOnly={false}
-        on:click={() => (showTroubleshooting = !showTroubleshooting)}
-      ></Button>
-      <TroubleshootDialog bind:open={showTroubleshooting} />
-    {/if}
+  <div slot="actions" class="flex">
     <DevContent>
-      <Button href="/sandbox" size="sm" variant="outline" icon={mdiTestTube}>Sandbox</Button>
+      <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube" />
     </DevContent>
     <LocalizationPicker/>
+    <ThemePicker />
+    <ResponsiveMenu.Root>
+      <ResponsiveMenu.Trigger />
+      <ResponsiveMenu.Content>
+        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} icon="i-mdi-chat-question">
+          {$t`Feedback`}
+        </ResponsiveMenu.Item>
+        {#if supportsTroubleshooting}
+          <ResponsiveMenu.Item
+            icon="i-mdi-face-agent"
+            onSelect={() => troubleshootDialog?.open()}>
+            {$t`Troubleshoot`}
+          </ResponsiveMenu.Item>
+        {/if}
+      </ResponsiveMenu.Content>
+    </ResponsiveMenu.Root>
+    {#if supportsTroubleshooting}
+      <TroubleshootDialog bind:this={troubleshootDialog} />
+    {/if}
   </div>
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
@@ -142,12 +144,15 @@
           <div class="flex flex-row items-end">
             <p class="sub-title">{$t`Local`}</p>
             <div class="flex-grow"></div>
-            <Button icon={mdiRefresh}
+
+            <Button icon="i-mdi-refresh"
                     title={$t`Refresh Projects`}
                     class="mb-2"
-                    on:click={() => refreshProjects()}/>
+                    size="icon"
+                    variant="ghost"
+                    onclick={() => refreshProjects()}/>
           </div>
-          <div>
+          <div class="shadow rounded">
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
@@ -156,30 +161,32 @@
                   icon={mdiBookEditOutline}
                   subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                   {loading}
+                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted', subheading: 'text-muted-foreground'}}
                 >
                   <ProjectTitle slot="title" {project}/>
                   <div slot="actions" class="shrink-0">
                     {#if $isDev}
-                      <Button
+                      <UxButton
                         icon={mdiDelete}
                         title={$t`Delete`}
-                        class="p-2"
+                        class="p-2 hover:bg-primary/20"
                         on:click={(e) => {
                           e.preventDefault();
                           void deleteProject(project);
                         }}
                       />
                     {/if}
-                    <Button icon={mdiChevronRight} class="p-2 pointer-events-none" />
+                    <UxButton icon={mdiChevronRight} class="p-2 pointer-events-none" />
                   </div>
                 </ListItem>
               </ButtonListItem>
             {/each}
             <DevContent>
               <ButtonListItem href={`/testing/project-view`}>
-                <ListItem title={$t`Test Project`} icon={mdiTestTube}>
+                <ListItem title={$t`Test Project`} icon={mdiTestTube}
+                          classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
                   <div slot="actions" class="pointer-events-none shrink-0">
-                    <Button icon={mdiChevronRight} class="p-2" />
+                    <UxButton icon={mdiChevronRight} class="p-2" />
                   </div>
                 </ListItem>
               </ButtonListItem>
@@ -189,6 +196,7 @@
                 <ListItem
                   title={$t`Create Example Project`}
                   loading={createProjectLoading}
+                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}
                 >
                   <div slot="actions" class="flex flex-nowrap gap-2">
                     {#if $isDev}
@@ -198,7 +206,7 @@
                         on:click={(e) => e.stopPropagation()}
                       />
                     {/if}
-                    <Button icon={mdiBookPlusOutline} class="pointer-events-none p-2"/>
+                    <UxButton icon={mdiBookPlusOutline} class="pointer-events-none p-2"/>
                   </div>
                 </ListItem>
               </ButtonListItem>
@@ -209,14 +217,15 @@
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
-            <div>
+            <div class="shadow rounded">
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
-                <ButtonListItem href={`/fwdata/${project.name}`}>
-                  <ListItem title={project.name}>
+                <ButtonListItem href={`/fwdata/${project.code}`}>
+                  <ListItem classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted' }}>
+                    <ProjectTitle slot="title" {project}/>
                     <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0" />
                     <div slot="actions" class="shrink-0">
                       <DevContent invisible>
-                        <Button
+                        <UxButton
                           loading={importing === project.name}
                           icon={mdiBookArrowLeftOutline}
                           title={$t`Import`}
@@ -225,7 +234,8 @@
                             e.preventDefault();
                             await importFwDataProject(project.name);
                           }}
-                        ></Button>
+                          class="hover:bg-primary/20"
+                        ></UxButton>
                       </DevContent>
                     </div>
                   </ListItem>
@@ -255,7 +265,7 @@
 
     :global(.sub-title) {
       @apply m-2;
-      @apply text-surface-content/50 text-sm;
+      @apply text-sm text-muted-foreground;
     }
   }
 </style>

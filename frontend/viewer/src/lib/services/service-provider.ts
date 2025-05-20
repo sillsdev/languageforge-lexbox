@@ -7,9 +7,6 @@ import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared
 import type {
   IProjectServicesProvider
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectServicesProvider';
-import type {
-  IHistoryServiceJsInvokable
-} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import type {IAppLauncher} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IAppLauncher';
 import type {
   ITroubleshootingService
@@ -19,10 +16,10 @@ import type {IMultiWindowService} from '$lib/dotnet-types/generated-types/FwLite
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
+import {useProjectContext} from '../project-context.svelte';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
-  [DotnetService.MiniLcmApi]: IMiniLcmJsInvokable,
   [DotnetService.CombinedProjectsService]: ICombinedProjectsService,
   [DotnetService.AuthService]: IAuthService,
   [DotnetService.ImportFwdataService]: IImportFwdataService,
@@ -89,11 +86,11 @@ export function setupServiceProvider() {
 }
 
 export function useLexboxApi(): IMiniLcmJsInvokable {
-  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
+  return useMiniLcmApi();
 }
 
 export function useMiniLcmApi(): IMiniLcmJsInvokable {
-  return window.lexbox.ServiceProvider.getService(DotnetService.MiniLcmApi);
+  return useProjectContext().api;
 }
 
 export function useProjectsService(): ICombinedProjectsService {
@@ -112,10 +109,6 @@ export function useFwLiteConfig(): IFwLiteConfig {
 
 export function useProjectServicesProvider(): IProjectServicesProvider {
   return window.lexbox.ServiceProvider.getService(DotnetService.ProjectServicesProvider);
-}
-
-export function useAppLauncher(): IAppLauncher | undefined {
-  return window.lexbox.ServiceProvider.tryGetService(DotnetService.AppLauncher);
 }
 
 export function useTroubleshootingService(): ITroubleshootingService | undefined {

@@ -6,5 +6,5 @@
 </script>
 
 <ProjectLoader {projectName} let:onProjectLoaded>
-  <ProjectView {projectName} isConnected onloaded={onProjectLoaded}></ProjectView>
+  <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>
 </ProjectLoader>

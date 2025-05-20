@@ -1,12 +1,10 @@
 ﻿<script lang="ts">
   import {type IEntry} from '$lib/dotnet-types';
   import {mdiArrowCollapseRight, mdiArrowExpandLeft, mdiEyeSettingsOutline, mdiOpenInNew} from '@mdi/js';
-  import OpenInFieldWorksButton from '$lib/OpenInFieldWorksButton.svelte';
   import {Button} from 'svelte-ux';
   import Toc from '$lib/layout/Toc.svelte';
-  import {createEventDispatcher, getContext} from 'svelte';
+  import {createEventDispatcher} from 'svelte';
   import {useProjectViewState} from './views/project-view-state-service';
-  import {useFeatures} from '$lib/services/feature-service';
   import {useCurrentView} from './views/view-service';
   import {asScottyPortal} from '$lib/layout/Scotty.svelte';
   import {useMultiWindowService} from './services/multi-window-service';
@@ -16,9 +14,7 @@
   }>();
   export let selectedEntry: IEntry | undefined;
   export let expandList: boolean;
-  let projectName = getContext<string>('project-name');
   const state = useProjectViewState();
-  const features = useFeatures();
   const currentView = useCurrentView();
   const multiWindowService = useMultiWindowService();
 </script>
@@ -44,9 +40,6 @@
                class:!gap-2={$state.rightToolbarCollapsed}
                >
             <div class="contents" use:asScottyPortal={'right-toolbar'}></div>
-            <div class="contents">
-              <OpenInFieldWorksButton {entryId} {projectName} show={$features.openWithFlex}/>
-            </div>
           </div>
           <div class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
             <Toc entry={selectedEntry}/>
@@ -60,7 +53,7 @@
           {/if}
         </div>
         <span
-          class="text-surface-content whitespace-nowrap bg-surface-100/75 !pt-2 text-sm lg-form:absolute -bottom-4 -right-4 inline-flex gap-2 text-end items-center"
+          class="whitespace-nowrap !pt-2 text-sm lg-form:absolute -bottom-4 -right-4 inline-flex gap-2 text-end items-center"
           class:lg-form:!static={$state.rightToolbarCollapsed} class:lg-form:p-2={!$state.rightToolbarCollapsed}>
                 <span class="contents sm-form:hidden" class:hidden={$state.rightToolbarCollapsed}>
                   {$currentView.label}
