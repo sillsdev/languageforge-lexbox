@@ -43,9 +43,9 @@
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
-  <DialogContent class="sm:min-h-fit">
+  <DialogContent class="sm:min-h-fit sm:min-w-fit">
     <DialogHeader>
-      <DialogTitle>{$t`Sync`}</DialogTitle>
+      <DialogTitle>{$t`Synchronize`}</DialogTitle>
     </DialogHeader>
     {#if loading}
       <!-- TODO: Show loading as an overlay? -->
@@ -53,27 +53,49 @@
     {:else if !status}
       <div>{$t`Error getting sync status. Are you logged in to the LexBox server?`}</div>
     {:else}
-      <div class="grid grid-rows-5 grid-cols-3 justify-around rounded-lg border-4">
-        <div class="col-span-3 text-center">{$t`My computer`}</div>
-        <div class="ml-2">{lbToLocalCount}<Icon icon="i-mdi-arrow-up" /></div>
-        <div class="text-center"><Button onclick={syncLbToLocal}><Icon icon="i-mdi-recycle" /></Button></div>
-        <div class="mr-2 text-right"><Icon icon="i-mdi-arrow-down" />{localToLbCount}</div>
-        <div class="col-span-3 text-center">
-          {$t`LexBox`}<br />{$t`Last change: `}<Duration
-            totalUnits={2}
-            start={lastLocalSyncDate}
-            minUnits={DurationUnits.Second}
-          />{$t` ago`}
+      <div class="grid grid-rows-5 grid-cols-[auto_auto_auto] grid-template-columns-auto justify-around gap-y-4 gap-x-8">
+        <div class="col-span-3 text-center content-center flex flex-col items-center">
+          <Icon icon="i-mdi-monitor-cellphone" class="size-10" />
         </div>
-        <div class="ml-2">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
-        <div class="text-center"><Button onclick={syncLbToFlex}><Icon icon="i-mdi-recycle" /></Button></div>
-        <div class="mr-2 text-right"><Icon icon="i-mdi-arrow-down" />{lbToFlexCount}</div>
-        <div class="col-span-3 text-center">
-          {$t`FieldWorks`}<br />{$t`Last change: `}<Duration
-            totalUnits={2}
-            start={lastFlexSyncDate}
-            minUnits={DurationUnits.Second}
-          />{$t` ago`}
+        <div class="text-right content-center">{lbToLocalCount}<Icon icon="i-mdi-arrow-up" /></div>
+        <div class="content-center text-center">
+          <Button onclick={syncLbToLocal} icon="i-mdi-sync" iconProps={{class: 'size-5'}}>Synchronize</Button>
+        </div>
+        <div class="text-left content-center"><Icon icon="i-mdi-arrow-down" />{localToLbCount}</div>
+        <div class="col-span-3 text-center flex flex-col">
+          <span class="font-medium">
+            <Icon icon="i-mdi-cloud-outline" />
+            Lexbox - FieldWorks Lite
+          </span>
+          <span class="text-foreground/80">
+            {$t`Last change: `}
+            <Duration
+              totalUnits={2}
+              start={lastLocalSyncDate}
+              minUnits={DurationUnits.Second}
+            />
+            {$t` ago`}
+          </span>
+        </div>
+        <div class="text-right content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
+        <div class="content-center text-center">
+          <Button onclick={syncLbToFlex} icon="i-mdi-sync" iconProps={{class: 'size-5'}}>Synchronize</Button>
+        </div>
+        <div class="text-left content-center"><Icon icon="i-mdi-arrow-down" />{lbToFlexCount}</div>
+        <div class="col-span-3 text-center flex flex-col">
+          <span class="font-medium">
+            <Icon icon="i-mdi-cloud-outline" />
+            Lexbox - FieldWorks
+          </span>
+          <span class="text-foreground/80">
+            {$t`Last change: `}
+            <Duration
+              totalUnits={2}
+              start={lastFlexSyncDate}
+              minUnits={DurationUnits.Second}
+            />
+            {$t` ago`}
+          </span>
         </div>
       </div>
     {/if}
