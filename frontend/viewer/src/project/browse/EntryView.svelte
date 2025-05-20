@@ -16,9 +16,11 @@
   import {XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
+  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
+  const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const {
     entryId,
@@ -36,6 +38,11 @@
       return miniLcmApi.getEntry(id);
     },
   );
+  eventBus.onEntryUpdated((e) => {
+    if (e.id === entryId) {
+      entryResource.refetch();
+    }
+  });
   const entry = $derived(entryResource.current ?? undefined);
   const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
