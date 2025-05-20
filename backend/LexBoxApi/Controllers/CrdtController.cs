@@ -90,12 +90,12 @@ public class CrdtController(
     {
         await permissionService.AssertCanViewProject(code);
         var projectId = await projectService.LookupProjectId(code);
-        if (projectId == default)
+        if (projectId is null)
         {
             return NotFound();
         }
 
-        return Ok(projectId);
+        return Ok(projectId.Value);
     }
 
     [HttpGet("checkConnection")]

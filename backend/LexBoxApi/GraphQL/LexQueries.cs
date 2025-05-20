@@ -158,7 +158,7 @@ public class LexQueries
             ? await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType)
             : null;
 
-        await permissionService.AssertCanViewProject(code, updatedUser);
+        await permissionService.AssertCanViewProject(project.Id, updatedUser);
         return project;
     }
 

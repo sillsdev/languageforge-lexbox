@@ -59,8 +59,8 @@ public class IntegrationController(
     public async Task<ActionResult<RefreshResponse>> GetProjectToken(string projectCode)
     {
         var projectId = await projectService.LookupProjectId(projectCode);
-        if (projectId == default) return NotFound();
-        return GetRefreshResponse(projectId);
+        if (projectId is null) return NotFound();
+        return GetRefreshResponse(projectId.Value);
     }
 
     private RefreshResponse GetRefreshResponse(Guid projectId)
