@@ -29,6 +29,7 @@
   import {Button} from '$lib/components/ui/button';
   import {mode} from 'mode-watcher';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
+  import {iconVariants} from '$lib/components/ui/icon';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -104,7 +105,7 @@
 
 <AppBar title={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
-    <img src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`} class="h-6 shrink-0" />
+    <img src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`} class={iconVariants()} />
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex">
@@ -222,7 +223,7 @@
                 <ButtonListItem href={`/fwdata/${project.code}`}>
                   <ListItem classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted' }}>
                     <ProjectTitle slot="title" {project}/>
-                    <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0" />
+                    <img slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} class={iconVariants()} />
                     <div slot="actions" class="shrink-0">
                       <DevContent invisible>
                         <UxButton

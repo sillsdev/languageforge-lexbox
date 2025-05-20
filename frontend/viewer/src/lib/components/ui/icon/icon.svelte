@@ -3,6 +3,19 @@
   import {cn} from '$lib/utils';
   import type {WithElementRef, WithoutChildren} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
+  import {tv} from 'tailwind-variants';
+
+  export const iconVariants = tv({
+    base: 'inline-block shrink-0',
+    variants: {
+      size: {
+        default: 'size-6'
+      }
+    },
+    defaultVariants: {
+      size: 'default',
+    },
+  });
 
   export type IconProps = WithoutChildren<WithElementRef<HTMLAttributes<HTMLSpanElement>>> & {
     icon: IconClass;
@@ -13,7 +26,7 @@
   const { icon, class: className, ...restProps }: IconProps = $props();
 </script>
 
-<span {...restProps} class={cn('size-6 inline-block shrink-0', className, icon)}>
+<span {...restProps} class={cn(iconVariants(), className, icon)}>
   <!-- ensures that baseline alignment works for consumers of this component -->
   &nbsp;
 </span>

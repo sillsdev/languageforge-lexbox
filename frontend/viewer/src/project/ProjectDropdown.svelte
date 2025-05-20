@@ -2,7 +2,7 @@
   import * as Command from '$lib/components/ui/command';
   import * as Popover from '$lib/components/ui/popover';
   import { Button } from '$lib/components/ui/button';
-  import { Icon } from '$lib/components/ui/icon';
+  import { Icon, iconVariants } from '$lib/components/ui/icon';
   import { cn } from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
@@ -105,7 +105,7 @@
               class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
             >
               {#if project.fwdata}
-                <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 shrink-0"/>
+                <img src={flexLogo} alt={$t`FieldWorks logo`} class={iconVariants()} />
               {:else}
                 <Icon icon="i-mdi-book-edit-outline"/>
               {/if}

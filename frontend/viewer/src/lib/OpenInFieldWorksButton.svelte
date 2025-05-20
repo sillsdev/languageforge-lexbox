@@ -8,6 +8,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {mergeProps} from 'bits-ui';
   import {cn} from './utils';
+  import {iconVariants} from './components/ui/icon';
 
   type Props = {
     entry: IEntry
@@ -52,6 +53,6 @@
 
 <!--button must be a link otherwise it won't follow the redirect to a protocol handler-->
 <button class={cn(buttonVariants({ variant: 'ghost'}), className)} {...mergedProps}>
-  <img src={flexLogo} alt={$t`FieldWorks logo`} class="h-6 max-w-fit"/>
+  <img src={flexLogo} alt={$t`FieldWorks logo`} class={iconVariants()}/>
   {$t`Open in FieldWorks`}
 </button>
