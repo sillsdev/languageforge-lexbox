@@ -18,6 +18,8 @@ public class SyncController(
     FwHeadlessClient fwHeadlessClient) : ControllerBase
 {
     [HttpGet("status/{projectId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<ProjectSyncStatus>> GetSyncStatus(Guid projectId)
     {
         if (!await permissionService.CanViewProject(projectId)) return Forbid();

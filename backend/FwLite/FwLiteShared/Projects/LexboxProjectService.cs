@@ -95,7 +95,7 @@ public class LexboxProjectService : IDisposable
         if (httpClient is null) return null;
         try
         {
-            return (await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}"));
+            return await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}");
         }
         catch (Exception e)
         {
@@ -110,7 +110,7 @@ public class LexboxProjectService : IDisposable
         if (httpClient is null) return null;
         try
         {
-            return (await httpClient.GetFromJsonAsync<ProjectSyncStatus?>($"/api/fw-lite/sync/status/{projectId}"));
+            return await httpClient.GetFromJsonAsync<ProjectSyncStatus?>($"api/fw-lite/sync/status/{projectId}");
         }
         catch (Exception e)
         {

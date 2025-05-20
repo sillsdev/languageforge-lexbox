@@ -44,13 +44,13 @@
     }
     let historyService: IHistoryServiceJsInvokable | undefined = undefined;
     if (projectScope.historyService) {
-      historyService = wrapInProxy(projectScope.historyService, 'HistoryService') as IHistoryServiceJsInvokable;
+      historyService = wrapInProxy(projectScope.historyService, DotnetService.HistoryService);
     }
     let syncService: ISyncServiceJsInvokable | undefined = undefined;
     if (projectScope.syncService) {
-      syncService = wrapInProxy(projectScope.syncService, DotnetService.SyncService) as ISyncServiceJsInvokable;
+      syncService = wrapInProxy(projectScope.syncService, DotnetService.SyncService);
     }
-    const api = wrapInProxy(projectScope.miniLcm, 'MiniLcmApi') as IMiniLcmJsInvokable;
+    const api = wrapInProxy(projectScope.miniLcm, DotnetService.MiniLcmApi);
     projectContext.setup({ api, historyService, syncService, projectName, projectCode: code, projectType });
     serviceLoaded = true;
   });
