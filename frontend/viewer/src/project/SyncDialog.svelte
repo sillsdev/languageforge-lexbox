@@ -50,6 +50,8 @@
     {#if loading}
       <!-- TODO: Show loading as an overlay? -->
       <Loading />
+    {:else if !status}
+      <div>{$t`Error getting sync status. Are you logged in to the LexBox server?`}</div>
     {:else}
       <div class="grid grid-rows-5 grid-cols-3 justify-around rounded-lg border-4">
         <div class="col-span-3 text-center">{$t`My computer`}</div>
