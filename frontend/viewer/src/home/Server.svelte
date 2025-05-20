@@ -11,6 +11,7 @@
   import ProjectTitle from './ProjectTitle.svelte';
   import {cn} from '$lib/utils';
   import {Button} from '$lib/components/ui/button';
+  import {Icon} from '$lib/components/ui/icon';
 
   const projectsService = useProjectsService();
 
@@ -79,9 +80,12 @@
         </div>
       </ListItem>
     {:else if !projects.length}
-      <p class="text-center elevation-1 md:rounded p-4">
+      <p class="text-center md:rounded p-4">
         {#if status.loggedIn}
-          {$t`No projects`}
+          <Button class="border border-primary" variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
+            {$t`Where are my projects?`}
+            <Icon icon="i-mdi-open-in-new" class="size-4" />
+          </Button>
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
@@ -119,6 +123,12 @@
             </ButtonListItem>
           {/if}
         {/each}
+        <div class="text-center py-2">
+          <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
+            {$t`I don't see my project`}
+            <Icon icon="i-mdi-open-in-new" class="size-4" />
+          </Button>
+        </div>
       </div>
     {/if}
   </div>

@@ -5,7 +5,7 @@
   const lexboxLogo = 'https://lexbox.org/images/logo-dark.png';
   interface Props {
     subject: string;
-    name: string;
+    name?: string;
     children?: Snippet;
   }
 
