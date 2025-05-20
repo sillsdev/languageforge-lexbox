@@ -1,6 +1,7 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore;
+using LexCore.Auth;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace LexBoxApi.Controllers;
 [ApiController]
 [Route("/api/fw-lite/sync")]
 [FeatureFlagRequired(FeatureFlag.FwLiteBeta, AllowAdmin = true)]
+[RequireScope(LexboxAuthScope.SendAndReceive)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
     IPermissionService permissionService,
