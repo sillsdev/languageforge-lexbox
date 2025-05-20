@@ -679,7 +679,11 @@ public class FwDataMiniLcmApi(
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
 
-            result.Add(GetWritingSystemId(ws), tsString.Text);
+            result.Add(GetWritingSystemId(ws), RichTextMapping.FromTsString(tsString, h =>
+            {
+                if (h is null) return null;
+                return GetWritingSystemId(h.Value);
+            }));
         }
 
         return result;
@@ -1064,7 +1068,7 @@ public class FwDataMiniLcmApi(
         foreach (var (ws, value) in newMultiString)
         {
             var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
         }
     }
 

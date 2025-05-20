@@ -5,23 +5,6 @@ namespace MiniLcm.Tests;
 
 public class RichMultiStringTests
 {
-    [Theory]
-    [InlineData("<span>test</span>")]
-    [InlineData("<span>test</span><span>test1</span>")]
-    public void ValidValues(string value)
-    {
-        RichMultiString.IsValidRichString(value).Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData("test")]
-    [InlineData("test<span>test</span>")]
-    [InlineData("<span>test</span>test")]
-    [InlineData("<span><span>inner</span></span>")]
-    public void InvalidValues(string value)
-    {
-        RichMultiString.IsValidRichString(value).Should().BeFalse();
-    }
 
     [Fact(Skip = "disabled until we can migrate data to the new format")]
     public void CreatingARichMultiStringWithPlainTextFails()
@@ -37,8 +20,8 @@ public class RichMultiStringTests
     public void CanDeserializeRichMultiString()
     {
         //lang=json
-        var json = """{"en": "<span>test</span>"}""";
-        var expectedMs = new RichMultiString() { { "en", "<span>test</span>" } };
+        var json = """{"en": "test"}""";
+        var expectedMs = new RichMultiString() { { "en", new RichString("test") } };
         var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
         actualMs.Should().NotBeNull();
         actualMs.Should().ContainKey("en");
@@ -70,7 +53,7 @@ public class RichMultiStringTests
     {
         //lang=json
         var expectedJson = """{"en":"test"}""";
-        var ms = new RichMultiString() { { "en", "test" } };
+        var ms = new RichMultiString() { { "en", new RichString("test") } };
         var actualJson = JsonSerializer.Serialize(ms);
         actualJson.Should().Be(expectedJson);
     }
@@ -78,18 +61,18 @@ public class RichMultiStringTests
     [Fact]
     public void JsonPatchCanUpdateRichMultiString()
     {
-        var ms = new RichMultiString() { { "en", "<span>test</span>" } };
+        var ms = new RichMultiString() { { "en", new RichString("test") } };
         var patch = new JsonPatchDocument<RichMultiString>();
-        patch.Replace(ms => ms["en"], "updated");
+        patch.Replace(ms => ms["en"], new RichString("updated"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("en");
-        ms["en"].Should().Be("updated");
+        ms["en"].Should().BeEquivalentTo(new RichString("updated"));
     }
 
     [Fact]
     public void JsonPatchCanRemoveRichMultiString()
     {
-        var ms = new RichMultiString() { { "en", "<span>test</span>" } };
+        var ms = new RichMultiString() { { "en", new RichString("test") } };
         var patch = new JsonPatchDocument<RichMultiString>();
         patch.Remove(ms => ms["en"]);
         patch.ApplyTo(ms);
@@ -99,11 +82,11 @@ public class RichMultiStringTests
     [Fact]
     public void JsonPatchCanAddRichMultiString()
     {
-        var ms = new RichMultiString() {  { "en", "<span>test</span>" } };
+        var ms = new RichMultiString() {  { "en", new RichString("test") } };
         var patch = new JsonPatchDocument<RichMultiString>();
-        patch.Add(ms => ms["fr"], "<span>test</span>");
+        patch.Add(ms => ms["fr"], new RichString("test"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("fr");
-        ms["fr"].Should().Be("<span>test</span>");
+        ms["fr"].Should().Be("test");
     }
 }

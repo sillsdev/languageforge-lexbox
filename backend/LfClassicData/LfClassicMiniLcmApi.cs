@@ -329,7 +329,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (multiTextValue is null) return ms;
         foreach (var (key, value) in multiTextValue)
         {
-            ms[key] = value.Value;
+            ms[key] = new RichString(value.Value);
         }
 
         return ms;

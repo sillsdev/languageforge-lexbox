@@ -1,8 +1,17 @@
-﻿namespace MiniLcm.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
-public class RichString
+namespace MiniLcm.Models;
+
+public class RichString(List<RichSpan> spans)
 {
-    public required List<RichSpan> Spans { get; set; }
+    public RichString(string text) : this([new RichSpan { Text = text }])
+    {
+    }
+
+    public List<RichSpan> Spans { get; set; } = spans;
+    [JsonIgnore]
+    public bool IsEmpty => Spans.Count == 0 || Spans.All(s => string.IsNullOrEmpty(s.Text));
 }
 
 public class RichSpan

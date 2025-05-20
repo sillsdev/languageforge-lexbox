@@ -25,7 +25,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
             [
                 new()
                 {
-                    Definition = { { "en", "Fruit which tapers to a stem, grows from a tree" } }
+                    Definition = { { "en", new RichString("Fruit which tapers to a stem, grows from a tree") } }
                 }
             ]
         });
@@ -37,18 +37,18 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 new()
                 {
                     Gloss = { { "en", "Fruit" } },
-                    Definition = { { "en", "Fruit, phone shaped" } },
+                    Definition = { { "en", new RichString("Fruit, phone shaped") } },
                     PartOfSpeechId = nounPos.Id,
                     SemanticDomains = [semanticDomain],
                     ExampleSentences =
                     [
                         new ExampleSentence()
                         {
-                            Sentence = { { "en", "when a kid hands you a banana phone you answer it" } }
+                            Sentence = { { "en", new RichString("when a kid hands you a banana phone you answer it") } }
                         },
                         new ExampleSentence()
                         {
-                            Sentence = { { "en", "a banana peel can be slippery" } }
+                            Sentence = { { "en", new RichString("a banana peel can be slippery") } }
                         },
                     ]
                 },
@@ -68,14 +68,14 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 new()
                 {
                     Gloss = { { "en", "Fruit" } },
-                    Definition = { { "en", "Fruit, fuzzy with green flesh" } },
+                    Definition = { { "en", new RichString("Fruit, fuzzy with green flesh") } },
                     PartOfSpeechId = nounPos.Id,
                     SemanticDomains = [semanticDomain],
                     ExampleSentences =
                     [
                         new ExampleSentence()
                         {
-                            Sentence = { { "en", "I like eating Kiwis, they taste good" } }
+                            Sentence = { { "en", new RichString("I like eating Kiwis, they taste good") } }
                         },
                     ]
                 }
