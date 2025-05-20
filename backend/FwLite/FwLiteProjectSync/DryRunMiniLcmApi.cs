@@ -34,7 +34,8 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return (type switch
         {
             WritingSystemType.Vernacular => ws.Vernacular,
-            WritingSystemType.Analysis => ws.Analysis
+            WritingSystemType.Analysis => ws.Analysis,
+            _ => throw new InvalidOperationException("unknown type " + type)
         }).First(w => w.WsId == id);
     }
 

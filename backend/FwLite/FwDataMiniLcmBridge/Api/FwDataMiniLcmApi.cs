@@ -194,7 +194,7 @@ public class FwDataMiniLcmApi(
         }
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
-            async () =>
+            () =>
             {
                 var updateProxy = new UpdateWritingSystemProxy(lcmWritingSystem)
                 {
@@ -202,6 +202,7 @@ public class FwDataMiniLcmApi(
                     Type = type,
                 };
                 update.Apply(updateProxy);
+                return ValueTask.CompletedTask;
             });
         return await GetWritingSystem(id, type);
     }

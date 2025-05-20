@@ -111,7 +111,7 @@ public static class ProxyKernel
         }
         catch (Exception e)
         {
-            Activity.Current?.RecordException(e);
+            Activity.Current?.AddException(e);
             //we don't want to throw errors from the post process event
         }
     }

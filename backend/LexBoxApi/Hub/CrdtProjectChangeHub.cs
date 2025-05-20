@@ -5,7 +5,7 @@ using MiniLcm.Push;
 
 namespace LexBoxApi.Hub;
 
-public class CrdtProjectChangeHub(LoggedInContext loggedInContext, IPermissionService permissionService) : Hub<IProjectChangeListener>
+public class CrdtProjectChangeHub(IPermissionService permissionService) : Hub<IProjectChangeListener>
 {
     public static string ProjectGroup(Guid projectId) => $"project-{projectId}";
 
