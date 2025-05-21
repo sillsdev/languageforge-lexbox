@@ -37,9 +37,8 @@
   const lbToLocalCount = 0; // TODO: track this at some point
   const lastLocalSyncDate = $derived(new Date(status?.lastCrdtCommitDate ?? ''));
   const lastFlexSyncDate = $derived(new Date(status?.lastMercurialCommitDate ?? ''));
-  // TODO: Make sure these are assigned to the right slots
-  const lbToFlexCount = $derived(status?.pendingMercurialChanges ?? 0);
-  const flexToLbCount = $derived(status?.pendingCrdtChanges ?? 0);
+  const lbToFlexCount = $derived(status?.pendingCrdtChanges ?? 0);
+  const flexToLbCount = $derived(status?.pendingMercurialChanges ?? 0);
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
