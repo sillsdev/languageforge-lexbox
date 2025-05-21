@@ -97,7 +97,6 @@
     <Command.Root>
       <Command.Input placeholder={$t`Search Dictionaries`} />
       <Command.List>
-        <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
         {#if projectsResource.loading}
           <Command.Loading>
             <div class="flex items-center justify-center p-4">
@@ -106,6 +105,7 @@
             </div>
           </Command.Loading>
         {:else}
+          <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
           {#each projectsResource.current ?? [] as project}
             <Command.Item
               value={project.name + project.crdt}
