@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
@@ -72,7 +73,7 @@ public static class ReinforcedFwLiteTypingConfig
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
-            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null)
+            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null || exportBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is {Condition: JsonIgnoreCondition.Always})
             {
                 exportBuilder.Ignore();
             }
