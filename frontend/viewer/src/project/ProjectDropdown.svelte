@@ -62,6 +62,14 @@
   }
 </script>
 
+{#snippet projectIcon(isCrdt: boolean)}
+  {#if isCrdt}
+    <Icon icon="i-mdi-book-edit-outline" />
+  {:else}
+    <img src={flexLogo} alt={$t`FieldWorks logo`} class={iconVariants()} />
+  {/if}
+{/snippet}
+
 <Popover.Root bind:open onOpenChange={handleOpen}>
   <Popover.Trigger bind:ref={triggerRef}>
     {#snippet child({ props })}
@@ -73,7 +81,7 @@
         {...props}
       >
         <div class="flex items-center gap-2 overflow-hidden">
-          <Icon icon="i-mdi-book" class="size-4" />
+          {@render projectIcon(isCrdt)}
           <span class="x-ellipsis">
             {projectName}
           </span>
@@ -104,11 +112,7 @@
               onSelect={() => handleSelect(project)}
               class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
             >
-              {#if project.fwdata}
-                <img src={flexLogo} alt={$t`FieldWorks logo`} class={iconVariants()} />
-              {:else}
-                <Icon icon="i-mdi-book-edit-outline"/>
-              {/if}
+              {@render projectIcon(project.crdt)}
               <ProjectTitle {project} />
             </Command.Item>
           {/each}
