@@ -6,7 +6,7 @@
 
   type EditorRootProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
-  const {
+  let {
     class: className,
     children,
     ref = $bindable(null),
@@ -14,6 +14,6 @@
   }: EditorRootProps = $props();
 </script>
 
-<div class={cn('@container/editor', className)} {...restProps}>
+<div class={cn('@container/editor', className)} {...restProps} bind:this={ref}>
   {@render children?.()}
 </div>

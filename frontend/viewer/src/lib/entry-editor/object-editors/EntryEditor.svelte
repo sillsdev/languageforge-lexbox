@@ -7,6 +7,7 @@
     canAddExample?: boolean;
     onchange?: (changed: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) => void;
     ondelete?: (deleted: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) => void;
+    ref?: HTMLElement | null;
   };
 </script>
 <script lang="ts">
@@ -30,6 +31,7 @@
 
   let {
     entry = $bindable(),
+    ref = $bindable(null),
     readonly = false,
     modalMode = false,
     canAddSense = true,
@@ -147,7 +149,7 @@
   const currentView = useCurrentView();
 </script>
 
-<Editor.Root>
+<Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
     <EntryEditorPrimitive bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
