@@ -2,7 +2,7 @@
   import * as Command from '$lib/components/ui/command';
   import * as Popover from '$lib/components/ui/popover';
   import { Button } from '$lib/components/ui/button';
-  import { Icon, iconVariants } from '$lib/components/ui/icon';
+  import { Icon } from '$lib/components/ui/icon';
   import { cn } from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
@@ -66,7 +66,7 @@
   {#if isCrdt}
     <Icon icon="i-mdi-book-edit-outline" />
   {:else}
-    <img src={flexLogo} alt={$t`FieldWorks logo`} class={iconVariants()} />
+    <Icon src={flexLogo} alt={$t`FieldWorks logo`} />
   {/if}
 {/snippet}
 
