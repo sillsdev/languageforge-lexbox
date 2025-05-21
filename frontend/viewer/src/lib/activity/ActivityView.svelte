@@ -10,13 +10,14 @@
     ListItem
   } from 'svelte-ux';
   import {t} from 'svelte-i18n-lingui';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
   const historyService = useHistoryService();
 
   let loading = false;
 
   export let open: boolean;
-  export let projectName: string;
+  const projectContext = useProjectContext();
 
   type Activity = {
     commitId: string,
@@ -29,7 +30,7 @@
   let activity: Array<Activity>;
   let selectedRow: Activity | undefined;
 
-  $: if (open && projectName) {
+  $: if (open) {
     void load();
   }
   $: if (!open) reset();
@@ -38,7 +39,7 @@
     activity = [];
     loading = true;
     try {
-      const data = await historyService.activity(projectName) as Activity[];
+      const data = await historyService.activity(projectContext.projectCode) as Activity[];
       console.debug('Activity data', data);
       if (!Array.isArray(data)) {
         console.error('Invalid history data', data);
@@ -72,13 +73,10 @@
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.DialogContent interactOutsideBehavior={loading ? 'ignore' : 'close'} class="flex flex-col">
-    <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Activity`}</Dialog.DialogTitle>
-    </Dialog.DialogHeader>
-    {#if !loading}
-  <div class="grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
+
+{#if !loading}
+  <div class="m-4 grid gap-x-6 gap-y-1 overflow-hidden"
+       style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if !activity || activity.length === 0}
@@ -124,25 +122,26 @@
           {/if}
           {#if selectedRow.metadata.extraMetadata['SyncDate']}
             <span class="float-right">
-              {$t`Synced`} <Duration totalUnits={2} minUnits={DurationUnits.Second} start={new Date(selectedRow.metadata.extraMetadata['SyncDate'])}/> {$t`ago`}
+              {$t`Synced`}
+              <Duration totalUnits={2} minUnits={DurationUnits.Second}
+                        start={new Date(selectedRow.metadata.extraMetadata['SyncDate'])}/> {$t`ago`}
             </span>
           {/if}
         </div>
-        <div class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full">
+        <div
+          class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full">
           <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
             {#each visibleItems as change}
-            <div class="change whitespace-pre-wrap font-mono text-sm">
-              {formatJsonForUi(change)}
-            </div>
+              <div class="change whitespace-pre-wrap font-mono text-sm">
+                {formatJsonForUi(change)}
+              </div>
             {/each}
           </InfiniteScroll>
         </div>
       {/if}
     </div>
   </div>
-  {/if}
-  </Dialog.DialogContent>
-</Dialog.Root>
+{/if}
 
 <style lang="postcss">
   :global(.change-list .sentinel) {
