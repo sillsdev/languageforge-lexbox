@@ -2,7 +2,7 @@
   import { Icon } from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import { useViewSettings } from '$lib/views/view-service';
-  import {resource, Debounced} from 'runed';
+  import {resource, Debounced, watch} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
@@ -40,7 +40,7 @@
   );
   eventBus.onEntryUpdated((e) => {
     if (e.id === entryId) {
-      entryResource.refetch();
+      void entryResource.refetch();
     }
   });
   const entry = $derived(entryResource.current ?? undefined);
@@ -51,6 +51,12 @@
 
   let readonly = $state(false);
   const entryPersistence = new EntryPersistence(() => entry, () => void entryResource.refetch());
+
+  const loadedEntryId = $derived(entry?.id);
+  let entryScrollViewportRef: HTMLElement | null = $state(null);
+  watch([() => loadedEntryId, () => entryScrollViewportRef], () =>{
+    entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
+  });
 </script>
 
 {#snippet preview(entry: IEntry)}
@@ -85,7 +91,7 @@
         </div>
       {/if}
     </header>
-    <ScrollArea class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
       {#if dictionaryPreview === 'show'}
         {@render preview(entry)}
       {/if}
