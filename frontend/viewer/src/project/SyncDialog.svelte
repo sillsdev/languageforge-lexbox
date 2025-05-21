@@ -8,6 +8,7 @@
   import { QueryParamStateBool } from '$lib/utils/url.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import { useSyncStatusService } from '$lib/services/sync-status-service';
+  import { FormatDate } from '$lib/components/ui/format-date';
 
   // Get status in calling code by something like the following:
   const service = useSyncStatusService();
@@ -75,12 +76,7 @@
           </span>
           <span class="text-foreground/80">
             {$t`Last change: `}
-            <Duration
-              totalUnits={2}
-              start={lastLocalSyncDate}
-              minUnits={DurationUnits.Second}
-            />
-            {$t` ago`}
+            <FormatDate date={lastLocalSyncDate} />
           </span>
         </div>
         <div class="text-right content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
@@ -95,12 +91,7 @@
           </span>
           <span class="text-foreground/80">
             {$t`Last change: `}
-            <Duration
-              totalUnits={2}
-              start={lastFlexSyncDate}
-              minUnits={DurationUnits.Second}
-            />
-            {$t` ago`}
+            <FormatDate date={lastFlexSyncDate} />
           </span>
         </div>
       </div>
