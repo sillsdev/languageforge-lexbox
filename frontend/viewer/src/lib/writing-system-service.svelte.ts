@@ -152,10 +152,10 @@ export class WritingSystemService {
   }
 
   private first(value: IMultiString | IRichMultiString, writingSystems: IWritingSystem[]): string | undefined {
-    return firstTruthy(writingSystems, ws => WritingSystemService.asString(value[ws.wsId]));
+    return firstTruthy(writingSystems, ws => this.asString(value[ws.wsId]));
   }
 
-  static asString(value: IRichString | string | undefined): string | undefined {
+  public asString(value: IRichString | string | undefined): string | undefined {
     if (!value || typeof value === 'string') return value;
     return value.spans.map(s => s.text).join('');
   }
