@@ -8,6 +8,12 @@ public class ScopeRequirementHandler(ILogger<ScopeRequirementHandler> logger): A
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RequireScopeAttribute requirement)
     {
+        if (requirement.IsDefault && context.Requirements.OfType<RequireScopeAttribute>().Count() > 1)
+        {
+            //because this is the default requirement, we can skip it when there are other scope requirements
+            context.Succeed(requirement);
+            return Task.CompletedTask;
+        }
         bool scopeClaimExists = false;
         foreach (var claim in context.User.FindAll(LexAuthConstants.ScopeClaimType))
         {
