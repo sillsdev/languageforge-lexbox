@@ -1,6 +1,6 @@
 import {isTabbable} from 'tabbable';
 
-export function findFirstTabbable(container: HTMLElement | null | undefined): HTMLElement | undefined {
+export function findFirstTabbable(container: Element | null | undefined): HTMLElement | undefined {
   if (!container) {
     return undefined;
   }
@@ -8,12 +8,9 @@ export function findFirstTabbable(container: HTMLElement | null | undefined): HT
     container,
     NodeFilter.SHOW_ELEMENT,
     {
-      acceptNode: node => {
-        console.log(node);
-        return isTabbable(node as HTMLElement, {displayCheck: 'full'})
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_SKIP;
-      }
+      acceptNode: node => isTabbable(node as HTMLElement, {displayCheck: 'full'})
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP
     }
   );
   return walker.nextNode() as HTMLElement;
