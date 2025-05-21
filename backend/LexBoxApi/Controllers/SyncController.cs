@@ -11,13 +11,13 @@ namespace LexBoxApi.Controllers;
 [ApiController]
 [Route("/api/fw-lite/sync")]
 // [FeatureFlagRequired(FeatureFlag.FwLiteBeta, AllowAdmin = true)] // Disable for now since this policy requires LexBoxApi scope, which conflicts
-[RequireScope(LexboxAuthScope.SendAndReceive)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
     IPermissionService permissionService,
     FwHeadlessClient fwHeadlessClient) : ControllerBase
 {
     [HttpGet("status/{projectId}")]
+    [RequireScope(LexboxAuthScope.SendAndReceive)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<ProjectSyncStatus>> GetSyncStatus(Guid projectId)
