@@ -1,23 +1,40 @@
 ﻿using System.Text.Json;
 using SystemTextJsonPatch;
+using SystemTextJsonPatch.Operations;
 
 namespace MiniLcm.Tests;
 
 public class RichMultiStringTests
 {
-
-    [Fact(Skip = "disabled until we can migrate data to the new format")]
-    public void CreatingARichMultiStringWithPlainTextFails()
+    [Fact]
+    public void RichMultiString_DeserializesSimpleRichString()
     {
         //lang=json
-        var json = """{"en": "test"}""";
-        var act = () => JsonSerializer.Deserialize<RichMultiString>(json);
-        act.Should().Throw<Exception>();
+        var json = """{"en":{"Spans":[{"Text":"test"}]}}""";
+        var expectedMs = new RichMultiString() { { "en", new RichString("test") } };
+        var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
+        actualMs.Should().NotBeNull();
+        actualMs.Should().ContainKey("en");
+        actualMs.Should().BeEquivalentTo(expectedMs);
+    }
+    [Fact]
+    public void RichMultiString_DeserializesStyledRichString()
+    {
+        //lang=json
+        var json = """{"en":{"Spans":[{"Text":"test","Bold":"On"}]}}""";
+        var expectedMs = new RichMultiString() { { "en", new RichString([new RichSpan()
+        {
+            Text = "test",
+            Bold = RichTextToggle.On
+        }]) } };
+        var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
+        actualMs.Should().NotBeNull();
+        actualMs.Should().ContainKey("en");
+        actualMs.Should().BeEquivalentTo(expectedMs);
     }
 
-
     [Fact]
-    public void CanDeserializeRichMultiString()
+    public void RichMultiString_DeserializesString()
     {
         //lang=json
         var json = """{"en": "test"}""";
@@ -49,11 +66,25 @@ public class RichMultiStringTests
     }
 
     [Fact]
-    public void RichMultiString_SerializesToJson()
+    public void RichMultiString_SimpleSpanSerializesToJson()
     {
         //lang=json
-        var expectedJson = """{"en":"test"}""";
+        var expectedJson = """{"en":{"Spans":[{"Text":"test"}]}}""";
         var ms = new RichMultiString() { { "en", new RichString("test") } };
+        var actualJson = JsonSerializer.Serialize(ms);
+        actualJson.Should().Be(expectedJson);
+    }
+
+    [Fact]
+    public void RichMultiString_StyledSpanSerializesToJson()
+    {
+        //lang=json
+        var expectedJson = """{"en":{"Spans":[{"Text":"test","Bold":"On"}]}}""";
+        var ms = new RichMultiString() { { "en", new RichString([new RichSpan()
+        {
+            Text = "test",
+            Bold = RichTextToggle.On
+        }]) } };
         var actualJson = JsonSerializer.Serialize(ms);
         actualJson.Should().Be(expectedJson);
     }
@@ -64,6 +95,18 @@ public class RichMultiStringTests
         var ms = new RichMultiString() { { "en", new RichString("test") } };
         var patch = new JsonPatchDocument<RichMultiString>();
         patch.Replace(ms => ms["en"], new RichString("updated"));
+        patch.ApplyTo(ms);
+        ms.Should().ContainKey("en");
+        ms["en"].Should().BeEquivalentTo(new RichString("updated"));
+    }
+
+    //this test emulates any existing data that was stored as a string
+    [Fact]
+    public void JsonPatchCanUpdateRichMultiStringWhenValueIsString()
+    {
+        var ms = new RichMultiString() { { "en", new RichString("test") } };
+        var patch = new JsonPatchDocument<RichMultiString>();
+        patch.Operations.Add(new Operation<RichMultiString>("replace", "/en", null, "updated"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("en");
         ms["en"].Should().BeEquivalentTo(new RichString("updated"));
@@ -87,6 +130,30 @@ public class RichMultiStringTests
         patch.Add(ms => ms["fr"], new RichString("test"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("fr");
-        ms["fr"].Should().Be("test");
+        ms["fr"].Should().BeEquivalentTo(new RichString("test"));
+    }
+
+    [Fact]
+    public void RichSpanEquality_TrueWhenMatching()
+    {
+        var span = new RichSpan() { Text = "test", Bold = RichTextToggle.On};
+        var spanCopy = new RichSpan() { Text = "test", Bold = RichTextToggle.On};
+        span.Equals(spanCopy).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RichSpanEquality_FalseWhenTextDiffers()
+    {
+        var span = new RichSpan() { Text = "test1", Bold = RichTextToggle.On};
+        var spanCopy = new RichSpan() { Text = "test2", Bold = RichTextToggle.On};
+        span.Equals(spanCopy).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RichSpanEquality_FalseWhenBoldDiffers()
+    {
+        var span = new RichSpan() { Text = "test", Bold = RichTextToggle.On};
+        var spanCopy = new RichSpan() { Text = "test", Bold = RichTextToggle.Off};
+        span.Equals(spanCopy).Should().BeFalse();
     }
 }

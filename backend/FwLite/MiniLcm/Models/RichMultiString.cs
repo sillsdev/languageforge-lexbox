@@ -5,7 +5,6 @@ using HtmlAgilityPack;
 
 namespace MiniLcm.Models;
 
-//todo, migrate to the new format, use RichString instead of string
 [JsonConverter(typeof(RichMultiStringConverter))]
 public class RichMultiString : Dictionary<WritingSystemId, RichString>, IDictionary
 {
@@ -29,7 +28,13 @@ public class RichMultiString : Dictionary<WritingSystemId, RichString>, IDiction
 
     public RichMultiString Copy()
     {
-        return new RichMultiString(this);
+        var newRichString = new RichMultiString(Count);
+        foreach (var keyValuePair in this)
+        {
+            newRichString.Add(keyValuePair.Key, keyValuePair.Value.Copy());
+        }
+
+        return newRichString;
     }
 
     void IDictionary.Add(object key, object? value)
@@ -56,12 +61,12 @@ public class RichMultiStringConverter : JsonConverter<RichMultiString>
 {
     public override RichMultiString? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var dict = JsonSerializer.Deserialize<Dictionary<string, RichString>>(ref reader, options);
+        var dict = JsonSerializer.Deserialize<Dictionary<string, RichString?>>(ref reader, options);
         if (dict is null) return null;
         var ms = new RichMultiString();
         foreach (var (key, value) in dict)
         {
-            if (value.Spans is []) continue;
+            if (value?.Spans is [] or null) continue;
             ms[key] = value;
         }
 

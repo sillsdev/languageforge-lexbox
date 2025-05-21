@@ -182,14 +182,14 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         });
         entry.Should().NotBeNull();
         entry.LexemeForm["en"].Should().Be("Kevin");
-        entry.LiteralMeaning["en"].Should().Be("Kevin");
+        entry.LiteralMeaning["en"].Should().BeEquivalentTo(new RichString("Kevin"));
         entry.CitationForm["en"].Should().Be("Kevin");
-        entry.Note["en"].Should().Be("this is a test note from Kevin");
+        entry.Note["en"].Should().BeEquivalentTo(new RichString("this is a test note from Kevin"));
         var sense = entry.Senses.Should().ContainSingle().Subject;
         sense.Gloss["en"].Should().Be("Kevin");
-        sense.Definition["en"].Should().Be("Kevin");
+        sense.Definition["en"].Should().BeEquivalentTo(new RichString("Kevin"));
         var example = sense.ExampleSentences.Should().ContainSingle().Subject;
-        example.Sentence["en"].Should().Be("Kevin is a good guy");
+        example.Sentence["en"].Should().BeEquivalentTo(new RichString("Kevin is a good guy"));
     }
 
     [Fact]
