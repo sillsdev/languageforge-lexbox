@@ -18,7 +18,7 @@
   });
 
   export type IconProps = WithoutChildren<WithElementRef<HTMLAttributes<HTMLSpanElement>>> &
-    ({ icon: IconClass; } | ({ src: string} & HTMLImgAttributes));
+    ({ icon: IconClass; } | ({ src: string, alt: string } & HTMLImgAttributes));
 </script>
 
 <script lang="ts">
