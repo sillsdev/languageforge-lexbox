@@ -33,7 +33,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, sense)}">
+<Editor.SubGrid class="gap-2 editor-primitive" style="grid-template-areas: {objectTemplateAreas($currentView, sense)}">
   <Editor.Field.Root style="grid-area: gloss" class={cn($currentView.fields.gloss.show || 'hidden')}>
     <Editor.Field.Title name={$t`Gloss`} helpId={fieldData.gloss.helpId} />
     <Editor.Field.Body subGrid>

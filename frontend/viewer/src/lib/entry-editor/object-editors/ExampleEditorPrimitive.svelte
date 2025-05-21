@@ -29,7 +29,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, example)}">
+<Editor.SubGrid class="gap-2 editor-primitive" style="grid-template-areas: {objectTemplateAreas($currentView, example)}">
   <Editor.Field.Root style="grid-area: sentence" class={cn($currentView.fields.sentence.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Sentence`)} helpId={fieldData.sentence.helpId} />
     <Editor.Field.Body subGrid>

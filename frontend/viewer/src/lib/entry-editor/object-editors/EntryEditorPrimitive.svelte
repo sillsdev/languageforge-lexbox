@@ -35,7 +35,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
+<Editor.SubGrid class="gap-2 editor-primitive" style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
   <Editor.Field.Root style="grid-area: lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
