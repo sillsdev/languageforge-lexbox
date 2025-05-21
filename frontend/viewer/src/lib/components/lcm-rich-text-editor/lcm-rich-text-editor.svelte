@@ -58,6 +58,7 @@
     } = $props();
 
   let elementRef: HTMLElement | null = $state(null);
+  let dirty = $state(false);
   let editor: EditorView | null = null;
   onMount(() => {
     // docs https://prosemirror.net/docs/
@@ -66,7 +67,7 @@
       dispatchTransaction: (transaction) => {
         if (!editor) return;
         const newState = editor.state.apply(transaction);
-        if (transaction.docChanged || transaction.storedMarksSet) {
+        if (!newState.doc.eq(editor.state.doc)) {
           //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
           //I suspect marks is the right way though.
           if (!value) value = {spans: []};
@@ -74,19 +75,26 @@
             const originalRichSpan = child.attrs.richSpan;
             return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
           });
-          editor.updateState(newState);
-          onchange(value);
-        } else {
-          editor.updateState(newState);
+          dirty = true;
         }
+        editor.updateState(newState);
       },
       editable() {
         return !readonly;
       },
+      handleDOMEvents: {
+        'blur': onblur
+      }
     });
-
     editor.dom.setAttribute('tabindex', '0');
   });
+
+  function onblur() {
+    if (dirty && value) {
+      onchange(value);
+      dirty = false;
+    }
+  }
 
   watch(() => readonly, () => {
     // Triggers a refresh immediately rather than when the user next interacts with the editor
@@ -200,6 +208,7 @@
   :global(.ProseMirror) {
     flex-grow: 1;
     outline: none;
+    cursor: text;
   }
   :global(.ProseMirror span) {
     border-bottom: 1px solid currentColor;
