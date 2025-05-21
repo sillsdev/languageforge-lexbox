@@ -10,7 +10,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fw-lite/sync")]
-[FeatureFlagRequired(FeatureFlag.FwLiteBeta, AllowAdmin = true)]
+// [FeatureFlagRequired(FeatureFlag.FwLiteBeta, AllowAdmin = true)] // Disable for now since this policy requires LexBoxApi scope, which conflicts
 [RequireScope(LexboxAuthScope.SendAndReceive)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
