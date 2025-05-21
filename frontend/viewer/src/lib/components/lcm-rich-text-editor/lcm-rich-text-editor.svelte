@@ -48,11 +48,13 @@
     value = $bindable(),
     label,
     readonly = false,
+    onchange = () => {},
   }:
     {
-      value: IRichString,
+      value: IRichString | undefined,
       label?: string,
       readonly?: boolean,
+      onchange?: (value: IRichString) => void,
     } = $props();
 
   let elementRef: HTMLElement | null = $state(null);
@@ -64,13 +66,19 @@
       dispatchTransaction: (transaction) => {
         if (!editor) return;
         const newState = editor.state.apply(transaction);
-        //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
-        //I suspect marks is the right way though.
-        value.spans = newState.doc.children.map((child) => {
-          const originalRichSpan = child.attrs.richSpan;
-          return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
-        });
-        editor.updateState(newState);
+        if (transaction.docChanged || transaction.storedMarksSet) {
+          //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
+          //I suspect marks is the right way though.
+          if (!value) value = {spans: []};
+          value.spans = newState.doc.children.map((child) => {
+            const originalRichSpan = child.attrs.richSpan;
+            return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
+          });
+          editor.updateState(newState);
+          onchange(value);
+        } else {
+          editor.updateState(newState);
+        }
       },
       editable() {
         return !readonly;
@@ -175,9 +183,9 @@
   }
 
   function valueToDoc(): Node {
-    return textSchema.node('doc', {richString: value}, value.spans.map(s => {
+    return textSchema.node('doc', {richString: value}, value?.spans.map(s => {
       return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
-    }));
+    }) ?? []);
   }
 
   //lcm expects line separators, but html does not render them, so we replace them with \n

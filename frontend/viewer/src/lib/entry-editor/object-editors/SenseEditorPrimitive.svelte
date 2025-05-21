@@ -7,7 +7,7 @@
   import * as Editor from '$lib/components/editor';
   import {t} from 'svelte-i18n-lingui';
   import {vt} from '$lib/views/view-text';
-  import {MultiSelect, MultiWsInput, Select} from '$lib/components/field-editors';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select} from '$lib/components/field-editors';
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
 
@@ -48,7 +48,7 @@
   <Editor.Field.Root style="grid-area: definition" class={cn($currentView.fields.definition.show || 'hidden')}>
     <Editor.Field.Title name={$t`Definition`} helpId={fieldData.definition.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('definition')}
           bind:value={sense.definition}
           {readonly}

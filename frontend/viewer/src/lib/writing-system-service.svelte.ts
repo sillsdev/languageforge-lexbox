@@ -1,8 +1,17 @@
-﻿import type {IEntry, IExampleSentence, IMultiString, ISense, IWritingSystem, IWritingSystems} from '$lib/dotnet-types';
+﻿import type {
+  IEntry,
+  IExampleSentence,
+  IMultiString,
+  IRichMultiString,
+  ISense,
+  IWritingSystem,
+  IWritingSystems
+} from '$lib/dotnet-types';
 import type {WritingSystemSelection} from './config-types';
 import {firstTruthy} from './utils';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {type ResourceReturn} from 'runed';
+import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
 
 const symbol = Symbol.for('fw-lite-ws-service');
 export function useWritingSystemService(): WritingSystemService {
@@ -142,8 +151,13 @@ export class WritingSystemService {
     return colors[ws];
   }
 
-  private first(value: IMultiString, writingSystems: IWritingSystem[]): string | undefined {
-    return firstTruthy(writingSystems, ws => value[ws.wsId]);
+  private first(value: IMultiString | IRichMultiString, writingSystems: IWritingSystem[]): string | undefined {
+    return firstTruthy(writingSystems, ws => WritingSystemService.asString(value[ws.wsId]));
+  }
+
+  static asString(value: IRichString | string | undefined): string | undefined {
+    if (!value || typeof value === 'string') return value;
+    return value.spans.map(s => s.text).join('');
   }
 }
 

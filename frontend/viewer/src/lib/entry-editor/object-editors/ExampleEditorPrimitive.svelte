@@ -7,7 +7,7 @@
   import {cn} from '$lib/utils';
   import {vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
-  import {MultiWsInput, WsInput} from '$lib/components/field-editors';
+  import {MultiWsInput, RichMultiWsInput, WsInput} from '$lib/components/field-editors';
 
   type Props = {
     example: IExampleSentence;
@@ -33,7 +33,7 @@
   <Editor.Field.Root style="grid-area: sentence" class={cn($currentView.fields.sentence.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Sentence`)} helpId={fieldData.sentence.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('sentence')}
           bind:value={example.sentence}
           {readonly}
@@ -44,7 +44,7 @@
   <Editor.Field.Root style="grid-area: translation" class={cn($currentView.fields.translation.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Translation`)} helpId={fieldData.translation.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('translation')}
           bind:value={example.translation}
           {readonly}

@@ -7,7 +7,7 @@
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {MultiSelect, MultiWsInput} from '$lib/components/field-editors';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
   import {useComplexFormTypes} from '$lib/complex-form-types';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
@@ -99,7 +99,7 @@
   <Editor.Field.Root style="grid-area: literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Literal meaning`)} helpId={fieldData.literalMeaning.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('literalMeaning')}
           bind:value={entry.literalMeaning}
           {readonly}
@@ -110,7 +110,7 @@
   <Editor.Field.Root style="grid-area: note" class={cn($currentView.fields.note.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Note`)} helpId={fieldData.note.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('note')}
           bind:value={entry.note}
           {readonly}
