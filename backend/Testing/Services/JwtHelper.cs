@@ -24,7 +24,7 @@ public class JwtHelper
 
     public static async Task<string> GetJwtForUser(SendReceiveAuth auth)
     {
-        var response = await ExecuteLogin(auth, Client);
+        var response = await ExecuteLogin(auth, true, Client);
         var jwt = GetJwtFromLoginResponse(response);
         ClearCookies(Handler);
         return jwt;
@@ -43,10 +43,12 @@ public class JwtHelper
         return json.GetProperty("projectToken").GetString() ?? throw new NullReferenceException("projectToken was null");
     }
 
-    public static async Task<HttpResponseMessage> ExecuteLogin(SendReceiveAuth auth, HttpClient httpClient)
+    public static async Task<HttpResponseMessage> ExecuteLogin(SendReceiveAuth auth,
+        bool includeDefaultScope,
+        HttpClient httpClient)
     {
         var response = await httpClient.PostAsJsonAsync(
-            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/login",
+            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/login?defaultScope={includeDefaultScope}",
             new Dictionary<string, object>
             {
                 { "password", auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
