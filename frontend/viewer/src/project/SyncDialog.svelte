@@ -21,10 +21,17 @@
   export function open(): void {
     // status = await service.getStatus('How do I find the project ID to use in the fallback?'); // TODO
     loading = true;
-    service.getStatus().then((result) => {
-      status = result;
+    let promise = service.getStatus();
+    if (!promise) {
+      // Can only happen if the sync status service was unavailable
+      status = undefined;
       loading = false;
-    });
+    } else {
+      promise.then((result) => {
+        status = result;
+        loading = false;
+      });
+    }
     openQueryParam.current = true;
   }
 
