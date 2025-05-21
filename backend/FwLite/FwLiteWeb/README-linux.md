@@ -1,10 +1,11 @@
-﻿## FieldWorks Lite Web runs as a terminal application with a web front-end in your browser
+## FieldWorks Lite Web runs as a terminal application with a web front-end in your browser
 
 ## Install a FieldWorks Lite shortcut into the Ubuntu launcher
 
-1. Run install-launcher.sh
-2. Open the Ubuntu launcher and search for "FieldWorks Lite"
-3. You will see the FW Lite icon, click on that to run the application
+1. Run `chmod +x install-launcher.sh`
+2. Run install-launcher.sh
+3. Open the Ubuntu launcher and search for "FieldWorks Lite"
+4. You will see the FW Lite icon, click on that to run the application
 
 ## Run FieldWorks Lite manually
 1. Open a terminal and run ./FwLiteWeb
