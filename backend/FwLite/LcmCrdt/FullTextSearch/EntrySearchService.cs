@@ -79,19 +79,20 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
 
     public string Definition(WritingSystem[] wss, Entry entry)
     {
-        return string.Join("|", entry.Senses.Select(s => Best(s.Definition, wss, WritingSystemType.Analysis)).Where(d => !string.IsNullOrEmpty(d)));
+        return string.Join(" ", entry.Senses.Select(s => Best(s.Definition, wss, WritingSystemType.Analysis)).Where(d => !string.IsNullOrEmpty(d)));
     }
 
     public string Headword(WritingSystem[] wss, Entry entry)
     {
-        return wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
-            .Select(ws => entry.Headword(ws.WsId))
-            .FirstOrDefault() ?? "???";
+        return string.Join(" ",
+            wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
+                .Select(ws => entry.Headword(ws.WsId))
+                .Where(h => !string.IsNullOrEmpty(h)));
     }
 
     public string Gloss(WritingSystem[] wss, Entry entry)
     {
-        return string.Join("|",
+        return string.Join(" ",
             entry.Senses.Select(s => Best(s.Gloss, wss, WritingSystemType.Analysis))
                 .Where(d => !string.IsNullOrEmpty(d)));
     }

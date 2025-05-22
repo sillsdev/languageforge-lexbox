@@ -28,6 +28,16 @@ public class EntrySearchServiceTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await fixture.InitializeAsync();
+        await fixture.Api.CreateWritingSystem(new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "fr",
+            Name = "French",
+            Abbreviation = "fr",
+            Font = "Arial",
+            Exemplars = ["a", "b"],
+            Type = WritingSystemType.Vernacular
+        });
     }
 
     [Fact]
@@ -61,10 +71,47 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Theory]
+    [InlineData("headword_en", true)]
+    [InlineData("headword_fr", true)]
+    [InlineData("headword_de", false)]
+    [InlineData("gloss", true)]
+    [InlineData("definition", true)]
+    [InlineData("Headword: definition", false)]
+    [InlineData("Definition: def", true)]
+    public async Task MatchColumnWorksAsExpected(string searchTerm, bool matches)
+    {
+        var id = Guid.NewGuid();
+        await Service.UpdateEntrySearchTable(new Entry()
+        {
+            Id = id,
+            LexemeForm = { { "en", "headword_en" }, { "fr", "headword_fr" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "gloss" } }, Definition = { { "en", "definition" } } }
+            ]
+        });
+
+
+        var result = await Service.Search(searchTerm).ToArrayAsync();
+        if (matches)
+        {
+            result.Should().Contain(e => e.Id == id);
+        }
+        else
+        {
+            result.Should().NotContain(e => e.Id == id);
+        }
+    }
+
+    [Theory]
     [InlineData("word1", "word1", "word1")]
     [InlineData("app", "app,apple,banana", "app,apple")]
     [InlineData("apple", "app,apple,banana", "apple")]
     [InlineData("att", "att,attack,battery", "att,attack,battery")]
+    [InlineData("att*", "att,attack,battery", "att,attack,battery")]
+    [InlineData("att NOT attack", "att,attack,battery", "att,battery")]
+    [InlineData("battery OR attack", "att,attack,battery", "attack,battery")]
+    [InlineData("word1 word3", "word1 word2 word3,word4", "word1 word2 word3")]
     public async Task RanksResultsAsExpected(string searchTerm, string words, string expectedOrder)
     {
         foreach (var word in words.Split(","))
