@@ -4,11 +4,16 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {inputVariants} from './input.svelte';
 
-  type Props = WithElementRef<HTMLAttributes<HTMLDivElement>>;
+  interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>> {
+    focusRingClass?: string;
+  }
+
+  const anyChildHasFocusRing = 'has-[:focus-visible]:ring-ring has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-offset-2';
 
   let {
     ref = $bindable(null),
     class: className,
+    focusRingClass = anyChildHasFocusRing,
     children,
     ...restProps
   }: Props = $props();
@@ -16,7 +21,7 @@
 
 <div
   bind:this={ref}
-  class={cn(inputVariants({ variant: 'shell' }), className)}
+  class={cn(inputVariants({ variant: 'shell' }), focusRingClass, className)}
   {...restProps}
 >
   {@render children?.()}
