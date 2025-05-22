@@ -63,7 +63,7 @@
         {$t`Open in new Window`}
       </ResponsiveMenu.Item>
     {/if}
-    {#if features.openWithFlex && (appLauncher || !IsMobile.value || true)}
+    {#if features.openWithFlex && (appLauncher || !IsMobile.value)}
       <ResponsiveMenu.Item>
         {#snippet child({props})}
           <OpenInFieldWorksButton {entry} {...props} />
