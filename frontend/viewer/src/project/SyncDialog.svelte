@@ -25,7 +25,7 @@
 
   let lbToLocalCount = $derived(localStatus?.fwdataChanges ?? 0);
   let localToLbCount = $derived(localStatus?.crdtChanges ?? 0);
-  const lastLocalSyncDate = $derived(new Date(remoteStatus?.lastCrdtCommitDate ?? ''));
+  let lastLocalSyncDate = $derived(new Date(remoteStatus?.lastCrdtCommitDate ?? '')); // TODO: How do we get this from localStatus?
   const lastFlexSyncDate = $derived(new Date(remoteStatus?.lastMercurialCommitDate ?? ''));
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
@@ -79,6 +79,7 @@
       // Optimistically update status, then query it
       lbToLocalCount = 0;
       localToLbCount = 0;
+      lastLocalSyncDate = new Date(); // TODO: Figure out how to include a date in the getLocalStatus() call
       const promise = service.getLocalStatus();
       if (promise) {
         localStatus = await promise;
