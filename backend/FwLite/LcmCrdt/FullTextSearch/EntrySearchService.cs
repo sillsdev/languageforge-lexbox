@@ -12,28 +12,12 @@ public record EntrySearchRecord : FullTextSearchRecord
     {
     }
 
-    [SetsRequiredMembers]
-    public EntrySearchRecord(Guid Id, string Headword, string gloss, string definition)
-    {
-        this.Id = Id;
-        this.Headword = Headword;
-        Gloss = gloss;
-        Definition = definition;
-    }
 
     public Guid Id { get; init; }
-    public required string Headword { get; init; }
+    public required string CitationForm { get; init; }
+    public required string LexemeForm { get; init; }
     public required string Gloss { get; init; }
     public required string Definition { get; init; }
-
-    public void Deconstruct(out Guid Id, out string Headword, out int RowId, out string Match, out double? Rank)
-    {
-        Id = this.Id;
-        Headword = this.Headword;
-        RowId = this.RowId;
-        Match = this.Match;
-        Rank = this.Rank;
-    }
 }
 
 public record FullTextSearchRecord
@@ -82,11 +66,19 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
         return string.Join(" ", entry.Senses.Select(s => Best(s.Definition, wss, WritingSystemType.Analysis)).Where(d => !string.IsNullOrEmpty(d)));
     }
 
-    public string Headword(WritingSystem[] wss, Entry entry)
+    public string LexemeForm(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
             wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
-                .Select(ws => entry.Headword(ws.WsId))
+                .Select(ws => entry.LexemeForm[ws.WsId])
+                .Where(h => !string.IsNullOrEmpty(h)));
+    }
+
+    public string CitationForm(WritingSystem[] wss, Entry entry)
+    {
+        return string.Join(" ",
+            wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
+                .Select(ws => entry.CitationForm[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
     }
 
@@ -103,7 +95,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
         await dbContext.EntrySearchRecords.ToLinqToDBTable().InsertAsync(() => new EntrySearchRecord()
         {
             Id = entry.Id,
-            Headword = Headword(ws, entry),
+            LexemeForm = LexemeForm(ws, entry),
+            CitationForm = CitationForm(ws, entry),
             Definition = Definition(ws, entry),
             Gloss = Gloss(ws, entry)
         });

@@ -71,20 +71,24 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData("headword_en", true)]
-    [InlineData("headword_fr", true)]
-    [InlineData("headword_de", false)]
+    [InlineData("lexemeform_en", true)]
+    [InlineData("lexemeform_fr", true)]
+    [InlineData("citation_fr", true)]
+    [InlineData("CitationForm: citation", true)]
+    [InlineData("lexemeform_de", false)]
     [InlineData("gloss", true)]
     [InlineData("definition", true)]
-    [InlineData("Headword: definition", false)]
+    [InlineData("Gloss: definition", false)]
     [InlineData("Definition: def", true)]
+    [InlineData("LexemeForm: cit OR CitationForm: cit", true)]
     public async Task MatchColumnWorksAsExpected(string searchTerm, bool matches)
     {
         var id = Guid.NewGuid();
         await Service.UpdateEntrySearchTable(new Entry()
         {
             Id = id,
-            LexemeForm = { { "en", "headword_en" }, { "fr", "headword_fr" } },
+            LexemeForm = { { "en", "lexemeform_en" }, { "fr", "lexemeform_fr" } },
+            CitationForm = { { "fr", "citation_fr" } },
             Senses =
             [
                 new Sense() { Gloss = { { "en", "gloss" } }, Definition = { { "en", "definition" } } }
@@ -120,7 +124,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
         }
 
         var result = await Service.Search(searchTerm).ToArrayAsync();
-        string.Join(",", result.Select(e => e.Headword)).Should().Be(expectedOrder);
+        string.Join(",", result.Select(e => e.LexemeForm)).Should().Be(expectedOrder);
     }
 
     public async Task DisposeAsync()

@@ -27,7 +27,7 @@ namespace LcmCrdt.Migrations
             //         table.PrimaryKey("PK_EntrySearchRecord", x => x.RowId);
             //     });
             migrationBuilder.Sql(@"
-                CREATE VIRTUAL TABLE EntrySearchRecord USING fts5(Headword, Definition, Gloss, Id UNINDEXED, tokenize=""trigram"");
+                CREATE VIRTUAL TABLE EntrySearchRecord USING fts5(LexemeForm, CitationForm, Definition, Gloss, Id UNINDEXED, tokenize=""trigram"");
             ");
         }
 
