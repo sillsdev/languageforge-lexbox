@@ -11,6 +11,10 @@ tasks:
     interactive: true
     deps: [ install ]
     cmd: pnpm run -r --parallel dev
+  lexbox-only:
+    interactive: true
+    deps: [ install ]
+    cmd: pnpm run dev
 
   install:
     method: checksum
