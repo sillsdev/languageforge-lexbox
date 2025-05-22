@@ -16,6 +16,11 @@ public class MiniLcmApiFixture : IAsyncLifetime
     public DataModel DataModel => _services.ServiceProvider.GetRequiredService<DataModel>();
     public CrdtConfig CrdtConfig => _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
 
+    public T GetService<T>() where T : notnull
+    {
+        return _services.ServiceProvider.GetRequiredService<T>();
+    }
+
     public MiniLcmApiFixture()
     {
     }
