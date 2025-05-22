@@ -1,5 +1,6 @@
 using FwLiteShared.Sync;
 using LexCore.Sync;
+using SIL.Harmony;
 using Microsoft.JSInterop;
 
 namespace FwLiteShared.Services;
@@ -23,5 +24,11 @@ public class SyncServiceJsInvokable(SyncService syncService)
     public Task<SyncResult?> CountPendingCrdtCommits()
     {
         return syncService.CountPendingCrdtCommits();
+    }
+
+    [JSInvokable]
+    public Task<SyncResults> ExecuteSync(bool skipNotifications = false)
+    {
+        return syncService.ExecuteSync(skipNotifications);
     }
 }

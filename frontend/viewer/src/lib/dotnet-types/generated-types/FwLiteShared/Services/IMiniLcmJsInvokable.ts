@@ -20,7 +20,6 @@ import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormCompo
 export interface IMiniLcmJsInvokable
 {
 	supportedFeatures() : Promise<IMiniLcmFeatures>;
-	triggerSync() : Promise<void>;
 	getWritingSystems() : Promise<IWritingSystems>;
 	getPartsOfSpeech() : Promise<IPartOfSpeech[]>;
 	getPublications() : Promise<IPublication[]>;

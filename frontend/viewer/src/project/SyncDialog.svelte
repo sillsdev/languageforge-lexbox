@@ -75,11 +75,11 @@
   async function syncLexboxToLocal() {
     if (api) {
       loadingSyncLexboxToFlex = true;
-      await api.triggerSync();
+      await service.triggerCrdtSync();
       // Optimistically update status, then query it
       lbToLocalCount = 0;
       localToLbCount = 0;
-      lastLocalSyncDate = new Date(); // TODO: Figure out how to include a date in the getLocalStatus() call
+      lastLocalSyncDate = new Date(); // TODO: Figure out how to get a date from the DB quickly, then include in getLocalStatus() call
       const promise = service.getLocalStatus();
       if (promise) {
         localStatus = await promise;

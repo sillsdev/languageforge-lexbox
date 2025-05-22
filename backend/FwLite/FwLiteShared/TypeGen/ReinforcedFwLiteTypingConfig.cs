@@ -120,6 +120,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ServerProjects),
             typeof(ProjectSyncStatus),
             typeof(SyncResult),
+            typeof(SyncResults),
             typeof(LexboxServer),
             typeof(CrdtProject),
             typeof(ProjectData),

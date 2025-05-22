@@ -5,11 +5,13 @@
 
 import type {IProjectSyncStatus} from '../../LexCore/Sync/IProjectSyncStatus';
 import type {ISyncResult} from '../../LexCore/Sync/ISyncResult';
+import type {ISyncResults} from '../../SIL/Harmony/ISyncResults';
 
 export interface ISyncServiceJsInvokable
 {
 	getSyncStatus() : Promise<IProjectSyncStatus>;
 	triggerFwHeadlessSync() : Promise<ISyncResult>;
 	countPendingCrdtCommits() : Promise<ISyncResult>;
+	executeSync(skipNotifications?: boolean) : Promise<ISyncResults>;
 }
 /* eslint-enable */

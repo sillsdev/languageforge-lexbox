@@ -24,6 +24,10 @@ export class SyncStatusService {
     return this.syncStatusApi?.countPendingCrdtCommits();
   }
 
+  triggerCrdtSync(skipNotifications?: boolean) {
+    return this.syncStatusApi?.executeSync(skipNotifications);
+  }
+
   triggerFwHeadlessSync() {
     return this.syncStatusApi?.triggerFwHeadlessSync();
   }
