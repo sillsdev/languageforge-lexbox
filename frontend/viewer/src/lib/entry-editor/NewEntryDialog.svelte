@@ -81,11 +81,21 @@
   }
 
   let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
+
+  function isDesktop(): boolean {
+    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && isDesktop()) {
+      createEntry(event);
+    }
+  }
 </script>
 
 {#if open}
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent>
+  <Dialog.DialogContent on:keydown={handleKeydown}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
