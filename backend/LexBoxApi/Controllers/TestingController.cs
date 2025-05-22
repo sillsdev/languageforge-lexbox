@@ -125,6 +125,8 @@ public class TestingController(
     }
 
     [HttpPost("pre-approve-oauth-app")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> PreApproveOauthApp(string clientId, string scopes)
     {
         if (authorizationManager is null) throw new InvalidOperationException("authorizationManager is null");

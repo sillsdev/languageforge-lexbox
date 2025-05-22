@@ -242,7 +242,7 @@ public class EmailService(
         }
         catch (Exception e)
         {
-            activity?.RecordException(e);
+            activity?.AddException(e);
             activity?.SetStatus(ActivityStatusCode.Error);
             throw;
         }

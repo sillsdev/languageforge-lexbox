@@ -306,7 +306,7 @@ public class RichTextTests(ITestOutputHelper output)
         }
 
         return GetData().Select(x =>
-            new object?[] { x.propType, x.value, x.variation, x.assert });
+            new[] { x.propType, x.value, x.variation, x.assert });
     }
 
     [Theory]

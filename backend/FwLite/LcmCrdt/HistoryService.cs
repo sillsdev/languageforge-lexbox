@@ -90,7 +90,9 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
                 s => s.CommitId == commit.Id && s.EntityId == entityId)
             from change in changeEntities.LeftJoin(c =>
                 c.CommitId == commit.Id && c.EntityId == entityId)
+#pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
             where snapshot.Id != null || change.EntityId != null
+#pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
             select new HistoryLineItem(commit.Id,
                 entityId,
                 commit.HybridDateTime.DateTime,

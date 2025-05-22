@@ -14,30 +14,30 @@ internal class Program
     private static int Main(string[] args)
     {
         using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        logger = loggerFactory.CreateLogger("FixFwData");
+        _logger = loggerFactory.CreateLogger("FixFwData");
         var pathname = args[0];
-        var prog = new LoggingProgress(logger);
-        var data = new FwDataFixer(pathname, prog, logError, getErrorCount);
+        var prog = new LoggingProgress(_logger);
+        var data = new FwDataFixer(pathname, prog, LogError, getErrorCount);
         data.FixErrorsAndSave();
-        return errorsOccurred ? 1 : 0;
+        return _errorsOccurred ? 1 : 0;
     }
 
-    private static bool errorsOccurred = false;
-    private static int errorCount = 0;
-    private static ILogger? logger;
+    private static bool _errorsOccurred;
+    private static int _errorCount;
+    private static ILogger? _logger;
 
-    private static void logError(string description, bool errorFixed)
+    private static void LogError(string description, bool errorFixed)
     {
-        logger?.LogError(description);
+        _logger?.LogError(description);
 
-        errorsOccurred = true;
+        _errorsOccurred = true;
         if (errorFixed)
-            ++errorCount;
+            ++_errorCount;
     }
 
     private static int getErrorCount()
     {
-        return errorCount;
+        return _errorCount;
     }
 
     private sealed class LoggingProgress(ILogger logger) : IProgress
@@ -61,7 +61,7 @@ internal class Program
         public int StepSize { get; set; }
         public int Minimum { get; set; }
         public int Maximum { get; set; }
-        public ISynchronizeInvoke? SynchronizeInvoke { get => null; private set { } }
+        public ISynchronizeInvoke? SynchronizeInvoke => null;
         public bool IsIndeterminate { get => false; set { } }
         public bool AllowCancel { get => false; set { } }
         #endregion

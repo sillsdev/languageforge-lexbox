@@ -9,8 +9,9 @@ public class RemoveSemanticDomainChange(Guid semanticDomainId, Guid entityId)
 {
     public Guid SemanticDomainId { get; } = semanticDomainId;
 
-    public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
+    public override ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
         entity.SemanticDomains = [..entity.SemanticDomains.Where(s => s.Id != SemanticDomainId)];
+        return ValueTask.CompletedTask;
     }
 }
