@@ -105,7 +105,7 @@
   const codeIsAvailable = resource(() => formCode,
     code => {
       //don't query for the default code as it's probably not what they want
-      if (!browser || !code || !user.canCreateProjects || code === defaultCode) return true;
+      if (!browser || !code || !user.canCreateProjects || code === defaultCode) return Promise.resolve(true);
       return _projectCodeAvailable(code);
     }, {initialValue: true, debounce: DEFAULT_DEBOUNCE_TIME});
   const codeErrors = $derived([
