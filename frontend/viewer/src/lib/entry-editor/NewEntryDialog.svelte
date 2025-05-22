@@ -13,6 +13,7 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false});
@@ -82,12 +83,8 @@
 
   let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
 
-  function isDesktop(): boolean {
-    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  }
-
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && isDesktop()) {
+    if (event.key === 'Enter' && !IsMobile.value) {
       createEntry(event);
     }
   }
@@ -95,7 +92,7 @@
 
 {#if open}
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent on:keydown={handleKeydown}>
+  <Dialog.DialogContent onkeydown={handleKeydown}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
