@@ -3,7 +3,8 @@
   import { Icon } from '$lib/components/ui/icon';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
-  import { t } from 'svelte-i18n-lingui';
+  import { t, plural } from 'svelte-i18n-lingui';
+  import { AppNotification } from '$lib/notifications/notifications';
   import { QueryParamStateBool } from '$lib/utils/url.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import { useSyncStatusService } from '$lib/services/sync-status-service';
@@ -34,9 +35,23 @@
     openQueryParam.current = true;
   }
 
-  let { syncLbToLocal, syncLbToFlex } = $props<{
+  let loadingSyncLbToFlex = $state(false);
+  async function syncLbToFlex() {
+    loadingSyncLbToFlex = true;
+    let result = await service.triggerFwHeadlessSync();
+    loadingSyncLbToFlex = false;
+    if (result) {
+      const fwdataChangesText = $plural(result.fwdataChanges, { one: '# change', other: '# changes' });
+      const crdtChangesText = $plural(result.crdtChanges, { one: '# change', other: '# changes' });
+      AppNotification.display(
+        $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`,
+        'success',
+      );
+    }
+  }
+
+  let { syncLbToLocal } = $props<{
     syncLbToLocal: () => void; // Or perhaps Promise<void>
-    syncLbToFlex: () => void; // Or perhaps Promise<void>
   }>();
 
   const localToLbCount = 0; // TODO: track this at some point
@@ -63,7 +78,7 @@
         </div>
         <div class="text-right content-center">{lbToLocalCount}<Icon icon="i-mdi-arrow-up" /></div>
         <div class="content-center text-center">
-          <Button onclick={syncLbToLocal} icon="i-mdi-sync" iconProps={{class: 'size-5'}}>Synchronize</Button>
+          <Button onclick={syncLbToLocal} icon="i-mdi-sync" iconProps={{ class: 'size-5' }}>{$t`Synchronize`}</Button>
         </div>
         <div class="text-left content-center"><Icon icon="i-mdi-arrow-down" />{localToLbCount}</div>
         <div class="col-span-3 text-center flex flex-col">
@@ -78,7 +93,9 @@
         </div>
         <div class="text-right content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
         <div class="content-center text-center">
-          <Button onclick={syncLbToFlex} icon="i-mdi-sync" iconProps={{class: 'size-5'}}>Synchronize</Button>
+          <Button loading={loadingSyncLbToFlex} onclick={syncLbToFlex} icon="i-mdi-sync" iconProps={{ class: 'size-5' }}
+            >{$t`Synchronize`}</Button
+          >
         </div>
         <div class="text-left content-center"><Icon icon="i-mdi-arrow-down" />{lbToFlexCount}</div>
         <div class="col-span-3 text-center flex flex-col">

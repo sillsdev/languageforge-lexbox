@@ -119,6 +119,36 @@ public class LexboxProjectService : IDisposable
         }
     }
 
+    public async Task<HttpResponseMessage?> TriggerLexboxSync(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error triggering lexbox sync");
+            return null;
+        }
+    }
+
+    public async Task<SyncResult?> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.GetFromJsonAsync<SyncResult?>($"api/fw-lite/sync/await-sync-finished/{projectId}");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error waiting for lexbox sync to finish");
+            return null;
+        }
+    }
+
     public void InvalidateProjectsCache(LexboxServer server)
     {
         cache.Remove(CacheKey(server));

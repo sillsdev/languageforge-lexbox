@@ -86,6 +86,20 @@ public class SyncService(
         return status;
     }
 
+    public async Task<HttpResponseMessage?> TriggerSync()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var server = authOptions.Value.GetServer(project);
+        return await lexboxProjectService.TriggerLexboxSync(server, project.Id);
+    }
+
+    public async Task<SyncResult?> AwaitSyncFinished()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var server = authOptions.Value.GetServer(project);
+        return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
+    }
+
     private async Task SendNotifications(SyncResults syncResults)
     {
         try

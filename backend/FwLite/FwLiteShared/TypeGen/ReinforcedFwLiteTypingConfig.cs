@@ -119,6 +119,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ProjectModel),
             typeof(ServerProjects),
             typeof(ProjectSyncStatus),
+            typeof(SyncResult),
             typeof(LexboxServer),
             typeof(CrdtProject),
             typeof(ProjectData),

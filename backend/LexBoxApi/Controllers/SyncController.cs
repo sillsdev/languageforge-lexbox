@@ -29,6 +29,7 @@ public class SyncController(
     }
 
     [HttpPost("trigger/{projectId}")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     public async Task<ActionResult> TriggerSync(Guid projectId)
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
@@ -38,6 +39,7 @@ public class SyncController(
     }
 
     [HttpGet("await-sync-finished/{projectId}")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);

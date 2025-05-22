@@ -11,4 +11,11 @@ public class SyncServiceJsInvokable(SyncService syncService)
     {
         return syncService.GetSyncStatus();
     }
+
+    [JSInvokable]
+    public async Task<SyncResult?> TriggerFwHeadlessSync()
+    {
+        await syncService.TriggerSync();
+        return await syncService.AwaitSyncFinished();
+    }
 }

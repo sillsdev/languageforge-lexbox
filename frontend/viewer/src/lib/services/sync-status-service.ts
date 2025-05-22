@@ -19,4 +19,8 @@ export class SyncStatusService {
   getStatus() {
     return this.syncStatusApi?.getSyncStatus();
   }
+
+  triggerFwHeadlessSync() {
+    return this.syncStatusApi?.triggerFwHeadlessSync();
+  }
 }

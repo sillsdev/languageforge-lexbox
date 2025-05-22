@@ -4,9 +4,11 @@
 //     the code is regenerated.
 
 import type {IProjectSyncStatus} from '../../LexCore/Sync/IProjectSyncStatus';
+import type {ISyncResult} from '../../LexCore/Sync/ISyncResult';
 
 export interface ISyncServiceJsInvokable
 {
 	getSyncStatus() : Promise<IProjectSyncStatus>;
+	triggerFwHeadlessSync() : Promise<ISyncResult>;
 }
 /* eslint-enable */
