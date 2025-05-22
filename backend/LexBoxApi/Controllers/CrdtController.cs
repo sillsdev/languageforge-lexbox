@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using SIL.Harmony.Core;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -64,6 +64,15 @@ public class CrdtController(
         await permissionService.AssertCanSyncProject(projectId);
         var localState = await crdtCommitService.GetSyncState(projectId);
         return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
+    }
+
+    [HttpPost("{projectId}/countChanges")]
+    public async Task<ActionResult<int>> CountChanges(Guid projectId,
+        [FromBody] SyncState clientHeads)
+    {
+        await permissionService.AssertCanSyncProject(projectId);
+        var localState = await crdtCommitService.GetSyncState(projectId);
+        return await crdtCommitService.ApproximatelyCountMissingCommits(projectId, localState, clientHeads);
     }
 
     public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);

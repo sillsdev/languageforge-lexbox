@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
+using SIL.Harmony.Core;
 
 namespace FwLiteShared.Projects;
 
@@ -145,6 +146,23 @@ public class LexboxProjectService : IDisposable
         catch (Exception e)
         {
             logger.LogError(e, "Error waiting for lexbox sync to finish");
+            return null;
+        }
+    }
+
+    public async Task<int?> CountPendingCrdtCommits(LexboxServer server, Guid projectId, SyncState localSyncState)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            var result = await httpClient.PostAsJsonAsync<SyncState>($"/api/crdt/{projectId}/countChanges", localSyncState);
+            var text = await result.Content.ReadAsStringAsync();
+            return int.Parse(text);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error counting pending changes in lexbox");
             return null;
         }
     }

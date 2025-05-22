@@ -20,6 +20,10 @@ export class SyncStatusService {
     return this.syncStatusApi?.getSyncStatus();
   }
 
+  getLocalStatus() {
+    return this.syncStatusApi?.countPendingCrdtCommits();
+  }
+
   triggerFwHeadlessSync() {
     return this.syncStatusApi?.triggerFwHeadlessSync();
   }

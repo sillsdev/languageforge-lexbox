@@ -18,4 +18,10 @@ public class SyncServiceJsInvokable(SyncService syncService)
         await syncService.TriggerSync();
         return await syncService.AwaitSyncFinished();
     }
+
+    [JSInvokable]
+    public Task<SyncResult?> CountPendingCrdtCommits()
+    {
+        return syncService.CountPendingCrdtCommits();
+    }
 }

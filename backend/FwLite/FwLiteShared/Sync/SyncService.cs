@@ -100,6 +100,20 @@ public class SyncService(
         return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
     }
 
+    public async Task<SyncResult?> CountPendingCrdtCommits()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var localSyncState = await dataModel.GetSyncState();
+        if (localSyncState is null) return null;
+        var server = authOptions.Value.GetServer(project);
+        var localChangesPending = CountPendingCommits(); // Not awaited yet
+        var remoteChangesPending = lexboxProjectService.CountPendingCrdtCommits(server, project.Id, localSyncState); // Not awaited yet
+        var localChanges = await localChangesPending;
+        var remoteChanges = await remoteChangesPending;
+        if (localChanges is null || remoteChanges is null) return null;
+        return new SyncResult(localChanges ?? 0, remoteChanges ?? 0);
+    }
+
     private async Task SendNotifications(SyncResults syncResults)
     {
         try
@@ -176,6 +190,26 @@ public class SyncService(
         catch (Exception e)
         {
             logger.LogError(e, "Failed to update sync date");
+        }
+    }
+
+    public async Task<int?> CountPendingCommits()
+    {
+        try
+        {
+            // Assert sync date prop for same reason as in UpdateSyncDate
+            Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            int count = await dbContext.Database.SqlQuery<int>(
+                $"""
+                 SELECT COUNT(*) AS Value FROM Commits
+                 WHERE json_extract(Metadata, '$.ExtraMetadata.SyncDate') IS NULL
+                 """).SingleAsync();
+            return count;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to count pending commits");
+            return null;
         }
     }
 

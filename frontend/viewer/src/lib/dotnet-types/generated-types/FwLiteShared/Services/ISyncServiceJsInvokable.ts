@@ -10,5 +10,6 @@ export interface ISyncServiceJsInvokable
 {
 	getSyncStatus() : Promise<IProjectSyncStatus>;
 	triggerFwHeadlessSync() : Promise<ISyncResult>;
+	countPendingCrdtCommits() : Promise<ISyncResult>;
 }
 /* eslint-enable */
