@@ -103,7 +103,7 @@
           onchange={() => onFieldChanged('literalMeaning')}
           bind:value={entry.literalMeaning}
           {readonly}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.analysis} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
