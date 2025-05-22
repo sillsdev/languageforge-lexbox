@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { Icon } from '$lib/components/ui/icon';
-  import { Duration, DurationUnits } from 'svelte-ux';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { t } from 'svelte-i18n-lingui';
@@ -20,7 +19,6 @@
   );
 
   export function open(): void {
-    // status = await service.getStatus('How do I find the project ID to use in the fallback?'); // TODO
     loading = true;
     let promise = service.getStatus();
     if (!promise) {
@@ -28,7 +26,7 @@
       status = undefined;
       loading = false;
     } else {
-      promise.then((result) => {
+      void promise.then((result) => {
         status = result;
         loading = false;
       });
@@ -55,7 +53,6 @@
       <DialogTitle>{$t`Synchronize`}</DialogTitle>
     </DialogHeader>
     {#if loading}
-      <!-- TODO: Show loading as an overlay? -->
       <Loading />
     {:else if !status}
       <div>{$t`Error getting sync status. Are you logged in to the LexBox server?`}</div>
