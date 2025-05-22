@@ -19,11 +19,16 @@
   import {ComposableInput} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
   import EntryRow from '../../project/browse/EntryRow.svelte';
+  import SenseRow from '../../project/browse/SenseRow.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {t, T} from 'svelte-i18n-lingui';
   import ListItem from '$lib/components/ListItem.svelte';
   import type {DialogTriggerProps} from 'bits-ui';
+  import {Badge} from '$lib/components/ui/badge';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
+  const currentView = useCurrentView();
   const dialogsService = useDialogsService();
   const writingSystemService = useWritingSystemService();
 
@@ -50,9 +55,6 @@
 
   let selectedEntry: IEntry | undefined = $state(undefined);
   let selectedSense: ISense | undefined = $state(undefined);
-  // We need this redundant field so the ExpandPanel has something to bind to. Otherwise it's very fragile.
-  // So it's basically just for managing the state of the ExpansionPanel.
-  let selectedEntryId: string | undefined = $state(undefined);
 
   const lexboxApi = useLexboxApi();
   let search = $state('');
@@ -102,7 +104,6 @@
   function reset() {
     search = '';
     selectedEntry = undefined;
-    selectedEntryId = undefined;
     selectedSense = undefined;
     addedEntries = [];
   }
@@ -120,7 +121,6 @@
   async function onClickCreateNewEntry(): Promise<void> {
     const entry = await dialogsService.createNewEntry(search);
     selectedEntry = entry;
-    selectedEntryId = entry?.id;
     if (entry) {
       addedEntries = [entry];
     }
@@ -128,18 +128,8 @@
 
   function select(entry?: IEntry, sense?: ISense): void {
     selectedEntry = entry;
-    selectedEntryId = entry?.id;
     selectedSense = sense;
   }
-  $effect(() => {
-    if (!selectedEntryId) {
-      select();
-      return;
-    }
-    let entry = displayedEntries.find(e => e.id === selectedEntryId) ?? addedEntries.find(e => e.id === selectedEntryId);
-    if (disableEntry && entry && disableEntry(entry)) entry = undefined;
-    select(entry);
-  });
 </script>
 
 <Dialog.Root bind:open>
@@ -164,13 +154,12 @@
     <div class="space-y-2">
       {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
         {@const disabledEntry = disableEntry?.(entry)}
-        <EntryRow {entry} isSelected={selectedEntry === entry} onclick={() => select(entry)}>
+        <EntryRow {entry} selected={selectedEntry === entry} onclick={() => select(entry)}>
           {#snippet badge()}
             {#if disabledEntry}
-                <span
-                  class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                  {disabledEntry.reason}
-                </span>
+              <Badge variant="outline" class="border-destructive text-destructive">
+                {disabledEntry.reason}
+              </Badge>
             {/if}
           {/snippet}
         </EntryRow>
@@ -211,34 +200,42 @@
 
     <Dialog.Footer class="sticky bottom-0 gap-0 flex-col bg-background border rounded rounded-b-none border-b-0 scale-[1.02]">
       {#if !onlyEntries && selectedEntry}
-        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 max-h-[min(50cqh,20rem)] overflow-y-auto overscroll-contains">
-          <p class="text-muted-foreground p-2 text-sm">Senses:</p>
+        {@const disabledEntry = disableEntry?.(selectedEntry)}
+        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 pt-2 max-h-[min(50cqh,20rem)] overflow-y-auto overscroll-contains">
+          <p class="text-muted-foreground px-2 text-sm">
+            {pt($t`Entry or sense:`, $t`Word or meaning:`, $currentView)}
+          </p>
           <ListItem
-            class="flex"
-            aria-selected={!selectedSense}
+            class="flex-row justify-between"
+            disabled={!!disableEntry?.(selectedEntry)}
+            selected={!selectedSense}
             onclick={() => select(selectedEntry, undefined)}>
-            <div class="flex flex-col items-start">
-              <p class="font-medium">{$t`Entry Only`}</p>
-            </div>
+            <p class="font-medium">{$t`Entry Only`}</p>
+            {#if disabledEntry}
+              <Badge variant="outline" class="border-destructive text-destructive">
+                {disabledEntry.reason}
+              </Badge>
+            {/if}
           </ListItem>
           {#each selectedEntry.senses as sense}
             {@const disabledSense = disableSense?.(sense, selectedEntry)}
-            <ListItem
-              class="flex"
-              aria-selected={selectedSense?.id === sense.id}
+            <SenseRow
+              {sense}
+              selected={selectedSense?.id === sense.id}
               disabled={!!disabledSense}
               onclick={() => select(selectedEntry, sense)}>
               <div class="flex flex-col items-start">
                 <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
                 <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
               </div>
-              {#if disabledSense}
-                <span
-                  class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                  {disabledSense}
-                </span>
-              {/if}
-            </ListItem>
+              {#snippet badge()}
+                {#if disabledSense}
+                  <Badge variant="outline" class="border-destructive text-destructive">
+                    {disabledSense}
+                  </Badge>
+                {/if}
+              {/snippet}
+            </SenseRow>
           {/each}
 <!--          disabled for now because this didn't prompt the user to define the sense, it just created it with no data-->
 <!--          <button

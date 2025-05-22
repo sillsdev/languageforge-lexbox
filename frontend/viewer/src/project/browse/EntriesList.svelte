@@ -112,7 +112,7 @@
         {#each entries as entry}
           <EntryMenu {entry} contextMenu>
               <EntryRow {entry}
-                isSelected={selectedEntryId === entry.id}
+                selected={selectedEntryId === entry.id}
                 onclick={() => onSelectEntry(entry)}
                 {previewDictionary} />
           </EntryMenu>
