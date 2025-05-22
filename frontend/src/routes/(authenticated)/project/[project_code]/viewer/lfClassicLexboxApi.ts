@@ -41,6 +41,10 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
   constructor(private projectCode: string) {
   }
 
+  async triggerSync(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   async getWritingSystems(): Promise<IWritingSystems> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/writingSystems`);
     return (await result.json()) as IWritingSystems;
