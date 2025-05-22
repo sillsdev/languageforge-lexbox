@@ -29,7 +29,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
 
                     return dbContext.WritingSystems.ToArray();
                 }
-                catch (SqliteException e)
+                catch (SqliteException)
                 {
                     return [];
                 }

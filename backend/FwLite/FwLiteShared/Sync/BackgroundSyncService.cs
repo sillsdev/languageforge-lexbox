@@ -1,7 +1,6 @@
 ﻿using System.Threading.Channels;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,12 +12,11 @@ namespace FwLiteShared.Sync;
 public class BackgroundSyncService(
     CrdtProjectsService crdtProjectsService,
     ILogger<BackgroundSyncService> logger,
-    IMemoryCache memoryCache,
     IServiceProvider serviceProvider,
     IHostApplicationLifetime? applicationLifetime = null) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
-    private bool _running = false;
+    private bool _running;
 
     public void TriggerSync(Guid projectId, Guid? ignoredClientId = null)
     {
