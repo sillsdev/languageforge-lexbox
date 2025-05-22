@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using HtmlAgilityPack;
 
 namespace MiniLcm.Models;
 
@@ -31,6 +30,7 @@ public class RichMultiString : Dictionary<WritingSystemId, RichString>, IDiction
         var newRichString = new RichMultiString(Count);
         foreach (var keyValuePair in this)
         {
+            if (keyValuePair.Value is null) continue;
             newRichString.Add(keyValuePair.Key, keyValuePair.Value.Copy());
         }
 
