@@ -50,14 +50,14 @@
 
   function addSense() {
     const sense = defaultSense(entry.id);
-    highlightedEntity = { entity: sense, autofocus: true };
+    highlighted = { entity: sense, autofocus: true };
     entry.senses = [...entry.senses, sense];
     newSenses = [...newSenses, sense];
   }
 
   function addExample(sense: ISense) {
     const sentence = defaultExampleSentence(sense.id);
-    highlightedEntity = { entity: sentence, autofocus: true };
+    highlighted = { entity: sentence, autofocus: true };
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this
     newExamples = [...newExamples, sentence];
@@ -77,7 +77,7 @@
     entry.senses.splice(entry.senses.indexOf(sense), 1);
     entry.senses.splice(i, 0, sense);
     onSenseChange(sense);
-    highlightedEntity = { entity: sense };
+    highlighted = { entity: sense };
   }
 
   async function deleteExample(sense: ISense, example: IExampleSentence) {
@@ -96,7 +96,7 @@
     sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
     sense.exampleSentences.splice(i, 0, example);
     onExampleChange(sense, example);
-    highlightedEntity = { entity: example };
+    highlighted = { entity: example };
     entry = entry; // examples are not updated without this
   }
 
@@ -110,19 +110,20 @@
   }
 
   let editorElem: HTMLDivElement | null = $state(null);
-  let highlightedEntity = $state<{ entity: IExampleSentence | ISense; autofocus?: boolean}>();
+  let highlighted = $state<{ entity: IExampleSentence | ISense; autofocus?: boolean}>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
+  const ENTITY_FIELD_CONTAINER_CLASS = 'entity-field-container';
 
-  watch(() => highlightedEntity, () => {
-    if (highlightedEntity) {
+  watch(() => highlighted, () => {
+    if (highlighted) {
       clearTimeout(highlightTimeout);
-      highlightTimeout = setTimeout(() => highlightedEntity = undefined, 3000);
+      highlightTimeout = setTimeout(() => highlighted = undefined, 3000);
       // wait for rendering
       setTimeout(() => {
         const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (highlightedEntity?.autofocus && !IsMobile.value)
-            findFirstTabbable(newEntityElem?.querySelector('.editor-primitive'))?.focus();
+          if (highlighted?.autofocus && !IsMobile.value)
+            findFirstTabbable(newEntityElem?.querySelector(`.${ENTITY_FIELD_CONTAINER_CLASS}`))?.focus();
 
           const _isBottomInViewport = isBottomInView(newEntityElem);
           const _isTopInViewport = isTopInView(newEntityElem);
@@ -155,10 +156,10 @@
 
 <Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
+    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
-      <Editor.SubGrid class={cn(sense.id === highlightedEntity?.entity.id && 'highlight')}>
+      <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
         <div class="col-span-full flex items-center py-2 mb-1 sticky top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll">
           <h2 class="text-lg text-muted-foreground">{pt($t`Sense`, $t`Meaning`, $currentView)} {i + 1}</h2>
@@ -171,12 +172,12 @@
               ondelete={() => deleteSense(sense)} id={sense.id} />
         </div>
 
-        <SenseEditorPrimitive bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
+        <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
         {#if sense.exampleSentences.length}
           <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
             {#each sense.exampleSentences as example, j (example.id)}
-              <Editor.SubGrid class={cn(example.id === highlightedEntity?.entity.id && 'highlight')}>
+              <Editor.SubGrid class={cn(example.id === highlighted?.entity.id && 'highlight')}>
                 <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
                 <div class="col-span-full flex items-center mb-2">
                   <h3 class="text-muted-foreground">{$t`Example`} {j + 1}</h3>
@@ -195,6 +196,7 @@
                 </div>
 
                 <ExampleEditorPrimitive
+                  class={ENTITY_FIELD_CONTAINER_CLASS}
                   bind:example={sense.exampleSentences[j]}
                   {readonly}
                   onchange={() => onExampleChange(sense, example)}

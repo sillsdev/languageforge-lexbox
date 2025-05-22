@@ -11,8 +11,10 @@
   import {useComplexFormTypes} from '$lib/complex-form-types';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
+  import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
+  import {mergeProps} from 'bits-ui';
 
-  type Props = {
+  interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
     readonly?: boolean;
     modalMode?: boolean;
@@ -24,6 +26,7 @@
     onchange,
     readonly = false,
     modalMode = false,
+    ...rest
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -35,7 +38,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2 editor-primitive" style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, entry) } })}>
   <Editor.Field.Root style="grid-area: lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>

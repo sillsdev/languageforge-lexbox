@@ -3,7 +3,7 @@
   import type {WithElementRef} from 'bits-ui';
   import type {HTMLAttributes} from 'svelte/elements';
 
-  type EditorSubGridProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
+  export type EditorSubGridProps = WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
   const {
     class: className,
