@@ -19,6 +19,17 @@
     false,
   );
 
+  let { syncLbToLocal } = $props<{
+    syncLbToLocal: () => void | Promise<void>;
+  }>();
+
+  const localToLbCount = 0; // TODO: track this at some point
+  const lbToLocalCount = 0; // TODO: track this at some point
+  const lastLocalSyncDate = $derived(new Date(status?.lastCrdtCommitDate ?? ''));
+  const lastFlexSyncDate = $derived(new Date(status?.lastMercurialCommitDate ?? ''));
+  let lbToFlexCount = $derived(status?.pendingCrdtChanges ?? 0);
+  let flexToLbCount = $derived(status?.pendingMercurialChanges ?? 0);
+
   export function open(): void {
     loading = true;
     let promise = service.getStatus();
@@ -47,19 +58,15 @@
         $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`,
         'success',
       );
+      // Optimisticlly update status, then query it
+      lbToFlexCount = 0;
+      flexToLbCount = 0;
+      const promise = service.getStatus();
+      if (promise) {
+        status = await promise;
+      }
     }
   }
-
-  let { syncLbToLocal } = $props<{
-    syncLbToLocal: () => void; // Or perhaps Promise<void>
-  }>();
-
-  const localToLbCount = 0; // TODO: track this at some point
-  const lbToLocalCount = 0; // TODO: track this at some point
-  const lastLocalSyncDate = $derived(new Date(status?.lastCrdtCommitDate ?? ''));
-  const lastFlexSyncDate = $derived(new Date(status?.lastMercurialCommitDate ?? ''));
-  const lbToFlexCount = $derived(status?.pendingCrdtChanges ?? 0);
-  const flexToLbCount = $derived(status?.pendingMercurialChanges ?? 0);
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
