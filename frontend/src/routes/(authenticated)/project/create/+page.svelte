@@ -25,11 +25,10 @@
   import { _askToJoinProject, _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
+  import {Duration, DEFAULT_DEBOUNCE_TIME} from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived as derivedStore, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -38,7 +37,7 @@
   import Button from '$lib/forms/Button.svelte';
   import { projectUrl } from '$lib/util/project';
   import DevContent from '$lib/layout/DevContent.svelte';
-  import {watch} from 'runed';
+  import {resource, watch} from 'runed';
 
   const { data } = $props();
   let user = $derived(data.user);
@@ -100,53 +99,30 @@
     }
   });
 
-  const codeStore = derivedStore(form, (f) => f.code);
-  const codeIsAvailable = deriveAsync(
-    codeStore,
-    async (code) => {
-      if (!browser || !code || !user.canCreateProjects) return true;
+  const defaultCode = '-train-flex';
+  //can't use $form in resource directly otherwise any field change would retrigger it
+  let formCode = $derived($form.code);
+  const codeIsAvailable = resource(() => formCode,
+    code => {
+      //don't query for the default code as it's probably not what they want
+      if (!browser || !code || !user.canCreateProjects || code === defaultCode) return true;
       return _projectCodeAvailable(code);
-    },
-    true,
-    true,
-  );
-  const asyncCodeError = derivedStore(
-    codeIsAvailable,
-    (avail) => (avail ? undefined : $t('project.create.code_exists')),
-  );
-  const codeErrors = derivedStore([errors, asyncCodeError], ([$errors, $asyncCodeError]) => [
-    ...new Set(concatAll($errors.code, $asyncCodeError)),
+    }, {initialValue: true, debounce: DEFAULT_DEBOUNCE_TIME});
+  const codeErrors = $derived([
+    ...new Set(concatAll($errors.code, codeIsAvailable.current ? undefined : $t('project.create.code_exists'))),
   ]);
 
-  const projectNameStore = derivedStore(form, (f) => f.name);
-  const langCodeStore = derivedStore(form, (f) => f.languageCode);
-  const orgIdStore = derivedStore(form, (f) => f.orgId);
-  const langCodeAndOrgIdStore: Readable<{ langCode: string; orgId: string }> = derivedStore(
-    [langCodeStore, orgIdStore],
-    ([langCode, orgId], set) => {
-      if (langCode && orgId && (langCode.length == 2 || langCode.length == 3)) {
-        set({ langCode, orgId });
-      }
-    },
-  );
-
-  const projectNameAndOrgIdStore: Readable<{ projectName: string; orgId: string }> = derivedStore(
-    [projectNameStore, orgIdStore],
-    ([projectName, orgId], set) => {
-      if (projectName && orgId && projectName.length >= 3) {
-        set({ projectName, orgId });
-      }
-    },
-  );
-
-  const relatedProjectsByLangCode = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg, []);
-  const relatedProjectsByName = deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg, []);
-
-  const relatedProjects = derivedStore([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
+  let relatedProjectsInput = $derived({projectName: $form.name, langCode: $form.languageCode, orgId: $form.orgId})
+  const relatedProjects = resource(() => relatedProjectsInput, async input => {
+    if (!input.orgId) return [];
+    const byLangCodePromise = _getProjectsByLangCodeAndOrg({langCode: input.langCode, orgId: input.orgId});
+    const byNamePromise = _getProjectsByNameAndOrg(input);
+    const byLangCode = await byLangCodePromise;
+    const byName = await byNamePromise;
     // Put projects related by language code first as they're more likely to be real matches
-    var uniqueByName = byName.filter((n) => byCode.findIndex((c) => c.id == n.id) == -1);
-    return [...byCode, ...uniqueByName];
-  });
+    const uniqueByName = byName.filter((n) => byLangCode.findIndex((c) => c.id == n.id) == -1);
+    return [...byLangCode, ...uniqueByName];
+  }, {initialValue: [], debounce: DEFAULT_DEBOUNCE_TIME});
 
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
@@ -220,7 +196,7 @@
   let showRelatedProjects = $state(true);
 
   // When the related-projects list changes, keep selectedProject up-to-date
-  relatedProjects.subscribe((projects) => {
+  watch(() => relatedProjects.current, projects => {
     if (selectedProject) selectedProject = projects.find((p) => selectedProject?.id === p.id);
   });
 
@@ -313,18 +289,18 @@
       <Input
         label={$t('project.create.code')}
         bind:value={$form.code}
-        error={$codeErrors}
+        error={codeErrors}
         readonly={!$form.customCode}
       />
 
-      {#if $relatedProjects.length}
+      {#if relatedProjects.current.length}
         {#if showRelatedProjects}
           <!-- Note, not using RadioButtonGroup here so we can better customize the display to the needs of this form -->
           <div role="radiogroup" aria-labelledby="label-extra-projects" id="group-extra-projects">
             <div class="legend" id="label-extra-projects">
               {$t('project.create.maybe_related')}
             </div>
-            {#each $relatedProjects as proj}
+            {#each relatedProjects.current as proj}
               <div class="form-control w-full">
                 <label class="label cursor-pointer justify-normal pb-0">
                   <input
@@ -365,12 +341,12 @@
           </div>
         {:else}
           <button class="btn btn-ghost btn-sm mb-4" tabindex="0" onclick={() => (showRelatedProjects = true)}>
-            {$t('project.create.click_to_view_related_projects', { count: $relatedProjects.length })}
+            {$t('project.create.click_to_view_related_projects', { count: relatedProjects.current.length })}
           </button>
         {/if}
       {/if}
 
-      {#if !$relatedProjects?.length || !showRelatedProjects}
+      {#if !relatedProjects.current?.length || !showRelatedProjects}
         <TextArea
           id="description"
           label={$t('project.create.description')}
