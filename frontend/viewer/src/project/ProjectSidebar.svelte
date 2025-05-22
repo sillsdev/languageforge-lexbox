@@ -87,11 +87,7 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <Sidebar.MenuItem>
-              <SyncDialog
-                bind:this={syncDialog}
-                syncLbToLocal={() => console.log('Would sync Lexbox to local')}
-                syncLbToFlex={() => console.log('Would sync Lexbox to FieldWorks')}
-              />
+              <SyncDialog bind:this={syncDialog} />
               <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                 <div class="flex items-center gap-2">
                   <Icon icon="i-mdi-sync" />

@@ -39,6 +39,15 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public void TriggerSync()
+    {
+        if (SupportsSync)
+        {
+            backgroundSyncService.TriggerSync(project);
+        }
+    }
+
+    [JSInvokable]
     public Task<WritingSystems> GetWritingSystems()
     {
         return _wrappedApi.GetWritingSystems();

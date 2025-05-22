@@ -10,9 +10,11 @@
   import Loading from '$lib/components/Loading.svelte';
   import { useSyncStatusService } from '$lib/services/sync-status-service';
   import { FormatDate } from '$lib/components/ui/format-date';
+  import { useMiniLcmApi } from '$lib/services/service-provider';
 
   // Get status in calling code by something like the following:
   const service = useSyncStatusService();
+  const api = useMiniLcmApi();
   let remoteStatus: IProjectSyncStatus | undefined = $state();
   let localStatus: ISyncResult | undefined = $state();
   let loading = $state(false);
@@ -71,15 +73,17 @@
 
   let loadingSyncLexboxToLocal = $state(false);
   async function syncLexboxToLocal() {
-    loadingSyncLexboxToFlex = true;
-    console.log('TODO: Implement forcing local sync');
-    loadingSyncLexboxToFlex = false;
-    // Optimistically update status, then query it
-    lbToLocalCount = 0;
-    localToLbCount = 0;
-    const promise = service.getLocalStatus();
-    if (promise) {
-      localStatus = await promise;
+    if (api) {
+      loadingSyncLexboxToFlex = true;
+      await api.triggerSync();
+      // Optimistically update status, then query it
+      lbToLocalCount = 0;
+      localToLbCount = 0;
+      const promise = service.getLocalStatus();
+      if (promise) {
+        localStatus = await promise;
+        loadingSyncLexboxToFlex = false;
+      }
     }
   }
 </script>
