@@ -38,7 +38,11 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
 
     public RichString Copy()
     {
-        var newSpans = Spans.Select(span => span with { }).ToList();
+        var newSpans = Spans.Select(span => span with
+        {
+            ObjData = span.ObjData is null ? null : span.ObjData with {},
+            Tags = span.Tags?.ToArray()
+        }).ToList();
         return new RichString(newSpans);
     }
 
