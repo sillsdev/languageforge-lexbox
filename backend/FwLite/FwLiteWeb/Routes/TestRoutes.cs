@@ -30,7 +30,7 @@ public static class TestRoutes
             });
         group.MapPost("/set-entry-note", async (IMiniLcmApi api, CurrentProjectService projectContext, ProjectEventBus eventBus, Guid entryId, string ws, string note) =>
         {
-            var entry = await api.UpdateEntry(entryId, new UpdateObjectInput<Entry>().Set(e => e.Note[ws], note));
+            var entry = await api.UpdateEntry(entryId, new UpdateObjectInput<Entry>().Set(e => e.Note[ws], new RichString(note)));
             eventBus.PublishEntryChangedEvent(projectContext.Project, entry);
         });
         group.MapPost("/add-new-entry",

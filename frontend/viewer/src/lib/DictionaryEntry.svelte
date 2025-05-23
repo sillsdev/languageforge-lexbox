@@ -53,7 +53,7 @@
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
           gloss: sense.gloss[ws.wsId],
-          definition: sense.definition[ws.wsId],
+          definition: wsService.asString(sense.definition[ws.wsId]),
           color: wsService.wsColor(ws.wsId, 'analysis'),
         }))
         .filter(({gloss, definition}) => gloss || definition),
@@ -61,11 +61,11 @@
         id: example.id,
         sentences: [
           ...wsService.vernacular.map(ws => ({
-            text: example.sentence[ws.wsId],
+            text: wsService.asString(example.sentence[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'vernacular'),
           })),
           ...wsService.analysis.map(ws => ({
-            text: example.translation[ws.wsId],
+            text: wsService.asString(example.translation[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'analysis'),
           })),
         ].filter(({text}) => !!text),

@@ -84,12 +84,12 @@ public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi
 
 public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : RichMultiString, IDictionary
 {
-    private IDictionary<WritingSystemId, string> proxy => new UpdateDictionaryProxy(multiString, lexboxLcmApi);
+    private UpdateDictionaryProxy proxy = new(multiString, lexboxLcmApi);
 
     void IDictionary.Add(object key, object? value)
     {
-        var valStr = value as string ??
-                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string",
+        var valStr = value as RichString ??
+                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
                          nameof(value));
         if (key is WritingSystemId keyWs)
         {

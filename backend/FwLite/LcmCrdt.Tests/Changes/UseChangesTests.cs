@@ -102,7 +102,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createSenseChange = new CreateSenseChange(sense, entry.Id);
         yield return new ChangeWithDependencies(createSenseChange, [createEntryChange]);
 
-        var exampleSentence = new ExampleSentence { Id = Guid.NewGuid(), Sentence = new() { { "en", "test sentence" } } };
+        var exampleSentence = new ExampleSentence { Id = Guid.NewGuid(), Sentence = new() { { "en", new RichString("test sentence") } } };
         var createExampleSentenceChange = new CreateExampleSentenceChange(exampleSentence, sense.Id);
         yield return new ChangeWithDependencies(createExampleSentenceChange, [createSenseChange]);
 

@@ -47026,5 +47026,87 @@
       "ComplexForms": [],
       "ComplexFormTypes": []
     }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Entry",
+      "Id": "bf4fe0e2-5378-4425-9fba-9f66c32c438c",
+      "DeletedAt": null,
+      "LexemeForm": {
+        "en": "Apple"
+      },
+      "CitationForm": {
+        "en": "Apple"
+      },
+      "LiteralMeaning": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "Fruit"
+            }
+          ]
+        }
+      },
+      "Senses": [],
+      "Note": {},
+      "Components": [],
+      "ComplexForms": [],
+      "ComplexFormTypes": [],
+      "PublishIn": []
+    },
+    "Id": "bf4fe0e2-5378-4425-9fba-9f66c32c438c",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+      "Order": 1,
+      "DeletedAt": null,
+      "EntryId": "bf4fe0e2-5378-4425-9fba-9f66c32c438c",
+      "Definition": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "en": "Fruit"
+      },
+      "PartOfSpeech": null,
+      "PartOfSpeechId": null,
+      "SemanticDomains": [],
+      "ExampleSentences": []
+    },
+    "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "ExampleSentence",
+      "Id": "ee1ad893-63c8-4257-8cd6-402c855bb0c7",
+      "Order": 1,
+      "Sentence": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "We ate an apple"
+            }
+          ]
+        }
+      },
+      "Translation": {},
+      "Reference": null,
+      "SenseId": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
+      "DeletedAt": null
+    },
+    "Id": "ee1ad893-63c8-4257-8cd6-402c855bb0c7",
+    "DeletedAt": null
   }
 ]

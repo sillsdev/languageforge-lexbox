@@ -73,7 +73,7 @@ public class SenseValidatorTests
 
         if (propInfo.PropertyType == typeof(RichMultiString))
         {
-            propInfo.SetValue(sense, new RichMultiString() { { "en", content } });
+            propInfo.SetValue(sense, new RichMultiString() { { "en", new RichString(content) } });
             return;
         }
 

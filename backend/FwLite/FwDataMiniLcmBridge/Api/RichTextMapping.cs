@@ -125,6 +125,23 @@ public static class RichTextMapping
         };
     }
 
+    public static RichString FromTsString(ITsString tsString, Func<int?, WritingSystemId?> wsIdLookup)
+    {
+        var spans = new List<RichSpan>(tsString.RunCount);
+        for (int i = 0; i < tsString.RunCount; i++)
+        {
+            var props = tsString.FetchRunInfo(i, out _);
+            var span = new RichSpan
+            {
+                Text = tsString.get_RunText(i)
+            };
+            WriteToSpan(span, props, wsIdLookup);
+            spans.Add(span);
+        }
+
+        return new RichString(spans);
+    }
+
     public static void WriteToSpan(RichSpan span, ITsTextProps textProps, Func<int?, WritingSystemId?> wsIdLookup)
     {
         for (int i = 0; i < textProps.IntPropCount; i++)
@@ -229,6 +246,20 @@ public static class RichTextMapping
             default:
                 throw new ArgumentException($"property type {type} is not an integer");
         }
+    }
+
+    public static ITsString ToTsString(RichString richString, Func<WritingSystemId, int> wsHandleLookup)
+    {
+        var stringBuilder = TsStringUtils.MakeIncStrBldr();
+        var propsBldr = TsStringUtils.MakePropsBldr();
+        foreach (var span in richString.Spans)
+        {
+            WriteToTextProps(span, propsBldr, wsHandleLookup);
+            stringBuilder.AppendTsString(TsStringUtils.MakeString(span.Text, propsBldr.GetTextProps()));
+            propsBldr.Clear();
+        }
+
+        return stringBuilder.GetString();
     }
 
     public static void WriteToTextProps(RichSpan span,

@@ -29,7 +29,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     public double Order { get; set; }
     public RichMultiString? Sentence { get; set; }
     public RichMultiString? Translation { get; set; }
-    public string? Reference { get; set; }
+    public RichString? Reference { get; set; }
 
     public override async ValueTask<ExampleSentence> NewEntity(Commit commit, IChangeContext context)
     {

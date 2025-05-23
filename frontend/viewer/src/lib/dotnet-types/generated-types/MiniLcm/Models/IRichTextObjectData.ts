@@ -9,6 +9,5 @@ export interface IRichTextObjectData
 {
 	value: string;
 	type: RichTextObjectDataType;
-	isGuidType: boolean;
 }
 /* eslint-enable */

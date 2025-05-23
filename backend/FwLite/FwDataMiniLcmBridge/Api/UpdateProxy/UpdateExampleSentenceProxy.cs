@@ -34,9 +34,12 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
         set => throw new NotImplementedException();
     }
 
-    public override string? Reference
+    public override RichString? Reference
     {
         get => throw new NotImplementedException();
-        set => sentence.Reference = TsStringUtils.MakeString(value, sentence.Reference.get_WritingSystem(0));
+        set =>
+            sentence.Reference = value is null
+                ? null
+                : RichTextMapping.ToTsString(value, ws => lexboxLcmApi.GetWritingSystemHandle(ws));
     }
 }

@@ -82,4 +82,37 @@ public class MultiStringDiffTests
             new Operation<Placeholder>("remove", "/test/es", null)
         ]);
     }
+
+    [Fact]
+    public void Rich_DiffMatchingAppliesPropChanges()
+    {
+        var before = new RichMultiString
+        {
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On }]) }
+        };
+        var after = new RichMultiString
+        {
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.Off }]) }
+        };
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
+        result.Should().BeEquivalentTo([
+            new Operation<Placeholder>("replace", "/test/en", null,
+                new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.Off }])),
+        ]);
+    }
+
+    [Fact]
+    public void Rich_DiffSameDoesNothing()
+    {
+        var before = new RichMultiString
+        {
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On }]) }
+        };
+        var after = new RichMultiString
+        {
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On }]) }
+        };
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
+        result.Should().BeEmpty();
+    }
 }

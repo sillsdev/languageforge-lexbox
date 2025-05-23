@@ -73,8 +73,8 @@
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
           <DevContent>
             {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           </DevContent>
+          {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

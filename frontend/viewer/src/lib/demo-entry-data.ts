@@ -92,7 +92,7 @@ export const _entries: IEntry[] = [
       {
         'id': 'f53f0f28-3ec1-4051-b9a3-fafdca6209ce',
         'entryId': '',
-        'definition': { 'en': 'they', 'pt': 'eles' },
+        'definition': {'en': {spans: [{text: 'they'}]}, 'pt': {spans: [{text: 'eles'}]}},
         'gloss': { 'en': '3P+2', 'pt': '3P+2' },
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,
@@ -150,7 +150,7 @@ export const _entries: IEntry[] = [
       {
         'id': 'f53f0f29-3ec1-4051-b9a3-fafdca6209ce',
         'entryId': '',
-        'definition': { 'en': 'they', 'pt': 'eles' },
+        'definition': { 'en': {spans: [{text: 'they'}]}, 'pt': {spans: [{text: 'eles'}]} },
         'gloss': { 'en': '3P+2', 'pt': '3P+2' },
         'partOfSpeech': partsOfSpeech[1], // noun
         'partOfSpeechId': partsOfSpeech[1].id,

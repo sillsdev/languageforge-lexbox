@@ -71,6 +71,9 @@
     partOfSpeech,
     reference: 'Shakespeare',
   });
+  function onChange(field: string) {
+    console.log('changed', field);
+  }
 </script>
 
 <ResizablePaneGroup direction="horizontal">
@@ -95,6 +98,7 @@
             <MultiWsInput
               readonly={editorReadonly}
               bind:value={entry.word}
+              onchange={() => onChange('word')}
               writingSystems={vernacularWs} />
           </Editor.Field.Body>
         </Editor.Field.Root>
@@ -104,6 +108,7 @@
             <WsInput
               readonly={editorReadonly}
               bind:value={entry.reference}
+              onchange={() => onChange('reference')}
               writingSystem={analysisWs[0]} />
           </Editor.Field.Body>
         </Editor.Field.Root>
@@ -148,7 +153,7 @@
             helpId={fieldData.note.helpId}
           />
           <Editor.Field.Body>
-            <LcmRichTextEditor bind:value={entry.note} readonly={editorReadonly} />
+            <LcmRichTextEditor bind:value={entry.note} readonly={editorReadonly} onchange={() => onChange('note')} />
           </Editor.Field.Body>
         </Editor.Field.Root>
         <Editor.Field.Root>

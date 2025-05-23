@@ -43,19 +43,26 @@
   import {undo, redo, history} from 'prosemirror-history';
   import {onDestroy, onMount} from 'svelte';
   import {watch} from 'runed';
+  import type {HTMLAttributes} from 'svelte/elements';
+  import {mergeProps} from 'bits-ui';
 
   let {
     value = $bindable(),
     label,
     readonly = false,
+    onchange = () => {},
+    autofocus,
+    ...rest
   }:
     {
-      value: IRichString,
+      value: IRichString | undefined,
       label?: string,
       readonly?: boolean,
-    } = $props();
+      onchange?: (value: IRichString) => void,
+    } & HTMLAttributes<HTMLDivElement> = $props();
 
   let elementRef: HTMLElement | null = $state(null);
+  let dirty = $state(false);
   let editor: EditorView | null = null;
   onMount(() => {
     // docs https://prosemirror.net/docs/
@@ -64,21 +71,34 @@
       dispatchTransaction: (transaction) => {
         if (!editor) return;
         const newState = editor.state.apply(transaction);
-        //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
-        //I suspect marks is the right way though.
-        value.spans = newState.doc.children.map((child) => {
-          const originalRichSpan = child.attrs.richSpan;
-          return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
-        });
+        if (!newState.doc.eq(editor.state.doc)) {
+          //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
+          //I suspect marks is the right way though.
+          if (!value) value = {spans: []};
+          value.spans = newState.doc.children.map((child) => {
+            const originalRichSpan = child.attrs.richSpan;
+            return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
+          });
+          dirty = true;
+        }
         editor.updateState(newState);
       },
       editable() {
         return !readonly;
       },
+      handleDOMEvents: {
+        'blur': onblur
+      }
     });
-
     editor.dom.setAttribute('tabindex', '0');
   });
+
+  function onblur() {
+    if (dirty && value) {
+      onchange(value);
+      dirty = false;
+    }
+  }
 
   watch(() => readonly, () => {
     // Triggers a refresh immediately rather than when the user next interacts with the editor
@@ -175,9 +195,9 @@
   }
 
   function valueToDoc(): Node {
-    return textSchema.node('doc', {richString: value}, value.spans.map(s => {
+    return textSchema.node('doc', {richString: value}, value?.spans.map(s => {
       return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
-    }));
+    }) ?? []);
   }
 
   //lcm expects line separators, but html does not render them, so we replace them with \n
@@ -192,6 +212,7 @@
   :global(.ProseMirror) {
     flex-grow: 1;
     outline: none;
+    cursor: text;
   }
   :global(.ProseMirror span) {
     border-bottom: 1px solid currentColor;
@@ -201,10 +222,10 @@
 </style>
 
 {#if label}
-  <div>
+  <div {...rest}>
     <Label>{label}</Label>
-    <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
+    <InputShell {autofocus} class="p-2 h-auto" bind:ref={elementRef}/>
   </div>
 {:else}
-  <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
+  <InputShell {autofocus} {...mergeProps({ class: 'p-2 h-auto'}, rest)} bind:ref={elementRef}/>
 {/if}

@@ -38,7 +38,7 @@ public class RichMultiStringOverride(string[]? validWs = null): AutoFakerOverrid
         foreach (var word in wordsArray)
         {
             var writingSystemId = context.Faker.Random.ArrayElement(validWs ?? WritingSystemCodes.ValidTwoLetterCodes);
-            target[writingSystemId] = word;
+            target[writingSystemId] = new RichString(word);
         }
     }
 }
