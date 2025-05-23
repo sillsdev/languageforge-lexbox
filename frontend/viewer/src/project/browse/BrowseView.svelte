@@ -4,7 +4,7 @@
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
   import EntriesList from './EntriesList.svelte';
-  import { Badge } from '$lib/components/ui/badge';
+  import { badgeVariants } from '$lib/components/ui/badge';
   import { Icon } from '$lib/components/ui/icon';
   import { t } from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
@@ -56,14 +56,13 @@
           <div class="md:mr-3">
             <SearchFilter bind:search bind:gridifyFilter />
             <div class="my-2 flex items-center justify-between">
-              <Badge
-                variant="secondary"
-                class="cursor-pointer"
+              <button
+                class={badgeVariants({ variant: 'secondary' })}
                 onclick={toggleSort}
               >
                 <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
                 {$t`Headword`}
-              </Badge>
+              </button>
               <ResponsivePopup title={$t`List mode`}>
                 {#snippet trigger({props})}
                   <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />

@@ -43,7 +43,7 @@
 <DropdownMenu.Group {...mergedProps}>
   {#each displayItems as item, i}
     {@const reorderName = getDisplayName(item) || '–'}
-    <DropdownMenu.Item class="grid grid-cols-subgrid col-span-full justify-items-start items-center cursor-pointer"
+    <DropdownMenu.Item class="grid grid-cols-subgrid col-span-full justify-items-start items-center"
       onmouseover={() => displayIndex = i}
       onfocus={() => displayIndex = i}
       onSelect={() => {

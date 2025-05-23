@@ -2,7 +2,7 @@
   import { Icon } from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
   import { useViewSettings } from '$lib/views/view-service';
-  import {resource, Debounced} from 'runed';
+  import {resource, Debounced, watch} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
   import ViewPicker from './ViewPicker.svelte';
@@ -17,6 +17,8 @@
   import type {IEntry} from '$lib/dotnet-types';
   import {EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {useProjectEventBus} from '$lib/services/event-bus';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {findFirstTabbable} from '$lib/utils/tabbable';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
@@ -40,7 +42,7 @@
   );
   eventBus.onEntryUpdated((e) => {
     if (e.id === entryId) {
-      entryResource.refetch();
+      void entryResource.refetch();
     }
   });
   const entry = $derived(entryResource.current ?? undefined);
@@ -51,6 +53,14 @@
 
   let readonly = $state(false);
   const entryPersistence = new EntryPersistence(() => entry, () => void entryResource.refetch());
+
+  const loadedEntryId = $derived(entry?.id);
+  let entryScrollViewportRef: HTMLElement | null = $state(null);
+  let editorRef: HTMLElement | null = $state(null);
+  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () =>{
+    entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
+    if (!IsMobile.value) findFirstTabbable(editorRef)?.focus();
+  });
 </script>
 
 {#snippet preview(entry: IEntry)}
@@ -85,12 +95,12 @@
         </div>
       {/if}
     </header>
-    <ScrollArea class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
       {#if dictionaryPreview === 'show'}
         {@render preview(entry)}
       {/if}
       <div class="max-md:p-2 md:pr-2">
-        <EntryEditor {entry} {readonly} {...entryPersistence.entryEditorProps} />
+        <EntryEditor bind:ref={editorRef} {entry} {readonly} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}

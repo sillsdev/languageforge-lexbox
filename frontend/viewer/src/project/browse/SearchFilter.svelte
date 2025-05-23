@@ -7,6 +7,7 @@
   import {Switch} from '$lib/components/ui/switch';
   import {Toggle} from '$lib/components/ui/toggle';
   import {cn} from '$lib/utils';
+  import {mergeProps} from 'bits-ui';
 
   let {
     search = $bindable(),
@@ -47,9 +48,11 @@
       {/snippet}
       {#snippet after()}
         <Collapsible.Trigger>
-          <Toggle aria-label={$t`Toggle filters`} class="aspect-square" size="xs">
-            <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
-          </Toggle>
+          {#snippet child({props})}
+            <Toggle {...mergeProps(props, { class: 'aspect-square' })} aria-label={$t`Toggle filters`} size="xs">
+              <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
+            </Toggle>
+          {/snippet}
         </Collapsible.Trigger>
       {/snippet}
     </ComposableInput>
