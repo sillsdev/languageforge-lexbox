@@ -30,7 +30,7 @@
   let localToLbCount = $derived(localStatus?.crdtChanges ?? 0);
   let latestCommitDate = $state<string | undefined>(undefined);
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
-  const lastFlexSyncDate = $derived(new Date(remoteStatus?.lastMercurialCommitDate ?? ''));
+  const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
 
