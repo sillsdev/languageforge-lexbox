@@ -574,7 +574,7 @@ so we can get this fixed!",
     "open_with_viewer": "Browse",
     "open_with_flex": {
       "button": "Open with FieldWorks",
-      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",
+      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.2](https://software.sil.org/fieldworks/download/).",
       "instructions": "To open this project click **Open FieldWorks** in the dialog shown by your browser.\n\n\
 If you don't see a dialog or already closed it, click the button below:",
     },

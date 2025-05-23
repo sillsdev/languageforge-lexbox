@@ -25,7 +25,7 @@
     <PackageVersion Include="HotChocolate.Diagnostics" Version="14.0.0" />
     <PackageVersion Include="HotChocolate.Types.Analyzers" Version="14.0.0" />
     <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
-    <PackageVersion Include="icu.net" Version="3.0.0-beta.297" />
+    <PackageVersion Include="icu.net" Version="3.0.1" />
     <PackageVersion Include="linq2db.AspNet" Version="5.4.1" />
     <PackageVersion Include="linq2db.EntityFrameworkCore" Version="8.1.0" />
     <PackageVersion Include="MailKit" Version="4.7.1.1" />
@@ -98,10 +98,14 @@
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0028" />
     <PackageVersion Include="SIL.Core" Version="14.2.0-beta0022" />
-    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0111" />
-    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0109" />
+    <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0122" />
+    <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0122" />
     <PackageVersion Include="SIL.WritingSystems" Version="14.2.0-beta0022" />
     <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="3.0.410" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
+    <PackageVersion Include="SQLitePCLRaw.core" Version="2.1.11" />
+    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" />
+    <PackageVersion Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.11" />
     <PackageVersion Include="Squidex.Assets.TusClient" Version="6.6.4" />
     <PackageVersion Include="structuremap.patched" Version="4.7.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />

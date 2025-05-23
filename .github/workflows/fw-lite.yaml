@@ -1,4 +1,4 @@
-﻿name: FieldWorks Lite
+name: FieldWorks Lite
 on:
   workflow_dispatch:
   push:
@@ -306,7 +306,7 @@ jobs:
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
-          chmod +x fw-lite-web-linux/*/FwLiteWeb
+          chmod +x fw-lite-web-linux/*/FwLiteWeb fw-lite-web-linux/*/*.sh
           zip -r fw-lite-web-linux.zip fw-lite-web-linux
       - name: Rename Installer
         run: |

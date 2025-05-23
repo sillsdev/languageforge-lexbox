@@ -4,19 +4,20 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-  import Button, {buttonVariants} from '$lib/components/ui/button/button.svelte';
+  import {buttonVariants} from '$lib/components/ui/button/button.svelte';
   import type {Snippet} from 'svelte';
   import {useResponsiveMenuItemList} from './responsive-menu.svelte';
-  import type {ButtonProps} from 'node_modules/bits-ui/dist/bits/toolbar/exports';
-  import {mergeProps, type ContextMenuItemProps} from 'bits-ui';
+  import type {ContextMenuItemProps} from 'bits-ui';
+  import type {DrawerCloseProps} from 'vaul-svelte';
   import {cn} from '$lib/utils';
+  import {DrawerClose} from '../ui/drawer';
 
   type Props = {
     children?: Snippet;
     icon?: IconClass;
     onSelect?: () => void;
     href?: string;
-  } & ContextMenuItemProps & ButtonProps;
+  } & Omit<ContextMenuItemProps & DrawerCloseProps, 'onclick'>;
 
   let {
     icon,
@@ -28,14 +29,6 @@
   }: Props = $props();
 
   const state = useResponsiveMenuItemList();
-
-  const buttonProps = $derived({
-    variant: 'ghost',
-    class: cn(buttonVariants({ variant: 'ghost', class: 'w-full justify-start gap-2' }), className),
-    onclick: onSelect,
-  } as const);
-
-  const mergedProps = $derived(mergeProps(buttonProps, rest));
 </script>
 
 {#snippet content()}
@@ -52,21 +45,21 @@
 {/snippet}
 
 {#if state.contextMenu}
-  <ContextMenu.Item class={cn('cursor-pointer gap-2 w-full', className)} onclick={onSelect} bind:ref
+  <ContextMenu.Item class={cn('gap-2 w-full', className)} {onSelect} bind:ref
     child={rest.href ? anchorChild : undefined} {...rest}>
     {@render content()}
   </ContextMenu.Item>
 {:else if !IsMobile.value}
-  <DropdownMenu.Item class={cn('cursor-pointer gap-2 w-full', className)} {onSelect} bind:ref
+  <DropdownMenu.Item class={cn('gap-2 w-full', className)} {onSelect} bind:ref
     child={rest.href ? anchorChild : undefined} {...rest}>
     {@render content()}
   </DropdownMenu.Item>
-{:else if rest.child}
-  {@render rest.child({ props: mergedProps})}
 {:else}
-  <Button
-    {...buttonProps}
+  <DrawerClose
+    class={cn(buttonVariants({ variant: 'ghost', class: 'w-full justify-start gap-2' }), className)}
+    onclick={onSelect}
+    {...rest}
     bind:ref>
     {@render content()}
-  </Button>
+  </DrawerClose>
 {/if}

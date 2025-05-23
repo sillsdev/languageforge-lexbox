@@ -55,7 +55,7 @@ public abstract class LexJob : IJob
         }
         catch (Exception e)
         {
-            activity?.RecordException(e);
+            activity?.AddException(e);
             throw new JobExecutionException(e);
         }
     }

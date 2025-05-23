@@ -5,7 +5,6 @@ using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 
@@ -15,7 +14,6 @@ public class SeedingData(
     LexBoxDbContext lexBoxDbContext,
     IOptions<DbConfig> dbConfig,
     IHostEnvironment environment,
-    ILogger<SeedingData> logger,
     IOpenIddictApplicationManager applicationManager)
 {
     public static bool OAuthSeeded { get; private set; } = false;

@@ -6,6 +6,7 @@
 
   let {
     ref = $bindable(null),
+    viewportRef = $bindable(null),
     class: className,
     type: explicitType,
     orientation = 'vertical',
@@ -17,13 +18,14 @@
     orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
     scrollbarXClasses?: string | undefined;
     scrollbarYClasses?: string | undefined;
+    viewportRef?: HTMLElement | null;
   } = $props();
 
   const type = $derived(explicitType ?? (IsMobile.value ? 'scroll' : 'auto'));
 </script>
 
 <ScrollAreaPrimitive.Root {type} bind:ref {...restProps} class={cn('relative overflow-hidden', className)}>
-  <ScrollAreaPrimitive.Viewport class="h-full w-full rounded-[inherit]">
+  <ScrollAreaPrimitive.Viewport bind:ref={viewportRef} class="h-full w-full rounded-[inherit]">
     {@render children?.()}
   </ScrollAreaPrimitive.Viewport>
   {#if orientation === 'vertical' || orientation === 'both'}

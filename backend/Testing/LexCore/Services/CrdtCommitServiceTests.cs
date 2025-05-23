@@ -54,12 +54,9 @@ public class CrdtCommitServiceTests
         return commit;
     }
 
-    private async IAsyncEnumerable<ServerCommit> AsAsync(IEnumerable<ServerCommit> commits)
+    private IAsyncEnumerable<ServerCommit> AsAsync(IEnumerable<ServerCommit> commits)
     {
-        foreach (var serverCommit in commits)
-        {
-            yield return serverCommit;
-        }
+        return commits.ToAsyncEnumerable();
     }
 
     //previously the value of the Change property was serialized twice, this test ensures that we can still

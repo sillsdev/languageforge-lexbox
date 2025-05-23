@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 namespace FwHeadless.Services;
 
 // TODO: Pick better name
-public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, CrdtProjectsService projectsService, ProjectLookupService projectLookupService, IMemoryCache memoryCache)
+public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, ProjectLookupService projectLookupService, IMemoryCache memoryCache)
 {
     public async Task PopulateProjectContext(HttpContext context, Func<Task> next)
     {

@@ -39,7 +39,6 @@
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
-  import { isDev } from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
@@ -357,17 +356,16 @@
           <CrdtSyncButton {project} {isEmpty} />
         </FeatureFlagContent>
       {/if}
-      {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
-        <OpenInFlexModal bind:this={openInFlexModal} {project} />
-        <!-- TODO: Figure out how bubble('click') works in new Svelte 5 world, where `on:click` is now a type error: "Argument of type '"click"' is not assignable to parameter of type 'never'" -->
-        <OpenInFlexButton projectId={project.id} onclick={openInFlexModal.open} />
-      {:else if canAskToJoinProject}
+      {#if canAskToJoinProject}
         <Button variant="btn-primary" loading={askLoading} onclick={() => askToJoinProject(project.id, project.name)}>
           {#if !askLoading}
             <span class="i-mdi-email text-2xl"></span>
           {/if}
           {$t('project_page.join_project.label')}
         </Button>
+      {:else if project && project.type === ProjectType.FlEx && !isEmpty}
+        <OpenInFlexModal bind:this={openInFlexModal} {project} />
+        <OpenInFlexButton projectId={project.id} onclick={openInFlexModal?.open} />
       {:else}
         <Dropdown>
           <button class="btn btn-primary">

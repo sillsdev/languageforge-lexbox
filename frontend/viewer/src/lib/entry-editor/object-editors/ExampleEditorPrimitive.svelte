@@ -8,8 +8,10 @@
   import {vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
   import {MultiWsInput, RichMultiWsInput, WsInput} from '$lib/components/field-editors';
+  import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
+  import {mergeProps} from 'bits-ui';
 
-  type Props = {
+  interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     example: IExampleSentence;
     readonly?: boolean;
     onchange?: (sense: IExampleSentence, field: FieldId) => void;
@@ -19,6 +21,7 @@
     example = $bindable(),
     readonly = false,
     onchange,
+    ...rest
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -29,7 +32,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, example)}">
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, example) } })}>
   <Editor.Field.Root style="grid-area: sentence" class={cn($currentView.fields.sentence.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Sentence`)} helpId={fieldData.sentence.helpId} />
     <Editor.Field.Body subGrid>

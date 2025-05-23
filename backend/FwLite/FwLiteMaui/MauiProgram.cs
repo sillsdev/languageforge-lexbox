@@ -21,7 +21,9 @@ public static class MauiProgram
                 {
                     logger.LogInformation("Disposing hosted services");
                     //I tried to dispose of the app, but that caused other issues on shutdown, so we're just going to dispose of the hosted services
+#pragma warning disable VSTHRD002
                     adapter.DisposeAsync().GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
                 }
                 catch (Exception e)
                 {

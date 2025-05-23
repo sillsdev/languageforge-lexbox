@@ -67,6 +67,9 @@
       }
       return miniLcmApi.getEntries(queryOptions);
     },
+    {
+      debounce: 300,
+    }
   );
   const entries = $derived(entriesResource.current ?? []);
   const loading = new Debounced(() => entriesResource.loading, 50);

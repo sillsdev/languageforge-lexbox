@@ -59,9 +59,10 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
     /// <param name="project">project data, used to provide the projectId and clientId</param>
     /// <param name="client">should have the base url set to the remote server</param>
     /// <returns></returns>
-    public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project, HttpClient client)
+    public ValueTask<ISyncable> CreateProjectSyncable(ProjectData project, HttpClient client)
     {
-        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this, client.BaseAddress?.Authority ?? string.Empty);
+        var crdtProjectSync = new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this, client.BaseAddress?.Authority ?? string.Empty);
+        return ValueTask.FromResult<ISyncable>(crdtProjectSync);
     }
 
     public async ValueTask<bool> TestAuth(HttpClient client)
