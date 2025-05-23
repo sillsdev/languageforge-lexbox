@@ -11,6 +11,9 @@
   import { useSyncStatusService } from '$lib/services/sync-status-service';
   import { FormatDate } from '$lib/components/ui/format-date';
   import { useMiniLcmApi } from '$lib/services/service-provider';
+  import {watch} from 'runed';
+  import {fade} from 'svelte/transition';
+  import {delay} from '$lib/utils/time';
 
   // Get status in calling code by something like the following:
   const service = useSyncStatusService();
@@ -31,29 +34,39 @@
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
 
+  watch(() => openQueryParam.current, (newValue) => {
+    if (newValue) void onOpen();
+    else setTimeout(onClose, 500); // don't clear contents until close animation is done
+  });
+
   export function open(): void {
-    loading = true;
-    let remotePromise = service.getStatus();
-    let localPromise = service.getLocalStatus();
-    let commitDatePromise = service.getLatestCommitDate();
-    void service.getLatestCommitDate()?.then((date) => {});
-    if (!remotePromise || !localPromise) {
-      // Can only happen if the sync status service was unavailable
-      localStatus = undefined;
-      remoteStatus = undefined;
-      latestCommitDate = '';
-      loading = false;
-    } else {
-      void Promise.all([localPromise, remotePromise, commitDatePromise]).then(
-        ([localResult, remoteResult, commitDate]) => {
-          localStatus = localResult;
-          remoteStatus = remoteResult;
-          latestCommitDate = commitDate;
-          loading = false;
-        },
-      );
-    }
     openQueryParam.current = true;
+  }
+
+  async function onOpen(): Promise<void> {
+    loading = true;
+    try {
+      let remotePromise = service.getStatus();
+      let localPromise = service.getLocalStatus();
+      let commitDatePromise = service.getLatestCommitDate();
+      if (!remotePromise || !localPromise) {
+        // Can only happen if the sync status service was unavailable
+        localStatus = undefined;
+        remoteStatus = undefined;
+        latestCommitDate = '';
+        loading = false;
+      } else {
+        [localStatus, remoteStatus, latestCommitDate] = await Promise.all([localPromise, remotePromise, commitDatePromise]);
+      }
+    } finally {
+      loading = false;
+    }
+  }
+
+  function onClose(): void {
+    localStatus = undefined;
+    remoteStatus = undefined;
+    latestCommitDate = '';
   }
 
   let loadingSyncLexboxToFlex = $state(false);
@@ -71,12 +84,12 @@
       // Optimistically update status, then query it
       lbToFlexCount = 0;
       flexToLbCount = 0;
-      const promise = service.getStatus();
-      if (promise) {
-        remoteStatus = await promise;
+      const statusPromise = service.getStatus();
+      if (statusPromise) {
         // Auto-close dialog after successful FieldWorks sync
+        [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
         if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
-          setTimeout(() => (openQueryParam.current = false), 750);
+          openQueryParam.current = false;
         }
       }
     }
@@ -85,6 +98,7 @@
   let loadingSyncLexboxToLocal = $state(false);
   async function syncLexboxToLocal() {
     if (api) {
+      loadingSyncLexboxToLocal = true;
       loadingSyncLexboxToLocal = true;
       await service.triggerCrdtSync();
       // Optimistically update status, then query it
@@ -102,32 +116,41 @@
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
-  <DialogContent class="sm:min-h-fit sm:min-w-fit">
+  <DialogContent class="sm:min-h-80 sm:min-w-96 grid-rows-[auto_1fr] items-center">
     <DialogHeader>
       <DialogTitle>{$t`Synchronize`}</DialogTitle>
     </DialogHeader>
     {#if loading}
-      <Loading />
+      <Loading class="place-self-center size-10" />
     {:else if !remoteStatus}
       <div>{$t`Error getting sync status. Are you logged in to the LexBox server?`}</div>
     {:else}
-      <div
-        class="grid grid-rows-5 grid-cols-[auto_auto_auto] grid-template-columns-auto justify-around gap-y-4 gap-x-8"
+      <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
+      <div in:fade
+        class="grid grid-rows-5 grid-cols-[1fr_7fr_1fr] gap-y-4 gap-x-8"
       >
-        <div class="col-span-3 text-center content-center flex flex-col items-center">
+        <div class="col-span-full text-center">
           <Icon icon="i-mdi-monitor-cellphone" class="size-10" />
         </div>
-        <div class="text-right content-center">{lbToLocalCount}<Icon icon="i-mdi-arrow-up" /></div>
+        <div class="text-center content-center">{lbToLocalCount}<Icon icon="i-mdi-arrow-up" /></div>
         <div class="content-center text-center">
           <Button
+            variant="outline"
+            class="border-primary text-primary hover:text-primary"
             loading={loadingSyncLexboxToLocal}
+            disabled={loadingSyncLexboxToFlex}
             onclick={syncLexboxToLocal}
             icon="i-mdi-sync"
-            iconProps={{ class: 'size-5' }}>{$t`Synchronize`}</Button
-          >
+            iconProps={{ class: 'size-5' }}>
+            {#if loadingSyncLexboxToLocal}
+              {$t`Synchronizing...`}
+            {:else}
+              {$t`Auto synchronizing`}
+            {/if}
+          </Button>
         </div>
-        <div class="text-left content-center"><Icon icon="i-mdi-arrow-down" />{localToLbCount}</div>
-        <div class="col-span-3 text-center flex flex-col">
+        <div class="text-center content-center"><Icon icon="i-mdi-arrow-down" />{localToLbCount}</div>
+        <div class="col-span-full text-center flex flex-col">
           <span class="font-medium">
             <Icon icon="i-mdi-cloud-outline" />
             Lexbox - FieldWorks Lite
@@ -139,17 +162,23 @@
             </span>
           {/if}
         </div>
-        <div class="text-right content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
+        <div class="text-center content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
         <div class="content-center text-center">
           <Button
             loading={loadingSyncLexboxToFlex}
+            disabled={loadingSyncLexboxToLocal}
             onclick={syncLexboxToFlex}
             icon="i-mdi-sync"
-            iconProps={{ class: 'size-5' }}>{$t`Synchronize`}</Button
-          >
+            iconProps={{ class: 'size-5' }}>
+            {#if loadingSyncLexboxToFlex}
+              {$t`Synchronizing...`}
+            {:else}
+              {$t`Synchronize`}
+            {/if}
+          </Button>
         </div>
-        <div class="text-left content-center"><Icon icon="i-mdi-arrow-down" />{lbToFlexCount}</div>
-        <div class="col-span-3 text-center flex flex-col">
+        <div class="text-center content-center"><Icon icon="i-mdi-arrow-down" />{lbToFlexCount}</div>
+        <div class="col-span-full text-center flex flex-col">
           <span class="font-medium">
             <Icon icon="i-mdi-cloud-outline" />
             Lexbox - FieldWorks

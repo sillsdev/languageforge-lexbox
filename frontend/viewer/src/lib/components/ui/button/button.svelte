@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import type {IconClass} from '$lib/icon-class';
-  import type {WithElementRef} from 'bits-ui';
+  import {mergeProps, type WithElementRef} from 'bits-ui';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
   import type {IconProps} from '../icon/icon.svelte';
@@ -71,9 +71,9 @@
   {#if loading || icon}
     <span transition:slide={{axis: 'x',}}>
     {#if loading}
-      <Icon icon="i-mdi-loading" class="animate-spin"/>
+      <Icon {...mergeProps({ class:'animate-spin'}, iconProps)} icon="i-mdi-loading" />
     {:else if icon}
-      <Icon {icon} {...iconProps}/>
+      <Icon {...iconProps} {icon} />
     {/if}
     </span>
   {/if}
