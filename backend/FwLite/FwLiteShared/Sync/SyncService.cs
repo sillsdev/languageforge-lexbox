@@ -108,6 +108,7 @@ public class SyncService(
         var server = authOptions.Value.GetServer(project);
         var localChangesPending = CountPendingCommits(); // Not awaited yet
         var remoteChangesPending = lexboxProjectService.CountPendingCrdtCommits(server, project.Id, localSyncState); // Not awaited yet
+        await Task.WhenAll(localChangesPending, remoteChangesPending);
         var localChanges = await localChangesPending;
         var remoteChanges = await remoteChangesPending;
         if (localChanges is null || remoteChanges is null) return null;
