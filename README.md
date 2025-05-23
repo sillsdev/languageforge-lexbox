@@ -187,3 +187,7 @@ Traces can be accessed directly with a URL like this: [https://ui.honeycomb.io/s
 In the application, a trace ID (aka "Error code") shown at the bottom of an error message can be Ctrl+clicked to navigate to the trace in Honeycomb.
 
 ![Error example](./docs/img/error-example.png)
+
+## Testing
+
+Run the Playwright tests with `npx playwright test` or `npx playwright test some_test_filter`. You can also use `npx playwright test --ui` to step through individual tests.
