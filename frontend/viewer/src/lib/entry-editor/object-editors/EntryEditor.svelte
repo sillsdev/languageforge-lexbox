@@ -154,7 +154,7 @@
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense.id === highlightedEntity?.id && 'highlight')}>
         <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
-        <div class="col-span-full flex items-center py-2 mb-1 sticky top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll">
+        <div class:stick={!modalMode} class="col-span-full flex items-center py-2 mb-1 top-0 bg-background z-[1] w-[calc(100%+2px)] pr-[2px] animate-fade-out animation-scroll">
           <h2 class="text-lg text-muted-foreground">{pt($t`Sense`, $t`Meaning`, $currentView)} {i + 1}</h2>
           <hr class="grow border-t-2 mx-4">
           <EntityListItemActions {i}
