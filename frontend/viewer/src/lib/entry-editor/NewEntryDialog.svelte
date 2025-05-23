@@ -85,7 +85,7 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !IsMobile.value) {
-      createEntry(event);
+      void createEntry(event);
     }
   }
 </script>
