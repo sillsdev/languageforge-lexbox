@@ -43,19 +43,23 @@
   import {undo, redo, history} from 'prosemirror-history';
   import {onDestroy, onMount} from 'svelte';
   import {watch} from 'runed';
+  import type {HTMLAttributes} from 'svelte/elements';
+  import {mergeProps} from 'bits-ui';
 
   let {
     value = $bindable(),
     label,
     readonly = false,
     onchange = () => {},
+    autofocus,
+    ...rest
   }:
     {
       value: IRichString | undefined,
       label?: string,
       readonly?: boolean,
       onchange?: (value: IRichString) => void,
-    } = $props();
+    } & HTMLAttributes<HTMLDivElement> = $props();
 
   let elementRef: HTMLElement | null = $state(null);
   let dirty = $state(false);
@@ -218,10 +222,10 @@
 </style>
 
 {#if label}
-  <div>
+  <div {...rest}>
     <Label>{label}</Label>
-    <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
+    <InputShell {autofocus} class="p-2 h-auto" bind:ref={elementRef}/>
   </div>
 {:else}
-  <InputShell class="p-2 h-auto" bind:ref={elementRef}/>
+  <InputShell {autofocus} {...mergeProps({ class: 'p-2 h-auto'}, rest)} bind:ref={elementRef}/>
 {/if}

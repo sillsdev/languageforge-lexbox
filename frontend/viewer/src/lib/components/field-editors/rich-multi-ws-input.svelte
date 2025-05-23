@@ -22,6 +22,12 @@
     onchange,
     autofocus,
   } = $derived(constProps);
+
+  function setValue(newValue: IRichString, wsId: string) {
+    newValue?.spans.forEach((span) => span.ws ??= wsId);
+    value[wsId] = newValue;
+    onchange?.(wsId, value[wsId], value);
+  }
 </script>
 
 <div class="grid grid-cols-subgrid col-span-full gap-y-2">
@@ -29,8 +35,11 @@
     <Label class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
            title={`${ws.name} (${ws.wsId})`}>
       <span>{ws.abbreviation}</span>
-      <LcmRichTextEditor bind:value={value[ws.wsId]} {readonly}
-                         onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}/>
+      <LcmRichTextEditor
+        bind:value={() => value[ws.wsId], (newValue) => setValue(newValue, ws.wsId)}
+        {readonly}
+        autofocus={autofocus && (i === 0)}
+        />
     </Label>
   {/each}
 </div>

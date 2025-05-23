@@ -5,12 +5,14 @@
 
   let {
     value = $bindable(),
+    autofocus,
     ...constProps
   }: {
     value: string | undefined;
     readonly?: boolean;
     writingSystem: ReadonlyDeep<IWritingSystem>;
     onchange?: (value: string | undefined) => void;
+    autofocus?: boolean;
   } = $props();
 
   const { readonly = false, writingSystem: ws, onchange } = $derived(constProps);
@@ -18,7 +20,8 @@
 
 <Input
   {readonly}
-  bind:value={value}
+  bind:value
   title={`${ws.name} (${ws.wsId})`}
   placeholder={ws.abbreviation}
+  {autofocus}
   onchange={() => onchange?.(value)} />
