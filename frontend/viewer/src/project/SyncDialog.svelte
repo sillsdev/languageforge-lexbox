@@ -67,7 +67,7 @@
   function onClose(): void {
     localStatus = undefined;
     remoteStatus = undefined;
-    latestCommitDate = '';
+    latestCommitDate = undefined;
   }
 
   let loadingSyncLexboxToFlex = $state(false);

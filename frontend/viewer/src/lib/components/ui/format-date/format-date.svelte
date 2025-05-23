@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { DateFormatter, type ZonedDateTime } from '@internationalized/date';
+  import { DateFormatter } from '@internationalized/date';
   import {locale} from 'svelte-i18n-lingui';
 
-  let { date, ...restProps } = $props<{ date: Date | ZonedDateTime }>();
+  let { date, ...restProps }: { date: Date | undefined } = $props();
 
   const formatter = new DateFormatter($locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
 
-  const formattedDate = $derived(formatter.format(date));
+  const formattedDate = $derived(date ? formatter.format(date) : '');
 </script>
 
 <span {...restProps}>{formattedDate}</span>
