@@ -654,7 +654,7 @@ public class FwDataMiniLcmApi(
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
-            Reference = sentence.Reference.Text,
+            Reference = RichTextMapping.FromTsString(sentence.Reference, h => h is null ? null : (WritingSystemId?) GetWritingSystemId(h.Value)),
             Translation = translation is null ? new() : FromLcmMultiString(translation),
         };
     }
@@ -1332,8 +1332,9 @@ public class FwDataMiniLcmApi(
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
         var translation = CreateExampleSentenceTranslation(lexExampleSentence);
         UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
-        lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
-            lexExampleSentence.Reference.get_WritingSystem(0));
+        lexExampleSentence.Reference = exampleSentence.Reference is null
+            ? null
+            : RichTextMapping.ToTsString(exampleSentence.Reference, id => GetWritingSystemHandle(id));
     }
 
     public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)
