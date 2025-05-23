@@ -381,6 +381,9 @@ importers:
       svelte-ux:
         specifier: ^0.76.0
         version: 0.76.0(@babel/core@7.26.8)(postcss-load-config@4.0.2(postcss@8.5.2))(postcss@8.5.2)(svelte@5.28.2)
+      tabbable:
+        specifier: ^6.2.0
+        version: 6.2.0
       type-fest:
         specifier: ^4.18.2
         version: 4.34.1
@@ -8987,7 +8990,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/debug@4.1.12)(@types/node@20.17.32)(@vitest/ui@3.0.5)(happy-dom@17.1.0)(jiti@2.4.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/debug@4.1.12)(@types/node@22.15.3)(@vitest/ui@3.0.5)(happy-dom@17.1.0)(jiti@2.4.2)(yaml@2.7.1)
 
   '@vitest/utils@3.0.5':
     dependencies:

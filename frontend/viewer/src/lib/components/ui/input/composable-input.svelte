@@ -22,10 +22,12 @@
     before?: Snippet,
     after?: Snippet,
   } = $props();
+
+  const focusRingClass = 'has-[.real-input:focus-visible]:ring-ring has-[.real-input:focus-visible]:outline-none has-[.real-input:focus-visible]:ring-2 has-[.real-input:focus-visible]:ring-offset-2';
 </script>
 
-<InputShell bind:ref class={className} {...restProps}>
+<InputShell bind:ref {focusRingClass} class={className} {...restProps}>
   {@render before?.()}
-  <Input variant="ghost" {placeholder} class="grow" bind:ref={inputRef} bind:value />
+  <Input variant="ghost" {placeholder} class="grow real-input" bind:ref={inputRef} bind:value />
   {@render after?.()}
 </InputShell>

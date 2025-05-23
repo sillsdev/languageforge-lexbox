@@ -2,18 +2,34 @@
   import type {IconClass} from '$lib/icon-class';
   import {cn} from '$lib/utils';
   import type {WithElementRef, WithoutChildren} from 'bits-ui';
-  import type {HTMLAttributes} from 'svelte/elements';
+  import type {HTMLAttributes, HTMLImgAttributes} from 'svelte/elements';
+  import {tv} from 'tailwind-variants';
 
-  export type IconProps = WithoutChildren<WithElementRef<HTMLAttributes<HTMLSpanElement>>> & {
-    icon: IconClass;
-  };
+  export const iconVariants = tv({
+    base: 'inline-block shrink-0',
+    variants: {
+      size: {
+        default: 'size-6'
+      }
+    },
+    defaultVariants: {
+      size: 'default',
+    },
+  });
+
+  export type IconProps = WithoutChildren<WithElementRef<HTMLAttributes<HTMLSpanElement>>> &
+    ({ icon: IconClass; } | ({ src: string, alt: string } & HTMLImgAttributes));
 </script>
 
 <script lang="ts">
-  const { icon, class: className, ...restProps }: IconProps = $props();
+  const { class: className, ...restProps }: IconProps = $props();
 </script>
 
-<span {...restProps} class={cn('size-6 inline-block shrink-0', className, icon)}>
-  <!-- ensures that baseline alignment works for consumers of this component -->
-  &nbsp;
-</span>
+{#if 'src' in restProps}
+  <img {...restProps} class={cn(iconVariants(), className)} />
+{:else}
+  <span {...restProps} class={cn(iconVariants(), className, restProps.icon)}>
+    <!-- ensures that baseline alignment works for consumers of this component -->
+    &nbsp;
+  </span>
+{/if}

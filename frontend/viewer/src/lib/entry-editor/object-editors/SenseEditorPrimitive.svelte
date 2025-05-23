@@ -10,17 +10,20 @@
   import {MultiSelect, MultiWsInput, Select} from '$lib/components/field-editors';
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
+  import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
+  import {mergeProps} from 'bits-ui';
 
-  type Props = {
+  interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
     readonly?: boolean;
     onchange?: (sense: ISense, field: FieldId) => void;
-  }
+  };
 
   const {
     sense = $bindable(),
     readonly = false,
     onchange,
+    ...rest
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -33,7 +36,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, sense)}">
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, sense) } })}>
   <Editor.Field.Root style="grid-area: gloss" class={cn($currentView.fields.gloss.show || 'hidden')}>
     <Editor.Field.Title name={$t`Gloss`} helpId={fieldData.gloss.helpId} />
     <Editor.Field.Body subGrid>
