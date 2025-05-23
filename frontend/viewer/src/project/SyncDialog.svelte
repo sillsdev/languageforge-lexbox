@@ -73,25 +73,31 @@
   let loadingSyncLexboxToFlex = $state(false);
   async function syncLexboxToFlex() {
     loadingSyncLexboxToFlex = true;
-    let result = await service.triggerFwHeadlessSync();
-    loadingSyncLexboxToFlex = false;
-    if (result) {
+    try {
+      const result = await service.triggerFwHeadlessSync();
+      if (!result) {
+        AppNotification.display($t`Failed to synchronize`, 'error');
+        return;
+      }
       const fwdataChangesText = $plural(result.fwdataChanges, { one: '# change', other: '# changes' });
       const crdtChangesText = $plural(result.crdtChanges, { one: '# change', other: '# changes' });
       AppNotification.display(
         $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`,
         'success',
       );
-      // Optimistically update status, then query it
-      lbToFlexCount = 0;
-      flexToLbCount = 0;
-      const statusPromise = service.getStatus();
-      if (statusPromise) {
-        // Auto-close dialog after successful FieldWorks sync
-        [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
-        if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
-          openQueryParam.current = false;
-        }
+    } finally {
+      loadingSyncLexboxToFlex = false;
+    }
+
+    // Optimistically update status, then query it
+    lbToFlexCount = 0;
+    flexToLbCount = 0;
+    const statusPromise = service.getStatus();
+    if (statusPromise) {
+      // Auto-close dialog after successful FieldWorks sync
+      [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
+      if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
+        openQueryParam.current = false;
       }
     }
   }
@@ -100,16 +106,21 @@
   async function syncLexboxToLocal() {
     if (api) {
       loadingSyncLexboxToLocal = true;
-      loadingSyncLexboxToLocal = true;
-      await service.triggerCrdtSync();
-      // Optimistically update status, then query it
-      lbToLocalCount = 0;
-      localToLbCount = 0;
-      const statusPromise = service.getLocalStatus();
-      const datePromise = service.getLatestCommitDate();
-      if (statusPromise && datePromise) {
-        localStatus = await statusPromise;
-        latestCommitDate = await datePromise;
+      try {
+        const result = await service.triggerCrdtSync();
+        if (!result) {
+          AppNotification.display($t`Failed to synchronize`, 'error');
+          return;
+        }
+        // Optimistically update status, then query it
+        lbToLocalCount = 0;
+        localToLbCount = 0;
+        const statusPromise = service.getLocalStatus();
+        const datePromise = service.getLatestCommitDate();
+        if (statusPromise && datePromise) {
+          [localStatus, latestCommitDate] = await Promise.all([statusPromise, datePromise]);
+        }
+      } finally {
         loadingSyncLexboxToLocal = false;
       }
     }
