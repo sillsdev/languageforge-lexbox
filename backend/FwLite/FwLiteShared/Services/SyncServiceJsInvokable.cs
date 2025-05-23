@@ -33,7 +33,7 @@ public class SyncServiceJsInvokable(SyncService syncService)
     }
 
     [JSInvokable]
-    public Task<SyncResults> ExecuteSync(bool skipNotifications = false)
+    public Task<SyncResults> ExecuteSync(bool skipNotifications)
     {
         return syncService.ExecuteSync(skipNotifications);
     }
