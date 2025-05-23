@@ -17,7 +17,7 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
     internal class RichStringConverter: JsonConverter<RichString>
     {
         //helper class which doesn't have a converter
-        private record RichStringPrimitive(List<RichSpan> Spans);
+        private class RichStringPrimitive(List<RichSpan> Spans) : RichString(Spans);
         public override RichString? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.String)

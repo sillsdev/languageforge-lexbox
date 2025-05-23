@@ -89,7 +89,7 @@ public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLc
     void IDictionary.Add(object key, object? value)
     {
         var valStr = value as RichString ??
-                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string",
+                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
                          nameof(value));
         if (key is WritingSystemId keyWs)
         {
