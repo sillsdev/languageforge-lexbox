@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
-  import { Icon } from '$lib/components/ui/icon';
+  import { Icon, PingingIcon } from '$lib/components/ui/icon';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import type { ISyncResult } from '$lib/dotnet-types/generated-types/LexCore/Sync/ISyncResult';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
@@ -14,6 +14,7 @@
   import {watch} from 'runed';
   import {fade} from 'svelte/transition';
   import {delay} from '$lib/utils/time';
+  import {cn} from '$lib/utils';
 
   // Get status in calling code by something like the following:
   const service = useSyncStatusService();
@@ -132,7 +133,14 @@
         <div class="col-span-full text-center">
           <Icon icon="i-mdi-monitor-cellphone" class="size-10" />
         </div>
-        <div class="text-center content-center">{lbToLocalCount}<Icon icon="i-mdi-arrow-up" /></div>
+        <div class="text-center content-center">
+          {lbToLocalCount}
+          <PingingIcon
+            icon="i-mdi-arrow-up"
+            ping={loadingSyncLexboxToLocal && !!lbToLocalCount}
+            class={cn(loadingSyncLexboxToLocal && !!lbToLocalCount && 'text-primary')}
+          />
+        </div>
         <div class="content-center text-center">
           <Button
             variant="outline"
@@ -149,7 +157,14 @@
             {/if}
           </Button>
         </div>
-        <div class="text-center content-center"><Icon icon="i-mdi-arrow-down" />{localToLbCount}</div>
+        <div class="text-center content-center">
+          <PingingIcon
+            icon="i-mdi-arrow-down"
+            ping={loadingSyncLexboxToLocal && !!localToLbCount}
+            class={cn(loadingSyncLexboxToLocal && !!localToLbCount && 'text-primary')}
+          />
+          {localToLbCount}
+        </div>
         <div class="col-span-full text-center flex flex-col">
           <span class="font-medium">
             <Icon icon="i-mdi-cloud-outline" />
@@ -162,7 +177,14 @@
             </span>
           {/if}
         </div>
-        <div class="text-center content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
+        <div class="text-center content-center">
+          {flexToLbCount}
+          <PingingIcon
+            icon="i-mdi-arrow-up"
+            ping={loadingSyncLexboxToFlex && !!flexToLbCount}
+            class={cn(loadingSyncLexboxToFlex && !!flexToLbCount && 'text-primary')}
+          />
+        </div>
         <div class="content-center text-center">
           <Button
             loading={loadingSyncLexboxToFlex}
@@ -177,7 +199,14 @@
             {/if}
           </Button>
         </div>
-        <div class="text-center content-center"><Icon icon="i-mdi-arrow-down" />{lbToFlexCount}</div>
+        <div class="text-center content-center">
+          <PingingIcon
+            icon="i-mdi-arrow-down"
+            ping={loadingSyncLexboxToFlex && !!lbToFlexCount}
+            class={cn(loadingSyncLexboxToFlex && !!lbToFlexCount && 'text-primary')}
+          />
+          {lbToFlexCount}
+        </div>
         <div class="col-span-full text-center flex flex-col">
           <span class="font-medium">
             <Icon icon="i-mdi-cloud-outline" />
