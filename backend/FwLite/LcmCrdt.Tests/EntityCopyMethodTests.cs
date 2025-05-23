@@ -27,9 +27,14 @@ public class EntityCopyMethodTests
         return crdtConfig.ObjectTypes.Select(t => new object[] { t });
     }
 
-    private void AssertDeepCopy(IObjectWithId copy, IObjectWithId original)
+    private void AssertDeepCopy(object copy, object original)
     {
-        copy.Should().BeEquivalentTo(original, options => options.IncludingAllRuntimeProperties().Using(new NotSameEquivalencyStep()));
+        copy.Should().BeEquivalentTo(original, options => options
+            .ComparingByMembers(typeof(RichString))
+            .ComparingRecordsByMembers()
+            .IncludingAllRuntimeProperties()
+            .IncludingFields()
+            .Using(new NotSameEquivalencyStep()));
     }
 
     [Fact]
@@ -53,6 +58,21 @@ public class EntityCopyMethodTests
         var entity = (IObjectWithId) AutoFaker.Generate(type);
         var copy = entity.Copy();
         AssertDeepCopy(copy, entity);
+    }
+
+    [Fact]
+    public void CopyOfRichStringIsDeep()
+    {
+        var original = new RichString([
+            new RichSpan()
+            {
+                Text = "test",
+                ObjData = new RichTextObjectData() { Type = RichTextObjectDataType.NameGuid, Value = "test" },
+                Tags = [Guid.NewGuid()]
+            }
+        ]);
+        var copy = original.Copy();
+        AssertDeepCopy(copy, original);
     }
 
     private class NotSameEquivalencyStep : IEquivalencyStep
