@@ -95,6 +95,10 @@ tasks:
     desc: The single command for local api development
     deps: [ infra-up, api:only, k8s:infra-forward ]
     interactive: true
+  local-lexbox:
+    desc: 'Run front and backend locally'
+    deps: [api:only, k8s:infra-forward, ui:lexbox-only]
+    interactive: true
 
   fw-lite-web:
     aliases:
