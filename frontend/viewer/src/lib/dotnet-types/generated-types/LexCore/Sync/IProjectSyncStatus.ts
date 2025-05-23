@@ -12,8 +12,5 @@ export interface IProjectSyncStatus
 	pendingMercurialChanges: number;
 	lastCrdtCommitDate?: string;
 	lastMercurialCommitDate?: string;
-	neverSynced: IProjectSyncStatus;
-	syncing: IProjectSyncStatus;
-	queuedToSync: IProjectSyncStatus;
 }
 /* eslint-enable */

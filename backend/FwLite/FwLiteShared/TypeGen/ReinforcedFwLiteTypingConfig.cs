@@ -114,11 +114,11 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterfaces(serviceTypes, exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
         builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
 
+        builder.ExportAsInterface<ProjectSyncStatus>().WithPublicNonStaticProperties();
         builder.ExportAsInterfaces([
             typeof(ServerStatus),
             typeof(ProjectModel),
             typeof(ServerProjects),
-            typeof(ProjectSyncStatus),
             typeof(SyncResult),
             typeof(SyncResults),
             typeof(LexboxServer),
