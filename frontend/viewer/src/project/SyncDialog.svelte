@@ -74,6 +74,10 @@
       const promise = service.getStatus();
       if (promise) {
         remoteStatus = await promise;
+        // Auto-close dialog after successful FieldWorks sync
+        if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
+          setTimeout(() => (openQueryParam.current = false), 750);
+        }
       }
     }
   }
