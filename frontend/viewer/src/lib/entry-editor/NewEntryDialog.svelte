@@ -100,9 +100,9 @@
       <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
     </OverrideFields>
     {#if errors.length}
-      <div class="self-end my-4">
+      <div class="text-end space-y-2">
         {#each errors as error}
-          <p class="text-danger p-2">{error}</p>
+          <p class="text-destructive">{error}</p>
         {/each}
       </div>
     {/if}
