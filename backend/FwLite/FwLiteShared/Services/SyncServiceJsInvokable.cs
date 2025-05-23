@@ -27,6 +27,12 @@ public class SyncServiceJsInvokable(SyncService syncService)
     }
 
     [JSInvokable]
+    public Task<DateTimeOffset?> GetLatestCommitDate()
+    {
+        return syncService.GetLatestCommitDate();
+    }
+
+    [JSInvokable]
     public Task<SyncResults> ExecuteSync(bool skipNotifications = false)
     {
         return syncService.ExecuteSync(skipNotifications);

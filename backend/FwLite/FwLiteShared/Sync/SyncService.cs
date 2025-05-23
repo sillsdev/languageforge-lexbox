@@ -213,6 +213,25 @@ public class SyncService(
         }
     }
 
+    public async Task<DateTimeOffset?> GetLatestCommitDate()
+    {
+        try
+        {
+            // Assert sync date prop for same reason as in UpdateSyncDate
+            Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            var date = await dbContext.Database.SqlQuery<DateTimeOffset>(
+                $"""
+                 SELECT MAX(json_extract(Metadata, '$.ExtraMetadata.SyncDate')) AS Value FROM Commits
+                 """).SingleAsync();
+            return date;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to find most recent commit date");
+            return null;
+        }
+    }
+
     public async Task UploadProject(Guid lexboxProjectId, LexboxServer server)
     {
         await currentProjectService.SetProjectSyncOrigin(server.Authority, lexboxProjectId);

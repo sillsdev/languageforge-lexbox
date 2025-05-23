@@ -25,7 +25,8 @@
 
   let lbToLocalCount = $derived(localStatus?.fwdataChanges ?? 0);
   let localToLbCount = $derived(localStatus?.crdtChanges ?? 0);
-  let lastLocalSyncDate = $derived(new Date(remoteStatus?.lastCrdtCommitDate ?? '')); // TODO: How do we get this from localStatus?
+  let latestCommitDate = $state<string | undefined>(undefined);
+  let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const lastFlexSyncDate = $derived(new Date(remoteStatus?.lastMercurialCommitDate ?? ''));
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
@@ -34,17 +35,23 @@
     loading = true;
     let remotePromise = service.getStatus();
     let localPromise = service.getLocalStatus();
+    let commitDatePromise = service.getLatestCommitDate();
+    void service.getLatestCommitDate()?.then((date) => {});
     if (!remotePromise || !localPromise) {
       // Can only happen if the sync status service was unavailable
       localStatus = undefined;
       remoteStatus = undefined;
+      latestCommitDate = '';
       loading = false;
     } else {
-      void Promise.all([localPromise, remotePromise]).then(([localResult, remoteResult]) => {
-        localStatus = localResult;
-        remoteStatus = remoteResult;
-        loading = false;
-      });
+      void Promise.all([localPromise, remotePromise, commitDatePromise]).then(
+        ([localResult, remoteResult, commitDate]) => {
+          localStatus = localResult;
+          remoteStatus = remoteResult;
+          latestCommitDate = commitDate;
+          loading = false;
+        },
+      );
     }
     openQueryParam.current = true;
   }
@@ -74,16 +81,17 @@
   let loadingSyncLexboxToLocal = $state(false);
   async function syncLexboxToLocal() {
     if (api) {
-      loadingSyncLexboxToFlex = true;
+      loadingSyncLexboxToLocal = true;
       await service.triggerCrdtSync();
       // Optimistically update status, then query it
       lbToLocalCount = 0;
       localToLbCount = 0;
-      lastLocalSyncDate = new Date(); // TODO: Figure out how to get a date from the DB quickly, then include in getLocalStatus() call
-      const promise = service.getLocalStatus();
-      if (promise) {
-        localStatus = await promise;
-        loadingSyncLexboxToFlex = false;
+      const statusPromise = service.getLocalStatus();
+      const datePromise = service.getLatestCommitDate();
+      if (statusPromise && datePromise) {
+        localStatus = await statusPromise;
+        latestCommitDate = await datePromise;
+        loadingSyncLexboxToLocal = false;
       }
     }
   }
@@ -120,10 +128,12 @@
             <Icon icon="i-mdi-cloud-outline" />
             Lexbox - FieldWorks Lite
           </span>
-          <span class="text-foreground/80">
-            {$t`Last change: `}
-            <FormatDate date={lastLocalSyncDate} />
-          </span>
+          {#if lastLocalSyncDate}
+            <span class="text-foreground/80">
+              {$t`Last change: `}
+              <FormatDate date={lastLocalSyncDate} />
+            </span>
+          {/if}
         </div>
         <div class="text-right content-center">{flexToLbCount}<Icon icon="i-mdi-arrow-up" /></div>
         <div class="content-center text-center">

@@ -25,10 +25,14 @@ export class SyncStatusService {
   }
 
   triggerCrdtSync(skipNotifications?: boolean) {
-    return this.syncStatusApi?.executeSync(skipNotifications);
+    return this.syncStatusApi?.executeSync(skipNotifications ?? false);
   }
 
   triggerFwHeadlessSync() {
     return this.syncStatusApi?.triggerFwHeadlessSync();
+  }
+
+  getLatestCommitDate() {
+    return this.syncStatusApi?.getLatestCommitDate();
   }
 }
