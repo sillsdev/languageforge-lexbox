@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions;
 using LexCore.Auth;
@@ -47,10 +48,10 @@ public class ApiTestBase
     }
 
     // This needs to be virtual so it can be mocked in IntegrationFixtureTests
-    public virtual async Task<string> LoginAs(string user, string? password = null)
+    public virtual async Task<string> LoginAs(string user, string? password = null, bool includeDefaultScope = true)
     {
         password ??= TestingEnvironmentVariables.DefaultPassword;
-        var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
+        var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), includeDefaultScope, HttpClient);
         CurrJwt = JwtHelper.GetJwtFromLoginResponse(response);
         return CurrJwt;
     }
@@ -92,5 +93,21 @@ query projectLastCommit {
     {
         var response = await HttpClient.PostAsync($"{BaseUrl}/api/project/resetProject/{projectCode}", null);
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<string> GetSendAndReceiveJwt()
+    {
+        CurrJwt.Should().NotBeNullOrEmpty("we should be logged in already");
+        var response = await HttpClient.SendAsync(new(HttpMethod.Get,
+            $"{BaseUrl}/api/integration/getProjectToken?projectCode={TestingEnvironmentVariables.ProjectCode}")
+        {
+            Headers = { Authorization = new("Bearer", CurrJwt) }
+        });
+        response.EnsureSuccessStatusCode();
+        //intentionally not using the RefreshResponse class to make sure this test still fails if properties are renamed
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var projectToken = json.GetProperty("projectToken").GetString();
+        projectToken.Should().NotBeNullOrEmpty();
+        return projectToken;
     }
 }

@@ -1,14 +1,16 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
+using SIL.Harmony.Core;
 
 namespace FwLiteShared.Projects;
 
@@ -94,11 +96,73 @@ public class LexboxProjectService : IDisposable
         if (httpClient is null) return null;
         try
         {
-            return (await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}"));
+            return await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}");
         }
         catch (Exception e)
         {
             logger.LogError(e, "Error getting lexbox project id");
+            return null;
+        }
+    }
+
+    public async Task<ProjectSyncStatus?> GetLexboxSyncStatus(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.GetFromJsonAsync<ProjectSyncStatus?>($"api/fw-lite/sync/status/{projectId}");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting lexbox sync status");
+            return null;
+        }
+    }
+
+    public async Task<HttpResponseMessage?> TriggerLexboxSync(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error triggering lexbox sync");
+            return null;
+        }
+    }
+
+    public async Task<SyncResult?> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.GetFromJsonAsync<SyncResult?>($"api/fw-lite/sync/await-sync-finished/{projectId}");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error waiting for lexbox sync to finish");
+            return null;
+        }
+    }
+
+    public async Task<int?> CountPendingCrdtCommits(LexboxServer server, Guid projectId, SyncState localSyncState)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            var result = await httpClient.PostAsJsonAsync<SyncState>($"/api/crdt/{projectId}/countChanges", localSyncState);
+            var text = await result.Content.ReadAsStringAsync();
+            return int.Parse(text);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error counting pending changes in lexbox");
             return null;
         }
     }

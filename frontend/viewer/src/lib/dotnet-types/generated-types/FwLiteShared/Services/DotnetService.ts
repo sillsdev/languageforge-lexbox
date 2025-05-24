@@ -11,6 +11,7 @@ export enum DotnetService {
 	FwLiteConfig = "FwLiteConfig",
 	ProjectServicesProvider = "ProjectServicesProvider",
 	HistoryService = "HistoryService",
+	SyncService = "SyncService",
 	AppLauncher = "AppLauncher",
 	TroubleshootingService = "TroubleshootingService",
 	TestingService = "TestingService",

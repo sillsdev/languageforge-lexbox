@@ -26,7 +26,7 @@ export class DotNetServiceProvider {
     const service = this.services[key] as LexboxServiceRegistry[K] | DotNet.DotNetObject | undefined;
     //todo maybe don't return undefined
     if (!service) return undefined;
-    if (this.isDotnetObject(service)) return wrapInProxy(service, key) as LexboxServiceRegistry[K];
+    if (this.isDotnetObject(service)) return wrapInProxy(service, key);
     return service;
   }
 
@@ -45,7 +45,7 @@ export class DotNetServiceProvider {
   }
 }
 
-export function wrapInProxy(dotnetObject: DotNet.DotNetObject, serviceName: string): unknown {
+export function wrapInProxy<K extends ServiceKey>(dotnetObject: DotNet.DotNetObject, serviceName: K): LexboxServiceRegistry[K] {
   return new Proxy(dotnetObject, {
     get(target: DotNet.DotNetObject, prop: unknown) {
       if (typeof prop !== 'string') return undefined;
@@ -59,7 +59,7 @@ export function wrapInProxy(dotnetObject: DotNet.DotNetObject, serviceName: stri
         return result;
       };
     },
-  });
+  }) as unknown as LexboxServiceRegistry[K];
 }
 
 function uppercaseFirstLetter(str: string): string {

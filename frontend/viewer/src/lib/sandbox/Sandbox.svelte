@@ -28,6 +28,7 @@
   import {Link} from 'svelte-routing';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
+  import {T} from 'svelte-i18n-lingui';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -118,7 +119,12 @@
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
   <h2 class="mb-4 flex gap-8 items-center">
-    Shadcn Sandbox <ThemePicker />
+    <T msg="Shadcn Sandbox # #">
+      <ThemePicker />
+      {#snippet second()}
+        🤠
+      {/snippet}
+    </T>
   </h2>
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">

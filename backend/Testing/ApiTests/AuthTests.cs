@@ -66,6 +66,16 @@ public class AuthTests : ApiTestBase
     }
 
     [Fact]
+    public async Task LexboxApiScopeIsRequiredByDefault()
+    {
+        var jwt = await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword, false);
+        var user = JwtHelper.ToLexAuthUser(jwt);
+        user.Scopes.Should().BeEmpty();
+        var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-auth");
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
     public async Task ManagerIsForbiddenFromAdminApi()
     {
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
@@ -91,6 +101,43 @@ public class AuthTests : ApiTestBase
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-forgot-password");
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task DefaultJwtCanNotCallSendReceiveRequiredScope()
+    {
+        await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
+        var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requiresSendReceiveScope");
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+
+        await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
+        response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requiresSendReceiveScope");
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task SendReceiveRequiredJwtCanCallSendReceiveRequiredScope()
+    {
+        await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
+        var srJwt = await GetSendAndReceiveJwt();
+        var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requiresSendReceiveScope?jwt={srJwt}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
+        srJwt = await GetSendAndReceiveJwt();
+        response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requiresSendReceiveScope?jwt={srJwt}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task AdminRequiredAttributeDoesNotOverrideScopeRequirement()
+    {
+        await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
+        var srJwt = await GetSendAndReceiveJwt();
+        var response = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-admin-and-sr-scope?jwt={srJwt}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var responseDefaultScope = await HttpClient.GetAsync($"{BaseUrl}/api/AuthTesting/requires-admin-and-sr-scope");
+        responseDefaultScope.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

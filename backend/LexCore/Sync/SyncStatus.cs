@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace LexCore.Sync;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ProjectSyncStatusEnum
 {
     NeverSynced,
@@ -9,6 +12,7 @@ public enum ProjectSyncStatusEnum
 }
 
 public record ProjectSyncStatus(
+    [property:JsonConverter(typeof(JsonStringEnumConverter))]
     ProjectSyncStatusEnum status,
     int PendingCrdtChanges = 0,
     int PendingMercurialChanges = 0, // Will be -1 if there is no clone yet; this means "all the commits, but we don't know how many there will be"

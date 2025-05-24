@@ -52,6 +52,14 @@ public class AuthTestingController(LoggedInContext loggedInContext) : Controller
         return Ok();
     }
 
+    [HttpGet("requires-admin-and-sr-scope")]
+    [AdminRequired]
+    [RequireScope(LexboxAuthScope.SendAndReceive, true)]
+    public ActionResult RequiresAdminAndSrScope()
+    {
+        return Ok();
+    }
+
     [HttpGet("token-project-count")]
     [AllowAnonymous]
     public ActionResult<int?> TokenProjectCount()

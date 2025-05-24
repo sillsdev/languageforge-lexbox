@@ -1,4 +1,4 @@
-﻿using LexCore.Utils;
+using LexCore.Utils;
 using LexData;
 using LinqToDB;
 using LinqToDB.Data;
@@ -45,6 +45,34 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         return dbContext.CrdtCommits(projectId)
         //don't need to include change entities since they're not owned in lexbox so they will get included automatically
             .GetMissingCommits<ServerCommit, ServerJsonChange>(localState, remoteState, false);
+    }
+
+    public async Task<int> ApproximatelyCountMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)
+    {
+        var linqToDbContext = dbContext.CreateLinqToDBContext();
+        var commits = linqToDbContext.GetTable<ServerCommit>().Where(c => c.ProjectId == projectId);
+        var count = 0;
+        foreach (var (clientId, localTimestamp) in localState.ClientHeads)
+        {
+            //client is new to the other history
+            if (!remoteState.ClientHeads.TryGetValue(clientId, out var otherTimestamp))
+            {
+                count += await commits
+                    .DefaultOrder()
+                    .Where(c => c.ClientId == clientId)
+                    .CountAsync();
+            }
+            //client has newer history than the other history
+            else if (localTimestamp > otherTimestamp)
+            {
+                var otherDt = DateTimeOffset.FromUnixTimeMilliseconds(otherTimestamp);
+                count += await commits
+                    .DefaultOrder()
+                    .Where(c => c.ClientId == clientId && c.HybridDateTime.DateTime > otherDt)
+                    .CountAsync();
+            }
+        }
+        return count;
     }
 
     public async Task<SyncState> GetSyncState(Guid projectId)

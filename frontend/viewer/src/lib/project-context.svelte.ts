@@ -3,6 +3,9 @@ import type {IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
+import type {
+  ISyncServiceJsInvokable
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
 
@@ -13,6 +16,7 @@ type ProjectType = 'crdt' | 'fwdata' | undefined;
 interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
+  syncService?: ISyncServiceJsInvokable;
   projectName: string;
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
@@ -32,6 +36,7 @@ export class ProjectContext {
   #projectCode: string | undefined = $state(undefined);
   #projectType: ProjectType = $state(undefined);
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
+  #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -60,10 +65,14 @@ export class ProjectContext {
   public get historyService(): IHistoryServiceJsInvokable | undefined {
     return this.#historyService;
   }
+  public get syncService(): ISyncServiceJsInvokable | undefined {
+    return this.#syncService;
+  }
 
   constructor(args?: ProjectContextSetup) {
     this.#api = args?.api;
     this.#historyService = args?.historyService;
+    this.#syncService = args?.syncService;
     this.#projectName = args?.projectName;
     this.#projectCode = args?.projectCode;
     this.#projectType = args?.projectType;
@@ -72,6 +81,7 @@ export class ProjectContext {
   public setup(args: ProjectContextSetup) {
     this.#api = args.api;
     this.#historyService = args.historyService;
+    this.#syncService = args.syncService;
     this.#projectName = args.projectName;
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
