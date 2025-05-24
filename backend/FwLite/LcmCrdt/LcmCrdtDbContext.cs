@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using LcmCrdt.Data;
+using LcmCrdt.FullTextSearch;
 using SIL.Harmony;
 using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
+    public DbSet<EntrySearchRecord> EntrySearchRecords => Set<EntrySearchRecord>();
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(setupCollationInterceptor);
@@ -25,6 +27,11 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         var projectDataModel = modelBuilder.Entity<ProjectData>();
         projectDataModel.HasKey(p => p.Id);
         projectDataModel.Ignore(p => p.ServerId);
+
+        var entrySearchModel = modelBuilder.Entity<EntrySearchRecord>();
+        entrySearchModel.ToTable(nameof(EntrySearchRecord));
+        entrySearchModel.HasKey(e => e.RowId);
+        entrySearchModel.Property(e => e.Match).HasColumnName(nameof(EntrySearchRecord));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
