@@ -107,6 +107,7 @@ export async function _projectCodeAvailable(code: string): Promise<boolean> {
 }
 
 export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langCode: string }): Promise<ProjectsByLangCodeAndOrgQuery['projectsByLangCodeAndOrg']> {
+  if (input.langCode.length !== 3 && input.langCode.length !== 2) return [];
   const client = getClient();
   //language=GraphQL
   const results = await client.query(
@@ -125,6 +126,7 @@ export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langC
 }
 
 export async function _getProjectsByNameAndOrg({ orgId, projectName }: { orgId: string, projectName: string }): Promise<ProjectsByNameAndOrgQuery['projectsInMyOrg']> {
+  if (projectName.length < 3) return [];
   const client = getClient();
   //language=GraphQL
   const results = await client.query(
