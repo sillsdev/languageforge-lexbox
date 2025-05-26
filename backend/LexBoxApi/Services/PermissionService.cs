@@ -56,6 +56,15 @@ public class PermissionService(
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
+        if (User.IsProjectMember(projectId, ProjectRole.Editor, ProjectRole.Manager)) return true;
+        // Org managers can sync any project owned by their org(s)
+        return await ManagesOrgThatOwnsProject(projectId);
+    }
+
+    public async ValueTask<bool> CanDownloadProject(Guid projectId)
+    {
+        if (User is null) return false;
+        if (User.Role == UserRole.admin) return true;
         if (User.IsProjectMember(projectId)) return true;
         // Org managers can sync any project owned by their org(s)
         return await ManagesOrgThatOwnsProject(projectId);
@@ -69,6 +78,11 @@ public class PermissionService(
     public async ValueTask AssertCanSyncProject(Guid projectId)
     {
         if (!await CanSyncProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask AssertCanDownloadProject(Guid projectId)
+    {
+        if (!await CanDownloadProject(projectId)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask<bool> CanViewProject(Guid projectId, LexAuthUser? overrideUser = null)

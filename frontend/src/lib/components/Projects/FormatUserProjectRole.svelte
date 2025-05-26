@@ -11,6 +11,7 @@
   const roles: Record<ProjectRole, string | undefined> = {
     [ProjectRole.Manager]: $t('project_role.manager'),
     [ProjectRole.Editor]: $t('project_role.editor'),
+    [ProjectRole.Observer]: $t('project_role.observer'),
     [ProjectRole.Unknown]: $t('unknown'),
   };
 

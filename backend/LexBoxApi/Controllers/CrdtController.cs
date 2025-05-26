@@ -35,7 +35,7 @@ public class CrdtController(
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         return await crdtCommitService.GetSyncState(projectId);
     }
 
@@ -61,7 +61,7 @@ public class CrdtController(
     public async Task<ActionResult<ChangesResult>> Changes(Guid projectId,
         [FromBody] SyncState clientHeads)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         var localState = await crdtCommitService.GetSyncState(projectId);
         return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
     }
@@ -75,20 +75,36 @@ public class CrdtController(
         return await crdtCommitService.ApproximatelyCountMissingCommits(projectId, localState, clientHeads);
     }
 
-    public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
+    public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject, bool IsObserver);
 
     [HttpGet("listProjects")]
     public async Task<ActionResult<FwLiteProject[]>> ListProjects()
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
-            .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id)))
+            .Select(p => new FwLiteProject(p.Id,
+                p.Code,
+                p.Name,
+                p.LastCommit != null,
+                dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id),
+                p.Users.Any(m => m.Role == ProjectRole.Observer && m.UserId == loggedInContext.User.Id)))
             .ToArrayAsync();
-        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()))
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()) || ObserverRoleOutOfDate(myProjects))
         {
             await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
         }
         return myProjects;
+    }
+
+    private bool ObserverRoleOutOfDate(IEnumerable<FwLiteProject> projects)
+    {
+        foreach (var fwLiteProject in projects)
+        {
+            if (fwLiteProject.IsObserver != loggedInContext.User.IsProjectMember(fwLiteProject.Id, ProjectRole.Observer))
+                return true;
+        }
+
+        return false;
     }
 
     [HttpGet("lookupProjectId")]

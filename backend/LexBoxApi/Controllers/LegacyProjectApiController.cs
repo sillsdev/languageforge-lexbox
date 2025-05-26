@@ -78,7 +78,7 @@ public class LegacyProjectApiController : ControllerBase
         //this needs to be ugly so that projectable will work :(
         role == ProjectRole.Manager ? "manager"
         : role == ProjectRole.Editor ? "editor"
-        : "unknown";
+        : "unknown";//fieldworks doesn't know about or support observers
 }
 
 public record LegacyApiProject(string Identifier, string Name, string Repository, string Role);
