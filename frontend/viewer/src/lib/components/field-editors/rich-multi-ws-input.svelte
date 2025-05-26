@@ -23,10 +23,10 @@
     autofocus,
   } = $derived(constProps);
 
-  function setValue(newValue: IRichString, wsId: string) {
-    newValue?.spans.forEach((span) => span.ws ??= wsId);
-    value[wsId] = newValue;
-    onchange?.(wsId, value[wsId], value);
+  function onRichTextChange(wsId: string) {
+    let richString = value[wsId]
+    richString?.spans.forEach((span) => span.ws ??= wsId);
+    onchange?.(wsId, richString, value);
   }
 </script>
 
@@ -36,9 +36,10 @@
            title={`${ws.name} (${ws.wsId})`}>
       <span>{ws.abbreviation}</span>
       <LcmRichTextEditor
-        bind:value={() => value[ws.wsId], (newValue) => setValue(newValue, ws.wsId)}
+        bind:value={value[ws.wsId]}
         {readonly}
         autofocus={autofocus && (i === 0)}
+        onchange={() => onRichTextChange(ws.wsId)}
         />
     </Label>
   {/each}
