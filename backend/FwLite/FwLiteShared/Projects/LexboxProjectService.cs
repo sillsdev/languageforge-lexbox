@@ -135,19 +135,31 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    public async Task<SyncResult?> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId)
+    public async Task<SyncResult?> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
     {
         var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
         if (httpClient is null) return null;
-        try
+        var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(timeoutSeconds);
+        while (giveUpAt > DateTime.UtcNow)
         {
-            return await httpClient.GetFromJsonAsync<SyncResult?>($"api/fw-lite/sync/await-sync-finished/{projectId}");
+            try
+            {
+                // Avoid 30-second timeout by retrying every 25 seconds until max time reached
+                var result = await httpClient.GetAsync(
+                        $"api/fw-lite/sync/await-sync-finished/{projectId}",
+                        new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
+                result.EnsureSuccessStatusCode();
+                return await result.Content.ReadFromJsonAsync<SyncResult?>();
+            }
+            catch (OperationCanceledException) { continue; }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error waiting for lexbox sync to finish");
+                return null;
+            }
         }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Error waiting for lexbox sync to finish");
-            return null;
-        }
+        logger.LogError("Timed out waiting for lexbox sync to finish");
+        return null;
     }
 
     public async Task<int?> CountPendingCrdtCommits(LexboxServer server, Guid projectId, SyncState localSyncState)
