@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
   import ProjectView from './ProjectView.svelte';
   import {onDestroy, onMount} from 'svelte';
-  import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
+  import {DotnetService} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
   import {wrapInProxy} from '$lib/services/service-provider-dotnet';
   import type {IProjectScope} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IProjectScope';

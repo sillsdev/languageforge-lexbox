@@ -345,7 +345,7 @@
         {/if}
       </div>
       <div class="ml-2">
-        <AppBarMenu on:showOptionsDialog={() => showOptionsDialog = true} {about} {projectName} />
+        <AppBarMenu on:showOptionsDialog={() => showOptionsDialog = true} {about} />
       </div>
     </div>
   </AppBar>

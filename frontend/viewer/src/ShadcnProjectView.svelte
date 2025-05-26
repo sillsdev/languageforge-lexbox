@@ -55,7 +55,7 @@
         <TasksView/>
       </Route>
       <Route path="/activity">
-        <ActivityView open/>
+        <ActivityView />
       </Route>
       <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
