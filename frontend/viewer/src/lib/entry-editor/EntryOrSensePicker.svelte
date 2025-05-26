@@ -154,7 +154,7 @@
     <div class="space-y-2">
       {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
         {@const disabledEntry = disableEntry?.(entry)}
-        <EntryRow {entry} selected={selectedEntry === entry} onclick={() => select(entry)}>
+        <EntryRow {entry} disabled={disabledEntry && disabledEntry.disableSenses} selected={selectedEntry === entry} onclick={() => select(entry)}>
           {#snippet badge()}
             {#if disabledEntry}
               <Badge variant="outline" class="border-destructive text-destructive">
