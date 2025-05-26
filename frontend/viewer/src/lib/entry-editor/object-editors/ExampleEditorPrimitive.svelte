@@ -7,7 +7,7 @@
   import {cn} from '$lib/utils';
   import {vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
-  import {MultiWsInput, RichMultiWsInput, WsInput} from '$lib/components/field-editors';
+  import {RichMultiWsInput, RichWsInput} from '$lib/components/field-editors';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
 
@@ -59,7 +59,7 @@
     <Editor.Field.Root style="grid-area: reference" class={cn($currentView.fields.reference.show || 'hidden')}>
       <Editor.Field.Title name={vt($t`Reference`)} helpId={fieldData.reference.helpId} />
       <Editor.Field.Body>
-        <WsInput
+        <RichWsInput
             onchange={() => onFieldChanged('reference')}
             bind:value={example.reference}
             {readonly}

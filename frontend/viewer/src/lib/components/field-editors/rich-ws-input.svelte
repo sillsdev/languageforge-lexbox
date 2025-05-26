@@ -17,14 +17,17 @@
 
   const { readonly = false, writingSystem: ws, onchange, autofocus } = $derived(constProps);
 
-  function setValue(newValue: IRichString | undefined) {
-    newValue?.spans.forEach((span) => span.ws ??= ws.wsId);
-    value = newValue;
+
+  function onRichTextChange() {
+    value?.spans.forEach((span) => span.ws ??= ws.wsId);
     onchange?.(value);
   }
 </script>
 
-<LcmRichTextEditor bind:value={() => value, setValue} {readonly}
+<LcmRichTextEditor
+  bind:value={value}
+  onchange={onRichTextChange}
+  {readonly}
   title={`${ws.name} (${ws.wsId})`}
   {autofocus}
   placeholder={ws.abbreviation} />
