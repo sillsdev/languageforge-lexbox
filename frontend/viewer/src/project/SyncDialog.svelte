@@ -10,15 +10,12 @@
   import Loading from '$lib/components/Loading.svelte';
   import { useSyncStatusService } from '$lib/services/sync-status-service';
   import { FormatDate } from '$lib/components/ui/format-date';
-  import { useMiniLcmApi } from '$lib/services/service-provider';
-  import {watch} from 'runed';
-  import {fade} from 'svelte/transition';
-  import {delay} from '$lib/utils/time';
-  import {cn} from '$lib/utils';
+  import { watch } from 'runed';
+  import { fade } from 'svelte/transition';
+  import { delay } from '$lib/utils/time';
+  import { cn } from '$lib/utils';
 
-  // Get status in calling code by something like the following:
   const service = useSyncStatusService();
-  const api = useMiniLcmApi();
   let remoteStatus: IProjectSyncStatus | undefined = $state();
   let localStatus: ISyncResult | undefined = $state();
   let loading = $state(false);
@@ -104,25 +101,23 @@
 
   let loadingSyncLexboxToLocal = $state(false);
   async function syncLexboxToLocal() {
-    if (api) {
-      loadingSyncLexboxToLocal = true;
-      try {
-        const result = await service.triggerCrdtSync();
-        if (!result) {
-          AppNotification.display($t`Failed to synchronize`, 'error');
-          return;
-        }
-        // Optimistically update status, then query it
-        lbToLocalCount = 0;
-        localToLbCount = 0;
-        const statusPromise = service.getLocalStatus();
-        const datePromise = service.getLatestCommitDate();
-        if (statusPromise && datePromise) {
-          [localStatus, latestCommitDate] = await Promise.all([statusPromise, datePromise]);
-        }
-      } finally {
-        loadingSyncLexboxToLocal = false;
+    loadingSyncLexboxToLocal = true;
+    try {
+      const result = await service.triggerCrdtSync();
+      if (!result) {
+        AppNotification.display($t`Failed to synchronize`, 'error');
+        return;
       }
+      // Optimistically update status, then query it
+      lbToLocalCount = 0;
+      localToLbCount = 0;
+      const statusPromise = service.getLocalStatus();
+      const datePromise = service.getLatestCommitDate();
+      if (statusPromise && datePromise) {
+        [localStatus, latestCommitDate] = await Promise.all([statusPromise, datePromise]);
+      }
+    } finally {
+      loadingSyncLexboxToLocal = false;
     }
   }
 </script>
