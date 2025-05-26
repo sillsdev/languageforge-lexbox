@@ -122,9 +122,14 @@
       lbToLocalCount = 0;
       localToLbCount = 0;
       const statusPromise = service.getLocalStatus();
+      const remoteStatusPromise = service.getStatus();
       const datePromise = service.getLatestCommitDate();
       if (statusPromise && datePromise) {
-        [localStatus, latestCommitDate] = await Promise.all([statusPromise, datePromise]);
+        [localStatus, remoteStatus, latestCommitDate] = await Promise.all([
+          statusPromise,
+          remoteStatusPromise,
+          datePromise,
+        ]);
       }
     } finally {
       loadingSyncLexboxToLocal = false;
