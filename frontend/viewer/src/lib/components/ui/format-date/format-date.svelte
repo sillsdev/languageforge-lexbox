@@ -4,10 +4,10 @@
 
   let { date, ...restProps }: { date: Date | undefined } = $props();
 
-  const formatter = new DateFormatter($locale, {
+  const formatter = $derived(new DateFormatter($locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
-  });
+  }));
 
   const formattedDate = $derived(date ? formatter.format(date) : '');
 </script>
