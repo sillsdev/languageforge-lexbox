@@ -1,10 +1,12 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Reflection;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Attributes;
@@ -105,6 +107,7 @@ public static class ReinforcedFwLiteTypingConfig
 
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
+        builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
@@ -113,10 +116,13 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterfaces(serviceTypes, exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
         builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
 
+        builder.ExportAsInterface<ProjectSyncStatus>().WithPublicNonStaticProperties();
         builder.ExportAsInterfaces([
             typeof(ServerStatus),
             typeof(ProjectModel),
             typeof(ServerProjects),
+            typeof(SyncResult),
+            typeof(SyncResults),
             typeof(LexboxServer),
             typeof(CrdtProject),
             typeof(ProjectData),
