@@ -3,6 +3,7 @@
   import { Icon, PingingIcon } from '$lib/components/ui/icon';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import type { ISyncResult } from '$lib/dotnet-types/generated-types/LexCore/Sync/ISyncResult';
+  import type { ILexboxServer } from '$lib/dotnet-types';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { t, plural } from 'svelte-i18n-lingui';
   import { AppNotification } from '$lib/notifications/notifications';
@@ -18,6 +19,7 @@
   const service = useSyncStatusService();
   let remoteStatus: IProjectSyncStatus | undefined = $state();
   let localStatus: ISyncResult | undefined = $state();
+  let server: ILexboxServer | undefined = $state();
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
     { key: 'syncDialogOpen', replaceOnDefaultValue: true, allowBack: true },
@@ -31,6 +33,7 @@
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
+  const serverName = $derived(server?.displayName ?? 'LexBox');
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
@@ -44,6 +47,7 @@
   async function onOpen(): Promise<void> {
     loading = true;
     try {
+      let serverPromise = service.getCurrentServer();
       let remotePromise = service.getStatus();
       let localPromise = service.getLocalStatus();
       let commitDatePromise = service.getLatestCommitDate();
@@ -52,9 +56,15 @@
         localStatus = undefined;
         remoteStatus = undefined;
         latestCommitDate = '';
+        server = undefined;
         loading = false;
       } else {
-        [localStatus, remoteStatus, latestCommitDate] = await Promise.all([localPromise, remotePromise, commitDatePromise]);
+        [localStatus, remoteStatus, latestCommitDate, server] = await Promise.all([
+          localPromise,
+          remotePromise,
+          commitDatePromise,
+          serverPromise,
+        ]);
       }
     } finally {
       loading = false;
@@ -174,7 +184,7 @@
         <div class="col-span-full text-center flex flex-col">
           <span class="font-medium">
             <Icon icon="i-mdi-cloud-outline" />
-            Lexbox - FieldWorks Lite
+            {$t`${serverName} - FieldWorks Lite`}
           </span>
           {#if lastLocalSyncDate}
             <span class="text-foreground/80">
@@ -216,7 +226,7 @@
         <div class="col-span-full text-center flex flex-col">
           <span class="font-medium">
             <Icon icon="i-mdi-cloud-outline" />
-            Lexbox - FieldWorks
+            {$t`${serverName} - FieldWorks`}
           </span>
           <span class="text-foreground/80">
             {$t`Last change: `}

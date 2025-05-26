@@ -1,3 +1,4 @@
+using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LexCore.Sync;
 using SIL.Harmony;
@@ -36,5 +37,11 @@ public class SyncServiceJsInvokable(SyncService syncService)
     public Task<SyncResults> ExecuteSync(bool skipNotifications)
     {
         return syncService.ExecuteSync(skipNotifications);
+    }
+
+    [JSInvokable]
+    public Task<LexboxServer> GetCurrentServer()
+    {
+        return syncService.GetCurrentServer();
     }
 }

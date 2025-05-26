@@ -100,6 +100,12 @@ public class SyncService(
         return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
     }
 
+    public async Task<LexboxServer> GetCurrentServer()
+    {
+        var project = await currentProjectService.GetProjectData();
+        return authOptions.Value.GetServer(project);
+    }
+
     public async Task<SyncResult?> CountPendingCrdtCommits()
     {
         var project = await currentProjectService.GetProjectData();

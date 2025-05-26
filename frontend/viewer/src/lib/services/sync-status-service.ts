@@ -35,4 +35,8 @@ export class SyncStatusService {
   getLatestCommitDate() {
     return this.syncStatusApi?.getLatestCommitDate();
   }
+
+  getCurrentServer() {
+    return this.syncStatusApi?.getCurrentServer();
+  }
 }
