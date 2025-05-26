@@ -67,8 +67,8 @@ public record RichSpan
 {
     public required string Text { get; init; }
 
-    [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public WritingSystemId? Ws;
+    [JsonInclude]
+    public WritingSystemId Ws;
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public WritingSystemId? WsBase;
 

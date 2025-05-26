@@ -193,7 +193,8 @@ public static class RichTextMapping
         switch (type)
         {
             case FwTextPropType.ktptWs:
-                span.Ws = wsIdLookup(GetNullableIntProp(textProps, type));
+                var wsHandle = GetNullableIntProp(textProps, type);
+                span.Ws = wsIdLookup(wsHandle) ?? throw new ArgumentException($"ws handle {wsHandle} is not valid");
                 break;
             case FwTextPropType.ktptBaseWs:
                 span.WsBase = wsIdLookup(GetNullableIntProp(textProps, type));
@@ -284,8 +285,8 @@ public static class RichTextMapping
             }
         }
 
-        if (span.Ws is not null)
-            SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws.Value));
+
+        SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws));
         if (span.WsBase is not null)
             SetInt(builder, FwTextPropType.ktptBaseWs, wsHandleLookup(span.WsBase.Value));
         SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));

@@ -14,6 +14,7 @@ public class RichTextTests(ITestOutputHelper output)
 {
     private const int FakeWsHandleFr = 346;
     private const int FakeWsHandleEn = 2345;
+    private const int NullWsHandleEn = 213465;//nothing special about this, but our mapper returns null for it
 
     private ITsPropsBldr MakeFilledProps()
     {
@@ -82,12 +83,20 @@ public class RichTextTests(ITestOutputHelper output)
         };
     }
 
+    private void EnsureWsSet(ITsPropsBldr builder)
+    {
+        var val = builder.GetIntPropValues((int)FwTextPropType.ktptWs, out var var);
+        if (val is -1 && var is -1)
+        {
+            builder.SetIntPropValues((int)FwTextPropType.ktptWs, 0, FakeWsHandleEn);
+        }
+    }
+
     public static IEnumerable<object?[]> IntPropTypeIsMappedCorrectlyData()
     {
         IEnumerable<(FwTextPropType propType, object? value, int variation, Action<RichSpan> assert)> GetData()
         {
             //may show up as FontFamily in test output
-            yield return (FwTextPropType.ktptWs, null, 0, span => span.Ws.Should().BeNull());
             yield return (FwTextPropType.ktptWs, FakeWsHandleFr, 0, span => span.Ws.Should().Be((WritingSystemId)"fr"));
 
             //may show up as CharStyle in test output
@@ -318,6 +327,7 @@ public class RichTextTests(ITestOutputHelper output)
         var builder = TsStringUtils.MakePropsBldr();
         if (value is not null)
             builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
+        EnsureWsSet(builder);
         var textProps = builder.GetTextProps();
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
@@ -332,6 +342,7 @@ public class RichTextTests(ITestOutputHelper output)
         var builder = TsStringUtils.MakePropsBldr();
         if (value is not null)
             builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
+        EnsureWsSet(builder);
         var expectedProps = builder.GetTextProps();
         RichTextMapping.WriteToSpan(span, expectedProps, WsIdLookup);
 
@@ -346,6 +357,16 @@ public class RichTextTests(ITestOutputHelper output)
         RichTextMapping.WriteToSpan(spanFromProps, actualProps, WsIdLookup);
         assert(spanFromProps);
         spanFromProps.Should().BeEquivalentTo(span);
+    }
+
+    [Fact]
+    public void NullWsHandlesAreInvalid()
+    {
+        var builder = TsStringUtils.MakePropsBldr();
+        builder.SetIntValue(FwTextPropType.ktptWs, FwTextPropVar.ktpvDefault, NullWsHandleEn);
+        var span = new RichSpan() { Text = "test" };
+        var act = () => RichTextMapping.WriteToSpan(span, builder.GetTextProps(), WsIdLookup);
+        act.Should().Throw<ArgumentException>();
     }
 
     private static string GetRawObjDataString(FwObjDataTypes dataType, Guid guid)
@@ -443,6 +464,7 @@ public class RichTextTests(ITestOutputHelper output)
         var span = new RichSpan() { Text = "test" };
         var builder = TsStringUtils.MakePropsBldr();
         builder.SetStrPropValue((int)propType, value);
+        EnsureWsSet(builder);
         var textProps = builder.GetTextProps();
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
@@ -457,6 +479,7 @@ public class RichTextTests(ITestOutputHelper output)
     {
         var builder = TsStringUtils.MakePropsBldr();
         builder.SetStrPropValue((int)propType, value);
+        EnsureWsSet(builder);
         var expectedProps = builder.GetTextProps();
 
         var span = new RichSpan() { Text = "test" };
@@ -465,6 +488,7 @@ public class RichTextTests(ITestOutputHelper output)
         //test
         builder = TsStringUtils.MakePropsBldr();
         RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
+        EnsureWsSet(builder);
         var actualProps = builder.GetTextProps();
         if ((span.ObjData is null && propType == FwTextPropType.ktptObjData) || propType == FwTextPropType.ktptTags && value == string.Empty)
         {
@@ -473,6 +497,7 @@ public class RichTextTests(ITestOutputHelper output)
             //but those won't be round tripped, so we need to remove it from the expectedProps
             var updateBuilder = expectedProps.GetBldr();
             updateBuilder.SetStrPropValue((int)propType, null);
+            EnsureWsSet(updateBuilder);
             expectedProps = updateBuilder.GetTextProps();
         }
         actualProps.Should().BeEquivalentTo(expectedProps);
@@ -532,6 +557,8 @@ public class RichTextTests(ITestOutputHelper output)
             return "fr";
         if (handle == FakeWsHandleEn)
             return "en";
+        if (handle == NullWsHandleEn)
+            return null;
         return null;
     }
 }
