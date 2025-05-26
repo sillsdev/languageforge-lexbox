@@ -31,7 +31,7 @@ const allFieldConfigs = ({
   example: {
     sentence: { id: 'sentence', type: 'rich-multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/example_field.htm' },
     translation: { id: 'translation', type: 'rich-multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Translation_field.htm' },
-    reference: { id: 'reference', type: 'single', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Reference_field.htm' },
+    reference: { id: 'reference', type: 'rich-single', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Reference_field.htm' },
   },
   customExample: {
   },

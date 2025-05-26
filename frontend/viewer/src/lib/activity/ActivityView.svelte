@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
   import type {ICommitMetadata} from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import {useHistoryService} from '$lib/services/history-service';
-  import * as Dialog from '$lib/components/ui/dialog';
   import {
     cls,
     Duration,

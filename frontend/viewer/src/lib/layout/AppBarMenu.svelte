@@ -70,7 +70,7 @@
 {/key}
 
 {#if features.history}
-  <ActivityView bind:open={activityViewOpen} {projectName} />
+  <ActivityView bind:open={activityViewOpen} />
 {/if}
 {#if about}
   <AboutDialog bind:open={aboutDialogOpen} text={about} />
