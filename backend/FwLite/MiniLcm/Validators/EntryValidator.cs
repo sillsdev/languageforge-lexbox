@@ -10,8 +10,8 @@ public class EntryValidator : AbstractValidator<Entry>
         RuleFor(e => e.DeletedAt).Null();
         RuleFor(e => e.LexemeForm).NoEmptyValues(GetEntryIdentifier);
         RuleFor(e => e.CitationForm).NoEmptyValues(GetEntryIdentifier);
-        RuleFor(e => e.LiteralMeaning).NoEmptyValues(GetEntryIdentifier);
-        RuleFor(e => e.Note).NoEmptyValues(GetEntryIdentifier);
+        RuleFor(e => e.LiteralMeaning).NoEmptyValues(GetEntryIdentifier).NoDefaultWritingSystems(GetEntryIdentifier);
+        RuleFor(e => e.Note).NoEmptyValues(GetEntryIdentifier).NoDefaultWritingSystems(GetEntryIdentifier);
         RuleForEach(e => e.Senses).SetValidator(entry => new SenseValidator(entry));
         RuleForEach(e => e.Components).Must(NotBeEmptyComponentReference).WithMessage("Component reference must not be empty.");
         RuleForEach(e => e.Components).Must(NotBeComponentSelfReference).WithMessage("Component reference must not be the same as the entry.");

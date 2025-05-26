@@ -9,7 +9,7 @@ public class SenseValidator : AbstractValidator<Sense>
     public SenseValidator()
     {
         RuleFor(s => s.DeletedAt).Null();
-        RuleFor(s => s.Definition).NoEmptyValues(GetSenseIdentifier);
+        RuleFor(s => s.Definition).NoEmptyValues(GetSenseIdentifier).NoDefaultWritingSystems(GetSenseIdentifier);
         RuleFor(s => s.Gloss).NoEmptyValues(GetSenseIdentifier);
         RuleFor(s => s.PartOfSpeech!).SetValidator(new PartOfSpeechValidator()).When(s => s.PartOfSpeech is not null);
         RuleFor(s => s.PartOfSpeechId).Equal(s => s.PartOfSpeech!.Id).When(s => s.PartOfSpeech is not null && s.PartOfSpeechId is not null);

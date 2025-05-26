@@ -17,6 +17,7 @@ public class RichMultiStringTests
         actualMs.Should().ContainKey("en");
         actualMs.Should().BeEquivalentTo(expectedMs);
     }
+
     [Fact]
     public void RichMultiString_DeserializesStyledRichString()
     {
@@ -69,8 +70,8 @@ public class RichMultiStringTests
     public void RichMultiString_SimpleSpanSerializesToJson()
     {
         //lang=json
-        var expectedJson = """{"en":{"Spans":[{"Text":"test"}]}}""";
-        var ms = new RichMultiString() { { "en", new RichString("test") } };
+        var expectedJson = """{"en":{"Spans":[{"Text":"test","Ws":"en"}]}}""";
+        var ms = new RichMultiString() { { "en", new RichString("test", "en") } };
         var actualJson = JsonSerializer.Serialize(ms);
         actualJson.Should().Be(expectedJson);
     }
@@ -79,10 +80,11 @@ public class RichMultiStringTests
     public void RichMultiString_StyledSpanSerializesToJson()
     {
         //lang=json
-        var expectedJson = """{"en":{"Spans":[{"Text":"test","Bold":"On"}]}}""";
+        var expectedJson = """{"en":{"Spans":[{"Text":"test","Ws":"en","Bold":"On"}]}}""";
         var ms = new RichMultiString() { { "en", new RichString([new RichSpan()
         {
             Text = "test",
+            Ws = "en",
             Bold = RichTextToggle.On
         }]) } };
         var actualJson = JsonSerializer.Serialize(ms);

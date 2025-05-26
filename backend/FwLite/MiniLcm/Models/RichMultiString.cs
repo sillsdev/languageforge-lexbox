@@ -55,6 +55,12 @@ public class RichMultiString : Dictionary<WritingSystemId, RichString>, IDiction
             throw new ArgumentException("unable to convert key to writing system id", nameof(key));
         }
     }
+
+    public new void Add(WritingSystemId key, RichString value)
+    {
+        value.EnsureWs(key);
+        base.Add(key, value);
+    }
 }
 
 public class RichMultiStringConverter : JsonConverter<RichMultiString>
@@ -67,6 +73,7 @@ public class RichMultiStringConverter : JsonConverter<RichMultiString>
         foreach (var (key, value) in dict)
         {
             if (value?.Spans is [] or null) continue;
+            value.EnsureWs(key);
             ms[key] = value;
         }
 

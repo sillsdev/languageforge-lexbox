@@ -6,7 +6,7 @@ namespace MiniLcm.Models;
 [JsonConverter(typeof(RichStringConverter))]
 public class RichString(List<RichSpan> spans) : IEquatable<RichString>
 {
-    public RichString(string text) : this([new RichSpan { Text = text }])
+    public RichString(string text, WritingSystemId ws = default) : this([new RichSpan { Text = text, Ws = ws}])
     {
     }
 
@@ -14,17 +14,30 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
     [JsonIgnore]
     public bool IsEmpty => Spans.Count == 0 || Spans.All(s => string.IsNullOrEmpty(s.Text));
 
+    public void EnsureWs(WritingSystemId ws)
+    {
+        foreach (var span in Spans)
+        {
+            if (span.Ws == default) span.Ws = ws;
+        }
+    }
+
     internal class RichStringConverter: JsonConverter<RichString>
     {
         //helper class which doesn't have a converter
         private class RichStringPrimitive(List<RichSpan> Spans) : RichString(Spans);
         public override RichString? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                reader.Skip();
+                return null;
+            }
             if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrWhiteSpace(text)) return null;
-                return new RichString(text);
+                return new RichString(text);//ws is actually set when the string is assigned to a RichMultiString
             }
             var model = JsonSerializer.Deserialize<RichStringPrimitive>(ref reader, options);
             return model?.Spans is null ? null : new RichString(model.Spans);
