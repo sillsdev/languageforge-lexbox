@@ -195,9 +195,11 @@
   }
 
   function valueToDoc(): Node {
-    return textSchema.node('doc', {richString: value}, value?.spans.map(s => {
-      return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
-    }) ?? []);
+    return textSchema.node('doc', {richString: value}, value?.spans
+      .filter(s => s.text)
+      .map(s => {
+        return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
+      }) ?? []);
   }
 
   //lcm expects line separators, but html does not render them, so we replace them with \n
