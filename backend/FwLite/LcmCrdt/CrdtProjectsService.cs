@@ -82,7 +82,8 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
-        string? AuthenticatedUserId = null);
+        string? AuthenticatedUserId = null,
+        UserProjectRole? Role = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
@@ -121,7 +122,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 code,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
+                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId, request.Role ?? UserProjectRole.Editor);
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();

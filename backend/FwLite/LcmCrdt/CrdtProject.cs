@@ -27,7 +27,8 @@ public class CrdtProject(string code, string dbPath) : IProjectIdentifier
 /// <param name="OriginDomain">Server to sync with, null if not synced</param>
 /// <param name="ClientId">Unique id for this client machine</param>
 /// <param name="FwProjectId">FieldWorks project id, aka LangProjectId</param>
-public record ProjectData(string Name, string Code, Guid Id, string? OriginDomain, Guid ClientId, Guid? FwProjectId = null, string? LastUserName = null, string? LastUserId = null)
+public record ProjectData(string Name, string Code, Guid Id, string? OriginDomain, Guid ClientId, Guid? FwProjectId = null, string? LastUserName = null, string? LastUserId = null,
+    UserProjectRole Role = UserProjectRole.Unknown)
 {
     public static string? GetOriginDomain(Uri? uri)
     {
@@ -35,4 +36,12 @@ public record ProjectData(string Name, string Code, Guid Id, string? OriginDomai
     }
 
     public string? ServerId => OriginDomain is not null ? new Uri(OriginDomain).Authority : null;
+}
+
+public enum UserProjectRole
+{
+    Unknown,
+    Manager,
+    Editor,
+    Observer
 }

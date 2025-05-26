@@ -1,8 +1,9 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
@@ -52,8 +53,6 @@ public class LexboxProjectService : IDisposable
         onAuthChangedSubscription.Dispose();
     }
 
-    public record LexboxProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
-
     public LexboxServer[] Servers()
     {
         return options.Value.LexboxServers;
@@ -65,7 +64,7 @@ public class LexboxProjectService : IDisposable
         return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
     }
 
-    public async Task<LexboxProject[]> GetLexboxProjects(LexboxServer server)
+    public async Task<FieldWorksLiteProject[]> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),
             async entry =>
@@ -75,7 +74,7 @@ public class LexboxProjectService : IDisposable
                 if (httpClient is null) return [];
                 try
                 {
-                    return await httpClient.GetFromJsonAsync<LexboxProject[]>("api/crdt/listProjects") ?? [];
+                    return await httpClient.GetFromJsonAsync<FieldWorksLiteProject[]>("api/crdt/listProjects") ?? [];
                 }
                 catch (Exception e)
                 {

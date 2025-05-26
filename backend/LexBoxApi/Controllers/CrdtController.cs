@@ -75,36 +75,23 @@ public class CrdtController(
         return await crdtCommitService.ApproximatelyCountMissingCommits(projectId, localState, clientHeads);
     }
 
-    public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject, bool IsObserver);
-
     [HttpGet("listProjects")]
-    public async Task<ActionResult<FwLiteProject[]>> ListProjects()
+    public async Task<ActionResult<FieldWorksLiteProject[]>> ListProjects()
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
-            .Select(p => new FwLiteProject(p.Id,
+            .Select(p => new FieldWorksLiteProject(p.Id,
                 p.Code,
                 p.Name,
                 p.LastCommit != null,
                 dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id),
-                p.Users.Any(m => m.Role == ProjectRole.Observer && m.UserId == loggedInContext.User.Id)))
+                p.Users.Where(u => u.UserId == loggedInContext.User.Id).Select(m => m.Role).FirstOrDefault()))
             .ToArrayAsync();
-        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()) || ObserverRoleOutOfDate(myProjects))
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
         {
             await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
         }
         return myProjects;
-    }
-
-    private bool ObserverRoleOutOfDate(IEnumerable<FwLiteProject> projects)
-    {
-        foreach (var fwLiteProject in projects)
-        {
-            if (fwLiteProject.IsObserver != loggedInContext.User.IsProjectMember(fwLiteProject.Id, ProjectRole.Observer))
-                return true;
-        }
-
-        return false;
     }
 
     [HttpGet("lookupProjectId")]

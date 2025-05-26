@@ -12,6 +12,7 @@ export interface IProjectModel
 	crdt: boolean;
 	fwdata: boolean;
 	lexbox: boolean;
+	role: number;
 	server?: ILexboxServer;
 	id?: string;
 	apiEndpoint?: string;

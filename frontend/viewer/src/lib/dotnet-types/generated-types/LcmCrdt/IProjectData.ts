@@ -13,6 +13,7 @@ export interface IProjectData
 	fwProjectId?: string;
 	lastUserName?: string;
 	lastUserId?: string;
+	role: number;
 	serverId?: string;
 }
 /* eslint-enable */
