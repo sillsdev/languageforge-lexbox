@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
@@ -45,6 +45,7 @@ public class FwLiteProvider(
         DotnetService.FwLiteConfig => typeof(FwLiteConfig),
         DotnetService.ProjectServicesProvider => typeof(ProjectServicesProvider),
         DotnetService.HistoryService => typeof(HistoryServiceJsInvokable),
+        DotnetService.SyncService => typeof(SyncServiceJsInvokable),
         DotnetService.AppLauncher => typeof(IAppLauncher),
         DotnetService.TroubleshootingService => typeof(ITroubleshootingService),
         DotnetService.TestingService => typeof(TestingService),
@@ -101,6 +102,7 @@ public enum DotnetService
     FwLiteConfig,
     ProjectServicesProvider,
     HistoryService,
+    SyncService,
     AppLauncher,
     TroubleshootingService,
     TestingService,

@@ -77,6 +77,7 @@
     "vitest": "catalog:"
   },
   "dependencies": {
+    "@internationalized/date": "^3.8.1",
     "@lingui/core": "^5.2.0",
     "@microsoft/dotnet-js-interop": "^8.0.0",
     "@microsoft/signalr": "^8.0.0",

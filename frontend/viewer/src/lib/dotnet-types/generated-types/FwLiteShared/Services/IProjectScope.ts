@@ -11,5 +11,6 @@ export interface IProjectScope
 	projectName: string;
 	miniLcm: DotNet.DotNetObject;
 	historyService?: DotNet.DotNetObject;
+	syncService?: DotNet.DotNetObject;
 }
 /* eslint-enable */

@@ -180,7 +180,7 @@ public class LoginController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [AllowAnonymous]
-    public async Task<ActionResult<LexAuthUser>> Login(LoginRequest loginRequest)
+    public async Task<ActionResult<LexAuthUser>> Login(LoginRequest loginRequest, [FromQuery] bool defaultScope = true)
     {
         var (user, error) = await lexAuthService.Login(loginRequest);
 
@@ -193,7 +193,8 @@ public class LoginController(
         {
             return Unauthorized();
         }
-        user = user with { Scopes = [LexboxAuthScope.LexboxApi] };
+        //default scope is just used for testing to be able to verify that the lexboxapi scope is the default
+        user = user with { Scopes = defaultScope ? [LexboxAuthScope.LexboxApi] : [] };
 
         await userService.UpdateUserLastActive(user.Id);
         await userService.UpdatePasswordStrength(user.Id, loginRequest);
