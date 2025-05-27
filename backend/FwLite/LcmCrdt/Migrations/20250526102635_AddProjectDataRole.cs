@@ -15,7 +15,7 @@ namespace LcmCrdt.Migrations
                 table: "ProjectData",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 2);
         }
 
         /// <inheritdoc />

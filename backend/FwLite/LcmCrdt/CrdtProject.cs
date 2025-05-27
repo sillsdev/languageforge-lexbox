@@ -36,6 +36,7 @@ public record ProjectData(string Name, string Code, Guid Id, string? OriginDomai
     }
 
     public string? ServerId => OriginDomain is not null ? new Uri(OriginDomain).Authority : null;
+    public bool IsReadonly => Role is not UserProjectRole.Editor and not UserProjectRole.Manager;
 }
 
 public enum UserProjectRole

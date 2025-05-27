@@ -51,7 +51,9 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Role")
-                        .HasColumnType("INTEGER");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(2);
 
                     b.HasKey("Id");
 
