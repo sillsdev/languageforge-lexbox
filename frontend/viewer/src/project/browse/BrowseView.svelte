@@ -14,7 +14,9 @@
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Button} from '$lib/components/ui/button';
   import {QueryParamState} from '$lib/utils/url.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
 
+  const features = useFeatures();
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
