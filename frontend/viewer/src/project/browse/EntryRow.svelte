@@ -2,10 +2,10 @@
   import DictionaryEntry from '$lib/DictionaryEntry.svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
-  import type {IEntry} from '$lib/dotnet-types';
+  import type {IEntry, ISense} from '$lib/dotnet-types';
   import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import type {WithoutChildrenOrChild} from 'bits-ui';
+  import {mergeProps, type WithoutChildrenOrChild} from 'bits-ui';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
 
@@ -24,8 +24,33 @@
 
   const writingSystemService = useWritingSystemService();
   const partOfSpeechService = usePartsOfSpeech();
-  const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
-  const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
+
+  const senseSummaries = $derived(entry?.senses.map(getSummary) ?? []);
+  let displaySummaryCount = $state(2);
+
+  type SenseSummary = {
+    id: string;
+    preview: string;
+    partOfSpeech: string | undefined;
+  }
+
+  function getSummary(sense: ISense): SenseSummary {
+    return {
+      id: sense.id,
+      preview: getPreview(sense),
+      partOfSpeech: sense.partOfSpeech ? partOfSpeechService.getLabel(sense.partOfSpeech) : undefined,
+    };
+  }
+
+  function getPreview(sense: ISense): string {
+    let gloss = writingSystemService.firstGloss(sense);
+    let definition = writingSystemService.firstDef(sense);
+
+    if (gloss && definition) {
+      return `${gloss}; ${definition}`;
+    }
+    return gloss || definition;
+  }
 
   // Generate random widths for skeleton UI elements
   function randomWidth(min: number, max: number): string {
@@ -42,7 +67,7 @@
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
 </script>
 
-<ListItem {...rest}>
+<ListItem {...mergeProps(rest, { class: 'gap-2' })}>
   {#if rest.skeleton || !entry}
     <div class="animate-pulse" style="animation-delay: {animationDelay}">
       <div class="h-5 bg-muted-foreground/20 rounded mb-2" style="width: {headwordWidth}"></div>
@@ -56,17 +81,32 @@
       {writingSystemService.headword(entry) || $t`Untitled`}
       {@render badge?.()}
     </h2>
-    {#if entry.senses.length}
-      <div class="flex justify-between items-end">
-        <div class="text-sm text-muted-foreground">
-          {sensePreview}
+    {#each senseSummaries.slice(0, displaySummaryCount) as {preview, partOfSpeech, id}, i (id)}
+      {@const isLast = i === displaySummaryCount - 1}
+      {@const rest = senseSummaries.length - displaySummaryCount}
+      {#if isLast && rest}
+        <div class="flex items-end justify-between gap-2">
+          <div class="grow bg-foreground/5 mt-2 _text-background pl-96 pt-2_ -ml-96 -mr-4 -mb-96 pb-[23.25rem] shrink rounded flex gap-2 justify-between items-center flex-nowrap">
+            <span class="line-clamp-1">{preview}</span>
+            <div class="flex items-center gap-2 flex-nowrap shrink-0">
+              {#if partOfSpeech}
+                <Badge class="bg-primary/60">{partOfSpeech}</Badge>
+              {/if}
+              <span class="bg-foreground/5 p-2 whitespace-nowrap">
+                {$t`+${rest}`}
+              </span>
+            </div>
+          </div>
         </div>
-        {#if partOfSpeech}
-          <Badge variant="default" class="bg-primary/60 whitespace-nowrap">
-            {partOfSpeechService.getLabel(partOfSpeech)}
-          </Badge>
-        {/if}
-      </div>
-    {/if}
+      {:else}
+        <div class="grow bg-foreground/5 mt-2 _text-background px-96 pt-2 -mx-96 -mb-96 pb-[23.5rem] shrink rounded flex justify-between items-center flex-nowrap">
+          <span class="line-clamp-1">{preview}</span>
+          {#if partOfSpeech}
+            <Badge class="bg-primary/60">{partOfSpeech}</Badge>
+          {/if}
+        </div>
+      {/if}
+    {/each}
   {/if}
 </ListItem>
+

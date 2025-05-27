@@ -110,12 +110,12 @@
         {/each}
       {:else}
         {#each entries as entry}
-          <EntryMenu {entry} contextMenu>
+          <!-- <EntryMenu {entry} contextMenu> -->
               <EntryRow {entry}
                 selected={selectedEntryId === entry.id}
                 onclick={() => onSelectEntry(entry)}
                 {previewDictionary} />
-          </EntryMenu>
+          <!-- </EntryMenu> -->
         {:else}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>
