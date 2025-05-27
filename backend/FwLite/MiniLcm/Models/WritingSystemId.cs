@@ -32,7 +32,7 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 [JsonConverter(typeof(WritingSystemIdJsonConverter))]
 public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<WritingSystemId>
 {
-    public string Code { get; init; }
+    public string Code { get => field ?? "default"; init; }
     public bool IsAudio { get; } = false;
 
     public static readonly WritingSystemId Default = "default";
