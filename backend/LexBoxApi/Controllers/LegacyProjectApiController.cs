@@ -51,7 +51,9 @@ public class LegacyProjectApiController : ControllerBase
             {
                 user.Salt,
                 user.PasswordHash,
-                projects = user.Projects.Select(member => new LegacyApiProject(member.Project!.Code,
+                //FLEx does not support the observer role, so if a user is an observer we need to exclude it from the list of proejcts
+                projects = user.Projects.Where(m => m.Role != ProjectRole.Observer)
+                    .Select(member => new LegacyApiProject(member.Project!.Code,
                     member.Project.Name,
                     //it seems this is largely ignored by the client as it uses the LF domain instead
                     "http://public.languagedepot.org",
