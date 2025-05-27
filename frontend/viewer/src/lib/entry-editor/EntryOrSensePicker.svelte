@@ -11,7 +11,6 @@
   import {useLexboxApi} from '../services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {SortField} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import NewEntryButton from './NewEntryButton.svelte';
   import {resource, watch} from 'runed';
   import {Button} from '$lib/components/ui/button';
@@ -30,7 +29,6 @@
 
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
-  const writingSystemService = useWritingSystemService();
 
   interface Props {
     open?: boolean;
@@ -224,10 +222,6 @@
               selected={selectedSense?.id === sense.id}
               disabled={!!disabledSense}
               onclick={() => select(selectedEntry, sense)}>
-              <div class="flex flex-col items-start">
-                <p class="font-medium text-xl">{writingSystemService.firstGloss(sense).padStart(1, '–')}</p>
-                <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
-              </div>
               {#snippet badge()}
                 {#if disabledSense}
                   <Badge variant="outline" class="border-destructive text-destructive">

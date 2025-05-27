@@ -1,14 +1,15 @@
 <script lang="ts">
-  import Badge from '$lib/components/ui/badge/badge.svelte';
-  import type { ISense } from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import type {Snippet} from 'svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+  import type {ISense} from '$lib/dotnet-types';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import type {WithoutChildrenOrChild} from 'bits-ui';
+  import type {Snippet} from 'svelte';
 
-  interface Props extends ListItemProps {
+  interface Props extends WithoutChildrenOrChild<ListItemProps> {
     sense: ISense;
-    badge?: Snippet,
-  };
+    badge?: Snippet;
+  }
 
   const {
     sense,
