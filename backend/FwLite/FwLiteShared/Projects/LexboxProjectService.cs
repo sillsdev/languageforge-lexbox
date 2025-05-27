@@ -84,6 +84,11 @@ public class LexboxProjectService : IDisposable
             }) ?? [];
     }
 
+    public async Task<LexboxUser?> GetLexboxUser(LexboxServer server)
+    {
+        return await clientFactory.GetClient(server).GetCurrentUser();
+    }
+
     private static string CacheKey(LexboxServer server)
     {
         return $"Projects|{server.Authority.Authority}";

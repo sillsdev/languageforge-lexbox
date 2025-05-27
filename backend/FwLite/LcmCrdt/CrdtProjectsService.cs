@@ -46,6 +46,21 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await Task.WhenAll(tasks);
     }
 
+    public async ValueTask UpdateProjectServerInfo(CrdtProject project,
+        string? userName,
+        string? userId,
+        UserProjectRole role)
+    {
+        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        await currentProjectService.SetupProjectContext(project);
+
+        await currentProjectService.UpdateLastUser(userName, userId);
+        await currentProjectService.UpdateUserRole(role);
+    }
+
     public IEnumerable<CrdtProject> ListProjects()
     {
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>

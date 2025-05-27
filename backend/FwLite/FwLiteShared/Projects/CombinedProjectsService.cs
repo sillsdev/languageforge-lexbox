@@ -56,6 +56,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
+        await UpdateProjectServerInfo(lexboxProjects, await lexboxProjectService.GetLexboxUser(server));
         var projectModels = lexboxProjects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,
@@ -68,6 +69,17 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             .ToArray();
         return projectModels;
     }
+
+    private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
+    {
+        foreach (var serverProject in lexboxProjects)
+        {
+            var localProject = crdtProjectsService.GetProject(serverProject.Id);
+            if (localProject?.Data is null) continue;
+            await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, ToRole(serverProject.Role));
+        }
+    }
+
 
     [JSInvokable]
     public async Task<ProjectModel[]> ServerProjects(string serverId, bool forceRefresh)
