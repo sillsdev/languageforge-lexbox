@@ -604,8 +604,8 @@ If you don't see a dialog or already closed it, click the button below:",
     "editor_description": "Editor (can send/receive)",
     "manager": "Manager",
     "manager_description": "Manager (can send/receive & add new users)",
-    "observer": "Observer",
-    "observer_description": "Observer (can not edit, FieldWorks Lite only)"
+    "observer": "Viewer",
+    "observer_description": "Viewer (FieldWorks Lite only)"
   },
   "system_role": {
     "label": "Role",
