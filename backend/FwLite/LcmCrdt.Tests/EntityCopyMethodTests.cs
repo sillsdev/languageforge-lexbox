@@ -8,17 +8,7 @@ namespace LcmCrdt.Tests;
 
 public class EntityCopyMethodTests
 {
-    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
-    {
-        RepeatCount = 5,
-        Overrides =
-        [
-            new MultiStringOverride(),
-            new RichMultiStringOverride(),
-            new WritingSystemIdOverride(),
-            new OrderableOverride(),
-        ],
-    });
+    private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
 
     public static IEnumerable<object[]> GetEntityTypes()
     {

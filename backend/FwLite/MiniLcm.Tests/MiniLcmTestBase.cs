@@ -6,17 +6,7 @@ namespace MiniLcm.Tests;
 
 public abstract class MiniLcmTestBase : IAsyncLifetime
 {
-    protected static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
-    {
-        RepeatCount = 5,
-        Overrides =
-        [
-            new MultiStringOverride(["en"]),
-            new RichMultiStringOverride(["en"]),
-            new ObjectWithIdOverride(),
-            new OrderableOverride(),
-        ]
-    });
+    protected static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(["en"], 5));
     protected IMiniLcmApi Api = null!;
 
     protected abstract Task<IMiniLcmApi> NewApi();
