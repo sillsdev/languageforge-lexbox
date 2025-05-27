@@ -3,6 +3,7 @@
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type {IEntry} from '$lib/dotnet-types';
+  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import type {WithoutChildrenOrChild} from 'bits-ui';
   import type {Snippet} from 'svelte';
@@ -22,6 +23,7 @@
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
+  const partOfSpeechService = usePartsOfSpeech();
   const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
   const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
 
@@ -59,16 +61,11 @@
         <div class="text-sm text-muted-foreground">
           {sensePreview}
         </div>
-        <Badge variant="default" class="bg-primary/60 whitespace-nowrap">
-          {#if partOfSpeech}
-            {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
-            {#if entry.senses.length > 1}
-              + {entry.senses.length - 1}
-            {/if}
-          {:else}
-            {entry.senses.length}
-          {/if}
-        </Badge>
+        {#if partOfSpeech}
+          <Badge variant="default" class="bg-primary/60 whitespace-nowrap">
+            {partOfSpeechService.getLabel(partOfSpeech)}
+          </Badge>
+        {/if}
       </div>
     {/if}
   {/if}
