@@ -92,6 +92,19 @@ public class RichMultiStringTests
     }
 
     [Fact]
+    public void RichMultiString_RoundTripEquals()
+    {
+        var ms = new RichMultiString()
+        {
+            { "en", new RichString([new RichSpan() { Text = "test", Ws = "en", Bold = RichTextToggle.On }]) }
+        };
+        var json = JsonSerializer.Serialize(ms);
+        var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
+        actualMs.Should().NotBeNull();
+        actualMs.Should().BeEquivalentTo(ms);
+    }
+
+    [Fact]
     public void JsonPatchCanUpdateRichMultiString()
     {
         var ms = new RichMultiString() { { "en", new RichString("test") } };
