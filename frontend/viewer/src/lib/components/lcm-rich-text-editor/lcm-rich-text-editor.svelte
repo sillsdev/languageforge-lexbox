@@ -121,6 +121,8 @@
     return EditorState.create({
       schema: textSchema,
       doc: valueToDoc(),
+      //don't move the cursor on state updates if we can avoid it
+      selection: editor?.state.selection,
       plugins: [
         history(),
         keymap({
