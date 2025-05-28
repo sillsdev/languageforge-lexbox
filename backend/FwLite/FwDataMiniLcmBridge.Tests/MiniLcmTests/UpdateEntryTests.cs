@@ -94,7 +94,7 @@ public class UpdateEntryTests(ProjectLoaderFixture fixture) : UpdateEntryTestsBa
 
         // Assert
         updatedExampleSentence.Translation.Should().ContainSingle();
-        updatedExampleSentence.Translation["en"].Should().BeEquivalentTo(new RichString("updated"));
+        updatedExampleSentence.Translation["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
         updatedEntry.Should().BeEquivalentTo(entry, options => options);
     }
 }

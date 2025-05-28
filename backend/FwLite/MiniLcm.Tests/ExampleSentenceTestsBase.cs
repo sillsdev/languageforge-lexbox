@@ -24,6 +24,7 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     {
         var expectedExampleSentence = new ExampleSentence()
         {
+            SenseId = _senseId,
             Reference = new RichString("This is a reference", "en"),
             Sentence = { { "en", new RichString("test", "en") } },
             Translation = { { "en", new RichString("test", "en") } }
@@ -35,7 +36,10 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CanCreateEmptyExampleSentence()
     {
-        var expectedExampleSentence = new ExampleSentence();
+        var expectedExampleSentence = new ExampleSentence()
+        {
+            SenseId = _senseId
+        };
         var actualSentence = await Api.CreateExampleSentence(_entryId, _senseId, expectedExampleSentence);
         actualSentence.Should().BeEquivalentTo(expectedExampleSentence);
     }

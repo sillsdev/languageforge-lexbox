@@ -175,8 +175,8 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var senseId = Guid.NewGuid();
         var exampleIds = before.Split(',').Concat(after.Split(',')).Distinct()
             .ToDictionary(@char => @char, _ => Guid.NewGuid());
-        var beforeExamples = before.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", new RichString(@char) } } }).ToList();
-        var afterExamples = after.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", new RichString(@char) } } }).ToList();
+        var beforeExamples = before.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", new RichString(@char, "en") } } }).ToList();
+        var afterExamples = after.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", new RichString(@char, "en") } } }).ToList();
 
         var beforeEntry = await Api.CreateEntry(new()
         {
