@@ -427,12 +427,11 @@ public static class RichTextMapping
         {
             if (string.IsNullOrEmpty(value))
                 return null;
-            const int guidLength = 16;
-            var bytes = Encoding.Unicode.GetBytes(value).AsSpan();
-            Guid[] guids = new Guid[bytes.Length / guidLength];
+            const int guidLength = 8;
+            Guid[] guids = new Guid[value.Length / guidLength];
             for (int i = 0; i < guids.Length; i++)
             {
-                guids[i] = new Guid(bytes.Slice(i * guidLength, guidLength));
+                guids[i] = MiscUtils.GetGuidFromObjData(value.Substring(i * guidLength, guidLength));
             }
             return guids;
         }

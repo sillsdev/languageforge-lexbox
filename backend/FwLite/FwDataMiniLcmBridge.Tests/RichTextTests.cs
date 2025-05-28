@@ -5,15 +5,18 @@ using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using MiniLcm.Models;
 using MiniLcm.RichText;
+using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
 using SIL.LCModel.Utils;
+using Soenneker.Utils.AutoBogus;
 using Xunit.Abstractions;
 
 namespace FwDataMiniLcmBridge.Tests;
 
 public class RichTextTests(ITestOutputHelper output)
 {
+    private static readonly AutoFaker AutoFaker = new AutoFaker(AutoFakerDefault.MakeConfig(["en", "fr"]));
     private const int FakeWsHandleFr = 346;
     private const int FakeWsHandleEn = 2345;
     private const int NullWsHandleEn = 213465;//nothing special about this, but our mapper returns null for it
@@ -564,6 +567,47 @@ public class RichTextTests(ITestOutputHelper output)
             .Select(dataString => (FwObjDataTypes)dataString[0])
             .ToArray();
         Enum.GetValues<FwObjDataTypes>().Except(testedObjDataTypes).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CanRoundTripTags()
+    {
+        //this tag didn't round trip before a bug was fixed, keep it in the test
+        var tag1 = Guid.Parse("0e669606-d2eb-a3cb-98d9-4b431ec4f260");
+        Guid[] tags = [tag1, ..AutoFaker.Generate<Guid>(1_000)];
+        var richString = new RichString([new RichSpan() { Text = "test", Ws = "en", Tags = tags }]);
+        var tsString = RichTextMapping.ToTsString(richString, WsHandleLookup);
+        var actualRichString = RichTextMapping.FromTsString(tsString, WsIdLookup);
+        actualRichString.Spans[0].Tags.Should().BeEquivalentTo(tags);
+    }
+
+    [Fact]
+    public void CanRoundTripRichStrings()
+    {
+        var richMultiString = AutoFaker.Generate<RichMultiString>();
+        foreach (var richString in richMultiString.Values)
+        {
+            var tsString = RichTextMapping.ToTsString(richString, WsHandleLookup);
+            var actualRichString = RichTextMapping.FromTsString(tsString, WsIdLookup);
+            actualRichString.Should().BeEquivalentTo(richString);
+        }
+    }
+
+    [Fact]
+    public void RoundTrippingSpansWhichHaveTheSamePropsGetMerged()
+    {
+        var richString = new RichString([
+            new RichSpan() { Text = "test", Ws = "en", Bold = RichTextToggle.Off},
+            new RichSpan() { Text = "test", Ws = "en"},
+            new RichSpan() { Text = "test", Ws = "en"},
+        ]);
+        var tsString = RichTextMapping.ToTsString(richString, WsHandleLookup);
+        var actualRichString = RichTextMapping.FromTsString(tsString, WsIdLookup);
+        var expectedRichString = new RichString([
+            new RichSpan() { Text = "test", Ws = "en", Bold = RichTextToggle.Off },
+            new RichSpan() { Text = "testtest", Ws = "en" },
+        ]);
+        actualRichString.Should().BeEquivalentTo(expectedRichString, o => o.ComparingByMembers<RichString>().ComparingByMembers<RichSpan>());
     }
 
     private WritingSystemId? WsIdLookup(int? handle)

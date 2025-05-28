@@ -127,4 +127,22 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
         entry.Should().NotBeNull();
         entry.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
     }
+
+    [Fact]
+    public async Task CanCreate_WithRichSpanTag()
+    {
+        var tag1 = Guid.NewGuid();
+        var entry = await Api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test" } },
+            LiteralMeaning =
+            {
+                { "en", new RichString([new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }]) }
+            }
+        });
+        entry.Should().NotBeNull();
+        entry.LiteralMeaning["en"].Should().BeEquivalentTo(new RichString([
+            new RichSpan() { Text = "span", Ws = "en", Tags = [tag1] }
+        ]));
+    }
 }
