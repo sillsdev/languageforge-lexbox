@@ -44,7 +44,7 @@
   import {onDestroy, onMount} from 'svelte';
   import {watch} from 'runed';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {mergeProps} from 'bits-ui';
+  import {IsUsingKeyboard, mergeProps} from 'bits-ui';
 
   let {
     value = $bindable(),
@@ -65,7 +65,7 @@
   let dirty = $state(false);
   let editor: EditorView | null = null;
 
-  let lastInteractionWasKeyboard = false;
+  const isUsingKeyboard = new IsUsingKeyboard();
 
   onMount(() => {
     // docs https://prosemirror.net/docs/
@@ -95,18 +95,11 @@
       }
     });
     editor.dom.setAttribute('tabindex', '0');
-
-    const abortController = new AbortController();
-    window.addEventListener('keydown', () => lastInteractionWasKeyboard = true);
-    window.addEventListener('mousedown', () => lastInteractionWasKeyboard = false);
-    return () => {
-      abortController.abort();
-    };
   });
 
   function onfocus(editor: EditorView) {
-    if (lastInteractionWasKeyboard) { // tabbed in
-      editor.dispatch(editor.state.tr.setSelection(new AllSelection(editor.state.doc)));
+    if (isUsingKeyboard.current) { // tabbed in
+      selectAll(editor);
     }
   }
 
@@ -115,10 +108,7 @@
       onchange(value);
       dirty = false;
     }
-
-    // Clear the selection
-    window.getSelection()?.removeAllRanges();
-    editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 0)));
+    clearSelection(editor);
   }
 
   watch(() => readonly, () => {
@@ -165,6 +155,15 @@
       .map(s => {
         return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
       }) ?? []);
+  }
+
+  function selectAll(editor: EditorView) {
+    editor.dispatch(editor.state.tr.setSelection(new AllSelection(editor.state.doc)));
+  }
+
+  function clearSelection(editor: EditorView) {
+    window.getSelection()?.removeAllRanges();
+    editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 0)));
   }
 
   //lcm expects line separators, but html does not render them, so we replace them with \n
