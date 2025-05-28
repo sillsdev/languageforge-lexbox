@@ -46,7 +46,9 @@ public class RichMultiStringOverride(string[]? validWs = null): AutoFakerOverrid
                     spans.Add(new()
                     {
                         Text = word,
-                        Ws = writingSystemId
+                        Ws = writingSystemId,
+                        //ensure that 2 spans don't ever have the same props meaning they get merged by LCM
+                        Tags = [Guid.NewGuid()]
                     });
                 }
                 else
