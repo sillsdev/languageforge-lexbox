@@ -144,7 +144,8 @@
         <Checkbox bind:checked={readonly}/> Readonly
       </label>
     </div>
-    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}/>
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}
+       onchange={() => richString = JSON.parse(JSON.stringify($state.snapshot(richString)))} />
     <pre>{JSON.stringify(richString, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}</pre>
   </div>
   <div class="flex flex-col gap-2 border p-4 justify-between">

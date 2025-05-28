@@ -112,15 +112,15 @@
 
   $effect(() => {
     if (!editor) return;
-    //change was likely made via the editor, not a prop update
-    if (editor.state.doc.attrs.richString === value) return;
-    editor.updateState(newState());
+    const newDoc = valueToDoc();
+    if (newDoc.eq(editor.state.doc)) return;
+    editor.updateState(newState(newDoc));
   });
 
-  function newState() {
+  function newState(doc: Node = valueToDoc()): EditorState {
     return EditorState.create({
       schema: textSchema,
-      doc: valueToDoc(),
+      doc,
       //don't move the cursor on state updates if we can avoid it
       selection: editor?.state.selection,
       plugins: [
