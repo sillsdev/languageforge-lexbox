@@ -125,7 +125,7 @@ public class RichMultiStringTests
         var json = JsonSerializer.Serialize(richString);
         var actualRichString = JsonSerializer.Deserialize<RichString>(json);
         actualRichString.Should().NotBeNull();
-        actualRichString.Should().BeEquivalentTo(richString, options => options.ComparingByMembers(typeof(RichString)));
+        actualRichString.Should().BeEquivalentTo(richString);
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class RichMultiStringTests
         var json = JsonSerializer.Serialize(richSpan);
         var actualRichSpan = JsonSerializer.Deserialize<RichSpan>(json);
         actualRichSpan.Should().NotBeNull();
-        actualRichSpan.Should().BeEquivalentTo(richSpan, options => options.ComparingRecordsByMembers());
+        actualRichSpan.Should().BeEquivalentTo(richSpan);
     }
 
     [Fact]
@@ -188,12 +188,12 @@ public class RichMultiStringTests
     [Fact]
     public void JsonPatchCanAddRichMultiString()
     {
-        var ms = new RichMultiString() {  { "en", new RichString("test") } };
+        var ms = new RichMultiString() {  { "en", new RichString("test", "en") } };
         var patch = new JsonPatchDocument<RichMultiString>();
-        patch.Add(ms => ms["fr"], new RichString("test"));
+        patch.Add(ms => ms["fr"], new RichString("test", "fr"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("fr");
-        ms["fr"].Should().BeEquivalentTo(new RichString("test"));
+        ms["fr"].Should().BeEquivalentTo(new RichString("test", "fr"));
     }
 
     [Fact]
