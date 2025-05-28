@@ -1,4 +1,6 @@
 using Soenneker.Utils.AutoBogus.Config;
+using Soenneker.Utils.AutoBogus.Context;
+using Soenneker.Utils.AutoBogus.Override;
 
 namespace MiniLcm.Tests.AutoFakerHelpers;
 
@@ -18,7 +20,20 @@ public static class AutoFakerDefault
                 new WritingSystemIdOverride(validWs),
                 new ObjectWithIdOverride(),
                 new OrderableOverride(),
+                new ColorOverride(),
+                //these are too complicated to generate, so we'll just use null for tests
+                new SimpleOverride<RichTextObjectData>(context => context.Instance = null!)
             ]
         };
+    }
+
+    private class SimpleOverride<T>(Action<AutoFakerOverrideContext> execute, bool preInit = false) : AutoFakerOverride<T>
+    {
+        public override bool Preinitialize { get; } = preInit;
+
+        public override void Generate(AutoFakerOverrideContext context)
+        {
+            execute(context);
+        }
     }
 }

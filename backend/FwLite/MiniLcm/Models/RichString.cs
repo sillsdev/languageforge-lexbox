@@ -1,5 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.Drawing;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using MiniLcm.RichText;
 
 namespace MiniLcm.Models;
 
@@ -111,19 +113,22 @@ public record RichSpan
     /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? ForeColor;
+    [JsonConverter(typeof(ColorJsonConverter))]
+    public Color? ForeColor;
 
     /// <summary>
     /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? BackColor;
+    [JsonConverter(typeof(ColorJsonConverter))]
+    public Color? BackColor;
 
     /// <summary>
     /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? UnderColor;
+    [JsonConverter(typeof(ColorJsonConverter))]
+    public Color? UnderColor;
 
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? FirstIndent;
@@ -153,7 +158,8 @@ public record RichSpan
     /// RGB, like #ffffff, or #00000000 for transparent
     /// </summary>
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? ParaColor;
+    [JsonConverter(typeof(ColorJsonConverter))]
+    public Color? ParaColor;
 
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RichTextSpellingMode? SpellCheck;
@@ -217,7 +223,8 @@ public record RichSpan
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? BorderTrailing;
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? BorderColor;
+    [JsonConverter(typeof(ColorJsonConverter))]
+    public Color? BorderColor;
 
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? BulNumScheme;

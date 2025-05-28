@@ -1,7 +1,9 @@
 ﻿using System.Collections.Frozen;
+using System.Drawing;
 using System.Globalization;
 using System.Text;
 using MiniLcm.Models;
+using MiniLcm.RichText;
 using Mono.Unix.Native;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -550,26 +552,26 @@ public static class RichTextMapping
         };
     }
 
-    private static string? GetNullableColorProp(ITsTextProps textProps, FwTextPropType type)
+    private static Color? GetNullableColorProp(ITsTextProps textProps, FwTextPropType type)
     {
         if (!textProps.TryGetIntValue(type, out _, out var value))
         {
             return null;
         }
-        if (value == (int)FwTextColor.kclrTransparent) return "#00000000";
+        if (value == (int)FwTextColor.kclrTransparent) return ColorJsonConverter.UnnamedTransparent;
         int blue = (value >> 16) & 0xff;
         int green = (value >> 8) & 0xff;
         int red = value & 0xff;
-        return $"#{red:x2}{green:x2}{blue:x2}";
+        return Color.FromArgb(red, green, blue);
     }
 
-    private static int? ReverseColor(string? rgb)
+    private static int? ReverseColor(Color? rgb)
     {
-        if (string.IsNullOrEmpty(rgb))
+        if (rgb is null || rgb.Value == default)
             return null;
-        if (rgb == "#00000000")
+        if (rgb.Value.A == 0)
             return (int)FwTextColor.kclrTransparent;
-        return (int)ColorUtil.ConvertRGBtoBGR(uint.Parse(rgb.AsSpan()[1..], NumberStyles.HexNumber));
+        return (int)ColorUtil.ConvertRGBtoBGR(uint.Parse(ColorTranslator.ToHtml(rgb.Value).AsSpan()[1..], NumberStyles.HexNumber));
     }
 
     private static RichTextAlign? GetNullableRichTextAlign(ITsTextProps textProps)
