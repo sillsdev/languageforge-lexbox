@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.Drawing;
+using System.Text.Json;
+using MiniLcm.Tests.AutoFakerHelpers;
+using Soenneker.Utils.AutoBogus;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
 
@@ -6,6 +9,7 @@ namespace MiniLcm.Tests;
 
 public class RichMultiStringTests
 {
+    private AutoFaker AutoFaker = new(AutoFakerDefault.Config);
     [Fact]
     public void RichMultiString_DeserializesSimpleRichString()
     {
@@ -102,6 +106,50 @@ public class RichMultiStringTests
         var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
         actualMs.Should().NotBeNull();
         actualMs.Should().BeEquivalentTo(ms);
+    }
+
+    [Fact]
+    public void RichMultiString_RoundTripRandom()
+    {
+        var ms = AutoFaker.Generate<RichMultiString>();
+        var json = JsonSerializer.Serialize(ms);
+        var actualMs = JsonSerializer.Deserialize<RichMultiString>(json);
+        actualMs.Should().NotBeNull();
+        actualMs.Should().BeEquivalentTo(ms);
+    }
+
+    [Fact]
+    public void RichString_RoundTripRandom()
+    {
+        var richString = AutoFaker.Generate<RichString>();
+        var json = JsonSerializer.Serialize(richString);
+        var actualRichString = JsonSerializer.Deserialize<RichString>(json);
+        actualRichString.Should().NotBeNull();
+        actualRichString.Should().BeEquivalentTo(richString, options => options.ComparingByMembers(typeof(RichString)));
+    }
+
+    [Fact]
+    public void RichSpan_RoundTripRandom()
+    {
+        var richSpan = AutoFaker.Generate<RichSpan>();
+        richSpan.Should().NotBeNull();
+        var json = JsonSerializer.Serialize(richSpan);
+        var actualRichSpan = JsonSerializer.Deserialize<RichSpan>(json);
+        actualRichSpan.Should().NotBeNull();
+        actualRichSpan.Should().BeEquivalentTo(richSpan, options => options.ComparingRecordsByMembers());
+    }
+
+    [Fact]
+    public void RichSpan_EqualityTests()
+    {
+        var richSpan = AutoFaker.Generate<RichSpan>();
+        var actualSpan = richSpan.Copy();
+        if (richSpan.Equals(actualSpan))
+        {
+            //success
+            return;
+        }
+        richSpan.Should().Be(actualSpan);
     }
 
     [Fact]

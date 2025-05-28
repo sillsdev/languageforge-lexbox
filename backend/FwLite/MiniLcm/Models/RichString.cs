@@ -51,11 +51,7 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
 
     public RichString Copy()
     {
-        var newSpans = Spans.Select(span => span with
-        {
-            ObjData = span.ObjData is null ? null : span.ObjData with {},
-            Tags = span.Tags?.ToArray()
-        }).ToList();
+        var newSpans = Spans.Select(span => span.Copy()).ToList();
         return new RichString(newSpans);
     }
 
@@ -252,6 +248,44 @@ public record RichSpan
     //note an empty array will be converted to null on round trip to FW
     [JsonInclude, JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Guid[]? Tags;
+
+    public RichSpan Copy()
+    {
+        return this with { ObjData = ObjData is null ? null : ObjData with { }, Tags = Tags?.ToArray() };
+    }
+
+    public virtual bool Equals(RichSpan? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Ws.Equals(other.Ws) && Nullable.Equals(WsBase, other.WsBase) && Italic == other.Italic &&
+               Bold == other.Bold && Align == other.Align && Superscript == other.Superscript &&
+               Underline == other.Underline && FontFamily == other.FontFamily && FontSize == other.FontSize &&
+               FontSizeUnit == other.FontSizeUnit && FontVariations == other.FontVariations && Offset == other.Offset &&
+               OffsetUnit == other.OffsetUnit && Nullable.Equals(ForeColor, other.ForeColor) &&
+               Nullable.Equals(BackColor, other.BackColor) && Nullable.Equals(UnderColor, other.UnderColor) &&
+               FirstIndent == other.FirstIndent && LeadingIndent == other.LeadingIndent &&
+               TrailingIndent == other.TrailingIndent && SpaceBefore == other.SpaceBefore &&
+               SpaceAfter == other.SpaceAfter && MarginTop == other.MarginTop && TabDef == other.TabDef &&
+               LineHeight == other.LineHeight && LineHeightUnit == other.LineHeightUnit &&
+               Nullable.Equals(ParaColor, other.ParaColor) && SpellCheck == other.SpellCheck &&
+               RightToLeft == other.RightToLeft && DirectionDepth == other.DirectionDepth &&
+               KeepWithNext == other.KeepWithNext && KeepTogether == other.KeepTogether &&
+               Hyphenate == other.Hyphenate && MaxLines == other.MaxLines && CellBorderWidth == other.CellBorderWidth &&
+               CellSpacing == other.CellSpacing && CellPadding == other.CellPadding && Editable == other.Editable &&
+               SetRowDefaults == other.SetRowDefaults && RelLineHeight == other.RelLineHeight &&
+               WidowOrphan == other.WidowOrphan && PadTop == other.PadTop && PadBottom == other.PadBottom &&
+               PadLeading == other.PadLeading && PadTrailing == other.PadTrailing && ParaStyle == other.ParaStyle &&
+               CharStyle == other.CharStyle && NamedStyle == other.NamedStyle && WsStyle == other.WsStyle &&
+               BorderTop == other.BorderTop && BorderBottom == other.BorderBottom &&
+               BorderLeading == other.BorderLeading && BorderTrailing == other.BorderTrailing &&
+               Nullable.Equals(BorderColor, other.BorderColor) && BulNumScheme == other.BulNumScheme &&
+               BulNumStartAt == other.BulNumStartAt && BulNumTxtBef == other.BulNumTxtBef &&
+               BulNumTxtAft == other.BulNumTxtAft && BulNumFontInfo == other.BulNumFontInfo &&
+               CustomBullet == other.CustomBullet && TabList == other.TabList && TableRule == other.TableRule &&
+               FieldName == other.FieldName && Equals(ObjData, other.ObjData) && (Equals(Tags, other.Tags) || Tags.SequenceEqual(other.Tags)) &&
+               Text == other.Text;
+    }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

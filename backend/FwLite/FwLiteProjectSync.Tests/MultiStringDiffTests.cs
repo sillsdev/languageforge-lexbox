@@ -104,13 +104,15 @@ public class MultiStringDiffTests
     [Fact]
     public void Rich_DiffSameDoesNothing()
     {
+        var tagId = Guid.NewGuid();
         var before = new RichMultiString
         {
-            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On }]) }
+            //tags trigger equality to fail because the list is compared by reference
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On, Tags = [tagId]}]) }
         };
         var after = new RichMultiString
         {
-            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On }]) }
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On, Tags = [tagId] }]) }
         };
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
         result.Should().BeEmpty();

@@ -20,7 +20,8 @@ public class EntityCopyMethodTests
     private void AssertDeepCopy(object copy, object original)
     {
         copy.Should().BeEquivalentTo(original, options => options
-            .ComparingByMembers(typeof(RichString))
+            .ComparingByMembers(typeof(RichString))//ignore built in Equality as it returns true when the same instance
+            .ComparingByMembers(typeof(RichSpan))
             .ComparingRecordsByMembers()
             .IncludingAllRuntimeProperties()
             .IncludingFields()
