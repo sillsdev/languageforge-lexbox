@@ -37,7 +37,7 @@
   import {Label} from '$lib/components/ui/label';
   import InputShell from '../ui/input/input-shell.svelte';
   import {EditorView} from 'prosemirror-view';
-  import {EditorState, type Command} from 'prosemirror-state';
+  import {AllSelection, EditorState, TextSelection} from 'prosemirror-state';
   import {keymap} from 'prosemirror-keymap';
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
@@ -64,6 +64,9 @@
   let elementRef: HTMLElement | null = $state(null);
   let dirty = $state(false);
   let editor: EditorView | null = null;
+
+  let lastInteractionWasKeyboard = false;
+
   onMount(() => {
     // docs https://prosemirror.net/docs/
     editor = new EditorView(elementRef, {
@@ -87,17 +90,35 @@
         return !readonly;
       },
       handleDOMEvents: {
-        'blur': onblur
+        'focus': onfocus,
+        'blur': onblur,
       }
     });
     editor.dom.setAttribute('tabindex', '0');
+
+    const abortController = new AbortController();
+    window.addEventListener('keydown', () => lastInteractionWasKeyboard = true);
+    window.addEventListener('mousedown', () => lastInteractionWasKeyboard = false);
+    return () => {
+      abortController.abort();
+    };
   });
 
-  function onblur() {
+  function onfocus(editor: EditorView) {
+    if (lastInteractionWasKeyboard) { // tabbed in
+      editor.dispatch(editor.state.tr.setSelection(new AllSelection(editor.state.doc)));
+    }
+  }
+
+  function onblur(editor: EditorView) {
     if (dirty && value) {
       onchange(value);
       dirty = false;
     }
+
+    // Clear the selection
+    window.getSelection()?.removeAllRanges();
+    editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 0)));
   }
 
   watch(() => readonly, () => {
@@ -126,74 +147,16 @@
       plugins: [
         history(),
         keymap({
-          /* eslint-disable @typescript-eslint/naming-convention */
           'Mod-z': undo,
           'Mod-y': redo,
-          'Delete': handleDelete,
-          'Backspace': handleBackspace,
           'Shift-Enter': (state, dispatch) => {
             if (dispatch) dispatch(state.tr.insertText(newLine));
             return true;
           },
-          /* eslint-enable @typescript-eslint/naming-convention */
         }),
         keymap(baseKeymap)
       ]
     });
-  }
-
-  /**
-   * Changes the default behaviour of delete, so that nodes don't get merged,
-   * but rather the first character of the next node is deleted.
-   */
-  // eslint-disable-next-line func-style
-  const handleDelete: Command = (state, dispatch) => {
-      if (!dispatch) return false; // read-only?
-      if (!state.selection.empty) return false; // skip if range selected
-      if (state.selection.$from.nodeAfter) return false; // not at the end of the current node
-
-      const nextPos = state.selection.$from.pos + 1;
-      const nextNode = state.doc.nodeAt(nextPos);
-      if (!nextNode) return false; // no next node
-
-      if (nextNode.content.size <= 1) {
-        // the node is empty, so we delete the whole thing
-        dispatch(state.tr.delete(nextPos, nextPos + nextNode.nodeSize));
-      } else {
-        // "jump" into the next node and delete the first character
-        dispatch(state.tr.delete(nextPos + 1, nextPos + 2));
-      }
-
-      return true;
-  }
-
-  /**
-   * Changes the default behaviour of backspace, so that nodes don't get merged,
-   * but rather the last character of the previous node is deleted.
-   */
-  // eslint-disable-next-line func-style
-  const handleBackspace: Command = (state, dispatch) => {
-      if (!dispatch) return false; // read-only?
-      if (!state.selection.empty) return false; // skip if range selected
-      if (state.selection.$from.nodeBefore) return false; // not at the start of the current node
-
-      const currNode = state.selection.$from.node();
-      const currSpan = currNode.isText ? state.selection.$from.parent : currNode;
-      const currSpanI = state.doc.children.indexOf(currSpan);
-      const prevSpan = currSpanI > 0 ? state.doc.children[currSpanI - 1] : undefined;
-      if (!prevSpan) return false; // no previous node
-
-      const prevPos = state.selection.$from.pos - 1;
-
-      if (prevSpan.content.size <= 1) {
-        // the node is empty, so we delete the whole thing
-        dispatch(state.tr.delete(prevPos - prevSpan.nodeSize, prevPos));
-      } else {
-        // "jump" into the previous node and delete the last character
-        dispatch(state.tr.delete(prevPos - 2, prevPos - 1));
-      }
-
-      return true;
   }
 
   function valueToDoc(): Node {
