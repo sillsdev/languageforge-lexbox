@@ -36,7 +36,7 @@ public class ExampleSentence : IObjectWithId<ExampleSentence>, IOrderable
             SenseId = SenseId,
             Sentence = Sentence.Copy(),
             Translation = Translation.Copy(),
-            Reference = Reference
+            Reference = Reference?.Copy()
         };
     }
 }
