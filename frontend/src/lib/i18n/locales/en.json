@@ -271,7 +271,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "sync_result": "{fwdataChanges} changes synced to FieldWorks. {crdtChanges} changes synced to FieldWorks Lite.",
       "try_fw_lite": "Try FieldWorks Lite?",
       "try_info": "This will make your project available in [FieldWorks Lite](https://lexbox.org/fw-lite). \
-This is still experimental and it will affect your FieldWorks project data. \
+This feature is still in beta and it will affect your FieldWorks project data. \
 However, **all your data is safe and backed up** here on Lexbox. \
 If you run into problems with your project please tell support that you are using FieldWorks Lite. \n\n\
 Are you ready to try FieldWorks Lite?",

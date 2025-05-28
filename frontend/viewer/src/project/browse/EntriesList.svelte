@@ -2,7 +2,7 @@
   import type { IEntry } from '$lib/dotnet-types';
   import type { IQueryOptions } from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import { SortField } from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import { Debounced, resource } from 'runed';
+  import { Debounced, IsInViewport, resource, watch } from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -38,19 +38,18 @@
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
-    void entriesResource.refetch();
+    entriesResource.mutate(entriesResource.current?.filter(e => e.id !== entryId) ?? []);
   });
   projectEventBus.onEntryUpdated(_entry => {
     if (entriesResource.loading) return;
-    void entriesResource.refetch();
+    entriesResource.mutate(entriesResource.current?.map(e => e.id === _entry.id ? _entry : e) ?? []);
   });
-
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
     async ({ search, sortDirection, gridifyFilter }) => {
       const queryOptions: IQueryOptions = {
-        count: 100,
+        count: 10_000,
         offset: 0,
         filter: {
           gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
@@ -62,6 +61,8 @@
         },
       };
 
+      displayCount = 100;
+
       if (search) {
         return miniLcmApi.searchEntries(search, queryOptions);
       }
@@ -71,7 +72,8 @@
       debounce: 300,
     }
   );
-  const entries = $derived(entriesResource.current ?? []);
+  let displayCount = $state(100);
+  const entries = $derived(entriesResource.current?.slice(0, displayCount) ?? []);
   const loading = new Debounced(() => entriesResource.loading, 50);
 
   // Generate a random number of skeleton rows between 3 and 7
@@ -82,6 +84,14 @@
     if (!entry) return;
     onSelectEntry(entry);
   }
+
+  let targetNode = $state<HTMLElement>()!;
+	const inViewport = new IsInViewport(() => targetNode);
+  watch(() => inViewport.current, (value) => {
+    if (value && entriesResource.current && entriesResource.current.length > displayCount) {
+      displayCount += 100;
+    }
+  });
 </script>
 
 <FabContainer>
@@ -124,6 +134,9 @@
             <p>{$t`No entries found`}</p>
           </div>
         {/each}
+        {#if entriesResource.current?.length ?? 0 > displayCount}
+          <div bind:this={targetNode} class="h-10"></div>
+        {/if}
       {/if}
     </div>
   {/if}
