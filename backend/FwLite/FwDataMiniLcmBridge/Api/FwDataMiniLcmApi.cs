@@ -655,7 +655,11 @@ public class FwDataMiniLcmApi(
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
-            Reference = RichTextMapping.FromTsString(sentence.Reference, h => h is null ? null : (WritingSystemId?) GetWritingSystemId(h.Value)),
+            Reference =
+                sentence.Reference.Length == 0
+                    ? null
+                    : RichTextMapping.FromTsString(sentence.Reference,
+                        h => h is null ? null : (WritingSystemId?)GetWritingSystemId(h.Value)),
             Translation = translation is null ? new() : FromLcmMultiString(translation),
         };
     }
