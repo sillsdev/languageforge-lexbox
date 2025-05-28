@@ -141,7 +141,7 @@ public static class RichTextMapping
             spans.Add(span);
         }
 
-        return new RichString(spans);
+        return new RichString([..spans]);
     }
 
     public static void WriteToSpan(RichSpan span, ITsTextProps textProps, Func<int?, WritingSystemId?> wsIdLookup)

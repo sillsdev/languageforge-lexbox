@@ -219,4 +219,15 @@ public class RichMultiStringTests
         var spanCopy = new RichSpan() { Text = "test", Bold = RichTextToggle.Off};
         span.Equals(spanCopy).Should().BeFalse();
     }
+
+    [Fact]
+    public void RichStringMergesSpansWithTheSameProps()
+    {
+        var span1 = new RichSpan() { Text = "span1", Ws = "en", Bold = RichTextToggle.On };
+        var span2 = new RichSpan() { Text = "span2", Ws = "en", Bold = RichTextToggle.On };
+        var richString = new RichString([span1, span2]);
+        richString.Should()
+            .BeEquivalentTo(
+                new RichString([new RichSpan() { Text = "span1span2", Ws = "en", Bold = RichTextToggle.On }]));
+    }
 }

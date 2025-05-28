@@ -6,13 +6,38 @@ using MiniLcm.RichText;
 namespace MiniLcm.Models;
 
 [JsonConverter(typeof(RichStringConverter))]
-public class RichString(List<RichSpan> spans) : IEquatable<RichString>
+public class RichString(ICollection<RichSpan> spans) : IEquatable<RichString>
 {
     public RichString(string text, WritingSystemId ws = default) : this([new RichSpan { Text = text, Ws = ws}])
     {
     }
 
-    public List<RichSpan> Spans { get; set; } = spans;
+    public List<RichSpan> Spans { get; } = MergeSpans(spans);
+
+    private static List<RichSpan> MergeSpans(ICollection<RichSpan> spans)
+    {
+        var merged = new List<RichSpan>(spans.Count);
+        foreach (var richSpan in spans)
+        {
+            if (merged.Count == 0)
+            {
+                merged.Add(richSpan);
+                continue;
+            }
+            var prev = merged[^1];
+            if (prev.EqualsProps(richSpan))
+            {
+                merged[^1] = prev with { Text = prev.Text + richSpan.Text };
+            }
+            else
+            {
+                merged.Add(richSpan);
+            }
+        }
+
+        return merged;
+    }
+
     [JsonIgnore]
     public bool IsEmpty => Spans.Count == 0 || Spans.All(s => string.IsNullOrEmpty(s.Text));
 
@@ -27,7 +52,7 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
     internal class RichStringConverter: JsonConverter<RichString>
     {
         //helper class which doesn't have a converter
-        private class RichStringPrimitive(List<RichSpan> Spans) : RichString(Spans);
+        private class RichStringPrimitive(List<RichSpan> spans) : RichString([..spans]);
         public override RichString? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.Null)
@@ -42,7 +67,7 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
                 return new RichString(text);//ws is actually set when the string is assigned to a RichMultiString
             }
             var model = JsonSerializer.Deserialize<RichStringPrimitive>(ref reader, options);
-            return model?.Spans is null ? null : new RichString(model.Spans);
+            return model?.Spans is null ? null : new RichString([..model.Spans]);
         }
 
         public override void Write(Utf8JsonWriter writer, RichString value, JsonSerializerOptions options)
@@ -53,8 +78,7 @@ public class RichString(List<RichSpan> spans) : IEquatable<RichString>
 
     public RichString Copy()
     {
-        var newSpans = Spans.Select(span => span.Copy()).ToList();
-        return new RichString(newSpans);
+        return new RichString([..Spans.Select(span => span.Copy())]);
     }
 
     public bool Equals(RichString? other)
@@ -265,6 +289,13 @@ public record RichSpan
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
+        return EqualsProps(other) && Text == other.Text;
+    }
+
+    public bool EqualsProps(RichSpan? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
         return Ws.Equals(other.Ws) && Nullable.Equals(WsBase, other.WsBase) && Italic == other.Italic &&
                Bold == other.Bold && Align == other.Align && Superscript == other.Superscript &&
                Underline == other.Underline && FontFamily == other.FontFamily && FontSize == other.FontSize &&
@@ -290,8 +321,8 @@ public record RichSpan
                BulNumStartAt == other.BulNumStartAt && BulNumTxtBef == other.BulNumTxtBef &&
                BulNumTxtAft == other.BulNumTxtAft && BulNumFontInfo == other.BulNumFontInfo &&
                CustomBullet == other.CustomBullet && TabList == other.TabList && TableRule == other.TableRule &&
-               FieldName == other.FieldName && Equals(ObjData, other.ObjData) && (Equals(Tags, other.Tags) || Tags.SequenceEqual(other.Tags)) &&
-               Text == other.Text;
+               FieldName == other.FieldName && Equals(ObjData, other.ObjData) &&
+               (Equals(Tags, other.Tags) || Tags.SequenceEqual(other.Tags));
     }
 }
 

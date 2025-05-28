@@ -57,8 +57,7 @@ public class RichMultiStringOverride(string[]? validWs = null): AutoFakerOverrid
                 }
             }
 
-            target[writingSystemId] = new RichString(spans);
+            target[writingSystemId] = new RichString([..spans]);
         }
-
     }
 }
