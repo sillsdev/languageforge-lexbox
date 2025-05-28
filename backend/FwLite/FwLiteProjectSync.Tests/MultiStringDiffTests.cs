@@ -88,16 +88,16 @@ public class MultiStringDiffTests
     {
         var before = new RichMultiString
         {
-            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On }]) }
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.On, Ws = "en" }]) }
         };
         var after = new RichMultiString
         {
-            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.Off }]) }
+            { "en", new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.Off, Ws = "en"}]) }
         };
         var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", before, after);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("replace", "/test/en", null,
-                new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.Off }])),
+                new RichString([new RichSpan() { Text = "hello", Bold = RichTextToggle.Off, Ws = "en" }])),
         ]);
     }
 
