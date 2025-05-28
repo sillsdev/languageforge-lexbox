@@ -34,11 +34,29 @@ public class RichMultiStringOverride(string[]? validWs = null): AutoFakerOverrid
         {
             context.Instance = target = new RichMultiString();
         }
-        var wordsArray = context.Faker.Random.WordsArray(1, 4);
-        foreach (var word in wordsArray)
+        for (int i = 0; i < context.Faker.Random.Int(1, 4); i++)
         {
             var writingSystemId = context.Faker.Random.ArrayElement(validWs ?? WritingSystemCodes.ValidTwoLetterCodes);
-            target[writingSystemId] = new RichString(word);
+            var wordsArray = context.Faker.Random.WordsArray(1, 4);
+            var spans = new List<RichSpan>();
+            foreach (var word in wordsArray)
+            {
+                if (context.Faker.Random.Bool())
+                {
+                    spans.Add(new()
+                    {
+                        Text = word,
+                        Ws = writingSystemId
+                    });
+                }
+                else
+                {
+                    spans.Add(context.AutoFaker.Generate<RichSpan>());
+                }
+            }
+
+            target[writingSystemId] = new RichString(spans);
         }
+
     }
 }
