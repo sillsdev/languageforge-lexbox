@@ -9,7 +9,7 @@ namespace MiniLcm.Tests;
 
 public class RichMultiStringTests
 {
-    private AutoFaker AutoFaker = new(AutoFakerDefault.Config);
+    private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
     [Fact]
     public void RichMultiString_DeserializesSimpleRichString()
     {
@@ -144,12 +144,60 @@ public class RichMultiStringTests
     {
         var richSpan = AutoFaker.Generate<RichSpan>();
         var actualSpan = richSpan.Copy();
-        if (richSpan.Equals(actualSpan))
-        {
-            //success
-            return;
-        }
         richSpan.Should().Be(actualSpan);
+        richSpan.Equals(actualSpan).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RichSpan_EqualityTextMustMatch()
+    {
+        var span1 = new RichSpan() { Text = "test1" };
+        var span2 = new RichSpan() { Text = "test2" };
+        span1.Should().NotBe(span2);
+        span1.Equals(span2).Should().BeFalse();
+        var span3 = new RichSpan() { Text = "test1" };
+        span3.Equals(span1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RichSpan_EqualityObjectDataMustMatch()
+    {
+        var span1 = new RichSpan()
+        {
+            Text = "test1",
+            ObjData = new RichTextObjectData() { Value = "test1", Type = RichTextObjectDataType.ContextString }
+        };
+        var span2 = new RichSpan()
+        {
+            Text = "test2",
+            ObjData = new RichTextObjectData() { Value = "test2", Type = RichTextObjectDataType.ContextString }
+        };
+        span1.Should().NotBe(span2);
+        span1.Equals(span2).Should().BeFalse();
+        var span3 = new RichSpan()
+        {
+            Text = "test1",
+            ObjData = new RichTextObjectData() { Value = "test1", Type = RichTextObjectDataType.ContextString }
+        };
+        span3.Equals(span1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RichSpan_PerPropertyEqualityTests()
+    {
+        var blankSpan = new RichSpan()
+        {
+            Text = "test"
+        };
+        foreach (var fieldInfo in typeof(RichSpan).GetFields())
+        {
+            //need to do a better test for this type
+            if (fieldInfo.FieldType == typeof(RichTextObjectData)) continue;
+            var span = new RichSpan() { Text = "test" };
+            span.Equals(blankSpan).Should().BeTrue();
+            fieldInfo.SetValue(span, AutoFaker.Generate(fieldInfo.FieldType));
+            span.Equals(blankSpan).Should().BeFalse("field {0} do not match", fieldInfo.Name);
+        }
     }
 
     [Fact]
