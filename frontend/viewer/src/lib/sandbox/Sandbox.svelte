@@ -65,9 +65,10 @@
     loading = false;
   }
 
-  let richString: IRichString | undefined = $state({
+  const originalRichString: IRichString = {
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
-  });
+  };
+  let richString: IRichString | undefined = $state(originalRichString);
   let readonly = $state(false);
   let selectedEntryHistory: EntrySenseSelection[] = $state([]);
   let openPicker = $state(false);
@@ -140,6 +141,7 @@
     <div>
       <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
       <Button onclick={() => richString = undefined}>Set undefined</Button>
+      <Button onclick={() => richString = originalRichString}>Reset</Button>
       <label>
         <Checkbox bind:checked={readonly}/> Readonly
       </label>
