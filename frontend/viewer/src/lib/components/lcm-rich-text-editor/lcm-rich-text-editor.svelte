@@ -14,7 +14,6 @@
       span: {
         selectable: false,
         content: 'text*',
-        inline: true,
         whitespace: 'pre',
         toDOM: (node) => ['span', {title: gt`Writing system: ${node.attrs.richSpan.ws}`}, 0],
         parseDOM: [{tag: 'span'}],
@@ -186,11 +185,12 @@
     flex-grow: 1;
     outline: none;
     cursor: text;
+    /*white-space must be here, if it's directly on span then it will crash with a null node error*/
+    white-space: pre-wrap;
   }
   :global(.ProseMirror span) {
     border-bottom: 1px solid currentColor;
     margin: 2px;
-    white-space: pre-wrap;
   }
 </style>
 
