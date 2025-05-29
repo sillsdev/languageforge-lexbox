@@ -168,7 +168,12 @@
   }
 
   function clearSelection(editor: EditorView) {
-    window.getSelection()?.removeAllRanges();
+    const selection = window.getSelection();
+    //only remove range when selection is this component, otherwise this will remove the selection from something else
+    //this results in the cursor going to the start of the element
+    if (selection && editor.dom.contains(selection.anchorNode) && editor.dom.contains(selection.focusNode)) {
+      selection.removeAllRanges();
+    }
     editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 0)));
   }
 
