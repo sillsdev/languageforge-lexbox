@@ -1,5 +1,5 @@
 ﻿<script lang="ts" module>
-  import {Schema, type Node} from 'prosemirror-model';
+  import {type Node, Schema} from 'prosemirror-model';
   import {gt} from 'svelte-i18n-lingui';
 
   const textSchema = new Schema({
@@ -20,9 +20,9 @@
         parseDOM: [{tag: 'span'}],
         //richSpan is used to track the original span which was modified
         //this allows us to update the text property without having to map all the span properties into the schema
-        attrs: {richSpan: {default: {text: ''}}}
+        attrs: {richSpan: {default: {}}}
       },
-      doc: {content: 'span*', attrs: {richString: {default: {spans: []}}}}
+      doc: {content: 'span*', attrs: {}}
     }
   });
 
@@ -45,6 +45,7 @@
   import {watch} from 'runed';
   import type {HTMLAttributes} from 'svelte/elements';
   import {IsUsingKeyboard, mergeProps} from 'bits-ui';
+  import type {IRichSpan} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichSpan';
 
   let {
     value = $bindable(),
@@ -78,10 +79,7 @@
           //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
           //I suspect marks is the right way though.
           if (!value) value = {spans: []};
-          value.spans = newState.doc.children.map((child) => {
-            const originalRichSpan = child.attrs.richSpan;
-            return {...originalRichSpan, text: replaceNewLineWithLineSeparator(child.textContent)};
-          });
+          value.spans = newState.doc.children.map((child) => richSpanFromNode(child));
           dirty = true;
         }
         editor.updateState(newState);
@@ -150,11 +148,20 @@
   }
 
   function valueToDoc(): Node {
-    return textSchema.node('doc', {richString: value}, value?.spans
+    return textSchema.node('doc', {}, value?.spans
       .filter(s => s.text)
-      .map(s => {
-        return textSchema.node('span', {richSpan: s}, [textSchema.text(replaceLineSeparatorWithNewLine(s.text))]);
-      }) ?? []);
+      .map(s => richSpanToNode(s)) ?? []);
+  }
+
+  function richSpanToNode(s: IRichSpan) {
+    //we must pull text out of what is stored on the node attrs
+    //ProseMirror will keep the text up to date itself, if we store it on the richSpan attr then it will become out of date
+    let {text, ...rest} = s;
+    return textSchema.node('span', {richSpan: rest}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
+  }
+
+  function richSpanFromNode(node: Node) {
+    return {...node.attrs.richSpan, text: replaceNewLineWithLineSeparator(node.textContent)};
   }
 
   function selectAll(editor: EditorView) {
