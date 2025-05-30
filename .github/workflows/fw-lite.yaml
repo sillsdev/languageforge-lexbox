@@ -40,14 +40,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
-        with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:
@@ -65,18 +57,37 @@ jobs:
       - name: Check for pending EF model changes
         run: task fw-lite:has-pending-model-changes
 
+      - name: Dotnet test
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Install Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Prepare frontend
         working-directory: frontend
         run: |
           pnpm install
-          pnpm svelte-kit sync
+      - name: Run snapshot tests
+        working-directory: frontend/viewer
+        run: task playwright-test-standalone
 
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build-app
-
-      - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions
 
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@v4
@@ -87,7 +98,7 @@ jobs:
 
   publish-mac:
     name: Publish FW Lite app for Mac
-    needs: build-and-test
+    needs: [build-and-test, frontend]
     timeout-minutes: 30
     runs-on: macos-latest
     steps:
@@ -124,7 +135,7 @@ jobs:
 
   publish-linux:
     name: Publish FW Lite app for Linux
-    needs: build-and-test
+    needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +166,7 @@ jobs:
 
   publish-android:
     name: Publish FW Lite app for Android
-    needs: build-and-test
+    needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: macos-latest
     steps:
@@ -209,7 +220,7 @@ jobs:
 
   publish-win:
     name: Publish FW Lite app for Windows
-    needs: build-and-test
+    needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: windows-latest
     steps:
