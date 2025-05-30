@@ -51,7 +51,9 @@ public class LegacyProjectApiController : ControllerBase
             {
                 user.Salt,
                 user.PasswordHash,
-                projects = user.Projects.Select(member => new LegacyApiProject(member.Project!.Code,
+                //FLEx does not support the observer role, so if a user is an observer we need to exclude it from the list of projects
+                projects = user.Projects.Where(m => m.Role != ProjectRole.Observer)
+                    .Select(member => new LegacyApiProject(member.Project!.Code,
                     member.Project.Name,
                     //it seems this is largely ignored by the client as it uses the LF domain instead
                     "http://public.languagedepot.org",
@@ -78,7 +80,7 @@ public class LegacyProjectApiController : ControllerBase
         //this needs to be ugly so that projectable will work :(
         role == ProjectRole.Manager ? "manager"
         : role == ProjectRole.Editor ? "editor"
-        : "unknown";
+        : "unknown";//fieldworks doesn't know about or support observers
 }
 
 public record LegacyApiProject(string Identifier, string Name, string Repository, string Role);

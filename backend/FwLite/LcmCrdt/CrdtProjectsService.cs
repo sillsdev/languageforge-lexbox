@@ -46,6 +46,21 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await Task.WhenAll(tasks);
     }
 
+    public async ValueTask UpdateProjectServerInfo(CrdtProject project,
+        string? userName,
+        string? userId,
+        UserProjectRole role)
+    {
+        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        await currentProjectService.SetupProjectContext(project);
+
+        await currentProjectService.UpdateLastUser(userName, userId);
+        await currentProjectService.UpdateUserRole(role);
+    }
+
     public IEnumerable<CrdtProject> ListProjects()
     {
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
@@ -82,7 +97,8 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
-        string? AuthenticatedUserId = null);
+        string? AuthenticatedUserId = null,
+        UserProjectRole? Role = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
@@ -121,7 +137,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 code,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
+                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId, request.Role ?? UserProjectRole.Editor);
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();

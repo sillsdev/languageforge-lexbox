@@ -11,7 +11,7 @@ public class CrdtProjectChangeHub(IPermissionService permissionService) : Hub<IP
 
     public async Task ListenForProjectChanges(Guid projectId)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectId));
     }
 }

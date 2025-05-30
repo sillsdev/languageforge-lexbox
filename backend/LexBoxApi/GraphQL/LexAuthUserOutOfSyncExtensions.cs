@@ -19,6 +19,17 @@ public static class LexAuthUserOutOfSyncExtensions
         return user.Projects.Select(p => p.ProjectId).Intersect(projectIds).Count() != projectIds.Count;
     }
 
+    public static bool IsOutOfSyncWithMyProjects(this LexAuthUser user, ICollection<FieldWorksLiteProject> projects)
+    {
+        if (user.IsAdmin) return false; // admins don't have projects in their token
+        if (user.Projects.Length != projects.Count) return true; // different number of projects
+        return projects.Any(p =>
+        {
+            var tokenMembership = user.Projects.SingleOrDefault(p2 => p2.ProjectId == p.Id);
+            return p.Role != tokenMembership?.Role;
+        });
+    }
+
     public static bool IsOutOfSyncWithMyOrgs(this LexAuthUser user, List<Organization> myOrgs)
     {
         if (user.IsAdmin) return false; // admins don't have orgs in their token

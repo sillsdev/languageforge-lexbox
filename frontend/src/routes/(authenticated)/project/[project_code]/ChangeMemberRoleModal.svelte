@@ -9,12 +9,13 @@
 
   interface Props {
     projectId: string;
+    showObserver?: boolean;
   }
 
-  const { projectId }: Props = $props();
+  const { projectId, showObserver }: Props = $props();
 
   const schema = z.object({
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager]),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]),
   });
   type Schema = typeof schema;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -51,7 +52,7 @@
     <span>{$t('project_page.change_role_modal.title', { name })}</span>
   {/snippet}
   {#snippet children({ errors })}
-    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} {showObserver} />
   {/snippet}
   {#snippet submitText()}
     <span>{$t('project_page.change_role')}</span>

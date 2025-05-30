@@ -75,6 +75,7 @@
         projectId,
         passwordHash,
         usernames,
+        //todo allow setting users as Observer
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 

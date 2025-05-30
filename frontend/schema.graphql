@@ -215,7 +215,6 @@ type LeaveProjectPayload {
 }
 
 type LexAuthUser {
-  isProjectMember(projectId: UUID! role: ProjectRole): Boolean!
   hasFeature(feature: FeatureFlag!): Boolean!
   hasScope(scope: LexboxAuthScope!): Boolean!
   id: UUID!
@@ -1271,6 +1270,7 @@ enum ProjectRole {
   UNKNOWN
   MANAGER
   EDITOR
+  OBSERVER
 }
 
 enum ProjectType {

@@ -1,6 +1,7 @@
 using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using MiniLcm.Models;
@@ -14,6 +15,7 @@ public record ProjectModel(
     bool Crdt,
     bool Fwdata,
     bool Lexbox = false,
+    ProjectRole Role = ProjectRole.Editor,
     LexboxServer? Server = null,
     Guid? Id = null)
 {
@@ -54,17 +56,30 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
+        await UpdateProjectServerInfo(lexboxProjects, await lexboxProjectService.GetLexboxUser(server));
         var projectModels = lexboxProjects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,
                 Crdt: p.IsCrdtProject,
                 Fwdata: false,
                 Lexbox: true,
+                Role: p.Role,
                 server,
                 p.Id))
             .ToArray();
         return projectModels;
     }
+
+    private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
+    {
+        foreach (var serverProject in lexboxProjects)
+        {
+            var localProject = crdtProjectsService.GetProject(serverProject.Id);
+            if (localProject?.Data is null) continue;
+            await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, ToRole(serverProject.Role));
+        }
+    }
+
 
     [JSInvokable]
     public async Task<ProjectModel[]> ServerProjects(string serverId, bool forceRefresh)
@@ -87,6 +102,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 true,
                 false,
                 p.Data?.OriginDomain is not null,
+                p.Data is null ? ProjectRole.Unknown : FromRole(p.Data.Role),
                 lexboxProjectService.GetServer(p.Data),
                 p.Data?.Id));
         //basically populate projects and indicate if they are lexbox or fwdata
@@ -108,6 +124,24 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
         return projects.Values;
     }
+
+    private UserProjectRole ToRole(ProjectRole role) =>
+        role switch
+        {
+            ProjectRole.Observer => UserProjectRole.Observer,
+            ProjectRole.Editor => UserProjectRole.Editor,
+            ProjectRole.Manager => UserProjectRole.Manager,
+            _ => UserProjectRole.Unknown
+        };
+
+    private ProjectRole FromRole(UserProjectRole role) =>
+        role switch
+        {
+            UserProjectRole.Observer => ProjectRole.Observer,
+            UserProjectRole.Editor => ProjectRole.Editor,
+            UserProjectRole.Manager => ProjectRole.Manager,
+            _ => ProjectRole.Unknown
+        };
 
     public async Task DownloadProject(string code, LexboxServer server)
     {
@@ -133,7 +167,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             },
             SeedNewProjectData: false,
             AuthenticatedUser: currentUser?.Name,
-            AuthenticatedUserId: currentUser?.Id));
+            AuthenticatedUserId: currentUser?.Id,
+            Role: ToRole(project.Role)));
     }
 
     [JSInvokable]

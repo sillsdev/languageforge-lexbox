@@ -3,6 +3,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {UserProjectRole} from './UserProjectRole';
+
 export interface IProjectData
 {
 	name: string;
@@ -13,6 +15,8 @@ export interface IProjectData
 	fwProjectId?: string;
 	lastUserName?: string;
 	lastUserId?: string;
+	role: UserProjectRole;
 	serverId?: string;
+	isReadonly: boolean;
 }
 /* eslint-enable */

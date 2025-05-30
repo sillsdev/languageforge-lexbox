@@ -21,8 +21,12 @@ public class MiniLcmJsInvokable(
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
     }
+
+    private bool CanWrite =>
+        project is not CrdtProject crdt ||
+        (crdt.Data?.Role ?? UserProjectRole.Editor) is UserProjectRole.Editor or UserProjectRole.Manager;
 
     //todo move info notify wrapper factory
     private void OnDataChanged()

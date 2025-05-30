@@ -50,9 +50,11 @@
 <ResponsiveMenu.Root {contextMenu} bind:open>
   <ResponsiveMenu.Trigger {children} />
   <ResponsiveMenu.Content>
-    <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>
-      {pt($t`Delete Entry`, $t`Delete Word`, $currentView)}
-    </ResponsiveMenu.Item>
+    {#if features.write}
+      <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>
+        {pt($t`Delete Entry`, $t`Delete Word`, $currentView)}
+      </ResponsiveMenu.Item>
+    {/if}
     {#if features.history}
       <ResponsiveMenu.Item icon="i-mdi-history" onSelect={() => showHistoryView = true}>
         {$t`History`}

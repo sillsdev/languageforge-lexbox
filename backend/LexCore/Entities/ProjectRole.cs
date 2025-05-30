@@ -6,5 +6,5 @@ public enum ProjectRole
     // Admin = 1,
     Manager = 2,
     Editor = 3,
-    // Observer = 4,
+    Observer = 4,
 }

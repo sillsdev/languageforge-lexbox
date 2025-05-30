@@ -135,4 +135,12 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
             await RefreshProjectData();
         }
     }
+
+    public async Task UpdateUserRole(UserProjectRole role)
+    {
+        if (ProjectData.Role == role) return;
+        await DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+            .SetProperty(p => p.Role, role));
+        await RefreshProjectData();
+    }
 }

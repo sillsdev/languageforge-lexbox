@@ -229,6 +229,7 @@ public class SyncWorker(
                 Id: projectId,
                 Path: projectFolder,
                 FwProjectId: fwProjectId,
+                Role: UserProjectRole.Editor,
                 Domain: new Uri(lexboxUrl)));
         }
 

@@ -9,6 +9,9 @@
       LastUserName (string)
       Name (string) Required
       OriginDomain (string)
+      Role (UserProjectRole) Required ValueGenerated.OnAdd
+        Annotations: 
+          Relational:DefaultValue: Editor
     Keys: 
       Id PK
     Annotations: 
