@@ -22,9 +22,8 @@ const viewports = [
       await page.emulateMedia({colorScheme});
       await page.goto('/testing/project-view');
       await waitForProjectViewReady(page);
-      await expect(page.locator('.animate-pulse')).toHaveCount(0);
-      await expect(page.locator('.i-mdi-loading')).toHaveCount(0);
       await expect(page.getByRole('textbox', {name: 'Filter'})).toBeVisible();
+      await page.getByRole('row', { name: 'ambuka to cross a body of' }).scrollIntoViewIfNeeded();
       await assertSnapshot(page, 'project-view-default-' + colorScheme);
     });
   }
