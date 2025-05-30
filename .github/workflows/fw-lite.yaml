@@ -54,12 +54,13 @@ jobs:
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
           echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
 
-      - name: Check for pending EF model changes
-        run: task fw-lite:has-pending-model-changes
-
       - name: Dotnet build
         # the android build is quite slow, so we disable it for builds just for testing
         run: dotnet build FwLiteOnly.slnf -p:BuildAndroid=false
+
+      - name: Check for pending EF model changes
+        run: task fw-lite:has-pending-model-changes -- --no-build
+
       - name: Dotnet test
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build
 
