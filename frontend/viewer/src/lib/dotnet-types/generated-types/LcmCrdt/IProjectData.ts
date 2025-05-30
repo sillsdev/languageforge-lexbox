@@ -15,5 +15,6 @@ export interface IProjectData
 	lastUserId?: string;
 	role: number;
 	serverId?: string;
+	isReadonly: boolean;
 }
 /* eslint-enable */

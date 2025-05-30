@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -10,12 +10,12 @@ namespace LcmCrdt.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
+            migrationBuilder.AddColumn<string>(
                 name: "Role",
                 table: "ProjectData",
-                type: "INTEGER",
+                type: "TEXT",
                 nullable: false,
-                defaultValue: 2);
+                defaultValue: "Editor");
         }
 
         /// <inheritdoc />

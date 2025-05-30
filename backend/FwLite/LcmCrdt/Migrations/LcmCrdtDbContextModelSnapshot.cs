@@ -47,10 +47,11 @@ namespace LcmCrdt.Migrations
                     b.Property<string>("OriginDomain")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Role")
+                    b.Property<string>("Role")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(2);
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Editor");
 
                     b.HasKey("Id");
 

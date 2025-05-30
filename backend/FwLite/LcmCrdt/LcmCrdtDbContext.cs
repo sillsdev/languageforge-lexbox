@@ -26,7 +26,7 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         projectDataModel.HasKey(p => p.Id);
         projectDataModel.Ignore(p => p.ServerId);
         //setting default value to handle migration
-        projectDataModel.Property(p => p.Role).HasDefaultValue(UserProjectRole.Editor);
+        projectDataModel.Property(p => p.Role).HasConversion<EnumToStringConverter<UserProjectRole>>().HasDefaultValue(UserProjectRole.Editor);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
