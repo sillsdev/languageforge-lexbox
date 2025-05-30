@@ -81,6 +81,9 @@ jobs:
         working-directory: frontend
         run: |
           pnpm install
+      - name: Set up Playwright dependencies
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps
       - name: Run snapshot tests
         working-directory: frontend/viewer
         run: task playwright-test-standalone
