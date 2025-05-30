@@ -51,7 +51,7 @@ public class LegacyProjectApiController : ControllerBase
             {
                 user.Salt,
                 user.PasswordHash,
-                //FLEx does not support the observer role, so if a user is an observer we need to exclude it from the list of proejcts
+                //FLEx does not support the observer role, so if a user is an observer we need to exclude it from the list of projects
                 projects = user.Projects.Where(m => m.Role != ProjectRole.Observer)
                     .Select(member => new LegacyApiProject(member.Project!.Code,
                     member.Project.Name,

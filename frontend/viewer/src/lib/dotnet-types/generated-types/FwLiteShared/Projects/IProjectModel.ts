@@ -3,6 +3,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ProjectRole} from '../../LexCore/Entities/ProjectRole';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
 
 export interface IProjectModel
@@ -12,7 +13,7 @@ export interface IProjectModel
 	crdt: boolean;
 	fwdata: boolean;
 	lexbox: boolean;
-	role: number;
+	role: ProjectRole;
 	server?: ILexboxServer;
 	id?: string;
 	apiEndpoint?: string;

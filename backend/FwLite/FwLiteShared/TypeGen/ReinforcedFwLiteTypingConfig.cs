@@ -7,6 +7,7 @@ using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -111,6 +112,8 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
+        builder.ExportAsEnum<UserProjectRole>().UseString();
+        builder.ExportAsEnum<ProjectRole>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
