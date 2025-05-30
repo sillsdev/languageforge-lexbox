@@ -39,7 +39,7 @@ export class EntryPersistence {
   private async updateEntry(updatedEntry: IEntry) {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
     if (this.initialEntry.id != updatedEntry.id) throw new Error('Entry id mismatch');
-    await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, updatedEntry));
+    await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, $state.snapshot(updatedEntry)));
   }
 
   private updateInitialEntry() {

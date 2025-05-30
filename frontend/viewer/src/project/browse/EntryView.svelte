@@ -57,7 +57,7 @@
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
   let editorRef: HTMLElement | null = $state(null);
-  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () =>{
+  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
     if (!IsMobile.value) findFirstTabbable(editorRef)?.focus();
   });

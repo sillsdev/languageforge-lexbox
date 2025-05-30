@@ -16,8 +16,10 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const config = useFwLiteConfig();
+  const features = useFeatures();
   let isSynchronizing = $state(false);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
@@ -76,8 +78,10 @@
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
           <DevContent>
             {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           </DevContent>
+          {#if features.history}
+            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          {/if}
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

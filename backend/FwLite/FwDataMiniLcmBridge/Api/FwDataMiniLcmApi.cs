@@ -655,7 +655,11 @@ public class FwDataMiniLcmApi(
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
-            Reference = sentence.Reference.Text,
+            Reference =
+                sentence.Reference.Length == 0
+                    ? null
+                    : RichTextMapping.FromTsString(sentence.Reference,
+                        h => h is null ? null : (WritingSystemId?)GetWritingSystemId(h.Value)),
             Translation = translation is null ? new() : FromLcmMultiString(translation),
         };
     }
@@ -680,7 +684,11 @@ public class FwDataMiniLcmApi(
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
 
-            result.Add(GetWritingSystemId(ws), tsString.Text);
+            result.Add(GetWritingSystemId(ws), RichTextMapping.FromTsString(tsString, h =>
+            {
+                if (h is null) return null;
+                return GetWritingSystemId(h.Value);
+            }));
         }
 
         return result;
@@ -1065,7 +1073,7 @@ public class FwDataMiniLcmApi(
         foreach (var (ws, value) in newMultiString)
         {
             var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
         }
     }
 
@@ -1329,8 +1337,9 @@ public class FwDataMiniLcmApi(
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
         var translation = CreateExampleSentenceTranslation(lexExampleSentence);
         UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
-        lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
-            lexExampleSentence.Reference.get_WritingSystem(0));
+        lexExampleSentence.Reference = exampleSentence.Reference is null
+            ? null
+            : RichTextMapping.ToTsString(exampleSentence.Reference, id => GetWritingSystemHandle(id));
     }
 
     public ICmTranslation CreateExampleSentenceTranslation(ILexExampleSentence parent)

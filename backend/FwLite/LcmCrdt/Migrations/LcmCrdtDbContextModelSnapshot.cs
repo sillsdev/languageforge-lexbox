@@ -184,7 +184,7 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("Reference")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid>("SenseId")
                         .HasColumnType("TEXT");

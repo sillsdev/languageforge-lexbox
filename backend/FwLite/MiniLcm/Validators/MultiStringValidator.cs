@@ -26,7 +26,13 @@ internal static class MultiStringValidator
 
     public static IRuleBuilderOptions<T, RichMultiString> NoEmptyValues<T>(this IRuleBuilder<T, RichMultiString> ruleBuilder, Func<T, string> getParentId)
     {
-        return ruleBuilder.Must(ms => ms.All(v => !string.IsNullOrEmpty(v.Value))).WithMessage((parent, ms) =>
-            $"RichMultiString must not contain empty values, but [{string.Join(", ", ms.Where(v => string.IsNullOrWhiteSpace(v.Value)).Select(v => v.Key))}] was empty ({getParentId(parent)})");
+        return ruleBuilder.Must(ms => ms.All(v => !v.Value.IsEmpty)).WithMessage((parent, ms) =>
+            $"RichMultiString must not contain empty values, but [{string.Join(", ", ms.Where(v => v.Value.IsEmpty).Select(v => v.Key))}] was empty ({getParentId(parent)})");
+    }
+
+    public static IRuleBuilderOptions<T, RichMultiString> NoDefaultWritingSystems<T>(this IRuleBuilder<T, RichMultiString> ruleBuilder, Func<T, string> getParentId)
+    {
+        return ruleBuilder.Must(ms => ms.All(v => v.Value.Spans.All(s => s.Ws != WritingSystemId.Default))).WithMessage((parent, ms) =>
+            $"RichMultiString spans must all have a writing system id assigned, but [{string.Join(", ", ms.Where(v => v.Value.Spans.Any(s => s.Ws == WritingSystemId.Default)).Select(v => v.Key))}] had a span without a writing system id ({getParentId(parent)})");
     }
 }
