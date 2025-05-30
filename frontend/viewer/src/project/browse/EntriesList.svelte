@@ -85,10 +85,11 @@
     onSelectEntry(entry);
   }
 
-  let targetNode = $state<HTMLElement>()!;
+  let targetNode = $state<HTMLButtonElement | null>(null);
 	const inViewport = new IsInViewport(() => targetNode);
   watch(() => inViewport.current, (value) => {
     if (value && entriesResource.current && entriesResource.current.length > displayCount) {
+      console.log('Loading more entries');
       displayCount += 100;
     }
   });
@@ -135,7 +136,7 @@
           </div>
         {/each}
         {#if entriesResource.current?.length ?? 0 > displayCount}
-          <div bind:this={targetNode} class="h-10"></div>
+          <EntryRow bind:ref={targetNode} skeleton={true}/>
         {/if}
       {/if}
     </div>
