@@ -14,6 +14,7 @@
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Button} from '$lib/components/ui/button';
   import {QueryParamState} from '$lib/utils/url.svelte';
+  import IfOnce from '$lib/components/if-once/if-once.svelte';
 
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
@@ -43,7 +44,7 @@
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
-    {#if !IsMobile.value || !selectedEntryId.current}
+    <IfOnce show={!IsMobile.value || !selectedEntryId.current}>
       <ResizablePane
         bind:this={leftPane}
         defaultSize={defaultLayout[0]}
@@ -92,7 +93,7 @@
                        previewDictionary={entryMode === 'preview'}/>
         </div>
       </ResizablePane>
-    {/if}
+    </IfOnce>
     {#if !IsMobile.value}
       <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
     {/if}

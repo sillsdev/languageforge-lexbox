@@ -1,20 +1,20 @@
 <script lang="ts">
-  import type { IEntry } from '$lib/dotnet-types';
-  import type { IQueryOptions } from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
-  import { SortField } from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import { Debounced, resource } from 'runed';
-  import { useMiniLcmApi } from '$lib/services/service-provider';
+  import type {IEntry} from '$lib/dotnet-types';
+  import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
+  import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
+  import {Debounced, resource} from 'runed';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
-  import { cn } from '$lib/utils';
-  import { t } from 'svelte-i18n-lingui';
-  import {ScrollArea} from '$lib/components/ui/scroll-area';
+  import {cn} from '$lib/utils';
+  import {t} from 'svelte-i18n-lingui';
   import DevContent from '$lib/layout/DevContent.svelte';
   import NewEntryButton from '../NewEntryButton.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import EntryMenu from './EntryMenu.svelte';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
+  import {VList, type VListHandle} from 'virtua/svelte';
 
   const {
     search = '',
@@ -38,19 +38,18 @@
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
-    void entriesResource.refetch();
+    entriesResource.mutate(entriesResource.current?.filter(e => e.id !== entryId) ?? []);
   });
   projectEventBus.onEntryUpdated(_entry => {
     if (entriesResource.loading) return;
-    void entriesResource.refetch();
+    entriesResource.mutate(entriesResource.current?.map(e => e.id === _entry.id ? _entry : e) ?? []);
   });
-
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
     async ({ search, sortDirection, gridifyFilter }) => {
       const queryOptions: IQueryOptions = {
-        count: 100,
+        count: 10_000,
         offset: 0,
         filter: {
           gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
@@ -82,6 +81,19 @@
     if (!entry) return;
     onSelectEntry(entry);
   }
+
+  let vList: VListHandle | undefined = $state(undefined);
+  $effect(() => {
+    if (!vList || !selectedEntryId) return;
+    const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
+    if (indexOfSelected === -1) return;
+    if (indexOfSelected > vList.findEndIndex() || indexOfSelected < vList.findStartIndex())
+    {
+      //using smooth scroll caused lag, maybe only do it if scrolling a short distance?
+      vList.scrollToIndex(indexOfSelected, {align: 'center'});
+    }
+  });
+
 </script>
 
 <FabContainer>
@@ -98,33 +110,37 @@
   <NewEntryButton onclick={handleNewEntry} shortForm />
 </FabContainer>
 
-<ScrollArea class="md:pr-3 flex-1" role="table">
+<div class="md:pr-3 flex-1 h-full" role="table">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
       <p>{entriesResource.error.message}</p>
     </div>
   {:else}
-    <div class="space-y-2 p-0.5 pb-12">
+    <div class="h-full">
       {#if loading.current}
         <!-- Show skeleton rows while loading -->
         {#each { length: skeletonRowCount }, _index}
-          <EntryRow skeleton={true} />
+          <EntryRow class="my-2" skeleton={true} />
         {/each}
       {:else}
-        {#each entries as entry}
-          <EntryMenu {entry} contextMenu>
+        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 pb-12" getKey={d => d.id}>
+          {#snippet children(entry)}
+            <EntryMenu {entry} contextMenu>
               <EntryRow {entry}
-                selected={selectedEntryId === entry.id}
-                onclick={() => onSelectEntry(entry)}
-                {previewDictionary} />
-          </EntryMenu>
-        {:else}
+                        class="my-1"
+                        selected={selectedEntryId === entry.id}
+                        onclick={() => onSelectEntry(entry)}
+                        {previewDictionary}/>
+            </EntryMenu>
+          {/snippet}
+        </VList>
+        {#if entries.length === 0}
           <div class="flex items-center justify-center h-full text-muted-foreground">
             <p>{$t`No entries found`}</p>
           </div>
-        {/each}
+        {/if}
       {/if}
     </div>
   {/if}
-</ScrollArea>
+</div>

@@ -15,8 +15,9 @@
     previewDictionary?: boolean;
   };
 
-  const {
+  let {
     entry,
+    ref = $bindable(null),
     badge,
     previewDictionary = false,
     ...rest
@@ -42,7 +43,7 @@
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
 </script>
 
-<ListItem {...rest}>
+<ListItem bind:ref {...rest}>
   {#if rest.skeleton || !entry}
     <div class="animate-pulse" style="animation-delay: {animationDelay}">
       <div class="h-5 bg-muted-foreground/20 rounded mb-2" style="width: {headwordWidth}"></div>

@@ -29,6 +29,7 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import {T} from 'svelte-i18n-lingui';
+  import IfOnce from '$lib/components/if-once/if-once.svelte';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -116,6 +117,9 @@
       buttonsLoading = false;
     }, 1000);
   }
+
+  let show = $state(false);
+  let reseter = $state(0);
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -264,6 +268,21 @@
           Increment Async
         </Button>
         click count: {count}
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div class="flex flex-col gap-2">
+        IfOnce
+        {#key reseter}
+          <IfOnce show={show}>
+            content
+          </IfOnce>
+        {/key}
+        <label>
+          <Checkbox bind:checked={show}/>
+          Show
+        </label>
+        <Button onclick={() => reseter++}>Reset</Button>
       </div>
     </div>
     <div class="border grid" style="grid-template-columns: auto 1fr">
