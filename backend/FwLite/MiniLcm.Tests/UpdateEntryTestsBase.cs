@@ -60,6 +60,28 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task UpdateEntry_SupportsRemovingAMultiStringWs()
+    {
+        var entry = await Api.GetEntry(Entry1Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
+        entry.CitationForm.Remove("en");
+        var updatedEntry = await Api.UpdateEntry(before, entry);
+        updatedEntry.CitationForm.Values.Should().NotContainKey("en");
+    }
+
+    [Fact]
+    public async Task UpdateEntry_SupportsRemovingARichMultiStringWs()
+    {
+        var entry = await Api.GetEntry(Entry1Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
+        entry.Note.Remove("en");
+        var updatedEntry = await Api.UpdateEntry(before, entry);
+        updatedEntry.Note.Should().NotContainKey("en");
+    }
+
+    [Fact]
     public async Task UpdateEntry_SupportsSenseChanges()
     {
         var entry = await Api.GetEntry(Entry1Id);
