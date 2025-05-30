@@ -65,9 +65,10 @@
     loading = false;
   }
 
-  let richString: IRichString = $state({
+  const originalRichString: IRichString = {
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
-  });
+  };
+  let richString: IRichString | undefined = $state(originalRichString);
   let readonly = $state(false);
   let selectedEntryHistory: EntrySenseSelection[] = $state([]);
   let openPicker = $state(false);
@@ -139,12 +140,15 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div>
       <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
+      <Button onclick={() => richString = undefined}>Set undefined</Button>
+      <Button onclick={() => richString = originalRichString}>Reset</Button>
       <label>
         <Checkbox bind:checked={readonly}/> Readonly
       </label>
     </div>
-    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}/>
-    <pre>{JSON.stringify(richString, null, 2).replaceAll(lineSeparator, '\n')}</pre>
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}
+       onchange={() => richString = JSON.parse(JSON.stringify($state.snapshot(richString)))} />
+    <pre>{JSON.stringify(richString, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}</pre>
   </div>
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <h3 class="font-medium">Resizable Example</h3>

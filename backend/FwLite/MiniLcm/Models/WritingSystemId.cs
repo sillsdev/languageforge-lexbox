@@ -8,8 +8,9 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 {
     public override WritingSystemId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return WritingSystemId.Parse(reader.GetString() ??
-                                     throw new NullReferenceException("can't convert null to a writing system"), null);
+        var wsId = reader.GetString();
+        if (wsId is null) return WritingSystemId.Default;
+        return WritingSystemId.Parse(wsId, null);
     }
 
     public override void Write(Utf8JsonWriter writer, WritingSystemId value, JsonSerializerOptions options)
@@ -18,7 +19,9 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
     }
 
     public override WritingSystemId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => WritingSystemId.Parse(reader.GetString() ?? throw new NullReferenceException("can't convert null to a writing system"), null);
+    {
+        return Read(ref reader, typeToConvert, options);
+    }
 
     public override void WriteAsPropertyName(Utf8JsonWriter writer, WritingSystemId value, JsonSerializerOptions options)
     {
@@ -29,7 +32,7 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 [JsonConverter(typeof(WritingSystemIdJsonConverter))]
 public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<WritingSystemId>
 {
-    public string Code { get; init; }
+    public string Code { get => field ?? "default"; init; }
     public bool IsAudio { get; } = false;
 
     public static readonly WritingSystemId Default = "default";

@@ -53,7 +53,7 @@ export function defaultExampleSentence(senseId: string): IExampleSentence {
     senseId,
     sentence: {},
     translation: {},
-    reference: '',
+    reference: {spans: []},
   };
 }
 

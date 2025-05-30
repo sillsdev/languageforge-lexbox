@@ -19,6 +19,12 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
         multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
     }
 
+    public void Add(WritingSystemId key, RichString value)
+    {
+        var writingSystemHandle = lexboxLcmApi.GetWritingSystemHandle(key);
+        multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, ws => lexboxLcmApi.GetWritingSystemHandle(ws)));
+    }
+
     public bool ContainsKey(WritingSystemId key)
     {
         if (multiString.StringCount == 0) return false;

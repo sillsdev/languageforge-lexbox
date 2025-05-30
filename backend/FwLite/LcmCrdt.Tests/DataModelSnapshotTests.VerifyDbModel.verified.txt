@@ -128,7 +128,9 @@
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       DeletedAt (DateTimeOffset?)
       Order (double) Required
-      Reference (string)
+      Reference (RichString)
+        Annotations: 
+          Relational:ColumnType: jsonb
       SenseId (Guid) Required FK Index
       Sentence (RichMultiString) Required
         Annotations: 

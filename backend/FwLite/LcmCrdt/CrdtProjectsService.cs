@@ -270,7 +270,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
             Id = Guid.NewGuid(),
             LexemeForm = { { "en", "Apple" } },
             CitationForm = { { "en", "Apple" } },
-            LiteralMeaning = { { "en", "Fruit" } },
+            LiteralMeaning = { { "en", new RichString("Fruit") } },
             Senses =
             [
                 new()
@@ -280,11 +280,11 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                     {
                         {
                             "en",
-                            "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+                            new RichString("fruit with red, yellow, or green skin with a sweet or tart crispy white flesh")
                         }
                     },
                     SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { { "en", "We ate an apple" } } }]
+                    ExampleSentences = [new() { Sentence = { { "en", new RichString("We ate an apple") } } }]
                 }
             ]
         });

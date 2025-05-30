@@ -7,7 +7,7 @@
   import {cn} from '$lib/utils';
   import {vt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
-  import {MultiWsInput, WsInput} from '$lib/components/field-editors';
+  import {RichMultiWsInput, RichWsInput} from '$lib/components/field-editors';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
   import {mergeProps} from 'bits-ui';
 
@@ -36,7 +36,7 @@
   <Editor.Field.Root style="grid-area: sentence" class={cn($currentView.fields.sentence.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Sentence`)} helpId={fieldData.sentence.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('sentence')}
           bind:value={example.sentence}
           {readonly}
@@ -47,7 +47,7 @@
   <Editor.Field.Root style="grid-area: translation" class={cn($currentView.fields.translation.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Translation`)} helpId={fieldData.translation.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('translation')}
           bind:value={example.translation}
           {readonly}
@@ -59,7 +59,7 @@
     <Editor.Field.Root style="grid-area: reference" class={cn($currentView.fields.reference.show || 'hidden')}>
       <Editor.Field.Title name={vt($t`Reference`)} helpId={fieldData.reference.helpId} />
       <Editor.Field.Body>
-        <WsInput
+        <RichWsInput
             onchange={() => onFieldChanged('reference')}
             bind:value={example.reference}
             {readonly}

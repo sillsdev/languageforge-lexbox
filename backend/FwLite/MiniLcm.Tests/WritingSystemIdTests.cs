@@ -43,4 +43,11 @@ public class WritingSystemIdTests
         var ws = new WritingSystemId("default");
         ws.Should().NotBe(default);
     }
+
+    [Fact]
+    public void DefaultStructHasDefaultCode()
+    {
+        WritingSystemId value = default;
+        value.Code.Should().NotBeNull().And.Be("default");
+    }
 }

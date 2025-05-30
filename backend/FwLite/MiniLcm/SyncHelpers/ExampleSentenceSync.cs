@@ -41,7 +41,7 @@ public static class ExampleSentenceSync
             nameof(ExampleSentence.Translation),
             beforeExampleSentence.Translation,
             afterExampleSentence.Translation));
-        if (beforeExampleSentence.Reference != afterExampleSentence.Reference)
+        if (!Equals(beforeExampleSentence.Reference, afterExampleSentence.Reference))
         {
             patchDocument.Replace(exampleSentence => exampleSentence.Reference, afterExampleSentence.Reference);
         }
