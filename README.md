@@ -196,6 +196,6 @@ Run the Playwright tests with `npx playwright test` or `npx playwright test some
 ## Backup
 
 We're using Kopia to backup the Postgres DB and HG repos to an S3 bucket
-Tim E and Kevin H both have access to the credentials. The k8s secret `backup` in prod has everything needed to run a restore job
+Tim E and Kevin H both have access to the credentials. The k8s secret `backups` in prod has everything needed to run a restore job
 
 If you need to restore a backup at a look at this [readme](deployment/restore-scripts/README.md)
