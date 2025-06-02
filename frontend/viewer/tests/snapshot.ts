@@ -1,4 +1,5 @@
-import { argosScreenshot } from "@argos-ci/playwright";
+import {argosScreenshot} from '@argos-ci/playwright';
+
 export function assertSnapshot(...args: Parameters<typeof argosScreenshot>): Promise<void> {
   args[2] = {
     viewports: [
