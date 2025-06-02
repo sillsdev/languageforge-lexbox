@@ -53,7 +53,7 @@
         minSize={15}
         class="min-h-0 flex flex-col relative"
       >
-        <div class="flex flex-col h-full p-2 md:p-4 md:pr-1">
+        <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
           <div class="md:mr-3">
             <SearchFilter bind:search bind:gridifyFilter />
             <div class="my-2 flex items-center justify-between">

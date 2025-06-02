@@ -125,7 +125,7 @@
   <NewEntryButton onclick={handleNewEntry} shortForm />
 </FabContainer>
 
-<div class="md:pr-3 flex-1 h-full" role="table">
+<div class="flex-1 h-full" role="table">
   {#if entriesResource.error}
     <div class="flex items-center justify-center h-full text-muted-foreground">
       <p>{$t`Failed to load entries`}</p>
@@ -134,12 +134,14 @@
   {:else}
     <div class="h-full">
       {#if loading.current}
-        <!-- Show skeleton rows while loading -->
-        {#each { length: skeletonRowCount }, _index}
-          <EntryRow class="my-2" skeleton={true} />
-        {/each}
+        <div class="md:pr-3">
+          <!-- Show skeleton rows while loading -->
+          {#each { length: skeletonRowCount }, _index}
+            <EntryRow class="my-2" skeleton={true} />
+          {/each}
+        </div>
       {:else}
-        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 pb-12" getKey={d => d.id}>
+        <VList bind:this={vList} data={entries ?? []} class="h-full p-0.5 md:pr-3 pb-12" getKey={d => d.id}>
           {#snippet children(entry)}
             <EntryMenu {entry} contextMenu>
               <EntryRow {entry}
