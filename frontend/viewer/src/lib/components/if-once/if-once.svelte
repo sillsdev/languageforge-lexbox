@@ -2,7 +2,7 @@
   import {type Snippet, untrack} from 'svelte';
 
   const {show, children}: { show: boolean, children: Snippet } = $props();
-  let render = $state(false);
+  let render = $state(show);
   $effect(() => {
     //this should cleanup the effect so it only runs once
     if (untrack(() => render)) return;
