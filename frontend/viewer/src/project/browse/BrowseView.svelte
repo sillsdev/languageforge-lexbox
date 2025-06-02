@@ -14,7 +14,10 @@
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Button} from '$lib/components/ui/button';
   import {QueryParamState} from '$lib/utils/url.svelte';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
+  const currentView = useCurrentView();
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
@@ -102,7 +105,7 @@
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
           {#if !selectedEntryId.current}
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>{$t`Select an entry to view details`}</p>
+              <p>{$t`Select ${pt($t`an entry`, $t`a word`, $currentView)} to view details`}</p>
             </div>
           {:else}
             <div class="md:p-4 md:pl-6 h-full">
