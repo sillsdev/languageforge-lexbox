@@ -38,34 +38,49 @@
   projectEventBus.onEntryDeleted(entryId => {
     if (selectedEntryId === entryId) onSelectEntry(undefined);
     if (entriesResource.loading || !entries.some(e => e.id === entryId)) return;
-    entriesResource.mutate(entriesResource.current?.filter(e => e.id !== entryId) ?? []);
+    const currentIndex = entriesResource.current?.findIndex(e => e.id === entryId) ?? -1;
+    if (currentIndex >= 0) {
+      entriesResource.current!.splice(currentIndex, 1);
+    }
   });
   projectEventBus.onEntryUpdated(_entry => {
     if (entriesResource.loading) return;
-    entriesResource.mutate(entriesResource.current?.map(e => e.id === _entry.id ? _entry : e) ?? []);
+    const currentIndex = entriesResource.current?.findIndex(e => e.id === _entry.id) ?? -1;
+    if (currentIndex >= 0) {
+      entriesResource.current![currentIndex] = _entry;
+    } else {
+      void silentlyRefreshEntries();
+    }
   });
+
+  async function silentlyRefreshEntries() {
+    const updatedEntries = await fetchCurrentEntries();
+    entriesResource.mutate(updatedEntries);
+  }
+
+  function fetchCurrentEntries(): Promise<IEntry[]> {
+    const queryOptions: IQueryOptions = {
+      count: 10_000,
+      offset: 0,
+      filter: {
+        gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
+      },
+      order: {
+        field: SortField.Headword,
+        writingSystem: 'default',
+        ascending: sortDirection === 'asc',
+      },
+    };
+
+    if (search) {
+      return miniLcmApi.searchEntries(search, queryOptions);
+    }
+    return miniLcmApi.getEntries(queryOptions);
+  }
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
-    async ({ search, sortDirection, gridifyFilter }) => {
-      const queryOptions: IQueryOptions = {
-        count: 10_000,
-        offset: 0,
-        filter: {
-          gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
-        },
-        order: {
-          field: SortField.Headword,
-          writingSystem: 'default',
-          ascending: sortDirection === 'asc',
-        },
-      };
-
-      if (search) {
-        return miniLcmApi.searchEntries(search, queryOptions);
-      }
-      return miniLcmApi.getEntries(queryOptions);
-    },
+    () => fetchCurrentEntries(),
     {
       debounce: 300,
     }
@@ -82,7 +97,7 @@
     onSelectEntry(entry);
   }
 
-  let vList: VListHandle | undefined = $state(undefined);
+  let vList = $state<VListHandle>();
   $effect(() => {
     if (!vList || !selectedEntryId) return;
     const indexOfSelected = entries.findIndex(e => e.id === selectedEntryId);
