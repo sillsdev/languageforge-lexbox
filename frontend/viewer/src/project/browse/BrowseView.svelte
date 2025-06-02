@@ -108,7 +108,7 @@
               <p>{$t`Select ${pt($t`an entry`, $t`a word`, $currentView)} to view details`}</p>
             </div>
           {:else}
-            <div class="md:p-4 md:pl-6 h-full">
+            <div class="md:p-4 md:pl-4 h-full">
               <EntryView
                 entryId={selectedEntryId.current}
                 onClose={() => (selectedEntryId.current = '')}
