@@ -10,7 +10,6 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fw-lite/sync")]
-[FeatureFlagRequired(FeatureFlag.FwLiteBeta, AllowAdmin = true)]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class SyncController(
     IPermissionService permissionService,
