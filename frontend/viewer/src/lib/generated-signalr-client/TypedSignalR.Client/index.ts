@@ -2,23 +2,26 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import type {ILexboxClient} from './Lexbox.ClientServer.Hubs';
-
-import {HubConnection} from '@microsoft/signalr';
 import type {
-  IComplexFormType, IEntry, IExampleSentence,
-  ISense,
+  IComplexFormComponent,
+  IComplexFormType,
+  IEntry,
+  IExampleSentence,
+  IMiniLcmFeatures,
+  IMiniLcmJsInvokable,
   IPartOfSpeech,
+  IQueryOptions,
   ISemanticDomain,
+  ISense,
   IWritingSystem,
   IWritingSystems,
-  WritingSystemType,
-  IQueryOptions,
-  IComplexFormComponent,
-  IMiniLcmFeatures,
-  IMiniLcmJsInvokable
+  WritingSystemType
 } from '$lib/dotnet-types';
-import type { IPublication } from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
+
+import {HubConnection} from '@microsoft/signalr';
+import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
+import type {ILexboxClient} from './Lexbox.ClientServer.Hubs';
+import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 
 // components
 
@@ -150,6 +153,10 @@ class IMiniLcmJsInvokable_HubProxy implements IMiniLcmJsInvokable {
           }
         });
       });
+  }
+
+    public readonly countEntries = async (query?: string, options?: IFilterQueryOptions): Promise<number> => {
+      return await this.connection.invoke("CountEntries", options);
     }
 
     public readonly getEntries = async (options: IQueryOptions): Promise<IEntry[]> => {
