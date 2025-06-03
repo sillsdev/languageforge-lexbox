@@ -12,6 +12,7 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains();
     IAsyncEnumerable<ComplexFormType> GetComplexFormTypes();
     Task<ComplexFormType?> GetComplexFormType(Guid id);
+    Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
@@ -22,14 +23,21 @@ public interface IMiniLcmReadApi
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
 }
 
+public record FilterQueryOptions(
+    ExemplarOptions? Exemplar = null,
+    EntryFilter? Filter = null)
+{
+    public static FilterQueryOptions Default { get; } = new();
+}
+
 public record QueryOptions(
     SortOptions? Order = null,
     ExemplarOptions? Exemplar = null,
     int Count = QueryOptions.DefaultCount,
     int Offset = 0,
-    EntryFilter? Filter = null)
+    EntryFilter? Filter = null) : FilterQueryOptions(Exemplar, Filter)
 {
-    public static QueryOptions Default { get; } = new();
+    public static new QueryOptions Default { get; } = new();
     public const int QueryAll = -1;
     public const int DefaultCount = 1000;
     public SortOptions Order { get; init; } = Order ?? SortOptions.Default;

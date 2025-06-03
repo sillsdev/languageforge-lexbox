@@ -75,6 +75,12 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public Task<int> CountEntries(string? query, FilterQueryOptions? options)
+    {
+        return _wrappedApi.CountEntries(query, options);
+    }
+
+    [JSInvokable]
     public ValueTask<Entry[]> GetEntries(QueryOptions? options = null)
     {
         return _wrappedApi.GetEntries(options).ToArrayAsync();

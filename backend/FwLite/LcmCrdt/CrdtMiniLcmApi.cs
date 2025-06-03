@@ -352,6 +352,13 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
+    public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
+    {
+        var predicate = string.IsNullOrEmpty(query) ? null : Filtering.SearchFilter(query);
+        var queryable = await FilterEntries(predicate, options);
+        return await queryable.CountAsync();
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
@@ -376,20 +383,7 @@ public class CrdtMiniLcmApi(
         QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
-        var queryable = Entries;
-        if (predicate is not null) queryable = queryable.Where(predicate);
-        if (options.Exemplar is not null)
-        {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
-            if (ws is null)
-                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
-            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
-        }
-
-        if (options.Filter?.GridifyFilter != null)
-        {
-            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
-        }
+        var queryable = await FilterEntries(predicate, options);
 
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));
         if (sortWs is null)
@@ -419,6 +413,28 @@ public class CrdtMiniLcmApi(
             entry.ApplySortOrder(complexFormComparer);
             yield return entry;
         }
+    }
+
+    private async Task<IQueryable<Entry>> FilterEntries(
+        Expression<Func<Entry, bool>>? predicate = null,
+        FilterQueryOptions? options = null)
+    {
+        options ??= FilterQueryOptions.Default;
+        var queryable = Entries;
+        if (predicate is not null) queryable = queryable.Where(predicate);
+        if (options.Exemplar is not null)
+        {
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
+            if (ws is null)
+                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
+            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
+        }
+
+        if (options.Filter?.GridifyFilter != null)
+        {
+            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
+        }
+        return queryable;
     }
 
     public async Task<Entry?> GetEntry(Guid id)
