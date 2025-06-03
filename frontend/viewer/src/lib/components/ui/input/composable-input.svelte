@@ -5,7 +5,13 @@
   import InputShell from './input-shell.svelte';
   import {Input} from '.';
 
-  type Props = WithElementRef<HTMLAttributes<HTMLDivElement>>;
+  type Props = WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'placeholder'>> & {
+    value?: T,
+    inputRef?: HTMLInputElement | null,
+    before?: Snippet,
+    after?: Snippet,
+    placeholder?: string | Snippet,
+  };
 
   let {
     ref = $bindable(null),
@@ -16,18 +22,22 @@
     before,
     after,
     ...restProps
-  }: Props & {
-    value?: T,
-    inputRef?: HTMLInputElement | null,
-    before?: Snippet,
-    after?: Snippet,
-  } = $props();
+  }: Props = $props();
 
+  const stringPlaceholder = $derived(typeof placeholder === 'string' ? placeholder : undefined);
+  const snippetPlaceholder = $derived(typeof placeholder === 'function' ? placeholder : undefined);
   const focusRingClass = 'has-[.real-input:focus-visible]:ring-ring has-[.real-input:focus-visible]:outline-none has-[.real-input:focus-visible]:ring-2 has-[.real-input:focus-visible]:ring-offset-2';
 </script>
 
 <InputShell bind:ref {focusRingClass} class={className} {...restProps}>
   {@render before?.()}
-  <Input variant="ghost" {placeholder} class="grow real-input" bind:ref={inputRef} bind:value />
+  <div class="grow flex relative overflow-hidden items-center">
+    <Input variant="ghost" placeholder={stringPlaceholder} class="grow real-input" bind:ref={inputRef} bind:value />
+    {#if !value && snippetPlaceholder}
+      <div class="absolute pointer-events-none text-foreground/50 x-ellipsis whitespace-nowrap">
+        {@render snippetPlaceholder()}
+      </div>
+    {/if}
+  </div>
   {@render after?.()}
 </InputShell>
