@@ -18,7 +18,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        234
+        233
       ]
     ],
     "translation": "{0} - FieldWorks"
@@ -1060,7 +1060,24 @@
         237
       ]
     ],
-    "translation": "Last change: "
+    "translation": "Last change: ",
+    "obsolete": true
+  },
+  "rZkl7/": {
+    "message": "Last change: {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        196
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        236
+      ]
+    ],
+    "translation": "Last change: {0}"
   },
   "Cb8zzH": {
     "message": "Lexbox logo",
@@ -1910,7 +1927,7 @@
       ],
       [
         "src/project/SyncDialog.svelte",
-        219
+        218
       ],
       [
         "src/project/ProjectSidebar.svelte",
@@ -1930,7 +1947,7 @@
       ],
       [
         "src/project/SyncDialog.svelte",
-        217
+        216
       ]
     ],
     "translation": "Synchronizing..."
