@@ -78,11 +78,11 @@
 
 {#snippet senseNumber(index: number)}
   {#if showLinks}
-    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline inline-flex items-center">
+    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
       <Icon icon="i-mdi-link" class={cn(
-          'invisible opacity-0',
+          'opacity-0',
           'group-hover/sense:opacity-100 group-hover/sense:visible transition-all',
-          'size-4'
+          'size-4 align-sub'
         )}/><span class="ml-[2px]">{index + 1}</span>
     </a>
   {:else}
