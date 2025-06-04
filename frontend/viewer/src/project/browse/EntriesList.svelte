@@ -118,7 +118,6 @@
       variant="outline"
       iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
-      class="mb-4"
       onclick={() => entriesResource.refetch()}
     />
   </DevContent>
