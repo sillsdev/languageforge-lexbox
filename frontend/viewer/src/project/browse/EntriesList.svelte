@@ -134,10 +134,10 @@
   {:else}
     <div class="h-full">
       {#if loading.current}
-        <div class="md:pr-3">
+        <div class="md:pr-3 p-0.5">
           <!-- Show skeleton rows while loading -->
           {#each { length: skeletonRowCount }, _index}
-            <EntryRow class="my-2" skeleton={true} />
+            <EntryRow class="mb-2" skeleton={true} />
           {/each}
         </div>
       {:else}
@@ -145,7 +145,7 @@
           {#snippet children(entry)}
             <EntryMenu {entry} contextMenu>
               <EntryRow {entry}
-                        class="my-1"
+                        class="mb-2"
                         selected={selectedEntryId === entry.id}
                         onclick={() => onSelectEntry(entry)}
                         {previewDictionary}/>
