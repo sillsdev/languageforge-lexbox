@@ -166,7 +166,7 @@
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
     "welcome_header": "Welcome to Lexbox",
-    "welcome": "Lexbox is a hosting service for [FieldWorks](https://software.sil.org/fieldworks/), \
+    "welcome": "Lexbox is a hosting service for [FieldWorks](https://software.sil.org/fieldworks/), [FieldWorks Lite](https://lexbox.org/fw-lite), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand. \
