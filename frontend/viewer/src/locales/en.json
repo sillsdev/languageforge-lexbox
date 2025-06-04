@@ -112,6 +112,18 @@
     "translation": "🤷 nothing here",
     "obsolete": true
   },
+  "fhKYsI": {
+    "message": "a word",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": "a word"
+  },
   "uyJsf6": {
     "message": "About",
     "placeholders": {},
@@ -259,6 +271,18 @@
       ]
     ],
     "translation": "ago"
+  },
+  "iPthvs": {
+    "message": "an entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": "an entry"
   },
   "ZYimak": {
     "message": "Application version",
@@ -989,7 +1013,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        64
+        67
       ]
     ],
     "translation": "Headword"
@@ -1093,7 +1117,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        66
+        69
       ]
     ],
     "translation": "List mode"
@@ -1568,7 +1592,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        79
+        82
       ]
     ],
     "translation": "Preview"
@@ -1706,6 +1730,18 @@
     ],
     "translation": "Select {0}"
   },
+  "bbTYV2": {
+    "message": "Select {0} to view details",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": "Select {0} to view details"
+  },
   "GzkNiw": {
     "message": "Select an entry to view details",
     "placeholders": {},
@@ -1716,7 +1752,8 @@
         105
       ]
     ],
-    "translation": "Select an entry to view details"
+    "translation": "Select an entry to view details",
+    "obsolete": true
   },
   "mEtszZ": {
     "message": "Semantic domains",
@@ -1846,7 +1883,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        75
+        78
       ]
     ],
     "translation": "Simple"
