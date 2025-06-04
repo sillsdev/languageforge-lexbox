@@ -1,4 +1,5 @@
 using System.Globalization;
+using MiniLcm.Culture;
 using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
@@ -13,7 +14,7 @@ internal static class LcmHelpers
         {
             var tsString = multiString.GetStringFromIndex(i, out var _);
             if (string.IsNullOrEmpty(tsString.Text)) continue;
-            if (tsString.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            if (tsString.Text.Contains(value, CultureInfo.InvariantCulture, CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase))
             {
                 return true;
             }
