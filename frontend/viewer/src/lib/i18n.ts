@@ -1,5 +1,5 @@
 import type {FieldIds} from './entry-editor/field-data';
-import type {WellKnownFieldId} from './config-types';
+import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 
 // type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
 type I18nKey = FieldIds;
@@ -7,6 +7,7 @@ type I18nKey = FieldIds;
  * I18n type is used to specify which i18n group to use for a field. If empty, the default i18n is used.
  */
 export type I18nType = 'fieldworks' | '';
+export type WellKnownFieldId = Exclude<keyof (IEntry & ISense & IExampleSentence), 'id' | 'exampleSentences' | 'senses'>;
 
 const defaultI18n: Record<FieldIds, string> = {
   // entry

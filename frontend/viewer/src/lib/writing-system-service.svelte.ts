@@ -7,12 +7,17 @@
   IWritingSystem,
   IWritingSystems
 } from '$lib/dotnet-types';
-import type {WritingSystemSelection} from './config-types';
 import {firstTruthy} from './utils';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {type ResourceReturn} from 'runed';
 import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
 
+export type WritingSystemType = 'vernacular' | 'analysis';
+export type WritingSystemSelection =
+  WritingSystemType
+  | `first-${WritingSystemType}`
+  | 'vernacular-analysis'
+  | 'analysis-vernacular';
 const symbol = Symbol.for('fw-lite-ws-service');
 export function useWritingSystemService(): WritingSystemService {
   const projectContext = useProjectContext();
