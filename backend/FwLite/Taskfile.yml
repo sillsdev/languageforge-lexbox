@@ -38,7 +38,8 @@ tasks:
     deps: [ tool-restore ]
     dir: ./LcmCrdt
     cmds:
-      - dotnet ef migrations has-pending-model-changes
+      - dotnet ef migrations has-pending-model-changes {{.CLI_ARGS}}
+
   remove-last-migration:
     desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
     deps: [ tool-restore ]
@@ -99,3 +100,11 @@ tasks:
   publish-web-osx-arm:
     dir: ./FwLiteWeb
     cmd: dotnet publish -r osx-arm64
+
+
+  test-quick:
+    cmd: dotnet test ../../FwLiteOnly.slnf --filter "Category!=Slow&Category!=Integration"
+  test:
+    cmd: dotnet test ../../FwLiteOnly.slnf --filter Category!=Slow
+  test-full:
+    cmd: dotnet test ../../FwLiteOnly.slnf

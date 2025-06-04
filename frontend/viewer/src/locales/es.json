@@ -6,7 +6,31 @@
     "origin": [
       [
         "src/lib/activity/ActivityView.svelte",
-        123
+        96
+      ]
+    ],
+    "translation": ""
+  },
+  "mpbC3j": {
+    "message": "{0} - FieldWorks",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        234
+      ]
+    ],
+    "translation": ""
+  },
+  "35GcOB": {
+    "message": "{0} - FieldWorks Lite",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        192
       ]
     ],
     "translation": ""
@@ -18,7 +42,7 @@
     "origin": [
       [
         "src/lib/components/editor/field/field-title.svelte",
-        21
+        19
       ]
     ],
     "translation": ""
@@ -30,7 +54,7 @@
     "origin": [
       [
         "src/lib/components/editor/field/field-title.svelte",
-        25
+        20
       ]
     ],
     "translation": ""
@@ -42,10 +66,38 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        51
+        54
       ]
     ],
     "translation": "{0} Servidor"
+  },
+  "tgUNp+": {
+    "message": "{0} synced to FieldWorks. {1} synced to FieldWorks Lite.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        92
+      ]
+    ],
+    "translation": ""
+  },
+  "ubuwKa": {
+    "message": "{num, plural, one {# change} other {# changes}}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        89
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        90
+      ]
+    ],
+    "translation": ""
   },
   "Z3gqCM": {
     "message": "🤷 nothing here",
@@ -59,6 +111,18 @@
     ],
     "translation": "",
     "obsolete": true
+  },
+  "fhKYsI": {
+    "message": "a word",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": ""
   },
   "uyJsf6": {
     "message": "About",
@@ -79,7 +143,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        92
+        110
       ]
     ],
     "translation": "Cuenta"
@@ -91,14 +155,102 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        68
-      ],
-      [
-        "src/lib/activity/ActivityView.svelte",
-        78
+        83
       ]
     ],
     "translation": "Actividad"
+  },
+  "636uIU": {
+    "message": "Add complex form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        48
+      ]
+    ],
+    "translation": ""
+  },
+  "IumT/4": {
+    "message": "Add Complex Form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        52
+      ]
+    ],
+    "translation": ""
+  },
+  "DCsZAl": {
+    "message": "Add Component",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        58
+      ]
+    ],
+    "translation": ""
+  },
+  "cqTzBu": {
+    "message": "Add component to complex form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        54
+      ]
+    ],
+    "translation": ""
+  },
+  "nI3A8B": {
+    "message": "Add Example",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        211
+      ]
+    ],
+    "translation": ""
+  },
+  "dt7w9L": {
+    "message": "Add Meaning",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        226
+      ],
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        226
+      ]
+    ],
+    "translation": ""
+  },
+  "0YSbah": {
+    "message": "Add Sense",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        226
+      ],
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        226
+      ]
+    ],
+    "translation": ""
   },
   "XeIoU/": {
     "message": "ago",
@@ -111,11 +263,23 @@
       ],
       [
         "src/lib/activity/ActivityView.svelte",
-        102
+        75
       ],
       [
         "src/lib/activity/ActivityView.svelte",
-        127
+        102
+      ]
+    ],
+    "translation": ""
+  },
+  "iPthvs": {
+    "message": "an entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
       ]
     ],
     "translation": ""
@@ -127,7 +291,7 @@
     "origin": [
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        26
+        33
       ]
     ],
     "translation": ""
@@ -139,7 +303,7 @@
     "origin": [
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        53
+        55
       ]
     ],
     "translation": ""
@@ -155,7 +319,19 @@
       ],
       [
         "src/lib/activity/ActivityView.svelte",
-        115
+        88
+      ]
+    ],
+    "translation": ""
+  },
+  "VmDOAV": {
+    "message": "Auto synchronizing",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        177
       ]
     ],
     "translation": ""
@@ -171,7 +347,7 @@
       ],
       [
         "src/lib/activity/ActivityView.svelte",
-        99
+        72
       ]
     ],
     "translation": ""
@@ -183,7 +359,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        66
+        78
       ]
     ],
     "translation": "Explorar"
@@ -195,19 +371,31 @@
     "origin": [
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
-        102
+        110
       ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        254
+        245
       ],
       [
         "src/lib/components/field-editors/select.svelte",
-        149
+        160
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        268
+        279
+      ]
+    ],
+    "translation": ""
+  },
+  "7Esn9Y": {
+    "message": "Citation form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        55
       ]
     ],
     "translation": ""
@@ -219,7 +407,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        211
+        220
       ]
     ],
     "translation": "Proyectos Clásicos de FieldWorks"
@@ -231,11 +419,11 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        106
+        112
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        198
+        204
       ]
     ],
     "translation": ""
@@ -250,12 +438,8 @@
         14
       ],
       [
-        "src/lib/components/responsive-popup/responsive-popup.svelte",
-        38
-      ],
-      [
         "src/lib/components/field-editors/multi-select.svelte",
-        208
+        214
       ],
       [
         "src/lib/about/AboutDialog.svelte",
@@ -271,7 +455,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        110
+        129
       ]
     ],
     "translation": "Cerrar Diccionario"
@@ -288,6 +472,78 @@
     ],
     "translation": ""
   },
+  "PkH7DZ": {
+    "message": "Complex Form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        41
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        42
+      ]
+    ],
+    "translation": ""
+  },
+  "W+5v9T": {
+    "message": "Complex form types",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        77
+      ]
+    ],
+    "translation": ""
+  },
+  "j6HACU": {
+    "message": "Complex forms",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        67
+      ]
+    ],
+    "translation": ""
+  },
+  "dK3Z9j": {
+    "message": "Component",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        40
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        41
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        47
+      ]
+    ],
+    "translation": ""
+  },
+  "RRa/CR": {
+    "message": "Components",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        91
+      ]
+    ],
+    "translation": ""
+  },
   "b9XOHo": {
     "message": "Create {0}",
     "placeholders": {},
@@ -295,7 +551,7 @@
     "origin": [
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
-        104
+        112
       ],
       [
         "src/lib/entry-editor/NewEntryButton.svelte",
@@ -324,10 +580,26 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        190
+        198
       ]
     ],
     "translation": "Crear Proyecto de Ejemplo"
+  },
+  "Jxxmun": {
+    "message": "Current Entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        39
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        40
+      ]
+    ],
+    "translation": ""
   },
   "7p5kLi": {
     "message": "Dashboard",
@@ -336,7 +608,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        65
+        76
       ]
     ],
     "translation": "Panel de Control"
@@ -348,7 +620,19 @@
     "origin": [
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        29
+        35
+      ]
+    ],
+    "translation": ""
+  },
+  "MbRyzp": {
+    "message": "Definition",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
+        52
       ]
     ],
     "translation": ""
@@ -360,7 +644,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        165
+        172
       ]
     ],
     "translation": "Eliminar"
@@ -372,11 +656,11 @@
     "origin": [
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        50
+        52
       ],
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        57
+        59
       ]
     ],
     "translation": ""
@@ -388,7 +672,19 @@
     "origin": [
       [
         "src/project/browse/EntryMenu.svelte",
-        44
+        54
+      ]
+    ],
+    "translation": ""
+  },
+  "i/7SVG": {
+    "message": "Delete Word",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        54
       ]
     ],
     "translation": ""
@@ -400,11 +696,11 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        104
+        106
       ],
       [
         "src/home/HomeView.svelte",
-        111
+        109
       ]
     ],
     "translation": "Diccionarios"
@@ -416,7 +712,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        62
+        72
       ]
     ],
     "translation": "Diccionario"
@@ -428,7 +724,19 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        50
+        38
+      ]
+    ],
+    "translation": ""
+  },
+  "NagCcF": {
+    "message": "Display as",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        55
       ]
     ],
     "translation": ""
@@ -440,7 +748,7 @@
     "origin": [
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
-        56
+        58
       ]
     ],
     "translation": ""
@@ -452,7 +760,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        110
+        119
       ]
     ],
     "translation": "Descargar"
@@ -468,7 +776,7 @@
       ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        259
+        250
       ]
     ],
     "translation": ""
@@ -480,7 +788,55 @@
     "origin": [
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        220
+        211
+      ]
+    ],
+    "translation": ""
+  },
+  "bQ8ysI": {
+    "message": "Entry or sense:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        204
+      ]
+    ],
+    "translation": ""
+  },
+  "oi065p": {
+    "message": "Error getting sync status. Are you logged in to the LexBox server?",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        148
+      ]
+    ],
+    "translation": ""
+  },
+  "HmI5oK": {
+    "message": "Example",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        183
+      ]
+    ],
+    "translation": ""
+  },
+  "BGP/S1": {
+    "message": "Example sentence",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        90
       ]
     ],
     "translation": ""
@@ -492,7 +848,7 @@
     "origin": [
       [
         "src/project/browse/EntriesList.svelte",
-        100
+        104
       ]
     ],
     "translation": ""
@@ -504,7 +860,23 @@
     "origin": [
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        15
+        22
+      ]
+    ],
+    "translation": ""
+  },
+  "yPkUF+": {
+    "message": "Failed to synchronize",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        86
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        118
       ]
     ],
     "translation": ""
@@ -516,11 +888,11 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        127
+        151
       ],
       [
         "src/home/HomeView.svelte",
-        115
+        121
       ]
     ],
     "translation": "Comentarios"
@@ -532,7 +904,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        29
+        32
       ]
     ],
     "translation": ""
@@ -544,11 +916,15 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        94
+        69
+      ],
+      [
+        "src/lib/OpenInFieldWorksButton.svelte",
+        56
       ],
       [
         "src/home/HomeView.svelte",
-        216
+        226
       ]
     ],
     "translation": "Logotipo de FieldWorks"
@@ -560,7 +936,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        46
+        45
       ]
     ],
     "translation": ""
@@ -585,11 +961,47 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        102
+        108
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        194
+        200
+      ]
+    ],
+    "translation": ""
+  },
+  "F7GHkf": {
+    "message": "Gloss",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
+        41
+      ]
+    ],
+    "translation": ""
+  },
+  "u8+PAt": {
+    "message": "Go to {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSenseItemList.svelte",
+        26
+      ]
+    ],
+    "translation": ""
+  },
+  "Ks+qfd": {
+    "message": "Grammatical info.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
+        63
       ]
     ],
     "translation": ""
@@ -601,7 +1013,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        65
+        67
       ]
     ],
     "translation": ""
@@ -613,7 +1025,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        60
+        40
       ]
     ],
     "translation": ""
@@ -625,11 +1037,23 @@
     "origin": [
       [
         "src/project/browse/EntryMenu.svelte",
-        45
+        58
       ],
       [
         "src/lib/history/HistoryView.svelte",
         55
+      ]
+    ],
+    "translation": ""
+  },
+  "E8KyPm": {
+    "message": "I don't see my project",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        129
       ]
     ],
     "translation": ""
@@ -641,10 +1065,26 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        222
+        232
       ]
     ],
     "translation": "Importar"
+  },
+  "UjqLhM": {
+    "message": "Last change: ",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        196
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        237
+      ]
+    ],
+    "translation": ""
   },
   "Cb8zzH": {
     "message": "Lexbox logo",
@@ -653,10 +1093,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        109
+        108
       ]
     ],
     "translation": "Logotipo de Lexbox"
+  },
+  "vSL95+": {
+    "message": "Lexeme form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        43
+      ]
+    ],
+    "translation": ""
   },
   "8oegWV": {
     "message": "List mode",
@@ -665,7 +1117,19 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        67
+        69
+      ]
+    ],
+    "translation": ""
+  },
+  "2kUuXE": {
+    "message": "Literal meaning",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        103
       ]
     ],
     "translation": ""
@@ -677,7 +1141,7 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        83
+        104
       ]
     ],
     "translation": ""
@@ -689,7 +1153,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        138
+        141
       ]
     ],
     "translation": "cargando..."
@@ -701,7 +1165,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        143
+        146
       ]
     ],
     "translation": "Local"
@@ -713,7 +1177,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        157
+        163
       ]
     ],
     "translation": "Solo local"
@@ -759,6 +1223,18 @@
     "translation": "",
     "obsolete": true
   },
+  "wkUvl2": {
+    "message": "Made of",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        91
+      ]
+    ],
+    "translation": ""
+  },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
     "placeholders": {},
@@ -766,10 +1242,30 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        136
+        162
       ]
     ],
     "translation": "Hecho con ❤️ desde 🇦🇹 🇹🇭 🇺🇸"
+  },
+  "6URaYg": {
+    "message": "Meaning",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        165
+      ],
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        72
+      ],
+      [
+        "src/lib/entry-editor/object-editors/AddSenseFab.svelte",
+        15
+      ]
+    ],
+    "translation": ""
   },
   "oPBJ/O": {
     "message": "Missing Examples",
@@ -778,7 +1274,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        60
+        61
       ]
     ],
     "translation": ""
@@ -790,7 +1286,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        62
+        63
       ]
     ],
     "translation": ""
@@ -802,7 +1298,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        63
+        64
       ]
     ],
     "translation": ""
@@ -814,6 +1310,18 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
+        62
+      ]
+    ],
+    "translation": ""
+  },
+  "QWdKwH": {
+    "message": "Move",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/ItemListItem.svelte",
         61
       ]
     ],
@@ -838,7 +1346,7 @@
     "origin": [
       [
         "src/lib/entry-editor/NewEntryDialog.svelte",
-        89
+        97
       ]
     ],
     "translation": ""
@@ -862,7 +1370,7 @@
     "origin": [
       [
         "src/lib/activity/ActivityView.svelte",
-        85
+        58
       ]
     ],
     "translation": ""
@@ -886,7 +1394,7 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        78
+        108
       ]
     ],
     "translation": ""
@@ -898,11 +1406,11 @@
     "origin": [
       [
         "src/project/browse/EntriesList.svelte",
-        120
+        124
       ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        185
+        174
       ]
     ],
     "translation": ""
@@ -926,11 +1434,11 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        114
+        120
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        213
+        219
       ]
     ],
     "translation": ""
@@ -945,7 +1453,8 @@
         82
       ]
     ],
-    "translation": "Ningún proyecto"
+    "translation": "Ningún proyecto",
+    "obsolete": true
   },
   "EdQY6l": {
     "message": "None",
@@ -954,11 +1463,23 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        89
+        95
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        169
+        175
+      ]
+    ],
+    "translation": ""
+  },
+  "KiJn9B": {
+    "message": "Note",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        114
       ]
     ],
     "translation": ""
@@ -970,7 +1491,19 @@
     "origin": [
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        31
+        40
+      ]
+    ],
+    "translation": ""
+  },
+  "Y4BKCd": {
+    "message": "Open in FieldWorks",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/OpenInFieldWorksButton.svelte",
+        57
       ]
     ],
     "translation": ""
@@ -982,7 +1515,7 @@
     "origin": [
       [
         "src/project/browse/EntryMenu.svelte",
-        47
+        63
       ]
     ],
     "translation": ""
@@ -994,7 +1527,7 @@
     "origin": [
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        40
+        46
       ]
     ],
     "translation": ""
@@ -1016,6 +1549,30 @@
     "translation": "",
     "obsolete": true
   },
+  "qW3eh2": {
+    "message": "Part of",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        67
+      ]
+    ],
+    "translation": ""
+  },
+  "h6kyNd": {
+    "message": "Part of speech",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
+        63
+      ]
+    ],
+    "translation": ""
+  },
   "kNiQp6": {
     "message": "Pinned",
     "placeholders": {},
@@ -1023,7 +1580,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        66
+        41
       ]
     ],
     "translation": ""
@@ -1035,7 +1592,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        80
+        82
       ]
     ],
     "translation": ""
@@ -1047,7 +1604,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        197
+        206
       ]
     ],
     "translation": "Nombre del proyecto..."
@@ -1069,6 +1626,34 @@
     "translation": "",
     "obsolete": true
   },
+  "N2C89m": {
+    "message": "Reference",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte",
+        60
+      ]
+    ],
+    "translation": ""
+  },
+  "4mRsmF": {
+    "message": "Refine your filter to see more...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/select.svelte",
+        140
+      ],
+      [
+        "src/lib/components/field-editors/multi-select.svelte",
+        255
+      ]
+    ],
+    "translation": ""
+  },
   "TG4hr2": {
     "message": "Refresh Projects",
     "placeholders": {},
@@ -1076,14 +1661,38 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        59
+        62
       ],
       [
         "src/home/HomeView.svelte",
-        146
+        150
       ]
     ],
     "translation": "Actualizar Proyectos"
+  },
+  "t/YqKh": {
+    "message": "Remove",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/ItemListItem.svelte",
+        73
+      ]
+    ],
+    "translation": ""
+  },
+  "M7SqjM": {
+    "message": "Reopen",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/OpenInFieldWorksButton.svelte",
+        41
+      ]
+    ],
+    "translation": ""
   },
   "3NdSH7": {
     "message": "Search Dictionaries",
@@ -1092,7 +1701,7 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        76
+        98
       ]
     ],
     "translation": ""
@@ -1116,10 +1725,35 @@
     "origin": [
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        259
+        250
       ]
     ],
     "translation": ""
+  },
+  "bbTYV2": {
+    "message": "Select {0} to view details",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": ""
+  },
+  "GzkNiw": {
+    "message": "Select an entry to view details",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        105
+      ]
+    ],
+    "translation": "",
+    "obsolete": true
   },
   "mEtszZ": {
     "message": "Semantic domains",
@@ -1127,20 +1761,11 @@
     "comments": [],
     "origin": [
       [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        63
-      ],
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        64
-      ],
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        75
+        "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
+        79
       ]
     ],
-    "translation": "",
-    "obsolete": true
+    "translation": ""
   },
   "Ivc0e8": {
     "message": "Sense",
@@ -1149,7 +1774,31 @@
     "origin": [
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        259
+        250
+      ],
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        165
+      ],
+      [
+        "src/lib/entry-editor/object-editors/EntryEditor.svelte",
+        72
+      ],
+      [
+        "src/lib/entry-editor/object-editors/AddSenseFab.svelte",
+        15
+      ]
+    ],
+    "translation": ""
+  },
+  "FDpH/H": {
+    "message": "Sentence",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte",
+        37
       ]
     ],
     "translation": ""
@@ -1161,10 +1810,22 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        98
+        116
       ]
     ],
     "translation": "Configuración"
+  },
+  "+drua4": {
+    "message": "Shadcn Sandbox # #",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/sandbox/Sandbox.svelte",
+        null
+      ]
+    ],
+    "translation": ""
   },
   "mFKqBL": {
     "message": "Share Log file",
@@ -1173,7 +1834,7 @@
     "origin": [
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        44
+        50
       ]
     ],
     "translation": ""
@@ -1185,7 +1846,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        54
+        39
       ]
     ],
     "translation": ""
@@ -1197,7 +1858,7 @@
     "origin": [
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        202
+        191
       ]
     ],
     "translation": ""
@@ -1212,7 +1873,8 @@
         47
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "AQK14J": {
     "message": "Simple",
@@ -1221,7 +1883,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        76
+        78
       ]
     ],
     "translation": ""
@@ -1233,15 +1895,15 @@
     "origin": [
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        203
+        209
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        204
+        210
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
-        271
+        282
       ]
     ],
     "translation": ""
@@ -1253,11 +1915,11 @@
     "origin": [
       [
         "src/lib/activity/ActivityView.svelte",
-        127
+        100
       ],
       [
         "src/home/Server.svelte",
-        97
+        105
       ]
     ],
     "translation": "Sincronizado"
@@ -1269,7 +1931,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        157
+        163
       ]
     ],
     "translation": "Sincronizado con {0}"
@@ -1280,11 +1942,35 @@
     "comments": [],
     "origin": [
       [
+        "src/project/SyncDialog.svelte",
+        143
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        219
+      ],
+      [
         "src/project/ProjectSidebar.svelte",
-        80
+        98
       ]
     ],
     "translation": "Sincronizar"
+  },
+  "ivpwMF": {
+    "message": "Synchronizing...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        175
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        217
+      ]
+    ],
+    "translation": ""
   },
   "GtycJ/": {
     "message": "Tasks",
@@ -1293,7 +1979,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        67
+        80
       ]
     ],
     "translation": "Tareas"
@@ -1305,10 +1991,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        180
+        187
       ]
     ],
     "translation": "Proyecto de Prueba"
+  },
+  "f233G3": {
+    "message": "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/OpenInFieldWorksButton.svelte",
+        40
+      ]
+    ],
+    "translation": ""
   },
   "L2twOB": {
     "message": "Toggle filters",
@@ -1334,6 +2032,18 @@
     ],
     "translation": ""
   },
+  "wFcvZJ": {
+    "message": "Translation",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte",
+        48
+      ]
+    ],
+    "translation": ""
+  },
   "et+mIi": {
     "message": "Troubleshoot",
     "placeholders": {},
@@ -1341,18 +2051,30 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        121
+        142
       ],
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
-        23
+        30
       ],
       [
         "src/home/HomeView.svelte",
-        122
+        127
       ]
     ],
     "translation": "Solucionar problemas"
+  },
+  "amlaqM": {
+    "message": "Unable to open in FieldWorks",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/OpenInFieldWorksButton.svelte",
+        45
+      ]
+    ],
+    "translation": ""
   },
   "Ef7StM": {
     "message": "Unknown",
@@ -1365,7 +2087,7 @@
       ],
       [
         "src/lib/activity/ActivityView.svelte",
-        119
+        92
       ]
     ],
     "translation": ""
@@ -1377,15 +2099,15 @@
     "origin": [
       [
         "src/project/browse/EntryView.svelte",
-        40
+        49
       ],
       [
         "src/project/browse/EntryRow.svelte",
-        55
+        56
       ],
       [
         "src/project/browse/EntryMenu.svelte",
-        31
+        32
       ]
     ],
     "translation": ""
@@ -1397,7 +2119,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        135
+        161
       ]
     ],
     "translation": "Versión {0}"
@@ -1409,7 +2131,7 @@
     "origin": [
       [
         "src/project/browse/ViewPicker.svelte",
-        23
+        26
       ]
     ],
     "translation": ""
@@ -1422,6 +2144,43 @@
       [
         "src/project/browse/ViewPicker.svelte",
         40
+      ]
+    ],
+    "translation": "",
+    "obsolete": true
+  },
+  "LhKBuY": {
+    "message": "Where are my projects?",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        86
+      ]
+    ],
+    "translation": ""
+  },
+  "dZiBrj": {
+    "message": "Word",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        43
+      ]
+    ],
+    "translation": ""
+  },
+  "o0GO4i": {
+    "message": "Word or meaning:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        204
       ]
     ],
     "translation": ""

@@ -95,6 +95,11 @@ public class MultiString: IDictionary
         Values.Add(key, value);
     }
 
+    public bool Remove(WritingSystemId key)
+    {
+        return Values.Remove(key);
+    }
+
     void IDictionary.Add(object key, object? value)
     {
         ((IDictionary)Values).Add(key, value);

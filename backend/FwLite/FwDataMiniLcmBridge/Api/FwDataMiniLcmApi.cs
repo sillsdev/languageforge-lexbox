@@ -655,11 +655,7 @@ public class FwDataMiniLcmApi(
             Id = sentence.Guid,
             SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
-            Reference =
-                sentence.Reference.Length == 0
-                    ? null
-                    : RichTextMapping.FromTsString(sentence.Reference,
-                        h => h is null ? null : (WritingSystemId?)GetWritingSystemId(h.Value)),
+            Reference = ToRichString(sentence.Reference),
             Translation = translation is null ? new() : FromLcmMultiString(translation),
         };
     }
@@ -684,14 +680,23 @@ public class FwDataMiniLcmApi(
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
 
-            result.Add(GetWritingSystemId(ws), RichTextMapping.FromTsString(tsString, h =>
-            {
-                if (h is null) return null;
-                return GetWritingSystemId(h.Value);
-            }));
+            var richString = ToRichString(tsString);
+            if (richString is null) continue;
+            result.Add(GetWritingSystemId(ws), richString);
         }
 
         return result;
+    }
+
+    internal RichString? ToRichString(ITsString? tsString)
+    {
+        if (tsString is null or {Length: 0}) return null;
+        return RichTextMapping.FromTsString(tsString,
+            h =>
+            {
+                if (h is null) return null;
+                return GetWritingSystemId(h.Value);
+            });
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
