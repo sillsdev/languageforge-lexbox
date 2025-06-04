@@ -30,7 +30,7 @@
     "test:watch": "vitest",
     "check": "svelte-check",
     "lint": "eslint .",
-    "i18n:extract": "lingui extract && lingui extract",
+    "i18n:extract": "lingui extract --clean && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js"
   },
   "devDependencies": {
