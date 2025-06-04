@@ -1,4 +1,6 @@
-﻿namespace MiniLcm.Tests;
+﻿using System.Text;
+
+namespace MiniLcm.Tests;
 
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
@@ -210,5 +212,38 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Sentence[en]=*phone" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Theory]
+    [InlineData("a", "a")]
+    [InlineData("a", "A")]
+    [InlineData("Ã", "A")]
+    [InlineData("A", "Ã")]
+    [InlineData("ap", "apple")]
+    [InlineData("ap", "APPLE")]
+    [InlineData("ing", "walking")]
+    [InlineData("ing", "WALKING")]
+    [InlineData("Ãp", "Ãpple")]
+    [InlineData("ap", "Ãpple")]
+    public async Task SuccessfulMatches(string searchTerm, string word)
+    {
+        word = word.Normalize(NormalizationForm.FormD);
+        //should we be normalizing the search term internally?
+        searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        words.Should().Contain(word);
+    }
+
+    [Theory]
+    [InlineData("a", "b")]
+    public async Task NegativeMatches(string searchTerm, string word)
+    {
+        word = word.Normalize(NormalizationForm.FormD);
+        //should we be normalizing the search term internally?
+        searchTerm = searchTerm.Normalize(NormalizationForm.FormD);
+        await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
+        words.Should().NotContain(word);
     }
 }
