@@ -90,7 +90,10 @@ internal static class LcmHelpers
             };
         }
 
-        var lcmWs = cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
+        if (!cache.ServiceLocator.WritingSystemManager.TryGet(ws.Code, out var lcmWs))
+        {
+            throw new NullReferenceException($"unable to find writing system with id '{ws.Code}'");
+        }
         if (lcmWs is not null && type is not null)
         {
             var validWs = type switch

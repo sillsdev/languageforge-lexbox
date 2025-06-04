@@ -8,17 +8,7 @@ namespace FwLiteProjectSync.Tests;
 
 public class UpdateDiffTests
 {
-    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
-    {
-        RepeatCount = 5,
-        Overrides =
-        [
-            new MultiStringOverride(),
-            new RichMultiStringOverride(),
-            new WritingSystemIdOverride(),
-            new OrderableOverride(),
-        ]
-    });
+    private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
 
     [Fact]
     public void EntryDiffShouldUpdateAllFields()

@@ -1,3 +1,6 @@
+using System.Drawing;
+using System.Reflection;
+using System.Text.Json.Serialization;
 using System.Reflection;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
@@ -38,6 +41,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(Color), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
@@ -73,7 +77,7 @@ public static class ReinforcedFwLiteTypingConfig
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
-            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null)
+            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null || exportBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is {Condition: JsonIgnoreCondition.Always})
             {
                 exportBuilder.Ignore();
             }

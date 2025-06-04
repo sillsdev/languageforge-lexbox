@@ -84,7 +84,7 @@ public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi
 
 public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : RichMultiString, IDictionary
 {
-    private IDictionary<WritingSystemId, string> proxy => new UpdateDictionaryProxy(multiString, lexboxLcmApi);
+    private UpdateDictionaryProxy proxy = new(multiString, lexboxLcmApi);
 
     void IDictionary.Add(object key, object? value)
     {

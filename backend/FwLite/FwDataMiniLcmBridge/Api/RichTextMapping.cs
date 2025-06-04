@@ -1,7 +1,9 @@
 ﻿using System.Collections.Frozen;
+using System.Drawing;
 using System.Globalization;
 using System.Text;
 using MiniLcm.Models;
+using MiniLcm.RichText;
 using Mono.Unix.Native;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -125,6 +127,23 @@ public static class RichTextMapping
         };
     }
 
+    public static RichString FromTsString(ITsString tsString, Func<int?, WritingSystemId?> wsIdLookup)
+    {
+        var spans = new List<RichSpan>(tsString.RunCount);
+        for (int i = 0; i < tsString.RunCount; i++)
+        {
+            var props = tsString.FetchRunInfo(i, out _);
+            var span = new RichSpan
+            {
+                Text = tsString.get_RunText(i)
+            };
+            WriteToSpan(span, props, wsIdLookup);
+            spans.Add(span);
+        }
+
+        return new RichString([..spans]);
+    }
+
     public static void WriteToSpan(RichSpan span, ITsTextProps textProps, Func<int?, WritingSystemId?> wsIdLookup)
     {
         for (int i = 0; i < textProps.IntPropCount; i++)
@@ -176,7 +195,8 @@ public static class RichTextMapping
         switch (type)
         {
             case FwTextPropType.ktptWs:
-                span.Ws = wsIdLookup(GetNullableIntProp(textProps, type));
+                var wsHandle = GetNullableIntProp(textProps, type);
+                span.Ws = wsIdLookup(wsHandle) ?? throw new ArgumentException($"ws handle {wsHandle} is not valid");
                 break;
             case FwTextPropType.ktptBaseWs:
                 span.WsBase = wsIdLookup(GetNullableIntProp(textProps, type));
@@ -231,6 +251,20 @@ public static class RichTextMapping
         }
     }
 
+    public static ITsString ToTsString(RichString richString, Func<WritingSystemId, int> wsHandleLookup)
+    {
+        var stringBuilder = TsStringUtils.MakeIncStrBldr();
+        var propsBldr = TsStringUtils.MakePropsBldr();
+        foreach (var span in richString.Spans)
+        {
+            WriteToTextProps(span, propsBldr, wsHandleLookup);
+            stringBuilder.AppendTsString(TsStringUtils.MakeString(span.Text, propsBldr.GetTextProps()));
+            propsBldr.Clear();
+        }
+
+        return stringBuilder.GetString();
+    }
+
     public static void WriteToTextProps(RichSpan span,
         ITsPropsBldr builder,
         Func<WritingSystemId, int> wsHandleLookup)
@@ -253,8 +287,8 @@ public static class RichTextMapping
             }
         }
 
-        if (span.Ws is not null)
-            SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws.Value));
+
+        SetInt(builder, FwTextPropType.ktptWs, wsHandleLookup(span.Ws));
         if (span.WsBase is not null)
             SetInt(builder, FwTextPropType.ktptBaseWs, wsHandleLookup(span.WsBase.Value));
         SetInt(builder, FwTextPropType.ktptItalic, ReverseMapToggle(span.Italic));
@@ -393,12 +427,11 @@ public static class RichTextMapping
         {
             if (string.IsNullOrEmpty(value))
                 return null;
-            const int guidLength = 16;
-            var bytes = Encoding.Unicode.GetBytes(value).AsSpan();
-            Guid[] guids = new Guid[bytes.Length / guidLength];
+            const int guidLength = 8;
+            Guid[] guids = new Guid[value.Length / guidLength];
             for (int i = 0; i < guids.Length; i++)
             {
-                guids[i] = new Guid(bytes.Slice(i * guidLength, guidLength));
+                guids[i] = MiscUtils.GetGuidFromObjData(value.Substring(i * guidLength, guidLength));
             }
             return guids;
         }
@@ -518,26 +551,26 @@ public static class RichTextMapping
         };
     }
 
-    private static string? GetNullableColorProp(ITsTextProps textProps, FwTextPropType type)
+    private static Color? GetNullableColorProp(ITsTextProps textProps, FwTextPropType type)
     {
         if (!textProps.TryGetIntValue(type, out _, out var value))
         {
             return null;
         }
-        if (value == (int)FwTextColor.kclrTransparent) return "#00000000";
+        if (value == (int)FwTextColor.kclrTransparent) return ColorJsonConverter.UnnamedTransparent;
         int blue = (value >> 16) & 0xff;
         int green = (value >> 8) & 0xff;
         int red = value & 0xff;
-        return $"#{red:x2}{green:x2}{blue:x2}";
+        return Color.FromArgb(red, green, blue);
     }
 
-    private static int? ReverseColor(string? rgb)
+    private static int? ReverseColor(Color? rgb)
     {
-        if (string.IsNullOrEmpty(rgb))
+        if (rgb is null || rgb.Value == default)
             return null;
-        if (rgb == "#00000000")
+        if (rgb.Value.A == 0)
             return (int)FwTextColor.kclrTransparent;
-        return (int)ColorUtil.ConvertRGBtoBGR(uint.Parse(rgb.AsSpan()[1..], NumberStyles.HexNumber));
+        return (int)ColorUtil.ConvertRGBtoBGR(uint.Parse(ColorTranslator.ToHtml(rgb.Value).AsSpan()[1..], NumberStyles.HexNumber));
     }
 
     private static RichTextAlign? GetNullableRichTextAlign(ITsTextProps textProps)

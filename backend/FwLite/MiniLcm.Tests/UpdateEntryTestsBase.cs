@@ -16,18 +16,18 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         {
             Id = Entry1Id,
             LexemeForm = { { "en", "Kevin" } },
-            Note = { { "en", "this is a test note from Kevin" } },
+            Note = { { "en", new RichString("this is a test note from Kevin") } },
             CitationForm = { { "en", "Kevin" } },
-            LiteralMeaning = { { "en", "Kevin" } },
+            LiteralMeaning = { { "en", new RichString("Kevin") } },
             Senses =
             [
                 new Sense
                 {
                     Gloss = { { "en", "Kevin" } },
-                    Definition = { { "en", "Kevin" } },
+                    Definition = { { "en", new RichString("Kevin") } },
                     ExampleSentences =
                     [
-                        new ExampleSentence { Sentence = { { "en", "Kevin is a good guy" } } }
+                        new ExampleSentence { Sentence = { { "en", new RichString("Kevin is a good guy") } } }
                     ]
                 }
             ]
@@ -41,7 +41,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
                 new Sense
                 {
                     Gloss = { { "en", "fruit" } },
-                    Definition = { { "en", "a round fruit, red or yellow" } },
+                    Definition = { { "en", new RichString("a round fruit, red or yellow") } },
                 }
             ],
         });
@@ -197,8 +197,8 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         var senseId = Guid.NewGuid();
         var exampleIds = before.Split(',').Concat(after.Split(',')).Distinct()
             .ToDictionary(@char => @char, _ => Guid.NewGuid());
-        var beforeExamples = before.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", @char } } }).ToList();
-        var afterExamples = after.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", @char } } }).ToList();
+        var beforeExamples = before.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", new RichString(@char, "en") } } }).ToList();
+        var afterExamples = after.Split(',').Select(@char => new ExampleSentence() { Id = exampleIds[@char], SenseId = senseId, Sentence = { { "en", new RichString(@char, "en") } } }).ToList();
 
         var beforeEntry = await Api.CreateEntry(new()
         {

@@ -14,6 +14,12 @@
   path: /spec/rules/3/host
   value: admin-develop.lexbox.org #not actually configured in dns, will not work
 - op: replace
+  path: /spec/rules/0/http/paths/2/pathType
+  value: ImplementationSpecific
+- op: replace
+  path: /spec/rules/0/http/paths/3/pathType
+  value: ImplementationSpecific
+- op: replace
   path: /spec/tls/0/hosts
   value:
     - lexbox.dev.languagetechnology.org
@@ -40,14 +46,14 @@
               port:
                 name: http
         - path: /security.txt
-          pathType: Prefix
+          pathType: ImplementationSpecific
           backend:
             service:
               name: lexbox
               port:
                 name: http
         - path: /.well-known
-          pathType: Prefix
+          pathType: ImplementationSpecific
           backend:
             service:
               name: lexbox

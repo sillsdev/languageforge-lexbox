@@ -1,19 +1,25 @@
-﻿using System.Globalization;
+﻿using System.Drawing;
+using System.Globalization;
 using System.Text;
 using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using MiniLcm.Models;
+using MiniLcm.RichText;
+using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
 using SIL.LCModel.Utils;
+using Soenneker.Utils.AutoBogus;
 using Xunit.Abstractions;
 
 namespace FwDataMiniLcmBridge.Tests;
 
 public class RichTextTests(ITestOutputHelper output)
 {
+    private static readonly AutoFaker AutoFaker = new AutoFaker(AutoFakerDefault.MakeConfig(["en", "fr"]));
     private const int FakeWsHandleFr = 346;
     private const int FakeWsHandleEn = 2345;
+    private const int NullWsHandleEn = 213465;//nothing special about this, but our mapper returns null for it
 
     private ITsPropsBldr MakeFilledProps()
     {
@@ -82,12 +88,20 @@ public class RichTextTests(ITestOutputHelper output)
         };
     }
 
+    private void EnsureWsSet(ITsPropsBldr builder)
+    {
+        var val = builder.GetIntPropValues((int)FwTextPropType.ktptWs, out var var);
+        if (val is -1 && var is -1)
+        {
+            builder.SetIntPropValues((int)FwTextPropType.ktptWs, 0, FakeWsHandleEn);
+        }
+    }
+
     public static IEnumerable<object?[]> IntPropTypeIsMappedCorrectlyData()
     {
         IEnumerable<(FwTextPropType propType, object? value, int variation, Action<RichSpan> assert)> GetData()
         {
             //may show up as FontFamily in test output
-            yield return (FwTextPropType.ktptWs, null, 0, span => span.Ws.Should().BeNull());
             yield return (FwTextPropType.ktptWs, FakeWsHandleFr, 0, span => span.Ws.Should().Be((WritingSystemId)"fr"));
 
             //may show up as CharStyle in test output
@@ -137,42 +151,55 @@ public class RichTextTests(ITestOutputHelper output)
             //colors
             //SIL blue
             var silBlueInt = 12147200;
-            var silBlueHex = "#005ab9";
+            var silBlue = ColorTranslator.FromHtml("#005ab9");
+            var white = UnName(Color.White);
+            var black = UnName(Color.Black);
+            var red = UnName(Color.Red);
+            var green = ColorTranslator.FromHtml("#00FF00");//the LCM color Green does not match the .NET color
+            var blue = UnName(Color.Blue);
+            var yellow = UnName(Color.Yellow);
+            var magenta = UnName(Color.Magenta);
+            var cyan = UnName(Color.Cyan);
+
+            Color UnName(Color c)
+            {
+                return Color.FromArgb(c.ToArgb());
+            }
             yield return (FwTextPropType.ktptForeColor, null, 0, span => span.ForeColor.Should().BeNull());
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrWhite, 0, span => span.ForeColor.Should().Be("#ffffff"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrBlack, 0, span => span.ForeColor.Should().Be("#000000"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrRed, 0, span => span.ForeColor.Should().Be("#ff0000"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrGreen, 0, span => span.ForeColor.Should().Be("#00ff00"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrBlue, 0, span => span.ForeColor.Should().Be("#0000ff"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrYellow, 0, span => span.ForeColor.Should().Be("#ffff00"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrMagenta, 0, span => span.ForeColor.Should().Be("#ff00ff"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrCyan, 0, span => span.ForeColor.Should().Be("#00ffff"));
-            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrTransparent, 0, span => span.ForeColor.Should().Be("#00000000"));
-            yield return (FwTextPropType.ktptForeColor, silBlueInt, 0, span => span.ForeColor.Should().Be(silBlueHex));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrWhite, 0, span => span.ForeColor.Should().Be(white));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrBlack, 0, span => span.ForeColor.Should().Be(black));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrRed, 0, span => span.ForeColor.Should().Be(red));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrGreen, 0, span => span.ForeColor.Should().Be(green));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrBlue, 0, span => span.ForeColor.Should().Be(blue));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrYellow, 0, span => span.ForeColor.Should().Be(yellow));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrMagenta, 0, span => span.ForeColor.Should().Be(magenta));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrCyan, 0, span => span.ForeColor.Should().Be(cyan));
+            yield return (FwTextPropType.ktptForeColor, FwTextColor.kclrTransparent, 0, span => span.ForeColor.Should().Be(ColorJsonConverter.UnnamedTransparent));
+            yield return (FwTextPropType.ktptForeColor, silBlueInt, 0, span => span.ForeColor.Should().Be(silBlue));
 
             yield return (FwTextPropType.ktptBackColor, null, 0, span => span.BackColor.Should().BeNull());
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrWhite, 0, span => span.BackColor.Should().Be("#ffffff"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrBlack, 0, span => span.BackColor.Should().Be("#000000"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrRed, 0, span => span.BackColor.Should().Be("#ff0000"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrGreen, 0, span => span.BackColor.Should().Be("#00ff00"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrBlue, 0, span => span.BackColor.Should().Be("#0000ff"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrYellow, 0, span => span.BackColor.Should().Be("#ffff00"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrMagenta, 0, span => span.BackColor.Should().Be("#ff00ff"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrCyan, 0, span => span.BackColor.Should().Be("#00ffff"));
-            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrTransparent, 0, span => span.BackColor.Should().Be("#00000000"));
-            yield return (FwTextPropType.ktptBackColor, silBlueInt, 0, span => span.BackColor.Should().Be(silBlueHex));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrWhite, 0, span => span.BackColor.Should().Be(white));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrBlack, 0, span => span.BackColor.Should().Be(black));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrRed, 0, span => span.BackColor.Should().Be(red));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrGreen, 0, span => span.BackColor.Should().Be(green));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrBlue, 0, span => span.BackColor.Should().Be(blue));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrYellow, 0, span => span.BackColor.Should().Be(yellow));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrMagenta, 0, span => span.BackColor.Should().Be(magenta));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrCyan, 0, span => span.BackColor.Should().Be(cyan));
+            yield return (FwTextPropType.ktptBackColor, FwTextColor.kclrTransparent, 0, span => span.BackColor.Should().Be(ColorJsonConverter.UnnamedTransparent));
+            yield return (FwTextPropType.ktptBackColor, silBlueInt, 0, span => span.BackColor.Should().Be(silBlue));
 
             yield return (FwTextPropType.ktptUnderColor, null, 0, span => span.UnderColor.Should().BeNull());
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrWhite, 0, span => span.UnderColor.Should().Be("#ffffff"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrBlack, 0, span => span.UnderColor.Should().Be("#000000"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrRed, 0, span => span.UnderColor.Should().Be("#ff0000"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrGreen, 0, span => span.UnderColor.Should().Be("#00ff00"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrBlue, 0, span => span.UnderColor.Should().Be("#0000ff"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrYellow, 0, span => span.UnderColor.Should().Be("#ffff00"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrMagenta, 0, span => span.UnderColor.Should().Be("#ff00ff"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrCyan, 0, span => span.UnderColor.Should().Be("#00ffff"));
-            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrTransparent, 0, span => span.UnderColor.Should().Be("#00000000"));
-            yield return (FwTextPropType.ktptUnderColor, silBlueInt, 0, span => span.UnderColor.Should().Be(silBlueHex));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrWhite, 0, span => span.UnderColor.Should().Be(white));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrBlack, 0, span => span.UnderColor.Should().Be(black));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrRed, 0, span => span.UnderColor.Should().Be(red));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrGreen, 0, span => span.UnderColor.Should().Be(green));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrBlue, 0, span => span.UnderColor.Should().Be(blue));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrYellow, 0, span => span.UnderColor.Should().Be(yellow));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrMagenta, 0, span => span.UnderColor.Should().Be(magenta));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrCyan, 0, span => span.UnderColor.Should().Be(cyan));
+            yield return (FwTextPropType.ktptUnderColor, FwTextColor.kclrTransparent, 0, span => span.UnderColor.Should().Be(ColorJsonConverter.UnnamedTransparent));
+            yield return (FwTextPropType.ktptUnderColor, silBlueInt, 0, span => span.UnderColor.Should().Be(silBlue));
 
             yield return (FwTextPropType.ktptBaseWs, null, 0, span => span.WsBase.Should().BeNull());
             yield return (FwTextPropType.ktptBaseWs, FakeWsHandleFr, 0, span => span.WsBase.Should().Be((WritingSystemId)"fr"));
@@ -209,16 +236,16 @@ public class RichTextTests(ITestOutputHelper output)
 
 
             yield return (FwTextPropType.ktptParaColor, null, 0, span => span.ParaColor.Should().BeNull());
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrWhite, 0, span => span.ParaColor.Should().Be("#ffffff"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrBlack, 0, span => span.ParaColor.Should().Be("#000000"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrRed, 0, span => span.ParaColor.Should().Be("#ff0000"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrGreen, 0, span => span.ParaColor.Should().Be("#00ff00"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrBlue, 0, span => span.ParaColor.Should().Be("#0000ff"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrYellow, 0, span => span.ParaColor.Should().Be("#ffff00"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrMagenta, 0, span => span.ParaColor.Should().Be("#ff00ff"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrCyan, 0, span => span.ParaColor.Should().Be("#00ffff"));
-            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrTransparent, 0, span => span.ParaColor.Should().Be("#00000000"));
-            yield return (FwTextPropType.ktptParaColor, silBlueInt, 0, span => span.ParaColor.Should().Be(silBlueHex));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrWhite, 0, span => span.ParaColor.Should().Be(white));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrBlack, 0, span => span.ParaColor.Should().Be(black));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrRed, 0, span => span.ParaColor.Should().Be(red));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrGreen, 0, span => span.ParaColor.Should().Be(green));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrBlue, 0, span => span.ParaColor.Should().Be(blue));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrYellow, 0, span => span.ParaColor.Should().Be(yellow));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrMagenta, 0, span => span.ParaColor.Should().Be(magenta));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrCyan, 0, span => span.ParaColor.Should().Be(cyan));
+            yield return (FwTextPropType.ktptParaColor, FwTextColor.kclrTransparent, 0, span => span.ParaColor.Should().Be(ColorJsonConverter.UnnamedTransparent));
+            yield return (FwTextPropType.ktptParaColor, silBlueInt, 0, span => span.ParaColor.Should().Be(silBlue));
 
             yield return (FwTextPropType.ktptSpellCheck, null, 0, span => span.SpellCheck.Should().BeNull());
             yield return (FwTextPropType.ktptSpellCheck, SpellingModes.ksmNormalCheck, 0, span => span.SpellCheck.Should().Be(RichTextSpellingMode.Normal));
@@ -256,16 +283,16 @@ public class RichTextTests(ITestOutputHelper output)
             yield return (FwTextPropType.ktptBorderTrailing, 2345, 0, span => span.BorderTrailing.Should().Be(2345));
 
             yield return (FwTextPropType.ktptBorderColor, null, 0, span => span.BorderColor.Should().BeNull());
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrWhite, 0, span => span.BorderColor.Should().Be("#ffffff"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrBlack, 0, span => span.BorderColor.Should().Be("#000000"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrRed, 0, span => span.BorderColor.Should().Be("#ff0000"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrGreen, 0, span => span.BorderColor.Should().Be("#00ff00"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrBlue, 0, span => span.BorderColor.Should().Be("#0000ff"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrYellow, 0, span => span.BorderColor.Should().Be("#ffff00"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrMagenta, 0, span => span.BorderColor.Should().Be("#ff00ff"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrCyan, 0, span => span.BorderColor.Should().Be("#00ffff"));
-            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrTransparent, 0, span => span.BorderColor.Should().Be("#00000000"));
-            yield return (FwTextPropType.ktptBorderColor, silBlueInt, 0, span => span.BorderColor.Should().Be(silBlueHex));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrWhite, 0, span => span.BorderColor.Should().Be(white));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrBlack, 0, span => span.BorderColor.Should().Be(black));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrRed, 0, span => span.BorderColor.Should().Be(red));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrGreen, 0, span => span.BorderColor.Should().Be(green));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrBlue, 0, span => span.BorderColor.Should().Be(blue));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrYellow, 0, span => span.BorderColor.Should().Be(yellow));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrMagenta, 0, span => span.BorderColor.Should().Be(magenta));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrCyan, 0, span => span.BorderColor.Should().Be(cyan));
+            yield return (FwTextPropType.ktptBorderColor, FwTextColor.kclrTransparent, 0, span => span.BorderColor.Should().Be(ColorJsonConverter.UnnamedTransparent));
+            yield return (FwTextPropType.ktptBorderColor, silBlueInt, 0, span => span.BorderColor.Should().Be(silBlue));
 
 
             yield return (FwTextPropType.ktptBulNumScheme, null, 0, span => span.BulNumScheme.Should().BeNull());
@@ -318,6 +345,7 @@ public class RichTextTests(ITestOutputHelper output)
         var builder = TsStringUtils.MakePropsBldr();
         if (value is not null)
             builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
+        EnsureWsSet(builder);
         var textProps = builder.GetTextProps();
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
@@ -332,6 +360,7 @@ public class RichTextTests(ITestOutputHelper output)
         var builder = TsStringUtils.MakePropsBldr();
         if (value is not null)
             builder.SetIntPropValues((int)propType, variation, Convert.ToInt32(value));
+        EnsureWsSet(builder);
         var expectedProps = builder.GetTextProps();
         RichTextMapping.WriteToSpan(span, expectedProps, WsIdLookup);
 
@@ -346,6 +375,16 @@ public class RichTextTests(ITestOutputHelper output)
         RichTextMapping.WriteToSpan(spanFromProps, actualProps, WsIdLookup);
         assert(spanFromProps);
         spanFromProps.Should().BeEquivalentTo(span);
+    }
+
+    [Fact]
+    public void NullWsHandlesAreInvalid()
+    {
+        var builder = TsStringUtils.MakePropsBldr();
+        builder.SetIntValue(FwTextPropType.ktptWs, FwTextPropVar.ktpvDefault, NullWsHandleEn);
+        var span = new RichSpan() { Text = "test" };
+        var act = () => RichTextMapping.WriteToSpan(span, builder.GetTextProps(), WsIdLookup);
+        act.Should().Throw<ArgumentException>();
     }
 
     private static string GetRawObjDataString(FwObjDataTypes dataType, Guid guid)
@@ -443,6 +482,7 @@ public class RichTextTests(ITestOutputHelper output)
         var span = new RichSpan() { Text = "test" };
         var builder = TsStringUtils.MakePropsBldr();
         builder.SetStrPropValue((int)propType, value);
+        EnsureWsSet(builder);
         var textProps = builder.GetTextProps();
 
         RichTextMapping.WriteToSpan(span, textProps, WsIdLookup);
@@ -457,6 +497,7 @@ public class RichTextTests(ITestOutputHelper output)
     {
         var builder = TsStringUtils.MakePropsBldr();
         builder.SetStrPropValue((int)propType, value);
+        EnsureWsSet(builder);
         var expectedProps = builder.GetTextProps();
 
         var span = new RichSpan() { Text = "test" };
@@ -465,6 +506,7 @@ public class RichTextTests(ITestOutputHelper output)
         //test
         builder = TsStringUtils.MakePropsBldr();
         RichTextMapping.WriteToTextProps(span, builder, WsHandleLookup);
+        EnsureWsSet(builder);
         var actualProps = builder.GetTextProps();
         if ((span.ObjData is null && propType == FwTextPropType.ktptObjData) || propType == FwTextPropType.ktptTags && value == string.Empty)
         {
@@ -473,6 +515,7 @@ public class RichTextTests(ITestOutputHelper output)
             //but those won't be round tripped, so we need to remove it from the expectedProps
             var updateBuilder = expectedProps.GetBldr();
             updateBuilder.SetStrPropValue((int)propType, null);
+            EnsureWsSet(updateBuilder);
             expectedProps = updateBuilder.GetTextProps();
         }
         actualProps.Should().BeEquivalentTo(expectedProps);
@@ -526,12 +569,55 @@ public class RichTextTests(ITestOutputHelper output)
         Enum.GetValues<FwObjDataTypes>().Except(testedObjDataTypes).Should().BeEmpty();
     }
 
+    [Fact]
+    public void CanRoundTripTags()
+    {
+        //this tag didn't round trip before a bug was fixed, keep it in the test
+        var tag1 = Guid.Parse("0e669606-d2eb-a3cb-98d9-4b431ec4f260");
+        Guid[] tags = [tag1, ..AutoFaker.Generate<Guid>(1_000)];
+        var richString = new RichString([new RichSpan() { Text = "test", Ws = "en", Tags = tags }]);
+        var tsString = RichTextMapping.ToTsString(richString, WsHandleLookup);
+        var actualRichString = RichTextMapping.FromTsString(tsString, WsIdLookup);
+        actualRichString.Spans[0].Tags.Should().BeEquivalentTo(tags);
+    }
+
+    [Fact]
+    public void CanRoundTripRichStrings()
+    {
+        var richMultiString = AutoFaker.Generate<RichMultiString>();
+        foreach (var richString in richMultiString.Values)
+        {
+            var tsString = RichTextMapping.ToTsString(richString, WsHandleLookup);
+            var actualRichString = RichTextMapping.FromTsString(tsString, WsIdLookup);
+            actualRichString.Should().BeEquivalentTo(richString);
+        }
+    }
+
+    [Fact]
+    public void RoundTrippingSpansWhichHaveTheSamePropsGetMerged()
+    {
+        var richString = new RichString([
+            new RichSpan() { Text = "test", Ws = "en", Bold = RichTextToggle.Off},
+            new RichSpan() { Text = "test", Ws = "en"},
+            new RichSpan() { Text = "test", Ws = "en"},
+        ]);
+        var tsString = RichTextMapping.ToTsString(richString, WsHandleLookup);
+        var actualRichString = RichTextMapping.FromTsString(tsString, WsIdLookup);
+        var expectedRichString = new RichString([
+            new RichSpan() { Text = "test", Ws = "en", Bold = RichTextToggle.Off },
+            new RichSpan() { Text = "testtest", Ws = "en" },
+        ]);
+        actualRichString.Should().BeEquivalentTo(expectedRichString, o => o.ComparingByMembers<RichString>().ComparingByMembers<RichSpan>());
+    }
+
     private WritingSystemId? WsIdLookup(int? handle)
     {
         if (handle == FakeWsHandleFr)
             return "fr";
         if (handle == FakeWsHandleEn)
             return "en";
+        if (handle == NullWsHandleEn)
+            return null;
         return null;
     }
 }

@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
-    <PackageReference Include="HtmlAgilityPack" />
     <PackageReference Include="Gridify" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="SIL.WritingSystems" />

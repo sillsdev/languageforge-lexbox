@@ -14,7 +14,7 @@ import type {IRichTextObjectData} from './IRichTextObjectData';
 
 export interface IRichSpan
 {
-	ws?: string;
+	ws: string;
 	wsBase?: string;
 	italic?: RichTextToggle;
 	bold?: RichTextToggle;

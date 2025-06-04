@@ -1,16 +1,17 @@
 import type {
   IEntry,
   IExampleSentence,
-  IMultiString,
+  IMultiString, IRichMultiString,
   ISemanticDomain,
   ISense
 } from '$lib/dotnet-types';
 
 import type {ConditionalKeys} from 'type-fest';
+import type { IRichString } from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
 
 export type WritingSystemType = 'vernacular' | 'analysis';
 export type WritingSystemSelection = WritingSystemType | `first-${WritingSystemType}` | 'vernacular-analysis' | 'analysis-vernacular';
-export type FieldType = 'multi' | 'single' | 'option' | 'multi-option';
+export type FieldType = 'rich-multi' | 'multi' | 'rich-single' | 'single' | 'option' | 'multi-option';
 export type WellKnownFieldId = Exclude<keyof (IEntry & ISense & IExampleSentence), 'id' | 'exampleSentences' | 'senses'>
 
 export type BaseFieldConfig = {
@@ -38,8 +39,15 @@ export type BaseEntityFieldConfig<T> = (({
   type: 'multi';
   id: ConditionalKeys<T, IMultiString>;
 } | {
+  type: 'rich-multi';
+  id: ConditionalKeys<T, IRichMultiString>;
+} | {
   type: 'single';
   id: ConditionalKeys<T, string | undefined>;
+  ws: `first-${WritingSystemType}`;
+} | {
+  type: 'rich-single';
+  id: ConditionalKeys<T, IRichString | undefined>;
   ws: `first-${WritingSystemType}`;
 } | {
   type: 'option',
