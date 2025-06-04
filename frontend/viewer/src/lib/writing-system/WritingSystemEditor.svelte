@@ -1,9 +1,8 @@
 ﻿<script lang="ts">
     import type {IWritingSystem} from '$lib/dotnet-types';
-    import {Button} from 'svelte-ux';
-    import CrdtTextField from '$lib/entry-editor/inputs/CrdtTextField.svelte';
     import {useMiniLcmApi} from '$lib/services/service-provider';
     import {createEventDispatcher} from 'svelte';
+    import {Button} from '$lib/components/ui/button';
 
     const dispatch = createEventDispatcher<{
         change: { writingSystem: IWritingSystem },
@@ -30,13 +29,13 @@
     }
 </script>
 <form class="flex flex-col gap-2 p-2">
-    <CrdtTextField label="Language Code" readonly={!newWs} on:change={() => onChange()} bind:value={writingSystem.wsId}/>
+<!--    <CrdtTextField label="Language Code" readonly={!newWs} on:change={() => onChange()} bind:value={writingSystem.wsId}/>-->
 <!--    todo changing the name for FieldWorks writing systems is not yet supported-->
-    <CrdtTextField label="Name" readonly={!newWs} on:change={() => onChange()} bind:value={writingSystem.name}/>
-    <CrdtTextField label="Abbreviation" on:change={() => onChange()} bind:value={writingSystem.abbreviation}/>
-    <CrdtTextField label="Font" on:change={() => onChange()} bind:value={writingSystem.font}/>
+<!--    <CrdtTextField label="Name" readonly={!newWs} on:change={() => onChange()} bind:value={writingSystem.name}/>-->
+<!--    <CrdtTextField label="Abbreviation" on:change={() => onChange()} bind:value={writingSystem.abbreviation}/>-->
+<!--    <CrdtTextField label="Font" on:change={() => onChange()} bind:value={writingSystem.font}/>-->
     {#if newWs}
-        <Button variant="outline" on:click={createNew}>Create new Writing System</Button>
+        <Button variant="outline" onclick={createNew}>Create new Writing System</Button>
     {:else}
         <span>Changes are saved automatically</span>
     {/if}
