@@ -34,18 +34,31 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
 
     public void Add(object key, object? value)
     {
-        var valStr = value as string ?? throw new ArgumentException("unable to convert value to string", nameof(value));
-        if (key is WritingSystemId keyWs)
+        WritingSystemId keyWs;
+        if (key is WritingSystemId typed)
         {
-            Add(keyWs, valStr);
+            keyWs = typed;
         }
         else if (key is string keyStr)
         {
-            Add(keyStr, valStr);
+            keyWs = keyStr;
         }
         else
         {
             throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+        }
+
+        if (value is string valueStr)
+        {
+            Add(keyWs, valueStr);
+        }
+        else if (value is RichString valueRich)
+        {
+            Add(keyWs, valueRich);
+        }
+        else
+        {
+            throw new ArgumentException("unable to convert value to string", nameof(value));
         }
     }
 
