@@ -35,7 +35,7 @@
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {Label} from '$lib/components/ui/label';
   import {EditorView} from 'prosemirror-view';
-  import {AllSelection, EditorState, TextSelection} from 'prosemirror-state';
+  import {AllSelection, EditorState} from 'prosemirror-state';
   import {keymap} from 'prosemirror-keymap';
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
@@ -181,7 +181,6 @@
     if (selection && editor.dom.contains(selection.anchorNode) && editor.dom.contains(selection.focusNode)) {
       selection.removeAllRanges();
     }
-    editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 0)));
   }
 
   //lcm expects line separators, but html does not render them, so we replace them with \n
