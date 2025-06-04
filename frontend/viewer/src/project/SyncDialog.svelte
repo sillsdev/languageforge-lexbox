@@ -10,7 +10,7 @@
   import { QueryParamStateBool } from '$lib/utils/url.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import { useSyncStatusService } from '$lib/services/sync-status-service';
-  import { FormatDate } from '$lib/components/ui/format-date';
+  import { FormatDate } from '$lib/components/ui/format';
   import { watch } from 'runed';
   import { fade } from 'svelte/transition';
   import { delay } from '$lib/utils/time';
