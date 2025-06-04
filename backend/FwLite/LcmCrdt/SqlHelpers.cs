@@ -23,7 +23,7 @@ public static class SqlHelpers
     [ExpressionMethod(nameof(SearchValueExpression))]
     public static bool SearchValue(this MultiString ms, string search)
     {
-        return ms.Values.Any(pair => pair.Value.Contains(search));
+        return ms.Values.Any(pair => pair.Value.Contains(search, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace));
     }
 
     private static Expression<Func<MultiString, string, bool>> SearchValueExpression()
