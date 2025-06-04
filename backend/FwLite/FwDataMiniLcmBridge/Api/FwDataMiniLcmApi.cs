@@ -696,8 +696,9 @@ public class FwDataMiniLcmApi(
 
     public Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
-        var count = GetLexEntries(EntrySearchPredicate(query), options).Count();
-        return Task.FromResult(count);
+        if (options?.HasFilter == true || query?.Length is > 0)
+            return Task.FromResult(GetLexEntries(EntrySearchPredicate(query), options).Count());
+        return Task.FromResult(EntriesRepository.Count);
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)

@@ -28,6 +28,7 @@ public record FilterQueryOptions(
     EntryFilter? Filter = null)
 {
     public static FilterQueryOptions Default { get; } = new();
+    public bool HasFilter => Filter is {GridifyFilter.Length: > 0 } || Exemplar is {Value.Length: > 0};
 }
 
 public record QueryOptions(
