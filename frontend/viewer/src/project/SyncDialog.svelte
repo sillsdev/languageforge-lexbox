@@ -191,11 +191,9 @@
             <Icon icon="i-mdi-cloud-outline" />
             {$t`${serverName} - FieldWorks Lite`}
           </span>
-          {#if lastLocalSyncDate}
-            <span class="text-foreground/80">
-              {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
-            </span>
-          {/if}
+          <span class="text-foreground/80">
+            {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
+          </span>
         </div>
         <div class="text-center content-center">
           {flexToLbCount}
