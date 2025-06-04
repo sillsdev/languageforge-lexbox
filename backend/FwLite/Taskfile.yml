@@ -38,7 +38,7 @@ tasks:
     deps: [ tool-restore ]
     dir: ./LcmCrdt
     cmds:
-      - dotnet ef migrations has-pending-model-changes
+      - dotnet ef migrations has-pending-model-changes {{.CLI_ARGS}}
 
   maui-windows:
     label: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
