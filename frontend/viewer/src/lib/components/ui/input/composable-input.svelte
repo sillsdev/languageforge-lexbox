@@ -4,6 +4,7 @@
   import type {Snippet} from 'svelte';
   import InputShell from './input-shell.svelte';
   import {Input} from '.';
+  import {cn} from '$lib/utils';
 
   type Props = WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'placeholder'>> & {
     value?: T,
@@ -29,12 +30,12 @@
   const focusRingClass = 'has-[.real-input:focus-visible]:ring-ring has-[.real-input:focus-visible]:outline-none has-[.real-input:focus-visible]:ring-2 has-[.real-input:focus-visible]:ring-offset-2';
 </script>
 
-<InputShell bind:ref {focusRingClass} class={className} {...restProps}>
+<InputShell bind:ref {focusRingClass} class={cn('gap-0', className)} {...restProps}>
   {@render before?.()}
-  <div class="grow flex relative overflow-hidden items-center">
-    <Input variant="ghost" placeholder={stringPlaceholder} class="grow real-input" bind:ref={inputRef} bind:value />
+  <div class="grow flex relative overflow-hidden items-center h-full">
+    <Input variant="ghost" placeholder={stringPlaceholder} class="grow real-input h-full px-2" bind:ref={inputRef} bind:value />
     {#if !value && snippetPlaceholder}
-      <div class="absolute pointer-events-none text-foreground/50 x-ellipsis whitespace-nowrap">
+      <div class="absolute pointer-events-none text-foreground/50 x-ellipsis whitespace-nowrap px-2">
         {@render snippetPlaceholder()}
       </div>
     {/if}

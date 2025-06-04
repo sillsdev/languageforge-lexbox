@@ -208,7 +208,7 @@ public class RichMultiStringTests
         patch.Replace(ms => ms["en"], new RichString("updated"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("en");
-        ms["en"].Should().BeEquivalentTo(new RichString("updated"));
+        ms["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
     }
 
     //this test emulates any existing data that was stored as a string
@@ -220,7 +220,7 @@ public class RichMultiStringTests
         patch.Operations.Add(new Operation<RichMultiString>("replace", "/en", null, "updated"));
         patch.ApplyTo(ms);
         ms.Should().ContainKey("en");
-        ms["en"].Should().BeEquivalentTo(new RichString("updated"));
+        ms["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
     }
 
     [Fact]

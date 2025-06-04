@@ -112,6 +112,18 @@
     "translation": "",
     "obsolete": true
   },
+  "fhKYsI": {
+    "message": "a word",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": ""
+  },
   "uyJsf6": {
     "message": "About",
     "placeholders": {},
@@ -256,6 +268,18 @@
       [
         "src/lib/activity/ActivityView.svelte",
         102
+      ]
+    ],
+    "translation": ""
+  },
+  "iPthvs": {
+    "message": "an entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
       ]
     ],
     "translation": ""
@@ -1038,7 +1062,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        64
+        67
       ]
     ],
     "translation": ""
@@ -1142,7 +1166,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        66
+        69
       ]
     ],
     "translation": ""
@@ -1617,7 +1641,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        79
+        82
       ]
     ],
     "translation": ""
@@ -1755,6 +1779,18 @@
     ],
     "translation": ""
   },
+  "bbTYV2": {
+    "message": "Select {0} to view details",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": ""
+  },
   "GzkNiw": {
     "message": "Select an entry to view details",
     "placeholders": {},
@@ -1765,7 +1801,8 @@
         105
       ]
     ],
-    "translation": ""
+    "translation": "",
+    "obsolete": true
   },
   "mEtszZ": {
     "message": "Semantic domains",
@@ -1895,7 +1932,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        75
+        78
       ]
     ],
     "translation": ""
