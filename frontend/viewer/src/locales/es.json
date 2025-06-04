@@ -99,19 +99,6 @@
     ],
     "translation": ""
   },
-  "Z3gqCM": {
-    "message": "🤷 nothing here",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        77
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "fhKYsI": {
     "message": "a word",
     "placeholders": {},
@@ -560,19 +547,6 @@
     ],
     "translation": ""
   },
-  "x/7uW0": {
-    "message": "Create Entry",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/ProjectSidebar.svelte",
-        45
-      ]
-    ],
-    "translation": "Crear Entrada",
-    "obsolete": true
-  },
   "0widty": {
     "message": "Create Example Project",
     "placeholders": {},
@@ -941,19 +915,6 @@
     ],
     "translation": ""
   },
-  "W8RMC0": {
-    "message": "Filter semantic domains...",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        76
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "6HLTEb": {
     "message": "Filter...",
     "placeholders": {},
@@ -1210,19 +1171,6 @@
     ],
     "translation": "Cerrar sesión"
   },
-  "8YvG69": {
-    "message": "Looked hard, found nothing",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        78
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "wkUvl2": {
     "message": "Made of",
     "placeholders": {},
@@ -1443,19 +1391,6 @@
     ],
     "translation": ""
   },
-  "BWz+2z": {
-    "message": "No projects",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/home/Server.svelte",
-        82
-      ]
-    ],
-    "translation": "Ningún proyecto",
-    "obsolete": true
-  },
   "EdQY6l": {
     "message": "None",
     "placeholders": {},
@@ -1532,23 +1467,6 @@
     ],
     "translation": ""
   },
-  "6jnu0f": {
-    "message": "Order of semantic domains",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        41
-      ],
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        41
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "qW3eh2": {
     "message": "Part of",
     "placeholders": {},
@@ -1608,23 +1526,6 @@
       ]
     ],
     "translation": "Nombre del proyecto..."
-  },
-  "fBd/5T": {
-    "message": "Readonly",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        56
-      ],
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        56
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
   },
   "N2C89m": {
     "message": "Reference",
@@ -1742,19 +1643,6 @@
     ],
     "translation": ""
   },
-  "GzkNiw": {
-    "message": "Select an entry to view details",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/browse/BrowseView.svelte",
-        105
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "mEtszZ": {
     "message": "Semantic domains",
     "placeholders": {},
@@ -1862,19 +1750,6 @@
       ]
     ],
     "translation": ""
-  },
-  "0WxGtB": {
-    "message": "Show Empty Fields",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/browse/ViewPicker.svelte",
-        47
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
   },
   "AQK14J": {
     "message": "Simple",
@@ -2136,19 +2011,6 @@
     ],
     "translation": ""
   },
-  "Cs0oSA": {
-    "message": "View Settings",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/browse/ViewPicker.svelte",
-        40
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "LhKBuY": {
     "message": "Where are my projects?",
     "placeholders": {},
@@ -2166,6 +2028,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        37
+      ],
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         43
