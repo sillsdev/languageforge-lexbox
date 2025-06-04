@@ -45,6 +45,7 @@
   import {IsUsingKeyboard} from 'bits-ui';
   import type {IRichSpan} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichSpan';
   import {inputVariants} from '../ui/input/input.svelte';
+  import {on} from 'svelte/events';
 
   let {
     value = $bindable(),
@@ -95,6 +96,9 @@
       }
     });
     editor.dom.setAttribute('tabindex', '0');
+
+    const parentLabel = elementRef?.closest('label');
+    if (parentLabel) return on(parentLabel, 'click', onFocusTargetClick);
   });
 
   function onfocus(editor: EditorView) {
@@ -187,6 +191,12 @@
   function replaceLineSeparatorWithNewLine(text: string) {
     return text.replaceAll(lineSeparator, newLine);
   }
+
+  function onFocusTargetClick(event: MouseEvent) {
+    if (!editor) return;
+    if (event.target === editor?.dom) return; // the editor will handle focus itself
+    editor.focus();
+  }
 </script>
 <style>
   :global(.ProseMirror) {
@@ -204,7 +214,7 @@
 
 {#if label}
   <div {...rest}>
-    <Label>{label}</Label>
+    <Label onclick={onFocusTargetClick}>{label}</Label>
     <div bind:this={elementRef}></div>
   </div>
 {:else}
