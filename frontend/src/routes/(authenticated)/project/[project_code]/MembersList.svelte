@@ -22,6 +22,7 @@
   import type { UUID } from 'crypto';
   import PlainInput from '$lib/forms/PlainInput.svelte';
   import { DialogResponse } from '$lib/components/modals';
+  import {formatProjectRole} from '$lib/components/Projects/FormatUserProjectRole.svelte';
 
   interface Props {
     members?: Member[];
@@ -86,7 +87,7 @@
       notifySuccess(
         $t(notification, {
           name: member.user.name,
-          role: role.toLowerCase(),
+          role: formatProjectRole(role, $t),
         }),
       );
     }
