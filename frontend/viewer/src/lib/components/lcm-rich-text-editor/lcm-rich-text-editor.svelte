@@ -34,7 +34,6 @@
 <script lang="ts">
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {Label} from '$lib/components/ui/label';
-  import InputShell from '../ui/input/input-shell.svelte';
   import {EditorView} from 'prosemirror-view';
   import {AllSelection, EditorState, TextSelection} from 'prosemirror-state';
   import {keymap} from 'prosemirror-keymap';
@@ -43,8 +42,9 @@
   import {onDestroy, onMount} from 'svelte';
   import {watch} from 'runed';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {IsUsingKeyboard, mergeProps} from 'bits-ui';
+  import {IsUsingKeyboard} from 'bits-ui';
   import type {IRichSpan} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichSpan';
+  import {inputVariants} from '../ui/input/input.svelte';
 
   let {
     value = $bindable(),
@@ -82,6 +82,9 @@
           dirty = true;
         }
         editor.updateState(newState);
+      },
+      attributes: {
+        class: inputVariants({class: 'min-h-10 h-auto block'}),
       },
       editable() {
         return !readonly;
@@ -202,8 +205,8 @@
 {#if label}
   <div {...rest}>
     <Label>{label}</Label>
-    <InputShell {autofocus} class="p-2 h-auto" bind:ref={elementRef}/>
+    <div bind:this={elementRef}></div>
   </div>
 {:else}
-  <InputShell {autofocus} {...mergeProps({ class: 'p-2 h-auto'}, rest)} bind:ref={elementRef}/>
+  <div bind:this={elementRef}></div>
 {/if}
