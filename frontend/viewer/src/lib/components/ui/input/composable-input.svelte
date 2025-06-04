@@ -4,6 +4,7 @@
   import type {Snippet} from 'svelte';
   import InputShell from './input-shell.svelte';
   import {Input} from '.';
+  import {cn} from '$lib/utils';
 
   type Props = WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
@@ -26,8 +27,8 @@
   const focusRingClass = 'has-[.real-input:focus-visible]:ring-ring has-[.real-input:focus-visible]:outline-none has-[.real-input:focus-visible]:ring-2 has-[.real-input:focus-visible]:ring-offset-2';
 </script>
 
-<InputShell bind:ref {focusRingClass} class={className} {...restProps}>
+<InputShell bind:ref {focusRingClass} class={cn('gap-0', className)} {...restProps}>
   {@render before?.()}
-  <Input variant="ghost" {placeholder} class="grow real-input" bind:ref={inputRef} bind:value />
+  <Input variant="ghost" {placeholder} class="grow real-input h-full px-2" bind:ref={inputRef} bind:value />
   {@render after?.()}
 </InputShell>
