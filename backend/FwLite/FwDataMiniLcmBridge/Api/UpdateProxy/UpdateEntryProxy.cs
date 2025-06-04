@@ -88,20 +88,17 @@ public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLc
 
     void IDictionary.Add(object key, object? value)
     {
-        var valStr = value as RichString ??
-                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
-                         nameof(value));
-        if (key is WritingSystemId keyWs)
-        {
-            proxy.Add(keyWs, valStr);
-        }
-        else if (key is string keyStr)
-        {
-            proxy.Add(keyStr, valStr);
-        }
-        else
-        {
-            throw new ArgumentException("unable to convert key to writing system id", nameof(key));
-        }
+        ((IDictionary)proxy).Add(key, value);
+    }
+
+    void IDictionary.Remove(object key)
+    {
+        ((IDictionary)proxy).Remove(key);
+    }
+
+    object? IDictionary.this[object key]
+    {
+        get => ((IDictionary)proxy)[key];
+        set => ((IDictionary)proxy)[key] = value;
     }
 }

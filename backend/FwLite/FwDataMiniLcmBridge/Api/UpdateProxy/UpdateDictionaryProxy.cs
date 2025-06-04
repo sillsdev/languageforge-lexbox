@@ -34,18 +34,31 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
 
     public void Add(object key, object? value)
     {
-        var valStr = value as string ?? throw new ArgumentException("unable to convert value to string", nameof(value));
-        if (key is WritingSystemId keyWs)
+        WritingSystemId keyWs;
+        if (key is WritingSystemId typed)
         {
-            Add(keyWs, valStr);
+            keyWs = typed;
         }
         else if (key is string keyStr)
         {
-            Add(keyStr, valStr);
+            keyWs = keyStr;
         }
         else
         {
             throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+        }
+
+        if (value is string valueStr)
+        {
+            Add(keyWs, valueStr);
+        }
+        else if (value is RichString valueRich)
+        {
+            Add(keyWs, valueRich);
+        }
+        else
+        {
+            throw new ArgumentException("unable to convert value to string", nameof(value));
         }
     }
 
@@ -105,6 +118,26 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
 
     public void Remove(object key)
     {
+        if (key is WritingSystemId keyWs)
+        {
+            Remove(keyWs);
+        }
+        else if (key is string keyStr)
+        {
+            Remove(keyStr);
+        }
+        else
+        {
+            throw new ArgumentException($"unable to convert key {key} to writing system id", nameof(key));
+        }
+    }
+
+    public bool Remove(WritingSystemId key)
+    {
+        var containedKey = ContainsKey(key);
+        var writingSystemHandle = lexboxLcmApi.GetWritingSystemHandle(key);
+        multiString.set_String(writingSystemHandle, null);
+        return containedKey;
     }
 
     public bool IsFixedSize => false;
@@ -151,10 +184,6 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
 
     public bool IsReadOnly => false;
 
-    public bool Remove(WritingSystemId key)
-    {
-        throw new NotSupportedException();
-    }
 
     public bool TryGetValue(WritingSystemId key, out string value)
     {
