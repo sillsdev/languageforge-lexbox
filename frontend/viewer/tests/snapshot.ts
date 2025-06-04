@@ -1,12 +1,13 @@
-import {argosScreenshot} from '@argos-ci/playwright';
+import {argosScreenshot, type ArgosScreenshotOptions} from '@argos-ci/playwright';
+import type {Page} from '@playwright/test';
 
-export function assertSnapshot(...args: Parameters<typeof argosScreenshot>): Promise<void> {
-  args[2] = {
-    viewports: [
-      { height: 720, width: 1280 },
-      'iphone-x'
-    ],
-    ...args[2]
-  };
-  return argosScreenshot(...args);
+const defaultOptions: ArgosScreenshotOptions = {
+  viewports: [
+    {height: 720, width: 1280},
+    'iphone-x'
+  ]
+};
+
+export async function assertScreenshot(page: Page, name: string, options?: ArgosScreenshotOptions): Promise<void> {
+  await argosScreenshot(page, name, {...defaultOptions, ...options});
 }

@@ -1,5 +1,5 @@
 ﻿import {type Page, expect, test} from '@playwright/test';
-import { assertSnapshot } from './snapshot';
+import { assertScreenshot } from './snapshot';
 
 const viewports = [
   {height: 720, width: 1280, name: 'medium'},
@@ -15,7 +15,7 @@ const viewports = [
       await expect(page.getByRole('heading', {name: 'ambuka'})).toBeVisible();
       await expect(page.locator('.i-mdi-dots-vertical')).toBeVisible();
       await expect(page.locator('.i-mdi-loading')).toHaveCount(0);
-      await assertSnapshot(page, 'project-view-entry-selected-' + colorScheme);
+      await assertScreenshot(page, 'project-view-entry-selected-' + colorScheme);
     });
 
     test(`ui snapshot default (color: ${colorScheme})`, async ({page}) => {
@@ -24,7 +24,7 @@ const viewports = [
       await waitForProjectViewReady(page);
       await expect(page.getByRole('textbox', {name: 'Filter'})).toBeVisible();
       await page.getByRole('row', { name: 'ambuka to cross a body of' }).scrollIntoViewIfNeeded();
-      await assertSnapshot(page, 'project-view-default-' + colorScheme);
+      await assertScreenshot(page, 'project-view-default-' + colorScheme);
     });
   }
 
