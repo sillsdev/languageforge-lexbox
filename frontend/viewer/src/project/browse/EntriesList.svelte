@@ -2,7 +2,7 @@
   import type {IEntry} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import {Debounced, resource} from 'runed';
+  import {resource, useDebounce} from 'runed';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -54,39 +54,40 @@
   });
 
   async function silentlyRefreshEntries() {
-    const updatedEntries = await fetchCurrentEntries();
+    const updatedEntries = await fetchCurrentEntries(true);
     entriesResource.mutate(updatedEntries);
   }
 
-  function fetchCurrentEntries(): Promise<IEntry[]> {
-    const queryOptions: IQueryOptions = {
-      count: 10_000,
-      offset: 0,
-      filter: {
-        gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
-      },
-      order: {
-        field: SortField.Headword,
-        writingSystem: 'default',
-        ascending: sortDirection === 'asc',
-      },
-    };
+  let loading = $state(false);
+  const fetchCurrentEntries = useDebounce(async (silent = false) => {
+    if (!silent) loading = true;
+    try {
+      const queryOptions: IQueryOptions = {
+        count: 10_000,
+        offset: 0,
+        filter: {
+          gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
+        },
+        order: {
+          field: SortField.Headword,
+          writingSystem: 'default',
+          ascending: sortDirection === 'asc',
+        },
+      };
 
-    if (search) {
-      return miniLcmApi.searchEntries(search, queryOptions);
+      if (search) {
+        return await miniLcmApi.searchEntries(search, queryOptions);
+      }
+      return await miniLcmApi.getEntries(queryOptions);
+    } finally {
+      loading = false;
     }
-    return miniLcmApi.getEntries(queryOptions);
-  }
+  }, 300);
 
   const entriesResource = resource(
     () => ({ search, sortDirection, gridifyFilter }),
-    () => fetchCurrentEntries(),
-    {
-      debounce: 300,
-    }
-  );
+    async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
-  const loading = new Debounced(() => entriesResource.loading, 50);
 
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
@@ -114,9 +115,9 @@
 <FabContainer>
   <DevContent>
     <Button
-      icon={loading.current ? 'i-mdi-loading' : 'i-mdi-refresh'}
+      icon={loading ? 'i-mdi-loading' : 'i-mdi-refresh'}
       variant="outline"
-      iconProps={{ class: cn(loading.current && 'animate-spin') }}
+      iconProps={{ class: cn(loading && 'animate-spin') }}
       size="icon"
       onclick={() => entriesResource.refetch()}
     />
@@ -132,7 +133,7 @@
     </div>
   {:else}
     <div class="h-full">
-      {#if loading.current}
+      {#if loading}
         <div class="md:pr-3 p-0.5">
           <!-- Show skeleton rows while loading -->
           {#each { length: skeletonRowCount }, _index}
