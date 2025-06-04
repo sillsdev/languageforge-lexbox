@@ -1,5 +1,6 @@
 using System.Data.Common;
 using System.Globalization;
+using System.Text;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MiniLcm.Culture;
@@ -14,12 +15,17 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor
         var sqliteConnection = (SqliteConnection)connection;
         //creates a new function that can be used in queries
         sqliteConnection.CreateFunction(ContainsFunction,
-            (string? str, string? value) =>
+            //in sqlite strings are byte arrays, so we can avoid allocating strings by using spans
+            (byte[]? str, byte[]? value) =>
             {
                 if (str is null || value is null) return false;
-                return str.Contains(value,
-                    CultureInfo.InvariantCulture,
-                    CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase);
+                Span<char> source = stackalloc char[Encoding.UTF8.GetCharCount(str)];
+                Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
+                Encoding.UTF8.GetChars(str, source);
+                Encoding.UTF8.GetChars(value, search);
+                return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source,
+                    search,
+                    CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase) >= 0;
             });
     }
 
