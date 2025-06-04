@@ -71,7 +71,7 @@ public class CrdtMiniLcmApi(
     private void AssertWritable()
     {
         if (ProjectData.IsReadonly)
-            throw new ReadOnlyException($"project is readonly because you are logged in with the {ProjectData.Role} role, if you role recently changed try refreshing the server project list on the home page");
+            throw new ReadOnlyException($"project is readonly because you are logged in with the {ProjectData.Role} role. If your role recently changed, try refreshing the server project list on the home page.");
     }
 
     /// <summary>
