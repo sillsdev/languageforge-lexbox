@@ -11,7 +11,7 @@
 {#if href}
   <sup>
     <a class="link-text text-sky-500" tabindex="-1" target="_blank" {href}>
-      <Icon icon="i-mdi-help-circle-outline" class="size-3 ml-1 absolute"/>
+      <Icon icon="i-mdi-help-circle-outline" class="size-3 ml-1 mt-1 absolute"/>
     </a>
   </sup>
 {/if}
