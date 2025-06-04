@@ -25,6 +25,8 @@
     ...restProps
   }: Props = $props();
 
+  const id = $props.id();
+
   const stringPlaceholder = $derived(typeof placeholder === 'string' ? placeholder : undefined);
   const snippetPlaceholder = $derived(typeof placeholder === 'function' ? placeholder : undefined);
   const focusRingClass = 'has-[.real-input:focus-visible]:ring-ring has-[.real-input:focus-visible]:outline-none has-[.real-input:focus-visible]:ring-2 has-[.real-input:focus-visible]:ring-offset-2';
@@ -33,11 +35,11 @@
 <InputShell bind:ref {focusRingClass} class={cn('gap-0', className)} {...restProps}>
   {@render before?.()}
   <div class="grow flex relative overflow-hidden items-center h-full">
-    <Input variant="ghost" placeholder={stringPlaceholder} class="grow real-input h-full px-2" bind:ref={inputRef} bind:value />
+    <Input {id} variant="ghost" placeholder={stringPlaceholder} class="grow real-input h-full px-2" bind:ref={inputRef} bind:value />
     {#if !value && snippetPlaceholder}
-      <div class="absolute pointer-events-none text-foreground/50 x-ellipsis whitespace-nowrap px-2">
+      <label for={id} class="absolute pointer-events-none text-foreground/50 x-ellipsis whitespace-nowrap px-2">
         {@render snippetPlaceholder()}
-      </div>
+      </label>
     {/if}
   </div>
   {@render after?.()}
