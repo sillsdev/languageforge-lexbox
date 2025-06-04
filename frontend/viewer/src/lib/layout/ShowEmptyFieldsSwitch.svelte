@@ -1,11 +1,15 @@
 <script lang="ts">
-  import {Switch} from 'svelte-ux';
+  import {t} from 'svelte-i18n-lingui';
+  import {Switch} from '$lib/components/ui/switch';
 
-  export let value: boolean;
+  interface Props {
+    value: boolean;
+  }
+
+  let {value = $bindable()}: Props = $props();
 </script>
 
 <label class="flex gap-2 items-center text-sm">
-  <Switch bind:checked={value}
-          color="neutral"/>
-  Show empty fields
+  <Switch bind:checked={value}/>
+  {$t`Show empty fields`}
 </label>
