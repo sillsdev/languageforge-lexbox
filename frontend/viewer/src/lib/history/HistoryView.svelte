@@ -1,5 +1,4 @@
 ﻿<script lang="ts">
-  import ShowEmptyFieldsSwitch from '$lib/layout/ShowEmptyFieldsSwitch.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import {cls, Duration, DurationUnits, InfiniteScroll, ListItem} from 'svelte-ux';
   import {t} from 'svelte-i18n-lingui';
@@ -16,8 +15,6 @@
   let record: HistoryItem | undefined;
   const historyService = useHistoryService();
   let history: HistoryItem[];
-
-  let showEmptyFields = false;
 
   $: if (open && id) {
     void load();
@@ -88,19 +85,18 @@
         <div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
           {#if record?.entity && record?.entityName}
             <div class="col-start-2 row-start-1 text-sm flex justify-between items-center px-2 pb-0.5">
-          <span>{$t`Author:`}
-            {#if record.authorName}
-              <span class="font-semibold">{record.authorName}</span>
-            {:else}
-              <span class="opacity-75 italic">{$t`Unknown`}</span>
-            {/if}
-          </span>
-              <div class="hidden sm:contents">
-                <ShowEmptyFieldsSwitch bind:value={showEmptyFields}/>
-              </div>
+              <span>{$t`Author:`}
+                {#if record.authorName}
+                  <span class="font-semibold">{record.authorName}</span>
+                {:else}
+                  <span class="opacity-75 italic">{$t`Unknown`}</span>
+                {/if}
+              </span>
+<!--              <div class="hidden sm:contents">-->
+<!--                <ShowEmptyFieldsSwitch bind:value={showEmptyFields}/>-->
+<!--              </div>-->
             </div>
-            <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full"
-                 class:hide-unused={!showEmptyFields}>
+            <div class="col-start-2 row-start-2 overflow-auto p-3 pt-2 border rounded h-max max-h-full">
               {#key record}
                 {#if record.entityName === 'Entry'}
                   <EntryEditor entry={record.entity} modalMode readonly/>
