@@ -34,7 +34,7 @@
   let open = $state(false);
 
   async function onDelete() {
-    if (!await dialogsService.promptDelete($t`Entry`, headword)) return;
+    if (!await dialogsService.promptDelete(pt($t`Entry`, $t`Word`, $currentView), headword)) return;
     await miniLcmApi.deleteEntry(entry.id);
     projectEventBus.notifyEntryDeleted(entry.id);
   }
