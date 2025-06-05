@@ -19,11 +19,13 @@
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
+  const features = useFeatures();
   const {
     entryId,
     onClose,
@@ -90,17 +92,19 @@
         </div>
       </div>
       {#if dictionaryPreview === 'sticky'}
-        <div class="md:pr-2">
+        <div class="md:px-2">
           {@render preview(entry)}
         </div>
       {/if}
     </header>
     <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
       {#if dictionaryPreview === 'show'}
-        {@render preview(entry)}
+        <div class="md:pl-2">
+          {@render preview(entry)}
+        </div>
       {/if}
-      <div class="max-md:p-2 md:pr-2">
-        <EntryEditor bind:ref={editorRef} {entry} {readonly} {...entryPersistence.entryEditorProps} />
+      <div class="max-md:p-2 md:px-2">
+        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}

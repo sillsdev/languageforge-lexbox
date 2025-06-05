@@ -22,7 +22,7 @@
       .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -99,7 +99,7 @@
       }}
       exclude={project.users.map((m) => m.user.id)}
     />
-    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} showObserver={project.hasHarmonyCommits} />
   {/snippet}
   {#snippet extraActions()}
     <Checkbox

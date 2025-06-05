@@ -14,7 +14,11 @@
   import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Button} from '$lib/components/ui/button';
   import {QueryParamState} from '$lib/utils/url.svelte';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
+  import IfOnce from '$lib/components/if-once/if-once.svelte';
 
+  const currentView = useCurrentView();
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
@@ -43,7 +47,7 @@
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
-    {#if !IsMobile.value || !selectedEntryId.current}
+    <IfOnce show={!IsMobile.value || !selectedEntryId.current}>
       <ResizablePane
         bind:this={leftPane}
         defaultSize={defaultLayout[0]}
@@ -52,7 +56,7 @@
         minSize={15}
         class="min-h-0 flex flex-col relative"
       >
-        <div class="flex flex-col h-full p-2 md:p-4 md:pr-1">
+        <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
           <div class="md:mr-3">
             <SearchFilter bind:search bind:gridifyFilter />
             <div class="my-2 flex items-center justify-between">
@@ -92,7 +96,7 @@
                        previewDictionary={entryMode === 'preview'}/>
         </div>
       </ResizablePane>
-    {/if}
+    </IfOnce>
     {#if !IsMobile.value}
       <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
     {/if}
@@ -102,10 +106,10 @@
         defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
           {#if !selectedEntryId.current}
             <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>{$t`Select an entry to view details`}</p>
+              <p>{$t`Select ${pt($t`an entry`, $t`a word`, $currentView)} to view details`}</p>
             </div>
           {:else}
-            <div class="md:p-4 md:pl-6 h-full">
+            <div class="md:p-4 md:pl-4 h-full">
               <EntryView
                 entryId={selectedEntryId.current}
                 onClose={() => (selectedEntryId.current = '')}

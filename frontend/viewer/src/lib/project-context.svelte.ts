@@ -6,7 +6,7 @@ import type {
 import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {resource, type ResourceReturn} from 'runed';
+import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
 
 const projectContextKey = 'current-project';
@@ -87,22 +87,23 @@ export class ProjectContext {
     this.#projectType = args.projectType;
   }
 
-  public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {
+  public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {
     if (this.#stateCache.has(key)) {
       return this.#stateCache.get(key) as ResourceReturn<T, unknown, true>;
     }
 
-    const res = this.apiResource(initialValue, factory);
+    const res = this.apiResource(initialValue, factory, options);
     this.#stateCache.set(key, res);
+    options?.onAdd?.(res);
     return res;
   }
 
-  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>): ResourceReturn<T, unknown, true> {
+  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: ApiResourceOptions<T>): ResourceReturn<T, unknown, true> {
     const res = resource<IMiniLcmJsInvokable | undefined>(() => this.#api,
       ((api) => {
         if (!api) return Promise.resolve(initialValue);
         return factory(api);
-      }), {initialValue});
+      }), {initialValue, ...options});
     return res;
   }
 
@@ -114,4 +115,10 @@ export class ProjectContext {
     this.#stateCache.set(key, result);
     return result;
   }
+}
+
+type ApiResourceOptions<T> = Partial<Omit<ResourceOptions<T>, 'initialValue'>>;
+
+type GetOrAddAsyncOptions<T> = ApiResourceOptions<T> & {
+  onAdd?: (resource: ResourceReturn<T>) => void;
 }

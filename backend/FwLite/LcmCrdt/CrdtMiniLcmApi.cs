@@ -1,3 +1,4 @@
+using System.Data;
 using System.Linq.Expressions;
 using FluentValidation;
 using Gridify;
@@ -57,6 +58,7 @@ public class CrdtMiniLcmApi(
     }
     private async Task<Commit> AddChange(IChange change)
     {
+        AssertWritable();
         var commit = await dataModel.AddChange(ClientId, change, commitMetadata: NewMetadata());
         return commit;
     }
@@ -66,12 +68,19 @@ public class CrdtMiniLcmApi(
         await AddChanges(changes.Chunk(100));
     }
 
+    private void AssertWritable()
+    {
+        if (ProjectData.IsReadonly)
+            throw new ReadOnlyException($"project is readonly because you are logged in with the {ProjectData.Role} role. If your role recently changed, try refreshing the server project list on the home page.");
+    }
+
     /// <summary>
     /// use when making a large number of changes at once
     /// </summary>
     /// <param name="changeChunks"></param>
     private async Task AddChanges(IEnumerable<IChange[]> changeChunks)
     {
+        AssertWritable();
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         foreach (var chunk in changeChunks)
         {
@@ -334,7 +343,7 @@ public class CrdtMiniLcmApi(
     {
         var betweenIds = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
         var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
-        await dataModel.AddChange(ClientId, new Changes.SetOrderChange<ComplexFormComponent>(component.Id, order));
+        await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(component.Id, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -350,6 +359,13 @@ public class CrdtMiniLcmApi(
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+    }
+
+    public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
+    {
+        var predicate = string.IsNullOrEmpty(query) ? null : Filtering.SearchFilter(query);
+        var queryable = await FilterEntries(predicate, options);
+        return await queryable.CountAsync();
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -376,20 +392,7 @@ public class CrdtMiniLcmApi(
         QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
-        var queryable = Entries;
-        if (predicate is not null) queryable = queryable.Where(predicate);
-        if (options.Exemplar is not null)
-        {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
-            if (ws is null)
-                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
-            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
-        }
-
-        if (options.Filter?.GridifyFilter != null)
-        {
-            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
-        }
+        var queryable = await FilterEntries(predicate, options);
 
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));
         if (sortWs is null)
@@ -419,6 +422,28 @@ public class CrdtMiniLcmApi(
             entry.ApplySortOrder(complexFormComparer);
             yield return entry;
         }
+    }
+
+    private async Task<IQueryable<Entry>> FilterEntries(
+        Expression<Func<Entry, bool>>? predicate = null,
+        FilterQueryOptions? options = null)
+    {
+        options ??= FilterQueryOptions.Default;
+        var queryable = Entries;
+        if (predicate is not null) queryable = queryable.Where(predicate);
+        if (options.Exemplar is not null)
+        {
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
+            if (ws is null)
+                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
+            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
+        }
+
+        if (options.Filter?.GridifyFilter != null)
+        {
+            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
+        }
+        return queryable;
     }
 
     public async Task<Entry?> GetEntry(Guid id)
@@ -620,7 +645,7 @@ public class CrdtMiniLcmApi(
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
 
         sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
+        await AddChanges(await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await GetSense(entryId, sense.Id) ?? throw new NullReferenceException("unable to find sense " + sense.Id);
     }
 
@@ -630,7 +655,7 @@ public class CrdtMiniLcmApi(
     {
         var sense = await GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
-        await dataModel.AddChanges(ClientId, [..sense.ToChanges(update.Patch)]);
+        await AddChanges([..sense.ToChanges(update.Patch)]);
         return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 

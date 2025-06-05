@@ -99,18 +99,17 @@
     ],
     "translation": ""
   },
-  "Z3gqCM": {
-    "message": "🤷 nothing here",
+  "fhKYsI": {
+    "message": "a word",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        77
+        "src/project/browse/BrowseView.svelte",
+        108
       ]
     ],
-    "translation": "",
-    "obsolete": true
+    "translation": ""
   },
   "uyJsf6": {
     "message": "About",
@@ -131,7 +130,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        110
+        116
       ]
     ],
     "translation": "Compte"
@@ -143,7 +142,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        83
+        89
       ]
     ],
     "translation": "Activité"
@@ -260,6 +259,18 @@
     ],
     "translation": ""
   },
+  "iPthvs": {
+    "message": "an entry",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/BrowseView.svelte",
+        108
+      ]
+    ],
+    "translation": ""
+  },
   "ZYimak": {
     "message": "Application version",
     "placeholders": {},
@@ -335,7 +346,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        78
+        84
       ]
     ],
     "translation": "Parcourir"
@@ -431,7 +442,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        129
+        135
       ]
     ],
     "translation": "Fermer le Dictionnaire"
@@ -536,19 +547,6 @@
     ],
     "translation": ""
   },
-  "x/7uW0": {
-    "message": "Create Entry",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/ProjectSidebar.svelte",
-        45
-      ]
-    ],
-    "translation": "Créer une Entrée",
-    "obsolete": true
-  },
   "0widty": {
     "message": "Create Example Project",
     "placeholders": {},
@@ -584,7 +582,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        76
+        82
       ]
     ],
     "translation": "Tableau de Bord"
@@ -688,7 +686,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        72
+        78
       ]
     ],
     "translation": "Dictionnaire"
@@ -864,7 +862,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        151
+        157
       ],
       [
         "src/home/HomeView.svelte",
@@ -905,30 +903,53 @@
     ],
     "translation": "Logo FieldWorks"
   },
-  "o7J4JM": {
-    "message": "Filter",
+  "LwjKwe": {
+    "message": "Filter # entries",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        45
+        53
       ]
     ],
     "translation": ""
   },
-  "W8RMC0": {
-    "message": "Filter semantic domains...",
+  "zGI/cf": {
+    "message": "Filter # words",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        76
+        "src/project/browse/SearchFilter.svelte",
+        53
       ]
     ],
-    "translation": "",
-    "obsolete": true
+    "translation": ""
+  },
+  "ctQd0R": {
+    "message": "Filter entries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        59
+      ]
+    ],
+    "translation": ""
+  },
+  "IrEBhq": {
+    "message": "Filter words",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        59
+      ]
+    ],
+    "translation": ""
   },
   "6HLTEb": {
     "message": "Filter...",
@@ -989,7 +1010,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        64
+        67
       ]
     ],
     "translation": ""
@@ -1110,7 +1131,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        66
+        69
       ]
     ],
     "translation": ""
@@ -1203,19 +1224,6 @@
     ],
     "translation": "Se déconnecter"
   },
-  "8YvG69": {
-    "message": "Looked hard, found nothing",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        78
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "wkUvl2": {
     "message": "Made of",
     "placeholders": {},
@@ -1235,7 +1243,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        162
+        168
       ]
     ],
     "translation": "Fait avec ❤️ depuis 🇦🇹 🇹🇭 🇺🇸"
@@ -1267,7 +1275,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        61
+        81
       ]
     ],
     "translation": ""
@@ -1279,7 +1287,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        63
+        83
       ]
     ],
     "translation": ""
@@ -1291,7 +1299,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        64
+        84
       ]
     ],
     "translation": ""
@@ -1303,7 +1311,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        62
+        82
       ]
     ],
     "translation": ""
@@ -1436,19 +1444,6 @@
     ],
     "translation": ""
   },
-  "BWz+2z": {
-    "message": "No projects",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/home/Server.svelte",
-        82
-      ]
-    ],
-    "translation": "Aucun projet",
-    "obsolete": true
-  },
   "EdQY6l": {
     "message": "None",
     "placeholders": {},
@@ -1525,23 +1520,6 @@
     ],
     "translation": ""
   },
-  "6jnu0f": {
-    "message": "Order of semantic domains",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        41
-      ],
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        41
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "qW3eh2": {
     "message": "Part of",
     "placeholders": {},
@@ -1585,7 +1563,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        79
+        82
       ]
     ],
     "translation": ""
@@ -1601,23 +1579,6 @@
       ]
     ],
     "translation": "Nom du projet..."
-  },
-  "fBd/5T": {
-    "message": "Readonly",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        56
-      ],
-      [
-        "src/lib/sandbox/EditorSandbox.svelte",
-        56
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
   },
   "N2C89m": {
     "message": "Reference",
@@ -1723,14 +1684,14 @@
     ],
     "translation": ""
   },
-  "GzkNiw": {
-    "message": "Select an entry to view details",
+  "bbTYV2": {
+    "message": "Select {0} to view details",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        105
+        108
       ]
     ],
     "translation": ""
@@ -1790,7 +1751,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        116
+        122
       ]
     ],
     "translation": "Paramètres"
@@ -1843,19 +1804,6 @@
     ],
     "translation": ""
   },
-  "0WxGtB": {
-    "message": "Show Empty Fields",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/browse/ViewPicker.svelte",
-        47
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
-  },
   "AQK14J": {
     "message": "Simple",
     "placeholders": {},
@@ -1863,7 +1811,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        75
+        78
       ]
     ],
     "translation": ""
@@ -1931,7 +1879,7 @@
       ],
       [
         "src/project/ProjectSidebar.svelte",
-        98
+        104
       ]
     ],
     "translation": "Synchroniser"
@@ -1959,7 +1907,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        80
+        86
       ]
     ],
     "translation": "Tâches"
@@ -1995,7 +1943,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        52
+        72
       ]
     ],
     "translation": ""
@@ -2031,7 +1979,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        142
+        148
       ],
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
@@ -2099,7 +2047,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        161
+        167
       ]
     ],
     "translation": "Version {0}"
@@ -2115,19 +2063,6 @@
       ]
     ],
     "translation": ""
-  },
-  "Cs0oSA": {
-    "message": "View Settings",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/browse/ViewPicker.svelte",
-        40
-      ]
-    ],
-    "translation": "",
-    "obsolete": true
   },
   "LhKBuY": {
     "message": "Where are my projects?",
@@ -2146,6 +2081,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/browse/EntryMenu.svelte",
+        37
+      ],
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         43

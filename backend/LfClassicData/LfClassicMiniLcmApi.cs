@@ -133,6 +133,18 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return await GetSemanticDomains().FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
+    public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
+    {
+        // not efficient, but this will likely never get used
+        var entries = Query(new QueryOptions
+        {
+            Count = QueryOptions.QueryAll,
+            Exemplar = options?.Exemplar,
+            Filter = options?.Filter
+        }, query);
+        return await entries.CountAsync();
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return Query(options);
