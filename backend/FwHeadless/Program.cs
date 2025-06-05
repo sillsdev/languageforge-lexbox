@@ -116,7 +116,7 @@ app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
 
 app.Run();
 
-static async Task<Results<Ok<LexCore.Entities.FileMetadata>, NotFound>> GetFileMetadata(
+static async Task<Results<Ok<LexCore.Entities.MediaFile>, NotFound>> GetFileMetadata(
     Guid fileId,
     LexBoxDbContext lexBoxDb)
 {
