@@ -299,6 +299,9 @@ jobs:
 
   create-release:
     if: ${{ github.ref_name == 'main' }}
+    environment:
+      name: production
+      url: https://lexbox.org/fw-lite
     name: Create Release
     needs: [ build-and-test, publish-win, publish-linux, publish-mac, publish-android]
     runs-on: ubuntu-latest
