@@ -29,6 +29,9 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import {T} from 'svelte-i18n-lingui';
+  import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
+  import {FormatDate} from '$lib/components/ui/format/index.js';
+  import {SvelteDate} from 'svelte/reactivity';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -116,6 +119,8 @@
       buttonsLoading = false;
     }, 1000);
   }
+
+  let currentDate = new SvelteDate();
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -310,6 +315,23 @@
         {#each sizes as size}
           <Button loading={buttonsLoading} {size} icon="i-mdi-auto-fix"/>
         {/each}
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div>
+        <h3>Date formatters</h3>
+      </div>
+      <div>
+        <LocalizationPicker/>
+      </div>
+      <div>
+        <p>
+          Formatted
+          <FormatDate date={currentDate} options={{timeStyle: 'medium'}}/>
+        </p>
+        <p>
+          <span>Current date epoc: {currentDate.getTime()}</span>
+        </p>
       </div>
     </div>
   </div>

@@ -1,7 +1,12 @@
 <script lang="ts" module>
   import {i18n} from '@lingui/core';
+  import {locale} from 'svelte-i18n-lingui';
+  import {fromStore} from 'svelte/store';
+
+  const currentLocale = fromStore(locale);
 
   export function formatDate(value: Date | string | undefined | null, options?: Intl.DateTimeFormatOptions, defaultValue = ''): string {
+    void currentLocale.current;//invalidate when the current locale changes
     if (!value) return defaultValue;
     return i18n.date(value, {
       dateStyle: 'medium',
@@ -27,7 +32,9 @@
     ...restProps
   }: Props = $props();
 
-  const formattedDate = $derived(formatDate(date, options, defaultValue));
+  const formattedDate = $derived.by(() => {
+    return formatDate(date, options, defaultValue);
+  });
 </script>
 
 <span {...restProps}>{formattedDate}</span>
