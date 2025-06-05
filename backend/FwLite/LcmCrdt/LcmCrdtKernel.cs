@@ -25,6 +25,7 @@ using MiniLcm.Validators;
 using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
+using LcmCrdt.FullTextSearch;
 using MiniLcm.Filtering;
 
 namespace LcmCrdt;
@@ -40,6 +41,7 @@ public static class LcmCrdtKernel
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
+        services.AddScoped<UpdateEntrySearchTableInterceptor>();
         services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
@@ -50,6 +52,7 @@ public static class LcmCrdtKernel
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<EntrySearchService>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
