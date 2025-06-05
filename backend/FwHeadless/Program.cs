@@ -80,6 +80,8 @@ app.MapDefaultEndpoints();
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
+app.MapGet("/api/metadata/{guid}", GetFileMetadata);
+app.MapGet("/api/media/{guid}", GetFile);
 
 // DELETE endpoint to remove a project if it exists
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
@@ -113,6 +115,34 @@ app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
 });
 
 app.Run();
+
+static async Task<Results<Ok<LexCore.Entities.FileMetadata>, NotFound>> GetFileMetadata(
+    Guid fileId,
+    LexBoxDbContext lexBoxDb)
+{
+    var metadata = await lexBoxDb.Files.FindAsync(fileId);
+    if (metadata is null) return TypedResults.NotFound();
+    return TypedResults.Ok(metadata);
+}
+
+static async Task<Results<Ok<FileStream>, NotFound>> GetFile(
+    Guid fileId,
+    ProjectLookupService projectLookupService,
+    IOptions<FwHeadlessConfig> config,
+    LexBoxDbContext lexBoxDb)
+{
+    var metadata = await lexBoxDb.Files.FindAsync(fileId);
+    if (metadata is null) return TypedResults.NotFound();
+    var projectId = metadata.ProjectId;
+    var project = await lexBoxDb.Projects.FindAsync(projectId);
+    if (project is null) return TypedResults.NotFound();
+    var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+    var filePath = Path.Join(projectFolder, metadata.Filename);
+    var file = File.OpenRead(filePath);
+    return TypedResults.Ok(file);
+}
+
+// TODO: Track upload date in the file's metadata when we do PutFile
 
 static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
     SyncHostedService syncHostedService,
