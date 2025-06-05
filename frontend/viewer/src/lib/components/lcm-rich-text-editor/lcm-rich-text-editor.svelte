@@ -79,7 +79,8 @@
           //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
           //I suspect marks is the right way though.
           if (!value) value = {spans: []};
-          value.spans = newState.doc.children.map((child) => richSpanFromNode(child));
+          value.spans = newState.doc.children.map((child) => richSpanFromNode(child))
+            .filter(s => s.text);
           dirty = true;
         }
         editor.updateState(newState);
