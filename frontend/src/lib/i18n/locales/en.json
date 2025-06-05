@@ -603,7 +603,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "editor": "Editor",
     "editor_description": "Editor (can send/receive)",
     "manager": "Manager",
-    "manager_description": "Manager (can send/receive & add new users)"
+    "manager_description": "Manager (can send/receive & add new users)",
+    "observer": "Viewer",
+    "observer_description": "Viewer (FieldWorks Lite only)"
   },
   "system_role": {
     "label": "Role",

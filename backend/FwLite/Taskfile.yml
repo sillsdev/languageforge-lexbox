@@ -40,6 +40,13 @@ tasks:
     cmds:
       - dotnet ef migrations has-pending-model-changes {{.CLI_ARGS}}
 
+  remove-last-migration:
+    desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
+    deps: [ tool-restore ]
+    dir: ./LcmCrdt
+    cmds:
+      - dotnet ef migrations remove
+
   maui-windows:
     label: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
     dir: ./FwLiteMaui

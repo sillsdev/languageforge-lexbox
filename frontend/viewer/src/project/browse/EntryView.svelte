@@ -19,11 +19,13 @@
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
+  const features = useFeatures();
   const {
     entryId,
     onClose,
@@ -102,7 +104,7 @@
         </div>
       {/if}
       <div class="max-md:p-2 md:px-2">
-        <EntryEditor bind:ref={editorRef} {entry} {readonly} {...entryPersistence.entryEditorProps} />
+        <EntryEditor bind:ref={editorRef} {entry} readonly={readonly || !features.write} {...entryPersistence.entryEditorProps} />
       </div>
     </ScrollArea>
   {/if}
