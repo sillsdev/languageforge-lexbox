@@ -1,7 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using System.Text.Json;
-using MiniLcm.Culture;
+﻿using System.Text.Json;
 using Xunit.Abstractions;
 
 namespace MiniLcm.Tests;
