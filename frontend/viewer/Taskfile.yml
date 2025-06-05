@@ -47,5 +47,11 @@ tasks:
     env:
       AUTO_START_SERVER: true
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
+  generate-marketing-screenshots:
+    desc: 'they should be in the screenshots folder'
+    env:
+      AUTO_START_SERVER: true
+      MARKETING_SCREENSHOTS: true
+    cmd: pnpm run test:playwright {{.CLI_ARGS}}
   playwright-test-report:
     cmd: pnpm run test:playwright-report
