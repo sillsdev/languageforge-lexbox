@@ -15,8 +15,10 @@
   import { fade } from 'svelte/transition';
   import { delay } from '$lib/utils/time';
   import { cn } from '$lib/utils';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const service = useSyncStatusService();
+  const features = useFeatures();
   let remoteStatus: IProjectSyncStatus | undefined = $state();
   let localStatus: ISyncResult | undefined = $state();
   let server: ILexboxServer | undefined = $state();
@@ -206,7 +208,7 @@
         <div class="content-center text-center">
           <Button
             loading={loadingSyncLexboxToFlex}
-            disabled={loadingSyncLexboxToLocal}
+            disabled={loadingSyncLexboxToLocal || !features.write}
             onclick={syncLexboxToFlex}
             icon="i-mdi-sync"
             iconProps={{ class: 'size-5' }}>
