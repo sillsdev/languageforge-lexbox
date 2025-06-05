@@ -14,7 +14,7 @@ internal static class LcmHelpers
         {
             var tsString = multiString.GetStringFromIndex(i, out var _);
             if (string.IsNullOrEmpty(tsString.Text)) continue;
-            if (tsString.Text.Contains(value, CultureInfo.InvariantCulture, CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase))
+            if (tsString.Text.ContainsDiacriticMatch(value))
             {
                 return true;
             }

@@ -217,13 +217,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [Theory]
     [InlineData("a", "a")]
     [InlineData("a", "A")]
-    [InlineData("Ã", "A")] // todo: make it fail
     [InlineData("A", "Ã")]
     [InlineData("ap", "apple")]
     [InlineData("ap", "APPLE")]
     [InlineData("ing", "walking")]
     [InlineData("ing", "WALKING")]
     [InlineData("Ãp", "Ãpple")]
+    [InlineData("Ãp", "ãpple")]
     [InlineData("ap", "Ãpple")]
     public async Task SuccessfulMatches(string searchTerm, string word)
     {
@@ -238,10 +238,9 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [Theory]
     [InlineData("a", "b")]
     [InlineData("ab", "b")]
-    [InlineData("apple", "orange")]
-    // todo: make them pass
-    // [InlineData("Ã", "A")]
-    // [InlineData("É", "È")]
+    [InlineData("Ã", "A")] // Accented should not match base
+    [InlineData("apple", "orange")] // Completely different words
+    [InlineData("É", "È")] // Different accents
     public async Task NegativeMatches(string searchTerm, string word)
     {
         word = word.Normalize(NormalizationForm.FormD);
