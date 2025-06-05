@@ -56,7 +56,13 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         {
             if (maybeJson is null) return null;
             if (maybeJson.StartsWith('[') || maybeJson.StartsWith('{'))
-                return JsonSerializer.Deserialize<RichString?>(maybeJson);
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<RichString?>(maybeJson);
+                }
+                catch { }
+            }
             return new RichString(maybeJson);
         }
     }
