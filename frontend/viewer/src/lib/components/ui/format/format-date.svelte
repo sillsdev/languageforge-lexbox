@@ -6,8 +6,8 @@
   const currentLocale = fromStore(locale);
 
   export function formatDate(value: Date | string | undefined | null, options?: Intl.DateTimeFormatOptions, defaultValue = ''): string {
-    void currentLocale.current;//invalidate when the current locale changes
     if (!value) return defaultValue;
+    void currentLocale.current;//invalidate when the current locale changes
     return i18n.date(value, {
       dateStyle: 'medium',
       timeStyle: 'short',
