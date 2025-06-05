@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexData.Entities;
 
-public class FileMetadataEntityConfiguration : IEntityTypeConfiguration<FileMetadata>
+public class FileMetadataEntityConfiguration : IEntityTypeConfiguration<MediaFile>
 {
-    public virtual void Configure(EntityTypeBuilder<FileMetadata> builder)
+    public virtual void Configure(EntityTypeBuilder<MediaFile> builder)
     {
         builder.HasKey(e => e.FileId);
         builder.HasOne<Project>().WithMany()

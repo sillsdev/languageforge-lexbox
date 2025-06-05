@@ -1,7 +1,7 @@
 namespace LexCore.Entities;
 
 // Note that we do *not* derive from EntityBase since we don't need Guid IDs or created/modified dates
-public class FileMetadata
+public class MediaFile : EntityBase
 {
     public Guid FileId { get; set; }
     public required string Filename { get; set; }
