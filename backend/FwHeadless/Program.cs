@@ -1,13 +1,16 @@
 using System.Diagnostics;
 using FwHeadless;
+using FwHeadless.Models;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
+using LexCore.Entities;
 using LexCore.Sync;
 using LexData;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using SIL.Harmony.Core;
@@ -82,6 +85,8 @@ app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
 app.MapGet("/api/metadata/{guid}", GetFileMetadata);
 app.MapGet("/api/media/{guid}", GetFile);
+app.MapPut("/api/media/{guid}", PutFile);
+app.MapPost("/api/media/{guid}", PostFile);
 
 // DELETE endpoint to remove a project if it exists
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
@@ -131,18 +136,80 @@ static async Task<Results<Ok<FileStream>, NotFound>> GetFile(
     IOptions<FwHeadlessConfig> config,
     LexBoxDbContext lexBoxDb)
 {
-    var metadata = await lexBoxDb.Files.FindAsync(fileId);
-    if (metadata is null) return TypedResults.NotFound();
-    var projectId = metadata.ProjectId;
+    var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+    if (mediaFile is null) return TypedResults.NotFound();
+    var projectId = mediaFile.ProjectId;
     var project = await lexBoxDb.Projects.FindAsync(projectId);
     if (project is null) return TypedResults.NotFound();
     var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
-    var filePath = Path.Join(projectFolder, metadata.Filename);
+    var filePath = Path.Join(projectFolder, mediaFile.Filename);
     var file = File.OpenRead(filePath);
     return TypedResults.Ok(file);
 }
 
-// TODO: Track upload date in the file's metadata when we do PutFile
+static async Task<Results<Ok, NotFound>> PutFile(
+    Guid fileId,
+    Stream body,
+    ProjectLookupService projectLookupService,
+    IOptions<FwHeadlessConfig> config,
+    LexBoxDbContext lexBoxDb)
+{
+    var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+    if (mediaFile is null) return TypedResults.NotFound();
+    var projectId = mediaFile.ProjectId;
+    var project = await lexBoxDb.Projects.FindAsync(projectId);
+    if (project is null) return TypedResults.NotFound();
+    var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+    var filePath = Path.Join(projectFolder, mediaFile.Filename);
+    var writeStream = File.OpenWrite(filePath);
+    await body.CopyToAsync(writeStream);
+    mediaFile.UpdateUpdatedDate();
+    lexBoxDb.SaveChanges();
+    return TypedResults.Ok();
+}
+
+static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFile(
+    [FromForm] Guid fileId,
+    [FromForm] Guid projectId,
+    [FromForm] string filename,
+    [FromForm] Stream file,
+    [FromForm] FileMetadata metadata,
+    ProjectLookupService projectLookupService,
+    IOptions<FwHeadlessConfig> config,
+    LexBoxDbContext lexBoxDb)
+{
+    var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+    if (mediaFile is null)
+    {
+        mediaFile = new LexCore.Entities.MediaFile()
+        {
+            FileId = fileId,
+            Filename = filename,
+            ProjectId = projectId,
+            Metadata = metadata,
+        };
+    }
+    else
+    {
+        // TODO: Write metadata-merging method instead of overwriting it like this
+        mediaFile.Metadata = metadata;
+        // TODO: Catch attempts to change projectId or filename and handle appropriately (moving file to different project? error?
+        // TODO: Changing filename should be allowed, though
+    }
+    var project = await lexBoxDb.Projects.FindAsync(projectId);
+    if (project is null) return TypedResults.NotFound();
+    var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+    var filePath = Path.Join(projectFolder, mediaFile.Filename);
+    var writeStream = File.OpenWrite(filePath);
+    await file.CopyToAsync(writeStream);
+    // TODO: Return BadRequest if file too large
+    mediaFile.UpdateUpdatedDate();
+    lexBoxDb.SaveChanges();
+    // TODO: Construct URL with appropriate ASP.NET Core methods rather than hardcoded string
+    var newLocation = $"/api/media/{fileId}";
+    var responseBody = new PostFileResult(fileId);
+    return TypedResults.Created(newLocation, responseBody);
+}
 
 static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
     SyncHostedService syncHostedService,
