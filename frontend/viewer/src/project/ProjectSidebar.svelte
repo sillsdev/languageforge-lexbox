@@ -92,7 +92,6 @@
       </Sidebar.GroupContent>
     </Sidebar.Group>
     <div class="grow"></div>
-    <DevContent>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -110,22 +109,23 @@
                 ></div>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton>
-                <Icon icon="i-mdi-account" />
-                <span>{$t`Account`}</span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton>
-                <Icon icon="i-mdi-cog" />
-                <span>{$t`Settings`}</span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+            <DevContent>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>
+                  <Icon icon="i-mdi-account" />
+                  <span>{$t`Account`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>
+                  <Icon icon="i-mdi-cog" />
+                  <span>{$t`Settings`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </DevContent>
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </DevContent>
 
     <Sidebar.Group>
       <Sidebar.Menu>

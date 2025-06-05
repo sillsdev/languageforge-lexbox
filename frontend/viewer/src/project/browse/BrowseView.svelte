@@ -16,6 +16,7 @@
   import {QueryParamState} from '$lib/utils/url.svelte';
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
+  import IfOnce from '$lib/components/if-once/if-once.svelte';
 
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
@@ -46,7 +47,7 @@
 </SidebarPrimaryAction>
 <div class="flex flex-col h-full">
   <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 !overflow-visible">
-    {#if !IsMobile.value || !selectedEntryId.current}
+    <IfOnce show={!IsMobile.value || !selectedEntryId.current}>
       <ResizablePane
         bind:this={leftPane}
         defaultSize={defaultLayout[0]}
@@ -55,7 +56,7 @@
         minSize={15}
         class="min-h-0 flex flex-col relative"
       >
-        <div class="flex flex-col h-full p-2 md:p-4 md:pr-1">
+        <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
           <div class="md:mr-3">
             <SearchFilter bind:search bind:gridifyFilter />
             <div class="my-2 flex items-center justify-between">
@@ -95,7 +96,7 @@
                        previewDictionary={entryMode === 'preview'}/>
         </div>
       </ResizablePane>
-    {/if}
+    </IfOnce>
     {#if !IsMobile.value}
       <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
     {/if}
