@@ -1,5 +1,9 @@
-﻿using System.Linq.Expressions;
+﻿using System.Globalization;
+using System.Linq.Expressions;
+using LcmCrdt.Data;
 using LinqToDB;
+using LinqToDB.DataProvider.SQLite;
+using MiniLcm.Culture;
 
 namespace LcmCrdt;
 
@@ -19,11 +23,14 @@ public static class SqlHelpers
     [ExpressionMethod(nameof(SearchValueExpression))]
     public static bool SearchValue(this MultiString ms, string search)
     {
-        return ms.Values.Any(pair => pair.Value.Contains(search));
+        return ms.Values.Any(pair => pair.Value.ContainsDiacriticMatch(search));
     }
 
     private static Expression<Func<MultiString, string, bool>> SearchValueExpression()
     {
-        return (ms, search) => Json.QueryValues(ms).Any(s => s.Contains(search));
+        return (ms, search) => Json.QueryValues(ms).Any(s => ContainsIgnoreCaseAccents(s, search));
     }
+
+    [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1})")]
+    private static bool ContainsIgnoreCaseAccents(string s, string search) => s.ContainsDiacriticMatch(search);
 }

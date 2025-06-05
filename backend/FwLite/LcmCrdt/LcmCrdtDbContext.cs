@@ -15,7 +15,7 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(setupCollationInterceptor);
+        optionsBuilder.AddInterceptors(setupCollationInterceptor, new CustomSqliteFunctionInterceptor());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
