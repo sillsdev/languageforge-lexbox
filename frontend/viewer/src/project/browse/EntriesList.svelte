@@ -2,7 +2,7 @@
   import type {IEntry} from '$lib/dotnet-types';
   import type {IQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IQueryOptions';
   import {SortField} from '$lib/dotnet-types/generated-types/MiniLcm/SortField';
-  import {resource, useDebounce} from 'runed';
+  import {Debounced, resource, useDebounce} from 'runed';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import EntryRow from './EntryRow.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -58,9 +58,10 @@
     entriesResource.mutate(updatedEntries);
   }
 
-  let loading = $state(false);
+  let loadingUndebounced = $state(false);
+  const loading = new Debounced(() => loadingUndebounced, 50);
   const fetchCurrentEntries = useDebounce(async (silent = false) => {
-    if (!silent) loading = true;
+    if (!silent) loadingUndebounced = true;
     try {
       const queryOptions: IQueryOptions = {
         count: 10_000,
@@ -80,7 +81,7 @@
       }
       return await miniLcmApi.getEntries(queryOptions);
     } finally {
-      loading = false;
+      loadingUndebounced = false;
     }
   }, 300);
 
@@ -115,9 +116,9 @@
 <FabContainer>
   <DevContent>
     <Button
-      icon={loading ? 'i-mdi-loading' : 'i-mdi-refresh'}
+      icon={loading.current ? 'i-mdi-loading' : 'i-mdi-refresh'}
       variant="outline"
-      iconProps={{ class: cn(loading && 'animate-spin') }}
+      iconProps={{ class: cn(loading.current && 'animate-spin') }}
       size="icon"
       onclick={() => entriesResource.refetch()}
     />
@@ -133,7 +134,7 @@
     </div>
   {:else}
     <div class="h-full">
-      {#if loading}
+      {#if loading.current}
         <div class="md:pr-3 p-0.5">
           <!-- Show skeleton rows while loading -->
           {#each { length: skeletonRowCount }, _index}
