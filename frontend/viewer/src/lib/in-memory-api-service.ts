@@ -23,6 +23,7 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
+import type {IFilterQueryOptions} from './dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -48,6 +49,11 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   constructor(private projectContext: ProjectContext) {
     this.#writingSystemService = new WritingSystemService(projectContext);
   }
+  countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
+    const entries = this.getFilteredEntries(query, options);
+    return Promise.resolve(entries.length);
+  }
+
   public static newProjectContext() {
     const projectContext = new ProjectContext();
     projectContext.setup({api: new InMemoryApiService(projectContext), projectName, projectCode: projectName});
@@ -135,7 +141,7 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
 
   async getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
     await delay(300);
-    return this.ApplyQueryOptions(this._Entries(), options);
+    return this.queryEntries(undefined, options);
   }
 
   getWritingSystems(): Promise<IWritingSystems> {
@@ -144,21 +150,14 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
 
   async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
     await delay(300);
-    return this.ApplyQueryOptions(filterEntries(this._Entries(), query), options);
+    return this.queryEntries(query, options);
   }
 
-  private ApplyQueryOptions(entries: IEntry[], options: IQueryOptions | undefined): IEntry[] {
+  private queryEntries(query: string | undefined, options: IQueryOptions | undefined): IEntry[] {
+    const entries = this.getFilteredEntries(query, options);
+
     if (!options) return entries;
     const defaultWs = writingSystems.vernacular[0].wsId;
-    if (options.exemplar?.value) {
-      const lowerExemplar = options.exemplar.value.toLowerCase();
-      const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);
-      entries = entries.filter(entry =>
-        (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
-          ?.toLocaleLowerCase()
-          ?.startsWith(lowerExemplar));
-    }
-
     const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
@@ -171,6 +170,23 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
         return options.order.ascending ? compare : -compare;
       })
       .slice(options.offset, options.offset + options.count);
+  }
+
+  private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
+    let entries = this._Entries();
+    if (query) entries = filterEntries(entries, query);
+    if (!options) return entries;
+
+    const defaultWs = writingSystems.vernacular[0].wsId;
+    if (options.exemplar?.value) {
+      const lowerExemplar = options.exemplar.value.toLowerCase();
+      const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);
+      entries = entries.filter(entry =>
+        (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
+          ?.toLocaleLowerCase()
+          ?.startsWith(lowerExemplar));
+    }
+    return entries;
   }
 
   async getEntry(guid: string) {

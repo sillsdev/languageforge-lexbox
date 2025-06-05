@@ -17,9 +17,12 @@
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
+  import {useProjectStats} from '$lib/project-stats';
+  import {formatNumber} from '$lib/components/ui/format';
 
   const config = useFwLiteConfig();
   const features = useFeatures();
+  const stats = useProjectStats();
   let isSynchronizing = $state(false);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
@@ -44,11 +47,14 @@
   let syncDialog = $state<SyncDialog>();
 </script>
 
-{#snippet ViewButton(view: View, icon: IconClass, label: string)}
+{#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
   <Sidebar.MenuItem>
     <Sidebar.MenuButton onclick={() => goto(view)} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
+      {#if stat}
+        <span class="text-right grow">{stat}</span>
+      {/if}
     </Sidebar.MenuButton>
   </Sidebar.MenuItem>
 {/snippet}
@@ -75,7 +81,7 @@
           <DevContent>
             {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           </DevContent>
-          {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
+          {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
           <DevContent>
             {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
           </DevContent>

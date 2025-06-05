@@ -130,7 +130,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        110
+        116
       ]
     ],
     "translation": "Compte"
@@ -142,7 +142,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        83
+        89
       ]
     ],
     "translation": "Activité"
@@ -346,7 +346,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        78
+        84
       ]
     ],
     "translation": "Parcourir"
@@ -442,7 +442,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        129
+        135
       ]
     ],
     "translation": "Fermer le Dictionnaire"
@@ -582,7 +582,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        76
+        82
       ]
     ],
     "translation": "Tableau de Bord"
@@ -686,7 +686,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        72
+        78
       ]
     ],
     "translation": "Dictionnaire"
@@ -862,7 +862,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        151
+        157
       ],
       [
         "src/home/HomeView.svelte",
@@ -903,14 +903,50 @@
     ],
     "translation": "Logo FieldWorks"
   },
-  "o7J4JM": {
-    "message": "Filter",
+  "LwjKwe": {
+    "message": "Filter # entries",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        45
+        53
+      ]
+    ],
+    "translation": ""
+  },
+  "zGI/cf": {
+    "message": "Filter # words",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        53
+      ]
+    ],
+    "translation": ""
+  },
+  "ctQd0R": {
+    "message": "Filter entries",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        59
+      ]
+    ],
+    "translation": ""
+  },
+  "IrEBhq": {
+    "message": "Filter words",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        59
       ]
     ],
     "translation": ""
@@ -1190,7 +1226,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        162
+        168
       ]
     ],
     "translation": "Fait avec ❤️ depuis 🇦🇹 🇹🇭 🇺🇸"
@@ -1222,7 +1258,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        61
+        81
       ]
     ],
     "translation": ""
@@ -1234,7 +1270,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        63
+        83
       ]
     ],
     "translation": ""
@@ -1246,7 +1282,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        64
+        84
       ]
     ],
     "translation": ""
@@ -1258,7 +1294,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        62
+        82
       ]
     ],
     "translation": ""
@@ -1698,7 +1734,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        116
+        122
       ]
     ],
     "translation": "Paramètres"
@@ -1826,7 +1862,7 @@
       ],
       [
         "src/project/ProjectSidebar.svelte",
-        98
+        104
       ]
     ],
     "translation": "Synchroniser"
@@ -1854,7 +1890,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        80
+        86
       ]
     ],
     "translation": "Tâches"
@@ -1890,7 +1926,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        52
+        72
       ]
     ],
     "translation": ""
@@ -1926,7 +1962,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        142
+        148
       ],
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
@@ -1994,7 +2030,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        161
+        167
       ]
     ],
     "translation": "Version {0}"

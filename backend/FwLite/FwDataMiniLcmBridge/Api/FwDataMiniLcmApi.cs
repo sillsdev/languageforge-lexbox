@@ -690,7 +690,7 @@ public class FwDataMiniLcmApi(
 
     internal RichString? ToRichString(ITsString? tsString)
     {
-        if (tsString is null or {Length: 0}) return null;
+        if (tsString is null or { Length: 0 }) return null;
         return RichTextMapping.FromTsString(tsString,
             h =>
             {
@@ -699,21 +699,28 @@ public class FwDataMiniLcmApi(
             });
     }
 
+    public Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
+    {
+        if (options?.HasFilter == true || query?.Length is > 0)
+            return Task.FromResult(GetLexEntries(EntrySearchPredicate(query), options).Count());
+        return Task.FromResult(EntriesRepository.Count);
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntries(null, options);
     }
 
-    public IAsyncEnumerable<Entry> GetEntries(
-        Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
+    public IEnumerable<ILexEntry> GetLexEntries(
+        Func<ILexEntry, bool>? predicate, FilterQueryOptions? options = null)
     {
         var entries = EntriesRepository.AllInstances();
 
-        options ??= QueryOptions.Default;
+        options ??= FilterQueryOptions.Default;
         if (predicate is not null) entries = entries.Where(predicate);
         if (!string.IsNullOrEmpty(options.Filter?.GridifyFilter))
         {
-            var query = new GridifyQuery(){Filter = options.Filter.GridifyFilter};
+            var query = new GridifyQuery() { Filter = options.Filter.GridifyFilter };
             var filter = query.GetFilteringExpression(config.Value.Mapper).Compile();
             entries = entries.Where(filter);
         }
@@ -734,6 +741,14 @@ public class FwDataMiniLcmApi(
                 return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(value, exemplar, CompareOptions.IgnoreCase);
             });
         }
+        return entries;
+    }
+
+    public IAsyncEnumerable<Entry> GetEntries(
+        Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
+    {
+        options ??= QueryOptions.Default;
+        var entries = GetLexEntries(predicate, options);
 
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
         string? order(ILexEntry e)
@@ -756,11 +771,16 @@ public class FwDataMiniLcmApi(
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = GetEntries(e =>
-            e.CitationForm.SearchValue(query) ||
-            e.LexemeFormOA.Form.SearchValue(query) ||
-            e.AllSenses.Any(s => s.Gloss.SearchValue(query)), options);
+        var entries = GetEntries(EntrySearchPredicate(query), options);
         return entries;
+    }
+
+    private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null)
+    {
+        if (string.IsNullOrEmpty(query)) return null;
+        return entry => entry.CitationForm.SearchValue(query) ||
+                        entry.LexemeFormOA.Form.SearchValue(query) ||
+                        entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
     }
 
     public Task<Entry?> GetEntry(Guid id)

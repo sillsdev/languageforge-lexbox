@@ -100,7 +100,7 @@ public static class ReinforcedFwLiteTypingConfig
             .WithPublicProperties()
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
         builder.ExportAsEnum<SortField>().UseString();
-        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
+        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(FilterQueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties());
     }
 
