@@ -1,25 +1,40 @@
-<script lang="ts">
-  import { DateFormatter } from '@internationalized/date';
+<script lang="ts" module>
+  import {i18n} from '@lingui/core';
   import {locale} from 'svelte-i18n-lingui';
+  import {fromStore} from 'svelte/store';
+
+  const currentLocale = fromStore(locale);
+
+  export function formatDate(value: Date | string | undefined | null, options?: Intl.DateTimeFormatOptions, defaultValue = ''): string {
+    if (!value) return defaultValue;
+    void currentLocale.current;//invalidate when the current locale changes
+    return i18n.date(value, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      ...options,
+    });
+  }
+</script>
+
+<script lang="ts">
   import type {HTMLAttributes} from 'svelte/elements';
 
   type Props = HTMLAttributes<HTMLSpanElement> & {
-    date: Date | undefined | null;
+    date: Date | string | undefined | null;
     defaultValue?: string;
+    options?: Intl.DateTimeFormatOptions;
   };
 
   const {
     date,
-    defaultValue = '',
+    defaultValue,
+    options,
     ...restProps
   }: Props = $props();
 
-  const formatter = $derived(new DateFormatter($locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }));
-
-  const formattedDate = $derived(date ? formatter.format(date) : defaultValue);
+  const formattedDate = $derived.by(() => {
+    return formatDate(date, options, defaultValue);
+  });
 </script>
 
 <span {...restProps}>{formattedDate}</span>

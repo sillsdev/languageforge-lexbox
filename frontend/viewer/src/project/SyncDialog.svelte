@@ -10,7 +10,7 @@
   import { QueryParamStateBool } from '$lib/utils/url.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import { useSyncStatusService } from '$lib/services/sync-status-service';
-  import { FormatDate } from '$lib/components/ui/format';
+  import { formatDate } from '$lib/components/ui/format';
   import { watch } from 'runed';
   import { fade } from 'svelte/transition';
   import { delay } from '$lib/utils/time';
@@ -191,12 +191,9 @@
             <Icon icon="i-mdi-cloud-outline" />
             {$t`${serverName} - FieldWorks Lite`}
           </span>
-          {#if lastLocalSyncDate}
-            <span class="text-foreground/80">
-              {$t`Last change: `}
-              <FormatDate date={lastLocalSyncDate} />
-            </span>
-          {/if}
+          <span class="text-foreground/80">
+            {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
+          </span>
         </div>
         <div class="text-center content-center">
           {flexToLbCount}
@@ -234,8 +231,7 @@
             {$t`${serverName} - FieldWorks`}
           </span>
           <span class="text-foreground/80">
-            {$t`Last change: `}
-            <FormatDate date={lastFlexSyncDate} />
+            {$t`Last change: ${formatDate(lastFlexSyncDate)}`}
           </span>
         </div>
       </div>
