@@ -5,9 +5,26 @@ public class MediaFile : EntityBase
 {
     public Guid FileId { get; set; }
     public required string Filename { get; set; }
-    // public int? Size { get; set; } // TODO: Should we include size? We could always look it up on the filesystem if we need it...
     public Guid ProjectId { get; set; } // required; all files must belong to a project
-    public string? Metadata { get; set; }
-    // TODO: Decide whether we want MIME type, something simplified like "audio"/"video"/"image", or nothing here
-    public string? MimeType { get; set; } // Extracted from metadata because useful for processing
+    public DateTimeOffset LastModified { get; set; } // You know what? We *should* derive from EntityBase after all.
+    public FileMetadata? Metadata { get; set; }
+}
+
+public class FileMetadata
+{
+    public required string Filename;
+    public required int SizeInBytes;
+    public string? FileFormat; // TODO: Define strings we might use here, or else switch to MimeType
+    public string? MimeType;
+    public string? Author;
+    public DateTimeOffset UploadDate;
+    public MediaFileLicense? License;
+    // TODO: Add other optional properties like purpose, transcript, etc.
+}
+
+public enum MediaFileLicense
+{
+    CreativeCommons,
+    CreativeCommonsShareAlike,
+    Other,
 }
