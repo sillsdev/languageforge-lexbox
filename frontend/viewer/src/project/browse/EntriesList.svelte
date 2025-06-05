@@ -76,10 +76,11 @@
         },
       };
 
-      if (search) {
-        return await miniLcmApi.searchEntries(search, queryOptions);
-      }
-      return await miniLcmApi.getEntries(queryOptions);
+      const entries = search
+        ? miniLcmApi.searchEntries(search, queryOptions)
+        : miniLcmApi.getEntries(queryOptions);
+      await entries; // ensure the entries have arrived before toggling the loading flag
+      return entries;
     } finally {
       loadingUndebounced = false;
     }
