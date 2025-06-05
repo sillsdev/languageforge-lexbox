@@ -31,7 +31,7 @@
   import {T} from 'svelte-i18n-lingui';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
-  import {FormatDate} from '$lib/components/ui/format/index.js';
+  import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
 
 
@@ -338,19 +338,18 @@
     </div>
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <div>
-        <h3>Date formatters</h3>
+        <h3>Formatters</h3>
       </div>
       <div>
         <LocalizationPicker/>
       </div>
-      <div>
-        <p>
-          Formatted
-          <FormatDate date={currentDate} options={{timeStyle: 'medium'}}/>
-        </p>
-        <p>
-          <span>Current date epoc: {currentDate.getTime()}</span>
-        </p>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2 items-center">
+        <div class="font-medium">Date component:</div>
+        <div><FormatDate date={currentDate} options={{timeStyle: 'medium'}}/></div>
+        <div class="font-medium">Date function:</div>
+        <div>{formatDate(currentDate, {timeStyle: 'medium'})}</div>
+        <div class="font-medium">Number function:</div>
+        <div>{formatNumber(currentDate.getTime())}</div>
       </div>
     </div>
   </div>
