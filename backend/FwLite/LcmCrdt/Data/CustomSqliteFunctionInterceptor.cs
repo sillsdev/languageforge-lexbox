@@ -12,8 +12,6 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor
 {
     public const string ContainsFunction = "contains";
 
-    private record DiacriticResult(bool HasDiacritic);
-    private static readonly ConditionalWeakTable<object, DiacriticResult> Cache = new();
     public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
     {
         var sqliteConnection = (SqliteConnection)connection;
@@ -30,21 +28,19 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor
                 Encoding.UTF8.GetChars(value, search);
                 return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source,
                     search,
-                    ContainsDiacritic(search, value)
+                    ContainsDiacritic(search)
                         ? CompareOptions.IgnoreCase
                         : CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreCase
                 ) >= 0;
             });
     }
 
-    private static bool ContainsDiacritic(in ReadOnlySpan<char> value, object resultKey)
+    private static bool ContainsDiacritic(in ReadOnlySpan<char> value)
     {
-        if (Cache.TryGetValue(resultKey, out var result)) return result.HasDiacritic;
         bool hasAccent = false;
-        var str = new string(value);
         //todo we could maybe get rid of this normalization step if the text is already normalized
         //that would mean we could just iterate the value here rather than creating a new string
-        foreach (var ch in str.Normalize(NormalizationForm.FormD))
+        foreach (var ch in new string(value).Normalize(NormalizationForm.FormD))
         {
             if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
             {
@@ -52,8 +48,6 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor
                 break;
             }
         }
-
-        Cache.Add(resultKey, new DiacriticResult(hasAccent));
         return hasAccent;
     }
 

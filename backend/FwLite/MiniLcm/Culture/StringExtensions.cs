@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MiniLcm.Culture;
@@ -29,11 +28,8 @@ public static class StringExtensions
             CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace);
     }
 
-    private record DiacriticResult(bool HasDiacritic);
-    private static readonly ConditionalWeakTable<string, DiacriticResult> Cache = new();
     public static bool ContainsDiacritic(string value)
     {
-        if (Cache.TryGetValue(value, out var result)) return result.HasDiacritic;
         bool hasAccent = false;
         foreach (var ch in value.Normalize(NormalizationForm.FormD))
         {
@@ -43,7 +39,6 @@ public static class StringExtensions
                 break;
             }
         }
-        Cache.Add(value, new DiacriticResult(hasAccent));
         return hasAccent;
     }
 
