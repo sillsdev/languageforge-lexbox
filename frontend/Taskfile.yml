@@ -36,7 +36,7 @@ tasks:
 
   fw-lite-infr-internal:
     internal: true
-    deps: [ viewer:run-app, run-https-proxy ]
+    deps: [ viewer:run-app, run-https-proxy, viewer:storybook ]
 
   playwright-tests:
     aliases: [ pt ]

@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook/svelte-vite';
+import type {StorybookConfig} from '@storybook/svelte-vite';
 
 const config: StorybookConfig = {
   "stories": [
