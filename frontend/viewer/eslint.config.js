@@ -1,8 +1,11 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+
 import {FlatCompat} from '@eslint/eslintrc';
 import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
+import storybook from "eslint-plugin-storybook";
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
 
@@ -19,6 +22,7 @@ export default [
       '**/*js',
       '**/generated-types/**',
       '**/vite.config.*',
+      '**/.storybook/**',
     ],
   },
   js.configs.recommended,
@@ -77,6 +81,12 @@ export default [
         {
           'selector': 'import',
           'format': ['camelCase', 'PascalCase'],
+        },
+        {
+          'selector': 'variable',
+          'modifiers': ['destructured'],
+          'filter': {'regex': '^Story$', 'match': true},
+          'format': ['PascalCase'],
         }
       ],
       '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
@@ -118,7 +128,12 @@ export default [
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['lingui.config.ts', 'tailwind.config.ts', 'playwright.config.ts'],
+          allowDefaultProject: [
+            'lingui.config.ts',
+            'tailwind.config.ts',
+            'playwright.config.ts',
+            'vitest.config.ts',
+          ],
         },
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files
@@ -141,4 +156,5 @@ export default [
       }
     },
   },
+  ...storybook.configs["flat/recommended"],
 ];

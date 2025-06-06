@@ -26,9 +26,9 @@
     "src/**/*.js",
     "src/**/*.svelte",
     "src/web-component.ts",
-    "tests/**/*.ts",
-    "tests/**/*.js",
-    "tests/**/*.svelte",
+    "e2e-tests/**/*.ts",
+    "e2e-tests/**/*.js",
+    "e2e-tests/**/*.svelte",
   ],
   "references": [{ "path": "./tsconfig.node.json" }],
 }

@@ -1,7 +1,6 @@
 import {defineConfig} from 'vite';
-import {svelte} from '@sveltejs/vite-plugin-svelte';
-import {svelteTesting} from '@testing-library/svelte/vite';
 import {lingui} from '@lingui/vite-plugin';
+import {svelte} from '@sveltejs/vite-plugin-svelte';
 import webfontDownload from 'vite-plugin-webfont-dl';
 
 // https://vitejs.dev/config/
@@ -52,7 +51,6 @@ export default defineConfig(({ mode, command }) => {
           handler(warning);
         },
       }),
-      svelteTesting(),
       lingui(),
       webfontDownload([],
     {
@@ -65,11 +63,6 @@ export default defineConfig(({ mode, command }) => {
       host: true,
       allowedHosts: true,
       cors: true,
-    },
-    test: {
-      environment: 'happy-dom',
-      setupFiles: ['./vitest-setup.js'],
-      include: ['**/*.{test,spec,test.svelte}.?(c|m)[jt]s?(x)'],
     },
   }
 });
