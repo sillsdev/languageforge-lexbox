@@ -86,8 +86,8 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="1.11.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.0.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
-    <PackageVersion Include="Polly" Version="8.4.2" />
-    <PackageVersion Include="Polly.Extensions" Version="8.4.2" />
+    <PackageVersion Include="Polly" Version="8.5.2" />
+    <PackageVersion Include="Polly.Extensions" Version="8.5.2" />
     <PackageVersion Include="Quartz.AspNetCore" Version="3.13.0" />
     <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
     <PackageVersion Include="Refit" Version="8.0.0" />
