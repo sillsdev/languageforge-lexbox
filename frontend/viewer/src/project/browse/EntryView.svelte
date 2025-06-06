@@ -108,7 +108,7 @@
       </div>
     </ScrollArea>
   {/if}
-  {#if loadingDebounced.current}
+  {#if loadingDebounced.current && entryResource.current?.id !== entryId}
     <div
       class="absolute inset-0 opacity-50 bg-background z-10"
       transition:fade={{ duration: 150 }}>
