@@ -22,6 +22,7 @@ using Reinforced.Typings.Visitors.TypeScript;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
+using System.Runtime.CompilerServices;
 
 namespace FwLiteShared.TypeGen;
 
@@ -102,7 +103,10 @@ public static class ReinforcedFwLiteTypingConfig
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
         builder.ExportAsEnum<SortField>().UseString();
         builder.ExportAsInterfaces([typeof(QueryOptions), typeof(FilterQueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
-            exportBuilder => exportBuilder.WithPublicNonStaticProperties());
+            exportBuilder => exportBuilder.WithPublicNonStaticProperties(propExportBuilder =>
+        {
+            propExportBuilder.IgnoreComputedGetters();
+        }));
     }
 
     private static void ConfigureFwLiteSharedTypes(ConfigurationBuilder builder)
@@ -178,6 +182,14 @@ public static class ReinforcedFwLiteTypingConfig
             }
         }
         return exportBuilder;
+    }
+
+    private static void IgnoreComputedGetters(this PropertyExportBuilder exportBuilder)
+    {
+        // see: https://stackoverflow.com/a/72266104
+        var property = exportBuilder.Member;
+        if (property.SetMethod == null && property.GetMethod?.GetCustomAttribute(typeof(CompilerGeneratedAttribute)) is null)
+            exportBuilder.Ignore();
     }
 
     private static void OnlyJsInvokable(this MethodExportBuilder exportBuilder)
