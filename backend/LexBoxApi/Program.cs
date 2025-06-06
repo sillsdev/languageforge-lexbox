@@ -90,9 +90,9 @@ builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<IDeveloperPageExceptionFilter, AddExceptionFeatureDevExceptionFilter>();
 builder.Services.AddExceptionHandler((options) =>
 {
-    options.StatusCodeSelector = context =>
+    options.StatusCodeSelector = exception =>
     {
-        if (context is UnauthorizedAccessException)
+        if (exception is UnauthorizedAccessException)
             return StatusCodes.Status401Unauthorized;
         return StatusCodes.Status500InternalServerError;
     };
