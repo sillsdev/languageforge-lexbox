@@ -174,10 +174,17 @@ static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFi
     [FromForm] string filename,
     [FromForm] Stream file,
     [FromForm] FileMetadata metadata,
+    HttpRequest request,
     ProjectLookupService projectLookupService,
     IOptions<FwHeadlessConfig> config,
     LexBoxDbContext lexBoxDb)
 {
+    // Sanity check: reject ridiculously large uploads before doing any work
+    if (request.ContentLength is not null && request.ContentLength > Int32.MaxValue)
+    {
+        // TODO: Decide on a sane limit, e.g. we won't accept uploads of more than 1 GB, and use that instead of Int32.MaxValue
+        return TypedResults.BadRequest();
+    }
     var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
     if (mediaFile is null)
     {
@@ -194,7 +201,7 @@ static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFi
         if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
         else mediaFile.Metadata.Merge(metadata);
         // TODO: Catch attempts to change projectId or filename and handle appropriately (moving file to different project? error?
-        // TODO: Changing filename should be allowed, though
+        // TODO: Changing filename should be detected and should cause a rename, or a deletion of the old file
     }
     var project = await lexBoxDb.Projects.FindAsync(projectId);
     if (project is null) return TypedResults.NotFound();
@@ -202,7 +209,15 @@ static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFi
     var filePath = Path.Join(projectFolder, mediaFile.Filename);
     var writeStream = File.OpenWrite(filePath);
     await file.CopyToAsync(writeStream);
-    // TODO: Return BadRequest if file too large
+    writeStream.Dispose();
+    // Get size of what we just wrote (don't want to rely on Content-Length header because it includes other form fields, not just the file contents)
+    var fileInfo = new FileInfo(filePath);
+    // TODO: Decide on max upload size and reject it
+    if (fileInfo.Length > Int32.MaxValue)
+    {
+        fileInfo.Delete(); // Don't allow denial of service by uploading ridiculously large files
+        return TypedResults.BadRequest();
+    }
     mediaFile.UpdateUpdatedDate();
     lexBoxDb.SaveChanges();
     // TODO: Construct URL with appropriate ASP.NET Core methods rather than hardcoded string
