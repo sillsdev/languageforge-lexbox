@@ -22,6 +22,7 @@ export default [
       '**/*js',
       '**/generated-types/**',
       '**/vite.config.*',
+      '**/.storybook/**',
     ],
   },
   js.configs.recommended,
@@ -80,6 +81,12 @@ export default [
         {
           'selector': 'import',
           'format': ['camelCase', 'PascalCase'],
+        },
+        {
+          'selector': 'variable',
+          'modifiers': ['destructured'],
+          'filter': {'regex': '^Story$', 'match': true},
+          'format': ['PascalCase'],
         }
       ],
       '@stylistic/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
@@ -121,7 +128,12 @@ export default [
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['lingui.config.ts', 'tailwind.config.ts', 'playwright.config.ts'],
+          allowDefaultProject: [
+            'lingui.config.ts',
+            'tailwind.config.ts',
+            'playwright.config.ts',
+            'vitest.config.ts',
+          ],
         },
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files

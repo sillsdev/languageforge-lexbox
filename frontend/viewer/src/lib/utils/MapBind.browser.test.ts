@@ -1,9 +1,9 @@
 import {expect, test, beforeEach} from 'vitest'
-import { get, writable, type Writable } from 'svelte/store'
+import {render} from 'vitest-browser-svelte'
+import {get, writable, type Writable} from 'svelte/store'
 
 import MapBindTest from './MapBind.test.svelte'
-import {render} from '@testing-library/svelte'
-import { tick } from 'svelte'
+import {tick} from 'svelte'
 
 let inStore: Writable<string | undefined>;
 let outStore: Writable<{ id: string } | undefined>;
