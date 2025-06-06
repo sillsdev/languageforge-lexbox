@@ -13,7 +13,6 @@ using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 
 namespace LexBoxApi.Controllers;
@@ -70,7 +69,7 @@ public class CrdtController(
     public async Task<ActionResult<int>> CountChanges(Guid projectId,
         [FromBody] SyncState clientHeads)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         var localState = await crdtCommitService.GetSyncState(projectId);
         return await crdtCommitService.ApproximatelyCountMissingCommits(projectId, localState, clientHeads);
     }
