@@ -166,6 +166,7 @@ static async Task<Results<Ok, NotFound>> PutFile(
     mediaFile.UpdateUpdatedDate();
     lexBoxDb.SaveChanges();
     return TypedResults.Ok();
+    // TODO: Extract out common code between this and Post, e.g. for file-size handling, because right now POST has some features that PUT does not
 }
 
 static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFile(
@@ -217,6 +218,10 @@ static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFi
     {
         fileInfo.Delete(); // Don't allow denial of service by uploading ridiculously large files
         return TypedResults.BadRequest();
+    }
+    else
+    {
+        mediaFile.Metadata.SizeInBytes = (int)fileInfo.Length;
     }
     mediaFile.UpdateUpdatedDate();
     lexBoxDb.SaveChanges();
