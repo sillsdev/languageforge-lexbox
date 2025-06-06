@@ -1,9 +1,14 @@
-﻿using System.Reflection;
+using System.Drawing;
+using System.Reflection;
+using System.Text.Json.Serialization;
+using System.Reflection;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LexCore.Entities;
+using LexCore.Sync;
 using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Attributes;
@@ -37,6 +42,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(Color), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
@@ -72,7 +78,7 @@ public static class ReinforcedFwLiteTypingConfig
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
-            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null)
+            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null || exportBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is {Condition: JsonIgnoreCondition.Always})
             {
                 exportBuilder.Ignore();
             }
@@ -95,7 +101,7 @@ public static class ReinforcedFwLiteTypingConfig
             .WithPublicProperties()
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
         builder.ExportAsEnum<SortField>().UseString();
-        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
+        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(FilterQueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties());
     }
 
@@ -104,7 +110,10 @@ public static class ReinforcedFwLiteTypingConfig
 
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
+        builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
+        builder.ExportAsEnum<UserProjectRole>().UseString();
+        builder.ExportAsEnum<ProjectRole>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
@@ -112,10 +121,13 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsInterfaces(serviceTypes, exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable()));
         builder.ExportAsInterfaces([typeof(ITroubleshootingService)], exportBuilder => exportBuilder.WithPublicMethods(b => b.AlwaysReturnPromise()));
 
+        builder.ExportAsInterface<ProjectSyncStatus>().WithPublicNonStaticProperties();
         builder.ExportAsInterfaces([
             typeof(ServerStatus),
             typeof(ProjectModel),
             typeof(ServerProjects),
+            typeof(SyncResult),
+            typeof(SyncResults),
             typeof(LexboxServer),
             typeof(CrdtProject),
             typeof(ProjectData),

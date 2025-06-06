@@ -7,12 +7,14 @@
   import {fieldData, type FieldId} from '../field-data';
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
-  import {MultiSelect, MultiWsInput} from '$lib/components/field-editors';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
   import {useComplexFormTypes} from '$lib/complex-form-types';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
+  import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
+  import {mergeProps} from 'bits-ui';
 
-  type Props = {
+  interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
     readonly?: boolean;
     modalMode?: boolean;
@@ -24,6 +26,7 @@
     onchange,
     readonly = false,
     modalMode = false,
+    ...rest
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -35,7 +38,7 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas($currentView, entry)}">
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas($currentView, entry) } })}>
   <Editor.Field.Root style="grid-area: lexemeForm" class={cn($currentView.fields.lexemeForm.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Lexeme form`, $t`Word`)} helpId={fieldData.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
@@ -99,18 +102,18 @@
   <Editor.Field.Root style="grid-area: literalMeaning" class={cn($currentView.fields.literalMeaning.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Literal meaning`)} helpId={fieldData.literalMeaning.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('literalMeaning')}
           bind:value={entry.literalMeaning}
           {readonly}
-          writingSystems={writingSystemService.vernacular} />
+          writingSystems={writingSystemService.analysis} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
   <Editor.Field.Root style="grid-area: note" class={cn($currentView.fields.note.show || 'hidden')}>
     <Editor.Field.Title name={vt($t`Note`)} helpId={fieldData.note.helpId} />
     <Editor.Field.Body subGrid>
-      <MultiWsInput
+      <RichMultiWsInput
           onchange={() => onFieldChanged('note')}
           bind:value={entry.note}
           {readonly}

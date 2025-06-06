@@ -82,26 +82,7 @@ public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi
 }
 
 
-public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : RichMultiString, IDictionary
+public class UpdateRichMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : RichMultiString(new
+    UpdateRichMultiStringDictionaryProxy(multiString, lexboxLcmApi))
 {
-    private IDictionary<WritingSystemId, string> proxy => new UpdateDictionaryProxy(multiString, lexboxLcmApi);
-
-    void IDictionary.Add(object key, object? value)
-    {
-        var valStr = value as string ??
-                     throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string",
-                         nameof(value));
-        if (key is WritingSystemId keyWs)
-        {
-            proxy.Add(keyWs, valStr);
-        }
-        else if (key is string keyStr)
-        {
-            proxy.Add(keyStr, valStr);
-        }
-        else
-        {
-            throw new ArgumentException("unable to convert key to writing system id", nameof(key));
-        }
-    }
 }

@@ -2,8 +2,7 @@
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
   import { _userTypeaheadSearch, _usersTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserICanSeeTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
-  import { deriveAsync } from '$lib/util/time';
-  import { writable } from 'svelte/store';
+  import {resource} from 'runed';
 
   type UserTypeaheadResult = SingleUserTypeaheadResult | SingleUserICanSeeTypeaheadResult;
   let inputComponent: PlainInput | undefined = $state();
@@ -40,15 +39,14 @@
 
   // making this explicit allows us to only react to input events,
   // rather than programmatic changes like selecting a user
-  let trigger = writable('');
-  const _typeaheadResults = deriveAsync(trigger, (value) => typeaheadSearch(value), [], debounceMs);
+  let trigger = $state('');
+  const _typeaheadResults = resource(() => trigger, (value) => typeaheadSearch(value), {initialValue: [], debounce: debounceMs});
 
-  // TODO: Turn this into state instead of a store at some point
-  let selectedUser = writable<UserTypeaheadResult | null>(null);
+  let selectedUser = $state<UserTypeaheadResult | null>(null);
 
   function selectUser(user: UserTypeaheadResult): void {
-    $selectedUser = user;
-    onSelectedUserChange?.($selectedUser);
+    selectedUser = user;
+    onSelectedUserChange?.(selectedUser);
     selectedValue = getInputValue(user);
     value = selectedValue;
   }
@@ -99,14 +97,14 @@
       typeaheadResults = []; // prevent old results showing when opening next time
     }
   }
-  let typeaheadResults = $derived($_typeaheadResults);
+  let typeaheadResults = $derived(_typeaheadResults.current);
   let filteredResults = $derived(typeaheadResults.filter((user) => !exclude.includes(user.id)));
   // TODO: Can this be simplified by making the "value !== selectedValue" part into a $derived?
   // Then we'd be able to just do `$effect(() => { if (changedSelection) dispatch(...)})`
   // And, of course, change the dispatch into calling a prop function
   $effect(() => {
-    if ($selectedUser && value !== selectedValue) {
-      $selectedUser = null;
+    if (selectedUser && value !== selectedValue) {
+      selectedUser = null;
       selectedValue = undefined;
       onSelectedUserChange?.(null);
     }
@@ -131,7 +129,7 @@
       autocomplete="off"
       {autofocus}
       {keydownHandler}
-      onInput={(value) => trigger.set(value ?? '')}
+      onInput={(value) => trigger = value ?? ''}
     />
     <div class="overlay-content">
       <ul class="menu p-0">

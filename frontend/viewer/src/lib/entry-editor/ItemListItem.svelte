@@ -68,7 +68,7 @@
             </Reorderer.Root>
           </DropdownMenu.Sub>
           {/if}
-          <DropdownMenu.Item onSelect={() => remove(item)}>
+          <DropdownMenu.Item class="cursor-pointer" onSelect={() => remove(item)}>
             <Icon icon="i-mdi-trash-can-outline" />
             {$t`Remove`}
           </DropdownMenu.Item>

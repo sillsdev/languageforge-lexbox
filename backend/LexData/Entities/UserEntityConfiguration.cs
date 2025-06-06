@@ -69,8 +69,8 @@ public static class UserEntityExtensions
         // Users bulk-created by admins might not have email addresses
         // Users who self-registered must verify email in all cases
         if (user.CreatedById is null) throw new ProjectMembersMustBeVerified("Member must verify email first");
-        // Only project editors (basic role) are allowed not to have verified email addresses
-        if (forRole != ProjectRole.Editor) throw new ProjectMembersMustBeVerifiedForRole("Member must verify email before taking on this role", forRole);
+        // Only project editors and observers are allowed not to have verified email addresses
+        if (forRole is not ProjectRole.Editor and not ProjectRole.Observer) throw new ProjectMembersMustBeVerifiedForRole("Member must verify email before taking on this role", forRole);
     }
 
     public static void AssertHasVerifiedEmailForOrgRole(this User user, OrgRole forRole = OrgRole.Unknown)

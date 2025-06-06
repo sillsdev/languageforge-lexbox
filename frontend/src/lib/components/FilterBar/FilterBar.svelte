@@ -57,7 +57,7 @@
     activeFilterSlot,
     filterSlot,
   }: Props = $props();
-  let undebouncedSearch: string | undefined = $state(undefined);
+  let undebouncedSearch: string | undefined = $state($allFilters[searchKey]);
   let watcher: () => string | undefined;
   if (debounce === false) {
     watcher = () => undebouncedSearch;
@@ -67,6 +67,7 @@
     watcher = () => debouncer.current;
   }
   watch(watcher, (value) => {
+    if ($allFilters[searchKey] === value) return;
     $allFilters[searchKey] = value as Filters[typeof searchKey];
   });
 

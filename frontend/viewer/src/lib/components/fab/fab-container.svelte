@@ -13,6 +13,6 @@
   }: Props = $props();
 </script>
 
-<div class={cn('absolute bottom-4 right-4 flex flex-col items-end z-10', className)}>
+<div class={cn('absolute bottom-4 right-4 md:bottom-6 md:right-6 flex flex-col items-end z-10 gap-4', className)}>
   {@render children?.()}
 </div>

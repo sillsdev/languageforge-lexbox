@@ -30,10 +30,11 @@
     "test:watch": "vitest",
     "check": "svelte-check",
     "lint": "eslint .",
-    "i18n:extract": "lingui extract && lingui extract",
+    "i18n:extract": "lingui extract --clean && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js"
   },
   "devDependencies": {
+    "@argos-ci/playwright": "^5.0.4",
     "@egoist/tailwindcss-icons": "^1.9.0",
     "@iconify-json/mdi": "^1.1.66",
     "@lingui/cli": "^5.2.0",
@@ -97,6 +98,8 @@
     "svelte-preprocess": "catalog:",
     "svelte-routing": "^2.12.0",
     "svelte-ux": "^0.76.0",
-    "type-fest": "^4.18.2"
+    "tabbable": "^6.2.0",
+    "type-fest": "^4.18.2",
+    "virtua": "^0.41.2"
   }
 }

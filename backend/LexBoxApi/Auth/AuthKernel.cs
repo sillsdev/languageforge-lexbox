@@ -324,7 +324,7 @@ public static class AuthKernel
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
     {
         return builder.RequireAuthenticatedUser()
-            .AddRequirements(new RequireScopeAttribute(LexboxAuthScope.LexboxApi, true));
+            .AddRequirements(new RequireScopeAttribute(LexboxAuthScope.LexboxApi, true){IsDefault = true});
     }
 
     public static bool IsJwtRequest(this HttpRequest request)

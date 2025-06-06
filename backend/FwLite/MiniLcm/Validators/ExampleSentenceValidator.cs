@@ -8,8 +8,10 @@ public class ExampleSentenceValidator : AbstractValidator<ExampleSentence>
     public ExampleSentenceValidator()
     {
         RuleFor(es => es.DeletedAt).Null();
-        RuleFor(es => es.Sentence).NoEmptyValues(GetExampleSentenceIdentifier);
-        RuleFor(es => es.Translation).NoEmptyValues(GetExampleSentenceIdentifier);
+        RuleFor(es => es.Sentence).NoEmptyValues(GetExampleSentenceIdentifier)
+            .NoDefaultWritingSystems(GetExampleSentenceIdentifier);
+        RuleFor(es => es.Translation).NoEmptyValues(GetExampleSentenceIdentifier)
+            .NoDefaultWritingSystems(GetExampleSentenceIdentifier);
     }
 
     public ExampleSentenceValidator(Sense sense) : this()

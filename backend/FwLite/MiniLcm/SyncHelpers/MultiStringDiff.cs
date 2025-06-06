@@ -40,6 +40,7 @@ public static class MultiStringDiff
         {
             if (after.TryGetValue(key, out var afterValue))
             {
+                //todo this could be more specific, eg check each property and only generate operations for specific properties
                 if (!beforeValue.Equals(afterValue))
                     yield return new Operation<T>("replace", $"/{path}/{key}", null, afterValue);
             }

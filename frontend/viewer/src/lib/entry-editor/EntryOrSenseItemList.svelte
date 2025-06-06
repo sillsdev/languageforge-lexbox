@@ -19,11 +19,13 @@
   {...rest}
   getDisplayName={getHeadword}>
   {#snippet menuItems(entry)}
-    <DropdownMenu.Item>
-      <Link to="browse?entryId={getEntryId(entry)}">
-        <Icon icon="i-mdi-book-outline" />
-        {$t`Go to ${getHeadword(entry) || '–'}`}
-      </Link>
+    <DropdownMenu.Item class="cursor-pointer">
+      {#snippet child({props})}
+        <Link {...props} to="browse?entryId={getEntryId(entry)}">
+          <Icon icon="i-mdi-book-outline" />
+          {$t`Go to ${getHeadword(entry) || '–'}`}
+        </Link>
+      {/snippet}
     </DropdownMenu.Item>
   {/snippet}
 </ItemList>

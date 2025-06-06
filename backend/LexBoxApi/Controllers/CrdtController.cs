@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using SIL.Harmony.Core;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -35,7 +35,7 @@ public class CrdtController(
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         return await crdtCommitService.GetSyncState(projectId);
     }
 
@@ -61,21 +61,33 @@ public class CrdtController(
     public async Task<ActionResult<ChangesResult>> Changes(Guid projectId,
         [FromBody] SyncState clientHeads)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         var localState = await crdtCommitService.GetSyncState(projectId);
         return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
     }
 
-    public record FwLiteProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
+    [HttpPost("{projectId}/countChanges")]
+    public async Task<ActionResult<int>> CountChanges(Guid projectId,
+        [FromBody] SyncState clientHeads)
+    {
+        await permissionService.AssertCanSyncProject(projectId);
+        var localState = await crdtCommitService.GetSyncState(projectId);
+        return await crdtCommitService.ApproximatelyCountMissingCommits(projectId, localState, clientHeads);
+    }
 
     [HttpGet("listProjects")]
-    public async Task<ActionResult<FwLiteProject[]>> ListProjects()
+    public async Task<ActionResult<FieldWorksLiteProject[]>> ListProjects()
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
-            .Select(p => new FwLiteProject(p.Id, p.Code, p.Name, p.LastCommit != null, dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id)))
+            .Select(p => new FieldWorksLiteProject(p.Id,
+                p.Code,
+                p.Name,
+                p.LastCommit != null,
+                dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id),
+                p.Users.Where(u => u.UserId == loggedInContext.User.Id).Select(m => m.Role).FirstOrDefault()))
             .ToArrayAsync();
-        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects.Select(p => p.Id).ToArray()))
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
         {
             await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
         }

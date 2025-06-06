@@ -166,7 +166,7 @@
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
     "welcome_header": "Welcome to Lexbox",
-    "welcome": "Lexbox is a hosting service for [FieldWorks](https://software.sil.org/fieldworks/), \
+    "welcome": "Lexbox is a hosting service for [FieldWorks](https://software.sil.org/fieldworks/), [FieldWorks Lite](https://lexbox.org/fw-lite), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand. \
@@ -271,7 +271,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "sync_result": "{fwdataChanges} changes synced to FieldWorks. {crdtChanges} changes synced to FieldWorks Lite.",
       "try_fw_lite": "Try FieldWorks Lite?",
       "try_info": "This will make your project available in [FieldWorks Lite](https://lexbox.org/fw-lite). \
-This is still experimental and it will affect your FieldWorks project data. \
+This feature is still in beta and it will affect your FieldWorks project data. \
 However, **all your data is safe and backed up** here on Lexbox. \
 If you run into problems with your project please tell support that you are using FieldWorks Lite. \n\n\
 Are you ready to try FieldWorks Lite?",
@@ -574,7 +574,7 @@ so we can get this fixed!",
     "open_with_viewer": "Browse",
     "open_with_flex": {
       "button": "Open with FieldWorks",
-      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",
+      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.2](https://software.sil.org/fieldworks/download/).",
       "instructions": "To open this project click **Open FieldWorks** in the dialog shown by your browser.\n\n\
 If you don't see a dialog or already closed it, click the button below:",
     },
@@ -603,7 +603,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "editor": "Editor",
     "editor_description": "Editor (can send/receive)",
     "manager": "Manager",
-    "manager_description": "Manager (can send/receive & add new users)"
+    "manager_description": "Manager (can send/receive & add new users)",
+    "observer": "Viewer",
+    "observer_description": "Viewer (FieldWorks Lite only)"
   },
   "system_role": {
     "label": "Role",

@@ -1,12 +1,12 @@
 <script lang="ts" module>
   import type {IconClass} from '$lib/icon-class';
-  import type {WithElementRef} from 'bits-ui';
+  import {mergeProps, type WithElementRef} from 'bits-ui';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
   import type {IconProps} from '../icon/icon.svelte';
 
   export const buttonVariants = tv({
-    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:[&:not(.loading)]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -71,9 +71,9 @@
   {#if loading || icon}
     <span transition:slide={{axis: 'x',}}>
     {#if loading}
-      <Icon icon="i-mdi-loading" class="animate-spin"/>
+      <Icon {...mergeProps({ class:'animate-spin'}, iconProps)} icon="i-mdi-loading" />
     {:else if icon}
-      <Icon {icon} {...iconProps}/>
+      <Icon {...iconProps} {icon} />
     {/if}
     </span>
   {/if}
@@ -82,13 +82,13 @@
 {/snippet}
 
 {#if href}
-  <a bind:this={ref} class={cn(buttonVariants({ variant, size }), className)} {href} {...restProps}>
+  <a bind:this={ref} class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
     {@render content()}
   </a>
 {:else}
   <button
     bind:this={ref}
-    class={cn(buttonVariants({ variant, size }), className)}
+    class={cn(buttonVariants({ variant, size }), className, loading && 'loading')}
     {type}
     {...restProps}
     disabled={restProps.disabled || loading}

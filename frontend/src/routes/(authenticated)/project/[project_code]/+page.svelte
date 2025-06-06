@@ -39,7 +39,6 @@
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
-  import { isDev } from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
@@ -58,6 +57,7 @@
   import CrdtSyncButton from './CrdtSyncButton.svelte';
   import { _askToJoinProject } from '../create/+page'; // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
   import { Duration } from '$lib/util/time';
+  import {hasFeatureFlag} from '$lib/user';
 
   interface Props {
     data: PageData;
@@ -146,17 +146,19 @@
     project.organizations?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role).filter((r) => !!r) ?? [],
   );
   let projectRole = $derived(project?.users.find((u) => u.user.id == user.id)?.role);
+  let userIsOrgAdmin = $derived(orgRoles.some((role) => role === OrgRole.Admin));
 
   // Mirrors PermissionService.CanViewProjectMembers() in C#
   let canViewOtherMembers = $derived(
     user.isAdmin ||
       projectRole == ProjectRole.Manager ||
       (projectRole && !project.isConfidential) || // public by default for members (non-members shouldn't even be here)
-      orgRoles.some((role) => role === OrgRole.Admin),
+      userIsOrgAdmin,
   );
 
   // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
   let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
+  let canSyncProject = $derived(user.isAdmin || projectRole == ProjectRole.Manager || projectRole == ProjectRole.Editor || userIsOrgAdmin);
 
   let resetProjectModal: ResetProjectModal | undefined = $state();
   async function resetProject(): Promise<void> {
@@ -357,75 +359,76 @@
           <CrdtSyncButton {project} {isEmpty} />
         </FeatureFlagContent>
       {/if}
-      {#if project.type === ProjectType.FlEx && $isDev && !isEmpty}
-        <OpenInFlexModal bind:this={openInFlexModal} {project} />
-        <!-- TODO: Figure out how bubble('click') works in new Svelte 5 world, where `on:click` is now a type error: "Argument of type '"click"' is not assignable to parameter of type 'never'" -->
-        <OpenInFlexButton projectId={project.id} onclick={openInFlexModal.open} />
-      {:else if canAskToJoinProject}
+      {#if canAskToJoinProject}
         <Button variant="btn-primary" loading={askLoading} onclick={() => askToJoinProject(project.id, project.name)}>
           {#if !askLoading}
             <span class="i-mdi-email text-2xl"></span>
           {/if}
           {$t('project_page.join_project.label')}
         </Button>
-      {:else}
-        <Dropdown>
-          <button class="btn btn-primary">
-            {$t('project_page.get_project.label', { isEmpty: isEmpty.toString() })}
-            <span class="i-mdi-dots-vertical text-2xl"></span>
-          </button>
-          {#snippet content()}
-            <div class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-              <div class="card-body max-sm:p-4">
-                <div class="prose">
-                  <h3>
-                    {$t('project_page.get_project.instructions_header', {
-                      type: project.type,
-                      mode: 'normal',
-                      isEmpty: isEmpty.toString(),
-                    })}
-                  </h3>
-                  {#if project.type === ProjectType.WeSay}
-                    {#if isEmpty}
+      {:else if canSyncProject}
+        {#if project && project.type === ProjectType.FlEx && !isEmpty}
+          <OpenInFlexModal bind:this={openInFlexModal} {project}/>
+          <OpenInFlexButton projectId={project.id} onclick={openInFlexModal?.open}/>
+        {:else}
+          <Dropdown>
+            <button class="btn btn-primary">
+              {$t('project_page.get_project.label', {isEmpty: isEmpty.toString()})}
+              <span class="i-mdi-dots-vertical text-2xl"></span>
+            </button>
+            {#snippet content()}
+              <div class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+                <div class="card-body max-sm:p-4">
+                  <div class="prose">
+                    <h3>
+                      {$t('project_page.get_project.instructions_header', {
+                        type: project.type,
+                        mode: 'normal',
+                        isEmpty: isEmpty.toString(),
+                      })}
+                    </h3>
+                    {#if project.type === ProjectType.WeSay}
+                      {#if isEmpty}
+                        <Markdown
+                          md={$t('project_page.get_project.instructions_wesay_empty', {
+                              code: project.code,
+                              login: encodeURIComponent(user.emailOrUsername),
+                              name: project.name,
+                            })}
+                        />
+                      {:else}
+                        <Markdown
+                          md={$t('project_page.get_project.instructions_wesay', {
+                              code: project.code,
+                              login: encodeURIComponent(user.emailOrUsername),
+                              name: project.name,
+                            })}
+                        />
+                      {/if}
+                    {:else if isEmpty}
                       <Markdown
-                        md={$t('project_page.get_project.instructions_wesay_empty', {
-                          code: project.code,
-                          login: encodeURIComponent(user.emailOrUsername),
-                          name: project.name,
-                        })}
+                        md={$t('project_page.get_project.instructions_flex_empty', {
+                            code: project.code,
+                            login: user.emailOrUsername,
+                            name: project.name,
+                          })}
                       />
                     {:else}
                       <Markdown
-                        md={$t('project_page.get_project.instructions_wesay', {
-                          code: project.code,
-                          login: encodeURIComponent(user.emailOrUsername),
-                          name: project.name,
-                        })}
+                        md={$t('project_page.get_project.instructions_flex', {
+                            code: project.code,
+                            login: user.emailOrUsername,
+                            name: project.name,
+                          })}
                       />
                     {/if}
-                  {:else if isEmpty}
-                    <Markdown
-                      md={$t('project_page.get_project.instructions_flex_empty', {
-                        code: project.code,
-                        login: user.emailOrUsername,
-                        name: project.name,
-                      })}
-                    />
-                  {:else}
-                    <Markdown
-                      md={$t('project_page.get_project.instructions_flex', {
-                        code: project.code,
-                        login: user.emailOrUsername,
-                        name: project.name,
-                      })}
-                    />
-                  {/if}
+                  </div>
+                  <SendReceiveUrlField projectCode={project.code}/>
                 </div>
-                <SendReceiveUrlField projectCode={project.code} />
               </div>
-            </div>
-          {/snippet}
-        </Dropdown>
+            {/snippet}
+          </Dropdown>
+        {/if}
       {/if}
     {/snippet}
     {#snippet title()}
@@ -588,6 +591,7 @@
       </OrgList>
       <MembersList
         projectId={project.id}
+        showObserver={project.type === ProjectType.FlEx && hasFeatureFlag(user, 'FwLiteBeta')}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}

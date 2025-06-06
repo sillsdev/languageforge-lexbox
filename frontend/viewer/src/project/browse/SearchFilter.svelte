@@ -7,6 +7,15 @@
   import {Switch} from '$lib/components/ui/switch';
   import {Toggle} from '$lib/components/ui/toggle';
   import {cn} from '$lib/utils';
+  import {mergeProps} from 'bits-ui';
+  import {useProjectStats} from '$lib/project-stats';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
+  import {formatNumber} from '$lib/components/ui/format';
+  import ViewT from '$lib/views/ViewT.svelte';
+
+  const stats = useProjectStats();
+  const currentView = useCurrentView();
 
   let {
     search = $bindable(),
@@ -39,17 +48,31 @@
   let filtersExpanded = $state(false);
 </script>
 
+{#snippet placeholder()}
+  {#if stats.current?.totalEntryCount !== undefined}
+    <ViewT view={$currentView} classic={$t`Filter # entries`} lite={$t`Filter # words`}>
+      <span class="font-bold">
+        {formatNumber(stats.current.totalEntryCount)}
+      </span>
+    </ViewT>
+  {:else}
+    {pt($t`Filter entries`, $t`Filter words`, $currentView)}
+  {/if}
+{/snippet}
+
 <Collapsible.Root bind:open={filtersExpanded} class={cn(filtersExpanded && 'bg-muted/50 rounded-b')}>
   <div class="relative">
-    <ComposableInput bind:value={search} placeholder={$t`Filter`} autofocus class="px-1">
+    <ComposableInput bind:value={search} {placeholder} autofocus class="px-1">
       {#snippet before()}
         <Sidebar.Trigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs" />
       {/snippet}
       {#snippet after()}
         <Collapsible.Trigger>
-          <Toggle aria-label={$t`Toggle filters`} class="aspect-square" size="xs">
-            <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
-          </Toggle>
+          {#snippet child({props})}
+            <Toggle {...mergeProps(props, { class: 'aspect-square' })} aria-label={$t`Toggle filters`} size="xs">
+              <Icon icon={gridifyFilter ? 'i-mdi-filter' : 'i-mdi-filter-outline'} class="size-5" />
+            </Toggle>
+          {/snippet}
         </Collapsible.Trigger>
       {/snippet}
     </ComposableInput>

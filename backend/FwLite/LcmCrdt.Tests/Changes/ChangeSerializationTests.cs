@@ -24,11 +24,7 @@ public class ChangeSerializationTests
     private static readonly JsonSerializerOptions Options = LazyOptions.Value;
     private static readonly AutoFaker Faker = new()
     {
-        Config =
-        {
-            Overrides = [new WritingSystemIdOverride(), new MultiStringOverride(),new RichMultiStringOverride()
-            ]
-        }
+        Config = AutoFakerDefault.MakeConfig(repeatCount: 1)
     };
 
     private static IEnumerable<IChange> GeneratedChanges()

@@ -28,6 +28,11 @@
   import {Link} from 'svelte-routing';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
+  import {T} from 'svelte-i18n-lingui';
+  import IfOnce from '$lib/components/if-once/if-once.svelte';
+  import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
+  import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
+  import {SvelteDate} from 'svelte/reactivity';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -64,9 +69,10 @@
     loading = false;
   }
 
-  let richString: IRichString = $state({
+  const originalRichString: IRichString = {
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
-  });
+  };
+  let richString: IRichString | undefined = $state(originalRichString);
   let readonly = $state(false);
   let selectedEntryHistory: EntrySenseSelection[] = $state([]);
   let openPicker = $state(false);
@@ -114,11 +120,21 @@
       buttonsLoading = false;
     }, 1000);
   }
+
+  let show = $state(false);
+  let reseter = $state(0);
+
+  let currentDate = new SvelteDate();
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
   <h2 class="mb-4 flex gap-8 items-center">
-    Shadcn Sandbox <ThemePicker />
+    <T msg="Shadcn Sandbox # #">
+      <ThemePicker />
+      {#snippet second()}
+        🤠
+      {/snippet}
+    </T>
   </h2>
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
@@ -133,12 +149,15 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div>
       <Button onclick={() => richString = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
+      <Button onclick={() => richString = undefined}>Set undefined</Button>
+      <Button onclick={() => richString = originalRichString}>Reset</Button>
       <label>
         <Checkbox bind:checked={readonly}/> Readonly
       </label>
     </div>
-    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}/>
-    <pre>{JSON.stringify(richString, null, 2).replaceAll(lineSeparator, '\n')}</pre>
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}
+       onchange={() => richString = JSON.parse(JSON.stringify($state.snapshot(richString)))} />
+    <pre>{JSON.stringify(richString, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}</pre>
   </div>
   <div class="flex flex-col gap-2 border p-4 justify-between">
     <h3 class="font-medium">Resizable Example</h3>
@@ -256,6 +275,21 @@
         click count: {count}
       </div>
     </div>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div class="flex flex-col gap-2">
+        IfOnce
+        {#key reseter}
+          <IfOnce show={show}>
+            content
+          </IfOnce>
+        {/key}
+        <label>
+          <Checkbox bind:checked={show}/>
+          Show
+        </label>
+        <Button onclick={() => reseter++}>Reset</Button>
+      </div>
+    </div>
     <div class="border grid" style="grid-template-columns: auto 1fr">
       <div class="col-span-2">
         <h3>Override Fields</h3>
@@ -300,6 +334,22 @@
         {#each sizes as size}
           <Button loading={buttonsLoading} {size} icon="i-mdi-auto-fix"/>
         {/each}
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div>
+        <h3>Formatters</h3>
+      </div>
+      <div>
+        <LocalizationPicker/>
+      </div>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2 items-center">
+        <div class="font-medium">Date component:</div>
+        <div><FormatDate date={currentDate} options={{timeStyle: 'medium'}}/></div>
+        <div class="font-medium">Date function:</div>
+        <div>{formatDate(currentDate, {timeStyle: 'medium'})}</div>
+        <div class="font-medium">Number function:</div>
+        <div>{formatNumber(currentDate.getTime())}</div>
       </div>
     </div>
   </div>

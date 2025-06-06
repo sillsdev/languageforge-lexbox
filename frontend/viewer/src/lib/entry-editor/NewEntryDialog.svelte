@@ -13,6 +13,7 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false});
@@ -81,11 +82,17 @@
   }
 
   let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !IsMobile.value) {
+      void createEntry(event);
+    }
+  }
 </script>
 
 {#if open}
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent>
+  <Dialog.DialogContent onkeydown={handleKeydown}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
@@ -93,9 +100,9 @@
       <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
     </OverrideFields>
     {#if errors.length}
-      <div class="self-end my-4">
+      <div class="text-end space-y-2">
         {#each errors as error}
-          <p class="text-danger p-2">{error}</p>
+          <p class="text-destructive">{error}</p>
         {/each}
       </div>
     {/if}

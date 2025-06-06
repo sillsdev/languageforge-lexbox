@@ -10,17 +10,7 @@ namespace FwLiteProjectSync.Tests;
 
 public class CrdtEntrySyncTests(SyncFixture fixture) : EntrySyncTestsBase(fixture)
 {
-    private static readonly AutoFaker AutoFaker = new(new AutoFakerConfig()
-    {
-        RepeatCount = 5,
-        Overrides =
-        [
-            new MultiStringOverride(),
-            new RichMultiStringOverride(),
-            new ObjectWithIdOverride(),
-            new OrderableOverride(),
-        ]
-    });
+    private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.Config);
 
     protected override IMiniLcmApi GetApi(SyncFixture fixture)
     {

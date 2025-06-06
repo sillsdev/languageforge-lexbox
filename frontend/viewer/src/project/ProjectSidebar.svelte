@@ -1,6 +1,7 @@
 <script lang="ts" module>
   export type View = 'dashboard' | 'browse' | 'tasks' | 'activity';
 </script>
+
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { Icon } from '$lib/components/ui/icon';
@@ -14,8 +15,14 @@
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
+  import SyncDialog from './SyncDialog.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
+  import {useProjectStats} from '$lib/project-stats';
+  import {formatNumber} from '$lib/components/ui/format';
 
   const config = useFwLiteConfig();
+  const features = useFeatures();
+  const stats = useProjectStats();
   let isSynchronizing = $state(false);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
@@ -37,13 +44,17 @@
 
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
+  let syncDialog = $state<SyncDialog>();
 </script>
 
-{#snippet ViewButton(view: View, icon: IconClass, label: string)}
+{#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
   <Sidebar.MenuItem>
     <Sidebar.MenuButton onclick={() => goto(view)} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
+      {#if stat}
+        <span class="text-right grow">{stat}</span>
+      {/if}
     </Sidebar.MenuButton>
   </Sidebar.MenuItem>
 {/snippet}
@@ -70,21 +81,23 @@
           <DevContent>
             {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           </DevContent>
-          {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`)}
+          {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
           <DevContent>
             {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
-            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
           </DevContent>
+          {#if features.history}
+            {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          {/if}
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
     <div class="grow"></div>
-    <DevContent>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <Sidebar.MenuItem>
-              <Sidebar.MenuButton class="justify-between">
+              <SyncDialog bind:this={syncDialog} />
+              <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                 <div class="flex items-center gap-2">
                   <Icon icon="i-mdi-sync" />
                   <span>{$t`Synchronize`}</span>
@@ -96,22 +109,23 @@
                 ></div>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton>
-                <Icon icon="i-mdi-account" />
-                <span>{$t`Account`}</span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton>
-                <Icon icon="i-mdi-cog" />
-                <span>{$t`Settings`}</span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+            <DevContent>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>
+                  <Icon icon="i-mdi-account" />
+                  <span>{$t`Account`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>
+                  <Icon icon="i-mdi-cog" />
+                  <span>{$t`Settings`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </DevContent>
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </DevContent>
 
     <Sidebar.Group>
       <Sidebar.Menu>
