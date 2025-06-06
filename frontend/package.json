@@ -109,5 +109,10 @@
     "sveltekit-search-params": "^3",
     "tus-js-client": "^4.3.1",
     "viewer": "workspace:*"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

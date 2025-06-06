@@ -1,8 +1,11 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+
 import {FlatCompat} from '@eslint/eslintrc';
 import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
 import path from 'path';
+import storybook from "eslint-plugin-storybook";
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
 
@@ -141,4 +144,5 @@ export default [
       }
     },
   },
+  ...storybook.configs["flat/recommended"],
 ];
