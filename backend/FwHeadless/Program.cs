@@ -191,8 +191,8 @@ static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFi
     }
     else
     {
-        // TODO: Write metadata-merging method instead of overwriting it like this
-        mediaFile.Metadata = metadata;
+        if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
+        else mediaFile.Metadata.Merge(metadata);
         // TODO: Catch attempts to change projectId or filename and handle appropriately (moving file to different project? error?
         // TODO: Changing filename should be allowed, though
     }

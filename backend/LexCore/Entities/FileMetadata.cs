@@ -20,6 +20,17 @@ public class FileMetadata
     public DateTimeOffset UploadDate;
     public MediaFileLicense? License;
     // TODO: Add other optional properties like purpose, transcript, etc.
+
+    public void Merge(FileMetadata other)
+    {
+        if (!string.IsNullOrEmpty(other.Filename)) this.Filename = other.Filename;
+        if (other.SizeInBytes > 0) this.SizeInBytes = other.SizeInBytes;
+        if (other.FileFormat is not null) this.FileFormat = other.FileFormat;
+        if (other.MimeType is not null) this.MimeType = other.MimeType;
+        if (other.Author is not null) this.Author = other.Author;
+        if (other.UploadDate > DateTimeOffset.MinValue) this.UploadDate = other.UploadDate;
+        if (other.License is not null) this.License = other.License;
+    }
 }
 
 public enum MediaFileLicense
