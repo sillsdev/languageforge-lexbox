@@ -32,7 +32,7 @@ public class MediaFileController : ControllerBase
     }
 
     [HttpPut("/{fileId}")]
-    async Task<Results<Ok, NotFound>> PutFile(
+    async Task<Results<Ok, BadRequest, NotFound>> PutFile(
         Guid fileId,
         Stream body,
         ProjectLookupService projectLookupService,
@@ -46,8 +46,27 @@ public class MediaFileController : ControllerBase
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        var writeStream = System.IO.File.OpenWrite(filePath);
-        await body.CopyToAsync(writeStream);
+        int size = 0;
+        try
+        {
+            size = await WriteFileToDisk(filePath, body);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return TypedResults.BadRequest();
+        }
+        if (mediaFile.Metadata is null)
+        {
+            mediaFile.Metadata = new FileMetadata()
+            {
+                SizeInBytes = size,
+                Filename = mediaFile.Filename
+            };
+        }
+        else
+        {
+            mediaFile.Metadata.SizeInBytes = size;
+        }
         mediaFile.UpdateUpdatedDate();
         lexBoxDb.SaveChanges();
         return TypedResults.Ok();
@@ -94,20 +113,13 @@ public class MediaFileController : ControllerBase
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        var writeStream = System.IO.File.OpenWrite(filePath);
-        await file.CopyToAsync(writeStream);
-        writeStream.Dispose();
-        // Get size of what we just wrote (don't want to rely on Content-Length header because it includes other form fields, not just the file contents)
-        var fileInfo = new FileInfo(filePath);
-        // TODO: Decide on max upload size and reject it
-        if (fileInfo.Length > Int32.MaxValue)
+        try
         {
-            fileInfo.Delete(); // Don't allow denial of service by uploading ridiculously large files
-            return TypedResults.BadRequest();
+            mediaFile.Metadata.SizeInBytes = await WriteFileToDisk(filePath, file);
         }
-        else
+        catch (ArgumentOutOfRangeException)
         {
-            mediaFile.Metadata.SizeInBytes = (int)fileInfo.Length;
+            return TypedResults.BadRequest();
         }
         mediaFile.UpdateUpdatedDate();
         lexBoxDb.SaveChanges();
@@ -117,4 +129,22 @@ public class MediaFileController : ControllerBase
         return TypedResults.Created(newLocation, responseBody);
     }
 
+    async Task<int> WriteFileToDisk(string filePath, Stream contents)
+    {
+        var writeStream = System.IO.File.OpenWrite(filePath);
+        await contents.CopyToAsync(writeStream);
+        writeStream.Dispose();
+        // Get size of what we just wrote (don't want to rely on Content-Length header because it includes other form fields, not just the file contents)
+        var fileInfo = new FileInfo(filePath);
+        // TODO: Decide on max upload size and use it instead of Int32.MaxValue (which would be 2 GiB)
+        if (fileInfo.Length > Int32.MaxValue)
+        {
+            fileInfo.Delete(); // Don't allow denial of service by uploading ridiculously large files
+            throw new ArgumentOutOfRangeException("file size");
+        }
+        else
+        {
+            return (int)fileInfo.Length;
+        }
+    }
 }
