@@ -199,7 +199,7 @@ public class AppUpdateService(
         }
     }
 
-    private bool ShouldCheckForUpdate()
+    internal bool ShouldCheckForUpdate()
     {
         if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(ForceUpdateCheckEnvVar) ?? ""))
         {
