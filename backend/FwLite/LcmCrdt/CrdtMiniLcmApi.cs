@@ -377,6 +377,7 @@ public class CrdtMiniLcmApi(
     {
         if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
 
+        return GetEntriesAsyncEnum(Filtering.FtsFilter(query, dbContext), options);
         return GetEntriesAsyncEnum(Filtering.SearchFilter(query), options);
     }
 

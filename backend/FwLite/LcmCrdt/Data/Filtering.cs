@@ -1,4 +1,6 @@
 ﻿using System.Linq.Expressions;
+using LinqToDB;
+using LinqToDB.DataProvider.SQLite;
 
 namespace LcmCrdt.Data;
 
@@ -17,6 +19,14 @@ public static class Filtering
         return e => e.LexemeForm.SearchValue(query)
                     || e.CitationForm.SearchValue(query)
                     || e.Senses.Any(s => s.Gloss.SearchValue(query));
+    }
+
+    public static Expression<Func<Entry, bool>> FtsFilter(string query, LcmCrdtDbContext db)
+    {
+        return e => db.EntrySearchRecords
+            .Where(fts => Sql.Ext.SQLite().Match(fts, query))
+            .Select(fts => fts.Id)
+            .Contains(e.Id);
     }
 
     public static Func<Entry, bool> CompiledFilter(string? query, WritingSystemId ws, string? exemplar)

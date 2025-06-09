@@ -1,8 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using LcmCrdt.Data;
 using LinqToDB;
+using LinqToDB.Data;
 using LinqToDB.DataProvider.SQLite;
 using LinqToDB.EntityFrameworkCore;
+using LinqToDB.Mapping;
 
 namespace LcmCrdt.FullTextSearch;
 
@@ -33,8 +35,13 @@ public record FullTextSearchRecord
         this.Rank = Rank;
     }
 
+    [Column(SkipOnInsert = true)]
     public int RowId { get; init; }
+
+    [Column(SkipOnInsert = true)]
     public string Match { get; init; } = null!;
+
+    [Column(SkipOnInsert = true)]
     public double? Rank { get; init; }
 
     public void Deconstruct(out int RowId, out string Match, out double? Rank)
@@ -58,7 +65,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
     {
         return wss.Where(ws => ws.Type == type)
             .Select(ws => ms.TryGetValue(ws.WsId, out var value) ? value : null)
-            .FirstOrDefault();
+            .FirstOrDefault()?.GetPlainText();
     }
 
     public string Definition(WritingSystem[] wss, Entry entry)
@@ -100,6 +107,22 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
             Definition = Definition(ws, entry),
             Gloss = Gloss(ws, entry)
         });
+    }
+
+    public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
+    {
+        var ws = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
+        bool created = false;
+        await dbContext.EntrySearchRecords.ToLinqToDBTable()
+            .BulkCopyAsync(entries.Select(entry =>
+                new EntrySearchRecord()
+                {
+                    Id = entry.Id,
+                    LexemeForm = LexemeForm(ws, entry),
+                    CitationForm = CitationForm(ws, entry),
+                    Definition = Definition(ws, entry),
+                    Gloss = Gloss(ws, entry)
+                }));
     }
 
     public IAsyncEnumerable<EntrySearchRecord> Search(string query)

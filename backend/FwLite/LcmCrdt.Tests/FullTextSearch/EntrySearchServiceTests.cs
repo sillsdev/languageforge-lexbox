@@ -91,7 +91,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
             CitationForm = { { "fr", "citation_fr" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "gloss" } }, Definition = { { "en", "definition" } } }
+                new Sense() { Gloss = { { "en", "gloss" } }, Definition = { { "en", new RichString("definition", "en") } } }
             ]
         });
 
