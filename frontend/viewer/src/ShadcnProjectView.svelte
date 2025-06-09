@@ -46,8 +46,8 @@
 
   type FwLiteEvent = {type: 'notification', message: string};
 
-  function isFwLiteMessage(data: any): check is FwLiteEvent {
-    return true;
+  function isFwLiteMessage(data: any): data is FwLiteEvent {
+    return typeof data ==='object' && data.type === 'notification' && typeof data.message === 'string' && data.message.length > 0 ;
   }
 
   //listenting to messages from paratext
