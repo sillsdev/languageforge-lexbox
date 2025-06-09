@@ -57,6 +57,20 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task DetectsMissingEntries()
+    {
+        var id = Guid.NewGuid();
+        _context.Set<Entry>().Add(new Entry()
+        {
+            Id = id,
+            LexemeForm = {["en"] = "word1"},
+        });
+        await _context.SaveChangesAsync();
+        var entries = await _service.EntriesMissingInSearchTable().ToArrayAsync();
+        entries.Should().Contain(e => e.Id == id);
+    }
+
+    [Fact]
     public async Task CanRegenerateTheSearchTable()
     {
         var id = Guid.NewGuid();
@@ -67,10 +81,9 @@ public class EntrySearchServiceTests : IAsyncLifetime
         });
         await _context.SaveChangesAsync();
         _service.EntrySearchRecords.Should().NotContain(e => e.Id == id);
-        await _service.RegenerateEntrySearchTable();
+        await _service.RegenerateIfMissing();
         _service.EntrySearchRecords.Should().Contain(e => e.Id == id);
     }
-
 
     [Theory]
     [InlineData("word1", "word1", true)]

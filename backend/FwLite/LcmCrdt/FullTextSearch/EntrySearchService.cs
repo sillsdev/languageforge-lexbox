@@ -4,10 +4,11 @@ using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SQLite;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt.FullTextSearch;
 
-public class EntrySearchService(LcmCrdtDbContext dbContext)
+public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchService> logger)
 {
     internal IQueryable<EntrySearchRecord> EntrySearchRecords => dbContext.Set<EntrySearchRecord>();
 
@@ -106,6 +107,27 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
                 .Select(entry => ToEntrySearchRecord(entry, writingSystems))
                 .AsAsyncEnumerable());
         await transaction.CommitAsync();
+    }
+
+    public async Task RegenerateIfMissing()
+    {
+        if (await QueryMissingEntries().AnyAsync())
+        {
+            logger.LogWarning("Regenerating entry search table because it is missing entries. This may take a while.");
+            await RegenerateEntrySearchTable();
+        }
+    }
+
+    public IAsyncEnumerable<Entry> EntriesMissingInSearchTable()
+    {
+        return QueryMissingEntries()
+            .AsAsyncEnumerable();
+    }
+
+    private IQueryable<Entry> QueryMissingEntries()
+    {
+        return dbContext.Set<Entry>()
+            .Where(e => !EntrySearchRecords.Any(esr => esr.Id == e.Id));
     }
 
     private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems)
