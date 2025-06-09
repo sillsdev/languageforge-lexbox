@@ -10,8 +10,6 @@ import extensionTemplateReact from './extension-template.web-view?inline';
 import extensionTemplatestyles from './styles.css?inline';
 import type {GetWebViewOptions} from 'shared/models/web-view.model';
 
-logger.info('FwLite extension is importing!');
-
 const reactWebViewType = 'fw-lite-extension.react';
 
 /**
@@ -28,7 +26,8 @@ const reactWebViewProvider: IWebViewProvider = {
       title: 'FW Lite Extension React',
       content: extensionTemplateReact,
       styles: extensionTemplatestyles,
-      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png'
+      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
+      allowedFrameSources: ['http:', 'https:']
     };
   },
 };
