@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FwHeadless;
+using FwHeadless.Routes;
 using FwHeadless.Services;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
@@ -48,8 +49,6 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
             LcmCrdtActivitySource.ActivitySourceName));
 });
 
-builder.Services.AddControllers();
-
 var app = builder.Build();
 
 // Add lexbox-version header to all requests
@@ -78,7 +77,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapDefaultEndpoints();
-app.MapControllers();
+app.MapMediaFileRoutes();
 
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);

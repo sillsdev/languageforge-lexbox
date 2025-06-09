@@ -8,13 +8,9 @@ using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Controllers;
 
-[ApiController]
-[Route("/api/media")]
-// TODO: RequireScope? Which scope should we require here? Decide on auth story
-public class MediaFileController : ControllerBase
+public static class MediaFileController
 {
-    [HttpGet("/{fileId}")]
-    async Task<Results<Ok<FileStream>, NotFound>> GetFile(
+    public static async Task<Results<Ok<FileStream>, NotFound>> GetFile(
         Guid fileId,
         ProjectLookupService projectLookupService,
         IOptions<FwHeadlessConfig> config,
@@ -31,8 +27,7 @@ public class MediaFileController : ControllerBase
         return TypedResults.Ok(file);
     }
 
-    [HttpPut("/{fileId}")]
-    async Task<Results<Ok, BadRequest, NotFound>> PutFile(
+    public static async Task<Results<Ok, BadRequest, NotFound>> PutFile(
         Guid fileId,
         Stream body,
         ProjectLookupService projectLookupService,
@@ -74,7 +69,7 @@ public class MediaFileController : ControllerBase
     }
 
     [HttpPost]
-    async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFile(
+    public static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFile(
         [FromForm] Guid fileId,
         [FromForm] Guid projectId,
         [FromForm] string filename,
@@ -129,7 +124,7 @@ public class MediaFileController : ControllerBase
         return TypedResults.Created(newLocation, responseBody);
     }
 
-    async Task<int> WriteFileToDisk(string filePath, Stream contents)
+    static async Task<int> WriteFileToDisk(string filePath, Stream contents)
     {
         var writeStream = System.IO.File.OpenWrite(filePath);
         await contents.CopyToAsync(writeStream);

@@ -58,7 +58,7 @@ public static class FileUploadKernel
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var transformer = context.RequestServices.GetRequiredService<HgRequestTransformer>();
 
-        var destinationPrefix = "fw-headless"; // TODO: Get from config
+        var destinationPrefix = "http://fw-headless:8081/"; // TODO: Get from config
 
         await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty, transformer);
     }

@@ -5,12 +5,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FwHeadless.Controllers;
 
-[ApiController]
-[Route("/api/metadata")]
-public class MediaFileMetadataController : ControllerBase
+public static class MediaFileMetadataController
 {
     [HttpGet("/{fileId}")]
-    async Task<Results<Ok<MediaFile>, NotFound>> GetFileMetadata(
+    public static async Task<Results<Ok<MediaFile>, NotFound>> GetFileMetadata(
         Guid fileId,
         LexBoxDbContext lexBoxDb)
     {
