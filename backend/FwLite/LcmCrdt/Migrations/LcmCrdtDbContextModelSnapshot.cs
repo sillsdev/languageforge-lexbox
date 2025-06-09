@@ -20,26 +20,31 @@ namespace LcmCrdt.Migrations
 
             modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
                 {
-                    b.Property<int>("RowId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CitationForm")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gloss")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Headword")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("Id")
+                    b.Property<string>("LexemeForm")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Match")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("EntrySearchRecord");
-
-                    b.Property<double?>("Rank")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("RowId");
+                    b.HasKey("Id");
 
                     b.ToTable("EntrySearchRecord", (string)null);
                 });

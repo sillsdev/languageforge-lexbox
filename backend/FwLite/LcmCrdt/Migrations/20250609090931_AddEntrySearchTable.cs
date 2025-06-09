@@ -6,26 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LcmCrdt.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFullTextSearch : Migration
+    public partial class AddEntrySearchTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // migrationBuilder.CreateTable(
-            //     name: "EntrySearchRecord",
-            //     columns: table => new
-            //     {
-            //         RowId = table.Column<int>(type: "INTEGER", nullable: false)
-            //             .Annotation("Sqlite:Autoincrement", true),
-            //         Id = table.Column<Guid>(type: "TEXT", nullable: false),
-            //         Headword = table.Column<string>(type: "TEXT", nullable: false),
-            //         EntrySearchRecord = table.Column<string>(type: "TEXT", nullable: false),
-            //         Rank = table.Column<double>(type: "REAL", nullable: true)
-            //     },
-            //     constraints: table =>
-            //     {
-            //         table.PrimaryKey("PK_EntrySearchRecord", x => x.RowId);
-            //     });
             migrationBuilder.Sql(@"
                 CREATE VIRTUAL TABLE EntrySearchRecord USING fts5(Headword, LexemeForm, CitationForm, Definition, Gloss, Id UNINDEXED, tokenize=""trigram remove_diacritics 1"");
                 INSERT INTO EntrySearchRecord(EntrySearchRecord, rank) VALUES('rank', 'bm25(5, 3, 4, 1, 2)');

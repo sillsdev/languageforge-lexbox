@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    [Migration("20250522082453_AddFullTextSearch")]
-    partial class AddFullTextSearch
+    [Migration("20250609090931_AddEntrySearchTable")]
+    partial class AddEntrySearchTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,26 +23,31 @@ namespace LcmCrdt.Migrations
 
             modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
                 {
-                    b.Property<int>("RowId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CitationForm")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gloss")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Headword")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("Id")
+                    b.Property<string>("LexemeForm")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Match")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("EntrySearchRecord");
-
-                    b.Property<double?>("Rank")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("RowId");
+                    b.HasKey("Id");
 
                     b.ToTable("EntrySearchRecord", (string)null);
                 });
@@ -75,6 +80,12 @@ namespace LcmCrdt.Migrations
 
                     b.Property<string>("OriginDomain")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Editor");
 
                     b.HasKey("Id");
 
@@ -213,7 +224,7 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("Reference")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid>("SenseId")
                         .HasColumnType("TEXT");
