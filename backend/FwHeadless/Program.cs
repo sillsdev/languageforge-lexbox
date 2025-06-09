@@ -48,6 +48,8 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
             LcmCrdtActivitySource.ActivitySourceName));
 });
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // Add lexbox-version header to all requests
