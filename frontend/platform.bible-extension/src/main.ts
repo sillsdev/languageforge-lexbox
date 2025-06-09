@@ -27,7 +27,7 @@ const reactWebViewProvider: IWebViewProvider = {
       content: extensionTemplateReact,
       styles: extensionTemplatestyles,
       iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
-      allowedFrameSources: ['http:', 'https:']
+      allowedFrameSources: ['http://localhost:*']
     };
   },
 };
@@ -115,6 +115,7 @@ async function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   }
   //todo instead of hardcoding the url and port we should run it and find the url in the output
   let baseUrl = 'http://localhost:29348';
+
   context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
