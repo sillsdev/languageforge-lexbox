@@ -24,9 +24,10 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         Randomizer.Seed = new Random(8675309);
         var faker = new Faker();
         await _fixture.Api.BulkCreateEntries(AsyncEnumerable.Range(0, count).Select(i => new Entry { LexemeForm = { ["en"] = faker.Name.FirstName() } }));
-        await _fixture.GetService<EntrySearchService>()
+        var entrySearchService = _fixture.GetService<EntrySearchService>();
+        await entrySearchService
             .UpdateEntrySearchTable(await _fixture.Api.GetEntries(new QueryOptions(Count: -1)).ToArrayAsync());
-        _fixture.GetService<LcmCrdtDbContext>().EntrySearchRecords.Should().NotBeEmpty();
+        entrySearchService.EntrySearchRecords.Should().NotBeEmpty();
         outputHelper.WriteLine("Entries created");
 
         var testIterations = 10;

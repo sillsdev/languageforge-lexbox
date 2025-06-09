@@ -44,7 +44,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     public async Task CanUpdateAnEntrySearchRecord()
     {
         await Service.UpdateEntrySearchTable(_entry);
-        var result = await fixture.GetService<LcmCrdtDbContext>().EntrySearchRecords.AsAsyncEnumerable().ToArrayAsync();
+        var result = await Service.EntrySearchRecords.AsAsyncEnumerable().ToArrayAsync();
         result.Should().Contain(e => e.Id == _entry.Id);
     }
 

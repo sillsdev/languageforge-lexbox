@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using LcmCrdt.FullTextSearch;
 using LinqToDB;
 using LinqToDB.DataProvider.SQLite;
 
@@ -21,9 +22,10 @@ public static class Filtering
                     || e.Senses.Any(s => s.Gloss.SearchValue(query));
     }
 
-    public static Expression<Func<Entry, bool>> FtsFilter(string query, LcmCrdtDbContext db)
+    public static Expression<Func<Entry, bool>> FtsFilter(string query, IQueryable<EntrySearchRecord>
+        queryableEntrySearch)
     {
-        return e => db.EntrySearchRecords
+        return e => queryableEntrySearch
             .Where(fts => Sql.Ext.SQLite().Match(fts, query))
             .Select(fts => fts.Id)
             .Contains(e.Id);

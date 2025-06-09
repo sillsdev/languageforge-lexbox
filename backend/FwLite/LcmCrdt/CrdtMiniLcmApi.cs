@@ -7,6 +7,7 @@ using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
+using LcmCrdt.FullTextSearch;
 using LcmCrdt.Objects;
 using LcmCrdt.Utils;
 using LinqToDB;
@@ -29,7 +30,8 @@ public class CrdtMiniLcmApi(
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
     LcmCrdtDbContext dbContext,
-    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
+    IOptions<LcmCrdtConfig> config,
+    EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -376,8 +378,10 @@ public class CrdtMiniLcmApi(
     public IAsyncEnumerable<Entry> SearchEntries(string? query, QueryOptions? options = null)
     {
         if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
-
-        return GetEntriesAsyncEnum(Filtering.FtsFilter(query, dbContext), options);
+        if (entrySearchService is not null)
+        {
+            return GetEntriesAsyncEnum(entrySearchService.SearchFilter(query), options);
+        }
         return GetEntriesAsyncEnum(Filtering.SearchFilter(query), options);
     }
 

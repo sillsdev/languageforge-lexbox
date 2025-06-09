@@ -34,6 +34,14 @@ public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
     {
+        services.AddLcmCrdtClientCore();
+        services.AddScoped<UpdateEntrySearchTableInterceptor>();
+        services.AddScoped<EntrySearchService>();
+        return services;
+    }
+
+    public static IServiceCollection AddLcmCrdtClientCore(this IServiceCollection services)
+    {
         AvoidTrimming();
         LinqToDBForEFTools.Initialize();
 
@@ -41,7 +49,6 @@ public static class LcmCrdtKernel
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
-        services.AddScoped<UpdateEntrySearchTableInterceptor>();
         services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
@@ -52,7 +59,6 @@ public static class LcmCrdtKernel
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
-        services.AddScoped<EntrySearchService>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
