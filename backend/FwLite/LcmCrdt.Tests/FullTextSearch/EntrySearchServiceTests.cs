@@ -42,6 +42,21 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task CanUpdateAnExistingEntrySearchRecord()
+    {
+        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "initial" } };
+        await _service.UpdateEntrySearchTable(entry);
+        var updated = entry.Copy();
+        updated.LexemeForm["en"] = "updated";
+        await _service.UpdateEntrySearchTable(updated);
+        var result = await _service.EntrySearchRecords
+            .AsAsyncEnumerable()
+            .SingleOrDefaultAsync(e => e.Id == entry.Id);
+        result.Should().NotBeNull();
+        result.LexemeForm.Should().Be("updated");
+    }
+
+    [Fact]
     public async Task CanRegenerateTheSearchTable()
     {
         var id = Guid.NewGuid();

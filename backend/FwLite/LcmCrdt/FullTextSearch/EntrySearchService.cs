@@ -16,6 +16,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
 
     public Expression<Func<Entry, bool>> SearchFilter(string query)
     {
+        if (query.Length < 3) return Filtering.SearchFilter(query);
         return Filtering.FtsFilter(query, EntrySearchRecords);
     }
 
@@ -67,15 +68,24 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
     {
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
         var record = ToEntrySearchRecord(entry, writingSystems);
-        await EntrySearchRecordsTable.InsertAsync(() => new EntrySearchRecord()
-        {
-            Id = entry.Id,
-            Headword = record.Headword,
-            LexemeForm = record.LexemeForm,
-            CitationForm = record.CitationForm,
-            Definition = record.Definition,
-            Gloss = record.Gloss,
-        });
+        await EntrySearchRecordsTable.InsertOrUpdateAsync(() => new EntrySearchRecord()
+            {
+                Id = record.Id,
+                Headword = record.Headword,
+                LexemeForm = record.LexemeForm,
+                CitationForm = record.CitationForm,
+                Definition = record.Definition,
+                Gloss = record.Gloss,
+            },
+            exiting => new EntrySearchRecord()
+            {
+                Id = record.Id,
+                Headword = record.Headword,
+                LexemeForm = record.LexemeForm,
+                CitationForm = record.CitationForm,
+                Definition = record.Definition,
+                Gloss = record.Gloss,
+            });
     }
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
