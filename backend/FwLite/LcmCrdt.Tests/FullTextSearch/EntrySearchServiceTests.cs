@@ -168,6 +168,42 @@ public class EntrySearchServiceTests : IAsyncLifetime
         string.Join(",", result.Select(e => e.LexemeForm)).Should().Be(expectedOrder);
     }
 
+    [Fact]
+    public async Task RanksResultsByColumn()
+    {
+        var word = Guid.NewGuid().ToString("N");
+        var headword = Guid.NewGuid();
+        var citationForm = Guid.NewGuid();
+        var lexemeForm = Guid.NewGuid();
+        var gloss = Guid.NewGuid();
+        var definition = Guid.NewGuid();
+        //only en is used for the headword
+        await _service.UpdateEntrySearchTable(new Entry() { Id = headword, LexemeForm = { { "en", word } } });
+        //using fr ensures that this value doesn't show up in the headword
+        await _service.UpdateEntrySearchTable(new Entry() { Id = citationForm, CitationForm = { { "fr", word } } });
+        await _service.UpdateEntrySearchTable(new Entry() { Id = lexemeForm, LexemeForm = { { "fr", word } } });
+        await _service.UpdateEntrySearchTable(new Entry() { Id = definition, Senses = { new Sense() { Definition = { { "en", new RichString(word, "en") } } } } });
+        await _service.UpdateEntrySearchTable(new Entry() { Id = gloss, Senses = { new Sense() { Gloss = { { "en", word } } } } });
+
+        var result = await _service.Search(word).ToArrayAsync();
+        result.Select(e => Named(e.Id)).Should()
+            .Equal(["headword", "citation", "lexemeform", "gloss", "definition"]);
+
+        string Named(Guid id)
+        {
+            return id switch
+            {
+                _ when id == headword => "headword",
+                _ when id == citationForm => "citation",
+                _ when id == lexemeForm => "lexemeform",
+                _ when id == gloss => "gloss",
+                _ when id == definition => "definition",
+                _ => "unknown"
+            };
+        }
+
+    }
+
     public async Task DisposeAsync()
     {
         await fixture.DisposeAsync();

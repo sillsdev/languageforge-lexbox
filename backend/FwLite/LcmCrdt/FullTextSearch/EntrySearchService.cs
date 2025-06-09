@@ -37,7 +37,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     {
         return wss.Where(ws => ws.Type == type)
             .Select(ws => ms.TryGetValue(ws.WsId, out var value) ? value : null)
-            .FirstOrDefault()?.GetPlainText();
+             .FirstOrDefault(v => v is not null)?.GetPlainText();
     }
 
     public static string Definition(WritingSystem[] wss, Entry entry)

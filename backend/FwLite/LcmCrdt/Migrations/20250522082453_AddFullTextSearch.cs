@@ -28,7 +28,9 @@ namespace LcmCrdt.Migrations
             //     });
             migrationBuilder.Sql(@"
                 CREATE VIRTUAL TABLE EntrySearchRecord USING fts5(Headword, LexemeForm, CitationForm, Definition, Gloss, Id UNINDEXED, tokenize=""trigram remove_diacritics 1"");
+                INSERT INTO EntrySearchRecord(EntrySearchRecord, rank) VALUES('rank', 'bm25(5, 3, 4, 1, 2)');
             ");
+            //'bm25(5, 3, 4, 1, 2)' configures the weights for each column and how they are matched
         }
 
         /// <inheritdoc />
