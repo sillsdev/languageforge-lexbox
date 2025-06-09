@@ -10,20 +10,11 @@ public class EntrySearchServiceTests : IAsyncLifetime
 {
     private MiniLcmApiFixture fixture = new MiniLcmApiFixture();
 
-    private static readonly AutoFaker Faker = new(new AutoFakerConfig()
-    {
-        RepeatCount = 5,
-        Overrides =
-        [
-            new MultiStringOverride(),
-            new RichMultiStringOverride(),
-            new WritingSystemIdOverride(),
-            new OrderableOverride(),
-        ]
-    });
+    private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
     private Entry _entry = Faker.Generate<Entry>();
-    private EntrySearchService Service => fixture.GetService<EntrySearchService>();
+    private EntrySearchService _service = null!;
+    private LcmCrdtDbContext _context = null!;
 
     public async Task InitializeAsync()
     {
@@ -38,14 +29,31 @@ public class EntrySearchServiceTests : IAsyncLifetime
             Exemplars = ["a", "b"],
             Type = WritingSystemType.Vernacular
         });
+        _context = fixture.GetService<LcmCrdtDbContext>();
+        _service = fixture.GetService<EntrySearchService>();
     }
 
     [Fact]
     public async Task CanUpdateAnEntrySearchRecord()
     {
-        await Service.UpdateEntrySearchTable(_entry);
-        var result = await Service.EntrySearchRecords.AsAsyncEnumerable().ToArrayAsync();
+        await _service.UpdateEntrySearchTable(_entry);
+        var result = await _service.EntrySearchRecords.AsAsyncEnumerable().ToArrayAsync();
         result.Should().Contain(e => e.Id == _entry.Id);
+    }
+
+    [Fact]
+    public async Task CanRegenerateTheSearchTable()
+    {
+        var id = Guid.NewGuid();
+        _context.Set<Entry>().Add(new Entry()
+        {
+            Id = id,
+            LexemeForm = {["en"] = "word1"},
+        });
+        await _context.SaveChangesAsync();
+        _service.EntrySearchRecords.Should().NotContain(e => e.Id == id);
+        await _service.RegenerateEntrySearchTable();
+        _service.EntrySearchRecords.Should().Contain(e => e.Id == id);
     }
 
 
@@ -56,10 +64,10 @@ public class EntrySearchServiceTests : IAsyncLifetime
     public async Task MatchWorksAsExpected(string searchTerm, string word, bool matches)
     {
         var id = Guid.NewGuid();
-        await Service.UpdateEntrySearchTable(new Entry() { Id = id, LexemeForm = { { "en", word } } });
+        await _service.UpdateEntrySearchTable(new Entry() { Id = id, LexemeForm = { { "en", word } } });
 
 
-        var result = await Service.Search(searchTerm).ToArrayAsync();
+        var result = await _service.Search(searchTerm).ToArrayAsync();
         if (matches)
         {
             result.Should().Contain(e => e.Id == id);
@@ -84,7 +92,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
     public async Task MatchColumnWorksAsExpected(string searchTerm, bool matches)
     {
         var id = Guid.NewGuid();
-        await Service.UpdateEntrySearchTable(new Entry()
+        await _service.UpdateEntrySearchTable(new Entry()
         {
             Id = id,
             LexemeForm = { { "en", "lexemeform_en" }, { "fr", "lexemeform_fr" } },
@@ -96,7 +104,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
         });
 
 
-        var result = await Service.Search(searchTerm).ToArrayAsync();
+        var result = await _service.Search(searchTerm).ToArrayAsync();
         if (matches)
         {
             result.Should().Contain(e => e.Id == id);
@@ -118,12 +126,17 @@ public class EntrySearchServiceTests : IAsyncLifetime
     [InlineData("word1 word3", "word1 word2 word3,word4", "word1 word2 word3")]
     public async Task RanksResultsAsExpected(string searchTerm, string words, string expectedOrder)
     {
+        var ids = new HashSet<Guid>();
         foreach (var word in words.Split(","))
         {
-            await Service.UpdateEntrySearchTable(new Entry() { LexemeForm = { { "en", word } } });
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            await _service.UpdateEntrySearchTable(new Entry() { Id = id, LexemeForm = { { "en", word } } });
         }
 
-        var result = await Service.Search(searchTerm).ToArrayAsync();
+        var result = await _service.Search(searchTerm)
+            .Where(e => ids.Contains(e.Id))//only include the entries we added to the search table, there may be others from other tests.
+            .ToArrayAsync();
         string.Join(",", result.Select(e => e.LexemeForm)).Should().Be(expectedOrder);
     }
 

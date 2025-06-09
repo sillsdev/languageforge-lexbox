@@ -66,7 +66,16 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
     public async Task UpdateEntrySearchTable(Entry entry)
     {
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
-        await EntrySearchRecordsTable.InsertAsync(() => ToEntrySearchRecord(entry, writingSystems));
+        var record = ToEntrySearchRecord(entry, writingSystems);
+        await EntrySearchRecordsTable.InsertAsync(() => new EntrySearchRecord()
+        {
+            Id = entry.Id,
+            Headword = record.Headword,
+            LexemeForm = record.LexemeForm,
+            CitationForm = record.CitationForm,
+            Definition = record.Definition,
+            Gloss = record.Gloss,
+        });
     }
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
@@ -74,6 +83,19 @@ public class EntrySearchService(LcmCrdtDbContext dbContext)
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
         await EntrySearchRecordsTable
             .BulkCopyAsync(entries.Select(entry => ToEntrySearchRecord(entry, writingSystems)));
+    }
+
+    public async Task RegenerateEntrySearchTable()
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        await EntrySearchRecordsTable.TruncateAsync();
+
+        var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
+        await EntrySearchRecordsTable
+            .BulkCopyAsync(dbContext.Set<Entry>()
+                .Select(entry => ToEntrySearchRecord(entry, writingSystems))
+                .AsAsyncEnumerable());
+        await transaction.CommitAsync();
     }
 
     private static EntrySearchRecord ToEntrySearchRecord(Entry entry, WritingSystem[] writingSystems)

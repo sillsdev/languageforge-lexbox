@@ -31,8 +31,6 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
 
         var entrySearchModel = modelBuilder.Entity<EntrySearchRecord>();
         entrySearchModel.ToTable(nameof(EntrySearchRecord));
-        entrySearchModel.HasKey(e => e.RowId);
-        entrySearchModel.Property(e => e.Match).HasColumnName(nameof(EntrySearchRecord));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
