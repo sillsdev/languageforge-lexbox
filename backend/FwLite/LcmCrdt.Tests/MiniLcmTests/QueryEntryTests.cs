@@ -21,8 +21,7 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
     [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
-        Randomizer.Seed = new Random(8675309);
-        var faker = new Faker();
+        var faker = new Faker { Random = new Randomizer(8675309) };
         await _fixture.Api.BulkCreateEntries(AsyncEnumerable.Range(0, count).Select(i => new Entry { LexemeForm = { ["en"] = faker.Name.FirstName() } }));
         var entrySearchService = _fixture.GetService<EntrySearchService>();
         await entrySearchService
@@ -51,7 +50,7 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         var timePerEntry = queryTime / count;
         outputHelper.WriteLine(
             $"Total query time: {queryTime.TotalMilliseconds}ms, time per entry: {timePerEntry.TotalMicroseconds}microseconds");
-        timePerEntry.TotalMicroseconds.Should().BeLessThan(10);//on my machine I got 3.9, so this is a safe margin
+        timePerEntry.TotalMicroseconds.Should().BeLessThan(1);//on my machine I got 3.9, so this is a safe margin
     }
 
     public override async Task DisposeAsync()

@@ -225,6 +225,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("Ãp", "Ãpple")]
     [InlineData("Ãp", "ãpple")]
     [InlineData("ap", "Ãpple")]
+    [InlineData("app", "Ãpple")]//crdt fts only kicks in at 3 chars
     public async Task SuccessfulMatches(string searchTerm, string word)
     {
         word = word.Normalize(NormalizationForm.FormD);

@@ -26,9 +26,12 @@ public static class Filtering
         queryableEntrySearch)
     {
         return e => queryableEntrySearch
-            .Where(fts => Sql.Ext.SQLite().Match(fts, query))
-            .Select(fts => fts.Id)
-            .Contains(e.Id);
+                        .Where(fts => Sql.Ext.SQLite().Match(fts, query))
+                        .Select(fts => fts.Id)
+                        .Contains(e.Id) &&
+                    (e.LexemeForm.SearchValue(query)
+                     || e.CitationForm.SearchValue(query)
+                     || e.Senses.Any(s => s.Gloss.SearchValue(query)));
     }
 
     public static Func<Entry, bool> CompiledFilter(string? query, WritingSystemId ws, string? exemplar)

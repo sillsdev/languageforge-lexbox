@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Linq.Expressions;
+using System.Text;
 using LcmCrdt.Data;
 using LinqToDB;
 using LinqToDB.Data;
@@ -17,7 +19,10 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public Expression<Func<Entry, bool>> SearchFilter(string query)
     {
-        if (query.Length < 3) return Filtering.SearchFilter(query);
+
+        //sqlite FTS returns nothing if the search term is less than 3 characters
+        //it strips diacritics, so we need to take that into account when counting the length
+        if (query.Normalize(NormalizationForm.FormC).Length < 3) return Filtering.SearchFilter(query);
         return Filtering.FtsFilter(query, EntrySearchRecords);
     }
 

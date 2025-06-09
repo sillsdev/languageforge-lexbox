@@ -478,6 +478,7 @@ public class CrdtMiniLcmApi(
             .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
             //force entries to be created first, this avoids issues where references are created before the entry is created
             .OrderBy(c => c is CreateEntryChange ? 0 : 1));
+        await (entrySearchService?.RegenerateEntrySearchTable() ?? Task.CompletedTask);
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
@@ -529,6 +530,7 @@ public class CrdtMiniLcmApi(
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
+        await (entrySearchService?.UpdateEntrySearchTable(entry) ?? Task.CompletedTask);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
 
         async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
@@ -604,14 +606,18 @@ public class CrdtMiniLcmApi(
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
         await AddChanges(entry.ToChanges(update.Patch));
-        return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+        var updatedEntry = await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+        await (entrySearchService?.UpdateEntrySearchTable(updatedEntry) ?? Task.CompletedTask);
+        return updatedEntry;
     }
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
         await EntrySync.Sync(before, after, api ?? this);
-        return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
+        var updatedEntry = await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
+        await (entrySearchService?.UpdateEntrySearchTable(updatedEntry) ?? Task.CompletedTask);
+        return updatedEntry;
     }
 
     public async Task DeleteEntry(Guid id)
@@ -661,6 +667,7 @@ public class CrdtMiniLcmApi(
         var sense = await GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
         await AddChanges([..sense.ToChanges(update.Patch)]);
+        //todo update entry search table
         return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
@@ -668,6 +675,7 @@ public class CrdtMiniLcmApi(
     {
         await validators.ValidateAndThrow(after);
         await SenseSync.Sync(entryId, before, after, api ?? this);
+        //todo update entry search table
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
