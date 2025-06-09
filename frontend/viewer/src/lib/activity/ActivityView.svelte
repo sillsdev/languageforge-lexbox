@@ -5,6 +5,7 @@
   import { t } from 'svelte-i18n-lingui';
   import { useProjectContext } from '$lib/project-context.svelte';
   import { resource } from 'runed';
+  import {SidebarTrigger} from '$lib/components/ui/sidebar';
 
   const historyService = useHistoryService();
   const projectContext = useProjectContext();
@@ -52,6 +53,8 @@
 {#if !activity.loading}
   <div class="m-4 grid gap-x-6 gap-y-1 overflow-hidden"
        style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
+
+    <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs"/>
     <div class="flex flex-col gap-4 overflow-hidden row-start-2">
       <div class="border rounded-md overflow-y-auto">
         {#if activity.current.length === 0}
