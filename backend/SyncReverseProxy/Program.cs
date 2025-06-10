@@ -38,5 +38,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapSyncProxy();
-app.MapFileUploadProxy();
 app.Run();

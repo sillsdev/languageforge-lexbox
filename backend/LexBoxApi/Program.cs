@@ -8,6 +8,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.ErrorHandling;
 using LexBoxApi.Hub;
 using LexBoxApi.Otel;
+using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Exceptions;

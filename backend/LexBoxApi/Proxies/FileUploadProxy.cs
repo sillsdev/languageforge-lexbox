@@ -1,17 +1,22 @@
 using System.Diagnostics;
 using Yarp.ReverseProxy.Forwarder;
+using LexSyncReverseProxy.Auth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using LexBoxApi.Auth.Attributes;
 
-namespace LexSyncReverseProxy;
+namespace LexBoxApi.Proxies;
 
-public static class FileUploadKernel
+public static class FileUploadProxy
 {
-    public const string UserHasAccessToProjectPolicy = ProxyKernel.UserHasAccessToProjectPolicy;
+    public const string RequireScopePolicy = RequireScopeAttribute.PolicyName;
 
     public static void AddFileUploadProxy(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
-        services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
+        services.AddTelemetryConsumer<LexSyncReverseProxy.ForwarderTelemetryConsumer>();
         services.AddSingleton(new HttpMessageInvoker(new SocketsHttpHandler
         {
             UseProxy = false,
@@ -21,8 +26,6 @@ public static class FileUploadKernel
         }));
 
         services.AddHttpForwarder();
-        // services.AddAuthentication()
-        //     .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
     }
 
     public static void MapFileUploadProxy(this IEndpointRouteBuilder app,
@@ -30,11 +33,11 @@ public static class FileUploadKernel
     {
 
         // No authorization... for now
-        // var authorizeAttribute = new AuthorizeAttribute
-        // {
-        //     AuthenticationSchemes = string.Join(',', BasicAuthHandler.AuthScheme, extraAuthScheme ?? ""),
-        //     Policy = UserHasAccessToProjectPolicy
-        // };
+        var authorizeAttribute = new AuthorizeAttribute
+        {
+            AuthenticationSchemes = string.Join(',', JwtBearerDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
+            Policy = RequireScopePolicy
+        };
 
         //media upload/download
         app.Map("/api/media/{**catch-all}",
@@ -48,18 +51,19 @@ public static class FileUploadKernel
             async (HttpContext context) =>
             {
                 await Forward(context);
-            }); //.RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
+            }).RequireAuthorization(authorizeAttribute);
+        // }).AllowAnonymous(); //.RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
     }
 
     private static async Task Forward(HttpContext context)
     {
         Activity.Current?.AddTag("app.file_upload", true);
+        Console.WriteLine("Forwarding to fw-headless");
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
-        var transformer = context.RequestServices.GetRequiredService<HgRequestTransformer>();
 
         var destinationPrefix = "http://fw-headless:8081/"; // TODO: Get from config
 
-        await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty, transformer);
+        await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty);
     }
 }

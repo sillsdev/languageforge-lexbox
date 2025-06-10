@@ -2,6 +2,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
 using LexBoxApi.GraphQL.CustomTypes;
+using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexBoxApi.Services.FwLiteReleases;
@@ -84,6 +85,7 @@ public static class LexBoxKernel
             // .AddCheck<FwHeadlessHealthCheck>("fw-headless", HealthStatus.Unhealthy, ["fw-headless"], TimeSpan.FromSeconds(5))
             ;
         services.AddSyncProxy();
+        services.AddFileUploadProxy(); // TODO: If this duplicates anything, such as services.AddMemoryCache() or services.AddHttpContextAccessor(), does that matter?
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
     }
