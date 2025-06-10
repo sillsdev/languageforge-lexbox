@@ -40,23 +40,16 @@ public static class FileUploadProxy
 
         //media upload/download
         app.Map("/api/media/{**catch-all}",
-            async (HttpContext context) =>
-            {
-                await Forward(context);
-            }).RequireAuthorization(authorizeAttribute);
+            Forward).RequireAuthorization(authorizeAttribute);
 
         //metadata requests
         app.Map("/api/metadata/{**catch-all}",
-            async (HttpContext context) =>
-            {
-                await Forward(context);
-            }).RequireAuthorization(authorizeAttribute);
+            Forward).RequireAuthorization(authorizeAttribute);
     }
 
     private static async Task Forward(HttpContext context)
     {
         Activity.Current?.AddTag("app.file_upload", true);
-        Console.WriteLine("Forwarding to fw-headless");
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
 
