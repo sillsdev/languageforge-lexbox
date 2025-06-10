@@ -32,7 +32,6 @@ public static class FileUploadProxy
         string? extraAuthScheme = null)
     {
 
-        // No authorization... for now
         var authorizeAttribute = new AuthorizeAttribute
         {
             AuthenticationSchemes = string.Join(',', JwtBearerDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
@@ -44,7 +43,7 @@ public static class FileUploadProxy
             async (HttpContext context) =>
             {
                 await Forward(context);
-            }); //.RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
+            }).RequireAuthorization(authorizeAttribute);
 
         //metadata requests
         app.Map("/api/metadata/{**catch-all}",
@@ -52,7 +51,6 @@ public static class FileUploadProxy
             {
                 await Forward(context);
             }).RequireAuthorization(authorizeAttribute);
-        // }).AllowAnonymous(); //.RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
     }
 
     private static async Task Forward(HttpContext context)
