@@ -1,10 +1,11 @@
 using System.Diagnostics;
 using Yarp.ReverseProxy.Forwarder;
-using LexSyncReverseProxy.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using LexBoxApi.Auth.Attributes;
+using Microsoft.Extensions.Options;
+using LexCore.Config;
 
 namespace LexBoxApi.Proxies;
 
@@ -52,8 +53,9 @@ public static class FileUploadProxy
         Activity.Current?.AddTag("app.file_upload", true);
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
+        var mediaFileConfig = context.RequestServices.GetRequiredService<IOptions<MediaFileConfig>>();
 
-        var destinationPrefix = "http://fw-headless:8081/"; // TODO: Get from config
+        var destinationPrefix = mediaFileConfig.Value.FwHeadlessUrl;
 
         await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty);
     }

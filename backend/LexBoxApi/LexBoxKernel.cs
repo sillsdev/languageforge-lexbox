@@ -46,6 +46,10 @@ public static class LexBoxKernel
             .BindConfiguration("Tus")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<MediaFileConfig>()
+            .BindConfiguration("MediaFileConfig")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddOptions<HealthChecksConfig>()
             .BindConfiguration("HealthChecks")
             .ValidateDataAnnotations()
