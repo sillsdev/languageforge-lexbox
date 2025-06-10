@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LexCore.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,10 +14,17 @@ public class FileMetadataEntityConfiguration : IEntityTypeConfiguration<MediaFil
         builder.HasOne<Project>().WithMany()
             .HasPrincipalKey(project => project.Id)
             .HasForeignKey(c => c.ProjectId);
-        builder.OwnsOne(e => e.Metadata, wsb =>
-        {
-            wsb.ToJson();
-            // TODO: Any structure here? Or leave totally unstructured?
-        });
+        builder.Property(u => u.Metadata)
+            .IsRequired(false)
+            .HasDefaultValueSql("'{}'::jsonb")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                }),
+                v => JsonSerializer.Deserialize<FileMetadata>(v, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                }));
     }
 }
