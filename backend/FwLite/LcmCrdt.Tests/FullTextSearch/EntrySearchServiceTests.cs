@@ -29,6 +29,16 @@ public class EntrySearchServiceTests : IAsyncLifetime
             Exemplars = ["a", "b"],
             Type = WritingSystemType.Vernacular
         });
+        await fixture.Api.CreateWritingSystem(new WritingSystem()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "es",
+            Font = "Arial",
+            Exemplars = ["a", "b"],
+            Type = WritingSystemType.Analysis
+        });
         _context = fixture.GetService<LcmCrdtDbContext>();
         _service = fixture.GetService<EntrySearchService>();
     }
@@ -63,11 +73,33 @@ public class EntrySearchServiceTests : IAsyncLifetime
         _context.Set<Entry>().Add(new Entry()
         {
             Id = id,
-            LexemeForm = {["en"] = "word1"},
+            LexemeForm = { ["en"] = "lexemeform1", ["fr"] = "fr_lexemeform1" },
+            CitationForm = { ["en"] = "citation1", ["fr"] = "fr_citation1" },
+            Senses =
+            [
+                new Sense()
+                {
+                    Gloss = { ["en"] = "gloss1", ["es"] = "es_gloss1" },
+                    Definition =
+                    {
+                        ["en"] = new RichString("definition1", "en"),
+                        ["es"] = new RichString("es_definition1", "es")
+                    }
+                },
+                new Sense()
+                {
+                    Gloss = { ["es"] = "es_gloss2" },
+                    Definition =
+                    {
+                        ["en"] = new RichString("definition2", "en"),
+                        ["es"] = new RichString("es_definition2", "es")
+                    }
+                }
+            ]
         });
         await _context.SaveChangesAsync();
-        var entries = await _service.EntriesMissingInSearchTable().ToArrayAsync();
-        entries.Should().NotContain(e => e.Id == id);
+        var entry = await _service.EntrySearchRecords.FirstOrDefaultAsync(e => e.Id == id);
+        await Verify(entry);
     }
 
     [Fact]
@@ -77,7 +109,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
         _context.Set<Entry>().Add(new Entry()
         {
             Id = id,
-            LexemeForm = {["en"] = "word1"},
+            LexemeForm = { ["en"] = "word1" },
         });
         await _context.SaveChangesAsync();
         await _service.RemoveSearchRecord(id);

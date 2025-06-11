@@ -69,7 +69,8 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         {
             if (entity.Entity is Sense sense)
             {
-                fullEntry.Senses = fullEntry.Senses.Select(s => s.Id == sense.Id ? sense : s).ToList();
+
+                fullEntry.Senses = [..fullEntry.Senses.Where(s => s.Id != sense.Id), sense];
             }
             else if (entity.Entity is Entry entry)
             {

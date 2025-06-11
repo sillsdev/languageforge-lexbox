@@ -53,7 +53,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     {
         return wss.Where(ws => ws.Type == type)
             .Select(ws => ms.Values.TryGetValue(ws.WsId, out var value) ? value : null)
-            .FirstOrDefault();
+            .FirstOrDefault(v => v is not null);
     }
 
     public static string? Best(RichMultiString ms, WritingSystem[] wss, WritingSystemType type)

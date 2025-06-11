@@ -1,0 +1,8 @@
+﻿{
+  Id: Guid_1,
+  Headword: citation1,
+  CitationForm: citation1 fr_citation1,
+  LexemeForm: lexemeform1 fr_lexemeform1,
+  Gloss: gloss1 es_gloss2,
+  Definition: definition1 definition2
+}
