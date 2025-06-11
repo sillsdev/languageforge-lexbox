@@ -31,7 +31,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, query)
+            where Sql.Ext.SQLite().Match(searchRecord, query) && (entry.LexemeForm.SearchValue(query)
+                                                                  || entry.CitationForm.SearchValue(query)
+                                                                  || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             select new { entry, searchRecord };
         if (rankResults)
         {
@@ -153,6 +155,8 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
         await EntrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
+                .LoadWith(e => e.Senses)
+                .AsQueryable()
                 .Select(entry => ToEntrySearchRecord(entry, writingSystems))
                 .AsAsyncEnumerable());
         await transaction.CommitAsync();

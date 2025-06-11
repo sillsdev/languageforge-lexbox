@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Bogus;
 using LcmCrdt.FullTextSearch;
+using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
@@ -21,12 +23,12 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
     [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
+        await _fixture.GetService<LcmCrdtDbContext>().GetTable<Entry>().TruncateAsync();
         var faker = new Faker { Random = new Randomizer(8675309) };
-        await _fixture.Api.BulkCreateEntries(AsyncEnumerable.Range(0, count).Select(i => new Entry { LexemeForm = { ["en"] = faker.Name.FirstName() } }));
+        var ids = Enumerable.Range(0, count).Select(_ => Guid.NewGuid()).ToHashSet();
+        await _fixture.Api.BulkCreateEntries(ids.Select(id => new Entry { Id = id, LexemeForm = { ["en"] = faker.Name.FirstName() } }).ToAsyncEnumerable());
         var entrySearchService = _fixture.GetService<EntrySearchService>();
-        await entrySearchService
-            .UpdateEntrySearchTable(await _fixture.Api.GetEntries(new QueryOptions(Count: -1)).ToArrayAsync());
-        entrySearchService.EntrySearchRecords.Should().NotBeEmpty();
+        entrySearchService.EntrySearchRecords.Should().HaveCount(count);
         outputHelper.WriteLine("Entries created");
 
         var testIterations = 10;
