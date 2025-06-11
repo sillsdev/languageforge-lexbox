@@ -19,12 +19,16 @@ const demoIcons = [
 ];
 
 const preview: Preview = {
-  argTypes: {
-    icon: {
-      control: { type: 'select', labels: { null: 'None' } },
-      options: [null, ...demoIcons],
-    },
-  },
+  argTypesEnhancers: [
+    (context) => {
+      // This is a workaround to make the icon control work with Svelte components
+      if (context.argTypes.icon) {
+        context.argTypes.icon.control = {type: 'select', labels: {null: 'None'}};
+        context.argTypes.icon.options = [null, ...demoIcons];
+      }
+      return context.argTypes;
+    }
+  ],
   parameters: {
     controls: {
       matchers: {
