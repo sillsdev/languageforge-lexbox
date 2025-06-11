@@ -116,3 +116,6 @@ tasks:
     dir: ./production
     cmds:
       - kubectl kustomize .
+
+  check-backup-jobs:
+    cmd: kubectl get jobs --context aws-prod -n languagedepot
