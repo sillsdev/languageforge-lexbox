@@ -48,10 +48,9 @@ export async function activate(context: ExecutionActivationContext) {
     'fwLiteExtension.launchServer',
   );
   let baseUrlHolder = {baseUrl: ''};
-  launchFwLiteFwLiteWeb(context).then(baseUrl => {
-    baseUrlHolder.baseUrl = baseUrl;
-    onLaunchServerEmitter.emit({baseUrl});
-  });
+  let {fwLiteProcess, baseUrl} = launchFwLiteFwLiteWeb(context);
+  baseUrlHolder.baseUrl = baseUrl;
+  onLaunchServerEmitter.emit(baseUrlHolder);
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
@@ -85,7 +84,7 @@ export async function activate(context: ExecutionActivationContext) {
   // anywhere; it just has to match `webViewType`. See `paranext-core's hello-someone.ts` for an
   // example of keeping an existing WebView that was specifically created by
   // `paranext-core's hello-someone`.
-  void papi.webViews.getWebView(reactWebViewType, undefined, {existingId: '?'});
+  void papi.webViews.openWebView(reactWebViewType, undefined, {existingId: '?'});
 
   // Await the data provider promise at the end so we don't hold everything else up
   context.registrations.add(
@@ -94,7 +93,8 @@ export async function activate(context: ExecutionActivationContext) {
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
     onFindEntryEmitter,
-    onLaunchServerEmitter
+    onLaunchServerEmitter,
+    () => fwLiteProcess.kill()
   );
 
   logger.info('FwLite is finished activating!');
@@ -105,7 +105,7 @@ export async function deactivate() {
   return true;
 }
 
-async function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
+function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   let binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FwLite requires createProcess elevated privileges');
@@ -116,16 +116,16 @@ async function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   //todo instead of hardcoding the url and port we should run it and find the url in the output
   let baseUrl = 'http://localhost:29348';
 
-  context.elevatedPrivileges.createProcess.spawn(
+  const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
     [
       '--urls', baseUrl,
       '--FwLiteWeb:OpenBrowser=false',
       '--FwLiteWeb:CorsAllowAny=true',
-      '--FwLiteWeb:LogFileName=fw-lite-web.log',
+      '--FwLiteWeb:LogFileName=./../../fw-lite-web.log',//required at dev time otherwise the log file will trigger a restart of the extension by PT
     ],
-    {stdio: [null, null, null]}
+    {stdio: [null, null, null], cwd: 'my-dir'}
   );
-  return baseUrl;
+  return {baseUrl, fwLiteProcess};
 }
