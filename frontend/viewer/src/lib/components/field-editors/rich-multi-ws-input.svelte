@@ -40,6 +40,7 @@
         {readonly}
         autofocus={autofocus && (i === 0)}
         onchange={() => onRichTextChange(ws.wsId)}
+        aria-label={ws.abbreviation}
         />
     </Label>
   {/each}

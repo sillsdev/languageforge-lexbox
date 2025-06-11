@@ -49,6 +49,9 @@
 
   let {
     value = $bindable(),
+    id,
+    'aria-labelledby': ariaLabelledby,
+    'aria-label': ariaLabel,
     label,
     readonly = false,
     onchange = () => {},
@@ -87,6 +90,12 @@
       },
       attributes: {
         class: inputVariants({class: 'min-h-10 h-auto block'}),
+        // todo: the distribution of props between the editor and the elementRef is not good
+        // there should probably be a wrapper component that provides the elementRef to this one
+        ...(id ? {id} : {}),
+        ...(ariaLabelledby ? {'aria-labelledby': ariaLabelledby} : {}),
+        ...(ariaLabel ? {'aria-label': ariaLabel} : {}),
+        role: 'textbox',
       },
       editable() {
         return !readonly;
@@ -218,5 +227,5 @@
     <div bind:this={elementRef}></div>
   </div>
 {:else}
-  <div bind:this={elementRef}></div>
+  <div bind:this={elementRef} {...rest}></div>
 {/if}

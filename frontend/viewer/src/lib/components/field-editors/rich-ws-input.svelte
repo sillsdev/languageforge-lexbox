@@ -30,4 +30,5 @@
   {readonly}
   title={`${ws.name} (${ws.wsId})`}
   {autofocus}
-  placeholder={ws.abbreviation} />
+  placeholder={ws.abbreviation}
+  aria-label={ws.abbreviation} />
