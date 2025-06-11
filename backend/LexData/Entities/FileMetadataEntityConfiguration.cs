@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LexCore.Entities;
@@ -10,13 +11,15 @@ public class FileMetadataEntityConfiguration : IEntityTypeConfiguration<MediaFil
 {
     public virtual void Configure(EntityTypeBuilder<MediaFile> builder)
     {
-        builder.HasKey(e => e.FileId);
+        builder.HasKey(e => e.Id);
         builder.HasOne<Project>().WithMany()
             .HasPrincipalKey(project => project.Id)
             .HasForeignKey(c => c.ProjectId);
         builder.Property(u => u.Metadata)
             .IsRequired(false)
-            .HasDefaultValueSql("'{}'::jsonb")
+            // .HasColumnType("jsonb")  // TODO: Figure out why this is giving me "column "Metadata" is of type jsonb but expression is of type text" errors when EF Core saves changes
+            // .HasDefaultValueSql("'{}'::jsonb")
+            .HasDefaultValueSql("'{}'")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, new JsonSerializerOptions
                 {

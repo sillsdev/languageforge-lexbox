@@ -23,7 +23,7 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        var file = System.IO.File.OpenRead(filePath);
+        using var file = System.IO.File.OpenRead(filePath);
         return TypedResults.Ok(file);
     }
 
@@ -70,32 +70,35 @@ public static class MediaFileController
 
     [HttpPost]
     public static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFile(
-        [FromForm] Guid fileId,
+        [FromForm] Guid? fileId,
         [FromForm] Guid projectId,
         [FromForm] string filename,
-        [FromForm] Stream file,
-        [FromForm] FileMetadata metadata,
+        [FromForm] IFormFile file,
+        [FromForm] FileMetadata? metadata,
         HttpRequest request,
-        ProjectLookupService projectLookupService,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
         // Sanity check: reject ridiculously large uploads before doing any work
-        if (request.ContentLength is not null && request.ContentLength > Int32.MaxValue)
+        // TODO: Decide on a sane limit, e.g. we won't accept uploads of more than 1 GB, and use that instead of Int32.MaxValue here
+        var maxUploadSize = Int32.MaxValue; // TODO: Get from config
+        if ((request.ContentLength is not null && request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
         {
-            // TODO: Decide on a sane limit, e.g. we won't accept uploads of more than 1 GB, and use that instead of Int32.MaxValue
             return TypedResults.BadRequest();
         }
+        if (fileId is null) fileId = Guid.NewGuid();
+        if (metadata is null) metadata = new FileMetadata() { Filename = filename, SizeInBytes = 0 };
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null)
         {
             mediaFile = new MediaFile()
             {
-                FileId = fileId,
+                Id = fileId.Value,
                 Filename = filename,
                 ProjectId = projectId,
                 Metadata = metadata,
             };
+            lexBoxDb.Files.Add(mediaFile);
         }
         else
         {
@@ -106,29 +109,36 @@ public static class MediaFileController
         }
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
-        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        var projectFolder = config?.Value?.GetProjectFolder(project.Code, projectId);
+        if (projectFolder is null)
+        {
+            return TypedResults.BadRequest();
+        }
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        mediaFile.Metadata.SizeInBytes = (int)file.Length; // TODO: Check that file.Length can be trusted, i.e. is calculated by ASP.NET
         try
         {
-            mediaFile.Metadata.SizeInBytes = await WriteFileToDisk(filePath, file);
+            await WriteFileToDisk(filePath, file.OpenReadStream());
         }
         catch (ArgumentOutOfRangeException)
         {
+            // TODO: Add an error message here to communicate "Too large"?
             return TypedResults.BadRequest();
         }
         mediaFile.UpdateUpdatedDate();
         lexBoxDb.SaveChanges();
         // TODO: Construct URL with appropriate ASP.NET Core methods rather than hardcoded string
         var newLocation = $"/api/media/{fileId}";
-        var responseBody = new PostFileResult(fileId);
+        var responseBody = new PostFileResult(fileId.Value);
         return TypedResults.Created(newLocation, responseBody);
     }
 
     static async Task<int> WriteFileToDisk(string filePath, Stream contents)
     {
-        var writeStream = System.IO.File.OpenWrite(filePath);
+        if (contents is null) return 0;
+        var writeStream = File.OpenWrite(filePath);
         await contents.CopyToAsync(writeStream);
-        writeStream.Dispose();
+        await writeStream.DisposeAsync();
         // Get size of what we just wrote (don't want to rely on Content-Length header because it includes other form fields, not just the file contents)
         var fileInfo = new FileInfo(filePath);
         // TODO: Decide on max upload size and use it instead of Int32.MaxValue (which would be 2 GiB)
