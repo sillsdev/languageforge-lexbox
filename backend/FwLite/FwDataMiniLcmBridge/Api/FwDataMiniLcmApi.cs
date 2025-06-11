@@ -750,23 +750,29 @@ public class FwDataMiniLcmApi(
         options ??= QueryOptions.Default;
         var entries = GetLexEntries(predicate, options);
 
+        entries = ApplySorting(options, entries);
+        entries = options.ApplyPaging(entries);
+
+        return entries.ToAsyncEnumerable().Select(FromLexEntry);
+    }
+
+    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries)
+    {
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        string? order(ILexEntry e)
+        if (options.Order.Field == SortField.SearchRelevance)
+        {
+            //crude emulation of FTS search relevance
+            return options.ApplyOrder(entries, e => Headword(e)?.Length);
+        }
+
+        return options.ApplyOrder(entries, Headword);
+
+        string? Headword(ILexEntry e)
         {
             string? text = e.CitationForm.get_String(sortWs).Text;
             text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
             return text?.Trim(LcmHelpers.WhitespaceChars);
         }
-        if (options.Order.Ascending)
-        {
-            entries = entries.OrderBy(order);
-        } else
-        {
-            entries = entries.OrderByDescending(order);
-        }
-        entries = options.ApplyPaging(entries);
-
-        return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)

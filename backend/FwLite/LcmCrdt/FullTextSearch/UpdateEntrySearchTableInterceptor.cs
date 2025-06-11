@@ -58,7 +58,13 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 
         var fullEntry = await dbContext.Set<Entry>()
             .Include(e => e.Senses)
-            .FirstAsync(e => e.Id == group.Key);
+            .FirstOrDefaultAsync(e => e.Id == group.Key);
+        if (fullEntry is null)
+        {
+            //null when a new entry is added along with some senses
+            fullEntry = new Entry() { Id = group.Key };
+        }
+
         foreach (var entity in entities)
         {
             if (entity.Entity is Sense sense)

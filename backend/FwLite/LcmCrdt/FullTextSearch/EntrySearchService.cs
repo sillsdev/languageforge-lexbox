@@ -26,6 +26,29 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         return Filtering.FtsFilter(query, EntrySearchRecords);
     }
 
+    public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable, string query, bool rankResults, bool orderAscending)
+    {
+        //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
+        var filtered = from searchRecord in EntrySearchRecordsTable
+            from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
+            where Sql.Ext.SQLite().Match(searchRecord, query)
+            select new { entry, searchRecord };
+        if (rankResults)
+        {
+            if (orderAscending)
+            {
+                filtered = filtered.OrderBy(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
+            }
+            else
+            {
+                filtered = filtered.OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
+            }
+        }
+        return filtered.Select(t => t.entry);
+    }
+
+    public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
+
     public static string? Best(MultiString ms, WritingSystem[] wss, WritingSystemType type)
     {
         return wss.Where(ws => ws.Type == type)
