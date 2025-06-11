@@ -530,7 +530,6 @@ public class CrdtMiniLcmApi(
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
-        await (entrySearchService?.UpdateEntrySearchTable(entry) ?? Task.CompletedTask);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
 
         async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
@@ -607,7 +606,6 @@ public class CrdtMiniLcmApi(
 
         await AddChanges(entry.ToChanges(update.Patch));
         var updatedEntry = await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
-        await (entrySearchService?.UpdateEntrySearchTable(updatedEntry) ?? Task.CompletedTask);
         return updatedEntry;
     }
 
@@ -616,7 +614,6 @@ public class CrdtMiniLcmApi(
         await validators.ValidateAndThrow(after);
         await EntrySync.Sync(before, after, api ?? this);
         var updatedEntry = await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
-        await (entrySearchService?.UpdateEntrySearchTable(updatedEntry) ?? Task.CompletedTask);
         return updatedEntry;
     }
 

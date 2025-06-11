@@ -70,6 +70,22 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 .Where(d => !string.IsNullOrEmpty(d)));
     }
 
+    public async Task UpdateEntrySearchTable(Guid entryId)
+    {
+        var entry = await dbContext.GetTable<Entry>()
+            .LoadWith(e => e.Senses)
+            .AsQueryable()
+            .FirstOrDefaultAsync(e => e.Id == entryId);
+        if (entry is not null)
+        {
+            await UpdateEntrySearchTable(entry);
+        }
+        else
+        {
+            logger.LogWarning("Entry {EntryId} not found in database.", entryId);
+        }
+    }
+
     public async Task UpdateEntrySearchTable(Entry entry)
     {
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
@@ -96,8 +112,13 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
     {
+        await UpdateEntrySearchTable(entries, dbContext);
+    }
+
+    public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries, LcmCrdtDbContext dbContext)
+    {
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
-        await EntrySearchRecordsTable
+        await dbContext.GetTable<EntrySearchRecord>()
             .BulkCopyAsync(entries.Select(entry => ToEntrySearchRecord(entry, writingSystems)));
     }
 
@@ -155,5 +176,10 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             .Where(e => Sql.Ext.SQLite().Match(e, query))
             .OrderBy(e => Sql.Ext.SQLite().Rank(e))
             .AsAsyncEnumerable();
+    }
+
+    public async Task RemoveSearchRecord(Guid entryId)
+    {
+        await EntrySearchRecordsTable.DeleteAsync(e => e.Id == entryId);
     }
 }
