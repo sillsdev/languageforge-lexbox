@@ -1,22 +1,20 @@
 <script module lang="ts">
-  import RichMultiWsInput from '$lib/components/field-editors/rich-multi-ws-input.svelte';
   import { writingSystems } from '$lib/demo-entry-data';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { expect, fn, userEvent, within } from 'storybook/test';
-  import MultiStringFieldDecorator from './MultiStringFieldDecorator.svelte';
+  import FieldDecorator from './FieldDecorator.svelte';
+  import { RichWsInput } from '$lib/components/field-editors';
 
   const value = $state({
-    pt: {
       spans: [
         { text: 'seh definition', ws: 'seh' },
         { text: 'fr definition', ws: 'fr' },
       ],
-    }
-  });
+    });
 
   const { Story } = defineMeta({
-    title: 'editor/fields/rich-multi-ws-input',
-    component: RichMultiWsInput,
+    title: 'editor/fields/rich-ws-input',
+    component: RichWsInput,
     argTypes: {
       readonly: {
         control: { type: 'boolean' },
@@ -26,7 +24,7 @@
       onchange: fn(),
       value,
       readonly: false,
-      writingSystems: Object.freeze(writingSystems.analysis),
+      writingSystem: Object.freeze(writingSystems.analysis[1]),
     },
   });
 </script>
@@ -35,7 +33,7 @@
   name="In editor"
   decorators={[
     /* @ts-expect-error Bug in Storybook https://github.com/storybookjs/storybook/issues/29951 */
-    () => MultiStringFieldDecorator,
+    () => FieldDecorator,
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

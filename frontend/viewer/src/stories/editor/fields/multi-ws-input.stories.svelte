@@ -1,22 +1,17 @@
 <script module lang="ts">
-  import RichMultiWsInput from '$lib/components/field-editors/rich-multi-ws-input.svelte';
   import { writingSystems } from '$lib/demo-entry-data';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { expect, fn, userEvent, within } from 'storybook/test';
   import MultiStringFieldDecorator from './MultiStringFieldDecorator.svelte';
+  import { MultiWsInput } from '$lib/components/field-editors';
 
   const value = $state({
-    pt: {
-      spans: [
-        { text: 'seh definition', ws: 'seh' },
-        { text: 'fr definition', ws: 'fr' },
-      ],
-    }
+    pt: 'Example value in Portuguese',
   });
 
   const { Story } = defineMeta({
-    title: 'editor/fields/rich-multi-ws-input',
-    component: RichMultiWsInput,
+    title: 'editor/fields/multi-ws-input',
+    component: MultiWsInput,
     argTypes: {
       readonly: {
         control: { type: 'boolean' },

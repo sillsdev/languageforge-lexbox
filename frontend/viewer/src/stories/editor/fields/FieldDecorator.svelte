@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import * as Editor from '$lib/components/editor';
-  import BreakpointMarkers from './BreakpointMarkers.svelte';
+  import BreakpointMarkers from '../../decorators/BreakpointMarkers.svelte';
   import {fieldData} from '$lib/entry-editor/field-data';
 
   let { children, subGrid = false }: { children: Snippet, subGrid: boolean } = $props();
