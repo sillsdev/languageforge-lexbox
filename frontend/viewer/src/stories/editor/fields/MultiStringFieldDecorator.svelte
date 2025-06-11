@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { ComponentProps } from 'svelte';
-  import FieldHarness from './FieldDecorator.svelte';
+  import FieldDecorator from './FieldDecorator.svelte';
 
-  let { ...rest }: Omit<ComponentProps<typeof FieldHarness>, 'subGrid'> = $props();
+  let { ...rest }: Omit<ComponentProps<typeof FieldDecorator>, 'subGrid'> = $props();
 
 </script>
 
-<FieldHarness subGrid {...rest} />
+<FieldDecorator subGrid {...rest} />

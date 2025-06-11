@@ -22,9 +22,19 @@
   import {Context} from 'runed';
   import { type Snippet } from 'svelte';
   import ViewPicker from '../../src/project/browse/ViewPicker.svelte';
+  import {InMemoryApiService} from '$lib/in-memory-api-service';
+  import {setupServiceProvider} from '$lib/services/service-provider';
+  import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
+  import {useEventBus} from '$lib/services/event-bus';
+  import {Button, XButton} from '$lib/components/ui/button';
 
   let { children }: { children: Snippet } = $props();
 
+
+  setupServiceProvider();
+  setupDotnetServiceProvider();
+  useEventBus();
+  InMemoryApiService.setup();
   initView();
   const storyContext = useSvelteStoryContext();
 
@@ -38,7 +48,8 @@
   const value = $derived(storyContext.parameters.fwlite?.value ?? storyContext.args?.value);
 
   export const lineSeparator = '\u2028';
-  const newLine = '\n';
+
+  let hideValue = $state(false);
 </script>
 
 <ResizablePaneGroup direction="horizontal" class="!overflow-visible">
@@ -52,15 +63,20 @@
     />
     <ResizablePane class="px-2">
       {#if showValue === true || value && showValue !== false}
-        <pre class="max-h-[calc(100vh-2rem)] overflow-auto whitespace-pre-wrap">{
-        JSON.stringify(value, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}
-        </pre>
+        <div class="relative">
+          {#if !hideValue}
+            <pre class="max-h-[calc(100vh-2rem)] overflow-auto whitespace-pre-wrap">{
+            JSON.stringify(value, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}
+            </pre>
+          {/if}
+          <XButton class="[&:not(:hover)]:opacity-30 fixed top-4 right-4" icon="i-mdi-eye" onclick={() => hideValue = !hideValue} />
+        </div>
       {/if}
     </ResizablePane>
   {/if}
 </ResizablePaneGroup>
 
-<div class="absolute bottom-4 right-4 flex gap-2">
+<div class="sticky bottom-4 flex justify-end gap-2">
   {#if viewPicker}
     <ViewPicker />
   {/if}

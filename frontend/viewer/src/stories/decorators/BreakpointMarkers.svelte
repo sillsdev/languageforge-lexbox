@@ -12,6 +12,6 @@
 
 <style lang="postcss">
   .breakpoint-marker {
-    @apply absolute h-full top-0 flex items-end justify-end border-r-current border-r -z-10 text-right pr-2;
+    @apply fixed h-full top-0 flex items-end justify-end border-r-current border-r -z-10 text-right pr-2;
   }
 </style>
