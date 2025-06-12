@@ -2,6 +2,10 @@
   import type { IWritingSystem } from '$lib/dotnet-types';
   import type { ReadonlyDeep } from 'type-fest';
   import { Input } from '../ui/input';
+  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+
+  const fieldBodyProps = tryUseFieldBody();
+  const labelledBy = fieldBodyProps?.labelId;
 
   let {
     value = $bindable(),
@@ -24,4 +28,5 @@
   title={`${ws.name} (${ws.wsId})`}
   placeholder={ws.abbreviation}
   {autofocus}
+  aria-labelledby={labelledBy}
   onchange={() => onchange?.(value)} />
