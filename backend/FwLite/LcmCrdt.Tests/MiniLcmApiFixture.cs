@@ -1,4 +1,5 @@
-﻿using Meziantou.Extensions.Logging.Xunit;
+﻿using System.Diagnostics;
+using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,17 @@ public class MiniLcmApiFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var crdtProject = new CrdtProject("sena-3", ":memory:");
+        var db = ":memory:";
+        if (Debugger.IsAttached)
+        {
+            db = "test.db";
+            if (File.Exists(db))
+            {
+                File.Delete(db);
+            }
+        }
+
+        var crdtProject = new CrdtProject("sena-3", db);
         var services = new ServiceCollection()
             .AddTestLcmCrdtClient(crdtProject)
             .AddLogging(builder => builder.AddDebug()
