@@ -22,40 +22,18 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
         //sqlite FTS returns nothing if the search term is less than 3 characters
         //it strips diacritics, so we need to take that into account when counting the length
-        if (!ValidMatchTerm(query)) return Filtering.SearchFilter(query);
+        if (query.Normalize(NormalizationForm.FormC).Length < 3) return Filtering.SearchFilter(query);
         return Filtering.FtsFilter(query, EntrySearchRecords);
     }
 
-    public (IQueryable<Entry> queryable, bool ordered) FilterAndRank(IQueryable<Entry> queryable, string query, bool rankResults, bool orderAscending)
+    public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable, string query, bool rankResults, bool orderAscending)
     {
-        //sqlite FTS returns nothing if the search term is less than 3 characters
-        //so fall back to a LIKE search, which will still be faster than a full table scan
-        if (!ValidMatchTerm(query))
-        {
-            var likeTerm = $"%{query.Normalize(NormalizationForm.FormC)}%";
-            var likeFiltered = from searchRecord in EntrySearchRecordsTable
-                from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-                where (
-                          Sql.Like(searchRecord.CitationForm, likeTerm)
-                          || Sql.Like(searchRecord.LexemeForm, likeTerm)
-                          || Sql.Like(searchRecord.Gloss, likeTerm)
-                          || Sql.Like(searchRecord.Definition, likeTerm)
-                      )
-                      && (entry.LexemeForm.SearchValue(query) //preserve diacritic match semantics
-                          || entry.CitationForm.SearchValue(query)
-                          || entry.Senses.Any(s =>
-                              s.Gloss.SearchValue(query)))
-                select entry;
-            //ordering by rank only works when using Match
-            return (likeFiltered, false);
-        }
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
-            where Sql.Ext.SQLite().Match(searchRecord, query)
-                  && (entry.LexemeForm.SearchValue(query)//preserve diacritic match semantics
-                      || entry.CitationForm.SearchValue(query)
-                      || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
+            where Sql.Ext.SQLite().Match(searchRecord, query) && (entry.LexemeForm.SearchValue(query)
+                                                                  || entry.CitationForm.SearchValue(query)
+                                                                  || entry.Senses.Any(s => s.Gloss.SearchValue(query)))
             select new { entry, searchRecord };
         if (rankResults)
         {
@@ -68,10 +46,10 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
                 filtered = filtered.OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
             }
         }
-        return (filtered.Select(t => t.entry), rankResults);
+        return filtered.Select(t => t.entry);
     }
 
-    private bool ValidMatchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
+    public bool ValidSearchTerm(string query) => query.Normalize(NormalizationForm.FormC).Length >= 3;
 
     public static string? Best(MultiString ms, WritingSystem[] wss, WritingSystemType type)
     {
