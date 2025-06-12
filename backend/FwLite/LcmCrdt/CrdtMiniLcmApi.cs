@@ -413,14 +413,13 @@ public class CrdtMiniLcmApi(
         bool sortingHandled = false;
         if (!string.IsNullOrEmpty(query))
         {
-            if (entrySearchService is not null && entrySearchService.ValidSearchTerm(query))
+            if (entrySearchService is not null)
             {
                 var queryOptions = options as QueryOptions;
                 //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
-                sortingHandled = queryOptions?.Order.Field == SortField.SearchRelevance;
-                queryable = entrySearchService.FilterAndRank(queryable,
+                (queryable, sortingHandled) = entrySearchService.FilterAndRank(queryable,
                     query,
-                    sortingHandled,
+                    queryOptions?.Order.Field == SortField.SearchRelevance,
                     queryOptions?.Order.Ascending == true);
             }
             else
