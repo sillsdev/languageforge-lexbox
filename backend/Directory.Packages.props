@@ -11,8 +11,9 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
     <PackageVersion Include="DataAnnotatedModelValidations" Version="6.0.0" />
-    <PackageVersion Include="EntityFrameworkCore.Projectables" Version="4.0.0" />
-    <PackageVersion Include="EntityFrameworkCore.Projectables.Abstractions" Version="4.0.0" />
+<!--    using pre release version published by kevin until the original repo releases a new version-->
+    <PackageVersion Include="Hahn.EntityFrameworkCore.Projectables" Version="4.0.0-pre-14824691806"/>
+    <PackageVersion Include="Hahn.EntityFrameworkCore.Projectables.Abstractions" Version="4.0.0-pre-14824691806"/>
     <PackageVersion Include="FluentAssertions" Version="7.0.0-alpha.5" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
