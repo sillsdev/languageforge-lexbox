@@ -65,13 +65,6 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
              .FirstOrDefault(v => v is not null)?.GetPlainText();
     }
 
-    public static string Definition(WritingSystem[] wss, Entry entry)
-    {
-        return string.Join(" ",
-            entry.Senses.Select(s => Best(s.Definition, wss, WritingSystemType.Analysis))
-                .Where(d => !string.IsNullOrEmpty(d)));
-    }
-
     public static string LexemeForm(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
@@ -91,8 +84,31 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public static string Gloss(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
-            entry.Senses.Select(s => Best(s.Gloss, wss, WritingSystemType.Analysis))
+            entry.Senses.SelectMany(s => JoinAll(s.Gloss, wss, WritingSystemType.Analysis))
                 .Where(d => !string.IsNullOrEmpty(d)));
+    }
+
+    public static string Definition(WritingSystem[] wss, Entry entry)
+    {
+        return string.Join(" ",
+            entry.Senses.SelectMany(s => JoinAll(s.Definition, wss, WritingSystemType.Analysis))
+                .Where(rt => !rt.IsEmpty)
+                .Select(rt => rt.GetPlainText()));
+    }
+
+    private static IEnumerable<string> JoinAll(MultiString ms, WritingSystem[] wss, WritingSystemType type)
+    {
+        return wss.Where(ws => ws.Type == type)
+            .Select(ws => ms.Values.TryGetValue(ws.WsId, out var value) ? value : null)
+            .OfType<string>()
+            .Where(v => v.Length > 0);
+    }
+
+    private static IEnumerable<RichString> JoinAll(RichMultiString ms, WritingSystem[] wss, WritingSystemType type)
+    {
+        return wss.Where(ws => ws.Type == type)
+            .Select(ws => ms.TryGetValue(ws.WsId, out var value) ? value : null)
+            .OfType<RichString>();
     }
 
     public async Task UpdateEntrySearchTable(Guid entryId)
