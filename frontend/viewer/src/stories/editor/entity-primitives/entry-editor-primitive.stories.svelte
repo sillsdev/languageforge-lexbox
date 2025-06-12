@@ -69,10 +69,10 @@
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const porInput = canvas.getByRole('textbox', { name: 'Demo field' });
-    await expect(porInput).toBeInTheDocument();
-    await userEvent.type(porInput, ' new text');
-    porInput.blur();
+    const senInput = canvas.getByLabelText('Lexeme form Sen', {exact: false});
+    await expect(senInput).toBeInTheDocument();
+    await userEvent.type(senInput, ' new text');
+    senInput.blur();
     await expect(args.onchange).toHaveBeenCalled();
   }}
 />

@@ -107,8 +107,9 @@
     });
     editor.dom.setAttribute('tabindex', '0');
 
-    const parentLabel = elementRef?.closest('label');
-    if (parentLabel) return on(parentLabel, 'click', onFocusTargetClick);
+    const relatedLabel = elementRef?.closest('label') ??
+      (id ? document.querySelector<HTMLLabelElement>(`label[for="${id}"]`) : undefined);
+    if (relatedLabel) return on(relatedLabel, 'click', onFocusTargetClick);
   });
 
   function onfocus(editor: EditorView) {
