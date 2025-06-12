@@ -39,8 +39,9 @@
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const porInput = canvas.getByRole('textbox', { name: 'Por' });
+    const porInput = await canvas.findByLabelText('Demo field Por');
     await expect(porInput).toBeInTheDocument();
+    porInput.focus(); // Firefox needs this
     await userEvent.type(porInput, ' new text');
     porInput.blur();
     await expect(args.onchange).toHaveBeenCalled();

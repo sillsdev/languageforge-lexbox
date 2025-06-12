@@ -69,7 +69,7 @@
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const senInput = canvas.getByLabelText('Lexeme form Sen', {exact: false});
+    const senInput = await canvas.findByLabelText(/(Lexeme form|Word) Sen/);
     await expect(senInput).toBeInTheDocument();
     await userEvent.type(senInput, ' new text');
     senInput.blur();

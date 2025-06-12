@@ -32,7 +32,7 @@
   ]}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const porInput = canvas.getByRole('textbox', { name: 'Demo field' });
+    const porInput = await canvas.findByLabelText('Demo field');
     await expect(porInput).toBeInTheDocument();
     await userEvent.type(porInput, ' new text');
     porInput.blur();

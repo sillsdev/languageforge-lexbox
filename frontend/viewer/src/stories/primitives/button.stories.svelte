@@ -67,7 +67,7 @@
   name="Standard"
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const loadingButton = canvas.getByRole('button', { name: 'Standard' });
+    const loadingButton = await canvas.findByRole('button', { name: 'Standard' });
     await expect(loadingButton).toBeInTheDocument();
     await userEvent.click(loadingButton);
     await expect(args.onclick).toHaveBeenCalled();
@@ -79,7 +79,7 @@
   args={{ loading: true }}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const loadingButton = canvas.getByRole('button', { name: 'Loading' });
+    const loadingButton = await canvas.findByRole('button', { name: 'Loading' });
     await expect(loadingButton).toBeInTheDocument();
     await userEvent.click(loadingButton, { pointerEventsCheck: 0 });
     await expect(args.onclick).not.toHaveBeenCalled();
@@ -91,7 +91,7 @@
   args={{ disabled: true }}
   play={async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const loadingButton = canvas.getByRole('button', { name: 'Disabled' });
+    const loadingButton = await canvas.findByRole('button', { name: 'Disabled' });
     await expect(loadingButton).toBeInTheDocument();
     await userEvent.click(loadingButton, { pointerEventsCheck: 0 });
     await expect(args.onclick).not.toHaveBeenCalled();
