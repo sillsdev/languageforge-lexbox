@@ -41,12 +41,9 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        int size = 0;
-        try
-        {
-            size = await WriteFileToDisk(filePath, body);
-        }
-        catch (ArgumentOutOfRangeException)
+        var size = await WriteFileToDisk(filePath, body);
+        var maxSize = Int32.MaxValue; // TODO: Get from config
+        if (size > maxSize)
         {
             return TypedResults.BadRequest();
         }
@@ -54,13 +51,13 @@ public static class MediaFileController
         {
             mediaFile.Metadata = new FileMetadata()
             {
-                SizeInBytes = size,
+                SizeInBytes = (int)size,
                 Filename = mediaFile.Filename
             };
         }
         else
         {
-            mediaFile.Metadata.SizeInBytes = size;
+            mediaFile.Metadata.SizeInBytes = (int)size;
         }
         mediaFile.UpdateUpdatedDate();
         lexBoxDb.SaveChanges();
@@ -115,7 +112,7 @@ public static class MediaFileController
             return TypedResults.BadRequest();
         }
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        mediaFile.Metadata.SizeInBytes = (int)file.Length; // TODO: Check that file.Length can be trusted, i.e. is calculated by ASP.NET
+        mediaFile.Metadata.SizeInBytes = (int)file.Length;
         try
         {
             await WriteFileToDisk(filePath, file.OpenReadStream());
@@ -133,23 +130,35 @@ public static class MediaFileController
         return TypedResults.Created(newLocation, responseBody);
     }
 
-    static async Task<int> WriteFileToDisk(string filePath, Stream contents)
+    static async Task<long> WriteFileToDisk(string filePath, Stream contents)
     {
         if (contents is null) return 0;
+        long startPosition = 0;
+        try
+        {
+            startPosition = contents.Position;
+        }
+        catch { }
         var writeStream = File.OpenWrite(filePath);
         await contents.CopyToAsync(writeStream);
         await writeStream.DisposeAsync();
-        // Get size of what we just wrote (don't want to rely on Content-Length header because it includes other form fields, not just the file contents)
-        var fileInfo = new FileInfo(filePath);
-        // TODO: Decide on max upload size and use it instead of Int32.MaxValue (which would be 2 GiB)
-        if (fileInfo.Length > Int32.MaxValue)
+        long endPosition = 0;
+        try
         {
-            fileInfo.Delete(); // Don't allow denial of service by uploading ridiculously large files
-            throw new ArgumentOutOfRangeException("file size");
+            endPosition = contents.Position;
+        }
+        catch { }
+        var calcLength = endPosition - startPosition;
+        if (calcLength == 0)
+        {
+            // Either the stream was empty, or its Position attribute wasn't reliable, so we need
+            // to look at the file we just wrote to determine the size
+            var fileInfo = new FileInfo(filePath);
+            return fileInfo.Length;
         }
         else
         {
-            return (int)fileInfo.Length;
+            return calcLength;
         }
     }
 }
