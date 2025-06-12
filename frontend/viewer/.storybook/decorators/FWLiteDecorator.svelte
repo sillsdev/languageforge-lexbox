@@ -65,7 +65,7 @@
       {#if showValue === true || value && showValue !== false}
         <div class="relative">
           {#if !hideValue}
-            <pre class="max-h-[calc(100vh-2rem)] overflow-auto whitespace-pre-wrap">{
+            <pre class="max-h-[calc(100vh-2rem)] fixed overflow-auto whitespace-pre-wrap bg-background">{
             JSON.stringify(value, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}
             </pre>
           {/if}
@@ -76,7 +76,7 @@
   {/if}
 </ResizablePaneGroup>
 
-<div class="sticky bottom-4 flex justify-end gap-2">
+<div class="fixed bottom-4 right-4 inline-flex justify-end gap-2">
   {#if viewPicker}
     <ViewPicker />
   {/if}
