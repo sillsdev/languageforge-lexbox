@@ -10,9 +10,8 @@ namespace FwHeadless.Controllers;
 
 public static class MediaFileController
 {
-    public static async Task<Results<Ok<FileStream>, NotFound>> GetFile(
+    public static async Task<Results<PhysicalFileHttpResult, NotFound>> GetFile(
         Guid fileId,
-        ProjectLookupService projectLookupService,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
@@ -23,8 +22,7 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        using var file = System.IO.File.OpenRead(filePath);
-        return TypedResults.Ok(file);
+        return TypedResults.PhysicalFile(filePath); // TODO: content type, etc.
     }
 
     public static async Task<Results<Ok, BadRequest, NotFound>> PutFile(
