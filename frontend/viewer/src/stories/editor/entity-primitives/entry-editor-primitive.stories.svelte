@@ -4,6 +4,7 @@
   import EntityEditorPrimitiveDecorator from './EntityEditorPrimitiveDecorator.svelte';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import type {IEntry} from '$lib/dotnet-types';
+  import {fwliteStoryParameters} from '../../fwl-parameters';
 
   let entry: IEntry = $state({
     id: crypto.randomUUID(),
@@ -42,12 +43,10 @@
   const { Story } = defineMeta({
     title: 'editor/entity-primitives/entry',
     component: EntryEditorPrimitive,
-    parameters: {
-      fwlite: {
-        viewPicker: true,
-        value: entry,
-      },
-    },
+    parameters: fwliteStoryParameters({
+      viewPicker: true,
+      value: entry,
+    }),
     argTypes: {
       readonly: {
         control: { type: 'boolean' },

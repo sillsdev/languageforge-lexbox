@@ -7,7 +7,7 @@ import {onMount} from 'svelte';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 import {Button} from '$lib/components/ui/button';
 import {Icon} from '$lib/components/ui/icon';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
 const languages: Record<string, string> = {
   'en': 'English',
