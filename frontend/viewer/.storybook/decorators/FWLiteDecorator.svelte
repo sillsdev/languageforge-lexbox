@@ -25,15 +25,12 @@
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
-  import {useEventBus} from '$lib/services/event-bus';
-  import {Button, XButton} from '$lib/components/ui/button';
+  import {XButton} from '$lib/components/ui/button';
 
   let { children }: { children: Snippet } = $props();
 
-
   setupServiceProvider();
   setupDotnetServiceProvider();
-  useEventBus();
   InMemoryApiService.setup();
   initView();
   const storyContext = useSvelteStoryContext();
@@ -43,13 +40,14 @@
     viewPicker = false,
     resizable = true,
     showValue = undefined,
+    value: paramValue,
   } = storyContext.parameters.fwlite ?? {};
 
-  const value = $derived(storyContext.parameters.fwlite?.value ?? storyContext.args?.value);
+  const value = $derived(paramValue ?? storyContext.parameters.fwlite?.value ?? storyContext.args?.value);
 
   export const lineSeparator = '\u2028';
 
-  let hideValue = $state(false);
+  let hideValue = $state(showValue !== true);
 </script>
 
 <ResizablePaneGroup direction="horizontal" class="!overflow-visible">
