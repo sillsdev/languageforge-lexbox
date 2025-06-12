@@ -34,17 +34,18 @@
 <script lang="ts">
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {Label} from '$lib/components/ui/label';
-  import InputShell from '../ui/input/input-shell.svelte';
   import {EditorView} from 'prosemirror-view';
-  import {AllSelection, EditorState, TextSelection} from 'prosemirror-state';
+  import {AllSelection, EditorState} from 'prosemirror-state';
   import {keymap} from 'prosemirror-keymap';
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
   import {onDestroy, onMount} from 'svelte';
   import {watch} from 'runed';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {IsUsingKeyboard, mergeProps} from 'bits-ui';
+  import {IsUsingKeyboard} from 'bits-ui';
   import type {IRichSpan} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichSpan';
+  import {inputVariants} from '../ui/input/input.svelte';
+  import {on} from 'svelte/events';
 
   let {
     value = $bindable(),
@@ -78,10 +79,14 @@
           //todo, eventually we might want to let the user edit span props, not sure if node attributes or marks are the correct way to handle that
           //I suspect marks is the right way though.
           if (!value) value = {spans: []};
-          value.spans = newState.doc.children.map((child) => richSpanFromNode(child));
+          value.spans = newState.doc.children.map((child) => richSpanFromNode(child))
+            .filter(s => s.text);
           dirty = true;
         }
         editor.updateState(newState);
+      },
+      attributes: {
+        class: inputVariants({class: 'min-h-10 h-auto block'}),
       },
       editable() {
         return !readonly;
@@ -92,6 +97,9 @@
       }
     });
     editor.dom.setAttribute('tabindex', '0');
+
+    const parentLabel = elementRef?.closest('label');
+    if (parentLabel) return on(parentLabel, 'click', onFocusTargetClick);
   });
 
   function onfocus(editor: EditorView) {
@@ -174,7 +182,6 @@
     if (selection && editor.dom.contains(selection.anchorNode) && editor.dom.contains(selection.focusNode)) {
       selection.removeAllRanges();
     }
-    editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 0)));
   }
 
   //lcm expects line separators, but html does not render them, so we replace them with \n
@@ -183,6 +190,12 @@
   }
   function replaceLineSeparatorWithNewLine(text: string) {
     return text.replaceAll(lineSeparator, newLine);
+  }
+
+  function onFocusTargetClick(event: MouseEvent) {
+    if (!editor) return;
+    if (event.target === editor?.dom) return; // the editor will handle focus itself
+    editor.focus();
   }
 </script>
 <style>
@@ -201,9 +214,9 @@
 
 {#if label}
   <div {...rest}>
-    <Label>{label}</Label>
-    <InputShell {autofocus} class="p-2 h-auto" bind:ref={elementRef}/>
+    <Label onclick={onFocusTargetClick}>{label}</Label>
+    <div bind:this={elementRef}></div>
   </div>
 {:else}
-  <InputShell {autofocus} {...mergeProps({ class: 'p-2 h-auto'}, rest)} bind:ref={elementRef}/>
+  <div bind:this={elementRef}></div>
 {/if}

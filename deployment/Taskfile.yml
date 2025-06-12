@@ -76,6 +76,9 @@ tasks:
   local-api-forward:
     cmds:
       - kubectl port-forward service/lexbox 5158:5158 -n languagedepot --context docker-desktop
+  local-fw-headless-forward:
+    cmds:
+      - kubectl port-forward service/fw-headless 5275:8081 -n languagedepot --context docker-desktop
 
   staging-db-forward:
     cmds:
@@ -113,3 +116,6 @@ tasks:
     dir: ./production
     cmds:
       - kubectl kustomize .
+
+  check-backup-jobs:
+    cmd: kubectl get jobs --context aws-prod -n languagedepot

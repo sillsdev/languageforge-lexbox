@@ -78,11 +78,11 @@
 
 {#snippet senseNumber(index: number)}
   {#if showLinks}
-    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline inline-flex items-center">
+    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
       <Icon icon="i-mdi-link" class={cn(
-          'invisible opacity-0',
+          'opacity-0',
           'group-hover/sense:opacity-100 group-hover/sense:visible transition-all',
-          'size-4'
+          'size-4 align-sub'
         )}/><span class="ml-[2px]">{index + 1}</span>
     </a>
   {:else}
@@ -95,9 +95,9 @@
   <div class="float-right group-[&:not(:hover)]/container:invisible relative -top-1">
     {@render actions?.()}
   </div>
-  <strong class="inline space-x-1 mr-1">
+  <strong class="mr-1">
     {#each headwords as headword, i (headword.wsId)}
-      {#if i > 0}<span>/</span>{/if}
+      {#if i > 0}{' / '}{/if}
       <span class={headword.color}>{headword.value}</span>
     {/each}
   </strong>
@@ -111,15 +111,14 @@
     {/if}
     <span>
       {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
-        <span class="ml-0.5">
-          <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
-          {#if glossAndDef.gloss}
-            <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
-          {/if}
-          {#if glossAndDef.definition}
-            <span class={glossAndDef.color}>{glossAndDef.definition}</span>
-          {/if}
-        </span>
+        <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
+        {#if glossAndDef.gloss}
+          <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
+        {/if}
+        {#if glossAndDef.definition}
+          <span class={glossAndDef.color}>{glossAndDef.definition}</span>
+        {/if}
+        {''}
       {/each}
     </span>
     {#each sense.exampleSentences as example (example.id)}

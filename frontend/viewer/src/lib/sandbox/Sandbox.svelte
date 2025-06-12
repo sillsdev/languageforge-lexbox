@@ -29,6 +29,10 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import {T} from 'svelte-i18n-lingui';
+  import IfOnce from '$lib/components/if-once/if-once.svelte';
+  import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
+  import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
+  import {SvelteDate} from 'svelte/reactivity';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -116,6 +120,11 @@
       buttonsLoading = false;
     }, 1000);
   }
+
+  let show = $state(false);
+  let reseter = $state(0);
+
+  let currentDate = new SvelteDate();
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -266,6 +275,21 @@
         click count: {count}
       </div>
     </div>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div class="flex flex-col gap-2">
+        IfOnce
+        {#key reseter}
+          <IfOnce show={show}>
+            content
+          </IfOnce>
+        {/key}
+        <label>
+          <Checkbox bind:checked={show}/>
+          Show
+        </label>
+        <Button onclick={() => reseter++}>Reset</Button>
+      </div>
+    </div>
     <div class="border grid" style="grid-template-columns: auto 1fr">
       <div class="col-span-2">
         <h3>Override Fields</h3>
@@ -310,6 +334,22 @@
         {#each sizes as size}
           <Button loading={buttonsLoading} {size} icon="i-mdi-auto-fix"/>
         {/each}
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 border p-4 justify-between">
+      <div>
+        <h3>Formatters</h3>
+      </div>
+      <div>
+        <LocalizationPicker/>
+      </div>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2 items-center">
+        <div class="font-medium">Date component:</div>
+        <div><FormatDate date={currentDate} options={{timeStyle: 'medium'}}/></div>
+        <div class="font-medium">Date function:</div>
+        <div>{formatDate(currentDate, {timeStyle: 'medium'})}</div>
+        <div class="font-medium">Number function:</div>
+        <div>{formatNumber(currentDate.getTime())}</div>
       </div>
     </div>
   </div>

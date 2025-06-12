@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using EntityFrameworkCore.Projectables;
 using LexCore.ServiceInterfaces;
 
@@ -72,6 +73,14 @@ public class Project : EntityBase
         return Task.FromResult(false);
     }
 }
+
+public record FieldWorksLiteProject(
+    Guid Id,
+    string Code,
+    string Name,
+    bool IsFwDataProject,
+    bool IsCrdtProject,
+    [property:JsonConverter(typeof(JsonStringEnumConverter))]ProjectRole Role);
 
 public enum ProjectMigrationStatus
 {

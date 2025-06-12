@@ -30,7 +30,7 @@
     "test:watch": "vitest",
     "check": "svelte-check",
     "lint": "eslint .",
-    "i18n:extract": "lingui extract && lingui extract",
+    "i18n:extract": "lingui extract --clean && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js"
   },
   "devDependencies": {
@@ -78,7 +78,6 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@internationalized/date": "^3.8.1",
     "@lingui/core": "^5.2.0",
     "@microsoft/dotnet-js-interop": "^8.0.0",
     "@microsoft/signalr": "^8.0.0",
@@ -100,6 +99,7 @@
     "svelte-routing": "^2.12.0",
     "svelte-ux": "^0.76.0",
     "tabbable": "^6.2.0",
-    "type-fest": "^4.18.2"
+    "type-fest": "^4.18.2",
+    "virtua": "^0.41.2"
   }
 }

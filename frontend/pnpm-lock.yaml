@@ -321,9 +321,6 @@ importers:
 
   viewer:
     dependencies:
-      '@internationalized/date':
-        specifier: ^3.8.1
-        version: 3.8.1
       '@lingui/core':
         specifier: ^5.2.0
         version: 5.2.0(@lingui/babel-plugin-lingui-macro@5.2.0(babel-plugin-macros@3.1.0)(typescript@5.7.3))(babel-plugin-macros@3.1.0)
@@ -390,6 +387,9 @@ importers:
       type-fest:
         specifier: ^4.18.2
         version: 4.34.1
+      virtua:
+        specifier: ^0.41.2
+        version: 0.41.2(svelte@5.28.2)
     devDependencies:
       '@argos-ci/playwright':
         specifier: ^5.0.4
@@ -6096,6 +6096,26 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
+  virtua@0.41.2:
+    resolution: {integrity: sha512-48jgdeXKagXEVxalTFf1bJe/5JZq41QG9LcwDweFJwOZgOvIgoHhBR+IMZPOVd0AjtwvLOaS3O7MYNdti9c4VQ==}
+    peerDependencies:
+      react: '>=16.14.0'
+      react-dom: '>=16.14.0'
+      solid-js: '>=1.0'
+      svelte: '>=5.0'
+      vue: '>=3.2'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+
   vite-node@3.0.5:
     resolution: {integrity: sha512-02JEJl7SbtwSDJdYS537nU6l+ktdvcREfLksk/NDAqtdKWGqHl+joXzEubHROmS3E6pip+Xgu2tFezMu75jH7A==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -9259,7 +9279,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.10
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/debug@4.1.12)(@types/node@22.15.3)(@vitest/ui@3.0.5)(happy-dom@17.1.0)(jiti@2.4.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/debug@4.1.12)(@types/node@20.17.32)(@vitest/ui@3.0.5)(happy-dom@17.1.0)(jiti@2.4.2)(yaml@2.7.1)
 
   '@vitest/utils@3.0.5':
     dependencies:
@@ -13135,6 +13155,10 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
+
+  virtua@0.41.2(svelte@5.28.2):
+    optionalDependencies:
+      svelte: 5.28.2
 
   vite-node@3.0.5(@types/node@20.17.32)(jiti@2.4.2)(yaml@2.7.1):
     dependencies:

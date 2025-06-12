@@ -47,6 +47,12 @@ namespace LcmCrdt.Migrations
                     b.Property<string>("OriginDomain")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Editor");
+
                     b.HasKey("Id");
 
                     b.ToTable("ProjectData");

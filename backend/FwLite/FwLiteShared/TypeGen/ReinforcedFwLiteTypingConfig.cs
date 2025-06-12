@@ -7,6 +7,7 @@ using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.JSInterop;
 using MiniLcm;
@@ -21,6 +22,7 @@ using Reinforced.Typings.Visitors.TypeScript;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
+using System.Runtime.CompilerServices;
 
 namespace FwLiteShared.TypeGen;
 
@@ -100,8 +102,11 @@ public static class ReinforcedFwLiteTypingConfig
             .WithPublicProperties()
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
         builder.ExportAsEnum<SortField>().UseString();
-        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
-            exportBuilder => exportBuilder.WithPublicNonStaticProperties());
+        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(FilterQueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
+            exportBuilder => exportBuilder.WithPublicNonStaticProperties(propExportBuilder =>
+        {
+            propExportBuilder.IgnoreComputedGetters();
+        }));
     }
 
     private static void ConfigureFwLiteSharedTypes(ConfigurationBuilder builder)
@@ -111,6 +116,8 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
+        builder.ExportAsEnum<UserProjectRole>().UseString();
+        builder.ExportAsEnum<ProjectRole>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
@@ -175,6 +182,14 @@ public static class ReinforcedFwLiteTypingConfig
             }
         }
         return exportBuilder;
+    }
+
+    private static void IgnoreComputedGetters(this PropertyExportBuilder exportBuilder)
+    {
+        // see: https://stackoverflow.com/a/72266104
+        var property = exportBuilder.Member;
+        if (property.SetMethod == null && property.GetMethod?.GetCustomAttribute(typeof(CompilerGeneratedAttribute)) is null)
+            exportBuilder.Ignore();
     }
 
     private static void OnlyJsInvokable(this MethodExportBuilder exportBuilder)

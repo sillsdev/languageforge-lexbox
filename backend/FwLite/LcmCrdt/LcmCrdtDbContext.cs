@@ -15,7 +15,7 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(setupCollationInterceptor);
+        optionsBuilder.AddInterceptors(setupCollationInterceptor, new CustomSqliteFunctionInterceptor());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,6 +25,8 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         var projectDataModel = modelBuilder.Entity<ProjectData>();
         projectDataModel.HasKey(p => p.Id);
         projectDataModel.Ignore(p => p.ServerId);
+        //setting default value to handle migration
+        projectDataModel.Property(p => p.Role).HasConversion<EnumToStringConverter<UserProjectRole>>().HasDefaultValue(UserProjectRole.Editor);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -54,7 +56,13 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         {
             if (maybeJson is null) return null;
             if (maybeJson.StartsWith('[') || maybeJson.StartsWith('{'))
-                return JsonSerializer.Deserialize<RichString?>(maybeJson);
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<RichString?>(maybeJson);
+                }
+                catch { }
+            }
             return new RichString(maybeJson);
         }
     }

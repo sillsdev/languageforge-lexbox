@@ -4,16 +4,19 @@ const vitePort = '5173';
 const dotnetPort = '5137';
 const autoStartServer = process.env.AUTO_START_SERVER ? Boolean(process.env.AUTO_START_SERVER) : false;
 const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
-const allReporters: ReporterDescription[] = [['list'], [
+const allReporters: ReporterDescription[] = [
+  ['list'],
+];
+const localReporters: ReporterDescription[] = [['html', { outputFolder: 'html-test-results', open: 'never' }]];
+const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: 'test-results/results.xml'}], [
   '@argos-ci/playwright/reporter',
   {
+    //by only using the argos reporter in CI, screenshots will be placed in the screenshots folder when run locally
     // Upload to Argos on CI only.
     uploadToArgos: !!process.env.CI
     // Argos token not required when using GitHub Actions.
   }
 ]];
-const localReporters: ReporterDescription[] = [['html', { outputFolder: 'html-test-results', open: 'never' }]];
-const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: 'test-results/results.xml'}]];
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,

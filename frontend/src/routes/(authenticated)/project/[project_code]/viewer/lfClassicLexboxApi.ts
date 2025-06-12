@@ -1,23 +1,25 @@
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unused-vars */
 
-import type {
-  IComplexFormType,
-  IEntry,
-  IExampleSentence,
-  ISense,
-  IMiniLcmJsInvokable,
-  IPartOfSpeech,
-  IQueryOptions,
-  ISemanticDomain,
-  IWritingSystem,
-  WritingSystemType,
-  IWritingSystems,
-  IComplexFormComponent,
-  IMiniLcmFeatures,
+import {
+  SortField,
+  type IComplexFormComponent,
+  type IComplexFormType,
+  type IEntry,
+  type IExampleSentence,
+  type IMiniLcmFeatures,
+  type IMiniLcmJsInvokable,
+  type IPartOfSpeech,
+  type IQueryOptions,
+  type ISemanticDomain,
+  type ISense,
+  type IWritingSystem,
+  type IWritingSystems,
+  type WritingSystemType,
 } from 'viewer/mini-lcm-api';
 
-import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
+import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
 import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
+import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   for (const entry of entries) {
@@ -44,6 +46,21 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
   async getWritingSystems(): Promise<IWritingSystems> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/writingSystems`);
     return (await result.json()) as IWritingSystems;
+  }
+
+  async countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
+    const queryOptions: IQueryOptions = {
+      ...options,
+      count: -1,
+      offset: 0,
+      order: {
+        field: SortField.Headword,
+        writingSystem: 'default',
+        ascending: true,
+      },
+    };
+    const entries = await (query ? this.searchEntries(query, queryOptions) : this.getEntries(queryOptions));
+    return entries.length;
   }
 
   async getEntries(_options: IQueryOptions | undefined): Promise<IEntry[]> {
