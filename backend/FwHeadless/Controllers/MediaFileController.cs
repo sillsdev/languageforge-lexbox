@@ -25,10 +25,8 @@ public static class MediaFileController
         return TypedResults.PhysicalFile(filePath); // TODO: content type, etc.
     }
 
-    public static async Task<Results<Ok, BadRequest, NotFound>> PutFile(
+    public static async Task<Results<Ok, NotFound>> DeleteFile(
         Guid fileId,
-        Stream body,
-        ProjectLookupService projectLookupService,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
@@ -39,32 +37,30 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        var size = await WriteFileToDisk(filePath, body);
-        var maxSize = Int32.MaxValue; // TODO: Get from config
-        if (size > maxSize)
-        {
-            return TypedResults.BadRequest();
-        }
-        if (mediaFile.Metadata is null)
-        {
-            mediaFile.Metadata = new FileMetadata()
-            {
-                SizeInBytes = (int)size,
-                Filename = mediaFile.Filename
-            };
-        }
-        else
-        {
-            mediaFile.Metadata.SizeInBytes = (int)size;
-        }
-        mediaFile.UpdateUpdatedDate();
-        lexBoxDb.SaveChanges();
+        File.Delete(filePath);
+        lexBoxDb.Files.Remove(mediaFile);
+        await lexBoxDb.SaveChangesAsync();
         return TypedResults.Ok();
-        // TODO: Extract out common code between this and Post, e.g. for file-size handling, because right now POST has some features that PUT does not
+    }
+
+    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest>> PutFile(
+        Guid fileId,
+        [FromForm] Guid? projectId,
+        [FromForm] string? filename,
+        [FromForm] IFormFile file,
+        [FromForm] FileMetadata? metadata,
+        HttpRequest request,
+        IOptions<FwHeadlessConfig> config,
+        LexBoxDbContext lexBoxDb)
+    {
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, request, config, lexBoxDb, newFilesAllowed: false, returnCreatedOnSuccess: false);
+        return result;
+    }
+
     }
 
     [HttpPost]
-    public static async Task<Results<Created<PostFileResult>, NotFound, BadRequest>> PostFile(
+    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest>> PostFile(
         [FromForm] Guid? fileId,
         [FromForm] Guid projectId,
         [FromForm] string filename,
@@ -74,6 +70,23 @@ public static class MediaFileController
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, request, config, lexBoxDb, newFilesAllowed: true, returnCreatedOnSuccess: true);
+        return result;
+    }
+
+    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest>> HandleFileUpload(
+        Guid? fileId,
+        Guid? projectId,
+        string? filename,
+        IFormFile file,
+        FileMetadata? metadata,
+        HttpRequest request,
+        IOptions<FwHeadlessConfig> config,
+        LexBoxDbContext lexBoxDb,
+        bool newFilesAllowed,
+        bool returnCreatedOnSuccess)
+    {
+        bool replacedExistingFile = false;
         // Sanity check: reject ridiculously large uploads before doing any work
         // TODO: Decide on a sane limit, e.g. we won't accept uploads of more than 1 GB, and use that instead of Int32.MaxValue here
         var maxUploadSize = Int32.MaxValue; // TODO: Get from config
@@ -84,32 +97,58 @@ public static class MediaFileController
         if (fileId is null) fileId = Guid.NewGuid();
         if (metadata is null) metadata = new FileMetadata() { Filename = filename, SizeInBytes = 0 };
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+        if (mediaFile is null && !newFilesAllowed)
+        {
+            return TypedResults.NotFound(); // PUT requests must modify an existing file and return 404 if it doesn't exist
+        }
         if (mediaFile is null)
         {
+            if (projectId is null)
+            {
+                // TODO: Create an error object that will be returned, explaining why the request is bad (e.g., here it's because projectId is required when not replacing existing files)
+                return TypedResults.BadRequest();
+            }
+            if (string.IsNullOrEmpty(filename))
+            {
+                // TODO: Error message should be "filename is required if uploading new file"
+                return TypedResults.BadRequest();
+            }
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
                 Filename = filename,
-                ProjectId = projectId,
+                ProjectId = projectId.Value,
                 Metadata = metadata,
             };
             lexBoxDb.Files.Add(mediaFile);
         }
         else
         {
+            replacedExistingFile = true;
+            projectId ??= mediaFile.ProjectId;
+            if (projectId != mediaFile.ProjectId)
+            {
+                // TODO: Decide whether we should allow existing files to be moved into a different project from the one they're currently in, or if that should be an error
+                // TODO: If error, then error object here should specify that files cannot be moved from one project to another
+                return TypedResults.BadRequest();
+            }
+            filename ??= mediaFile.Filename;
+            if (filename != mediaFile.Filename)
+            {
+                // TODO: Handle renaming files appropriately: move existing file to the new name now, then WriteFileToDisk will overwrite it with new contents
+            }
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
             else mediaFile.Metadata.Merge(metadata);
-            // TODO: Catch attempts to change projectId or filename and handle appropriately (moving file to different project? error?
-            // TODO: Changing filename should be detected and should cause a rename, or a deletion of the old file
         }
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
-        var projectFolder = config?.Value?.GetProjectFolder(project.Code, projectId);
+        var projectFolder = config?.Value?.GetProjectFolder(project.Code, projectId.Value);
         if (projectFolder is null)
         {
+            // TODO: Add error message to communicate "project folder not found, might need to add it to FW Lite before this will work"
             return TypedResults.BadRequest();
         }
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        var filePath = Path.Join(projectFolder, filename);
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
         try
         {
@@ -117,15 +156,22 @@ public static class MediaFileController
         }
         catch (ArgumentOutOfRangeException)
         {
-            // TODO: Add an error message here to communicate "Too large"?
+            // TODO: Add an error message here to communicate "Too large"
             return TypedResults.BadRequest();
         }
         mediaFile.UpdateUpdatedDate();
-        lexBoxDb.SaveChanges();
+        await lexBoxDb.SaveChangesAsync();
         // TODO: Construct URL with appropriate ASP.NET Core methods rather than hardcoded string
         var newLocation = $"/api/media/{fileId}";
         var responseBody = new PostFileResult(fileId.Value);
-        return TypedResults.Created(newLocation, responseBody);
+        if (replacedExistingFile)
+        {
+            return TypedResults.Ok(responseBody);
+        }
+        else
+        {
+            return TypedResults.Created(newLocation, responseBody);
+        }
     }
 
     static async Task<long> WriteFileToDisk(string filePath, Stream contents)
@@ -137,6 +183,8 @@ public static class MediaFileController
             startPosition = contents.Position;
         }
         catch { }
+        // TODO: Write to temp file, then move file into place, overwriting existing file
+        // That way files will be replaced atomically, and a failure halfway through the process won't result in the existing file being lost
         var writeStream = File.OpenWrite(filePath);
         await contents.CopyToAsync(writeStream);
         await writeStream.DisposeAsync();

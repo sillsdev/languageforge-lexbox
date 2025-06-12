@@ -9,6 +9,7 @@ public static class MediaFileRoutes
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/media/{fileId}", MediaFileController.GetFile);
         group.MapPut("/media/{fileId}", MediaFileController.PutFile);
+        group.MapDelete("/media/{fileId}", MediaFileController.DeleteFile);
         group.MapPost("/media/", MediaFileController.PostFile);
         group.MapGet("/metadata/{fileId}", MediaFileMetadataController.GetFileMetadata);
         return group;
