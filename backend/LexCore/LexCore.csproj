@@ -2,7 +2,4 @@
   <PropertyGroup>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Hahn.EntityFrameworkCore.Projectables.Abstractions" />
-  </ItemGroup>
 </Project>
