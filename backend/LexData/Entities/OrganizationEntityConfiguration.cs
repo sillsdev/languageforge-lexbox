@@ -1,12 +1,11 @@
 ﻿using LexCore.Entities;
 using LexData.Configuration;
-using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexData.Entities;
 
-public class OrganizationEntityConfiguration: EntityBaseConfiguration<Organization>, ILinq2DbEntityConfiguration<Organization>
+public class OrganizationEntityConfiguration: EntityBaseConfiguration<Organization>
 {
     public override void Configure(EntityTypeBuilder<Organization> builder)
     {
@@ -24,11 +23,5 @@ public class OrganizationEntityConfiguration: EntityBaseConfiguration<Organizati
                 op => op.HasOne(op => op.Project).WithMany().HasForeignKey(op => op.ProjectId),
                 op => op.HasOne(op => op.Org).WithMany().HasForeignKey(op => op.OrgId)
             );
-    }
-
-    public static void ConfigureLinq2Db(EntityMappingBuilder<Organization> entity)
-    {
-        entity.Property(o => o.MemberCount).IsExpression(o => o.Members.Count);
-        entity.Property(o => o.ProjectCount).IsExpression(o => o.Projects.Count);
     }
 }

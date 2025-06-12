@@ -1,6 +1,4 @@
-using LexCore.Entities;
 using LexData.Configuration;
-using LexData.Entities;
 using LinqToDB;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.EntityFrameworkCore;
@@ -32,22 +30,20 @@ public static class DataKernel
             options.UseLinqToDB(builder =>
             {
                 var mappingSchema = new MappingSchema();
-                var mappingBuilder =
                 new FluentMappingBuilder(mappingSchema)
                     .HasAttribute<ServerCommit>(new ColumnAttribute(
                         $"{nameof(ServerCommit.HybridDateTime)}_{nameof(HybridDateTime.DateTime)}",
                         $"{nameof(ServerCommit.HybridDateTime)}.{nameof(HybridDateTime.DateTime)}"))
                     .HasAttribute<ServerCommit>(new ColumnAttribute(
                         $"{nameof(ServerCommit.HybridDateTime)}_{nameof(HybridDateTime.Counter)}",
-                        $"{nameof(ServerCommit.HybridDateTime)}.{nameof(HybridDateTime.Counter)}"));
-                mappingBuilder.ConfigureEntity<Project, ProjectEntityConfiguration>();
-                mappingBuilder.ConfigureEntity<Organization, OrganizationEntityConfiguration>();
-                mappingBuilder.Build();
+                        $"{nameof(ServerCommit.HybridDateTime)}.{nameof(HybridDateTime.Counter)}"))
+                    .Build();
                 builder.AddMappingSchema(mappingSchema);
                 var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
                 if (loggerFactory is not null)
                     builder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
+            options.UseProjectables();
             //todo remove this once this bug is fixed: https://github.com/dotnet/efcore/issues/35110
             //we ended up not upgrading to EF Core 9, so this was disabled for now, may or may not be needed in the future
             // options.ConfigureWarnings(builder => builder.Ignore(RelationalEventId.PendingModelChangesWarning));
@@ -71,10 +67,5 @@ public static class DataKernel
     {
 
         services.AddSingleton(new ConfigureDbModel(configureDbModel));
-    }
-
-    private static void ConfigureEntity<T, TConfig>(this FluentMappingBuilder builder) where TConfig : ILinq2DbEntityConfiguration<T>
-    {
-        TConfig.ConfigureLinq2Db(builder.Entity<T>());
     }
 }

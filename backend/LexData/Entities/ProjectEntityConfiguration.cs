@@ -1,12 +1,11 @@
 using LexCore.Entities;
 using LexData.Configuration;
-using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexData.Entities;
 
-public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>, ILinq2DbEntityConfiguration<Project>
+public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
 {
     public override void Configure(EntityTypeBuilder<Project> builder)
     {
@@ -32,10 +31,5 @@ public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>, ILin
                 op => op.HasOne(op => op.Project).WithMany().HasForeignKey(op => op.ProjectId)
             );
         builder.HasQueryFilter(p => p.DeletedDate == null);
-    }
-
-    public static void ConfigureLinq2Db(EntityMappingBuilder<Project> entity)
-    {
-        entity.Property(p => p.UserCount).IsExpression(p => p.Users.Count);
     }
 }

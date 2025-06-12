@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
 using System.Text.Json.Serialization;
+using EntityFrameworkCore.Projectables;
 
 namespace LexCore.Entities;
 
@@ -10,10 +12,14 @@ public class Organization : EntityBase
     public required List<Project> Projects { get; set; }
 
     [NotMapped]
-    public int MemberCount { get; init; }
+    [Projectable(UseMemberBody = nameof(SqlMemberCount))]
+    public int MemberCount { get; set; }
+    private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
 
     [NotMapped]
-    public int ProjectCount { get; init; }
+    [Projectable(UseMemberBody = nameof(SqlProjectCount))]
+    public int ProjectCount { get; set; }
+    private static Expression<Func<Organization, int>> SqlProjectCount => org => org.Projects.Count;
 }
 
 public class OrgMember : EntityBase
