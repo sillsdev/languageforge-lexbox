@@ -11,6 +11,10 @@ tasks:
     interactive: true
     deps: [ install ]
     cmd: pnpm run -r --parallel dev
+  lexbox-only:
+    interactive: true
+    deps: [ install ]
+    cmd: pnpm run dev
 
   install:
     method: checksum
@@ -26,7 +30,13 @@ tasks:
     desc: The extra UI stuff the FW Lite Maui app needs to run. I.e. if you want to debug Maui, run this first, otherwise use a task that depends on this.
     aliases:
       - fi
-    deps: [ viewer-dev, https-oauth-authority ]
+    deps: [ install ] # run install first, so the viewer and https-proxy don't both run in
+    cmds:
+      - task: fw-lite-infr-internal
+
+  fw-lite-infr-internal:
+    internal: true
+    deps: [ viewer:run-app, run-https-proxy ]
 
   playwright-tests:
     aliases: [ pt ]
@@ -70,9 +80,14 @@ tasks:
     method: checksum
     sources:
       - package.json
+      - ../pnpm-lock.yaml
+      - ../pnpm-workspace.yaml
     cmds:
       - corepack enable || true
       - pnpm install
+  run-https-proxy:
+    dir: ./https-proxy
+    cmd: pnpm run dev
   https-proxy:
     dir: ./https-proxy
     desc: "MSAL requires the oauth authority to be available over https. That's why this is here. As a bonus it dynamically looks for the UI either locally or in k8s."

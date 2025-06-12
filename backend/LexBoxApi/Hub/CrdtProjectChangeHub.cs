@@ -5,13 +5,13 @@ using MiniLcm.Push;
 
 namespace LexBoxApi.Hub;
 
-public class CrdtProjectChangeHub(LoggedInContext loggedInContext, IPermissionService permissionService) : Hub<IProjectChangeListener>
+public class CrdtProjectChangeHub(IPermissionService permissionService) : Hub<IProjectChangeListener>
 {
     public static string ProjectGroup(Guid projectId) => $"project-{projectId}";
 
     public async Task ListenForProjectChanges(Guid projectId)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanDownloadProject(projectId);
         await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectId));
     }
 }

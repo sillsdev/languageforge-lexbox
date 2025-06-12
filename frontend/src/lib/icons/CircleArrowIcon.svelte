@@ -1,1 +1,1 @@
-<span class="i-mdi-replay text-2xl" />
+<span class="i-mdi-replay text-2xl"></span>

@@ -133,6 +133,18 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return await GetSemanticDomains().FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
+    public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
+    {
+        // not efficient, but this will likely never get used
+        var entries = Query(new QueryOptions
+        {
+            Count = QueryOptions.QueryAll,
+            Exemplar = options?.Exemplar,
+            Filter = options?.Filter
+        }, query);
+        return await entries.CountAsync();
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return Query(options);
@@ -305,7 +317,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             Id = example.Guid,
             SenseId = senseId,
-            Reference = (example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty,
+            Reference = new((example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty),
             Sentence = ToRichMultiString(example.Sentence),
             Translation = ToRichMultiString(example.Translation)
         };
@@ -329,7 +341,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         if (multiTextValue is null) return ms;
         foreach (var (key, value) in multiTextValue)
         {
-            ms[key] = value.Value;
+            ms[key] = new RichString(value.Value);
         }
 
         return ms;

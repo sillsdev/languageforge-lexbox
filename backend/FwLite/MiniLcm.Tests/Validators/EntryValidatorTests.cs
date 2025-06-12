@@ -147,7 +147,7 @@ public class EntryValidatorTests
 
         if (propInfo.PropertyType == typeof(RichMultiString))
         {
-            propInfo.SetValue(entry, new RichMultiString() { { "en", content } });
+            propInfo.SetValue(entry, new RichMultiString() { { "en", new RichString(content) } });
             return;
         }
 

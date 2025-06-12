@@ -47,6 +47,12 @@ namespace LcmCrdt.Migrations
                     b.Property<string>("OriginDomain")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Editor");
+
                     b.HasKey("Id");
 
                     b.ToTable("ProjectData");
@@ -184,7 +190,7 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("Reference")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid>("SenseId")
                         .HasColumnType("TEXT");

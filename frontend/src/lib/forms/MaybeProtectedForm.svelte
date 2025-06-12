@@ -1,19 +1,25 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Form from './Form.svelte';
   import ProtectedForm from './ProtectedForm.svelte';
   import type { AnySuperForm } from './types';
 
-  export let enhance: AnySuperForm['enhance'] | undefined = undefined;
-  export let turnstileToken = '';
-  export let skipTurnstile = false;
+  interface Props {
+    enhance?: AnySuperForm['enhance'];
+    turnstileToken?: string;
+    skipTurnstile?: boolean;
+    children?: Snippet;
+  }
+
+  let { enhance, turnstileToken = $bindable(''), skipTurnstile = false, children }: Props = $props();
 </script>
 
 {#if skipTurnstile}
-<Form {enhance} on:submit>
-  <slot />
-</Form>
+  <Form {enhance}>
+    {@render children?.()}
+  </Form>
 {:else}
-<ProtectedForm {enhance} on:submit bind:turnstileToken>
-  <slot />
-</ProtectedForm>
+  <ProtectedForm {enhance} bind:turnstileToken>
+    {@render children?.()}
+  </ProtectedForm>
 {/if}

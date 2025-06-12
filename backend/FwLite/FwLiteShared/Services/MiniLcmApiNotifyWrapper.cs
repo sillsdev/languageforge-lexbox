@@ -72,6 +72,11 @@ public partial class MiniLcmApiNotifyWrapper(
         bus.PublishEntryChangedEvent(project, entry);
     }
 
+    public void NotifyEntryDeleted(Guid entryId)
+    {
+        bus.PublishEvent(project, new EntryDeletedEvent(entryId));
+    }
+
     // ********** Overrides go here **********
 
     async Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
@@ -103,6 +108,24 @@ public partial class MiniLcmApiNotifyWrapper(
         await _api.DeleteComplexFormComponent(complexFormComponent);
         await NotifyEntryChangedAsync(complexFormComponent.ComplexFormEntryId);
         await NotifyEntryChangedAsync(complexFormComponent.ComponentEntryId);
+    }
+
+    async Task IMiniLcmWriteApi.DeleteEntry(Guid id)
+    {
+        await _api.DeleteEntry(id);
+        NotifyEntryDeleted(id);
+    }
+
+    async Task IMiniLcmWriteApi.DeleteSense(Guid entryId, Guid senseId)
+    {
+        await _api.DeleteSense(entryId, senseId);
+        await NotifyEntryChangedAsync(entryId);
+    }
+
+    async Task IMiniLcmWriteApi.DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
+    {
+        await _api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        await NotifyEntryChangedAsync(entryId);
     }
 
     void IDisposable.Dispose()

@@ -21,6 +21,14 @@
     },
     "verbatimModuleSyntax": true,
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/web-component.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.svelte",
+    "src/web-component.ts",
+    "tests/**/*.ts",
+    "tests/**/*.js",
+    "tests/**/*.svelte",
+  ],
   "references": [{ "path": "./tsconfig.node.json" }],
 }

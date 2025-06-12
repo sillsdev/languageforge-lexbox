@@ -1,39 +1,58 @@
 ﻿<script lang="ts">
   import flexLogo from '$lib/assets/flex-logo.png';
   import {AppNotification} from '$lib/notifications/notifications';
-  import {useAppLauncher} from '$lib/services/service-provider';
-  import {Button} from 'svelte-ux';
-  import {useProjectViewState} from '$lib/views/project-view-state-service';
+  import {useAppLauncherService} from './services/app-launcher-service';
+  import {useProjectContext} from './project-context.svelte';
+  import type {IEntry} from './dotnet-types';
+  import {buttonVariants, type ButtonProps} from './components/ui/button';
+  import {t} from 'svelte-i18n-lingui';
+  import {mergeProps} from 'bits-ui';
+  import {cn} from './utils';
+  import {Icon} from './components/ui/icon';
 
-  const projectViewState = useProjectViewState();
-  const appLauncher = useAppLauncher();
+  type Props = {
+    entry: IEntry
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  } & ButtonProps;
 
-  export let show = false;
-  export let entryId: string;
-  export let projectName: string;
+  const {
+    entry,
+    class: className,
+    ...rest
+  }: Props = $props();
 
-  async function openInFlex(e: Event) {
+  const appLauncher = useAppLauncherService();
+  const projectContext = useProjectContext();
+
+  async function openInFlex() {
+    let opened = false;
     if (appLauncher) {
-      e.preventDefault();//don't follow the link
-      await appLauncher.openInFieldWorks(entryId, projectName);
+      opened = await appLauncher.openInFieldWorks(entry.id, projectContext.projectName);
+    } else {
+      // a 302 redirect to the protocol handler works, but sends the user to the home page 🤷
+      const fieldWorksUrlResponse = await fetch(`/api/fw/${projectContext.projectName}/link/entry/${entry.id}`);
+      if (fieldWorksUrlResponse.ok) {
+        opened = true;
+        window.location.href = await fieldWorksUrlResponse.text();
+      }
     }
-    AppNotification.displayAction('The project is open in FieldWorks. Please close it to reopen.', 'warning', {
-      label: 'Open',
-      callback: () => window.location.reload()
-    });
+    if (opened) {
+      AppNotification.displayAction($t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`, 'warning', {
+        label: $t`Reopen`,
+        callback: () => window.location.reload()
+      });
+    } else {
+      AppNotification.display($t`Unable to open in FieldWorks`, 'error');
+    }
   }
+
+  const mergedProps = $derived(mergeProps({
+    onclick: openInFlex,
+  }, rest));
 </script>
-{#if show}
+
 <!--button must be a link otherwise it won't follow the redirect to a protocol handler-->
-  <Button
-    href={`/api/fw/${projectName}/open/entry/${entryId}`}
-    on:click={openInFlex}
-    variant="fill-light"
-    color="info"
-    size="sm">
-    <img src={flexLogo} alt="FieldWorks logo" class="h-6 max-w-fit"/>
-    <div class="sm-form:hidden" class:hidden={$projectViewState.rightToolbarCollapsed}>
-      Open in FieldWorks
-    </div>
-  </Button>
-{/if}
+<button class={cn(buttonVariants({ variant: 'ghost'}), className)} {...mergedProps}>
+  <Icon src={flexLogo} alt={$t`FieldWorks logo`} />
+  {$t`Open in FieldWorks`}
+</button>

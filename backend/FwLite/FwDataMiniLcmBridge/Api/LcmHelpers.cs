@@ -1,4 +1,5 @@
 using System.Globalization;
+using MiniLcm.Culture;
 using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
@@ -13,7 +14,7 @@ internal static class LcmHelpers
         {
             var tsString = multiString.GetStringFromIndex(i, out var _);
             if (string.IsNullOrEmpty(tsString.Text)) continue;
-            if (tsString.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            if (tsString.Text.ContainsDiacriticMatch(value))
             {
                 return true;
             }
@@ -90,7 +91,10 @@ internal static class LcmHelpers
             };
         }
 
-        var lcmWs = cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
+        if (!cache.ServiceLocator.WritingSystemManager.TryGet(ws.Code, out var lcmWs))
+        {
+            throw new NullReferenceException($"unable to find writing system with id '{ws.Code}'");
+        }
         if (lcmWs is not null && type is not null)
         {
             var validWs = type switch

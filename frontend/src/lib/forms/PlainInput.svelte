@@ -1,73 +1,60 @@
 <script lang="ts">
   import { randomFormId } from './utils';
-  import { makeDebouncer } from '$lib/util/time';
-  import { createEventDispatcher } from 'svelte';
 
-  const dispatch = createEventDispatcher<{
-    input: string | undefined;
-  }>();
-
-  let input: HTMLInputElement;
-
-  export let id = randomFormId();
-  export let value: string | undefined | null = undefined;
-  export let type: 'text' | 'email' | 'password' = 'text';
-  export let autofocus: true | undefined = undefined;
-  export let readonly = false;
-  export let error: string | string[] | undefined = undefined;
-  export let placeholder = '';
-  // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-  export let autocomplete: 'new-password' | 'current-password' | 'off' | undefined = undefined;
-  export let debounce: number | boolean = false;
-  export let debouncing = false;
-  export let undebouncedValue: string | undefined | null = undefined;
-  export let style: string | undefined = undefined;
-
-  $: undebouncedValue = value;
-  $: if (handlingInputEvent) dispatch('input', value);
+  let input: HTMLInputElement | undefined = $state();
 
   export function clear(): void {
-    debouncer.clear();
-    input.value = ''; // if we cancel the debounce the input and the component can get out of sync
-    undebouncedValue = value = undefined;
+    value = undefined;
   }
 
   export function focus(): void {
-    input.focus();
+    input?.focus();
   }
 
-  export let keydownHandler: ((event: KeyboardEvent) => void) | undefined = undefined;
-
-  $: debouncer = makeDebouncer((newValue: string | undefined) => (value = newValue), debounce);
-  $: debouncingStore = debouncer.debouncing;
-  $: debouncing = $debouncingStore;
-
-  let handlingInputEvent = false;
-  let handlingInputEventTimeout: ReturnType<typeof setTimeout>;
-  function onInput(event: Event): void {
-    clearTimeout(handlingInputEventTimeout);
-    handlingInputEvent = true;
-    const currValue = (event.target as HTMLInputElement).value;
-    undebouncedValue = currValue;
-    debouncer.debounce(currValue);
-    handlingInputEventTimeout = setTimeout(() => handlingInputEvent = false);
+  export interface PlainInputProps {
+    id?: string;
+    value?: string | null;
+    type?: 'text' | 'email' | 'password';
+    autofocus?: true;
+    readonly?: boolean;
+    error?: string | string[];
+    placeholder?: string;
+    // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
+    autocomplete?: 'new-password' | 'current-password' | 'off';
+    style?: string;
+    onInput?: (value: string | null | undefined) => void;
+    keydownHandler?: (event: KeyboardEvent) => void;
   }
+
+  let {
+    id = randomFormId(),
+    value = $bindable(),
+    type = 'text',
+    autofocus,
+    readonly = false,
+    error,
+    placeholder = '',
+    autocomplete,
+    style,
+    onInput,
+    keydownHandler,
+  }: PlainInputProps = $props();
 </script>
 
 <!-- https://daisyui.com/components/input -->
-<!-- svelte-ignore a11y-autofocus -->
+<!-- svelte-ignore a11y_autofocus -->
 <input
   bind:this={input}
   {id}
   {type}
-  {value}
+  bind:value
   class:input-error={error && error.length}
-  on:input={onInput}
   {placeholder}
   class="input input-bordered {style ?? ''}"
   {readonly}
   {autofocus}
   {autocomplete}
-  on:keydown={keydownHandler}
+  oninput={onInput ? () => onInput(value) : undefined}
+  onkeydown={keydownHandler}
 />

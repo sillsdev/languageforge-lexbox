@@ -61,7 +61,9 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
     {
         return await MongoExtensions.ToAsyncEnumerable(loader._systemDbContext.Projects.AsQueryable()
                 .Select(p => p.ProjectCode)
+#pragma warning disable MALinq2001
                 .Where(projectCode => list.Contains(projectCode)))
+#pragma warning restore MALinq2001
             .ToDictionaryAsync(projectCode => projectCode, _ => true, token);
     }
 

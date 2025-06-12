@@ -13,6 +13,7 @@
   import { crossfade } from 'svelte/transition';
   import { Button } from '$lib/components/ui/button';
   import { t } from 'svelte-i18n-lingui';
+  import {useFeatures} from '$lib/services/feature-service';
 
   $effect(() => {
     instances[id] = active;
@@ -31,6 +32,7 @@
     active?: boolean;
   } = $props();
 
+  const features = useFeatures();
   const id = crypto.randomUUID();
   const isActive = $derived(
     // explicitly active
@@ -39,8 +41,8 @@
     instances[id] === undefined && !Object.values(instances).some(_active => _active));
 </script>
 
-{#if isActive}
-  <div in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
+{#if isActive && features.write}
+  <div class="relative z-[1]" in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
     <Button variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick" {onclick}>
       {#if shortForm}
         <span>{$t`New`}</span>

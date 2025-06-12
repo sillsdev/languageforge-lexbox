@@ -46,6 +46,21 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await Task.WhenAll(tasks);
     }
 
+    public async ValueTask UpdateProjectServerInfo(CrdtProject project,
+        string? userName,
+        string? userId,
+        UserProjectRole role)
+    {
+        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        await currentProjectService.SetupProjectContext(project);
+
+        await currentProjectService.UpdateLastUser(userName, userId);
+        await currentProjectService.UpdateUserRole(role);
+    }
+
     public IEnumerable<CrdtProject> ListProjects()
     {
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
@@ -82,7 +97,8 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
-        string? AuthenticatedUserId = null);
+        string? AuthenticatedUserId = null,
+        UserProjectRole? Role = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
@@ -121,7 +137,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                 code,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId);
+                Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId, request.Role ?? UserProjectRole.Editor);
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
@@ -206,59 +222,55 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     public static async Task SampleProjectData(IServiceProvider provider, CrdtProject project)
     {
         var lexboxApi = provider.GetRequiredService<IMiniLcmApi>();
-        await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "de",
-                Name = "German",
-                Abbreviation = "de",
-                Font = "Arial",
-                Exemplars = WritingSystem.LatinExemplars
-            });
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "de",
+            Name = "German",
+            Abbreviation = "de",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
 
-        await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Vernacular,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "en",
-                Font = "Arial",
-                Exemplars = WritingSystem.LatinExemplars
-            });
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "en",
+            Name = "English",
+            Abbreviation = "en",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
 
-        await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Analysis,
-                WsId = "en",
-                Name = "English",
-                Abbreviation = "en",
-                Font = "Arial",
-                Exemplars = WritingSystem.LatinExemplars
-            });
-        await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
-            new()
-            {
-                Id = Guid.NewGuid(),
-                Type = WritingSystemType.Analysis,
-                WsId = "fr",
-                Name = "French",
-                Abbreviation = "fr",
-                Font = "Arial",
-                Exemplars = WritingSystem.LatinExemplars
-            });
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Analysis,
+            WsId = "en",
+            Name = "English",
+            Abbreviation = "en",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
+        await lexboxApi.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Analysis,
+            WsId = "fr",
+            Name = "French",
+            Abbreviation = "fr",
+            Font = "Arial",
+            Exemplars = WritingSystem.LatinExemplars
+        });
 
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
             LexemeForm = { { "en", "Apple" } },
             CitationForm = { { "en", "Apple" } },
-            LiteralMeaning = { { "en", "Fruit" } },
+            LiteralMeaning = { { "en", new RichString("Fruit") } },
             Senses =
             [
                 new()
@@ -268,11 +280,11 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
                     {
                         {
                             "en",
-                            "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+                            new RichString("fruit with red, yellow, or green skin with a sweet or tart crispy white flesh")
                         }
                     },
                     SemanticDomains = [],
-                    ExampleSentences = [new() { Sentence = { { "en", "We ate an apple" } } }]
+                    ExampleSentences = [new() { Sentence = { { "en", new RichString("We ate an apple") } } }]
                 }
             ]
         });

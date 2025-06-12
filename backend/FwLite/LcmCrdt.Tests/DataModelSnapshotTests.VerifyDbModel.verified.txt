@@ -9,6 +9,9 @@
       LastUserName (string)
       Name (string) Required
       OriginDomain (string)
+      Role (UserProjectRole) Required ValueGenerated.OnAdd
+        Annotations: 
+          Relational:DefaultValue: Editor
     Keys: 
       Id PK
     Annotations: 
@@ -125,7 +128,9 @@
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       DeletedAt (DateTimeOffset?)
       Order (double) Required
-      Reference (string)
+      Reference (RichString)
+        Annotations: 
+          Relational:ColumnType: jsonb
       SenseId (Guid) Required FK Index
       Sentence (RichMultiString) Required
         Annotations: 

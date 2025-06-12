@@ -1,4 +1,4 @@
-﻿import { getClient, graphql } from '$lib/gql';
+import { getClient, graphql } from '$lib/gql';
 
 import type {PageLoadEvent} from './$types';
 import { error } from '@sveltejs/kit';

@@ -5,13 +5,13 @@
 
 
   export const inputVariants = tv({
-    base: '',
+    base: 'font-normal',
     variants: {
       variant: {
         default: 'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
         ghost: 'outline-none min-w-0 bg-transparent',
         // shell variant has a dedicated component
-        shell: 'border-input bg-background ring-offset-background placeholder:text-muted-foreground has-[:focus-visible]:ring-ring flex h-10 w-full rounded-md border text-base has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-offset-2 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 md:text-sm flex gap-2 items-center justify-between',
+        shell: 'border-input bg-background ring-offset-background placeholder:text-muted-foreground flex h-10 w-full rounded-md border text-base has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 md:text-sm flex gap-2 items-center justify-between',
       },
     },
     defaultVariants: {

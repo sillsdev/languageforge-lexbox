@@ -1,4 +1,4 @@
-﻿name: FieldWorks Lite
+name: FieldWorks Lite
 on:
   workflow_dispatch:
   push:
@@ -21,6 +21,7 @@ on:
     branches:
       - develop
       - main
+      - shadcn-ui-main #just for now ensure PRs to this branch have checks run
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
 jobs:
@@ -39,14 +40,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
-        with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:
@@ -61,21 +54,47 @@ jobs:
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
           echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
 
-      - name: Check for pending EF model changes
-        run: task fw-lite:has-pending-model-changes
+      - name: Dotnet build
+        # the android build is quite slow, so we disable it for builds just for testing
+        run: dotnet build FwLiteOnly.slnf -p:BuildAndroid=false
 
+      - name: Check for pending EF model changes
+        run: task fw-lite:has-pending-model-changes -- --no-build
+
+      - name: Dotnet test
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Install Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Prepare frontend
         working-directory: frontend
         run: |
           pnpm install
-          pnpm svelte-kit sync
+      - name: Set up Playwright dependencies
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps
+      - name: Run snapshot tests
+        working-directory: frontend/viewer
+        run: task playwright-test-standalone
 
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build-app
-
-      - name: Dotnet test
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions
 
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@v4
@@ -86,7 +105,7 @@ jobs:
 
   publish-mac:
     name: Publish FW Lite app for Mac
-    needs: build-and-test
+    needs: [build-and-test, frontend]
     timeout-minutes: 30
     runs-on: macos-latest
     steps:
@@ -123,7 +142,7 @@ jobs:
 
   publish-linux:
     name: Publish FW Lite app for Linux
-    needs: build-and-test
+    needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -154,7 +173,7 @@ jobs:
 
   publish-android:
     name: Publish FW Lite app for Android
-    needs: build-and-test
+    needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: macos-latest
     steps:
@@ -187,7 +206,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net9.0-android --artifacts-path ../artifacts \
+          dotnet publish -f net9.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -208,7 +227,7 @@ jobs:
 
   publish-win:
     name: Publish FW Lite app for Windows
-    needs: build-and-test
+    needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: windows-latest
     steps:
@@ -230,14 +249,14 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net9.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net9.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteMaui/*/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -280,6 +299,9 @@ jobs:
 
   create-release:
     if: ${{ github.ref_name == 'main' }}
+    environment:
+      name: production
+      url: https://lexbox.org/fw-lite
     name: Create Release
     needs: [ build-and-test, publish-win, publish-linux, publish-mac, publish-android]
     runs-on: ubuntu-latest
@@ -305,7 +327,7 @@ jobs:
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
-          chmod +x fw-lite-web-linux/*/FwLiteWeb
+          chmod +x fw-lite-web-linux/*/FwLiteWeb fw-lite-web-linux/*/*.sh
           zip -r fw-lite-web-linux.zip fw-lite-web-linux
       - name: Rename Installer
         run: |

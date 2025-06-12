@@ -495,7 +495,8 @@ public partial class HgService : IHgService, IHostedService
                 done = expectedState switch
                 {
                     RepoEmptyState.Empty => isEmpty,
-                    RepoEmptyState.NonEmpty => !isEmpty
+                    RepoEmptyState.NonEmpty => !isEmpty,
+                    _ => isEmpty
                 };
                 if (!done) await Task.Delay(2500, timeoutSource.Token);
             }

@@ -21,8 +21,12 @@ public class MiniLcmJsInvokable(
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: true, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
     }
+
+    private bool CanWrite =>
+        project is not CrdtProject crdt ||
+        (crdt.Data?.Role ?? UserProjectRole.Editor) is UserProjectRole.Editor or UserProjectRole.Manager;
 
     //todo move info notify wrapper factory
     private void OnDataChanged()
@@ -75,6 +79,12 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public Task<int> CountEntries(string? query, FilterQueryOptions? options)
+    {
+        return _wrappedApi.CountEntries(query, options);
+    }
+
+    [JSInvokable]
     public ValueTask<Entry[]> GetEntries(QueryOptions? options = null)
     {
         return _wrappedApi.GetEntries(options).ToArrayAsync();
@@ -119,7 +129,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        return _wrappedApi.CreateWritingSystem(type, writingSystem);
+        return _wrappedApi.CreateWritingSystem(writingSystem);
     }
 
     [JSInvokable]

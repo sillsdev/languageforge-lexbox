@@ -1,24 +1,42 @@
 <script lang="ts">
   import type { IEntry, ISense } from '$lib/dotnet-types';
-  import {useWritingSystemService} from './writing-system-service';
-  import { usePartsOfSpeech } from './parts-of-speech';
+  import {useWritingSystemService} from './writing-system-service.svelte';
+  import { usePartsOfSpeech } from './parts-of-speech.svelte';
+  import type {HTMLAttributes} from 'svelte/elements';
+  import {Icon} from '$lib/components/ui/icon';
+  import {cn} from '$lib/utils';
+  import type {Snippet} from 'svelte';
+  let {
+    entry,
+    showLinks = false,
+    lines = $bindable(),
+    actions,
+    class: className,
+    ...restProps
+  }: HTMLAttributes<HTMLDivElement> & {
+    entry: IEntry,
+    showLinks?: boolean,
+    lines?: number,
+    actions?: Snippet
+  } = $props();
 
-  export let entry: IEntry;
-  export let lines: number = 0;
-
-  $: lines = entry.senses.length > 1 ? entry.senses.length + 1 : 1;
+  $effect(() => {
+    lines = entry.senses.length > 1 ? entry.senses.length + 1 : 1;
+  });
 
   const wsService = useWritingSystemService();
 
-  $: headwords = wsService.vernacular
-    .map(ws => ({
-      wsId: ws.wsId,
-      value: wsService.headword(entry, ws.wsId),
-      color: wsService.wsColor(ws.wsId, 'vernacular'),
-    }))
-    .filter(({value}) => !!value);
+  let headwords = $derived.by(() => {
+    return wsService.vernacular
+      .map(ws => ({
+        wsId: ws.wsId,
+        value: wsService.headword(entry, ws.wsId),
+        color: wsService.wsColor(ws.wsId, 'vernacular'),
+      }))
+      .filter(({value}) => !!value);
+  });
 
-  $: senses = entry.senses.map(getRenderedContent);
+  let senses = $derived(entry.senses.map(getRenderedContent));
 
   /**
    * Returns the rendered content for a sense.
@@ -29,13 +47,13 @@
   function getRenderedContent(sense: ISense) {
     return {
       id: sense.id,
-      partOfSpeech: $partsOfSpeech.find(pos => pos.id === sense.partOfSpeechId)?.label,
+      partOfSpeech: partsOfSpeech.current.find(pos => pos.id === sense.partOfSpeechId)?.label,
       glossesAndDefs: wsService.analysis
         .map(ws => ({
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
           gloss: sense.gloss[ws.wsId],
-          definition: sense.definition[ws.wsId],
+          definition: wsService.asString(sense.definition[ws.wsId]),
           color: wsService.wsColor(ws.wsId, 'analysis'),
         }))
         .filter(({gloss, definition}) => gloss || definition),
@@ -43,11 +61,11 @@
         id: example.id,
         sentences: [
           ...wsService.vernacular.map(ws => ({
-            text: example.sentence[ws.wsId],
+            text: wsService.asString(example.sentence[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'vernacular'),
           })),
           ...wsService.analysis.map(ws => ({
-            text: example.translation[ws.wsId],
+            text: wsService.asString(example.translation[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'analysis'),
           })),
         ].filter(({text}) => !!text),
@@ -58,32 +76,49 @@
   const partsOfSpeech = usePartsOfSpeech();
 </script>
 
-<div>
-  <strong class="inline-flex gap-1 mr-1">
+{#snippet senseNumber(index: number)}
+  {#if showLinks}
+    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
+      <Icon icon="i-mdi-link" class={cn(
+          'opacity-0',
+          'group-hover/sense:opacity-100 group-hover/sense:visible transition-all',
+          'size-4 align-sub'
+        )}/><span class="ml-[2px]">{index + 1}</span>
+    </a>
+  {:else}
+    <span class="font-bold">{index + 1}</span>
+  {/if}
+  {' · '}
+{/snippet}
+
+<div class={cn('group/container', className)} {...restProps}>
+  <div class="float-right group-[&:not(:hover)]/container:invisible relative -top-1">
+    {@render actions?.()}
+  </div>
+  <strong class="mr-1">
     {#each headwords as headword, i (headword.wsId)}
-      {#if i > 0}/{/if}
+      {#if i > 0}{' / '}{/if}
       <span class={headword.color}>{headword.value}</span>
     {/each}
   </strong>
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
       <br />
-      <strong class="ml-2">{i + 1} · </strong>
+      {@render senseNumber(i)}
     {/if}
     {#if sense.partOfSpeech}
       <i>{sense.partOfSpeech}</i>
     {/if}
     <span>
       {#each sense.glossesAndDefs as glossAndDef (glossAndDef.wsId)}
-        <span class="ml-0.5">
-          <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
-          {#if glossAndDef.gloss}
-            <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
-          {/if}
-          {#if glossAndDef.definition}
-            <span class={glossAndDef.color}>{glossAndDef.definition}</span>
-          {/if}
-        </span>
+        <sub class="-mr-0.5">{glossAndDef.wsAbbr}</sub>
+        {#if glossAndDef.gloss}
+          <span class={glossAndDef.color}>{glossAndDef.gloss}</span>{#if glossAndDef.definition};{/if}
+        {/if}
+        {#if glossAndDef.definition}
+          <span class={glossAndDef.color}>{glossAndDef.definition}</span>
+        {/if}
+        {''}
       {/each}
     </span>
     {#each sense.exampleSentences as example (example.id)}

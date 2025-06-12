@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import type {IEntry, ISense} from '$lib/dotnet-types';
 
   export type EntrySenseSelection = {
@@ -8,91 +8,117 @@
 </script>
 
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
-  import { Button, Dialog, ExpansionPanel, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
-  import { derived, writable } from 'svelte/store';
-  import { createEventDispatcher, getContext } from 'svelte';
-  import { useLexboxApi } from '../services/service-provider';
-  import { deriveAsync } from '../utils/time';
-  import { defaultSense } from '../utils';
-  import { useProjectCommands } from '../commands';
-  import type { SaveHandler } from '../services/save-event-service';
+  import {useLexboxApi} from '../services/service-provider';
+  import {useDialogsService} from '$lib/services/dialogs-service';
   import {SortField} from '$lib/dotnet-types';
-  import {useWritingSystemService} from '$lib/writing-system-service';
   import NewEntryButton from './NewEntryButton.svelte';
+  import {resource, watch} from 'runed';
+  import {Button} from '$lib/components/ui/button';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import {ComposableInput} from '$lib/components/ui/input';
+  import {Icon} from '$lib/components/ui/icon';
+  import EntryRow from '../../project/browse/EntryRow.svelte';
+  import SenseRow from '../../project/browse/SenseRow.svelte';
+  import Loading from '$lib/components/Loading.svelte';
+  import {t, T} from 'svelte-i18n-lingui';
+  import ListItem from '$lib/components/ListItem.svelte';
+  import type {DialogTriggerProps} from 'bits-ui';
+  import {Badge} from '$lib/components/ui/badge';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
-  const dispatch = createEventDispatcher<{
-    pick: EntrySenseSelection;
-  }>();
+  const currentView = useCurrentView();
+  const dialogsService = useDialogsService();
 
-  const projectCommands = useProjectCommands();
-  const saveHandler = getContext<SaveHandler>('saveHandler');
-  const writingSystemService = useWritingSystemService();
+  interface Props {
+    open?: boolean;
+    title: string;
+    disableEntry?: ((entry: IEntry) => false | { reason: string, disableSenses?: true }) | undefined;
+    disableSense?: ((sense: ISense, entry: IEntry) => false | string) | undefined;
+    mode?: 'entries-and-senses' | 'only-entries';
+    pick?: (selection: EntrySenseSelection) => void;
+    trigger?: DialogTriggerProps['child'];
+  }
 
-  export let open = false;
-  export let title: string;
-  export let disableEntry: ((entry: IEntry) => false | { reason: string, disableSenses?: true }) | undefined = undefined;
-  export let disableSense: ((sense: ISense, entry: IEntry) => false | string) | undefined = undefined;
-  export let mode: 'entries-and-senses' | 'only-entries' = 'entries-and-senses';
-  $: onlyEntries = mode === 'only-entries';
+  let {
+    open = $bindable(false),
+    title,
+    disableEntry,
+    disableSense,
+    mode = 'entries-and-senses',
+    pick,
+    trigger,
+  }: Props = $props();
+  let onlyEntries = $derived(mode === 'only-entries');
 
-  let selectedEntry: IEntry | undefined;
-  let selectedSense: ISense | undefined;
-  // We need this redundant field so the ExpandPanel has something to bind to. Otherwise it's very fragile.
-  // So it's basically just for managing the state of the ExpansionPanel.
-  let selectedEntryId: string | undefined;
+  let selectedEntry: IEntry | undefined = $state(undefined);
+  let selectedSense: ISense | undefined = $state(undefined);
 
   const lexboxApi = useLexboxApi();
-  const search = writable<string>('');
-  const fetchCount = 150;
-  const displayCount = 50;
+  let search = $state('');
+  const PAGE_SIZE = 50;
+  let displayCount = $state(PAGE_SIZE);
+  let fetchCount = $state(PAGE_SIZE * 2);
 
-  let addedEntries: IEntry[] = [];
-  const { value: result, loading } = deriveAsync(search, async (s) => {
-    if (!s) return Promise.resolve({ entries: [], search: undefined });
-    let entries = await lexboxApi.searchEntries(s ?? '', {
+  let addedEntries: IEntry[] = $state([]);
+  const searchResource = resource([() => search, () => fetchCount], () => {
+    if (!search) return Promise.resolve([]);
+    return lexboxApi.searchEntries(search ?? '', {
       offset: 0,
       count: fetchCount,
       order: {field: SortField.Headword, writingSystem: 'default', ascending: true},
     });
-    return { entries, search: s};
-  }, {entries: [], search: undefined}, 200);
-  const displayedEntries = derived(result, (result) => {
-    return result?.entries.slice(0, displayCount) ?? [];
+  }, {initialValue: []});
+  const displayedEntries = $derived(searchResource.current?.slice(0, displayCount) ?? []);
+  $effect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    searchResource.current;
+    addedEntries = [];
   });
 
-  $: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    $result;
-    addedEntries = [];
+  watch([() => open, () => search], ([open]) => {
+    if (open) {
+      displayCount = PAGE_SIZE;
+      fetchCount = PAGE_SIZE * 2;
+    }
+  });
+
+  function showMoreEntries() {
+    displayCount += PAGE_SIZE;
+    fetchCount += PAGE_SIZE;
   }
 
   function onPick() {
-    dispatch('pick', {entry: selectedEntry!, sense: selectedSense});
+    pick?.({entry: selectedEntry!, sense: selectedSense});
+    open = false;
   }
 
+  $effect(() => {
+    if (!open) {
+      reset();
+    }
+  });
+
   function reset() {
-    $search = '';
+    search = '';
     selectedEntry = undefined;
-    selectedEntryId = undefined;
     selectedSense = undefined;
     addedEntries = [];
   }
 
-  async function onClickAddSense(entry: IEntry): Promise<void> {
-    const newSense = defaultSense(entry.id);
-    const savedSense = await saveHandler(() => lexboxApi.createSense(entry.id, newSense));
-    entry.senses = [...entry.senses, savedSense];
-    selectedSense = savedSense;
-    onPick();
-    open = false;
-  }
+  // async function onClickAddSense(entry: IEntry): Promise<void> {
+  //   const newSense = defaultSense(entry.id);
+  //   const savedSense = await saveHandler.handleSave(() => lexboxApi.createSense(entry.id, newSense));
+  //   entry.senses = [...entry.senses, savedSense];
+  //   selectedSense = savedSense;
+  //   onPick();
+  //   open = false;
+  // }
 
 
   async function onClickCreateNewEntry(): Promise<void> {
-    const entry = await projectCommands.createNewEntry($search, { dontSelect: true });
+    const entry = await dialogsService.createNewEntry(search);
     selectedEntry = entry;
-    selectedEntryId = entry?.id;
     if (entry) {
       addedEntries = [entry];
     }
@@ -100,154 +126,131 @@
 
   function select(entry?: IEntry, sense?: ISense): void {
     selectedEntry = entry;
-    selectedEntryId = entry?.id;
     selectedSense = sense;
-  }
-
-  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean) {
-    if (open) { // I'm opening so I manage the state
-      select(entry);
-      return;
-    }
-      // a different entry was selected, I don't manage the state
-    if (selectedEntry?.id !== entry.id) {
-      return;
-    }
-    if (selectedSense && !disabledEntry) {
-      // move selection to the entry and keep myself open
-      select(entry);
-    } else {
-      // let myself close
-      select();
-    }
   }
 </script>
 
-<Dialog bind:open on:close={reset} class="entry-sense-picker" classes={{title: 'p-2'}}>
-  <div slot="title">
-    <h2 class="mb-4 mt-3 mx-2">
-      {title}
-    </h2>
-    <TextField
-      autofocus
-      clearable
-      bind:value={$search}
-      placeholder="Find entry..."
-      class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
-      icon={mdiBookSearchOutline}>
-      <div slot="append" class="flex p-1">
-        {#if $loading}
-          <ProgressCircle size={20} width={2} />
-        {/if}
-      </div>
-    </TextField>
-  </div>
-  <div class="p-1">
-    {#each [...$displayedEntries, ...addedEntries] as entry (entry.id)}
-      {@const disabledEntry = disableEntry?.(entry)}
-      {@const disableExpand = onlyEntries || (disabledEntry && disabledEntry.disableSenses)}
-      <div class="entry"
-        class:selected={entry.id === selectedEntryId && !selectedSense && !disabledEntry}
-        class:disabled={disabledEntry}
-        class:disable-expand={disableExpand}>
-        <ExpansionPanel
-          bind:group={selectedEntryId}
-          value={entry.id}
-          disabled={disableExpand}
-          on:change={(event) => onExpansionChange(event.detail.open, entry, !!disabledEntry)}
-        >
-          <button disabled={!!disabledEntry} slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
-            on:click={() => {
-              if (disableExpand) {
-                // In this case, the ExpansionPanel' on:change event above is not in use, so we need to manage state here
-                select(selectedEntry?.id === entry.id ? undefined : entry);
-              }
-            }}>
-            <ListItem
-              title={writingSystemService.headword(entry).padStart(1, '–')}
-              subheading={writingSystemService.glosses(entry).padStart(1, '–')}
-              noShadow />
-            <div class="grow"></div>
+<Dialog.Root bind:open>
+  <Dialog.Trigger child={trigger} />
+  <Dialog.Content class="pb-0 @container" style="grid-template-rows: auto 1fr auto">
+    <Dialog.Header>
+      <Dialog.Title class="mb-4">
+        {title}
+      </Dialog.Title>
+      <ComposableInput bind:value={search} placeholder="Find entry..." autofocus class="px-1">
+        {#snippet before()}
+          <Icon icon="i-mdi-book-search-outline"/>
+        {/snippet}
+        {#snippet after()}
+          {#if searchResource.loading}
+            <Loading/>
+          {/if}
+        {/snippet}
+      </ComposableInput>
+    </Dialog.Header>
+
+    <div class="space-y-2">
+      {#each [...displayedEntries, ...addedEntries] as entry (entry.id)}
+        {@const disabledEntry = disableEntry?.(entry)}
+        <EntryRow {entry} disabled={disabledEntry && disabledEntry.disableSenses} selected={selectedEntry === entry} onclick={() => select(entry)}>
+          {#snippet badge()}
             {#if disabledEntry}
-              <span class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+              <Badge variant="outline" class="border-destructive text-destructive">
                 {disabledEntry.reason}
-              </span>
+              </Badge>
             {/if}
-            {#if entry.senses.length && !onlyEntries}
-              <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
-                {entry.senses.length}
-              </span>
-            {/if}
-          </button>
-          {#each entry.senses as sense}
-            {@const disabledSense = disableSense?.(sense, entry)}
-            <span class="hidden"></span> <!-- so the first sense doesn't get :first styles, because the entry is the first list item -->
-            <button class="sense w-full bg-surface-100 flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
-              class:selected={selectedSense?.id === sense.id}
-              class:disabled={disabledSense}
-              on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
-              <ListItem
-                title={writingSystemService.firstGloss(sense).padStart(1, '–')}
-                subheading={writingSystemService.firstDef(sense).padStart(1, '–')}
-                classes={{icon: 'text-info'}}
-                noShadow />
-              {#if disabledSense}
-                <span class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                  {disabledSense}
-                </span>
-              {/if}
-            </button>
-          {/each}
-          <ListItem
-            title="Add Sense..."
-            icon={mdiPlus}
-            classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
-            noShadow
-            on:click={() => onClickAddSense(entry)}
-          />
-        </ExpansionPanel>
-      </div>
-    {/each}
-    {#if $displayedEntries.length === 0 && addedEntries.length === 0}
-      <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
-        {#if $result.search}
-          No entries found <Icon data={mdiMagnifyRemoveOutline} />
-          <NewEntryButton on:click={onClickCreateNewEntry} />
-        {:else if $loading}
-          <ProgressCircle size={30} />
+          {/snippet}
+        </EntryRow>
+      {:else}
+        {#if searchResource.loading}
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
+          <EntryRow skeleton/>
         {:else}
-            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} /> or
-            <NewEntryButton on:click={onClickCreateNewEntry} />
+          <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
+            {#if search}
+              {$t`No entries found`}
+              <Icon icon="i-mdi-magnify-remove-outline"/>
+              <NewEntryButton onclick={onClickCreateNewEntry}/>
+            {:else}
+              <T msg="Search for an entry # or #">
+                <Icon icon="i-mdi-book-search-outline"/>
+                {#snippet second()}
+                  <NewEntryButton onclick={onClickCreateNewEntry}/>
+                {/snippet}
+              </T>
+            {/if}
+          </div>
         {/if}
-      </div>
-    {/if}
-    {#if $displayedEntries.length}
-      <ListItem
-        title="Create new Entry..."
-        icon={mdiBookPlusOutline}
-        classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
-        noShadow
-        on:click={onClickCreateNewEntry}
-      />
-    {/if}
-    {#if $result.entries.length > $displayedEntries.length}
-      <div class="px-4 py-2 text-center opacity-75 flex items-center">
-        <span>{$result.entries.length - $displayedEntries.length}</span>
-        {#if $result.entries.length === fetchCount}<span>+</span>{/if}
-        <div class="ml-1 flex justify-between items-center gap-2">
-          <span>more matching entries...</span>
+      {/each}
+      {#if searchResource.current.length > displayedEntries.length}
+        {@const remainingEntries = searchResource.current.length - displayedEntries.length}
+        <Button class="w-full h-14" variant="outline" onclick={showMoreEntries}>
+          {$t`Show ${remainingEntries} more...`}
+        </Button>
+      {/if}
+      {#if displayedEntries.length}
+        <NewEntryButton onclick={onClickCreateNewEntry} class="w-full h-14" variant="default"/>
+      {/if}
+    </div>
+
+    <Dialog.Footer class="sticky bottom-0 gap-0 flex-col bg-background border rounded rounded-b-none border-b-0 scale-[1.02]">
+      {#if !onlyEntries && selectedEntry}
+        {@const disabledEntry = disableEntry?.(selectedEntry)}
+        <div class="pointer-events-auto flex-1 px-2 space-y-2 pb-4 pt-2 max-h-[min(50cqh,20rem)] overflow-y-auto overscroll-contains">
+          <p class="text-muted-foreground px-2 text-sm">
+            {pt($t`Entry or sense:`, $t`Word or meaning:`, $currentView)}
+          </p>
+          <ListItem
+            class="flex-row justify-between"
+            disabled={!!disableEntry?.(selectedEntry)}
+            selected={!selectedSense}
+            onclick={() => select(selectedEntry, undefined)}>
+            <p class="font-medium">{$t`Entry Only`}</p>
+            {#if disabledEntry}
+              <Badge variant="outline" class="border-destructive text-destructive">
+                {disabledEntry.reason}
+              </Badge>
+            {/if}
+          </ListItem>
+          {#each selectedEntry.senses as sense}
+            {@const disabledSense = disableSense?.(sense, selectedEntry)}
+            <SenseRow
+              {sense}
+              selected={selectedSense?.id === sense.id}
+              disabled={!!disabledSense}
+              onclick={() => select(selectedEntry, sense)}>
+              {#snippet badge()}
+                {#if disabledSense}
+                  <Badge variant="outline" class="border-destructive text-destructive">
+                    {disabledSense}
+                  </Badge>
+                {/if}
+              {/snippet}
+            </SenseRow>
+          {/each}
+<!--          disabled for now because this didn't prompt the user to define the sense, it just created it with no data-->
+<!--          <button
+            class="w-full flex-1 flex items-center text-left max-w-full overflow-hidden hover:bg-accent p-2 pl-4 rounded"
+            onclick={() => onClickAddSense(selectedEntry)}>
+            <Icon icon="i-mdi-plus"/>
+            <p class="font-medium text-xl">Add sense...</p>
+          </button>-->
         </div>
+      {/if}
+      <div class="flex gap-4 items-end p-4 rounded flex-nowrap min-w-64">
+        <Button variant="secondary" class="basis-1/4" onclick={() => open = false}>
+           {$t`Cancel`}
+        </Button>
+        <Button variant="default" class="basis-3/4"
+                disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)}
+                onclick={onPick}>
+          {$t`Select ${selectedSense ? $t`Sense` : $t`Entry`}`}
+        </Button>
       </div>
-    {/if}
-  </div>
-  <div class="flex-grow"></div>
-  <div slot="actions">
-    <Button on:click={() => open = false}>Cancel</Button>
-    <Button variant="fill-light" color="success" disabled={!selectedEntry || (!!disableEntry?.(selectedEntry) && !selectedSense)} on:click={onPick}>
-      <slot name="submit-text">
-        Select {selectedSense ? 'Sense' : 'Entry'}
-      </slot>
-    </Button>
-  </div>
-</Dialog>
+
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>

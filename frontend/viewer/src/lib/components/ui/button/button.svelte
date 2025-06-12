@@ -1,12 +1,12 @@
 <script lang="ts" module>
   import type {IconClass} from '$lib/icon-class';
-  import type {WithElementRef} from 'bits-ui';
+  import {mergeProps, type WithElementRef} from 'bits-ui';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
   import type {IconProps} from '../icon/icon.svelte';
 
   export const buttonVariants = tv({
-    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    base: 'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:[&:not(.loading)]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -21,6 +21,7 @@
         xs: 'h-8 rounded-md px-2',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
+        'badge-icon': 'h-5 w-5 min-h-5 min-w-5',
         'xs-icon': 'h-8 w-8 min-h-8 min-w-8',
         icon: 'h-10 w-10 min-h-10 min-w-10',
         'extended-fab': 'h-14 pl-4 pr-5',
@@ -49,6 +50,7 @@
 <script lang="ts">
   import {cn} from '$lib/utils.js';
   import {Icon} from '../icon';
+  import {slide} from 'svelte/transition';
 
   let {
     class: className,
@@ -66,22 +68,27 @@
 </script>
 
 {#snippet content()}
-  {#if loading}
-    <Icon icon="i-mdi-loading" class="animate-spin" />
-  {:else if icon}
-    <Icon {icon} {...iconProps} />
+  {#if loading || icon}
+    <span transition:slide={{axis: 'x',}}>
+    {#if loading}
+      <Icon {...mergeProps({ class:'animate-spin'}, iconProps)} icon="i-mdi-loading" />
+    {:else if icon}
+      <Icon {...iconProps} {icon} />
+    {/if}
+    </span>
   {/if}
+
   {@render children?.()}
 {/snippet}
 
 {#if href}
-  <a bind:this={ref} class={cn(buttonVariants({ variant, size }), className)} {href} {...restProps}>
+  <a bind:this={ref} class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
     {@render content()}
   </a>
 {:else}
   <button
     bind:this={ref}
-    class={cn(buttonVariants({ variant, size }), className)}
+    class={cn(buttonVariants({ variant, size }), className, loading && 'loading')}
     {type}
     {...restProps}
     disabled={restProps.disabled || loading}

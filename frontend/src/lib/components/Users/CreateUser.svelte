@@ -1,31 +1,55 @@
 <script lang="ts">
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import { SubmitButton, FormError, Input, MaybeProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
+  import {
+    SubmitButton,
+    FormError,
+    Input,
+    MaybeProtectedForm,
+    isEmail,
+    lexSuperForm,
+    passwordFormRules,
+    DisplayLanguageSelect,
+  } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
   import { z } from 'zod';
   import type { StringifyValues } from '$lib/type.utils';
 
-  export let allowUsernames = false;
-  export let errorOnChangingEmail = '';
-  export let skipTurnstile = false;
-  export let submitButtonText = $t('register.button_register');
-  export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
-  export let formTainted = false;
-  $: formTainted = !!$tainted;
+  interface Props {
+    allowUsernames?: boolean;
+    errorOnChangingEmail?: string;
+    skipTurnstile?: boolean;
+    submitButtonText?: string;
+    handleSubmit: (
+      password: string,
+      passwordStrength: number,
+      name: string,
+      email: string,
+      locale: string,
+      turnstileToken: string,
+    ) => Promise<RegisterResponse>;
+    onSubmitted?: (submittedUser: LexAuthUser) => void;
+    formTainted?: boolean;
+  }
 
-  const dispatch = createEventDispatcher<{
-    submitted: LexAuthUser,
-  }>();
+  let {
+    allowUsernames = false,
+    errorOnChangingEmail = '',
+    skipTurnstile = false,
+    submitButtonText = $t('register.button_register'),
+    handleSubmit,
+    onSubmitted,
+    formTainted = $bindable(false),
+  }: Props = $props();
 
   type RegisterPageQueryParams = {
     name: string;
     email: string;
   };
-  let turnstileToken = '';
+  let turnstileToken = $state('');
   let urlValues = {} as StringifyValues<RegisterPageQueryParams>;
 
   function validateAsEmail(value: string): boolean {
@@ -37,7 +61,9 @@
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('register.name_missing')),
-    email: z.string().trim()
+    email: z
+      .string()
+      .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, errorOnChangingEmail)
       .refine((value) => !validateAsEmail(value) || isEmail(value), $t('form.invalid_email'))
@@ -48,13 +74,22 @@
   });
 
   let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
-    const { user, error } = await handleSubmit($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
+    const { user, error } = await handleSubmit(
+      $form.password,
+      $form.score,
+      $form.name,
+      $form.email,
+      $form.locale,
+      turnstileToken,
+    );
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');
       }
       if (error.accountExists) {
-        $errors.email = [validateAsEmail($form.email) ? $t('register.account_exists_email') : $t('register.account_exists_login')];
+        $errors.email = [
+          validateAsEmail($form.email) ? $t('register.account_exists_email') : $t('register.account_exists_login'),
+        ];
       }
       if (error.invalidInput) {
         $errors.email = [validateAsEmail($form.email) ? $t('form.invalid_email') : $t('register.invalid_username')];
@@ -62,18 +97,25 @@
       return;
     }
     if (user) {
-      dispatch('submitted', user);
+      onSubmitted?.(user);
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
   });
-  onMount(() => { // query params not available during SSR
+  $effect(() => {
+    formTainted = !!$tainted;
+  });
+  onMount(() => {
+    // query params not available during SSR
     urlValues = getSearchParamValues<RegisterPageQueryParams>();
-    form.update((form) => {
-      if (urlValues.name) form.name = urlValues.name;
-      if (urlValues.email) form.email = urlValues.email;
-      return form;
-    }, { taint: true });
+    form.update(
+      (form) => {
+        if (urlValues.name) form.name = urlValues.name;
+        if (urlValues.email) form.email = urlValues.email;
+        return form;
+      },
+      { taint: true },
+    );
   });
 </script>
 
@@ -97,10 +139,8 @@
     error={$errors.password}
     autocomplete="new-password"
   />
-  <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
-  <DisplayLanguageSelect
-    bind:value={$form.locale}
-  />
+  <PasswordStrengthMeter onScoreUpdated={(score) => ($form.score = score)} password={$form.password} />
+  <DisplayLanguageSelect bind:value={$form.locale} />
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>
 </MaybeProtectedForm>

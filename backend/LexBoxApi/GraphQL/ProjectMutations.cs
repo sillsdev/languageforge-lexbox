@@ -361,8 +361,8 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
-        await permissionService.AssertCanViewProject(projectId);
-        if (projectId == default) throw NotFoundException.ForType<Project>();
+        if (projectId is null) throw NotFoundException.ForType<Project>();
+        await permissionService.AssertCanViewProject(projectId.Value);
         await projectService.UpdateRepoSizeInKb(code);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
@@ -379,7 +379,8 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
-        await permissionService.AssertCanManageProject(projectId);
+        if (projectId is null) throw NotFoundException.ForType<Project>();
+        await permissionService.AssertCanManageProject(projectId.Value);
         var project = await dbContext.Projects.FindAsync(projectId);
         NotFoundException.ThrowIfNull(project);
         var result = await projectService.UpdateLexEntryCount(code);
@@ -398,10 +399,11 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
-        await permissionService.AssertCanManageProject(projectId);
+        if (projectId is null) throw NotFoundException.ForType<Project>();
+        await permissionService.AssertCanManageProject(projectId.Value);
         var project = await dbContext.Projects.FindAsync(projectId);
         NotFoundException.ThrowIfNull(project);
-        await projectService.UpdateProjectLangTags(projectId);
+        await projectService.UpdateProjectLangTags(projectId.Value);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 
@@ -417,10 +419,11 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
-        await permissionService.AssertCanManageProject(projectId);
+        if (projectId is null) throw NotFoundException.ForType<Project>();
+        await permissionService.AssertCanManageProject(projectId.Value);
         var project = await dbContext.Projects.FindAsync(projectId);
         NotFoundException.ThrowIfNull(project);
-        await projectService.UpdateProjectLangProjectId(projectId);
+        await projectService.UpdateProjectLangProjectId(projectId.Value);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 
@@ -436,8 +439,9 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
-        await permissionService.AssertCanManageProject(projectId);
-        await projectService.UpdateFLExModelVersion(projectId);
+        if (projectId is null) throw NotFoundException.ForType<Project>();
+        await permissionService.AssertCanManageProject(projectId.Value);
+        await projectService.UpdateFLExModelVersion(projectId.Value);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 

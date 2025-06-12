@@ -2,9 +2,13 @@
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
   import type { ErrorMessage } from './types';
 
-  export let error: ErrorMessage = undefined;
-  export let markdown = false;
-  export let right = false; // when the form submit button is on the right
+  interface Props {
+    error?: ErrorMessage;
+    markdown?: boolean;
+    right?: boolean; // when the form submit button is on the right
+  }
+
+  const { error = undefined, markdown = false, right = false }: Props = $props();
 </script>
 
 {#if error}

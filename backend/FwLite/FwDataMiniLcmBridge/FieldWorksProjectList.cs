@@ -37,7 +37,7 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config, FwDataFa
         return EnumerateProjects().OfType<FwDataProject>().FirstOrDefault(p => p.Name == name);
     }
 
-    ValueTask<IMiniLcmApi> IProjectProvider.OpenProject(IProjectIdentifier project, IServiceProvider serviceProvider, bool saveChangesOnDispose = true)
+    ValueTask<IMiniLcmApi> IProjectProvider.OpenProject(IProjectIdentifier project, IServiceProvider serviceProvider, bool saveChangesOnDispose)
     {
         return ValueTask.FromResult(OpenProject(project, saveChangesOnDispose));
     }

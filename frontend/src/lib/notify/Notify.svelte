@@ -11,13 +11,13 @@
   <div class="toast toast-center prose z-20">
     {#if $notifications.length > 1}
       <div class="flex justify-end" in:slide out:blur>
-        <BadgeButton on:click={removeAllNotifications}>{$t('notify.close_all')}<span class="ml-2">✕</span></BadgeButton>
+        <BadgeButton onclick={removeAllNotifications}>{$t('notify.close_all')}<span class="ml-2">✕</span></BadgeButton>
       </div>
     {/if}
     {#each $notifications as note (note)}
       <div class="alert {note.category ?? ''}" in:slide out:blur>
         {note.message}
-        <button on:click={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost">✕</button>
+        <button onclick={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost">✕</button>
       </div>
     {/each}
   </div>

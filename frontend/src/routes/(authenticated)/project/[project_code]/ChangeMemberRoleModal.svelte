@@ -7,24 +7,34 @@
   import { _changeProjectMemberRole } from './+page';
   import type { UUID } from 'crypto';
 
-  export let projectId: string;
+  interface Props {
+    projectId: string;
+    showObserver?: boolean;
+  }
+
+  const { projectId, showObserver }: Props = $props();
 
   const schema = z.object({
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager])
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]),
   });
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
-  $: form = formModal?.form();
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  let formModal: FormModal<Schema> | undefined = $state();
+  let form = $derived(formModal?.form());
 
-  let name: string;
+  let name: string = $state('');
 
-  export async function open(member: { userId: UUID; name: string; role: ProjectRole }): Promise<FormModalResult<Schema>> {
+  export async function open(member: {
+    userId: UUID;
+    name: string;
+    role: ProjectRole;
+  }): Promise<FormModalResult<Schema>> {
     name = member.name;
-    return await formModal.open(tryParse(schema, member), async () => {
+    return await formModal!.open(tryParse(schema, member), async () => {
       const result = await _changeProjectMemberRole({
         projectId: projectId,
         userId: member.userId,
-        role: $form.role as ProjectRole,
+        role: $form!.role as ProjectRole,
       });
       if (result.error?.byType('ProjectMembersMustBeVerified')) {
         return { role: [$t('project_page.add_user.user_must_be_verified')] };
@@ -37,8 +47,14 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{$t('project_page.change_role_modal.title', { name })}</span>
-  <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="submitText">{$t('project_page.change_role')}</span>
+<FormModal bind:this={formModal} {schema}>
+  {#snippet title()}
+    <span>{$t('project_page.change_role_modal.title', { name })}</span>
+  {/snippet}
+  {#snippet children({ errors })}
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} {showObserver} />
+  {/snippet}
+  {#snippet submitText()}
+    <span>{$t('project_page.change_role')}</span>
+  {/snippet}
 </FormModal>

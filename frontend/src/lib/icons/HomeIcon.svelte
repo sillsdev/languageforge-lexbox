@@ -1,5 +1,9 @@
 <script lang="ts">
-  export let size: 'text-2xl' | 'text-xl' = 'text-2xl';
+  interface Props {
+    size?: 'text-2xl' | 'text-xl';
+  }
+
+  const { size = 'text-2xl' }: Props = $props();
 </script>
 
-<span class="i-mdi-home-outline {size}" />
+<span class="i-mdi-home-outline {size}"></span>

@@ -61,6 +61,7 @@ public class ProjectService(
         await hgService.InitRepo(input.Code);
         InvalidateProjectOrgIdsCache(projectId);
         InvalidateProjectConfidentialityCache(projectId);
+        InvalidateProjectCodeCache(input.Code);
         if (draftProject != null && manager != null)
         {
             await emailService.SendApproveProjectRequestEmail(manager, input);
@@ -136,13 +137,13 @@ public class ProjectService(
         return await dbContext.Projects.AnyAsync(p => p.Code == projectCode);
     }
 
-    public async ValueTask<Guid> LookupProjectId(string projectCode)
+    public async ValueTask<Guid?> LookupProjectId(string projectCode)
     {
         var cacheKey = $"ProjectIdForCode:{projectCode}";
-        if (memoryCache.TryGetValue(cacheKey, out Guid projectId)) return projectId;
+        if (memoryCache.TryGetValue(cacheKey, out Guid? projectId)) return projectId;
         projectId = await dbContext.Projects
             .Where(p => p.Code == projectCode)
-            .Select(p => p.Id)
+            .Select(p => (Guid?) p.Id)
             .FirstOrDefaultAsync();
         memoryCache.Set(cacheKey, projectId, TimeSpan.FromHours(1));
         return projectId;
@@ -165,14 +166,16 @@ public class ProjectService(
 
     public async Task ResetProject(ResetProjectByAdminInput input)
     {
+        var projectId = await LookupProjectId(input.Code);
+        if (projectId is null) throw new NotFoundException($"project {input.Code} not found", nameof(Project));
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        var rowsAffected = await dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
+        var rowsAffected = await dbContext.Projects.Where(p => p.Id == projectId.Value && p.ResetStatus == ResetStatus.None)
             .ExecuteUpdateAsync(u => u
                 .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
                 .SetProperty(p => p.RepoSizeInKb, 0)
                 .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
-        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
-        await fwHeadless.DeleteRepo(await LookupProjectId(input.Code));
+        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset or already reset", nameof(Project));
+        await fwHeadless.DeleteRepo(projectId.Value);
         await ResetLexEntryCount(input.Code);
         await hgService.ResetRepo(input.Code);
         await transaction.CommitAsync();

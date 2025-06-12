@@ -3,12 +3,15 @@ using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Entities;
+using LexCore.Sync;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
+using SIL.Harmony.Core;
 
 namespace FwLiteShared.Projects;
 
@@ -50,8 +53,6 @@ public class LexboxProjectService : IDisposable
         onAuthChangedSubscription.Dispose();
     }
 
-    public record LexboxProject(Guid Id, string Code, string Name, bool IsFwDataProject, bool IsCrdtProject);
-
     public LexboxServer[] Servers()
     {
         return options.Value.LexboxServers;
@@ -63,7 +64,7 @@ public class LexboxProjectService : IDisposable
         return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
     }
 
-    public async Task<LexboxProject[]> GetLexboxProjects(LexboxServer server)
+    public async Task<FieldWorksLiteProject[]> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),
             async entry =>
@@ -73,7 +74,7 @@ public class LexboxProjectService : IDisposable
                 if (httpClient is null) return [];
                 try
                 {
-                    return await httpClient.GetFromJsonAsync<LexboxProject[]>("api/crdt/listProjects") ?? [];
+                    return await httpClient.GetFromJsonAsync<FieldWorksLiteProject[]>("api/crdt/listProjects") ?? [];
                 }
                 catch (Exception e)
                 {
@@ -81,6 +82,11 @@ public class LexboxProjectService : IDisposable
                     return [];
                 }
             }) ?? [];
+    }
+
+    public async Task<LexboxUser?> GetLexboxUser(LexboxServer server)
+    {
+        return await clientFactory.GetClient(server).GetCurrentUser();
     }
 
     private static string CacheKey(LexboxServer server)
@@ -94,11 +100,85 @@ public class LexboxProjectService : IDisposable
         if (httpClient is null) return null;
         try
         {
-            return (await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}"));
+            return await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}");
         }
         catch (Exception e)
         {
             logger.LogError(e, "Error getting lexbox project id");
+            return null;
+        }
+    }
+
+    public async Task<ProjectSyncStatus?> GetLexboxSyncStatus(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.GetFromJsonAsync<ProjectSyncStatus?>($"api/fw-lite/sync/status/{projectId}");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting lexbox sync status");
+            return null;
+        }
+    }
+
+    public async Task<HttpResponseMessage?> TriggerLexboxSync(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error triggering lexbox sync");
+            return null;
+        }
+    }
+
+    public async Task<SyncResult?> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(timeoutSeconds);
+        while (giveUpAt > DateTime.UtcNow)
+        {
+            try
+            {
+                // Avoid 30-second timeout by retrying every 25 seconds until max time reached
+                var result = await httpClient.GetAsync(
+                        $"api/fw-lite/sync/await-sync-finished/{projectId}",
+                        new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
+                result.EnsureSuccessStatusCode();
+                return await result.Content.ReadFromJsonAsync<SyncResult?>();
+            }
+            catch (OperationCanceledException) { continue; }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error waiting for lexbox sync to finish");
+                return null;
+            }
+        }
+        logger.LogError("Timed out waiting for lexbox sync to finish");
+        return null;
+    }
+
+    public async Task<int?> CountPendingCrdtCommits(LexboxServer server, Guid projectId, SyncState localSyncState)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return null;
+        try
+        {
+            var result = await httpClient.PostAsJsonAsync<SyncState>($"/api/crdt/{projectId}/countChanges", localSyncState);
+            var text = await result.Content.ReadAsStringAsync();
+            return int.Parse(text);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error counting pending changes in lexbox");
             return null;
         }
     }

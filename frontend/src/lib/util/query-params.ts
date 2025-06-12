@@ -39,10 +39,10 @@ export function getSearchParams<T extends Record<string, unknown>>(options: Quer
     delete (options[key] as EncodeAndDecodeOptions<T[typeof key]>).defaultValue;
   }
 
-  const queryParams = queryParameters<T>(options, { pushHistory: false });
+  const queryParams = queryParameters<QueryParamConfig<T>>(options, { pushHistory: false });
 
   return {
-    queryParamValues: queryParams,
+    queryParamValues: queryParams as Writable<T>,
     defaultQueryParamValues: defaultValues,
   }
 }

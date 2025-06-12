@@ -1,28 +1,41 @@
 <script lang="ts">
   import type {IEntry} from '$lib/dotnet-types';
   import {fieldName} from '$lib/i18n';
+  import {t} from 'svelte-i18n-lingui';
   import {useCurrentView} from '$lib/views/view-service';
-  import {getContext} from 'svelte';
-  import {Button, Dialog} from 'svelte-ux';
-  import type {SaveHandler} from '../services/save-event-service';
+  import {Button} from '$lib/components/ui/button';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import {useSaveHandler} from '../services/save-event-service.svelte';
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import EntryEditor from './object-editors/EntryEditor.svelte';
   import OverrideFields from '$lib/OverrideFields.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service';
-  import {initFeatures} from '$lib/services/feature-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useDialogsService} from '$lib/services/dialogs-service.js';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 
-  let open = false;
-  let loading = false;
-  let entry: IEntry = defaultEntry();
+  let open = $state(false);
+  useBackHandler({addToStack: () => open, onBack: () => open = false});
+  let loading = $state(false);
+  let entry: IEntry = $state(defaultEntry());
 
   const currentView = useCurrentView();
   const writingSystemService = useWritingSystemService();
+  const dialogsService = useDialogsService();
+  dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
-  const saveHandler = getContext<SaveHandler>('saveHandler');
+  const saveHandler = useSaveHandler();
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
+
+  // Watch for changes in the open state to detect when the dialog is closed
+  $effect(() => {
+    if (!open) {
+      onClosing();
+    }
+  });
 
   async function createEntry(e: Event) {
     e.preventDefault();
@@ -31,14 +44,14 @@
     if (!validateEntry()) return;
     loading = true;
     console.debug('Creating entry', entry);
-    await saveHandler(() => lexboxApi.createEntry(entry));
+    await saveHandler.handleSave(() => lexboxApi.createEntry(entry));
     requester.resolve(entry);
     requester = undefined;
     loading = false;
     open = false;
   }
 
-  let errors: string[] = [];
+  let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
     if (!writingSystemService.headword(entry)) errors.push('Lexeme form is required');
@@ -68,24 +81,37 @@
     entry = defaultEntry();
   }
 
-  initFeatures({ write: true }); // hide history buttons
+  let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !IsMobile.value) {
+      void createEntry(event);
+    }
+  }
 </script>
 
-<Dialog bind:open on:close={onClosing} {loading} persistent={loading}>
-  <div slot="title">New {fieldName({id: 'entry'}, $currentView.i18nKey)}</div>
-  <div class="m-6">
+{#if open}
+<Dialog.Root bind:open={open}>
+  <Dialog.DialogContent onkeydown={handleKeydown}>
+    <Dialog.DialogHeader>
+      <Dialog.DialogTitle>{$t`New ${entryLabel}`}</Dialog.DialogTitle>
+    </Dialog.DialogHeader>
     <OverrideFields shownFields={['lexemeForm', 'citationForm', 'gloss', 'definition']}>
       <EntryEditor bind:entry={entry} modalMode canAddSense={false} canAddExample={false} />
     </OverrideFields>
-  </div>
-  <div class="flex-grow"></div>
-  <div class="self-end m-4">
-    {#each errors as error}
-      <p class="text-danger p-2">{error}</p>
-    {/each}
-  </div>
-  <div slot="actions">
-    <Button>Cancel</Button>
-    <Button variant="fill-light" color="success" on:click={e => createEntry(e)}>Create {fieldName({id: 'entry'}, $currentView.i18nKey)}</Button>
-  </div>
-</Dialog>
+    {#if errors.length}
+      <div class="text-end space-y-2">
+        {#each errors as error}
+          <p class="text-destructive">{error}</p>
+        {/each}
+      </div>
+    {/if}
+    <Dialog.DialogFooter>
+      <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
+      <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
+        {$t`Create ${entryLabel}`}
+      </Button>
+    </Dialog.DialogFooter>
+  </Dialog.DialogContent>
+</Dialog.Root>
+{/if}

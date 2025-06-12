@@ -53,7 +53,7 @@ export function defaultExampleSentence(senseId: string): IExampleSentence {
     senseId,
     sentence: {},
     translation: {},
-    reference: '',
+    reference: {spans: []},
   };
 }
 
@@ -61,6 +61,7 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
   return {
     id: randomId(),
     wsId: 'en',
+    isAudio: false,
     name: 'English',
     abbreviation: 'en',
     font: 'Arial',

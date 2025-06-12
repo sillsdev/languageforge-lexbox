@@ -1,16 +1,30 @@
 <script lang="ts">
+  import DictionaryEntry from '$lib/DictionaryEntry.svelte';
+  import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
-  import type { IEntry } from '$lib/dotnet-types';
-  import { useWritingSystemRunes } from '$lib/writing-system-runes.svelte';
+  import type {IEntry} from '$lib/dotnet-types';
+  import {usePartsOfSpeech} from '$lib/parts-of-speech.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import type {WithoutChildrenOrChild} from 'bits-ui';
+  import type {Snippet} from 'svelte';
+  import {t} from 'svelte-i18n-lingui';
 
-  const { entry, isSelected = false, onclick, skeleton = false }: {
+  interface Props extends WithoutChildrenOrChild<ListItemProps> {
     entry?: IEntry;
-    isSelected?: boolean;
-    onclick?: () => void;
-    skeleton?: boolean;
-  } = $props();
+    badge?: Snippet;
+    previewDictionary?: boolean;
+  };
 
-  const writingSystemService = $derived(useWritingSystemRunes());
+  let {
+    entry,
+    ref = $bindable(null),
+    badge,
+    previewDictionary = false,
+    ...rest
+  }: Props = $props();
+
+  const writingSystemService = useWritingSystemService();
+  const partOfSpeechService = usePartsOfSpeech();
   const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
   const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
 
@@ -29,35 +43,31 @@
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
 </script>
 
-<button
-  class="w-full px-4 py-3 text-left bg-muted/30 aria-selected:bg-muted hover:bg-muted rounded"
-  role="row"
-  aria-selected={isSelected}
-  class:cursor-default={skeleton}
-  class:hover:bg-transparent={skeleton}
-  onclick={skeleton ? undefined : onclick}
-  disabled={skeleton}
->
-  {#if skeleton || !entry}
+<ListItem bind:ref {...rest}>
+  {#if rest.skeleton || !entry}
     <div class="animate-pulse" style="animation-delay: {animationDelay}">
       <div class="h-5 bg-muted-foreground/20 rounded mb-2" style="width: {headwordWidth}"></div>
       <div class="h-4 bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}"></div>
       <div class="h-6 bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}"></div>
     </div>
+  {:else if previewDictionary}
+    <DictionaryEntry {entry}/>
   {:else}
-    <h2 class="font-medium text-2xl">{writingSystemService.headword(entry) || 'Untitled'}</h2>
-    <div class="flex flex-row items-start justify-between gap-2">
-      {#if sensePreview}
-      <div class="text-sm text-muted-foreground">
-        {sensePreview}
+    <h2 class="font-medium text-2xl flex justify-between items-center">
+      {writingSystemService.headword(entry) || $t`Untitled`}
+      {@render badge?.()}
+    </h2>
+    {#if entry.senses.length}
+      <div class="flex justify-between items-end">
+        <div class="text-sm text-muted-foreground">
+          {sensePreview}
+        </div>
+        {#if partOfSpeech}
+          <Badge variant="default" class="bg-primary/60 whitespace-nowrap">
+            {partOfSpeechService.getLabel(partOfSpeech)}
+          </Badge>
+        {/if}
       </div>
-      {#if partOfSpeech}
-        <Badge variant="default" class="bg-primary/60">
-          {writingSystemService.pickBestAlternative(partOfSpeech.name, 'analysis')}
-        </Badge>
-      {/if}
     {/if}
-    </div>
-
   {/if}
-</button>
+</ListItem>

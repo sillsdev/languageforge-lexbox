@@ -40,7 +40,9 @@ public class PermissionService(
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        return await CanSyncProject(await projectService.LookupProjectId(projectCode));
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanSyncProject(projectId.Value);
     }
 
     public bool IsProjectMember(Guid projectId, LexAuthUser? overrideUser = null)
@@ -51,6 +53,15 @@ public class PermissionService(
     }
 
     public async ValueTask<bool> CanSyncProject(Guid projectId)
+    {
+        if (User is null) return false;
+        if (User.Role == UserRole.admin) return true;
+        if (User.IsProjectMember(projectId, ProjectRole.Editor, ProjectRole.Manager)) return true;
+        // Org managers can sync any project owned by their org(s)
+        return await ManagesOrgThatOwnsProject(projectId);
+    }
+
+    public async ValueTask<bool> CanDownloadProject(Guid projectId)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
@@ -69,6 +80,11 @@ public class PermissionService(
         if (!await CanSyncProject(projectId)) throw new UnauthorizedAccessException();
     }
 
+    public async ValueTask AssertCanDownloadProject(Guid projectId)
+    {
+        if (!await CanDownloadProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
     public async ValueTask<bool> CanViewProject(Guid projectId, LexAuthUser? overrideUser = null)
     {
         var user = overrideUser ?? User;
@@ -81,16 +97,18 @@ public class PermissionService(
         return isConfidential == false; // Explicitly set to public
     }
 
-    public async ValueTask AssertCanViewProject(Guid projectId)
+    public async ValueTask AssertCanViewProject(Guid projectId, LexAuthUser? overrideUser = null)
     {
-        if (!await CanViewProject(projectId)) throw new UnauthorizedAccessException();
+        if (!await CanViewProject(projectId, overrideUser)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask<bool> CanViewProject(string projectCode, LexAuthUser? overrideUser = null)
     {
         var user = overrideUser ?? User;
         if (user is not null && user.Role == UserRole.admin) return true;
-        return await CanViewProject(await projectService.LookupProjectId(projectCode), overrideUser);
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanViewProject(projectId.Value, overrideUser);
     }
 
     public async ValueTask AssertCanViewProject(string projectCode, LexAuthUser? overrideUser = null)
@@ -125,7 +143,9 @@ public class PermissionService(
 
     public async ValueTask<bool> CanManageProject(string projectCode)
     {
-        return await CanManageProject(await projectService.LookupProjectId(projectCode));
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanManageProject(projectId.Value);
     }
 
     public async ValueTask AssertCanManageProject(string projectCode)
@@ -181,7 +201,9 @@ public class PermissionService(
 
     public async ValueTask<bool> CanAskToJoinProject(string projectCode)
     {
-        return await CanAskToJoinProject(await projectService.LookupProjectId(projectCode));
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return false;
+        return await CanAskToJoinProject(projectId.Value);
     }
 
     public async ValueTask AssertCanAskToJoinProject(string projectCode)

@@ -7,20 +7,23 @@ import {
   type IEntry,
   type IExampleSentence,
   type IMiniLcmJsInvokable,
-  type IPartOfSpeech,
+  type IPartOfSpeech, type IProjectModel,
   type IQueryOptions,
   type ISemanticDomain,
   type ISense,
+  type IServerProjects,
   type IWritingSystem,
   type IWritingSystems,
   type WritingSystemType
 } from '$lib/dotnet-types';
 import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
-import {WritingSystemService} from './writing-system-service';
+import {WritingSystemService} from './writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 import {delay} from '$lib/utils/time';
+import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
+import type {IFilterQueryOptions} from './dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -41,19 +44,53 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
 
-const writingSystemService = new WritingSystemService(writingSystems);
-
 export class InMemoryApiService implements IMiniLcmJsInvokable {
+  #writingSystemService: WritingSystemService;
+  constructor(private projectContext: ProjectContext) {
+    this.#writingSystemService = new WritingSystemService(projectContext);
+  }
+  countEntries(query?: string, options?: IFilterQueryOptions): Promise<number> {
+    const entries = this.getFilteredEntries(query, options);
+    return Promise.resolve(entries.length);
+  }
 
+  public static newProjectContext() {
+    const projectContext = new ProjectContext();
+    projectContext.setup({api: new InMemoryApiService(projectContext), projectName, projectCode: projectName});
+    return projectContext;
+  }
   public static setup(): InMemoryApiService {
-    const inMemoryLexboxApi = new InMemoryApiService();
-    window.lexbox.ServiceProvider.setService(DotnetService.MiniLcmApi, inMemoryLexboxApi);
-    const yyyyMMDD = new Date().toISOString().split('T')[0];
+    const projectContext = initProjectContext();
+    const inMemoryLexboxApi = new InMemoryApiService(projectContext);
+    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
-      appVersion: `${yyyyMMDD}-test`,
+      appVersion: `dev`,
       feedbackUrl: '',
       os: FwLitePlatform.Web,
       useDevAssets: true,
+    });
+    window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
+      localProjects(): Promise<IProjectModel[]> {
+        return Promise.resolve([]);
+      },
+      supportsFwData: function (): Promise<boolean> {
+        return Promise.resolve(false);
+      },
+      remoteProjects: function (): Promise<IServerProjects[]> {
+        return Promise.resolve([]);
+      },
+      serverProjects: function (_serverId: string, _forceRefresh: boolean): Promise<IProjectModel[]> {
+        return Promise.resolve([]);
+      },
+      downloadProject: function (_project: IProjectModel): Promise<void> {
+        return Promise.resolve();
+      },
+      createProject: function (_name: string): Promise<void> {
+        return Promise.resolve();
+      },
+      deleteProject: function (_code: string): Promise<void> {
+        return Promise.resolve();
+      }
     });
     return inMemoryLexboxApi;
   }
@@ -104,38 +141,28 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
 
   async getEntries(options: IQueryOptions | undefined): Promise<IEntry[]> {
     await delay(300);
-    return this.ApplyQueryOptions(this._Entries(), options);
+    return this.queryEntries(undefined, options);
   }
 
-  getWritingSystemsSync(): IWritingSystems {
-    return writingSystems;
-  }
   getWritingSystems(): Promise<IWritingSystems> {
-    return Promise.resolve(writingSystems);
+    return Promise.resolve(writingSystems as unknown as IWritingSystems);
   }
 
   async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
     await delay(300);
-    return this.ApplyQueryOptions(filterEntries(this._Entries(), query), options);
+    return this.queryEntries(query, options);
   }
 
-  private ApplyQueryOptions(entries: IEntry[], options: IQueryOptions | undefined): IEntry[] {
+  private queryEntries(query: string | undefined, options: IQueryOptions | undefined): IEntry[] {
+    const entries = this.getFilteredEntries(query, options);
+
     if (!options) return entries;
     const defaultWs = writingSystems.vernacular[0].wsId;
-    if (options.exemplar?.value) {
-      const lowerExemplar = options.exemplar.value.toLowerCase();
-      const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);
-      entries = entries.filter(entry =>
-        (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
-          ?.toLocaleLowerCase()
-          ?.startsWith(lowerExemplar));
-    }
-
     const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
-        const v1 = writingSystemService.headword(e1, sortWs);
-        const v2 = writingSystemService.headword(e2, sortWs);
+        const v1 = this.#writingSystemService.headword(e1, sortWs);
+        const v2 = this.#writingSystemService.headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
         let compare = v1.localeCompare(v2, sortWs);
@@ -145,11 +172,28 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
       .slice(options.offset, options.offset + options.count);
   }
 
+  private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
+    let entries = this._Entries();
+    if (query) entries = filterEntries(entries, query);
+    if (!options) return entries;
+
+    const defaultWs = writingSystems.vernacular[0].wsId;
+    if (options.exemplar?.value) {
+      const lowerExemplar = options.exemplar.value.toLowerCase();
+      const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);
+      entries = entries.filter(entry =>
+        (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
+          ?.toLocaleLowerCase()
+          ?.startsWith(lowerExemplar));
+    }
+    return entries;
+  }
+
   async getEntry(guid: string) {
-    const entry = entries.find(e => e.id === guid);
+    const entry = this._entries.find(e => e.id === guid);
     await delay(300);
     if (!entry) throw new Error(`Entry ${guid} not found`);
-    return entry;
+    return JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
   createEntry(entry: IEntry): Promise<IEntry> {
@@ -158,7 +202,7 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
-    entries.splice(entries.findIndex(e => e.id === after.id), 1, after);
+    this._entries.splice(this._entries.findIndex(e => e.id === after.id), 1, after);
     return Promise.resolve(after);
   }
 
@@ -173,20 +217,20 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   deleteEntry(guid: string): Promise<void> {
-    entries.slice(entries.findIndex(e => e.id === guid), 1);
+    this._entries.splice(this._entries.findIndex(e => e.id === guid), 1);
     return Promise.resolve();
   }
 
   deleteSense(entryGuid: string, senseGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
-    entry.senses.slice(entry.senses.findIndex(s => s.id === senseGuid), 1);
+    entry.senses.splice(entry.senses.findIndex(s => s.id === senseGuid), 1);
     return Promise.resolve();
   }
 
   deleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void> {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
-    sense.exampleSentences.slice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
+    sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
     return Promise.resolve();
   }
 

@@ -1,12 +1,21 @@
-import {browser} from '$app/environment';
-import {redirect, type Cookies} from '@sveltejs/kit';
-import {jwtDecode} from 'jwt-decode';
-import {deleteCookie, getCookie} from './util/cookies';
-import {hash} from '$lib/util/hash';
-import {ensureErrorIsTraced, errorSourceTag} from './otel';
+import { browser } from '$app/environment';
+import { type Cookies, redirect } from '@sveltejs/kit';
+import { jwtDecode } from 'jwt-decode';
+import { deleteCookie, getCookie } from './util/cookies';
+import { hash } from '$lib/util/hash';
+import { ensureErrorIsTraced, errorSourceTag } from './otel';
 import zxcvbn from 'zxcvbn';
-import {type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole, LexboxAudience as GqlLexboxAudience, FeatureFlag} from './gql/types';
-import {_createGuestUserByAdmin} from '../routes/(authenticated)/admin/+page';
+import {
+  type AuthUserOrg,
+  type AuthUserProject,
+  type CreateGuestUserByAdminInput,
+  FeatureFlag,
+  LexboxAudience as GqlLexboxAudience,
+  type OrgRole,
+  ProjectRole,
+  UserRole
+} from './gql/types';
+import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -37,10 +46,10 @@ type JwtTokenUser = {
   proj?: string,
   orgs?: AuthUserOrg[],
   feat?: FeatureFlag[],
-  lock?: boolean | undefined,
-  unver?: boolean | undefined,
-  mkproj?: boolean | undefined,
-  creat?: boolean | undefined,
+  lock?: boolean,
+  unver?: boolean,
+  mkproj?: boolean,
+  creat?: boolean,
   aud: ApiLexboxAudience,
   scope?: string,
   loc: string,
@@ -236,6 +245,9 @@ function projectsStringToProjects(projectsString: string | undefined): AuthUserP
         break;
       case 'e':
         role = ProjectRole.Editor;
+        break;
+      case 'o':
+        role = ProjectRole.Observer;
         break;
     }
     //substring to remove the first character which is the role code plus the colon

@@ -1,4 +1,4 @@
-﻿## FieldWorks Lite Web runs as a terminal application with a web front-end in your browser
+## FieldWorks Lite Web runs as a terminal application with a web front-end in your browser
 
 ## Install a FieldWorks Lite shortcut into the Ubuntu launcher
 

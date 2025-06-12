@@ -9,6 +9,7 @@ import type {IPartOfSpeech} from '../../MiniLcm/Models/IPartOfSpeech';
 import type {IPublication} from '../../MiniLcm/Models/IPublication';
 import type {ISemanticDomain} from '../../MiniLcm/Models/ISemanticDomain';
 import type {IComplexFormType} from '../../MiniLcm/Models/IComplexFormType';
+import type {IFilterQueryOptions} from '../../MiniLcm/IFilterQueryOptions';
 import type {IEntry} from '../../MiniLcm/Models/IEntry';
 import type {IQueryOptions} from '../../MiniLcm/IQueryOptions';
 import type {ISense} from '../../MiniLcm/Models/ISense';
@@ -26,6 +27,7 @@ export interface IMiniLcmJsInvokable
 	getSemanticDomains() : Promise<ISemanticDomain[]>;
 	getComplexFormTypes() : Promise<IComplexFormType[]>;
 	getComplexFormType(id: string) : Promise<IComplexFormType>;
+	countEntries(query?: string, options?: IFilterQueryOptions) : Promise<number>;
 	getEntries(options?: IQueryOptions) : Promise<IEntry[]>;
 	searchEntries(query: string, options?: IQueryOptions) : Promise<IEntry[]>;
 	getEntry(id: string) : Promise<IEntry>;

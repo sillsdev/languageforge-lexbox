@@ -3,16 +3,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {IExemplarOptions} from './IExemplarOptions';
-import type {IEntryFilter} from './Filtering/IEntryFilter';
+import type {IFilterQueryOptions} from './IFilterQueryOptions';
 import type {ISortOptions} from './ISortOptions';
 
-export interface IQueryOptions
+export interface IQueryOptions extends IFilterQueryOptions
 {
-	exemplar?: IExemplarOptions;
 	count: number;
 	offset: number;
-	filter?: IEntryFilter;
 	order: ISortOptions;
 }
 /* eslint-enable */

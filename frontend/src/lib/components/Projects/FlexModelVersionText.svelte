@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
   import { NULL_LABEL } from '$lib/i18n';
 
   const versionLookupTable: Record<number, string> = {
@@ -22,9 +22,12 @@
 </script>
 
 <script lang="ts">
+  interface Props {
+    modelVersion: number;
+  }
 
-  export let modelVersion: number;
-  $: fwModel = versionLookupTable[modelVersion] ?? 'Unknown FieldWorks version';
+  const { modelVersion }: Props = $props();
+  let fwModel = $derived(versionLookupTable[modelVersion] ?? 'Unknown FieldWorks version');
 </script>
 
 <span title="FieldWorks data model {modelVersion}" class="text-secondary">{fwModel}</span>

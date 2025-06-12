@@ -208,6 +208,7 @@ public record LexAuthUser
                     {
                         ProjectRole.Manager => "m",
                         ProjectRole.Editor => "e",
+                        ProjectRole.Observer => "o",
                         _ => "u"
                     };
 
@@ -219,16 +220,17 @@ public record LexAuthUser
             //will be empty for admins
             if (string.IsNullOrEmpty(value))
             {
-                Projects = Array.Empty<AuthUserProject>();
+                Projects = [];
                 return;
             }
             Projects = value.Split(",").SelectMany(p =>
             {
-                if (string.IsNullOrEmpty(p)) return Array.Empty<AuthUserProject>();
+                if (string.IsNullOrEmpty(p)) return [];
                 var role = p[0] switch
                 {
                     'm' => ProjectRole.Manager,
                     'e' => ProjectRole.Editor,
+                    'o' => ProjectRole.Observer,
                     _ => ProjectRole.Unknown
                 };
                 return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserProject(role, pId));
@@ -298,15 +300,19 @@ public record LexAuthUser
             LexAuthConstants.RoleClaimType));
     }
 
-    public bool IsProjectMember(Guid projectId, ProjectRole? role = null)
+    public bool IsProjectMember(Guid projectId, params Span<ProjectRole> roles)
     {
         if (Projects is null) return false;
 
-        if (role is not null)
+        if (roles.IsEmpty) return Projects.Any(p => p.ProjectId == projectId);
+
+        foreach (var role in roles)
         {
-            return Projects.Any(p => p.ProjectId == projectId && p.Role == role);
+            var hasRole = Projects.Any(p => p.ProjectId == projectId && p.Role == role);
+            if (hasRole) return true;
         }
-        return Projects.Any(p => p.ProjectId == projectId);
+
+        return false;
     }
 
     public bool HasFeature(FeatureFlag feature)

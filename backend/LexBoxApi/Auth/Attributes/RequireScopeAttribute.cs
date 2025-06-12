@@ -7,6 +7,10 @@ public class RequireScopeAttribute(params LexboxAuthScope[] scopes): LexboxAuthA
 {
     public const string PolicyName = "RequireScopePolicy";
     public LexboxAuthScope[] ValidScopes { get; } = scopes;
+    /// <summary>
+    /// ignore this requirement if there are other scope requirements
+    /// </summary>
+    public bool IsDefault { get; init; }
 
     /// <summary>
     /// Requires the user to have at least one of the specified scopes

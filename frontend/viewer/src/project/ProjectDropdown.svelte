@@ -6,38 +6,48 @@
   import { cn } from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
+  import flexLogo from '$lib/assets/flex-logo.png';
+  import {useProjectsService} from '$lib/services/service-provider';
+  import {resource} from 'runed';
+  import type {IProjectModel} from '$lib/dotnet-types';
+  import ProjectTitle from '../home/ProjectTitle.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
-  let { projectName, onSelect } = $props<{
-    projectName: string;
-    onSelect: (projectName: string) => void;
+  let { onSelect } = $props<{
+    onSelect: (project: IProjectModel) => void;
   }>();
-
-  // Mock project list - this would be replaced with actual API call later
-  const mockProjects = [
-    { id: '1', name: 'Project Alpha' },
-    { id: '2', name: 'Project Beta' },
-    { id: '3', name: 'Project Gamma' },
-    { id: '4', name: 'Project Delta' },
-    { id: '5', name: 'Project Epsilon' },
-  ];
+  const projectContext = useProjectContext();
+  const projectName = $derived(projectContext.projectName);
+  const isCrdt = $derived(projectContext.projectType === 'crdt');
+  const projectsService = useProjectsService();
+  const projectsResource = resource(() => projectsService, async (projectsService) => {
+      const projects = await projectsService.localProjects();
+      return projects.flatMap((project) => {
+        if (project.fwdata && project.crdt) {
+          return [
+            { ...project, fwdata: false },
+            { ...project, crdt: false }
+          ];
+        }
+        return [project];
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, {lazy: true});
 
   let open = $state(false);
-  let loading = $state(false);
-  let triggerRef = $state<HTMLButtonElement>(null!);
+  let triggerRef = $state<HTMLButtonElement | null>(null);
+
 
   // Simulate loading delay
   function handleOpen(isOpen: boolean) {
     open = isOpen;
-    if (isOpen) {
-      loading = true;
-      setTimeout(() => {
-        loading = false;
-      }, 1000);
+    if (isOpen && !projectsResource.current) {
+      void projectsResource.refetch();
     }
   }
 
-  function handleSelect(project: { id: string; name: string }) {
-    onSelect(project.name);
+  function handleSelect(project: IProjectModel) {
+    onSelect(project);
     closeAndFocusTrigger();
   }
 
@@ -47,10 +57,18 @@
   function closeAndFocusTrigger() {
     open = false;
     void tick().then(() => {
-      triggerRef.focus();
+      triggerRef?.focus();
     });
   }
 </script>
+
+{#snippet projectIcon(isCrdt: boolean)}
+  {#if isCrdt}
+    <Icon icon="i-mdi-book-edit-outline" />
+  {:else}
+    <Icon src={flexLogo} alt={$t`FieldWorks logo`} />
+  {/if}
+{/snippet}
 
 <Popover.Root bind:open onOpenChange={handleOpen}>
   <Popover.Trigger bind:ref={triggerRef}>
@@ -63,7 +81,7 @@
         {...props}
       >
         <div class="flex items-center gap-2 overflow-hidden">
-          <Icon icon="i-mdi-book" class="size-4" />
+          {@render projectIcon(isCrdt)}
           <span class="x-ellipsis">
             {projectName}
           </span>
@@ -79,8 +97,7 @@
     <Command.Root>
       <Command.Input placeholder={$t`Search Dictionaries`} />
       <Command.List>
-        <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
-        {#if loading}
+        {#if projectsResource.loading}
           <Command.Loading>
             <div class="flex items-center justify-center p-4">
               <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
@@ -88,20 +105,15 @@
             </div>
           </Command.Loading>
         {:else}
-          {#each mockProjects as project}
+          <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
+          {#each projectsResource.current ?? [] as project}
             <Command.Item
-              value={project.name}
+              value={project.name + project.crdt}
               onSelect={() => handleSelect(project)}
-              class="cursor-pointer"
+              class={cn('cursor-pointer', (project.name === projectName || project.code === projectName) && project.crdt === isCrdt && 'bg-secondary')}
             >
-              <Icon
-                icon="i-mdi-check"
-                class={cn(
-                  'mr-2 size-4',
-                  projectName === project.name ? 'opacity-100' : 'opacity-0'
-                )}
-              />
-              {project.name}
+              {@render projectIcon(project.crdt)}
+              <ProjectTitle {project} />
             </Command.Item>
           {/each}
         {/if}

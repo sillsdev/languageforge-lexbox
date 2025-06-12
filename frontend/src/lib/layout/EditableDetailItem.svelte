@@ -2,13 +2,23 @@
   import EditableText from '$lib/components/EditableText.svelte';
   import type { ErrorMessage } from '$lib/forms';
 
-  export let title: string;
-  export let value: string | null | undefined;
+  interface Props {
+    title: string;
+    value: string | null | undefined;
+    disabled?: boolean;
+    saveHandler: (newValue: string) => Promise<ErrorMessage>;
+    placeholder?: string;
+    multiline?: boolean;
+  }
 
-  export let disabled = false;
-  export let saveHandler: (newValue: string) => Promise<ErrorMessage>;
-  export let placeholder: string | undefined = undefined;
-  export let multiline = false;
+  const {
+    title,
+    value,
+    disabled = false,
+    saveHandler,
+    placeholder,
+    multiline = false
+  }: Props = $props();
 </script>
 
 <div>

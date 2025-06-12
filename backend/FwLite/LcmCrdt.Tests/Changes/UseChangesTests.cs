@@ -102,7 +102,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createSenseChange = new CreateSenseChange(sense, entry.Id);
         yield return new ChangeWithDependencies(createSenseChange, [createEntryChange]);
 
-        var exampleSentence = new ExampleSentence { Id = Guid.NewGuid(), Sentence = new() { { "en", "test sentence" } } };
+        var exampleSentence = new ExampleSentence { Id = Guid.NewGuid(), Sentence = new() { { "en", new RichString("test sentence") } } };
         var createExampleSentenceChange = new CreateExampleSentenceChange(exampleSentence, sense.Id);
         yield return new ChangeWithDependencies(createExampleSentenceChange, [createSenseChange]);
 
@@ -111,7 +111,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(createSemanticDomainChange);
 
         var writingSystem = new WritingSystem { Id = Guid.NewGuid(), WsId = "de", Name = "test ws", Abbreviation = "tws", Font = "Arial", Type = WritingSystemType.Vernacular };
-        var createWritingSystemChange = new CreateWritingSystemChange(writingSystem, writingSystem.Type, writingSystem.Id, 0);
+        var createWritingSystemChange = new CreateWritingSystemChange(writingSystem, writingSystem.Id, 0);
         yield return new ChangeWithDependencies(createWritingSystemChange);
 
         var complexFormTypeName = new MultiString { { "en", "test cft" } };

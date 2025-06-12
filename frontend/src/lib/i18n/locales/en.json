@@ -166,7 +166,7 @@
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
     "welcome_header": "Welcome to Lexbox",
-    "welcome": "Lexbox is a hosting service for [FieldWorks](https://software.sil.org/fieldworks/), \
+    "welcome": "Lexbox is a hosting service for [FieldWorks](https://software.sil.org/fieldworks/), [FieldWorks Lite](https://lexbox.org/fw-lite), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand. \
@@ -271,7 +271,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "sync_result": "{fwdataChanges} changes synced to FieldWorks. {crdtChanges} changes synced to FieldWorks Lite.",
       "try_fw_lite": "Try FieldWorks Lite?",
       "try_info": "This will make your project available in [FieldWorks Lite](https://lexbox.org/fw-lite). \
-This is still experimental and it will affect your FieldWorks project data. \
+This feature is still in beta and it will affect your FieldWorks project data. \
 However, **all your data is safe and backed up** here on Lexbox. \
 If you run into problems with your project please tell support that you are using FieldWorks Lite. \n\n\
 Are you ready to try FieldWorks Lite?",
@@ -574,7 +574,7 @@ so we can get this fixed!",
     "open_with_viewer": "Browse",
     "open_with_flex": {
       "button": "Open with FieldWorks",
-      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",
+      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.2](https://software.sil.org/fieldworks/download/).",
       "instructions": "To open this project click **Open FieldWorks** in the dialog shown by your browser.\n\n\
 If you don't see a dialog or already closed it, click the button below:",
     },
@@ -603,7 +603,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "editor": "Editor",
     "editor_description": "Editor (can send/receive)",
     "manager": "Manager",
-    "manager_description": "Manager (can send/receive & add new users)"
+    "manager_description": "Manager (can send/receive & add new users)",
+    "observer": "Viewer",
+    "observer_description": "Viewer (FieldWorks Lite only)"
   },
   "system_role": {
     "label": "Role",
@@ -667,6 +669,18 @@ If you don't see a dialog or already closed it, click the button below:",
   "user_types": {
     "admin": "Admin",
     "user": "User"
+  },
+  "where_is_my_project": {
+    "title": "FieldWorks Lite - Where's my project?",
+    "body": "If you don't see your project in FieldWorks Lite, navigate to the project here on Lexbox and look for the \"Try FieldWorks Lite?\" button\n\
+near the top of the page. Use that button to make your project available in FieldWorks Lite. This process may take a few minutes. When\n\
+it's done, you should see your project in FieldWorks Lite and be able to use it.",
+    "user_not_in_beta": "FieldWorks Lite is currently in a beta testing phase. \n\
+Only selected early access users can download Lexbox projects in FieldWorks Lite. \n\
+Click the button below to request to join the early access program. It may take a few days for us to respond.",
+    "request_beta_access": "Request early access to FieldWorks Lite",
+    "access_request_sent": "Your request to join the early access program has been submitted",
+    "already_in_beta": "You're already in the early access program",
   },
   "errors": {
     "apology": "Woops, something went wrong on our end. Sorry!",
@@ -735,6 +749,11 @@ If you don't see a dialog or already closed it, click the button below:",
       "subject": "Project approved: {projectName}",
       "heading": "The project you requested, {projectName}, has been approved and created.",
       "view_button": "View Project"
+    },
+    "join_fw_lite_beta_request_email": {
+      "subject": "FW Lite Beta join request: {name}",
+      "body": "User {name} requested to join the FW Lite beta. Click below to approve this request.",
+      "approve_button": "Approve Request"
     },
     "user_added": {
       "subject": "You joined project: {projectName}!",

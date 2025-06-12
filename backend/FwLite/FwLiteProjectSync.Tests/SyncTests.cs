@@ -18,16 +18,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         Id = Guid.NewGuid(),
         LexemeForm = { { "en", "Apple" } },
-        Note = { { "en", "this is a test note" } },
+        Note = { { "en", new RichString("this is a test note") } },
         Senses =
         [
             new Sense
             {
                 Gloss = { { "en", "Apple" } },
-                Definition = { { "en", "a round fruit with a hard, crisp skin" } },
+                Definition = { { "en", new RichString("a round fruit with a hard, crisp skin") } },
                 ExampleSentences =
                 [
-                    new ExampleSentence { Sentence = { { "en", "I went to the store to buy an apple." } } }
+                    new ExampleSentence { Sentence = { { "en", new RichString("I went to the store to buy an apple.") } } }
                 ]
             }
         ]
@@ -415,8 +415,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
-        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
+        await fwdataApi.CreateWritingSystem(new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
+        await fwdataApi.CreateWritingSystem(new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
         await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"], "Manzana"));
@@ -453,7 +453,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 new Sense
                 {
                     Gloss = { { "en", "fruit" } },
-                    Definition = { { "en", "a citris fruit" } },
+                    Definition = { { "en", new RichString("a citris fruit") } },
                 }
             ],
             Components =
@@ -484,12 +484,12 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreateSense(_testEntry.Id, new Sense()
             {
             Gloss = { { "en", "Fruit" } },
-            Definition = { { "en", "a round fruit, red or yellow" } },
+            Definition = { { "en", new RichString("a round fruit, red or yellow") } },
         });
         await crdtApi.CreateSense(_testEntry.Id, new Sense()
         {
             Gloss = { { "en", "Tree" } },
-            Definition = { { "en", "a tall, woody plant, which grows fruit" } },
+            Definition = { { "en", new RichString("a tall, woody plant, which grows fruit") } },
             });
 
         await _syncService.Sync(crdtApi, fwdataApi);

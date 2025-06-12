@@ -17,17 +17,7 @@ namespace LcmCrdt.Tests;
 
 public class DataModelSnapshotTests : IAsyncLifetime
 {
-    private static readonly AutoFaker Faker = new(new AutoFakerConfig()
-    {
-        RepeatCount = 5,
-        Overrides =
-        [
-            new MultiStringOverride(),
-            new RichMultiStringOverride(),
-            new WritingSystemIdOverride(),
-            new OrderableOverride(),
-        ]
-    });
+    private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
     protected readonly AsyncServiceScope _services;
     private readonly LcmCrdtDbContext _crdtDbContext;

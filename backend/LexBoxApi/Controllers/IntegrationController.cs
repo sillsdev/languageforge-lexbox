@@ -56,11 +56,13 @@ public class IntegrationController(
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     //todo make exclusive to prevent calling with normal jwt, currently used for testing
     [RequireScope(LexboxAuthScope.SendAndReceiveRefresh)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<RefreshResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<RefreshResponse>> GetProjectToken(string projectCode)
     {
         var projectId = await projectService.LookupProjectId(projectCode);
-        if (projectId == default) return NotFound();
-        return GetRefreshResponse(projectId);
+        if (projectId is null) return NotFound();
+        return GetRefreshResponse(projectId.Value);
     }
 
     private RefreshResponse GetRefreshResponse(Guid projectId)

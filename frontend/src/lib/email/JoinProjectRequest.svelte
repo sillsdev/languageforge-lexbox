@@ -2,12 +2,23 @@
   import Email from '$lib/email/Email.svelte';
   import t from '$lib/i18n';
 
-  export let managerName: string;
-  export let requestingUserName: string;
-  export let requestingUserId: string;
-  export let projectCode: string;
-  export let projectName: string;
-  export let baseUrl: string;
+  interface Props {
+    managerName: string;
+    requestingUserName: string;
+    requestingUserId: string;
+    projectCode: string;
+    projectName: string;
+    baseUrl: string;
+  }
+
+  const {
+    managerName,
+    requestingUserName,
+    requestingUserId,
+    projectCode,
+    projectName,
+    baseUrl
+  }: Props = $props();
   let approveUrl = new URL(`/project/${projectCode}?addUserId=${requestingUserId}&addUserName=${requestingUserName}`, baseUrl);
 
 </script>

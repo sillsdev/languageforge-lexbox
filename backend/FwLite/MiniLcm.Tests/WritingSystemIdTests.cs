@@ -2,14 +2,28 @@
 
 public class WritingSystemIdTests
 {
+    public static IEnumerable<object[]> ValidWritingSystemIds =>
+        WritingSystemCodes.ValidTwoLetterCodes.Select(code => new object[] { code });
+
     [Theory]
+    [MemberData(nameof(ValidWritingSystemIds))]
     [InlineData("en")]
     [InlineData("th")]
+    [InlineData("xba")]
     [InlineData("en-Zxxx-x-audio")]
     public void ValidWritingSystemId_ShouldNotThrow(string code)
     {
         var ws = new WritingSystemId(code);
         ws.Should().NotBe(default);
+    }
+
+    [Theory]
+    [InlineData("en-Zxxx-x-audio")]
+    [InlineData("seh-Zxxx-x-audio-var")]
+    public void DetectsAudioWritingSystems(string code)
+    {
+        var ws = new WritingSystemId(code);
+        ws.IsAudio.Should().BeTrue();
     }
 
     [Theory]
@@ -28,5 +42,12 @@ public class WritingSystemIdTests
     {
         var ws = new WritingSystemId("default");
         ws.Should().NotBe(default);
+    }
+
+    [Fact]
+    public void DefaultStructHasDefaultCode()
+    {
+        WritingSystemId value = default;
+        value.Code.Should().NotBeNull().And.Be("default");
     }
 }

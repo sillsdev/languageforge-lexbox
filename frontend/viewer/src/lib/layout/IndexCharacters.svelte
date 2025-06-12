@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {useWritingSystemService} from '$lib/writing-system-service';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import { mdiBookAlphabet, mdiClose } from '@mdi/js';
   import { getContext } from 'svelte';
   import { Button, Popover, Toggle } from 'svelte-ux';

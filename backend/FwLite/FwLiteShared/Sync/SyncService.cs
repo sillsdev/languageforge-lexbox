@@ -1,15 +1,18 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
+using LexCore.Sync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
 using SIL.Harmony;
+using SIL.Harmony.Changes;
 
 namespace FwLiteShared.Sync;
 
@@ -21,6 +24,7 @@ public class SyncService(
     ProjectEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
+    IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
     LcmCrdtDbContext dbContext)
 {
@@ -74,6 +78,49 @@ public class SyncService(
         return syncResults;
     }
 
+    public async Task<ProjectSyncStatus?> GetSyncStatus()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var server = authOptions.Value.GetServer(project);
+        var status = await lexboxProjectService.GetLexboxSyncStatus(server, project.Id);
+        return status;
+    }
+
+    public async Task<HttpResponseMessage?> TriggerSync()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var server = authOptions.Value.GetServer(project);
+        return await lexboxProjectService.TriggerLexboxSync(server, project.Id);
+    }
+
+    public async Task<SyncResult?> AwaitSyncFinished()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var server = authOptions.Value.GetServer(project);
+        return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
+    }
+
+    public async Task<LexboxServer> GetCurrentServer()
+    {
+        var project = await currentProjectService.GetProjectData();
+        return authOptions.Value.GetServer(project);
+    }
+
+    public async Task<SyncResult?> CountPendingCrdtCommits()
+    {
+        var project = await currentProjectService.GetProjectData();
+        var localSyncState = await dataModel.GetSyncState();
+        if (localSyncState is null) return null;
+        var server = authOptions.Value.GetServer(project);
+        var localChangesPending = CountPendingCommits(); // Not awaited yet
+        var remoteChangesPending = lexboxProjectService.CountPendingCrdtCommits(server, project.Id, localSyncState); // Not awaited yet
+        await Task.WhenAll(localChangesPending, remoteChangesPending);
+        var localChanges = await localChangesPending;
+        var remoteChanges = await remoteChangesPending;
+        if (localChanges is null || remoteChanges is null) return null;
+        return new SyncResult(localChanges ?? 0, remoteChanges ?? 0);
+    }
+
     private async Task SendNotifications(SyncResults syncResults)
     {
         try
@@ -94,6 +141,13 @@ public class SyncService(
                 {
                     logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
                 }
+            }
+
+            foreach (var deleteChange in syncResults.MissingFromLocal
+                         .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+                         .OfType<DeleteChange<Entry>>())
+            {
+                changeEventBus.PublishEvent(currentProjectService.Project, new EntryDeletedEvent(deleteChange.EntityId));
             }
         }
         catch (Exception e)
@@ -143,6 +197,45 @@ public class SyncService(
         catch (Exception e)
         {
             logger.LogError(e, "Failed to update sync date");
+        }
+    }
+
+    public async Task<int?> CountPendingCommits()
+    {
+        try
+        {
+            // Assert sync date prop for same reason as in UpdateSyncDate
+            Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            int count = await dbContext.Database.SqlQuery<int>(
+                $"""
+                 SELECT COUNT(*) AS Value FROM Commits
+                 WHERE json_extract(Metadata, '$.ExtraMetadata.SyncDate') IS NULL
+                 """).SingleAsync();
+            return count;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to count pending commits");
+            return null;
+        }
+    }
+
+    public async Task<DateTimeOffset?> GetLatestCommitDate()
+    {
+        try
+        {
+            // Assert sync date prop for same reason as in UpdateSyncDate
+            Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            var date = await dbContext.Database.SqlQuery<DateTimeOffset>(
+                $"""
+                 SELECT MAX(json_extract(Metadata, '$.ExtraMetadata.SyncDate')) AS Value FROM Commits
+                 """).SingleAsync();
+            return date;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to find most recent commit date");
+            return null;
         }
     }
 

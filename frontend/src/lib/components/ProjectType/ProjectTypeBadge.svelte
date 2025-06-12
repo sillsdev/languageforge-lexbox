@@ -4,12 +4,16 @@
   import type { ProjectType } from '$lib/gql/types';
   import { Badge } from '../Badges';
 
-  export let type: ProjectType;
+  interface Props {
+    type: ProjectType;
+  }
+
+  const { type }: Props = $props();
 </script>
 
 <Badge>
   <span class="flex items-center gap-2">
-    <FormatProjectType {type}  />
+    <FormatProjectType {type} />
     <ProjectTypeIcon {type} />
   </span>
 </Badge>
