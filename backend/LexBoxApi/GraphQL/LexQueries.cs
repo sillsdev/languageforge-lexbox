@@ -25,8 +25,7 @@ public class LexQueries
         IResolverContext context)
     {
         var userId = loggedInContext.User.Id;
-        var myProjects = await projectService.UserProjects(userId)
-            .ToLinqToDB().Project(context).ToListAsync();
+        var myProjects = await projectService.UserProjects(userId).Project(context).ToListAsyncLinqToDB();
 
         if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
         {
@@ -128,7 +127,7 @@ public class LexQueries
     {
         var project = await context.Projects.Include(p => p.Users)
             .AsNoTracking().IgnoreQueryFilters()
-            .SingleOrDefaultAsync(p => p.Id == projectId);
+            .SingleOrDefaultAsyncLinqToDB(p => p.Id == projectId);
 
         if (project is null) return new ProjectStatus(projectId, false, false, null);
         if (project.DeletedDate != null) return new ProjectStatus(projectId, true, true, null);
@@ -151,7 +150,7 @@ public class LexQueries
         IResolverContext context,
         string code)
     {
-        var project = await dbContext.Projects.Where(p => p.Code == code).ToLinqToDB().Project(context).SingleOrDefaultAsync();
+        var project = await dbContext.Projects.Where(p => p.Code == code).Project(context).SingleOrDefaultAsyncLinqToDB();
 
         if (project is null) return project;
 
@@ -182,7 +181,7 @@ public class LexQueries
     {
         var userId = loggedInContext.User.Id;
         var myOrgs = await dbContext.Orgs.Where(o => o.Members.Any(m => m.UserId == userId))
-            .ToLinqToDB().Project(context).ToListAsync();
+            .ToLinqToDB().Project(context).ToListAsyncLinqToDB();
 
         if (loggedInContext.User.IsOutOfSyncWithMyOrgs(myOrgs))
         {
@@ -224,7 +223,8 @@ public class LexQueries
         var projectContext =
             context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
             context;
-        var org = await dbContext.Orgs.Where(o => o.Id == orgId).ToLinqToDB().Project(projectContext).SingleOrDefaultAsync();
+        var org = await dbContext.Orgs.Where(o => o.Id == orgId).Project(projectContext)
+            .SingleOrDefaultAsyncLinqToDB();
         if (org is null) return org;
 
         var updatedUser = loggedInContext.User.IsOutOfSyncWithOrg(org)
@@ -282,7 +282,7 @@ public class LexQueries
         // Only site admins and org admins are allowed to run this query
         if (!permissionService.CanEditOrg(orgId)) return null;
 
-        var user = await context.Users.ToLinqToDB().Include(u => u.Organizations).Include(u => u.CreatedBy).Where(u => u.Id == userId).FirstOrDefaultAsync();
+        var user = await context.Users.Include(u => u.Organizations).Include(u => u.CreatedBy).Where(u => u.Id == userId).FirstOrDefaultAsyncLinqToDB();
         if (user is null) return null;
 
         var userInOrg = user.Organizations.Any(om => om.OrgId == orgId);
