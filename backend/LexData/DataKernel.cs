@@ -42,6 +42,7 @@ public static class DataKernel
                         $"{nameof(ServerCommit.HybridDateTime)}.{nameof(HybridDateTime.Counter)}"));
                 mappingBuilder.ConfigureEntity<Project, ProjectEntityConfiguration>();
                 mappingBuilder.ConfigureEntity<Organization, OrganizationEntityConfiguration>();
+                mappingBuilder.ConfigureEntity<OrgProjects, OrgProjectsEntityConfiguration>();
                 mappingBuilder.Build();
                 builder.AddMappingSchema(mappingSchema);
                 var loggerFactory = serviceProvider.GetService<ILoggerFactory>();

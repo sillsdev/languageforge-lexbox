@@ -1,5 +1,6 @@
 ﻿using LexCore.Entities;
 using LexData.Configuration;
+using LinqToDB;
 using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -29,6 +30,12 @@ public class OrganizationEntityConfiguration: EntityBaseConfiguration<Organizati
     public static void ConfigureLinq2Db(EntityMappingBuilder<Organization> entity)
     {
         entity.Property(o => o.MemberCount).IsExpression(o => o.Members.Count);
-        entity.Property(o => o.ProjectCount).IsExpression(o => o.Projects.Count);
+        entity.Property(o => o.ProjectCount).IsExpression(o => o.OrgProjects().Count());
+        entity.Association(o => o.OrgProjects(), o => o.Id, op => op.OrgId);
+        entity.Association(o => o.Projects, (organization, dbContext) => dbContext
+            .GetTable<OrgProjects>()
+            .Where(op => op.OrgId == organization.Id)
+            .Select(op => op.Project));
     }
 }
+
