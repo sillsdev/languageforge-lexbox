@@ -291,10 +291,11 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
             ids.Add(id);
             await Api.CreateEntry(new Entry() { Id = id, LexemeForm = { { "en", word } } });
         }
-        var result = await Api.SearchEntries(searchTerm, new(new(SortField.Headword)))
-            .Where(e => ids.Contains(e.Id))//only include entries from this test
-            .Select(e => e.LexemeForm["en"])
-            .ToArrayAsync();
+
+        var result = (await Api.SearchEntries(searchTerm, new(new(SortField.Headword)))
+                .ToArrayAsync())
+                .Where(e => ids.Contains(e.Id)) //only include entries from this test
+                .Select(e => e.LexemeForm["en"]);
         string.Join(",", result).Should().Be(expectedOrder);
     }
 }
