@@ -175,6 +175,7 @@ public static class MediaFileController
         mediaFile.UpdateUpdatedDate();
         await lexBoxDb.SaveChangesAsync();
         var responseBody = new PostFileResult(fileId.Value);
+        // TODO: Consider adding ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
         if (replacedExistingFile)
         {
             return TypedResults.Ok(responseBody);
