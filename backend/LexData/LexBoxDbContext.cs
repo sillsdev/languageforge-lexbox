@@ -1,3 +1,5 @@
+using AppAny.Quartz.EntityFrameworkCore.Migrations;
+using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +14,9 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.HasCollation(CaseInsensitiveCollation, locale: "und-u-ks-level2", provider: "icu", deterministic: false);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EntityBaseConfiguration<>).Assembly);
+        modelBuilder.AddQuartz(b => b.UsePostgreSql());
         foreach (var configureDbModel in _configureDbModels)
         {
             configureDbModel.Configure(modelBuilder);

@@ -10,11 +10,6 @@ forward_lexbox = not cfg.get("lexbox-api-local", False)
 prod_ui_build = cfg.get("prod-ui-build", False)
 
 docker_build(
-    'local-dev-init',
-    'data'
-)
-
-docker_build(
     'ghcr.io/sillsdev/lexbox-api',
     context='backend',
     dockerfile='./backend/LexBoxApi/dev.Dockerfile',
