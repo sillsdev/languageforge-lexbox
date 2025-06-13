@@ -9,9 +9,12 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 {
     public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
-        //probably not needed, but we'll do it just in case
-        UpdateSearchTableOnSave(eventData.Context).Wait();
-        return default;
+        throw new NotImplementedException(
+            "SavingChanges sync is not implemented. Use SavingChangesAsync instead.");
+        // If this needs to be supported, try this, but it may cause deadlocks or other issues.
+        // Alternatively, you can, check to see if there are any entry changes and throw only if there are.
+        // UpdateSearchTableOnSave(eventData.Context).Wait();
+        // return default;
     }
 
     public async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
@@ -19,7 +22,7 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         CancellationToken cancellationToken = new CancellationToken())
     {
         await UpdateSearchTableOnSave(eventData.Context);
-        return default;
+        return result;
     }
 
     private async Task UpdateSearchTableOnSave(DbContext? dbContext)
