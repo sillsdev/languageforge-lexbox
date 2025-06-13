@@ -385,7 +385,7 @@ public class CrdtMiniLcmApi(
         options ??= QueryOptions.Default;
         (queryable, var sortingHandled) = await FilterEntries(queryable, query, options);
         if (!sortingHandled)
-            queryable = await ApplySorting(queryable, options);
+            queryable = await ApplySorting(queryable, options, query);
 
         queryable = queryable
             .LoadWith(e => e.Senses)
@@ -444,18 +444,22 @@ public class CrdtMiniLcmApi(
         return (queryable, sortingHandled);
     }
 
-    private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options)
+    private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
     {
         var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular);
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
-        var ordered = options.Order.Field switch
+
+        switch (options.Order.Field)
         {
-            SortField.SearchRelevance => options.ApplyOrder(queryable, e => e.Headword(sortWs.WsId).Length),
-            SortField.Headword => options.ApplyOrder(queryable, e => e.Headword(sortWs.WsId).CollateUnicode(sortWs)),
-            _ => throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field)
-        };
-        return ordered.ThenBy(e => e.Id);
+            case SortField.SearchRelevance:
+                return queryable.ApplyRoughBestMatchOrder(options.Order with { WritingSystem = sortWs.WsId }, query);
+            case SortField.Headword:
+                var ordered = options.ApplyOrder(queryable, e => e.Headword(sortWs.WsId).CollateUnicode(sortWs));
+                return ordered.ThenBy(e => e.Id);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field);
+        }
     }
 
     public async Task<Entry?> GetEntry(Guid id)
