@@ -19,6 +19,7 @@
   const {
     search = '',
     selectedEntryId = undefined,
+    sortField,
     sortDirection = 'asc',
     onSelectEntry,
     gridifyFilter = undefined,
@@ -26,6 +27,7 @@
   }: {
     search?: string;
     selectedEntryId?: string;
+    sortField?: SortField;
     sortDirection: 'asc' | 'desc';
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
@@ -70,7 +72,7 @@
           gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
         },
         order: {
-          field: SortField.Headword,
+          field: sortField ?? SortField.SearchRelevance,
           writingSystem: 'default',
           ascending: sortDirection === 'asc',
         },
@@ -87,7 +89,7 @@
   }, 300);
 
   const entriesResource = resource(
-    () => ({ search, sortDirection, gridifyFilter }),
+    () => ({ search, sortField, sortDirection, gridifyFilter }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
 
