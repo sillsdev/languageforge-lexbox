@@ -125,7 +125,7 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
       '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:LogFileName=./../../fw-lite-web.log',//required at dev time otherwise the log file will trigger a restart of the extension by PT
     ],
-    {stdio: [null, null, null], cwd: 'my-dir'}
+    {stdio: [null, null, null]}
   );
   return {baseUrl, fwLiteProcess};
 }
