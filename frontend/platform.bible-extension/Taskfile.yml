@@ -12,18 +12,19 @@ tasks:
       - npm install
 
   package:
-    deps: [ build-fw-lite-web, build-viewer-component, install ]
+    deps: [ build-fw-lite-web, install ]
     cmds:
       - npm run package
 
   run:
-    deps: [ build-fw-lite-web, build-viewer-component, install ]
+    deps: [ build-fw-lite-web, install ]
     cmds:
       - npm run start
 
   build-fw-lite-web:
+    deps: [build-viewer]
     cmds:
       - dotnet publish ../../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc --output ./public/fw-lite
-  build-viewer-component:
+  build-viewer:
     dir: ../viewer
-    cmd: pnpm run build
+    cmd: pnpm run build-app

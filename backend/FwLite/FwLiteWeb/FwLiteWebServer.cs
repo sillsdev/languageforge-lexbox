@@ -120,7 +120,10 @@ public static class FwLiteWebServer
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode()
+            .AddInteractiveServerRenderMode(endpointOptions =>
+            {
+                endpointOptions.ContentSecurityFrameAncestorsPolicy = "self http://localhost:*";
+            })
             .AddAdditionalAssemblies(typeof(FwLiteShared._Imports).Assembly);
         return app;
     }
