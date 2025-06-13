@@ -50,4 +50,19 @@ public class WritingSystemIdTests
         WritingSystemId value = default;
         value.Code.Should().NotBeNull().And.Be("default");
     }
+
+    [Fact]
+    public void DefaultStructEqualsDefaultString()
+    {
+        WritingSystemId value = default;
+        (value == "default").Should().BeTrue();
+    }
+
+    [Fact]
+    public void DefaultStructEqualsWsIdWithDefaultCode()
+    {
+        WritingSystemId value = default;
+        WritingSystemId defaultWsId = "default";
+        (value == defaultWsId).Should().BeTrue();
+    }
 }
