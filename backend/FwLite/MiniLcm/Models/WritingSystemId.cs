@@ -71,12 +71,12 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
 
     public bool Equals(WritingSystemId other)
     {
-        return Code == other.Code;
+        return string.Equals(Code, other.Code, StringComparison.OrdinalIgnoreCase);
     }
 
     public override int GetHashCode()
     {
-        return Code.GetHashCode();
+        return Code.GetHashCode(StringComparison.OrdinalIgnoreCase);
     }
 
     public string ToString(string? format, IFormatProvider? formatProvider)

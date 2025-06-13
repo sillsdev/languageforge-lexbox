@@ -38,6 +38,14 @@ public class WritingSystemIdTests
     }
 
     [Fact]
+    public void EqualityShouldMatchRegardlessOfCase()
+    {
+        var wsId1 = new WritingSystemId("en");
+        var wsId2 = new WritingSystemId("EN");
+        (wsId1 == wsId2).Should().BeTrue();
+    }
+
+    [Fact]
     public void DefaultWritingSystemId_IsValid()
     {
         var ws = new WritingSystemId("default");
