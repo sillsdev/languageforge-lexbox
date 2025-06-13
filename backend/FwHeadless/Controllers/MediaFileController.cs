@@ -5,6 +5,8 @@ using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using Microsoft.Net.Http.Headers;
 
 namespace FwHeadless.Controllers;
 
@@ -22,7 +24,17 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        return TypedResults.PhysicalFile(filePath); // TODO: content type, etc.
+        mediaFile.InitializeMetadataIfNeeded(filePath);
+        var contentType = mediaFile.Metadata.MimeType;
+        if (contentType is null)
+        {
+            contentType = MimeMapping.MimeUtility.GetMimeMapping(filePath);
+            mediaFile.Metadata.MimeType = contentType;
+            await lexBoxDb.SaveChangesAsync();
+        }
+        await AddEntityTagMetadataIfNotPresent(mediaFile, filePath);
+        var entityTag = EntityTagHeaderValue.Parse(mediaFile.Metadata.Sha256Hash!);
+        return TypedResults.PhysicalFile(filePath, contentType, mediaFile.Filename, mediaFile.UpdatedDate, entityTag, enableRangeProcessing: true);
     }
 
     public static async Task<Results<Ok, NotFound>> DeleteFile(
@@ -149,6 +161,7 @@ public static class MediaFileController
             return TypedResults.BadRequest();
         }
         var filePath = Path.Join(projectFolder, filename);
+        mediaFile.Metadata.Filename = filename;
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
         try
         {
@@ -159,6 +172,7 @@ public static class MediaFileController
             // TODO: Add an error message here to communicate "Too large"
             return TypedResults.BadRequest();
         }
+        await AddEntityTagMetadata(mediaFile, filePath);
         mediaFile.UpdateUpdatedDate();
         await lexBoxDb.SaveChangesAsync();
         // TODO: Construct URL with appropriate ASP.NET Core methods rather than hardcoded string
@@ -206,5 +220,22 @@ public static class MediaFileController
         {
             return calcLength;
         }
+    }
+
+    private static async Task AddEntityTagMetadata(MediaFile mediaFile, string filePath)
+    {
+        mediaFile.InitializeMetadataIfNeeded(filePath);
+        var stream = File.OpenRead(filePath);
+        var hash = await SHA256.HashDataAsync(stream);
+        mediaFile.Metadata.Sha256Hash = Convert.ToHexStringLower(hash);
+    }
+
+    private static Task AddEntityTagMetadataIfNotPresent(MediaFile mediaFile, string filePath)
+    {
+        if (mediaFile.Metadata?.Sha256Hash is null)
+        {
+            return AddEntityTagMetadata(mediaFile, filePath);
+        }
+        return Task.CompletedTask;
     }
 }

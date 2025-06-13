@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace LexCore.Entities;
 
 public class MediaFile : EntityBase
@@ -7,11 +9,31 @@ public class MediaFile : EntityBase
     public Guid ProjectId { get; set; } // required; all files must belong to a project
     public DateTimeOffset LastModified { get; set; } // You know what? We *should* derive from EntityBase after all.
     public FileMetadata? Metadata { get; set; } = new FileMetadata();
+
+    [MemberNotNull(nameof(Metadata))]
+    public void InitializeMetadataIfNeeded(string filePath)
+    {
+        if (Metadata is null)
+        {
+            var fileInfo = new FileInfo(filePath);
+            int cappedSize = 0;
+            if (fileInfo.Exists)
+            {
+                cappedSize = fileInfo.Length > int.MaxValue ? int.MaxValue : (int)fileInfo.Length;
+            }
+            Metadata = new FileMetadata
+            {
+                Filename = Filename,
+                SizeInBytes = cappedSize
+            };
+        }
+    }
 }
 
 public class FileMetadata
 {
     public string? Filename;
+    public string? Sha256Hash; // Used for EntityTag / ETag headers, among other things
     public int? SizeInBytes;
     public string? FileFormat; // TODO: Define strings we might use here, or else switch to MimeType
     public string? MimeType;
