@@ -4,6 +4,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { expect, fn, userEvent, within } from 'storybook/test';
   import MultiStringFieldDecorator from './MultiStringFieldDecorator.svelte';
+  import {tick} from 'svelte';
 
   const value = $state({
     pt: {
@@ -44,6 +45,7 @@
     porInput.focus(); // Firefox needs this
     await userEvent.type(porInput, ' new text');
     porInput.blur();
+    await tick();
     await expect(args.onchange).toHaveBeenCalledOnce();
   }}
 />

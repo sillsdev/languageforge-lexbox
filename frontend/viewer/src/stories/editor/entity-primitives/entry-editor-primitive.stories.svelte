@@ -5,6 +5,7 @@
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import type {IEntry} from '$lib/dotnet-types';
   import {fwliteStoryParameters} from '../../fwl-parameters';
+  import {tick} from 'svelte';
 
   let entry: IEntry = $state({
     id: crypto.randomUUID(),
@@ -72,6 +73,7 @@
     await expect(senInput).toBeInTheDocument();
     await userEvent.type(senInput, ' new text');
     senInput.blur();
+    await tick();
     await expect(args.onchange).toHaveBeenCalledOnce();
   }}
 />

@@ -4,6 +4,7 @@
   import { expect, fn, userEvent, within } from 'storybook/test';
   import FieldDecorator from './FieldDecorator.svelte';
   import { RichWsInput } from '$lib/components/field-editors';
+  import {tick} from 'svelte';
 
   const value = $state({
       spans: [
@@ -42,6 +43,7 @@
     porInput.focus(); // Firefox needs this
     await userEvent.type(porInput, ' new text');
     porInput.blur();
+    await tick();
     await expect(args.onchange).toHaveBeenCalledOnce();
   }}
 />
