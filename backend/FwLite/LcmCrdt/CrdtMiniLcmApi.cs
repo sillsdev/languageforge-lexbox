@@ -671,7 +671,6 @@ public class CrdtMiniLcmApi(
         var sense = await GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
         await AddChanges([..sense.ToChanges(update.Patch)]);
-        //todo update entry search table
         return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
@@ -679,7 +678,6 @@ public class CrdtMiniLcmApi(
     {
         await validators.ValidateAndThrow(after);
         await SenseSync.Sync(entryId, before, after, api ?? this);
-        //todo update entry search table
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
 
