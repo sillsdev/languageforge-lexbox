@@ -32,7 +32,7 @@ public static class MediaFileController
             mediaFile.Metadata.MimeType = contentType;
             await lexBoxDb.SaveChangesAsync();
         }
-        await AddEntityTagMetadataIfNotPresent(mediaFile, filePath);
+        if (await AddEntityTagMetadataIfNotPresent(mediaFile, filePath)) await lexBoxDb.SaveChangesAsync();
         var entityTag = EntityTagHeaderValue.Parse(mediaFile.Metadata.Sha256Hash!);
         return TypedResults.PhysicalFile(filePath, contentType, mediaFile.Filename, mediaFile.UpdatedDate, entityTag, enableRangeProcessing: true);
     }
@@ -229,12 +229,13 @@ public static class MediaFileController
         mediaFile.Metadata.Sha256Hash = Convert.ToHexStringLower(hash);
     }
 
-    private static Task AddEntityTagMetadataIfNotPresent(MediaFile mediaFile, string filePath)
+    private static async Task<bool> AddEntityTagMetadataIfNotPresent(MediaFile mediaFile, string filePath)
     {
         if (mediaFile.Metadata?.Sha256Hash is null)
         {
-            return AddEntityTagMetadata(mediaFile, filePath);
+            await AddEntityTagMetadata(mediaFile, filePath);
+            return true;
         }
-        return Task.CompletedTask;
+        return false;
     }
 }
