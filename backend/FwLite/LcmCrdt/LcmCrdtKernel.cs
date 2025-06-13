@@ -25,6 +25,7 @@ using MiniLcm.Validators;
 using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
+using LcmCrdt.FullTextSearch;
 using MiniLcm.Filtering;
 
 namespace LcmCrdt;
@@ -32,6 +33,14 @@ namespace LcmCrdt;
 public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
+    {
+        services.AddLcmCrdtClientCore();
+        services.AddScoped<UpdateEntrySearchTableInterceptor>();
+        services.AddScoped<EntrySearchService>();
+        return services;
+    }
+
+    public static IServiceCollection AddLcmCrdtClientCore(this IServiceCollection services)
     {
         AvoidTrimming();
         LinqToDBForEFTools.Initialize();

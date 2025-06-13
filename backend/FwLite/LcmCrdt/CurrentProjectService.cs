@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using LcmCrdt.FullTextSearch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,11 +7,16 @@ using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt;
 
-public class CurrentProjectService(IServiceProvider services, IMemoryCache memoryCache, CrdtProjectsService crdtProjectsService, ILogger<CrdtProjectsService> logger)
+public class CurrentProjectService(
+    IServiceProvider services,
+    IMemoryCache memoryCache,
+    CrdtProjectsService crdtProjectsService,
+    ILogger<CrdtProjectsService> logger)
 {
     private CrdtProject? _project;
     //creating a DbContext depends on the CurrentProjectService, so we can't create it in the constructor otherwise we'll create a circular dependency
     private LcmCrdtDbContext DbContext => services.GetRequiredService<LcmCrdtDbContext>();
+    private EntrySearchService? EntrySearchService => services.GetService<EntrySearchService>();
     public CrdtProject Project => _project ?? throw new NullReferenceException("Not in the context of a project");
     public CrdtProject? MaybeProject => _project;
 
@@ -96,6 +102,7 @@ public class CurrentProjectService(IServiceProvider services, IMemoryCache memor
             try
             {
                 await DbContext.Database.MigrateAsync();
+                await (EntrySearchService?.RegenerateIfMissing() ?? Task.CompletedTask);
             }
             catch (Exception e)
             {

@@ -23,7 +23,7 @@ public static class FwHeadlessKernel
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
         services
-            .AddLcmCrdtClient()
+            .AddLcmCrdtClientCore()
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
 
