@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Icon } from '$lib/components/ui/icon';
   import EntryEditor from '$lib/entry-editor/object-editors/EntryEditor.svelte';
-  import { useViewSettings } from '$lib/views/view-service';
   import {resource, Debounced, watch} from 'runed';
   import { useMiniLcmApi } from '$lib/services/service-provider';
   import { fade } from 'svelte/transition';
@@ -21,7 +20,6 @@
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
 
-  const viewSettings = useViewSettings();
   const writingSystemService = useWritingSystemService();
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
@@ -97,7 +95,7 @@
         </div>
       {/if}
     </header>
-    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2', !$viewSettings.showEmptyFields && 'hide-unused')}>
+    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2')}>
       {#if dictionaryPreview === 'show'}
         <div class="md:pl-2">
           {@render preview(entry)}

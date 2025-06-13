@@ -3,7 +3,7 @@
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
-  import type {FieldIds} from '$lib/entry-editor/field-data';
+  import type {FieldId} from '$lib/entry-editor/field-data';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -55,9 +55,9 @@
     return s;
   }
 
-  let senseFields: ({ id: FieldIds })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
+  let senseFields: ({ id: FieldId })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
 
-  function updateFields(e: CustomEvent<{ items: ({ id: FieldIds })[] }>) {
+  function updateFields(e: CustomEvent<{ items: ({ id: FieldId })[] }>) {
     senseFields = e.detail.items;
   }
   let count = $state(0);
