@@ -3,6 +3,7 @@ using Bogus;
 using LcmCrdt.FullTextSearch;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using MiniLcm.Culture;
 using Xunit.Abstractions;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
@@ -26,25 +27,20 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         await _fixture.GetService<LcmCrdtDbContext>().GetTable<Entry>().TruncateAsync();
         var faker = new Faker { Random = new Randomizer(8675309) };
         var ids = Enumerable.Range(0, count).Select(_ => Guid.NewGuid()).ToHashSet();
-        await _fixture.Api.BulkCreateEntries(ids.Select(id => new Entry { Id = id, LexemeForm = { ["en"] = faker.Name.FirstName() } }).ToAsyncEnumerable());
+        var entries = ids.Select(id => new Entry { Id = id, LexemeForm = { ["en"] = faker.Name.FirstName() } }).ToArray();
+        await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
         var entrySearchService = _fixture.GetService<EntrySearchService>();
         entrySearchService.EntrySearchRecords.Should().HaveCount(count);
-        outputHelper.WriteLine("Entries created");
+        var searchString = "tes";
+        var expectedResultCount = entries.Count(e => e.LexemeForm["en"].ContainsDiacriticMatch(searchString));
 
         var testIterations = 10;
         var startTimestamp = Stopwatch.GetTimestamp();
         for (int i = 0; i < testIterations; i++)
         {
             //search should not match anything as we only want to test the match performance
-            var results = await Api.SearchEntries("tes").ToArrayAsync();
-            if (count == 50_000)
-            {
-                results.Should().HaveCount(39);
-            }
-            else
-            {
-                results.Should().HaveCount(74);
-            }
+            var results = await Api.SearchEntries(searchString).ToArrayAsync();
+            results.Should().HaveCount(expectedResultCount);
         }
 
         var totalRuntime = Stopwatch.GetElapsedTime(startTimestamp);
