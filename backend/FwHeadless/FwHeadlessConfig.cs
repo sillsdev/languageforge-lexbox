@@ -15,6 +15,7 @@ public class FwHeadlessConfig
     public required string LexboxPassword { get; init; }
     [Required]
     public required string ProjectStorageRoot { get; init; }
+    public string MaxUploadFileSizeKb { get; init; } = "10240";
     public string FdoDataModelVersion { get; init; } = "7000072";
 
     public string GetProjectFolder(string projectCode, Guid projectId)
@@ -30,5 +31,20 @@ public class FwHeadlessConfig
     public FwDataProject GetFwDataProject(string projectCode, Guid projectId)
     {
         return new FwDataProject("fw", GetProjectFolder(projectCode, projectId));
+    }
+
+    public long MaxUploadFileSizeBytes
+    {
+        get
+        {
+            if (int.TryParse(MaxUploadFileSizeKb, out var kb))
+            {
+                return kb * 1024;
+            }
+            else
+            {
+                return 10240 * 1024;
+            }
+        }
     }
 }

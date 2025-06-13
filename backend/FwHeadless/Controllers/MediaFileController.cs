@@ -100,8 +100,7 @@ public static class MediaFileController
     {
         bool replacedExistingFile = false;
         // Sanity check: reject ridiculously large uploads before doing any work
-        // TODO: Decide on a sane limit, e.g. we won't accept uploads of more than 1 GB, and use that instead of Int32.MaxValue here
-        var maxUploadSize = Int32.MaxValue; // TODO: Get from config
+        var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
         if ((request.ContentLength is not null && request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
         {
             return TypedResults.BadRequest();
@@ -154,7 +153,7 @@ public static class MediaFileController
         }
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
-        var projectFolder = config?.Value?.GetProjectFolder(project.Code, projectId.Value);
+        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId.Value);
         if (projectFolder is null)
         {
             // TODO: Add error message to communicate "project folder not found, might need to add it to FW Lite before this will work"
