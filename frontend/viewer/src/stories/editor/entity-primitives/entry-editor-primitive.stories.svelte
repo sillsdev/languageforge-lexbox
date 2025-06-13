@@ -72,7 +72,7 @@
     await expect(senInput).toBeInTheDocument();
     await userEvent.type(senInput, ' new text');
     senInput.blur();
-    await expect(args.onchange).toHaveBeenCalled();
+    await expect(args.onchange).toHaveBeenCalledOnce();
   }}
 />
 

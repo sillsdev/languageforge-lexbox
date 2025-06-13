@@ -44,7 +44,7 @@
     porInput.focus(); // Firefox needs this
     await userEvent.type(porInput, ' new text');
     porInput.blur();
-    await expect(args.onchange).toHaveBeenCalled();
+    await expect(args.onchange).toHaveBeenCalledOnce();
   }}
 />
 
