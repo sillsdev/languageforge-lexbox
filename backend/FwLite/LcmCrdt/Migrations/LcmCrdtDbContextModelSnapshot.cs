@@ -18,37 +18,6 @@ namespace LcmCrdt.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
 
-            modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CitationForm")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Definition")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Gloss")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Headword")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LexemeForm")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EntrySearchRecord", (string)null);
-                });
-
             modelBuilder.Entity("LcmCrdt.ProjectData", b =>
                 {
                     b.Property<Guid>("Id")

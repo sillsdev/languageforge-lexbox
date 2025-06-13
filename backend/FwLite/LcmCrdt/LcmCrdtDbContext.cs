@@ -39,7 +39,7 @@ public class LcmCrdtDbContext(
         projectDataModel.Property(p => p.Role).HasConversion<EnumToStringConverter<UserProjectRole>>().HasDefaultValue(UserProjectRole.Editor);
 
         var entrySearchModel = modelBuilder.Entity<EntrySearchRecord>();
-        entrySearchModel.ToTable(nameof(EntrySearchRecord));
+        entrySearchModel.ToTable(nameof(EntrySearchRecord), tb => tb.ExcludeFromMigrations());
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
