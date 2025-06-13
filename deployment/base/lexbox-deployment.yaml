@@ -152,6 +152,8 @@ spec:
                   name: lexbox-api
           - name: ForwardedHeadersOptions__KnownNetworks__0
             value: "10.42.0.0/16"
+          - name: MediaFileConfig__FwHeadlessUrl
+            value: http://fw-headless:8081/
           - name: HgConfig__RepoPath
             value: /hg-repos
           - name: HgConfig__SendReceiveDomain
