@@ -1177,7 +1177,7 @@ public class FwDataMiniLcmApi(
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
                 var insertI = allSiblings.IndexOf(previousSense) + 1;
                 // ILcmOwningSequence treats an insert as a move if the item is already in it
-                lexEntry.SensesOS.Insert(insertI, lexSense);
+                allSiblings.Insert(insertI, lexSense);
             }
             return;
         }
@@ -1191,7 +1191,7 @@ public class FwDataMiniLcmApi(
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
             var insertI = allSiblings.IndexOf(nextSense);
             // ILcmOwningSequence treats an insert as a move if the item is already in it
-            lexEntry.SensesOS.Insert(insertI, lexSense);
+            allSiblings.Insert(insertI, lexSense);
             return;
         }
 
