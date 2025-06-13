@@ -174,8 +174,6 @@ public static class MediaFileController
         await AddEntityTagMetadata(mediaFile, filePath);
         mediaFile.UpdateUpdatedDate();
         await lexBoxDb.SaveChangesAsync();
-        // TODO: Construct URL with appropriate ASP.NET Core methods rather than hardcoded string
-        var newLocation = $"/api/media/{fileId}";
         var responseBody = new PostFileResult(fileId.Value);
         if (replacedExistingFile)
         {
@@ -183,6 +181,8 @@ public static class MediaFileController
         }
         else
         {
+            // TODO: Put "/api/media" into a constant so if it changes in MediaFileRoutes it will change here as well
+            var newLocation = $"/api/media/{fileId}";
             return TypedResults.Created(newLocation, responseBody);
         }
     }
