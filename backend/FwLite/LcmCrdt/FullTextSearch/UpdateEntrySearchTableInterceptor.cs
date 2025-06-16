@@ -72,12 +72,12 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         {
             if (entity.Entity is Sense sense)
             {
-
                 fullEntry.Senses = [..fullEntry.Senses.Where(s => s.Id != sense.Id), sense];
             }
             else if (entity.Entity is Entry entry)
             {
-                fullEntry = fullEntry with { LexemeForm = entry.LexemeForm, CitationForm = entry.CitationForm };
+                fullEntry.LexemeForm = entry.LexemeForm;
+                fullEntry.CitationForm = entry.CitationForm;
             }
         }
 
