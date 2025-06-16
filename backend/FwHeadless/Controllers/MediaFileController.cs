@@ -61,11 +61,11 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        HttpRequest request,
+        HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, request, config, lexBoxDb, newFilesAllowed: false, returnCreatedOnSuccess: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: false, returnCreatedOnSuccess: false);
         return result;
     }
 
@@ -78,11 +78,11 @@ public static class MediaFileController
         [FromForm] string filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        HttpRequest request,
+        HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, request, config, lexBoxDb, newFilesAllowed: true, returnCreatedOnSuccess: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: true, returnCreatedOnSuccess: true);
         return result;
     }
 
@@ -92,7 +92,7 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
-        HttpRequest request,
+        HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
         bool newFilesAllowed,
@@ -101,7 +101,7 @@ public static class MediaFileController
         bool replacedExistingFile = false;
         // Sanity check: reject ridiculously large uploads before doing any work
         var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
-        if ((request.ContentLength is not null && request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
+        if ((httpContext.Request.ContentLength is not null && httpContext.Request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
         {
             return TypedResults.BadRequest();
         }
