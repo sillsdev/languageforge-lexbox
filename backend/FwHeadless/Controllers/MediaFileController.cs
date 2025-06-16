@@ -1,5 +1,4 @@
 using FwHeadless.Models;
-using FwHeadless.Services;
 using LexCore.Entities;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
+using System.Globalization;
 
 namespace FwHeadless.Controllers;
 
@@ -55,7 +55,7 @@ public static class MediaFileController
         return TypedResults.Ok();
     }
 
-    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest>> PutFile(
+    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PutFile(
         Guid fileId,
         [FromForm] Guid? projectId,
         [FromForm] string? filename,
@@ -72,7 +72,7 @@ public static class MediaFileController
     }
 
     [HttpPost]
-    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest>> PostFile(
+    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
         [FromForm] Guid? fileId,
         [FromForm] Guid projectId,
         [FromForm] string filename,
@@ -86,7 +86,7 @@ public static class MediaFileController
         return result;
     }
 
-    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest>> HandleFileUpload(
+    public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> HandleFileUpload(
         Guid? fileId,
         Guid? projectId,
         string? filename,
@@ -103,7 +103,8 @@ public static class MediaFileController
         var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
         if ((httpContext.Request.ContentLength is not null && httpContext.Request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
         {
-            return TypedResults.BadRequest();
+            var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
+            return TypedResults.Problem(statusCode: 413, detail: detail);
         }
         if (fileId is null) fileId = Guid.NewGuid();
         if (metadata is null) metadata = new FileMetadata() { Filename = filename, SizeInBytes = 0 };
@@ -116,13 +117,11 @@ public static class MediaFileController
         {
             if (projectId is null)
             {
-                // TODO: Create an error object that will be returned, explaining why the request is bad (e.g., here it's because projectId is required when not replacing existing files)
-                return TypedResults.BadRequest();
+                return TypedResults.BadRequest(FileUploadErrorMessage.ProjectIdRequiredForNewFiles);
             }
             if (string.IsNullOrEmpty(filename))
             {
-                // TODO: Error message should be "filename is required if uploading new file"
-                return TypedResults.BadRequest();
+                return TypedResults.BadRequest(FileUploadErrorMessage.FilenameRequiredForNewFiles);
             }
             mediaFile = new MediaFile()
             {
@@ -139,14 +138,12 @@ public static class MediaFileController
             projectId ??= mediaFile.ProjectId;
             if (projectId != mediaFile.ProjectId)
             {
-                // TODO: Decide whether we should allow existing files to be moved into a different project from the one they're currently in, or if that should be an error
-                // TODO: If error, then error object here should specify that files cannot be moved from one project to another
-                return TypedResults.BadRequest();
+                return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects);
             }
             filename ??= mediaFile.Filename;
             if (filename != mediaFile.Filename)
             {
-                // TODO: Handle renaming files appropriately: move existing file to the new name now, then WriteFileToDisk will overwrite it with new contents
+                return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeRenamed);
             }
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
             else mediaFile.Metadata.Merge(metadata);
@@ -156,26 +153,32 @@ public static class MediaFileController
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId.Value);
         if (projectFolder is null)
         {
-            // TODO: Add error message to communicate "project folder not found, might need to add it to FW Lite before this will work"
-            return TypedResults.BadRequest();
+            return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless);
         }
         var filePath = Path.Join(projectFolder, filename);
         mediaFile.Metadata.Filename = filename;
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
-        try
+        var writtenLength = await WriteFileToDisk(filePath, file.OpenReadStream());
+        if (writtenLength > maxUploadSize)
         {
-            await WriteFileToDisk(filePath, file.OpenReadStream());
+            SafeDelete(filePath);
+            lexBoxDb.Files.Remove(mediaFile);
+            await lexBoxDb.SaveChangesAsync();
+            var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
+            return TypedResults.Problem(statusCode: 413, detail: detail);
         }
-        catch (ArgumentOutOfRangeException)
+        if (writtenLength != file.Length)
         {
-            // TODO: Add an error message here to communicate "Too large"
-            return TypedResults.BadRequest();
+            // TODO: Log warning about mismatched length?
+            mediaFile.Metadata.SizeInBytes = (int)writtenLength;
         }
         await AddEntityTagMetadata(mediaFile, filePath);
         mediaFile.UpdateUpdatedDate();
         await lexBoxDb.SaveChangesAsync();
+        // Add ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
+        var entityTag = mediaFile.Metadata.Sha256Hash;
+        httpContext.Response.Headers.ETag = entityTag;
         var responseBody = new PostFileResult(fileId.Value);
-        // TODO: Consider adding ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
         if (replacedExistingFile)
         {
             return TypedResults.Ok(responseBody);
@@ -199,6 +202,7 @@ public static class MediaFileController
         catch { }
         // TODO: Write to temp file, then move file into place, overwriting existing file
         // That way files will be replaced atomically, and a failure halfway through the process won't result in the existing file being lost
+        // NOTE for when we implement this: temp file should be in same directory with random name, otherwise move operation isn't guaranteed to be atomic on all filesystems
         var writeStream = File.OpenWrite(filePath);
         await contents.CopyToAsync(writeStream);
         await writeStream.DisposeAsync();
@@ -238,5 +242,12 @@ public static class MediaFileController
             return true;
         }
         return false;
+    }
+
+    private static void SafeDelete(string filePath)
+    {
+        // Delete file at path, ignoring all errors such as "file not found"
+        try { File.Delete(filePath); }
+        catch { }
     }
 }
