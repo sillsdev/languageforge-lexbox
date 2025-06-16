@@ -1,3 +1,4 @@
+using Bogus;
 using LcmCrdt.FullTextSearch;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Tests.AutoFakerHelpers;
@@ -188,7 +189,9 @@ public class EntrySearchServiceTests : IAsyncLifetime
     public async Task RanksResultsAsExpected(string searchTerm, string words, string expectedOrder)
     {
         var ids = new HashSet<Guid>();
-        foreach (var word in words.Split(","))
+
+
+        foreach (var word in Faker.Faker.Random.Shuffle(words.Split(",")))
         {
             var id = Guid.NewGuid();
             ids.Add(id);
