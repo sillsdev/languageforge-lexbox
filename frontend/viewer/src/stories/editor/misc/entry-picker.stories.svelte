@@ -2,8 +2,9 @@
   import {Button} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import {useWritingSystemService, type WritingSystemService} from '$lib/writing-system-service.svelte';
   import {defineMeta} from '@storybook/addon-svelte-csf';
+  import {onMount} from 'svelte';
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
@@ -28,6 +29,13 @@
   }
 </script>
 
+<script lang="ts">
+  let writingSystemService = $state<WritingSystemService>();
+    onMount(() => {
+      writingSystemService = useWritingSystemService();
+    });
+</script>
+
 <div class="space-y-4">
   <div class="flex gap-2">
     <Button onclick={() => openPicker = true}>Open picker</Button>
@@ -37,9 +45,9 @@
   <div>
     {#each selectedEntryHistory as selected}
       <p>
-        Entry: {useWritingSystemService().headword(selected.entry)}
+        Entry: {writingSystemService?.headword(selected.entry)}
         {#if selected.sense}
-          Sense: {useWritingSystemService().firstGloss(selected.sense)}
+          Sense: {writingSystemService?.firstGloss(selected.sense)}
         {/if}
       </p>
     {/each}
