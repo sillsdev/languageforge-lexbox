@@ -17,15 +17,6 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //ling2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public Expression<Func<Entry, bool>> SearchFilter(string query)
-    {
-
-        //sqlite FTS returns nothing if the search term is less than 3 characters
-        //it strips diacritics, so we need to take that into account when counting the length
-        if (query.Normalize(NormalizationForm.FormC).Length < 3) return Filtering.SearchFilter(query);
-        return Filtering.FtsFilter(query, EntrySearchRecords);
-    }
-
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable, string query, bool rankResults, bool orderAscending)
     {
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
