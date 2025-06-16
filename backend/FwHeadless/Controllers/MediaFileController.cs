@@ -69,8 +69,6 @@ public static class MediaFileController
         return result;
     }
 
-    }
-
     [HttpPost]
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
         [FromForm] Guid? fileId,
