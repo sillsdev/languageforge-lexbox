@@ -10,6 +10,7 @@ using LexCore.Sync;
 using LexCore.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using MiniLcm;
 
 namespace FwHeadless.Services;
 
@@ -143,9 +144,8 @@ public class SyncWorker(
 
         var fwdataApi = await SetupFwData(fwDataProject, projectCode);
         using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
-        var crdtProject = await SetupCrdtProject(crdtFile, projectFolder, fwdataApi.ProjectId, fwDataProject);
+        var miniLcmApi = await SetupCrdtProject(crdtFile, projectFolder, fwdataApi.ProjectId, fwDataProject);
 
-        var miniLcmApi = await services.OpenCrdtProject(crdtProject);
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
         await crdtSyncService.SyncHarmonyProject();
 
@@ -193,15 +193,28 @@ public class SyncWorker(
         return fwdataApi;
     }
 
-    private async Task<CrdtProject> SetupCrdtProject(string crdtFile,
+    private async Task<IMiniLcmApi> SetupCrdtProject(string crdtFile,
         string projectFolder,
         Guid fwProjectId,
         FwDataProject fwDataProject)
     {
-        var dbExists = File.Exists(crdtFile);
-        if (CrdtFwdataProjectSyncService.IsSnapshotAvailable(fwDataProject) && dbExists)
+        var (crdtProject, isNew) = await OpenCrdtProject(crdtFile, projectFolder, fwProjectId);
+        var api = await services.OpenCrdtProject(crdtProject);
+        if (!CrdtFwdataProjectSyncService.IsSnapshotAvailable(fwDataProject) && !isNew)
         {
-            return new CrdtProject("crdt", crdtFile);
+            logger.LogWarning("No snapshot available for project {ProjectId}, creating a new one, maybe the last sync didn't finish?", projectId);
+            await syncService.SaveProjectSnapshot(fwDataProject, api);
+        }
+
+        return api;
+    }
+
+    private async ValueTask<(CrdtProject project, bool isNew)> OpenCrdtProject(string crdtFile, string projectFolder, Guid fwProjectId)
+    {
+        var dbExists = File.Exists(crdtFile);
+        if (dbExists)
+        {
+            return (new CrdtProject("crdt", crdtFile), isNew: false);
         }
 
         if (await projectLookupService.IsCrdtProject(projectId))
@@ -210,15 +223,7 @@ public class SyncWorker(
             throw new InvalidOperationException("Project already exists, not sure why it's not on the server");
         }
 
-        if (dbExists)
-        {
-            logger.LogWarning(
-                "previous sync failed, indicated by a snapshot not existing, deleting the CRDT file: {crdtFile}",
-                crdtFile);
-            File.Delete(crdtFile);
-        }
-
-        return await projectsService.CreateProject(new("crdt",
+        var project = await projectsService.CreateProject(new("crdt",
             "crdt",
             SeedNewProjectData: false,
             Id: projectId,
@@ -226,5 +231,6 @@ public class SyncWorker(
             FwProjectId: fwProjectId,
             Role: UserProjectRole.Editor,
             Domain: new Uri(config.Value.LexboxUrl)));
+        return (project, isNew: true);
     }
 }

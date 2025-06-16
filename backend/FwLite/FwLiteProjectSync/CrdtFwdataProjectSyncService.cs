@@ -40,16 +40,21 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project,
-                new ProjectSnapshot(
-                    await fwdataApi.GetAllEntries().ToArrayAsync(),
-                    await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
-                    await fwdataApi.GetPublications().ToArrayAsync(),
-                    await fwdataApi.GetSemanticDomains().ToArrayAsync(),
-                    await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
-                    await fwdataApi.GetWritingSystems()));
+            await SaveProjectSnapshot(fwdataApi.Project, fwdataApi);
         }
         return result;
+    }
+
+    public async Task SaveProjectSnapshot(FwDataProject project, IMiniLcmApi miniLcmApi)
+    {
+        await SaveProjectSnapshot(project,
+            new ProjectSnapshot(
+                await miniLcmApi.GetAllEntries().ToArrayAsync(),
+                await miniLcmApi.GetPartsOfSpeech().ToArrayAsync(),
+                await miniLcmApi.GetPublications().ToArrayAsync(),
+                await miniLcmApi.GetSemanticDomains().ToArrayAsync(),
+                await miniLcmApi.GetComplexFormTypes().ToArrayAsync(),
+                await miniLcmApi.GetWritingSystems()));
     }
 
     private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
