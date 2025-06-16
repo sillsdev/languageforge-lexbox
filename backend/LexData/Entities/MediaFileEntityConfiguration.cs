@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LexData.Entities;
 
-public class FileMetadataEntityConfiguration : IEntityTypeConfiguration<MediaFile>
+public class MediaFileEntityConfiguration : IEntityTypeConfiguration<MediaFile>
 {
     public virtual void Configure(EntityTypeBuilder<MediaFile> builder)
     {
