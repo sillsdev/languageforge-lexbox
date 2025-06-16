@@ -11,8 +11,6 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
     <PackageVersion Include="DataAnnotatedModelValidations" Version="6.0.0" />
-    <PackageVersion Include="EntityFrameworkCore.Projectables" Version="4.0.0" />
-    <PackageVersion Include="EntityFrameworkCore.Projectables.Abstractions" Version="4.0.0" />
     <PackageVersion Include="FluentAssertions" Version="7.0.0-alpha.5" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.4.1" />
@@ -36,26 +34,26 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.9.24556.5" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
     <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
@@ -70,6 +68,8 @@
     <PackageVersion Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="1.5.0" />
     <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="Moq.Contrib.HttpClient" Version="1.4.0" />
+    <PackageVersion Include="NeinLinq" Version="7.3.2" />
+    <PackageVersion Include="NeinLinq.EntityFrameworkCore" Version="7.3.2" />
     <PackageVersion Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
     <PackageVersion Include="Npgsql" Version="9.0.3" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
@@ -114,9 +114,9 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
     <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
     <PackageVersion Include="System.Reactive" Version="6.0.1" />
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.4" />
-    <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.4" />
-    <PackageVersion Include="System.Text.Json" Version="9.0.4" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="9.0.6" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="9.0.6" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.6" />
     <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
     <PackageVersion Include="SystemTextJsonPatch" Version="3.2.1" />
     <PackageVersion Include="tusdotnet" Version="2.8.0" />

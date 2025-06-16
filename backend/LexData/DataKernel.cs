@@ -43,7 +43,6 @@ public static class DataKernel
                 if (loggerFactory is not null)
                     builder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
-            options.UseProjectables();
             //todo remove this once this bug is fixed: https://github.com/dotnet/efcore/issues/35110
             //we ended up not upgrading to EF Core 9, so this was disabled for now, may or may not be needed in the future
             // options.ConfigureWarnings(builder => builder.Ignore(RelationalEventId.PendingModelChangesWarning));

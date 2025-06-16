@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
-using EntityFrameworkCore.Projectables;
 using LexCore;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -9,6 +8,7 @@ using LexData.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NeinLinq;
 
 namespace LexBoxApi.Controllers;
 
@@ -59,6 +59,7 @@ public class LegacyProjectApiController : ControllerBase
                     "http://public.languagedepot.org",
                     RoleToString(member.Role)))
             })
+            .ToEntityInjectable()
             .FirstOrDefaultAsync();
         if (user == null)
         {
@@ -74,7 +75,7 @@ public class LegacyProjectApiController : ControllerBase
         return user.projects.ToArray();
     }
 
-    [Projectable]
+    [InjectLambda]
     private string RoleToString(ProjectRole role) =>
         //instead of using toString which could change if we rename the enum, we only ever want to return these 3 values.
         //this needs to be ugly so that projectable will work :(

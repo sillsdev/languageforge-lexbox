@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL"/>
-    <PackageReference Include="EntityFrameworkCore.Projectables" />
+    <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" />
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="linq2db.AspNet" />
     <PackageReference Include="linq2db.EntityFrameworkCore" />
@@ -13,6 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+    <PackageReference Include="NeinLinq.EntityFrameworkCore" />
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" />
