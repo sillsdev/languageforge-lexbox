@@ -144,4 +144,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         var snapshotPath = Path.Combine(projectPath, $"{project.Name}_snapshot.json");
         return snapshotPath;
     }
+
+    public static bool IsSnapshotAvailable(FwDataProject project)
+    {
+        var snapshotPath = SnapshotPath(project);
+        return File.Exists(snapshotPath) && new FileInfo(snapshotPath).Length > 0;
+    }
 }

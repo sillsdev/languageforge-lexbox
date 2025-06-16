@@ -141,15 +141,9 @@ public class SyncWorker(
         logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
 
-        var fwdataApi = await SetupFwData(fwDataProject, srService, projectCode, logger, fwDataFactory);
+        var fwdataApi = await SetupFwData(fwDataProject, projectCode);
         using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
-        var crdtProject = await SetupCrdtProject(crdtFile,
-            projectLookupService,
-            projectId,
-            projectsService,
-            projectFolder,
-            fwdataApi.ProjectId,
-            config.Value.LexboxUrl);
+        var crdtProject = await SetupCrdtProject(crdtFile, projectFolder, fwdataApi.ProjectId, fwDataProject);
 
         var miniLcmApi = await services.OpenCrdtProject(crdtProject);
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
@@ -174,11 +168,7 @@ public class SyncWorker(
         return new SyncJobResult(SyncJobResultEnum.Success, null, result);
     }
 
-    static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
-        SendReceiveService srService,
-        string projectCode,
-        ILogger logger,
-        FwDataFactory fwDataFactory)
+    private async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)
     {
         if (File.Exists(fwDataProject.FilePath))
         {
@@ -203,35 +193,38 @@ public class SyncWorker(
         return fwdataApi;
     }
 
-    static async Task<CrdtProject> SetupCrdtProject(string crdtFile,
-        ProjectLookupService projectLookupService,
-        Guid projectId,
-        CrdtProjectsService projectsService,
+    private async Task<CrdtProject> SetupCrdtProject(string crdtFile,
         string projectFolder,
         Guid fwProjectId,
-        string lexboxUrl)
+        FwDataProject fwDataProject)
     {
-        if (File.Exists(crdtFile))
+        var dbExists = File.Exists(crdtFile);
+        if (CrdtFwdataProjectSyncService.IsSnapshotAvailable(fwDataProject) && dbExists)
         {
             return new CrdtProject("crdt", crdtFile);
         }
-        else
-        {
-            if (await projectLookupService.IsCrdtProject(projectId))
-            {
-                //todo determine what to do in this case, maybe we just download the project?
-                throw new InvalidOperationException("Project already exists, not sure why it's not on the server");
-            }
 
-            return await projectsService.CreateProject(new("crdt",
-                "crdt",
-                SeedNewProjectData: false,
-                Id: projectId,
-                Path: projectFolder,
-                FwProjectId: fwProjectId,
-                Role: UserProjectRole.Editor,
-                Domain: new Uri(lexboxUrl)));
+        if (await projectLookupService.IsCrdtProject(projectId))
+        {
+            //todo determine what to do in this case, maybe we just download the project?
+            throw new InvalidOperationException("Project already exists, not sure why it's not on the server");
         }
 
+        if (dbExists)
+        {
+            logger.LogWarning(
+                "previous sync failed, indicated by a snapshot not existing, deleting the CRDT file: {crdtFile}",
+                crdtFile);
+            File.Delete(crdtFile);
+        }
+
+        return await projectsService.CreateProject(new("crdt",
+            "crdt",
+            SeedNewProjectData: false,
+            Id: projectId,
+            Path: projectFolder,
+            FwProjectId: fwProjectId,
+            Role: UserProjectRole.Editor,
+            Domain: new Uri(config.Value.LexboxUrl)));
     }
 }
