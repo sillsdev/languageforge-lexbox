@@ -27,7 +27,8 @@
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
   let gridifyFilter = $state<string | undefined>(undefined);
-  let sortField = $state<SortField>(SortField.SearchRelevance);
+  let selectedSortField = $state<SortField | undefined>(undefined);
+  const sortField = $derived(selectedSortField ?? (search ? SortField.SearchRelevance : SortField.Headword));
   let sortDirection = $state<'asc' | 'desc'>('asc');
   let entryMode: 'preview' | 'simple' = $state('simple');
 
@@ -84,7 +85,7 @@
                   {#each sortOptions as option}
                     <ResponsiveMenu.Item
                       onSelect={() => {
-                        sortField = option.value;
+                        selectedSortField = option.value;
                         sortDirection = option.dir;
                       }}
                       class={cn(sortField === option.value && sortDirection === option.dir && 'bg-muted')}
