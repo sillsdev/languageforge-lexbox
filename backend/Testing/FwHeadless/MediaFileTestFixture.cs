@@ -29,9 +29,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
     {
         // Must ensure we're logged in as admin, since some tests might have changed that
         await LoginAs("admin");
-        HttpClient.DefaultRequestHeaders.Authorization = null; // OAuth headers will result in 401 Unauthorized response from API
-        var result = await HttpClient.DeleteAsync($"api/project/{ProjectId}");
-        // result.EnsureSuccessStatusCode(); // Don't cause test failure if deleting project failed somehow
+        await HttpClient.DeleteAsync($"api/project/{ProjectId}");
     }
 
     public async Task<FileListing?> ListFiles(Guid projectId, string? relativePath = null, string? loginAs = null)
@@ -71,9 +69,10 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             }
             var stream = new StreamContent(File.OpenRead(localPath));
             formData.Add(stream, name: "file", fileName: filename);
-            // formData.Headers.Add("Authorization", $"Bearer {jwt}"); // Can't do this, not allowed (sigh)
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt); // This sets the default for the entire class, which is not ideal
-            var result = await HttpClient.PostAsync($"api/media/", formData);
+            var request = new HttpRequestMessage(HttpMethod.Post, "api/media/");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+            request.Content = formData;
+            var result = await HttpClient.SendAsync(request);
             result.EnsureSuccessStatusCode();
             var obj = await result.Content.ReadFromJsonAsync<PostFileResult>();
             return obj?.guid ?? Guid.Empty;
