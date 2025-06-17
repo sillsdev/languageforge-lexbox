@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
+using FluentAssertions.Collections;
 using LexCore.Sync;
 using SIL.Harmony.Core;
 using Testing.ApiTests;
@@ -23,6 +24,8 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     {
         var guid = await Fixture.PostFile("/home/rmunn/code/lexbox/data/sena-3.zip");
         guid.Should().NotBe(Guid.Empty);
-        Console.WriteLine(guid);
+        var files = await Fixture.ListFiles(Fixture.ProjectId);
+        files.Should().NotBeNull();
+        files.Files.Should().Contain("sena-3.zip");
     }
 }

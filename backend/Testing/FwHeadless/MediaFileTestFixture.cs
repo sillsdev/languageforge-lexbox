@@ -4,6 +4,7 @@ using LexCore.Entities;
 using Testing.ApiTests;
 using Testing.Services;
 using FwHeadless.Models;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Testing.FwHeadless;
 
@@ -31,6 +32,25 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         HttpClient.DefaultRequestHeaders.Authorization = null; // OAuth headers will result in 401 Unauthorized response from API
         var result = await HttpClient.DeleteAsync($"api/project/{ProjectId}");
         // result.EnsureSuccessStatusCode(); // Don't cause test failure if deleting project failed somehow
+    }
+
+    public async Task<FileListing?> ListFiles(Guid projectId, string? relativePath = null, string? loginAs = null)
+    {
+        var jwt = AdminJwt;
+        if (loginAs is not null)
+        {
+            jwt = await LoginAs(loginAs);
+        }
+        var url = $"/api/list-media/{projectId}";
+        if (relativePath is not null)
+        {
+            var qb = new QueryBuilder { { "relativePath", relativePath } };
+            url += qb.ToString();
+        }
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+        var result = await HttpClient.SendAsync(request);
+        return await result.Content.ReadFromJsonAsync<FileListing>();
     }
 
     public async Task<Guid> PostFile(string localPath, FileMetadata? metadata = null, string? loginAs = null)

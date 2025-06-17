@@ -18,3 +18,5 @@ public enum FileUploadErrorMessage
     UploadedFilesCannotBeRenamed,
     ProjectFolderNotFoundInFwHeadless,
 }
+
+public record FileListing(string[] Files);

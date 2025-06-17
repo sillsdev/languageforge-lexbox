@@ -7,6 +7,7 @@ public static class MediaFileRoutes
     public static IEndpointConventionBuilder MapMediaFileRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
+        group.MapGet("/list-media/{projectId}", MediaFileController.ListFiles); // TODO: During code review, discuss what URL to assign this API endpoint
         group.MapGet("/media/{fileId}", MediaFileController.GetFile);
         group.MapPut("/media/{fileId}", MediaFileController.PutFile);
         group.MapDelete("/media/{fileId}", MediaFileController.DeleteFile);

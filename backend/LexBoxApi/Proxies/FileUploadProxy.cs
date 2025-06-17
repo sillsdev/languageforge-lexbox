@@ -40,6 +40,10 @@ public static class FileUploadProxy
         };
 
         //media upload/download
+        app.Map("/api/list-media/{**catch-all}",
+            Forward).RequireAuthorization(authorizeAttribute);
+
+        //media upload/download
         app.Map("/api/media/{**catch-all}",
             Forward).RequireAuthorization(authorizeAttribute);
 

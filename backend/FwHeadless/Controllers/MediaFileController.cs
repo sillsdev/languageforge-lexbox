@@ -12,6 +12,20 @@ namespace FwHeadless.Controllers;
 
 public static class MediaFileController
 {
+    public static async Task<Results<Ok<FileListing>, NotFound>> ListFiles(
+        Guid projectId,
+        IOptions<FwHeadlessConfig> config,
+        LexBoxDbContext lexBoxDb,
+        string relativePath = "")
+    {
+        var project = await lexBoxDb.Projects.FindAsync(projectId);
+        if (project is null) return TypedResults.NotFound();
+        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        var path = Path.Join(projectFolder, relativePath); // Do NOT use Path.Combine here
+        var files = Directory.EnumerateFiles(path).Select(file => Path.GetRelativePath(projectFolder, file)).ToArray();
+        return TypedResults.Ok(new FileListing(files));
+    }
+
     public static async Task<Results<PhysicalFileHttpResult, NotFound>> GetFile(
         Guid fileId,
         IOptions<FwHeadlessConfig> config,
