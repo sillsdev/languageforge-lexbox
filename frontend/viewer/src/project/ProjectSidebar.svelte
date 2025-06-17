@@ -4,6 +4,7 @@
 
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import { Icon } from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
   import {useFwLiteConfig, useTroubleshootingService} from '../lib/services/service-provider';
@@ -19,11 +20,15 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$lib/project-stats';
   import {formatNumber} from '$lib/components/ui/format';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
 
   const config = useFwLiteConfig();
   const features = useFeatures();
   const stats = useProjectStats();
-  let isSynchronizing = $state(false);
+  const projectEventBus = useProjectEventBus();
+  let syncStatus = $state<SyncStatus|undefined>();
+  projectEventBus.onSync(e => syncStatus = e.status);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
     if (selectedProject.fwdata) {
@@ -95,20 +100,37 @@
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            <Sidebar.MenuItem>
               <SyncDialog bind:this={syncDialog} />
-              <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
-                <div class="flex items-center gap-2">
-                  <Icon icon="i-mdi-sync" />
-                  <span>{$t`Synchronize`}</span>
-                </div>
-                <div
-                  class="size-2 rounded-full"
-                  class:bg-red-500={isSynchronizing}
-                  class:bg-green-500={!isSynchronizing}
-                ></div>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+              <Tooltip.Provider disabled={syncStatus === SyncStatus.Success} delayDuration={300}>
+                <Tooltip.Root>
+                  <Tooltip.Trigger>
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
+                        <div class="flex items-center gap-2">
+                          <Icon icon="i-mdi-sync"/>
+                          <span>{$t`Synchronize`}</span>
+                        </div>
+                        <div
+                          class="size-2 rounded-full"
+                          class:bg-red-500={syncStatus !== SyncStatus.Success}
+                          class:bg-green-500={syncStatus === SyncStatus.Success}
+                        ></div>
+                      </Sidebar.MenuButton>
+                    </Sidebar.MenuItem>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content align="end">
+                    {#if syncStatus === SyncStatus.Offline}
+                      <span>{$t`Offline`}</span>
+                    {:else if syncStatus === SyncStatus.NotLoggedIn}
+                      <span>{$t`Not logged in`}</span>
+                    {:else if syncStatus === SyncStatus.NoServer}
+                      <span>{$t`No server configured`}</span>
+                    {:else if syncStatus === SyncStatus.UnknownError}
+                      <span>{$t`Unknown error`}</span>
+                    {/if}
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </Tooltip.Provider>
             <DevContent>
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton>
