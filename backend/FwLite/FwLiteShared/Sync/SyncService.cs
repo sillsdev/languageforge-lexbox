@@ -48,6 +48,7 @@ public class SyncService(
         {
             logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client",
                 project.Name);
+            UpdateSyncStatus(SyncStatus.NotLoggedIn);
             return new SyncResults([], [], false);
         }
 
@@ -59,19 +60,29 @@ public class SyncService(
                 "Unable to create http client to sync project {ProjectName}, user is not authenticated to {OriginDomain}",
                 project.Name,
                 project.OriginDomain);
+            UpdateSyncStatus(SyncStatus.NotLoggedIn);
             return new SyncResults([], [], false);
         }
         var currentUser = await oAuthClient.GetCurrentUser();
         await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
 
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
+        if (!await remoteModel.ShouldSync())
+        {
+            logger.LogInformation("Unable to connect to server when syncing project {ProjectName}", project.Name);
+            UpdateSyncStatus(SyncStatus.Offline);
+            return new SyncResults([], [], false);
+        }
         var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
         var syncResults = await dataModel.SyncWith(remoteModel);
         if (!syncResults.IsSynced)
         {
             logger.LogWarning("Did not sync with server, {ProjectName}", project.Name);
+            UpdateSyncStatus(SyncStatus.UnknownError);
             return syncResults;
         }
+        logger.LogInformation("Synced project {ProjectName} with server", project.Name);
+        UpdateSyncStatus(SyncStatus.Success);
         await UpdateSyncDate(syncDate);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
@@ -119,6 +130,11 @@ public class SyncService(
         var remoteChanges = await remoteChangesPending;
         if (localChanges is null || remoteChanges is null) return null;
         return new SyncResult(localChanges ?? 0, remoteChanges ?? 0);
+    }
+
+    private void UpdateSyncStatus(SyncStatus status)
+    {
+        changeEventBus.PublishEvent(currentProjectService.Project, new SyncEvent(status));
     }
 
     private async Task SendNotifications(SyncResults syncResults)

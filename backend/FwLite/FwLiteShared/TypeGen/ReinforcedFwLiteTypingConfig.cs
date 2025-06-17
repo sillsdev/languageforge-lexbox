@@ -118,6 +118,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<ProjectDataFormat>();
         builder.ExportAsEnum<UserProjectRole>().UseString();
         builder.ExportAsEnum<ProjectRole>().UseString();
+        builder.ExportAsEnum<SyncStatus>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
@@ -145,9 +146,16 @@ public static class ReinforcedFwLiteTypingConfig
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsEnum<FwEventType>().UseString();
+        var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();
         builder.ExportAsInterfaces(
             typeof(IFwEvent).Assembly.GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IFwEvent)))
+                .Select(t =>
+                {
+                    if (eventJsAttrs.All(a => a.DerivedType != t)) throw new Exception(
+                        $"Missing JsonDerivedTypeAttribute for {t.FullName} on {nameof(IFwEvent)}");
+                    return t;
+                })
                 .Append(typeof(IFwEvent)),
             exportBuilder => exportBuilder.WithPublicProperties()
         );
