@@ -27,5 +27,9 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         var files = await Fixture.ListFiles(Fixture.ProjectId);
         files.Should().NotBeNull();
         files.Files.Should().Contain("sena-3.zip");
+        await Fixture.PutFile("/home/rmunn/code/lexbox/data/sena-3.zip", guid);
+        files = await Fixture.ListFiles(Fixture.ProjectId);
+        files.Should().NotBeNull();
+        files.Files.Should().Contain("sena-3.zip");
     }
 }

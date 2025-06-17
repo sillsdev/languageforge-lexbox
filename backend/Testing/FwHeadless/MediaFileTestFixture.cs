@@ -79,8 +79,43 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         }
     }
 
-    public async Task PutFile(string localPath, Guid fileId)
+    public async Task PutFile(string localPath, Guid fileId, FileMetadata? metadata = null, string? loginAs = null)
     {
-        // TODO: Implement
+        var filename = Path.GetFileName(localPath);
+        using (var formData = new MultipartFormDataContent())
+        {
+            var jwt = AdminJwt;
+            if (loginAs is not null)
+            {
+                jwt = await LoginAs(loginAs);
+            }
+            formData.Add(new StringContent(filename), name: "filename");
+            // formData.Add(new StringContent(fileId.ToString()), name: "fileId"); // TODO: Check if required
+            // formData.Add(new StringContent(ProjectId.ToString()), name: "projectId"); // TODO: Should not be required
+            if (metadata is not null)
+            {
+                formData.Add(JsonContent.Create(metadata), name: "metadata");
+            }
+            var stream = new StreamContent(File.OpenRead(localPath));
+            formData.Add(stream, name: "file", fileName: filename);
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/media/{fileId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+            request.Content = formData;
+            var result = await HttpClient.SendAsync(request);
+            result.EnsureSuccessStatusCode();
+        }
+    }
+
+    public async Task DeleteFile(Guid fileId, string? loginAs = null)
+    {
+        var jwt = AdminJwt;
+        if (loginAs is not null)
+        {
+            jwt = await LoginAs(loginAs);
+        }
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"api/media/{fileId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+        var result = await HttpClient.SendAsync(request);
+        result.EnsureSuccessStatusCode();
     }
 }
