@@ -17,7 +17,6 @@
         content: 'text*',
         whitespace: 'pre',
         toDOM: (node) => {
-          console.log('toDOM', node);
           return ['span', {
             title: gt`Writing system: ${node.attrs.richSpan.ws}`,
             class: cn(
