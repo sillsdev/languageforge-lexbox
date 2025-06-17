@@ -16,6 +16,11 @@
   import { delay } from '$lib/utils/time';
   import { cn } from '$lib/utils';
   import {useFeatures} from '$lib/services/feature-service';
+  import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
+
+  const {
+    syncStatus = SyncStatus.Success
+  }: {syncStatus?: SyncStatus} = $props();
 
   const service = useSyncStatusService();
   const features = useFeatures();
@@ -147,7 +152,17 @@
     {#if loading}
       <Loading class="place-self-center size-10" />
     {:else if !remoteStatus}
-      <div>{$t`Error getting sync status. Are you logged in to the LexBox server?`}</div>
+      {#if syncStatus === SyncStatus.Offline}
+        <div>{$t`Offline`}</div>
+      {:else if syncStatus === SyncStatus.NotLoggedIn}
+        <div>{$t`Not logged in`}</div>
+      {:else if syncStatus === SyncStatus.NoServer}
+        <div>{$t`No server configured`}</div>
+      {:else if syncStatus === SyncStatus.Success}
+        <!--  nothing-->
+      {:else}
+        <div>{$t`Error getting sync status.`}</div>
+      {/if}
     {:else}
       <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
       <div in:fade

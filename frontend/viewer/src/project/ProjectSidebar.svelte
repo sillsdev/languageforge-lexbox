@@ -100,7 +100,7 @@
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-              <SyncDialog bind:this={syncDialog} />
+              <SyncDialog bind:this={syncDialog} {syncStatus} />
               <Tooltip.Provider disabled={syncStatus === SyncStatus.Success} delayDuration={300}>
                 <Tooltip.Root>
                   <Tooltip.Trigger>
