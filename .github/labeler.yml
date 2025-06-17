@@ -1,0 +1,16 @@
+"💻 FW Lite":
+  - changed-files:
+      - any-glob-to-any-file:
+        - 'backend/FwLite/**'
+        - 'frontend/viewer/**'
+      - all-globs-to-all-files:
+        - '!backend/FwLite/FwHeadless/**'
+
+"📦 Lexbox":
+  - changed-files:
+      - any-glob-to-any-file:
+        - '**'
+        - 'backend/FwLite/FwHeadless/**'
+      - all-globs-to-all-files:
+        - '!backend/FwLite/**'
+        - '!frontend/viewer/**'
