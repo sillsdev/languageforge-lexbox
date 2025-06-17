@@ -170,7 +170,9 @@ public static class MediaFileController
         var filePath = Path.Join(projectFolder, filename);
         mediaFile.Metadata.Filename = filename;
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
-        var writtenLength = await WriteFileToDisk(filePath, file.OpenReadStream());
+        var readStream = file.OpenReadStream();
+        var writtenLength = await WriteFileToDisk(filePath, readStream);
+        await readStream.DisposeAsync();
         if (writtenLength > maxUploadSize)
         {
             SafeDelete(filePath);
@@ -215,7 +217,7 @@ public static class MediaFileController
         // TODO: Write to temp file, then move file into place, overwriting existing file
         // That way files will be replaced atomically, and a failure halfway through the process won't result in the existing file being lost
         // NOTE for when we implement this: temp file should be in same directory with random name, otherwise move operation isn't guaranteed to be atomic on all filesystems
-        var writeStream = File.OpenWrite(filePath);
+        var writeStream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
         await contents.CopyToAsync(writeStream);
         await writeStream.DisposeAsync();
         long endPosition = 0;
