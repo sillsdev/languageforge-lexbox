@@ -46,6 +46,8 @@ public static class AuthKernel
         services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
         services.AddSingleton<IAuthorizationHandler, FeatureFlagRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, UploadFileRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, DownloadFileRequirementHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.

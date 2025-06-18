@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using Yarp.ReverseProxy.Forwarder;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using LexBoxApi.Auth.Attributes;
 using Microsoft.Extensions.Options;
 using LexCore.Config;
@@ -37,13 +36,13 @@ public static class FileUploadProxy
 
         var authorizeForUploadAttribute = new AuthorizeAttribute
         {
-            AuthenticationSchemes = string.Join(',', JwtBearerDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
+            AuthenticationSchemes = string.Join(',', CookieAuthenticationDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
             Policy = UserCanUploadMediaFilesPolicy
         };
 
         var authorizeForDownloadAttribute = new AuthorizeAttribute
         {
-            AuthenticationSchemes = string.Join(',', JwtBearerDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
+            AuthenticationSchemes = string.Join(',', CookieAuthenticationDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
             Policy = UserCanDownloadMediaFilesPolicy
         };
 
