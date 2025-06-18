@@ -29,7 +29,7 @@ public class CrdtMiniLcmApi(
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
     LcmCrdtDbContext dbContext,
-    IOptions<LcmCrdtConfig> config) : IMiniLcmApi, IMiniLcmBulkImportApi
+    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;

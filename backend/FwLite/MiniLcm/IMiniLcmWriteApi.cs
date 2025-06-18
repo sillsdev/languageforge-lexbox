@@ -95,6 +95,31 @@ public interface IMiniLcmWriteApi
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
     #endregion
+
+
+    /// <summary>
+    /// Imports the provided semantic domains in bulk.
+    /// </summary>
+    /// <param name="semanticDomains">The semantic domains to import.</param>
+    async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
+    {
+        await foreach (var semanticDomain in semanticDomains)
+        {
+            await this.CreateSemanticDomain(semanticDomain);
+        }
+    }
+
+    /// <summary>
+    /// Imports the provided entries in bulk.
+    /// </summary>
+    /// <param name="entries">The entries to import.</param>
+    async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
+    {
+        await foreach (var entry in entries)
+        {
+            await this.CreateEntry(entry);
+        }
+    }
 }
 
 /// <summary>
@@ -103,21 +128,6 @@ public interface IMiniLcmWriteApi
 public interface IMiniLcmSaveApi
 {
     void Save();
-}
-
-public interface IMiniLcmBulkImportApi : IMiniLcmWriteApi
-{
-    /// <summary>
-    /// Imports the provided semantic domains in bulk.
-    /// </summary>
-    /// <param name="semanticDomains">The semantic domains to import.</param>
-    Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains);
-
-    /// <summary>
-    /// Imports the provided entries in bulk.
-    /// </summary>
-    /// <param name="entries">The entries to import.</param>
-    Task BulkCreateEntries(IAsyncEnumerable<Entry> entries);
 }
 
 /// <summary>

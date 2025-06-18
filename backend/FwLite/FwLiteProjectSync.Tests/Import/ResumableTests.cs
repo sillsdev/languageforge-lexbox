@@ -138,11 +138,22 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreatePartOfSpeech(partOfSpeech);
     }
+
     Task<Entry> IMiniLcmWriteApi.CreateEntry(Entry entry)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreateEntry(entry);
     }
+
+    async Task IMiniLcmWriteApi.BulkCreateEntries(IAsyncEnumerable<Entry> entries)
+    {
+        await _api.BulkCreateEntries(entries.Select(entry =>
+        {
+            ResumableTests.MaybeThrowRandom(random, 0.02);
+            return entry;
+        }));
+    }
+
     Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
@@ -158,6 +169,16 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreateSemanticDomain(semanticDomain);
     }
+
+    async Task IMiniLcmWriteApi.BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
+    {
+        await _api.BulkImportSemanticDomains(semanticDomains.Select(sd =>
+        {
+            ResumableTests.MaybeThrowRandom(random, 0.2);
+            return sd;
+        }));
+    }
+
     Task<Publication> IMiniLcmWriteApi.CreatePublication(Publication publication)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);

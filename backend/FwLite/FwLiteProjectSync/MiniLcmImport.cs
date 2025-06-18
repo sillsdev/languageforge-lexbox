@@ -73,28 +73,12 @@ public class MiniLcmImport(
 
         var semanticDomains = importFrom.GetSemanticDomains();
         var entries = importFrom.GetAllEntries();
-        if (importTo is IMiniLcmBulkImportApi crdtLexboxApi)
-        {
-            logger.LogInformation("Importing semantic domains");
-            await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains);
-            logger.LogInformation("Importing {Count} entries", entryCount);
-            await crdtLexboxApi.BulkCreateEntries(entries);
-        }
-        else
-        {
-            await foreach (var semanticDomain in semanticDomains)
-            {
-                await importTo.CreateSemanticDomain(semanticDomain);
-                logger.LogTrace("Imported semantic domain {Id}", semanticDomain.Id);
-            }
 
-            var index = 0;
-            await foreach (var entry in entries)
-            {
-                await importTo.CreateEntry(entry);
-                logger.LogTrace("Imported entry, {Index} of {Count} {Id}", index++, entryCount, entry.Id);
-            }
-        }
+        logger.LogInformation("Importing semantic domains");
+        await importTo.BulkImportSemanticDomains(semanticDomains);
+        logger.LogInformation("Importing {Count} entries", entryCount);
+        await importTo.BulkCreateEntries(entries);
+
 
         activity?.SetTag("app.import.entries", entryCount);
         logger.LogInformation("Imported {Count} entries", entryCount);
