@@ -21,6 +21,7 @@
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {navigate, Route, useRouter} from 'svelte-routing';
   import ActivityView from '$lib/activity/ActivityView.svelte';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   const {
     onloaded,
@@ -42,7 +43,21 @@
   });
   let open = $state(true);
   const {base} = useRouter();
+
+  type FwLiteEvent = {type: 'notification', message: string};
+
+  function isFwLiteMessage(data: any): data is FwLiteEvent {
+    return typeof data ==='object' && data.type === 'notification' && typeof data.message === 'string' && data.message.length > 0 ;
+  }
+
+  //listenting to messages from paratext
+  function onMessage(event: {data: any}) {
+    if (isFwLiteMessage(event.data)) {
+      AppNotification.display(event.data.message, 'info', 'long');
+    }
+  }
 </script>
+<svelte:window on:message={onMessage}/>
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
   <Sidebar.Provider bind:open>
