@@ -11,6 +11,8 @@ namespace LexBoxApi.Proxies;
 
 public static class FileUploadProxy
 {
+    public const string UserCanUploadMediaFilesPolicy = "UserCanUploadMediaFiles";
+    public const string UserCanDownloadMediaFilesPolicy = "UserCanDownloadMediaFiles";
     public const string RequireScopePolicy = RequireScopeAttribute.PolicyName;
 
     public static void AddFileUploadProxy(this IServiceCollection services)
@@ -33,23 +35,35 @@ public static class FileUploadProxy
         string? extraAuthScheme = null)
     {
 
-        var authorizeAttribute = new AuthorizeAttribute
+        var authorizeForUploadAttribute = new AuthorizeAttribute
         {
             AuthenticationSchemes = string.Join(',', JwtBearerDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
-            Policy = RequireScopePolicy
+            Policy = UserCanUploadMediaFilesPolicy
+        };
+
+        var authorizeForDownloadAttribute = new AuthorizeAttribute
+        {
+            AuthenticationSchemes = string.Join(',', JwtBearerDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
+            Policy = UserCanDownloadMediaFilesPolicy
         };
 
         //media upload/download
-        app.Map("/api/list-media/{**catch-all}",
-            Forward).RequireAuthorization(authorizeAttribute);
+        app.Map("/api/list-media/{projectId:guid}/{**catch-all}",
+            Forward).RequireAuthorization(authorizeForDownloadAttribute);
 
         //media upload/download
-        app.Map("/api/media/{**catch-all}",
-            Forward).RequireAuthorization(authorizeAttribute);
+        app.MapGet("/api/media/{fileId:guid}",
+            Forward).RequireAuthorization(authorizeForDownloadAttribute);
+        app.MapPut("/api/media/{fileId:guid}",
+            Forward).RequireAuthorization(authorizeForUploadAttribute);
+        app.MapPost("/api/media/",
+            Forward).RequireAuthorization(authorizeForUploadAttribute); // TODO: Figure out how to extract projectId from form for the UserCanUploadMediaFiles handler to use
+        app.MapDelete("/api/media/{fileId:guid}",
+            Forward).RequireAuthorization(authorizeForUploadAttribute);
 
         //metadata requests
         app.Map("/api/metadata/{**catch-all}",
-            Forward).RequireAuthorization(authorizeAttribute);
+            Forward).RequireAuthorization(authorizeForDownloadAttribute);
     }
 
     private static async Task Forward(HttpContext context)

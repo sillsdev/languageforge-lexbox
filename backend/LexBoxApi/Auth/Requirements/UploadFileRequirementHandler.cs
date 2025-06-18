@@ -69,7 +69,11 @@ internal static class MediaFileRequirementHandlerImpl
             var file = await dbContext.Files.FindAsync(fileId);
             if (file is not null) projectId = file.ProjectId;
         }
-        if (projectId == default) return;
+        if (projectId == default)
+        {
+            context.Fail(new AuthorizationFailureReason(handler, $"Media files must have a project ID in order to be uploaded"));
+            return;
+        }
         var permissionService = httpContext!.RequestServices.GetRequiredService<IPermissionService>();
         var hasAccess =
             writeAccessRequired
