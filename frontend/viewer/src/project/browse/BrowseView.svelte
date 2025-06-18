@@ -73,8 +73,8 @@
                   <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />
                 {/snippet}
                 <div class="space-y-6">
-                  <Tabs bind:value={entryMode} class="mb-1">
-                    <TabsList>
+                  <Tabs bind:value={entryMode} class="mb-1 text-center">
+                    <TabsList onkeydown={(e) => {if (e.key === 'Enter') listModeOpen = false}}>
                       <TabsTrigger value="simple" onclick={() => listModeOpen = false}>
                         <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
                         {$t`Simple`}
