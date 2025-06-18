@@ -2,7 +2,9 @@
 using System.Text.Json;
 using FluentAssertions;
 using FluentAssertions.Collections;
+using LexCore.Entities;
 using LexCore.Sync;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using SIL.Harmony.Core;
 using Testing.ApiTests;
 using Testing.Fixtures;
@@ -60,5 +62,37 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         await Fixture.PostFile(TestRepoZipPath, loginAs: "editor", expectSuccess: true);
         var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "editor");
         (files?.Files ?? []).Should().Contain(TestRepoZipFilename);
+    }
+
+    [Fact]
+    public async Task UploadFile_WithOutMetadata_SizeIsCorrect()
+    {
+        var expectedLength = TestRepoZip.Length;
+        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var metadata = await Fixture.GetFileMetadata(fileId);
+        metadata.Should().NotBeNull();
+        metadata.SizeInBytes.Should().Be((int)expectedLength);
+    }
+
+    [Fact]
+    public async Task UploadFile_WithMetadata_MetadataIsCorrect()
+    {
+        var expectedLength = TestRepoZip.Length;
+        var uploadMetadata = new FileMetadata
+        {
+            Author = "Test Author",
+            License = MediaFileLicense.CreativeCommons,
+        };
+        var expectedMetadata = new FileMetadata
+        {
+            Filename = TestRepoZipFilename,
+            SizeInBytes = (int)expectedLength,
+            Author = uploadMetadata.Author,
+            License = uploadMetadata.License,
+        };
+        var fileId = await Fixture.PostFile(TestRepoZipPath, uploadMetadata);
+        var metadata = await Fixture.GetFileMetadata(fileId);
+        metadata.Should().NotBeNull();
+        metadata.Should().BeEquivalentTo(expectedMetadata);
     }
 }
