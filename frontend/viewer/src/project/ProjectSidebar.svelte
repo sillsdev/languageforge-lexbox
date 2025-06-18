@@ -4,7 +4,6 @@
 
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
-  import * as Tooltip from '$lib/components/ui/tooltip';
   import { Icon } from '$lib/components/ui/icon';
   import type {IconClass} from '../lib/icon-class';
   import {useFwLiteConfig, useTroubleshootingService} from '../lib/services/service-provider';
