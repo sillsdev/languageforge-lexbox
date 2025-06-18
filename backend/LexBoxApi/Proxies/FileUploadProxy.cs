@@ -61,7 +61,7 @@ public static class FileUploadProxy
             Forward).RequireAuthorization(authorizeForUploadAttribute);
 
         //metadata requests
-        app.Map("/api/metadata/{**catch-all}",
+        app.Map("/api/metadata/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
     }
 
