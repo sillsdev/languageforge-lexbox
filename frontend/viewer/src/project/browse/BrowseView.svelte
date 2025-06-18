@@ -39,6 +39,7 @@
 
   let leftPane: ResizablePane | undefined = $state();
   let rightPane: ResizablePane | undefined = $state();
+  let listModeOpen = $state(false);
 </script>
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
@@ -67,18 +68,18 @@
                 <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
                 {$t`Headword`}
               </button>
-              <ResponsivePopup title={$t`List mode`}>
+              <ResponsivePopup bind:open={listModeOpen} title={$t`List mode`}>
                 {#snippet trigger({props})}
                   <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />
                 {/snippet}
                 <div class="space-y-6">
-                  <Tabs bind:value={entryMode} class="mb-1">
-                    <TabsList>
-                      <TabsTrigger value="simple">
+                  <Tabs bind:value={entryMode} class="mb-1 text-center">
+                    <TabsList onkeydown={(e) => {if (e.key === 'Enter') listModeOpen = false}}>
+                      <TabsTrigger value="simple" onclick={() => listModeOpen = false}>
                         <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
                         {$t`Simple`}
                       </TabsTrigger>
-                      <TabsTrigger value="preview">
+                      <TabsTrigger value="preview" onclick={() => listModeOpen = false}>
                         <Icon icon="i-mdi-format-list-text" class="mr-1"/>
                         {$t`Preview`}
                       </TabsTrigger>
