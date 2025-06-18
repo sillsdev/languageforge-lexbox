@@ -470,9 +470,7 @@ public class CrdtMiniLcmApi(
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
         await AddChanges(entries.ToBlockingEnumerable()
-            .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
-            //force entries to be created first, this avoids issues where references are created before the entry is created
-            .OrderBy(c => c is CreateEntryChange ? 0 : 1));
+            .SelectMany(entry => CreateEntryChanges(entry, semanticDomains)));
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
@@ -485,6 +483,10 @@ public class CrdtMiniLcmApi(
         {
             component.Order = componentOrder++;
             yield return new AddEntryComponentChange(component);
+        }
+        foreach (var complexForm in entry.ComplexForms)
+        {
+            yield return new AddEntryComponentChange(complexForm);
         }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {
