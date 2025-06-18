@@ -17,16 +17,19 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
+  import LoginButton from '$lib/auth/LoginButton.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
   const {
     syncStatus = SyncStatus.Success
   }: {syncStatus?: SyncStatus} = $props();
 
+  const projectContext = useProjectContext();
   const service = useSyncStatusService();
   const features = useFeatures();
-  let remoteStatus: IProjectSyncStatus | undefined = $state();
-  let localStatus: IPendingCommits | undefined = $state();
-  let server: ILexboxServer | undefined = $state();
+  let remoteStatus = $state<IProjectSyncStatus>();
+  let localStatus = $state<IPendingCommits>();
+  let server = $state<ILexboxServer>();
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
     { key: 'syncDialogOpen', replaceOnDefaultValue: true, allowBack: true },
@@ -136,20 +139,9 @@
     <DialogHeader>
       <DialogTitle>{$t`Synchronize`}</DialogTitle>
     </DialogHeader>
-    {#if loading}
+    <!-- remoteStatus always gets set, so it's only here for the compiler -->
+    {#if loading || !remoteStatus}
       <Loading class="place-self-center size-10" />
-    {:else if !remoteStatus}
-      {#if syncStatus === SyncStatus.Offline}
-        <div>{$t`Offline`}</div>
-      {:else if syncStatus === SyncStatus.NotLoggedIn}
-        <div>{$t`Not logged in`}</div>
-      {:else if syncStatus === SyncStatus.NoServer}
-        <div>{$t`No server configured`}</div>
-      {:else if syncStatus === SyncStatus.Success}
-        <!--  nothing-->
-      {:else}
-        <div>{$t`Error getting sync status.`}</div>
-      {/if}
     {:else}
       <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
       <div in:fade
@@ -167,20 +159,30 @@
           />
         </div>
         <div class="content-center text-center">
-          <Button
-            variant="outline"
-            class="border-primary text-primary hover:text-primary"
-            loading={loadingSyncLexboxToLocal}
-            disabled={loadingSyncLexboxToFlex}
-            onclick={syncLexboxToLocal}
-            icon="i-mdi-sync"
-            iconProps={{ class: 'size-5' }}>
-            {#if loadingSyncLexboxToLocal}
-              {$t`Synchronizing...`}
-            {:else}
-              {$t`Auto synchronizing`}
-            {/if}
-          </Button>
+          {#if syncStatus === SyncStatus.Success}
+            <Button
+              variant="outline"
+              class="border-primary text-primary hover:text-primary"
+              loading={loadingSyncLexboxToLocal}
+              disabled={loadingSyncLexboxToFlex}
+              onclick={syncLexboxToLocal}
+              icon="i-mdi-sync"
+              iconProps={{ class: 'size-5' }}>
+              {#if loadingSyncLexboxToLocal}
+                {$t`Synchronizing...`}
+              {:else}
+                {$t`Auto synchronizing`}
+              {/if}
+            </Button>
+          {:else if syncStatus === SyncStatus.Offline}
+            <div><Icon icon="i-mdi-cloud-off-outline" /> {$t`Offline`}</div>
+          {:else if syncStatus === SyncStatus.NotLoggedIn && projectContext.server}
+            <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} />
+          {:else if syncStatus === SyncStatus.NoServer || syncStatus === SyncStatus.NotLoggedIn}
+            <div>{$t`No server configured`}</div>
+          {:else}
+            <div class="text-destructive">{$t`Error getting sync status.`}</div>
+          {/if}
         </div>
         <div class="text-center content-center">
           <PingingIcon

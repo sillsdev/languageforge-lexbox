@@ -91,7 +91,7 @@ public class SyncService(
         return syncResults;
     }
 
-    public async Task<ProjectSyncStatus?> GetSyncStatus()
+    public async Task<ProjectSyncStatus> GetSyncStatus()
     {
         var project = await currentProjectService.GetProjectData();
         var server = authOptions.Value.GetServer(project);

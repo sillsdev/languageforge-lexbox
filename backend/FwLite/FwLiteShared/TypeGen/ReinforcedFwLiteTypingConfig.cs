@@ -116,6 +116,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
         builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
+        builder.ExportAsEnum<ProjectSyncStatusErrorCode>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
         builder.ExportAsEnum<UserProjectRole>().UseString();
         builder.ExportAsEnum<ProjectRole>().UseString();

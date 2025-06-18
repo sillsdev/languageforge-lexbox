@@ -3,11 +3,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum ProjectSyncStatusEnum {
-	NeverSynced = "NeverSynced",
-	ReadyToSync = "ReadyToSync",
-	Syncing = "Syncing",
-	QueuedToSync = "QueuedToSync",
+export enum ProjectSyncStatusErrorCode {
+	NotLoggedIn = "NotLoggedIn",
 	Unknown = "Unknown"
 }
 /* eslint-enable */

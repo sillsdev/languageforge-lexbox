@@ -9,7 +9,7 @@ namespace FwLiteShared.Services;
 public class SyncServiceJsInvokable(SyncService syncService)
 {
     [JSInvokable]
-    public Task<ProjectSyncStatus?> GetSyncStatus()
+    public Task<ProjectSyncStatus> GetSyncStatus()
     {
         return syncService.GetSyncStatus();
     }
