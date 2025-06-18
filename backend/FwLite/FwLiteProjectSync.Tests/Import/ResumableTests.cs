@@ -2,6 +2,7 @@ using LcmCrdt.Tests;
 using Microsoft.Extensions.Logging.Abstractions;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 using Moq;
 
 namespace FwLiteProjectSync.Tests.Import;
@@ -30,6 +31,23 @@ public class ResumableTests : IAsyncLifetime
             .Returns(MockAsyncEnumerable(expectedPartsOfSpeech));
         mockFrom.Setup(f => f.GetEntries(It.IsAny<QueryOptions>()))
             .Returns(MockAsyncEnumerable(expectedEntries));
+        mockFrom.Setup(f => f.GetPublications()).Returns(MockAsyncEnumerable([new Publication(){
+                Id = Guid.NewGuid(),
+                Name = { ["en"] = "Test Publication" },
+            }]));
+        mockFrom.Setup(f => f.GetComplexFormTypes())
+            .Returns(MockAsyncEnumerable([new ComplexFormType()
+            {
+                Id = Guid.NewGuid(),
+                Name = new(){ ["en"] = "Test Complex Form Type" }
+            }]));
+        mockFrom.Setup(f => f.GetSemanticDomains())
+            .Returns(MockAsyncEnumerable([new SemanticDomain()
+            {
+                Id = Guid.NewGuid(),
+                Name = new() { ["en"] = "Test Semantic Domain" },
+                Code = "TSD"
+            }]));
 
         var import = new MiniLcmImport(
             logger: NullLogger<MiniLcmImport>.Instance,
@@ -104,5 +122,30 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreateEntry(entry);
+    }
+    Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
+    {
+        ResumableTests.MaybeThrowRandom(random, 0.2);
+        return _api.CreateComplexFormComponent(complexFormComponent, position);
+    }
+    Task<ComplexFormType> IMiniLcmWriteApi.CreateComplexFormType(ComplexFormType complexFormType)
+    {
+        ResumableTests.MaybeThrowRandom(random, 0.2);
+        return _api.CreateComplexFormType(complexFormType);
+    }
+    Task<SemanticDomain> IMiniLcmWriteApi.CreateSemanticDomain(SemanticDomain semanticDomain)
+    {
+        ResumableTests.MaybeThrowRandom(random, 0.2);
+        return _api.CreateSemanticDomain(semanticDomain);
+    }
+    Task<Publication> IMiniLcmWriteApi.CreatePublication(Publication publication)
+    {
+        ResumableTests.MaybeThrowRandom(random, 0.2);
+        return _api.CreatePublication(publication);
+    }
+    Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystems)
+    {
+        ResumableTests.MaybeThrowRandom(random, 0.2);
+        return _api.CreateWritingSystem(writingSystems);
     }
 }

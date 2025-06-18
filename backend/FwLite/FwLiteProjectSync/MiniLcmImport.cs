@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FwDataMiniLcmBridge;
+using FwLiteProjectSync.Import;
 using Humanizer;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,7 @@ public class MiniLcmImport(
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
+        importTo = new ResumableImportApi(importTo);
         await ImportWritingSystems(importTo, importFrom);
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
