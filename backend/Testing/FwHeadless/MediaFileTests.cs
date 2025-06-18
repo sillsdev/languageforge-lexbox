@@ -41,4 +41,20 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "user");
         (files?.Files ?? []).Should().NotContain("sena-3.zip");
     }
+
+    [Fact]
+    public async Task UploadFile_WorksForProjectManagers()
+    {
+        await Fixture.PostFile("/home/rmunn/code/lexbox/data/sena-3.zip", loginAs: "manager", expectSuccess: true);
+        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "manager");
+        (files?.Files ?? []).Should().Contain("sena-3.zip");
+    }
+
+    [Fact]
+    public async Task UploadFile_WorksForProjectEditors()
+    {
+        await Fixture.PostFile("/home/rmunn/code/lexbox/data/sena-3.zip", loginAs: "editor", expectSuccess: true);
+        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "editor");
+        (files?.Files ?? []).Should().Contain("sena-3.zip");
+    }
 }
