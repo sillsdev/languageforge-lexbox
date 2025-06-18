@@ -78,7 +78,7 @@ public class CrdtMiniLcmApi(
     /// use when making a large number of changes at once
     /// </summary>
     /// <param name="changeChunks"></param>
-    private async Task AddChanges(IEnumerable<IChange[]> changeChunks)
+    private async Task AddChanges(IEnumerable<IReadOnlyCollection<IChange>> changeChunks)
     {
         AssertWritable();
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
@@ -469,8 +469,23 @@ public class CrdtMiniLcmApi(
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        await AddChanges(entries.ToBlockingEnumerable()
-            .SelectMany(entry => CreateEntryChanges(entry, semanticDomains)));
+        //we're using this change list to ensure that we partially commit in case of an error
+        //this let's us attempt an import again skipping the entries that were already imported
+        var changeList = new List<IChange>(150);
+        await foreach (var entry in entries)
+        {
+            changeList.AddRange(CreateEntryChanges(entry, semanticDomains));
+            if (changeList.Count > 100)
+            {
+                //bypass chunking in AddChanges IEnumerable by calling the version that expects a chunk
+                await AddChanges([changeList]);
+                changeList.Clear();
+            }
+        }
+        if (changeList.Count > 0)
+        {
+            await AddChanges([changeList]);
+        }
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)

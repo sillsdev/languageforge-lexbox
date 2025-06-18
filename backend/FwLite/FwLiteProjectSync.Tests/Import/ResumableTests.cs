@@ -15,8 +15,27 @@ public class ResumableTests : IAsyncLifetime
     {
         // Arrange
         var random = new Random(42); // deterministic!
-        var expectedEntries = Enumerable.Range(1, 10)
-            .Select(i => new Entry() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = $"entry{i}" } }).ToList();
+        var expectedEntries = Enumerable.Range(1, 100)
+            .Select(i => new Entry()
+            {
+                Id = Guid.NewGuid(),
+                LexemeForm = { ["en"] = $"entry{i}" },
+                Senses =
+                [
+                    new Sense()
+                    {
+                        Id = Guid.NewGuid(),
+                        Definition = { ["en"] = new($"definition{i}", "en") },
+                        ExampleSentences =
+                        [
+                            new ExampleSentence()
+                            {
+                                Id = Guid.NewGuid(), Sentence = { ["en"] = new($"example{i}", "en") }
+                            }
+                        ]
+                    }
+                ]
+            }).ToList();
         var expectedPartsOfSpeech = Enumerable.Range(1, 10)
             .Select(i => new PartOfSpeech { Id = Guid.NewGuid(), Name = { ["en"] = $"pos{i}" } }).ToList();
 
