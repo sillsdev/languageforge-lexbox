@@ -22,7 +22,7 @@ public class SyncServiceJsInvokable(SyncService syncService)
     }
 
     [JSInvokable]
-    public Task<SyncResult?> CountPendingCrdtCommits()
+    public Task<PendingCommits?> CountPendingCrdtCommits()
     {
         return syncService.CountPendingCrdtCommits();
     }

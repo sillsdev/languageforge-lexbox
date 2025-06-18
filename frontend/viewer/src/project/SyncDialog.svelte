@@ -2,7 +2,6 @@
   import { Button } from '$lib/components/ui/button';
   import { Icon, PingingIcon } from '$lib/components/ui/icon';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
-  import type { ISyncResult } from '$lib/dotnet-types/generated-types/LexCore/Sync/ISyncResult';
   import type { ILexboxServer } from '$lib/dotnet-types';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { t, plural } from 'svelte-i18n-lingui';
@@ -17,6 +16,7 @@
   import { cn } from '$lib/utils';
   import {useFeatures} from '$lib/services/feature-service';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
+  import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
 
   const {
     syncStatus = SyncStatus.Success
@@ -25,7 +25,7 @@
   const service = useSyncStatusService();
   const features = useFeatures();
   let remoteStatus: IProjectSyncStatus | undefined = $state();
-  let localStatus: ISyncResult | undefined = $state();
+  let localStatus: IPendingCommits | undefined = $state();
   let server: ILexboxServer | undefined = $state();
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
@@ -33,8 +33,8 @@
     false,
   );
 
-  let lbToLocalCount = $derived(localStatus?.fwdataChanges ?? 0);
-  let localToLbCount = $derived(localStatus?.crdtChanges ?? 0);
+  let lbToLocalCount = $derived(localStatus?.remote);
+  let localToLbCount = $derived(localStatus?.local ?? 0);
   let latestCommitDate = $state<string | undefined>(undefined);
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
@@ -172,7 +172,7 @@
           <Icon icon="i-mdi-monitor-cellphone" class="size-10" />
         </div>
         <div class="text-center content-center">
-          {lbToLocalCount}
+          {lbToLocalCount ?? '?'}
           <PingingIcon
             icon="i-mdi-arrow-up"
             ping={loadingSyncLexboxToLocal && !!lbToLocalCount}

@@ -16,6 +16,8 @@ using SIL.Harmony.Changes;
 
 namespace FwLiteShared.Sync;
 
+public record PendingCommits(int Local, int? Remote);
+
 public class SyncService(
     DataModel dataModel,
     CrdtHttpSyncService remoteSyncServiceServer,
@@ -117,19 +119,18 @@ public class SyncService(
         return authOptions.Value.GetServer(project);
     }
 
-    public async Task<SyncResult?> CountPendingCrdtCommits()
+    public async Task<PendingCommits?> CountPendingCrdtCommits()
     {
         var project = await currentProjectService.GetProjectData();
         var localSyncState = await dataModel.GetSyncState();
-        if (localSyncState is null) return null;
         var server = authOptions.Value.GetServer(project);
         var localChangesPending = CountPendingCommits(); // Not awaited yet
         var remoteChangesPending = lexboxProjectService.CountPendingCrdtCommits(server, project.Id, localSyncState); // Not awaited yet
         await Task.WhenAll(localChangesPending, remoteChangesPending);
         var localChanges = await localChangesPending;
         var remoteChanges = await remoteChangesPending;
-        if (localChanges is null || remoteChanges is null) return null;
-        return new SyncResult(localChanges ?? 0, remoteChanges ?? 0);
+        if (localChanges is null) return null;
+        return new PendingCommits(localChanges.Value, remoteChanges);
     }
 
     private void UpdateSyncStatus(SyncStatus status)

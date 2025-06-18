@@ -23,6 +23,7 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using System.Runtime.CompilerServices;
+using FwLiteShared.Sync;
 
 namespace FwLiteShared.TypeGen;
 
@@ -133,6 +134,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ServerProjects),
             typeof(SyncResult),
             typeof(SyncResults),
+            typeof(PendingCommits),
             typeof(LexboxServer),
             typeof(CrdtProject),
             typeof(ProjectData),
