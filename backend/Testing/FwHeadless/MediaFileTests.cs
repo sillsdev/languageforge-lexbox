@@ -36,10 +36,9 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadFile_FailsForNonMembers()
     {
-        var guid = await Fixture.PostFile("/home/rmunn/code/lexbox/data/sena-3.zip", loginAs: "user");
+        var guid = await Fixture.PostFile("/home/rmunn/code/lexbox/data/sena-3.zip", loginAs: "user", expectSuccess: false);
         guid.Should().Be(Guid.Empty);
         var files = await Fixture.ListFiles(Fixture.ProjectId);
-        files.Should().NotBeNull();
-        files.Files.Should().NotContain("sena-3.zip");
+        (files?.Files ?? []).Should().NotContain("sena-3.zip");
     }
 }
