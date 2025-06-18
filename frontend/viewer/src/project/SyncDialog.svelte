@@ -58,21 +58,12 @@
       let remotePromise = service.getStatus();
       let localPromise = service.getLocalStatus();
       let commitDatePromise = service.getLatestCommitDate();
-      if (!remotePromise || !localPromise) {
-        // Can only happen if the sync status service was unavailable
-        localStatus = undefined;
-        remoteStatus = undefined;
-        latestCommitDate = '';
-        server = undefined;
-        loading = false;
-      } else {
-        [localStatus, remoteStatus, latestCommitDate, server] = await Promise.all([
-          localPromise,
-          remotePromise,
-          commitDatePromise,
-          serverPromise,
-        ]);
-      }
+      [localStatus, remoteStatus, latestCommitDate, server] = await Promise.all([
+        localPromise,
+        remotePromise,
+        commitDatePromise,
+        serverPromise,
+      ]);
     } finally {
       loading = false;
     }
@@ -107,12 +98,10 @@
     lbToFlexCount = 0;
     flexToLbCount = 0;
     const statusPromise = service.getStatus();
-    if (statusPromise) {
-      // Auto-close dialog after successful FieldWorks sync
-      [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
-      if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
-        openQueryParam.current = false;
-      }
+    // Auto-close dialog after successful FieldWorks sync
+    [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
+    if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
+      openQueryParam.current = false;
     }
   }
 
@@ -131,13 +120,11 @@
       const statusPromise = service.getLocalStatus();
       const remoteStatusPromise = service.getStatus();
       const datePromise = service.getLatestCommitDate();
-      if (statusPromise && datePromise) {
-        [localStatus, remoteStatus, latestCommitDate] = await Promise.all([
-          statusPromise,
-          remoteStatusPromise,
-          datePromise,
-        ]);
-      }
+      [localStatus, remoteStatus, latestCommitDate] = await Promise.all([
+        statusPromise,
+        remoteStatusPromise,
+        datePromise,
+      ]);
     } finally {
       loadingSyncLexboxToLocal = false;
     }
