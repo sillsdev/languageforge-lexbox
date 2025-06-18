@@ -19,6 +19,8 @@
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {useProjectContext} from '$lib/project-context.svelte';
+  import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
+  import {ProjectSyncStatusErrorCode} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusErrorCode';
 
   const {
     syncStatus = SyncStatus.Success
@@ -237,8 +239,17 @@
             {$t`${serverName} - FieldWorks`}
           </span>
           <span class="text-foreground/80">
-            {$t`Last change: ${formatDate(lastFlexSyncDate)}`}
+            {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, $t`Unknown`)}`}
           </span>
+          {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
+            {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
+              {$t`Not logged in`}
+            {:else}
+              <span class="text-destructive brightness-200">
+                {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
+              </span>
+            {/if}
+          {/if}
         </div>
       </div>
     {/if}
