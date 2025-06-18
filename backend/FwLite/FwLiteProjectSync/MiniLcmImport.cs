@@ -73,10 +73,10 @@ public class MiniLcmImport(
 
         var semanticDomains = importFrom.GetSemanticDomains();
         var entries = importFrom.GetAllEntries();
-        if (importTo is CrdtMiniLcmApi crdtLexboxApi)
+        if (importTo is IMiniLcmBulkImportApi crdtLexboxApi)
         {
             logger.LogInformation("Importing semantic domains");
-            await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains.ToBlockingEnumerable());
+            await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains);
             logger.LogInformation("Importing {Count} entries", entryCount);
             await crdtLexboxApi.BulkCreateEntries(entries);
         }

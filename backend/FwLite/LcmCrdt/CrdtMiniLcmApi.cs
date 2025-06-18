@@ -29,7 +29,7 @@ public class CrdtMiniLcmApi(
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
     LcmCrdtDbContext dbContext,
-    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
+    IOptions<LcmCrdtConfig> config) : IMiniLcmApi, IMiniLcmBulkImportApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -265,12 +265,12 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await AddChange( new DeleteChange<SemanticDomain>(id));
+        await AddChange(new DeleteChange<SemanticDomain>(id));
     }
 
-    public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
+    public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        await AddChanges(semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)));
+        await AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)).ToArrayAsync());
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()

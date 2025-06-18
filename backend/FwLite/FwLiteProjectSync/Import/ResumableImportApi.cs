@@ -4,7 +4,7 @@ using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Import;
 
-public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
+public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi, IMiniLcmBulkImportApi
 {
     [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
     private readonly IMiniLcmApi _api = api;
@@ -30,6 +30,16 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
         var createdValue = await create();
         created[id] = createdValue;
         return createdValue;
+    }
+
+    private async ValueTask<Dictionary<string, object>> EnsureCached(string typeName, IAsyncEnumerable<IObjectWithId> values)
+    {
+        if (!_createdObjects.TryGetValue(typeName, out var created))
+        {
+            created = await values.ToDictionaryAsync(v => v.Id.ToString(), v => (object)v);
+            _createdObjects[typeName] = created;
+        }
+        return created;
     }
 
     // ********** Overrides go here **********
@@ -70,6 +80,35 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
         foreach (var ws in wss.Vernacular)
         {
             yield return ws;
+        }
+    }
+
+    public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
+    {
+        if (_api is IMiniLcmBulkImportApi bulkImportApi)
+        {
+            var cache = await EnsureCached(nameof(IMiniLcmApi.CreateSemanticDomain), _api.GetSemanticDomains());
+            semanticDomains = semanticDomains.Where(sd => !cache.ContainsKey(sd.Id.ToString()));
+            await bulkImportApi.BulkImportSemanticDomains(semanticDomains);
+            return;
+        }
+        await foreach (var semanticDomain in semanticDomains)
+        {
+            await ((IMiniLcmWriteApi)this).CreateSemanticDomain(semanticDomain);
+        }
+    }
+
+    public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
+    {
+        if (_api is IMiniLcmBulkImportApi bulkImportApi)
+        {
+            var cache = await EnsureCached(nameof(IMiniLcmApi.CreateEntry), _api.GetAllEntries());
+            await bulkImportApi.BulkCreateEntries(entries.Where(e => !cache.ContainsKey(e.Id.ToString())));
+            return;
+        }
+        await foreach (var entry in entries)
+        {
+            await ((IMiniLcmWriteApi)this).CreateEntry(entry);
         }
     }
 }

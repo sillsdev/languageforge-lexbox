@@ -105,6 +105,21 @@ public interface IMiniLcmSaveApi
     void Save();
 }
 
+public interface IMiniLcmBulkImportApi : IMiniLcmWriteApi
+{
+    /// <summary>
+    /// Imports the provided semantic domains in bulk.
+    /// </summary>
+    /// <param name="semanticDomains">The semantic domains to import.</param>
+    Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains);
+
+    /// <summary>
+    /// Imports the provided entries in bulk.
+    /// </summary>
+    /// <param name="entries">The entries to import.</param>
+    Task BulkCreateEntries(IAsyncEnumerable<Entry> entries);
+}
+
 /// <summary>
 /// wrapper around JsonPatchDocument that allows for fluent updates
 /// </summary>
