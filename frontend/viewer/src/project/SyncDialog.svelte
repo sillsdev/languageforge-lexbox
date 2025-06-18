@@ -239,7 +239,8 @@
             {$t`${serverName} - FieldWorks`}
           </span>
           <span class="text-foreground/80">
-            {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, $t`Unknown`)}`}
+            {$t`Last change: ${formatDate(lastFlexSyncDate, undefined,
+              remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
           </span>
           {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
             {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
