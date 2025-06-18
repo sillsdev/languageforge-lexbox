@@ -69,6 +69,16 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
         return Code;
     }
 
+    public bool Equals(WritingSystemId other)
+    {
+        return string.Equals(Code, other.Code, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public override int GetHashCode()
+    {
+        return Code.GetHashCode(StringComparison.OrdinalIgnoreCase);
+    }
+
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return Code;

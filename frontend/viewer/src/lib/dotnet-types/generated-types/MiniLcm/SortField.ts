@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 export enum SortField {
-	Headword = "Headword"
+	Headword = "Headword",
+	SearchRelevance = "SearchRelevance"
 }
 /* eslint-enable */

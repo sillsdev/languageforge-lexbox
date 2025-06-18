@@ -1,4 +1,22 @@
 ﻿Model: 
+  EntityType: EntrySearchRecord
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      CitationForm (string) Required
+      Definition (string) Required
+      Gloss (string) Required
+      Headword (string) Required
+      LexemeForm (string) Required
+    Keys: 
+      Id PK
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: EntrySearchRecord
+      Relational:ViewName: 
+      Relational:ViewSchema: 
   EntityType: ProjectData
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd

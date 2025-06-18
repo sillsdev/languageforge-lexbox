@@ -41,6 +41,11 @@ public class RichString(ICollection<RichSpan> spans) : IEquatable<RichString>
     [JsonIgnore]
     public bool IsEmpty => Spans.Count == 0 || Spans.All(s => string.IsNullOrEmpty(s.Text));
 
+    public string GetPlainText()
+    {
+        return string.Join("", Spans.Select(s => s.Text));
+    }
+
     public void EnsureWs(WritingSystemId ws)
     {
         foreach (var span in Spans)
