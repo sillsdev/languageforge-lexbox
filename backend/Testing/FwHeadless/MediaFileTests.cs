@@ -38,7 +38,7 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     {
         var guid = await Fixture.PostFile("/home/rmunn/code/lexbox/data/sena-3.zip", loginAs: "user", expectSuccess: false);
         guid.Should().Be(Guid.Empty);
-        var files = await Fixture.ListFiles(Fixture.ProjectId);
+        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "user");
         (files?.Files ?? []).Should().NotContain("sena-3.zip");
     }
 }
