@@ -1,6 +1,7 @@
 ﻿<script lang="ts" module>
   import {type Node, Schema} from 'prosemirror-model';
   import {gt} from 'svelte-i18n-lingui';
+  import {cn} from '$lib/utils';
 
   const textSchema = new Schema({
     nodes: {
@@ -15,11 +16,16 @@
         selectable: false,
         content: 'text*',
         whitespace: 'pre',
-        toDOM: (node) => ['span', {title: gt`Writing system: ${node.attrs.richSpan.ws}`}, 0],
+        toDOM: (node) => {
+          return ['span', {
+            title: gt`Writing system: ${node.attrs.richSpan.ws}`,
+            class: cn(node.attrs.className),
+          }, 0];
+        },
         parseDOM: [{tag: 'span'}],
         //richSpan is used to track the original span which was modified
         //this allows us to update the text property without having to map all the span properties into the schema
-        attrs: {richSpan: {default: {}}}
+        attrs: {richSpan: {default: {}}, className: {default: ''}}
       },
       doc: {content: 'span*', attrs: {}}
     }
@@ -49,6 +55,7 @@
 
   let {
     value = $bindable(),
+    normalWs = undefined,
     label,
     readonly = false,
     onchange = () => {},
@@ -57,6 +64,10 @@
   }:
     {
       value: IRichString | undefined,
+      /**
+       * when set, we will underline text not in this writing system
+       */
+      normalWs?: string,
       label?: string,
       readonly?: boolean,
       onchange?: (value: IRichString) => void,
@@ -164,7 +175,9 @@
     //we must pull text out of what is stored on the node attrs
     //ProseMirror will keep the text up to date itself, if we store it on the richSpan attr then it will become out of date
     let {text, ...rest} = s;
-    return textSchema.node('span', {richSpan: rest}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
+    //if the ws doesn't match expected, or there's more than just the ws key in props
+    const isCustomized = (!!normalWs && normalWs !== s.ws) || Object.keys(rest).length > 1;
+    return textSchema.node('span', {richSpan: rest, className: cn(isCustomized && 'customized')}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
   }
 
   function richSpanFromNode(node: Node) {
@@ -198,17 +211,21 @@
     editor.focus();
   }
 </script>
-<style>
+<style lang="postcss">
   :global(.ProseMirror) {
     flex-grow: 1;
     outline: none;
     cursor: text;
     /*white-space must be here, if it's directly on span then it will crash with a null node error*/
     white-space: pre-wrap;
-  }
-  :global(.ProseMirror span) {
-    border-bottom: 1px solid currentColor;
-    margin: 2px;
+
+    :global(.customized) {
+      text-decoration: underline;
+    }
+
+    :global(.customized ~ .customized) {
+      margin-left: 2px;
+    }
   }
 </style>
 

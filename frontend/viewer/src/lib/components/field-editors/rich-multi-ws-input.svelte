@@ -37,6 +37,7 @@
       <span>{ws.abbreviation}</span>
       <LcmRichTextEditor
         bind:value={value[ws.wsId]}
+        normalWs={ws.wsId}
         {readonly}
         autofocus={autofocus && (i === 0)}
         onchange={() => onRichTextChange(ws.wsId)}
