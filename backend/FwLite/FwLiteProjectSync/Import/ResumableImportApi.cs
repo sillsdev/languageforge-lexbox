@@ -8,21 +8,27 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
 {
     [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
     private readonly IMiniLcmApi _api = api;
-    private readonly Dictionary<string, Dictionary<Guid, object>> _createdObjects = new();
+    private readonly Dictionary<string, Dictionary<string, object>> _createdObjects = new();
     private async ValueTask<T> HasCreated<T>(T value, IAsyncEnumerable<T> values, Func<Task<T>> create, [CallerMemberName] string typeName = "")
         where T : class, IObjectWithId
     {
+        return await HasCreated(value, values, create, v => v.Id.ToString(), typeName);
+    }
+    private async ValueTask<T> HasCreated<T>(T value, IAsyncEnumerable<T> values, Func<Task<T>> create, Func<T, string> identity, [CallerMemberName] string typeName = "")
+        where T : class
+    {
         if (!_createdObjects.TryGetValue(typeName, out var created))
         {
-            created = await values.ToDictionaryAsync(v => v.Id, v => (object)v);
+            created = await values.ToDictionaryAsync(v => identity(v), v => (object)v);
             _createdObjects[typeName] = created;
         }
-        if (created.TryGetValue(value.Id, out var existing))
+        var id = identity(value);
+        if (created.TryGetValue(id, out var existing))
         {
             return (T)existing;
         }
         var createdValue = await create();
-        created[value.Id] = createdValue;
+        created[id] = createdValue;
         return createdValue;
     }
 
@@ -51,10 +57,10 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
     }
     async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem)
     {
-        return await HasCreated(writingSystem, AsyncWs(), () => _api.CreateWritingSystem(writingSystem));
+        return await HasCreated(writingSystem, AsyncWs(), () => _api.CreateWritingSystem(writingSystem), ws => ws.Type + ws.WsId.Code);
     }
 
-    async IAsyncEnumerable<WritingSystem> AsyncWs()
+    private async IAsyncEnumerable<WritingSystem> AsyncWs()
     {
         var wss = await _api.GetWritingSystems();
         foreach (var ws in wss.Analysis)

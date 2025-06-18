@@ -26,7 +26,27 @@ public class ResumableTests : IAsyncLifetime
             random
         );
 
-        mockFrom.Setup(f => f.GetWritingSystems()).ReturnsAsync(new WritingSystems());
+        mockFrom.Setup(f => f.GetWritingSystems()).ReturnsAsync(new WritingSystems()
+        {
+            Vernacular = [new()
+            {
+                Id = Guid.NewGuid(),
+                WsId = new() { Code = "en" },
+                Type = WritingSystemType.Vernacular,
+                Name = "English",
+                Abbreviation = "EN",
+                Font = "Arial",
+            }],
+            Analysis = [new()
+            {
+                Id = Guid.NewGuid(),
+                WsId = new() { Code = "en" },
+                Type = WritingSystemType.Analysis,
+                Name = "English",
+                Abbreviation = "EN",
+                Font = "Arial",
+            }]
+        });
         mockFrom.Setup(f => f.GetPartsOfSpeech())
             .Returns(MockAsyncEnumerable(expectedPartsOfSpeech));
         mockFrom.Setup(f => f.GetEntries(It.IsAny<QueryOptions>()))
