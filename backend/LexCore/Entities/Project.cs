@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
-using EntityFrameworkCore.Projectables;
 using LexCore.ServiceInterfaces;
+using NeinLinq;
 
 namespace LexCore.Entities;
 
@@ -30,7 +30,7 @@ public class Project : EntityBase
     public DateTimeOffset? MigratedDate { get; set; } = null;
 
     [NotMapped]
-    [Projectable(UseMemberBody = nameof(SqlUserCount))]
+    [InjectLambda(nameof(SqlUserCount))]
     public int UserCount { get; set; }
     private static Expression<Func<Project, int>> SqlUserCount => project => project.Users.Count;
 

@@ -45,6 +45,7 @@
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       <LcmRichTextEditor
         bind:value={value[ws.wsId]}
+        normalWs={ws.wsId}
         id={inputId}
         aria-labelledby="{labelledBy ?? ''} {labelId}"
         {readonly}
