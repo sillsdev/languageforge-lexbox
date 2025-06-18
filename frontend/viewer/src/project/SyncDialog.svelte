@@ -39,12 +39,12 @@
   );
 
   let lbToLocalCount = $derived(localStatus?.remote);
-  let localToLbCount = $derived(localStatus?.local ?? 0);
-  let latestCommitDate = $state<string | undefined>(undefined);
+  let localToLbCount = $derived(localStatus?.local);
+  let latestCommitDate = $state<string>();
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
-  let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
-  let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
+  let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
+  let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges);
   const serverName = $derived(server?.displayName ?? 'LexBox');
 
   watch(() => openQueryParam.current, (newValue) => {
