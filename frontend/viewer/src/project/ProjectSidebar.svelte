@@ -101,36 +101,34 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
               <SyncDialog bind:this={syncDialog} {syncStatus} />
-              <Tooltip.Provider disabled={syncStatus === SyncStatus.Success} delayDuration={300}>
-                <Tooltip.Root>
-                  <Tooltip.Trigger>
-                    <Sidebar.MenuItem>
-                      <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
-                        <div class="flex items-center gap-2">
-                          <Icon icon="i-mdi-sync"/>
-                          <span>{$t`Synchronize`}</span>
-                        </div>
-                        <div
-                          class="size-2 rounded-full"
-                          class:bg-red-500={syncStatus !== SyncStatus.Success}
-                          class:bg-green-500={syncStatus === SyncStatus.Success}
-                        ></div>
-                      </Sidebar.MenuButton>
-                    </Sidebar.MenuItem>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content align="end">
-                    {#if syncStatus === SyncStatus.Offline}
-                      <span>{$t`Offline`}</span>
-                    {:else if syncStatus === SyncStatus.NotLoggedIn}
-                      <span>{$t`Not logged in`}</span>
-                    {:else if syncStatus === SyncStatus.NoServer}
-                      <span>{$t`No server configured`}</span>
-                    {:else if syncStatus === SyncStatus.UnknownError}
-                      <span>{$t`Unknown error`}</span>
-                    {/if}
-                  </Tooltip.Content>
-                </Tooltip.Root>
-              </Tooltip.Provider>
+              <Tooltip.Root disabled={syncStatus === SyncStatus.Success}>
+                <Tooltip.Trigger>
+                  <Sidebar.MenuItem>
+                    <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
+                      <div class="flex items-center gap-2">
+                        <Icon icon="i-mdi-sync"/>
+                        <span>{$t`Synchronize`}</span>
+                      </div>
+                      <div
+                        class="size-2 rounded-full"
+                        class:bg-red-500={syncStatus !== SyncStatus.Success}
+                        class:bg-green-500={syncStatus === SyncStatus.Success}
+                      ></div>
+                    </Sidebar.MenuButton>
+                  </Sidebar.MenuItem>
+                </Tooltip.Trigger>
+                <Tooltip.Content align="end">
+                  {#if syncStatus === SyncStatus.Offline}
+                    <span>{$t`Offline`}</span>
+                  {:else if syncStatus === SyncStatus.NotLoggedIn}
+                    <span>{$t`Not logged in`}</span>
+                  {:else if syncStatus === SyncStatus.NoServer}
+                    <span>{$t`No server configured`}</span>
+                  {:else if syncStatus === SyncStatus.UnknownError}
+                    <span>{$t`Unknown error`}</span>
+                  {/if}
+                </Tooltip.Content>
+              </Tooltip.Root>
             <DevContent>
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton>
