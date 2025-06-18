@@ -19,10 +19,7 @@
         toDOM: (node) => {
           return ['span', {
             title: gt`Writing system: ${node.attrs.richSpan.ws}`,
-            class: cn(
-              'm-[2px]',
-              node.attrs.className
-            )
+            class: cn(node.attrs.className),
           }, 0];
         },
         parseDOM: [{tag: 'span'}],
@@ -179,8 +176,8 @@
     //ProseMirror will keep the text up to date itself, if we store it on the richSpan attr then it will become out of date
     let {text, ...rest} = s;
     //if the ws doesn't match expected, or there's more than just the ws key in props
-    const underline = (!!normalWs && normalWs !== s.ws) || Object.keys(rest).length > 1;
-    return textSchema.node('span', {richSpan: rest, className: underline ? 'underline' : ''}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
+    const isCustomized = (!!normalWs && normalWs !== s.ws) || Object.keys(rest).length > 1;
+    return textSchema.node('span', {richSpan: rest, className: cn(isCustomized && 'customized')}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
   }
 
   function richSpanFromNode(node: Node) {
@@ -214,13 +211,21 @@
     editor.focus();
   }
 </script>
-<style>
+<style lang="postcss">
   :global(.ProseMirror) {
     flex-grow: 1;
     outline: none;
     cursor: text;
     /*white-space must be here, if it's directly on span then it will crash with a null node error*/
     white-space: pre-wrap;
+
+    :global(.customized) {
+      text-decoration: underline;
+    }
+
+    :global(.customized ~ .customized) {
+      margin-left: 2px;
+    }
   }
 </style>
 
