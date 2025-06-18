@@ -147,7 +147,7 @@
     {:else}
       <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
       <div in:fade
-        class="grid grid-rows-5 grid-cols-[1fr_7fr_1fr] gap-y-4 gap-x-8"
+        class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8"
       >
         <div class="col-span-full text-center">
           <Icon icon="i-mdi-monitor-cellphone" class="size-10" />
