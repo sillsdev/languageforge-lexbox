@@ -26,7 +26,7 @@
   const features = useFeatures();
   const stats = useProjectStats();
   const projectEventBus = useProjectEventBus();
-  let syncStatus = $state<SyncStatus|undefined>();
+  let syncStatus = $state<SyncStatus>();
   projectEventBus.onSync(e => syncStatus = e.status);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
@@ -113,6 +113,8 @@
                         <span>{$t`No server configured`}</span>
                       {:else if syncStatus === SyncStatus.UnknownError}
                         <span>{$t`Unknown error`}</span>
+                      {:else}
+                        <span>{$t`Error getting sync status`}</span>
                       {/if}
                     {/snippet}
                     <div class="flex items-center gap-2">
