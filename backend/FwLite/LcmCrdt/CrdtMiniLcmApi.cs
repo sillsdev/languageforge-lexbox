@@ -88,6 +88,7 @@ public class CrdtMiniLcmApi(
         {
             await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
         }
+
         await dataModel.FlushDeferredCommits();
         await transaction.CommitAsync();
     }
@@ -474,11 +475,13 @@ public class CrdtMiniLcmApi(
         //we're using this change list to ensure that we partially commit in case of an error
         //this lets us attempt an import again skipping the entries that were already imported
         var changeList = new List<IChange>(1300);
+        var createdEntryIds = await Entries.Select(e => e.Id).ToAsyncEnumerable().ToHashSetAsync();
         int entryCount = 0;
         await foreach (var entry in entries)
         {
             entryCount++;
-            changeList.AddRange(CreateEntryChanges(entry, semanticDomains));
+            changeList.AddRange(CreateEntryChanges(entry, semanticDomains, createdEntryIds));
+            createdEntryIds.Add(entry.Id);
             if (changeList.Count > 1000)
             {
                 await AddChanges(changeList);
@@ -492,19 +495,24 @@ public class CrdtMiniLcmApi(
         }
     }
 
-    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
+    private IEnumerable<IChange> CreateEntryChanges(Entry entry,
+        Dictionary<Guid, SemanticDomain> semanticDomains,
+        HashSet<Guid> createdEntryIds)
     {
         yield return new CreateEntryChange(entry);
 
-        //only add components, if we add both components and complex forms we'll get duplicates when importing data
         var componentOrder = 1;
         foreach (var component in entry.Components)
         {
+            //only add components if the component entry was created already, otherwise it will be added when the component entry is created
+            if (!createdEntryIds.Contains(component.ComponentEntryId)) continue;
             component.Order = componentOrder++;
             yield return new AddEntryComponentChange(component);
         }
         foreach (var complexForm in entry.ComplexForms)
         {
+            //only add complex forms if the complex form entry was created already, otherwise it will be added when the complex form entry is created
+            if (!createdEntryIds.Contains(complexForm.ComplexFormEntryId)) continue;
             yield return new AddEntryComponentChange(complexForm);
         }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
