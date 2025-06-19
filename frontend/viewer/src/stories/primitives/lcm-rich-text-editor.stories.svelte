@@ -12,7 +12,7 @@
   const originalRichString: IRichString = {
     spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
   };
-  let richString: { current: IRichString | undefined } = $state({
+  const richString: { current: IRichString | undefined } = $state({
     current: originalRichString,
   });
 
@@ -23,9 +23,7 @@
     parameters: {
       fwlite: {
         showValue: true,
-        value() {
-          return richString;
-        },
+        value: () => richString.current
       } satisfies FwliteStoryParameters,
     },
   });
@@ -37,7 +35,7 @@
   {#snippet template(args)}
     <div class="space-y-4">
       <LcmRichTextEditor label="Rich Text Editor" bind:value={richString.current} {readonly}
-        onchange={() => args.value = richString = JSON.parse(JSON.stringify($state.snapshot(richString)))} />
+        onchange={() => args.value = richString.current = JSON.parse(JSON.stringify($state.snapshot(richString.current)))} />
       <div class="flex gap-2 items-center">
         <Button onclick={() => richString.current = {spans: [{text: 'test', ws: 'en'}]}}>Replace Rich Text</Button>
         <Button onclick={() => richString.current = undefined}>Set undefined</Button>

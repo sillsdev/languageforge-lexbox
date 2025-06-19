@@ -26,6 +26,8 @@
   import {setupServiceProvider} from '$lib/services/service-provider';
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
   import {XButton} from '$lib/components/ui/button';
+  import {extract} from 'runed';
+
 
   let { children }: { children: Snippet } = $props();
 
@@ -43,7 +45,7 @@
     value: paramValue,
   } = storyContext.parameters.fwlite ?? {};
 
-  const value = $derived(paramValue ?? storyContext.parameters.fwlite?.value ?? storyContext.args?.value);
+  const value = $derived(extract(paramValue ?? storyContext.parameters.fwlite?.value ?? storyContext.args?.value));
 
   export const lineSeparator = '\u2028';
 
