@@ -58,6 +58,10 @@
       <ProjectReference Include="..\..\..\csharp\chorus\src\LibChorus\LibChorus.csproj" /> -->
   </ItemGroup>
   <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
     <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
     <Content Include="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
