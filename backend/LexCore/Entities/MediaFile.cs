@@ -32,14 +32,14 @@ public class MediaFile : EntityBase
 
 public class FileMetadata
 {
-    public string? Filename;
-    public string? Sha256Hash; // Used for EntityTag / ETag headers, among other things
-    public int? SizeInBytes;
-    public string? FileFormat; // TODO: Define strings we might use here, or else switch to MimeType
-    public string? MimeType;
-    public string? Author;
-    public DateTimeOffset? UploadDate;
-    public MediaFileLicense? License;
+    public string? Filename { get; set; }
+    public string? Sha256Hash { get; set; } // Used for EntityTag / ETag headers, among other things
+    public int? SizeInBytes { get; set; }
+    public string? FileFormat { get; set; } // TODO: Define strings we might use here, or else switch to MimeType
+    public string? MimeType { get; set; }
+    public string? Author { get; set; }
+    public DateTimeOffset? UploadDate { get; set; }
+    public MediaFileLicense? License { get; set; }
     // TODO: Add other optional properties like purpose, transcript, etc.
 
     public void Merge(FileMetadata other)
