@@ -12,6 +12,7 @@ using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
@@ -29,7 +30,8 @@ public class CrdtMiniLcmApi(
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
     LcmCrdtDbContext dbContext,
-    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
+    IOptions<LcmCrdtConfig> config,
+    ILogger<CrdtMiniLcmApi> logger) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -470,21 +472,23 @@ public class CrdtMiniLcmApi(
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
         //we're using this change list to ensure that we partially commit in case of an error
-        //this let's us attempt an import again skipping the entries that were already imported
-        var changeList = new List<IChange>(150);
+        //this lets us attempt an import again skipping the entries that were already imported
+        var changeList = new List<IChange>(1300);
+        int entryCount = 0;
         await foreach (var entry in entries)
         {
+            entryCount++;
             changeList.AddRange(CreateEntryChanges(entry, semanticDomains));
-            if (changeList.Count > 100)
+            if (changeList.Count > 1000)
             {
-                //bypass chunking in AddChanges IEnumerable by calling the version that expects a chunk
-                await AddChanges([changeList]);
+                await AddChanges(changeList);
                 changeList.Clear();
+                logger.LogInformation("Added {Count} entries so far", entryCount);
             }
         }
         if (changeList.Count > 0)
         {
-            await AddChanges([changeList]);
+            await AddChanges(changeList);
         }
     }
 

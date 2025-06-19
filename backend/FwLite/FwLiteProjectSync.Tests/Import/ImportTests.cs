@@ -72,7 +72,8 @@ public class ImportTests : IClassFixture<SyncFixture>
         await _fixture.FwDataApi.CreateWritingSystem(ws);
         await ImportService.ImportProject(_fixture.CrdtApi, _fixture.FwDataApi, 1);
         var importedWritingSystems = await _fixture.CrdtApi.GetWritingSystems();
-        importedWritingSystems.Vernacular.Should().ContainEquivalentOf(ws, c => c.Excluding(w => w.Id));
+        var importedWritingSystem = importedWritingSystems.Vernacular.SingleOrDefault(vws => vws.WsId == ws.WsId);
+        importedWritingSystem.Should().BeEquivalentTo(ws);
     }
 
     [Fact]
