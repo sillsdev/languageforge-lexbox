@@ -1,15 +1,27 @@
 ﻿<script lang="ts">
   import {AppNotification} from './notifications';
-  import {Notification, Icon, Collapse} from 'svelte-ux';
-  import {
-    mdiAlert,
-    mdiAlertCircleOutline,
-    mdiCheckCircleOutline,
-    mdiInformationOutline
-  } from '@mdi/js';
+  import {Collapse, Icon, Notification} from 'svelte-ux';
+  import {mdiAlert, mdiAlertCircleOutline, mdiCheckCircleOutline, mdiInformationOutline} from '@mdi/js';
   import {Button} from '$lib/components/ui/button';
+  import {useEventBus} from '$lib/services/event-bus';
+  import type {IAppUpdateEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IAppUpdateEvent';
+  import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
+  import {onDestroy} from 'svelte';
+  import {UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate/UpdateResult';
 
   const notifications = AppNotification.notifications;
+
+  const eventBus = useEventBus();
+  onDestroy(eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
+    if (event.result == UpdateResult.ManualUpdateRequired) {
+      AppNotification.displayAction('A new version of FieldWorks lite is available.', 'info', {
+        callback: () => {
+          window.open('https://lexbox.org/fw-lite', '_blank');
+        },
+        label: 'Download'
+      });
+    }
+  }));
 </script>
 {#if $notifications.length}
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 p-4 min-w-[min(400px,100%)] overflow-y-auto overflow-x-hidden">

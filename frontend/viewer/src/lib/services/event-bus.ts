@@ -52,6 +52,14 @@ export class EventBus {
     return () => this._onEvent.delete(callback);
   }
 
+  public onEventType<T>(type: FwEventType, callback: (event: T) => void): () => void {
+    return this.onEvent((event: IFwEvent) => {
+      if (event.type === type) {
+        callback(event as T);
+      }
+    });
+  }
+
   public notifyEntryUpdated(entry: IEntry) {
     console.error('notifyEntryUpdated, no longer supported', entry);
   }
