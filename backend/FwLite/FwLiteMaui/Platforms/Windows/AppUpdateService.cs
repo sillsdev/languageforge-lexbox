@@ -34,9 +34,6 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         }
     }
 
-    public UpdateRequest UpdateRequest { get; } = new(AppVersion.Version, FwLiteEdition.Windows);
-
-
     private async Task Test()
     {
         logger.LogInformation("Testing update notifications");

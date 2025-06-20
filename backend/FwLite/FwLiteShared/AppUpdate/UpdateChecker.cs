@@ -4,40 +4,30 @@ using FwLiteShared.Events;
 using LexCore.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FwLiteShared.AppUpdate;
 
 public class UpdateChecker(
     IHttpClientFactory httpClientFactory,
-    ILogger logger,
+    ILogger<UpdateChecker> logger,
+    IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
     IPlatformUpdateService? platformUpdateServicesOptional = null): BackgroundService
 {
-    private const string FwliteUpdateUrlEnvVar = "FWLITE_UPDATE_URL";
-    private const string ForceUpdateCheckEnvVar = "FWLITE_FORCE_UPDATE_CHECK";
-    private const string PreventUpdateCheckEnvVar = "FWLITE_PREVENT_UPDATE";
-
-    private static readonly FrozenSet<string> ValidPositiveEnvVarValues =
-        FrozenSet.Create(StringComparer.OrdinalIgnoreCase, ["1", "true", "yes"]);
     private IPlatformUpdateService PlatformUpdateService =>
         platformUpdateServicesOptional ?? throw new InvalidOperationException("Platform update services not set");
-
-    public static string GetUpdateUrl(UpdateRequest request)
-    {
-        return Environment.GetEnvironmentVariable(FwliteUpdateUrlEnvVar) ??
-               $"https://lexbox.org/api/fwlite-release/should-update?appVersion={request.AppVersion}&edition={request.Edition}";
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (platformUpdateServicesOptional is null) return;
-        await TryUpdate(PlatformUpdateService.UpdateRequest);
+        await TryUpdate();
     }
 
-    public async Task TryUpdate(UpdateRequest request, bool forceCheck = false)
+    public async Task TryUpdate(bool forceCheck = false)
     {
         if (!ShouldCheckForUpdate() && !forceCheck) return;
-        var response = await ShouldUpdateAsync(request);
+        var response = await ShouldUpdateAsync();
 
         PlatformUpdateService.LastUpdateCheck = (DateTime.UtcNow);
         if (!response.Update) return;
@@ -63,14 +53,14 @@ public class UpdateChecker(
 
     private bool ShouldCheckForUpdate()
     {
-        if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(PreventUpdateCheckEnvVar) ?? ""))
+        if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Never)
         {
-            logger.LogInformation("Update check prevented by env var {EnvVar}", PreventUpdateCheckEnvVar);
+            logger.LogInformation("Update check prevented by configuration");
             return false;
         }
-        if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(ForceUpdateCheckEnvVar) ?? ""))
+        if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Always)
         {
-            logger.LogInformation("Should check for update based on env var {EnvVar}", ForceUpdateCheckEnvVar);
+            logger.LogInformation("Update check forced by configuration");
             return true;
         }
 
@@ -83,7 +73,7 @@ public class UpdateChecker(
             return true;
         }
 
-        if (timeSinceLastCheck.TotalHours < 8)
+        if (timeSinceLastCheck < config.Value.UpdateCheckInterval)
         {
             logger.LogInformation("Should not check for update, because last check was too recent: {LastCheck}",
                 lastChecked);
@@ -99,15 +89,15 @@ public class UpdateChecker(
         return PlatformUpdateService.IsOnMeteredConnection();
     }
 
-    private async Task<ShouldUpdateResponse> ShouldUpdateAsync(UpdateRequest request)
+    private async Task<ShouldUpdateResponse> ShouldUpdateAsync()
     {
         try
         {
             var response = await httpClientFactory
                 .CreateClient("Lexbox")
-                .SendAsync(new HttpRequestMessage(HttpMethod.Get, GetUpdateUrl(request))
+                .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
                 {
-                    Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{request.AppVersion}" } }
+                    Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
                 });
             if (!response.IsSuccessStatusCode)
             {

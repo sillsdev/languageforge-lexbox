@@ -3,10 +3,8 @@ using LexCore.Entities;
 
 namespace FwLiteShared.AppUpdate;
 
-public record UpdateRequest(string AppVersion, FwLiteEdition Edition);
 public interface IPlatformUpdateService
 {
-    UpdateRequest UpdateRequest { get; }
     DateTime LastUpdateCheck { get; set; }
     bool IsOnMeteredConnection();
     bool SupportsAutoUpdate { get; }
