@@ -29,6 +29,9 @@
     "tests/**/*.ts",
     "tests/**/*.js",
     "tests/**/*.svelte",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.js",
+    ".storybook/**/*.svelte",
   ],
   "references": [{ "path": "./tsconfig.node.json" }],
 }
