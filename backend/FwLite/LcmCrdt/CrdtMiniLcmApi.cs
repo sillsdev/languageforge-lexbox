@@ -12,6 +12,7 @@ using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
@@ -29,7 +30,8 @@ public class CrdtMiniLcmApi(
     IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
     LcmCrdtDbContext dbContext,
-    IOptions<LcmCrdtConfig> config) : IMiniLcmApi
+    IOptions<LcmCrdtConfig> config,
+    ILogger<CrdtMiniLcmApi> logger) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -78,7 +80,7 @@ public class CrdtMiniLcmApi(
     /// use when making a large number of changes at once
     /// </summary>
     /// <param name="changeChunks"></param>
-    private async Task AddChanges(IEnumerable<IChange[]> changeChunks)
+    private async Task AddChanges(IEnumerable<IReadOnlyCollection<IChange>> changeChunks)
     {
         AssertWritable();
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
@@ -86,6 +88,7 @@ public class CrdtMiniLcmApi(
         {
             await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
         }
+
         await dataModel.FlushDeferredCommits();
         await transaction.CommitAsync();
     }
@@ -265,12 +268,12 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await AddChange( new DeleteChange<SemanticDomain>(id));
+        await AddChange(new DeleteChange<SemanticDomain>(id));
     }
 
-    public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
+    public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        await AddChanges(semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)));
+        await AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)).ToArrayAsync());
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -469,22 +472,48 @@ public class CrdtMiniLcmApi(
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
-        await AddChanges(entries.ToBlockingEnumerable()
-            .SelectMany(entry => CreateEntryChanges(entry, semanticDomains))
-            //force entries to be created first, this avoids issues where references are created before the entry is created
-            .OrderBy(c => c is CreateEntryChange ? 0 : 1));
+        //we're using this change list to ensure that we partially commit in case of an error
+        //this lets us attempt an import again skipping the entries that were already imported
+        var changeList = new List<IChange>(1300);
+        var createdEntryIds = await Entries.Select(e => e.Id).ToAsyncEnumerable().ToHashSetAsync();
+        int entryCount = 0;
+        await foreach (var entry in entries)
+        {
+            entryCount++;
+            changeList.AddRange(CreateEntryChanges(entry, semanticDomains, createdEntryIds));
+            createdEntryIds.Add(entry.Id);
+            if (changeList.Count > 1000)
+            {
+                await AddChanges(changeList);
+                changeList.Clear();
+                logger.LogInformation("Added {Count} entries so far", entryCount);
+            }
+        }
+        if (changeList.Count > 0)
+        {
+            await AddChanges(changeList);
+        }
     }
 
-    private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains)
+    private IEnumerable<IChange> CreateEntryChanges(Entry entry,
+        Dictionary<Guid, SemanticDomain> semanticDomains,
+        HashSet<Guid> createdEntryIds)
     {
         yield return new CreateEntryChange(entry);
 
-        //only add components, if we add both components and complex forms we'll get duplicates when importing data
         var componentOrder = 1;
         foreach (var component in entry.Components)
         {
+            //only add components if the component entry was created already, otherwise it will be added when the component entry is created
+            if (!createdEntryIds.Contains(component.ComponentEntryId)) continue;
             component.Order = componentOrder++;
             yield return new AddEntryComponentChange(component);
+        }
+        foreach (var complexForm in entry.ComplexForms)
+        {
+            //only add complex forms if the complex form entry was created already, otherwise it will be added when the complex form entry is created
+            if (!createdEntryIds.Contains(complexForm.ComplexFormEntryId)) continue;
+            yield return new AddEntryComponentChange(complexForm);
         }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {

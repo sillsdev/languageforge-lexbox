@@ -23,7 +23,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     public async Task<DryRunSyncResult> SyncDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi)
     {
-        return (DryRunSyncResult) await Sync(crdtApi, fwdataApi, true);
+        return (DryRunSyncResult)await Sync(crdtApi, fwdataApi, true);
     }
 
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
@@ -143,5 +143,12 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         var projectPath = project.ProjectsPath;
         var snapshotPath = Path.Combine(projectPath, $"{project.Name}_snapshot.json");
         return snapshotPath;
+    }
+
+    public static bool HasSyncedSuccessfully(FwDataProject project)
+    {
+        var snapshotPath = SnapshotPath(project);
+        if (!File.Exists(snapshotPath)) return false;
+        return new FileInfo(snapshotPath).Length > 0;
     }
 }

@@ -41,8 +41,8 @@ public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelf
         Sense? componentSense = null;
         if (ComponentSenseId is not null)
             componentSense = await context.GetCurrent<Sense>(ComponentSenseId.Value);
-        var shouldBeDeleted = (complexFormEntry?.DeletedAt is not null ||
-                               componentEntry?.DeletedAt is not null ||
+        var shouldBeDeleted = (complexFormEntry is null or {DeletedAt: not null } ||
+                               componentEntry is null or { DeletedAt: not null } ||
                                (ComponentSenseId.HasValue && componentSense?.DeletedAt is not null));
         var component = new ComplexFormComponent
         {

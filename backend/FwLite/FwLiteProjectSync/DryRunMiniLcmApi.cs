@@ -297,4 +297,10 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(RemovePublication), $"Remove publication {publicationId} from entry {entryId}"));
         return Task.CompletedTask;
     }
+
+    //this is now called to this method from the ResumableImportApi, but calling GetEntries will fail because there's no writing systems
+    IAsyncEnumerable<Entry> IMiniLcmReadApi.GetEntries(QueryOptions? options)
+    {
+        return AsyncEnumerable.Empty<Entry>();
+    }
 }
