@@ -70,14 +70,10 @@ public class MiniLcmImport(
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
         }
 
-
-        var semanticDomains = importFrom.GetSemanticDomains();
-        var entries = importFrom.GetAllEntries();
-
         logger.LogInformation("Importing semantic domains");
-        await importTo.BulkImportSemanticDomains(semanticDomains);
+        await importTo.BulkImportSemanticDomains(importFrom.GetSemanticDomains());
         logger.LogInformation("Importing {Count} entries", entryCount);
-        await importTo.BulkCreateEntries(entries);
+        await importTo.BulkCreateEntries(importFrom.GetAllEntries());
 
 
         activity?.SetTag("app.import.entries", entryCount);

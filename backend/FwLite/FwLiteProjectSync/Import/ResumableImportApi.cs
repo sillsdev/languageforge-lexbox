@@ -93,6 +93,8 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
     async Task IMiniLcmWriteApi.BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
         var cache = await EnsureCached(nameof(IMiniLcmApi.CreateEntry), _api.GetAllEntries());
-        await _api.BulkCreateEntries(entries.Where(e => !cache.ContainsKey(e.Id.ToString())));
+        // Filter out entries, then call to Array so that if the LCM cache gets disposed during a long-running import, we already have the entries in memory.
+        var list = await entries.Where(e => !cache.ContainsKey(e.Id.ToString())).ToArrayAsync();
+        await _api.BulkCreateEntries(list.ToAsyncEnumerable());
     }
 }
