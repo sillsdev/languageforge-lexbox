@@ -87,9 +87,9 @@ public static class MediaFileController
 
     [HttpPost]
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
+        [FromQuery] Guid projectId,
         [FromForm] Guid? fileId,
-        [FromForm] Guid projectId,
-        [FromForm] string filename,
+        [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm(Name = "metadata")] string? metadataJson,
         [FromForm] FileMetadata? metadataObj,
@@ -127,6 +127,7 @@ public static class MediaFileController
         if (metadata is null)
         {
             metadata = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
+            metadata ??= new FileMetadata();
         }
         else
         {
@@ -145,6 +146,9 @@ public static class MediaFileController
             {
                 return TypedResults.BadRequest(FileUploadErrorMessage.ProjectIdRequiredForNewFiles);
             }
+            // If no filename specified in form, get it from uploaded file
+            if (string.IsNullOrEmpty(filename)) filename = file.FileName;
+            // If *still* no filename, then return error because we need *some* filename in order to store it
             if (string.IsNullOrEmpty(filename))
             {
                 return TypedResults.BadRequest(FileUploadErrorMessage.FilenameRequiredForNewFiles);
@@ -183,7 +187,6 @@ public static class MediaFileController
             return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless);
         }
         var filePath = Path.Join(projectFolder, filename);
-        mediaFile.Metadata ??= new FileMetadata(); // TODO: Check this
         mediaFile.Metadata.Filename = filename;
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
         var readStream = file.OpenReadStream();
