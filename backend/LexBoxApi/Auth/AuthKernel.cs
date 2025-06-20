@@ -5,6 +5,7 @@ using System.Text;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Controllers;
+using LexBoxApi.Proxies;
 using LexCore.Auth;
 using LexData;
 using LexSyncReverseProxy;
@@ -45,6 +46,8 @@ public static class AuthKernel
         services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
         services.AddSingleton<IAuthorizationHandler, FeatureFlagRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, UploadFileRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, DownloadFileRequirementHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.
@@ -65,6 +68,25 @@ public static class AuthKernel
                     policyBuilder.RequireAuthenticatedUser()
                         .AddRequirements(
                             new UserHasAccessToProjectRequirement(),
+                            new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
+                        );
+                });
+
+            options.AddPolicy(FileUploadProxy.UserCanDownloadMediaFilesPolicy,
+                builder =>
+                {
+                    builder.RequireAuthenticatedUser()
+                        .AddRequirements(
+                            new UserCanDownloadMediaFilesRequirement(),
+                            new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
+                        );
+                });
+            options.AddPolicy(FileUploadProxy.UserCanUploadMediaFilesPolicy,
+                builder =>
+                {
+                    builder.RequireAuthenticatedUser()
+                        .AddRequirements(
+                            new UserCanUploadMediaFilesRequirement(),
                             new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
                         );
                 });

@@ -53,8 +53,13 @@
     <ProjectReference Include="..\LexCore\LexCore.csproj" />
     <ProjectReference Include="..\LexData\LexData.csproj" />
     <ProjectReference Include="..\FixFwData\FixFwData.csproj" />
+    <ProjectReference Include="..\FwHeadless\FwHeadless.csproj" />
     <!-- <ProjectReference Include="../../../csharp/flexbridge/src/LfMergeBridge/LfMergeBridge.csproj" />
       <ProjectReference Include="..\..\..\csharp\chorus\src\LibChorus\LibChorus.csproj" /> -->
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
