@@ -15,9 +15,9 @@ public class MediaFileEntityConfiguration : IEntityTypeConfiguration<MediaFile>
         builder.HasOne<Project>().WithMany()
             .HasPrincipalKey(project => project.Id)
             .HasForeignKey(c => c.ProjectId);
-        var jsonOptions = new JsonSerializerOptions
+        var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
         builder.Property(u => u.Metadata)
             .IsRequired(false)

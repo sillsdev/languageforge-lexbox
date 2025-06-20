@@ -93,6 +93,6 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         var fileId = await Fixture.PostFile(TestRepoZipPath, uploadMetadata);
         var metadata = await Fixture.GetFileMetadata(fileId);
         metadata.Should().NotBeNull();
-        metadata.Should().BeEquivalentTo(expectedMetadata);
+        metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
     }
 }

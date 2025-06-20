@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
+using System.Text.Json;
 
 namespace FwHeadless.Controllers;
 
@@ -74,12 +75,13 @@ public static class MediaFileController
         [FromForm] Guid? projectId,
         [FromForm] string? filename,
         [FromForm] IFormFile file,
-        [FromForm] FileMetadata? metadata,
+        [FromForm(Name = "metadata")] string? metadataJson,
+        [FromForm] FileMetadata? metadataObj,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: false, returnCreatedOnSuccess: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: false, returnCreatedOnSuccess: false);
         return result;
     }
 
@@ -89,12 +91,13 @@ public static class MediaFileController
         [FromForm] Guid projectId,
         [FromForm] string filename,
         [FromForm] IFormFile file,
-        [FromForm] FileMetadata? metadata,
+        [FromForm(Name = "metadata")] string? metadataJson,
+        [FromForm] FileMetadata? metadataObj,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: true, returnCreatedOnSuccess: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: true, returnCreatedOnSuccess: true);
         return result;
     }
 
@@ -104,12 +107,14 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
+        string? metadataJson,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
         bool newFilesAllowed,
         bool returnCreatedOnSuccess)
     {
+        // TODO: Consider handling PUT replacing existing file and not specifying filename, don't think that's working correctly right now
         bool replacedExistingFile = false;
         // Sanity check: reject ridiculously large uploads before doing any work
         var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
@@ -119,7 +124,16 @@ public static class MediaFileController
             return TypedResults.Problem(statusCode: 413, detail: detail);
         }
         if (fileId is null) fileId = Guid.NewGuid();
-        if (metadata is null) metadata = new FileMetadata() { Filename = filename, SizeInBytes = 0 };
+        if (metadata is null)
+        {
+            metadata = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
+        }
+        else
+        {
+            var fromJson = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
+            if (fromJson is not null) metadata.Merge(fromJson);
+        }
+        // TODO: Now handle filename
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null && !newFilesAllowed)
         {
@@ -153,12 +167,13 @@ public static class MediaFileController
                 return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects);
             }
             filename ??= mediaFile.Filename;
+            // metadata.Filename ??= filename; // TODO: Try test without this line and see if it fails but this line fixes it
             if (filename != mediaFile.Filename)
             {
                 return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeRenamed);
             }
-            if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
-            else mediaFile.Metadata.Merge(metadata);
+            if (mediaFile.Metadata is null) mediaFile.Metadata = metadata ?? new FileMetadata();
+            else mediaFile.Metadata.Merge(metadata ?? new FileMetadata());
         }
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
@@ -168,6 +183,7 @@ public static class MediaFileController
             return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless);
         }
         var filePath = Path.Join(projectFolder, filename);
+        mediaFile.Metadata ??= new FileMetadata(); // TODO: Check this
         mediaFile.Metadata.Filename = filename;
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
         var readStream = file.OpenReadStream();

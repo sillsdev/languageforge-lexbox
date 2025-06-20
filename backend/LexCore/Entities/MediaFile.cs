@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace LexCore.Entities;
 
@@ -54,6 +55,7 @@ public class FileMetadata
     }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum MediaFileLicense
 {
     CreativeCommons,
