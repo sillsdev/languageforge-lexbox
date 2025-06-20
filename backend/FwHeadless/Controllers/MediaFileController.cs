@@ -132,7 +132,14 @@ public static class MediaFileController
         else
         {
             var fromJson = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
+            // If JSON should override form fields, then...
             if (fromJson is not null) metadata.Merge(fromJson);
+            // If form fields should override JSON, then...
+            // if (fromJson is not null)
+            // {
+            //     fromJson.Merge(metadata);
+            //     metadata = fromJson;
+            // }
         }
         // TODO: Now handle filename
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
