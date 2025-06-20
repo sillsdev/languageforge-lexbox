@@ -10,7 +10,12 @@
   - changed-files:
       - any-glob-to-any-file:
         - 'backend/FwLite/FwHeadless/**'
+        - 'hgweb/**'
+        - 'deployment/**'
       - all-globs-to-any-file:
-        - '**'
+        - 'backend/**'
         - '!backend/FwLite/**'
+      - all-globs-to-any-file:
+        - 'frontend/**'
         - '!frontend/viewer/**'
+        - '!frontend/platform.bible-extension/**'
