@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using FwLiteMaui.Services;
 using FwLiteShared;
+using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +15,9 @@ public static class WindowsKernel
     public static void AddFwLiteWindows(this IServiceCollection services, IHostEnvironment environment)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
-        services.AddSingleton<IMauiInitializeService, AppUpdateService>();
+        services.AddSingleton<AppUpdateService>();
+        services.AddSingleton<IMauiInitializeService>(s => s.GetRequiredService<AppUpdateService>());
+        services.AddSingleton<IPlatformUpdateService>(s => s.GetRequiredService<AppUpdateService>());
         services.AddSingleton<IMultiWindowService, WindowsMultiWindowService>();
         if (!FwLiteMauiKernel.IsPortableApp)
         {

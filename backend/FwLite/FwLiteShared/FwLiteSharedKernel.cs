@@ -1,4 +1,5 @@
 using System.Net;
+using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
@@ -38,6 +39,8 @@ public static class FwLiteSharedKernel
 
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
+        services.AddSingleton<UpdateChecker>();
+        services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>();
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>
