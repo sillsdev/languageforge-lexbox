@@ -16,7 +16,7 @@ namespace Testing.FwHeadless;
 public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
 {
     private MediaFileTestFixture Fixture { get; init; }
-    private FileInfo TestRepoZip = IntegrationFixture.TemplateRepoZip;
+    private readonly FileInfo TestRepoZip = IntegrationFixture.TemplateRepoZip;
     private string TestRepoZipFilename => TestRepoZip.Name;
     private string TestRepoZipPath => TestRepoZip.FullName;
 
@@ -90,9 +90,111 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
             Author = uploadMetadata.Author,
             License = uploadMetadata.License,
         };
-        var fileId = await Fixture.PostFile(TestRepoZipPath, uploadMetadata);
+        var fileId = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata);
         var metadata = await Fixture.GetFileMetadata(fileId);
         metadata.Should().NotBeNull();
         metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
     }
+
+    // Filename handling rules:
+    //
+    // 1. If a filename is provided but no file ID (e.g. POST), project ID will be searched for file with same filename (case-SENSITIVE search).
+    //    If found, then that file ID will be used (e.g. the uploaded file replaced the current file).
+    // 2. If no filename field is provided, then the filename of the uploaded file (i.e. the .Filename property of IFormFile) will be used as the filename field
+    // 3. If a filename is provided and the file ID had a *different* filename, an error will be returned
+    //    NOTE: In my (Robin's) option, that logic should become "the filename is forcefully set to the original filename", e.g. if I uploaded IMG_2010.JPG and
+    //    I want to replace it with IMG_2011.JPG then I should be allowed to do that without jumping through hoops. (The filename on FwHeadless will remain IMG_2010
+    //    so that FieldWorks projects won't get their file links broken).
+
+    [Fact]
+    public async Task UploadFile_WithNoFilenameField_FilenameTakenFromUploadedFile()
+    {
+        var fileId = await Fixture.PostFile(TestRepoZipPath, loginAs: "admin", expectSuccess: true);
+        var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        metadata.Should().NotBeNull();
+        metadata.Filename.Should().Be(TestRepoZipFilename);
+    }
+
+    [Fact]
+    public async Task UploadFile_TwiceWithDifferentFilenames_ThrowsError()
+    {
+        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var secondPath = TestRepoZipPath + ".bak";
+        if (File.Exists(secondPath)) File.Delete(secondPath);
+        File.Copy(TestRepoZipPath, secondPath);
+        await Fixture.PutFile(secondPath, fileId, expectSuccess: false);
+        var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        metadata.Should().NotBeNull();
+        metadata.Filename.Should().Be(TestRepoZipFilename);
+    }
+
+    // I (Robin) think that should become this instead:
+    // [Fact]
+    // public async Task UploadFile_TwiceWithDifferentFilenames_FilenameTakenFromFirstUpload()
+    // {
+    //     var fileId = await Fixture.PostFile(TestRepoZipPath);
+    //     var secondPath = TestRepoZipPath + ".bak";
+    //     if (File.Exists(secondPath)) File.Delete(secondPath);
+    //     File.Copy(TestRepoZipPath, secondPath);
+    //     await Fixture.PutFile(secondPath, fileId);
+    //     var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+    //     metadata.Should().NotBeNull();
+    //     metadata.Filename.Should().Be(TestRepoZipFilename);
+    // }
+
+    [Fact]
+    public async Task UploadFile_TwiceWithDifferentFilenamesButOverridingFilename_Works()
+    {
+        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var secondPath = TestRepoZipPath + ".bak";
+        if (File.Exists(secondPath)) File.Delete(secondPath);
+        File.Copy(TestRepoZipPath, secondPath);
+        await Fixture.PutFile(secondPath, fileId, overrideFilename: TestRepoZipFilename, expectSuccess: true);
+        var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        metadata.Should().NotBeNull();
+        metadata.Filename.Should().Be(TestRepoZipFilename);
+    }
+
+    [Fact]
+    public async Task UploadFile_TooLarge_ThrowsError()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 120); // 120 MB
+            await Fixture.PostFile(dummyPath, expectSuccess: false);
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
+    public async Task UploadReplacementFile_TooLarge_ThrowsError()
+    {
+        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 120); // 120 MB
+            await Fixture.PutFile(dummyPath, fileId, overrideFilename: TestRepoZipFilename, expectSuccess: false);
+            var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+            metadata.Should().NotBeNull();
+            metadata.Filename.Should().Be(TestRepoZipFilename);
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    // TODO: Test whether downloading files can use ETag to skip download if we already have the file
+    // TODO: Test whether downloading files can use range requests to resume partial downloads
+
+    // TODO: Test that metadata can be specified in form fields as well as in JSON format
+    // TODO: Test that metadata in form fields will override metadata from JSON format
+    //       (or decide that it should be the other way around)
 }

@@ -60,13 +60,16 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return await result.Content.ReadFromJsonAsync<FileListing>();
     }
 
-    public async Task<Guid> PostFile(string localPath, FileMetadata? metadata = null, string loginAs = "admin", bool expectSuccess = true)
+    public async Task<Guid> PostFile(string localPath, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin", bool expectSuccess = true)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
         using (var formData = new MultipartFormDataContent())
         {
-            formData.Add(new StringContent(filename), name: "filename");
+            if (overrideFilename is not null)
+            {
+                formData.Add(new StringContent(overrideFilename), name: "filename");
+            }
             formData.Add(new StringContent(ProjectId.ToString()), name: "projectId");
             if (metadata is not null)
             {
@@ -83,15 +86,16 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         }
     }
 
-    public async Task PutFile(string localPath, Guid fileId, FileMetadata? metadata = null, string loginAs = "admin", bool expectSuccess = true)
+    public async Task PutFile(string localPath, Guid fileId, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin", bool expectSuccess = true)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
         using (var formData = new MultipartFormDataContent())
         {
-            formData.Add(new StringContent(filename), name: "filename");
-            // formData.Add(new StringContent(fileId.ToString()), name: "fileId"); // TODO: Check if required
-            // formData.Add(new StringContent(ProjectId.ToString()), name: "projectId"); // TODO: Should not be required
+            if (overrideFilename is not null)
+            {
+                formData.Add(new StringContent(overrideFilename), name: "filename");
+            }
             if (metadata is not null)
             {
                 formData.Add(JsonContent.Create(metadata), name: "metadata");
@@ -120,5 +124,12 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         var result = await HttpClient.SendAsync(request);
         if (expectSuccess) result.EnsureSuccessStatusCode();
         return await result.Content.ReadFromJsonAsync<FileMetadata>();
+    }
+
+    public void CreateDummyFile(string filename, long length)
+    {
+        using var stream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+        stream.SetLength(length);
+        // Yes, that's it!
     }
 }
