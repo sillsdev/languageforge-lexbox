@@ -11,9 +11,9 @@ export const allFields: Record<FieldId, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
-  complexForms: {show: false, order: 3},
-  complexFormTypes: {show: false, order: 4},
-  components: {show: false, order: 5},
+  complexForms: {show: true, order: 3},
+  complexFormTypes: {show: true, order: 4},
+  components: {show: true, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
 
