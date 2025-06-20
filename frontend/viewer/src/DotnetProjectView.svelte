@@ -51,7 +51,7 @@
       syncService = wrapInProxy(projectScope.syncService, DotnetService.SyncService);
     }
     const api = wrapInProxy(projectScope.miniLcm, DotnetService.MiniLcmApi);
-    projectContext.setup({ api, historyService, syncService, projectName, projectCode: code, projectType });
+    projectContext.setup({ api, historyService, syncService, projectName, projectCode: code, projectType, server: projectScope.server });
     serviceLoaded = true;
   });
   onDestroy(() => {

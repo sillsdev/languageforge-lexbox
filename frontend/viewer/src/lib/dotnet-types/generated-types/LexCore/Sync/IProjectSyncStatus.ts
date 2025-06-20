@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 import type {ProjectSyncStatusEnum} from './ProjectSyncStatusEnum';
+import type {ProjectSyncStatusErrorCode} from './ProjectSyncStatusErrorCode';
 
 export interface IProjectSyncStatus
 {
@@ -12,5 +13,7 @@ export interface IProjectSyncStatus
 	pendingMercurialChanges: number;
 	lastCrdtCommitDate?: string;
 	lastMercurialCommitDate?: string;
+	errorCode?: ProjectSyncStatusErrorCode;
+	errorMessage?: string;
 }
 /* eslint-enable */

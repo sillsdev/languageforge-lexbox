@@ -5,6 +5,7 @@
 
 import type {IProjectSyncStatus} from '../../LexCore/Sync/IProjectSyncStatus';
 import type {ISyncResult} from '../../LexCore/Sync/ISyncResult';
+import type {IPendingCommits} from '../Sync/IPendingCommits';
 import type {ISyncResults} from '../../SIL/Harmony/ISyncResults';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
 
@@ -12,7 +13,7 @@ export interface ISyncServiceJsInvokable
 {
 	getSyncStatus() : Promise<IProjectSyncStatus>;
 	triggerFwHeadlessSync() : Promise<ISyncResult>;
-	countPendingCrdtCommits() : Promise<ISyncResult>;
+	countPendingCrdtCommits() : Promise<IPendingCommits>;
 	getLatestCommitDate() : Promise<string>;
 	executeSync(skipNotifications: boolean) : Promise<ISyncResults>;
 	getCurrentServer() : Promise<ILexboxServer>;

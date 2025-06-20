@@ -4,11 +4,13 @@
 //     the code is regenerated.
 
 import type {DotNet} from '@microsoft/dotnet-js-interop';
+import type {ILexboxServer} from '../Auth/ILexboxServer';
 
 export interface IProjectScope
 {
 	cleanup?: DotNet.DotNetObject;
 	projectName: string;
+	server?: ILexboxServer;
 	miniLcm: DotNet.DotNetObject;
 	historyService?: DotNet.DotNetObject;
 	syncService?: DotNet.DotNetObject;

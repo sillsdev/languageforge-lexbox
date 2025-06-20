@@ -26,7 +26,8 @@
     const dispatch = createEventDispatcher<{
         status: 'logged-in' | 'logged-out'
     }>();
-    export let status: IServerStatus;
+    export let status: Omit<IServerStatus, 'displayName'>;
+    export let text: string | undefined = undefined;
     $: server = status.server;
     let loading = false;
 
@@ -67,14 +68,14 @@
                 variant="secondary"
                 onclick={() => login(server)}
                 icon="i-mdi-login">
-          {$t`Login to see projects`}
+          {text ?? $t`Login to see projects`}
         </Button>
     {:else}
         <Button {loading}
                 variant="secondary"
                 href="/api/auth/login/{server.id}"
                 icon="i-mdi-login">
-          {$t`Login to see projects`}
+          {text ?? $t`Login to see projects`}
         </Button>
     {/if}
 {/if}

@@ -31,7 +31,6 @@
   import {mergeProps, type WithElementRef, type WithoutChildrenOrChild} from 'bits-ui';
   import type {ComponentProps, Snippet} from 'svelte';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {useSidebar} from './context.svelte.js';
 
   let {
     ref = $bindable(null),
@@ -52,8 +51,6 @@
     tooltipContentProps?: WithoutChildrenOrChild<ComponentProps<typeof Tooltip.Content>>;
     child?: Snippet<[{ props: Record<string, unknown> }]>;
   } = $props();
-
-  const sidebar = useSidebar();
 
   const buttonProps = $derived({
     class: cn(sidebarMenuButtonVariants({ variant, size }), className),
@@ -87,7 +84,6 @@
     <Tooltip.Content
       side="right"
       align="center"
-      hidden={sidebar.state !== 'collapsed' || sidebar.isMobile}
       children={tooltipContent}
       {...tooltipContentProps}
     />

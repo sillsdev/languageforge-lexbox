@@ -2,7 +2,6 @@
   import { Button } from '$lib/components/ui/button';
   import { Icon, PingingIcon } from '$lib/components/ui/icon';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
-  import type { ISyncResult } from '$lib/dotnet-types/generated-types/LexCore/Sync/ISyncResult';
   import type { ILexboxServer } from '$lib/dotnet-types';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { t, plural } from 'svelte-i18n-lingui';
@@ -16,25 +15,36 @@
   import { delay } from '$lib/utils/time';
   import { cn } from '$lib/utils';
   import {useFeatures} from '$lib/services/feature-service';
+  import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
+  import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
+  import LoginButton from '$lib/auth/LoginButton.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
+  import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
+  import {ProjectSyncStatusErrorCode} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusErrorCode';
 
+  const {
+    syncStatus = SyncStatus.Success
+  }: {syncStatus?: SyncStatus} = $props();
+
+  const projectContext = useProjectContext();
   const service = useSyncStatusService();
   const features = useFeatures();
-  let remoteStatus: IProjectSyncStatus | undefined = $state();
-  let localStatus: ISyncResult | undefined = $state();
-  let server: ILexboxServer | undefined = $state();
+  let remoteStatus = $state<IProjectSyncStatus>();
+  let localStatus = $state<IPendingCommits>();
+  let server = $state<ILexboxServer>();
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
     { key: 'syncDialogOpen', replaceOnDefaultValue: true, allowBack: true },
     false,
   );
 
-  let lbToLocalCount = $derived(localStatus?.fwdataChanges ?? 0);
-  let localToLbCount = $derived(localStatus?.crdtChanges ?? 0);
-  let latestCommitDate = $state<string | undefined>(undefined);
+  let lbToLocalCount = $derived(localStatus?.remote);
+  let localToLbCount = $derived(localStatus?.local);
+  let latestCommitDate = $state<string>();
   let lastLocalSyncDate = $derived(latestCommitDate ? new Date(latestCommitDate) : undefined);
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
-  let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges ?? 0);
-  let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges ?? 0);
+  let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
+  let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges);
   const serverName = $derived(server?.displayName ?? 'LexBox');
 
   watch(() => openQueryParam.current, (newValue) => {
@@ -53,21 +63,12 @@
       let remotePromise = service.getStatus();
       let localPromise = service.getLocalStatus();
       let commitDatePromise = service.getLatestCommitDate();
-      if (!remotePromise || !localPromise) {
-        // Can only happen if the sync status service was unavailable
-        localStatus = undefined;
-        remoteStatus = undefined;
-        latestCommitDate = '';
-        server = undefined;
-        loading = false;
-      } else {
-        [localStatus, remoteStatus, latestCommitDate, server] = await Promise.all([
-          localPromise,
-          remotePromise,
-          commitDatePromise,
-          serverPromise,
-        ]);
-      }
+      [localStatus, remoteStatus, latestCommitDate, server] = await Promise.all([
+        localPromise,
+        remotePromise,
+        commitDatePromise,
+        serverPromise,
+      ]);
     } finally {
       loading = false;
     }
@@ -102,12 +103,10 @@
     lbToFlexCount = 0;
     flexToLbCount = 0;
     const statusPromise = service.getStatus();
-    if (statusPromise) {
-      // Auto-close dialog after successful FieldWorks sync
-      [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
-      if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
-        openQueryParam.current = false;
-      }
+    // Auto-close dialog after successful FieldWorks sync
+    [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
+    if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
+      openQueryParam.current = false;
     }
   }
 
@@ -126,13 +125,11 @@
       const statusPromise = service.getLocalStatus();
       const remoteStatusPromise = service.getStatus();
       const datePromise = service.getLatestCommitDate();
-      if (statusPromise && datePromise) {
-        [localStatus, remoteStatus, latestCommitDate] = await Promise.all([
-          statusPromise,
-          remoteStatusPromise,
-          datePromise,
-        ]);
-      }
+      [localStatus, remoteStatus, latestCommitDate] = await Promise.all([
+        statusPromise,
+        remoteStatusPromise,
+        datePromise,
+      ]);
     } finally {
       loadingSyncLexboxToLocal = false;
     }
@@ -144,20 +141,19 @@
     <DialogHeader>
       <DialogTitle>{$t`Synchronize`}</DialogTitle>
     </DialogHeader>
-    {#if loading}
+    <!-- remoteStatus always gets set, so it's only here for the compiler -->
+    {#if loading || !remoteStatus}
       <Loading class="place-self-center size-10" />
-    {:else if !remoteStatus}
-      <div>{$t`Error getting sync status. Are you logged in to the LexBox server?`}</div>
     {:else}
       <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
       <div in:fade
-        class="grid grid-rows-5 grid-cols-[1fr_7fr_1fr] gap-y-4 gap-x-8"
+        class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8"
       >
         <div class="col-span-full text-center">
           <Icon icon="i-mdi-monitor-cellphone" class="size-10" />
         </div>
         <div class="text-center content-center">
-          {lbToLocalCount}
+          {lbToLocalCount ?? '?'}
           <PingingIcon
             icon="i-mdi-arrow-up"
             ping={loadingSyncLexboxToLocal && !!lbToLocalCount}
@@ -165,20 +161,30 @@
           />
         </div>
         <div class="content-center text-center">
-          <Button
-            variant="outline"
-            class="border-primary text-primary hover:text-primary"
-            loading={loadingSyncLexboxToLocal}
-            disabled={loadingSyncLexboxToFlex}
-            onclick={syncLexboxToLocal}
-            icon="i-mdi-sync"
-            iconProps={{ class: 'size-5' }}>
-            {#if loadingSyncLexboxToLocal}
-              {$t`Synchronizing...`}
-            {:else}
-              {$t`Auto synchronizing`}
-            {/if}
-          </Button>
+          {#if syncStatus === SyncStatus.Success}
+            <Button
+              variant="outline"
+              class="border-primary text-primary hover:text-primary"
+              loading={loadingSyncLexboxToLocal}
+              disabled={loadingSyncLexboxToFlex}
+              onclick={syncLexboxToLocal}
+              icon="i-mdi-sync"
+              iconProps={{ class: 'size-5' }}>
+              {#if loadingSyncLexboxToLocal}
+                {$t`Synchronizing...`}
+              {:else}
+                {$t`Auto synchronizing`}
+              {/if}
+            </Button>
+          {:else if syncStatus === SyncStatus.Offline}
+            <div><Icon icon="i-mdi-cloud-off-outline" /> {$t`Offline`}</div>
+          {:else if syncStatus === SyncStatus.NotLoggedIn && projectContext.server}
+            <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} />
+          {:else if syncStatus === SyncStatus.NoServer || syncStatus === SyncStatus.NotLoggedIn}
+            <div>{$t`No server configured`}</div>
+          {:else}
+            <div class="text-destructive">{$t`Error getting sync status.`}</div>
+          {/if}
         </div>
         <div class="text-center content-center">
           <PingingIcon
@@ -233,8 +239,18 @@
             {$t`${serverName} - FieldWorks`}
           </span>
           <span class="text-foreground/80">
-            {$t`Last change: ${formatDate(lastFlexSyncDate)}`}
+            {$t`Last change: ${formatDate(lastFlexSyncDate, undefined,
+              remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
           </span>
+          {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
+            {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
+              {$t`Not logged in`}
+            {:else}
+              <span class="text-destructive brightness-200">
+                {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
+              </span>
+            {/if}
+          {/if}
         </div>
       </div>
     {/if}

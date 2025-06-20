@@ -1,5 +1,5 @@
 ﻿import {getContext, setContext} from 'svelte';
-import type {IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
+import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
@@ -20,6 +20,7 @@ interface ProjectContextSetup {
   projectName: string;
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
+  server?: ILexboxServer;
 }
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
@@ -35,6 +36,7 @@ export class ProjectContext {
   #projectName: string | undefined = $state(undefined);
   #projectCode: string | undefined = $state(undefined);
   #projectType: ProjectType = $state(undefined);
+  #server = $state<ILexboxServer>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #features = resource(() => this.#api, (api) => {
@@ -59,6 +61,9 @@ export class ProjectContext {
   public get projectType(): ProjectType {
     return this.#projectType;
   }
+  public get server(): ILexboxServer | undefined {
+    return this.#server;
+  }
   public get features(): IMiniLcmFeatures {
     return this.#features.current;
   }
@@ -76,6 +81,7 @@ export class ProjectContext {
     this.#projectName = args?.projectName;
     this.#projectCode = args?.projectCode;
     this.#projectType = args?.projectType;
+    this.#server = args?.server;
   }
 
   public setup(args: ProjectContextSetup) {
@@ -85,6 +91,7 @@ export class ProjectContext {
     this.#projectName = args.projectName;
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
+    this.#server = args.server;
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {

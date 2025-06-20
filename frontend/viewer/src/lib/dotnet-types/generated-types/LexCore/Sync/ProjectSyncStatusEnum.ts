@@ -7,6 +7,7 @@ export enum ProjectSyncStatusEnum {
 	NeverSynced = "NeverSynced",
 	ReadyToSync = "ReadyToSync",
 	Syncing = "Syncing",
-	QueuedToSync = "QueuedToSync"
+	QueuedToSync = "QueuedToSync",
+	Unknown = "Unknown"
 }
 /* eslint-enable */

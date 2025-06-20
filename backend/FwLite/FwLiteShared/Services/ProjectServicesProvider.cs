@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -52,6 +53,7 @@ public class ProjectServicesProvider(
         var scopedServices = serviceScope.ServiceProvider;
         var project = crdtProjectsService.GetProject(code)
             ?? throw new InvalidOperationException($"Crdt Project {code} not found");
+        var server = lexboxProjectService.GetServer(project.Data);
         var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
         var projectData = await currentProjectService.SetupProjectContext(project);
         await scopedServices.GetRequiredService<SyncService>().SafeExecuteSync(true);
@@ -61,7 +63,7 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectData.Name);
             return Task.CompletedTask;
-        }), serviceScope, this, projectData.Name, miniLcm,
+        }), serviceScope, this, projectData.Name, miniLcm, server,
                 ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
                 ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices));
         _projectScopes.TryAdd(scope, scope);
@@ -84,7 +86,7 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
             return Task.CompletedTask;
-        }), serviceScope, this, projectName, miniLcm, null, null);
+        }), serviceScope, this, projectName, miniLcm, null, null, null);
         _projectScopes.TryAdd(scope, scope);
         return scope;
     }
@@ -97,10 +99,12 @@ public class ProjectScope
         ProjectServicesProvider projectServicesProvider,
         string projectName,
         MiniLcmJsInvokable miniLcm,
+        LexboxServer? server,
         HistoryServiceJsInvokable? historyService,
         SyncServiceJsInvokable? syncService)
     {
         ProjectName = projectName;
+        Server = server;
         MiniLcm = DotNetObjectReference.Create(miniLcm);
         HistoryService = historyService is null ? null : DotNetObjectReference.Create(historyService);
         SyncService = syncService is null ? null : DotNetObjectReference.Create(syncService);
@@ -128,6 +132,7 @@ public class ProjectScope
 
     public DotNetObjectReference<IAsyncDisposable>? Cleanup { get; set; }
     public string ProjectName { get; set; }
+    public LexboxServer? Server { get; set; }
     public DotNetObjectReference<MiniLcmJsInvokable> MiniLcm { get; set; }
     public DotNetObjectReference<HistoryServiceJsInvokable>? HistoryService { get; set; }
     public DotNetObjectReference<SyncServiceJsInvokable>? SyncService { get; set; }

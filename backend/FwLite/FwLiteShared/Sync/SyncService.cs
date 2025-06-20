@@ -16,6 +16,8 @@ using SIL.Harmony.Changes;
 
 namespace FwLiteShared.Sync;
 
+public record PendingCommits(int Local, int? Remote);
+
 public class SyncService(
     DataModel dataModel,
     CrdtHttpSyncService remoteSyncServiceServer,
@@ -48,6 +50,7 @@ public class SyncService(
         {
             logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client",
                 project.Name);
+            UpdateSyncStatus(SyncStatus.NotLoggedIn);
             return new SyncResults([], [], false);
         }
 
@@ -59,26 +62,36 @@ public class SyncService(
                 "Unable to create http client to sync project {ProjectName}, user is not authenticated to {OriginDomain}",
                 project.Name,
                 project.OriginDomain);
+            UpdateSyncStatus(SyncStatus.NotLoggedIn);
             return new SyncResults([], [], false);
         }
         var currentUser = await oAuthClient.GetCurrentUser();
         await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
 
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
+        if (!await remoteModel.ShouldSync())
+        {
+            logger.LogInformation("Unable to connect to server when syncing project {ProjectName}", project.Name);
+            UpdateSyncStatus(SyncStatus.Offline);
+            return new SyncResults([], [], false);
+        }
         var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
         var syncResults = await dataModel.SyncWith(remoteModel);
         if (!syncResults.IsSynced)
         {
             logger.LogWarning("Did not sync with server, {ProjectName}", project.Name);
+            UpdateSyncStatus(SyncStatus.UnknownError);
             return syncResults;
         }
+        logger.LogInformation("Synced project {ProjectName} with server", project.Name);
+        UpdateSyncStatus(SyncStatus.Success);
         await UpdateSyncDate(syncDate);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         if (!skipNotifications) await SendNotifications(syncResults);
         return syncResults;
     }
 
-    public async Task<ProjectSyncStatus?> GetSyncStatus()
+    public async Task<ProjectSyncStatus> GetSyncStatus()
     {
         var project = await currentProjectService.GetProjectData();
         var server = authOptions.Value.GetServer(project);
@@ -106,19 +119,23 @@ public class SyncService(
         return authOptions.Value.GetServer(project);
     }
 
-    public async Task<SyncResult?> CountPendingCrdtCommits()
+    public async Task<PendingCommits?> CountPendingCrdtCommits()
     {
         var project = await currentProjectService.GetProjectData();
         var localSyncState = await dataModel.GetSyncState();
-        if (localSyncState is null) return null;
         var server = authOptions.Value.GetServer(project);
         var localChangesPending = CountPendingCommits(); // Not awaited yet
         var remoteChangesPending = lexboxProjectService.CountPendingCrdtCommits(server, project.Id, localSyncState); // Not awaited yet
         await Task.WhenAll(localChangesPending, remoteChangesPending);
         var localChanges = await localChangesPending;
         var remoteChanges = await remoteChangesPending;
-        if (localChanges is null || remoteChanges is null) return null;
-        return new SyncResult(localChanges ?? 0, remoteChanges ?? 0);
+        if (localChanges is null) return null;
+        return new PendingCommits(localChanges.Value, remoteChanges);
+    }
+
+    private void UpdateSyncStatus(SyncStatus status)
+    {
+        changeEventBus.PublishEvent(currentProjectService.Project, new SyncEvent(status));
     }
 
     private async Task SendNotifications(SyncResults syncResults)
