@@ -23,6 +23,7 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using System.Runtime.CompilerServices;
+using FwLiteShared.AppUpdate;
 
 namespace FwLiteShared.TypeGen;
 
@@ -114,6 +115,7 @@ public static class ReinforcedFwLiteTypingConfig
 
         builder.ExportAsEnum<DotnetService>().UseString();
         builder.ExportAsEnum<FwLitePlatform>().UseString();
+        builder.ExportAsEnum<UpdateResult>().UseString();
         builder.ExportAsEnum<ProjectSyncStatusEnum>().UseString();
         builder.ExportAsEnum<ProjectDataFormat>();
         builder.ExportAsEnum<UserProjectRole>().UseString();

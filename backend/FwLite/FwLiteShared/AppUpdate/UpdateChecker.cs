@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Net.Http.Json;
+using FwLiteShared.Events;
 using LexCore.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ namespace FwLiteShared.AppUpdate;
 public class UpdateChecker(
     IHttpClientFactory httpClientFactory,
     ILogger logger,
+    GlobalEventBus eventBus,
     IPlatformUpdateService? platformUpdateServicesOptional = null): BackgroundService
 {
     private const string FwliteUpdateUrlEnvVar = "FWLITE_UPDATE_URL";
@@ -56,7 +58,7 @@ public class UpdateChecker(
 
     private void NotifyResult(UpdateResult result)
     {
-
+        eventBus.PublishEvent(new AppUpdateEvent(result));
     }
 
     private bool ShouldCheckForUpdate()

@@ -20,5 +20,6 @@ public enum FwEventType
     EntryChanged,
     AuthenticationChanged,
     ProjectEvent,
-    EntryDeleted
+    EntryDeleted,
+    AppUpdate
 }

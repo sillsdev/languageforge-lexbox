@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using LexCore.Entities;
 
 namespace FwLiteShared.AppUpdate;
@@ -13,6 +14,7 @@ public interface IPlatformUpdateService
     Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease);
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UpdateResult
 {
     Unknown,
