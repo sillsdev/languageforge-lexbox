@@ -1,14 +1,7 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
-using FluentAssertions;
-using FluentAssertions.Collections;
-using LexCore.Entities;
-using LexCore.Sync;
+﻿using LexCore.Entities;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using SIL.Harmony.Core;
 using Testing.ApiTests;
 using Testing.Fixtures;
-using Testing.Services;
 
 namespace Testing.FwHeadless;
 
