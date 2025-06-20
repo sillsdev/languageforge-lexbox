@@ -4,6 +4,7 @@ using FwLiteShared;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Maui.Platform;
 
@@ -15,6 +16,7 @@ public static class WindowsKernel
     public static void AddFwLiteWindows(this IServiceCollection services, IHostEnvironment environment)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+        services.RemoveAll(typeof(IPlatformUpdateService));
         services.AddSingleton<AppUpdateService>();
         services.AddSingleton<IMauiInitializeService>(s => s.GetRequiredService<AppUpdateService>());
         services.AddSingleton<IPlatformUpdateService>(s => s.GetRequiredService<AppUpdateService>());

@@ -7,6 +7,7 @@ using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
@@ -41,6 +42,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<UpdateChecker>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
+        services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>();
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>

@@ -11,37 +11,14 @@ using FwLiteShared.AppUpdate;
 
 namespace FwLiteMaui;
 
-public class AppUpdateService : IMauiInitializeService, IPlatformUpdateService
+public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences preferences)
+    : IMauiInitializeService, IPlatformUpdateService
 {
     private const string LastUpdateCheckKey = "lastUpdateChecked";
-    private const string ForceUpdateCheckEnvVar = "FWLITE_FORCE_UPDATE_CHECK";
-    private const string PreventUpdateCheckEnvVar = "FWLITE_PREVENT_UPDATE";
     private  const string NotificationIdKey = "notificationId";
     private const string ActionKey = "action";
     private const string ResultRefKey = "resultRef";
     private static readonly Dictionary<string, TaskCompletionSource<string?>> NotificationCompletionSources = new();
-
-    private static readonly SearchValues<string> ValidPositiveEnvVarValues =
-        SearchValues.Create(["1", "true", "yes"], StringComparison.OrdinalIgnoreCase);
-
-    private readonly UpdateChecker updateChecker;
-    private readonly IPreferences preferences;
-    private readonly ILogger<AppUpdateService> logger;
-    private readonly IHttpClientFactory httpClientFactory;
-    private readonly IConnectivity connectivity;
-
-    public AppUpdateService(
-        IHttpClientFactory httpClientFactory,
-        ILogger<AppUpdateService> logger,
-        IPreferences preferences,
-        IConnectivity connectivity)
-    {
-        this.preferences = preferences;
-        this.logger = logger;
-        this.httpClientFactory = httpClientFactory;
-        this.connectivity = connectivity;
-        updateChecker = new UpdateChecker(httpClientFactory, logger, this);
-    }
 
     public void Initialize(IServiceProvider services)
     {
