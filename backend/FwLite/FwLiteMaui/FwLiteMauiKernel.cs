@@ -16,7 +16,7 @@ namespace FwLiteMaui;
 
 public static class FwLiteMauiKernel
 {
-    public static void AddFwLiteMauiServices(this IServiceCollection services,
+    public static IServiceCollection AddFwLiteMauiServices(this IServiceCollection services,
         ConfigurationManager configuration,
         ILoggingBuilder logging)
     {
@@ -116,14 +116,17 @@ public static class FwLiteMauiKernel
         });
 
         logging.AddFile(fwLiteMauiConfig.AppLogFilePath);
-        services.AddSingleton<IPreferences>(Preferences.Default);
-        services.AddSingleton<IVersionTracking>(VersionTracking.Default);
-        services.AddSingleton<IConnectivity>(Connectivity.Current);
+        //using callback otherwise tests try to evaluate the default/current property during setup.
+        //by using a callback, we can delay the evaluation until after the test setup, which lets us mock the service
+        services.AddSingleton<IPreferences>(_ => Preferences.Default);
+        services.AddSingleton<IVersionTracking>(_ => VersionTracking.Default);
+        services.AddSingleton<IConnectivity>(_ => Connectivity.Current);
         services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();
 #endif
+        return services;
     }
 
 #if WINDOWS
