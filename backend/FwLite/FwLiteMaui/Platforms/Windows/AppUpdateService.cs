@@ -6,29 +6,19 @@ using Windows.Networking.Connectivity;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Notifications;
+using FwLiteMaui.Services;
+using FwLiteShared.AppUpdate;
 
 namespace FwLiteMaui;
 
-public class AppUpdateService(
-    IHttpClientFactory httpClientFactory,
-    ILogger<AppUpdateService> logger,
-    IPreferences preferences,
-    IConnectivity connectivity) : IMauiInitializeService
+public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences preferences)
+    : IMauiInitializeService, IPlatformUpdateService
 {
-    private const string LastUpdateCheck = "lastUpdateChecked";
-    private const string FwliteUpdateUrlEnvVar = "FWLITE_UPDATE_URL";
-    private const string ForceUpdateCheckEnvVar = "FWLITE_FORCE_UPDATE_CHECK";
-    private const string PreventUpdateCheckEnvVar = "FWLITE_PREVENT_UPDATE";
+    private const string LastUpdateCheckKey = "lastUpdateChecked";
     private  const string NotificationIdKey = "notificationId";
     private const string ActionKey = "action";
     private const string ResultRefKey = "resultRef";
     private static readonly Dictionary<string, TaskCompletionSource<string?>> NotificationCompletionSources = new();
-
-    private static readonly SearchValues<string> ValidPositiveEnvVarValues =
-        SearchValues.Create(["1", "true", "yes"], StringComparison.OrdinalIgnoreCase);
-
-    private static readonly string ShouldUpdateUrl = Environment.GetEnvironmentVariable(FwliteUpdateUrlEnvVar) ??
-                                               $"https://lexbox.org/api/fwlite-release/should-update?appVersion={AppVersion.Version}";
 
     public void Initialize(IServiceProvider services)
     {
@@ -42,25 +32,6 @@ public class AppUpdateService(
             //don't check for updates if the user already clicked on a notification
             return;
         }
-        _ = Task.Run(TryUpdate);
-    }
-
-    private async Task TryUpdate()
-    {
-        if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(PreventUpdateCheckEnvVar) ?? ""))
-        {
-            logger.LogInformation("Update check prevented by env var {EnvVar}", PreventUpdateCheckEnvVar);
-            return;
-        }
-
-        if (!ShouldCheckForUpdate()) return;
-        var response = await ShouldUpdate();
-        if (!response.Update) return;
-        if (ShouldPromptBeforeUpdate() && !await RequestPermissionToUpdate(response.Release))
-        {
-            return;
-        }
-        await ApplyUpdate(response.Release);
     }
 
     private async Task Test()
@@ -81,7 +52,7 @@ public class AppUpdateService(
         new ToastContentBuilder().AddText("FieldWorks Lite Installing update").AddText($"Version {latestRelease.Version} will be installed after FieldWorks Lite is closed").Show();
     }
 
-    private async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
+    public async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
     {
         var notificationId = $"update-{Guid.NewGuid()}";
         var tcs = new TaskCompletionSource<string?>();
@@ -130,7 +101,11 @@ public class AppUpdateService(
         NotificationCompletionSources.Remove(notificationId);
     }
 
-    private async Task ApplyUpdate(FwLiteRelease latestRelease, bool quitOnUpdate = false)
+    public async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease)
+    {
+        return await ApplyUpdate(latestRelease, false);
+    }
+    private async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease, bool quitOnUpdate)
     {
         logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
         var packageManager = new PackageManager();
@@ -152,90 +127,38 @@ public class AppUpdateService(
         };
         ShowUpdateInstallingNotification(latestRelease);
 
-        //note this asyncOperation is not reliable, it's possible the update will install and this will never resolve, so don't do anything important after this
-        var result = await asyncOperation;
-        if (!string.IsNullOrEmpty(result.ErrorText))
+        //note this asyncOperation is not reliable, it's possible the update will install and this will never resolve
+        var updateTask = asyncOperation.AsTask();
+        var completedTask = await Task.WhenAny(updateTask, Task.Delay(TimeSpan.FromMinutes(2)));
+        if (completedTask == updateTask)
         {
-            logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
-            return;
-        }
-
-        logger.LogInformation("Update downloaded, will install on next restart");
-    }
-
-    private async Task<ShouldUpdateResponse> ShouldUpdate()
-    {
-        try
-        {
-            var response = await httpClientFactory
-                .CreateClient("Lexbox")
-                .SendAsync(new HttpRequestMessage(HttpMethod.Get, ShouldUpdateUrl)
-                {
-                    Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{AppVersion.Version}" } }
-                });
-            if (!response.IsSuccessStatusCode)
+            var result = await updateTask;
+            if (!string.IsNullOrEmpty(result.ErrorText))
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                logger.LogError("Failed to get should update response lexbox: {StatusCode} {ResponseContent}",
-                    response.StatusCode,
-                    responseContent);
-                return new ShouldUpdateResponse(null);
+                logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
+                return UpdateResult.Failed;
             }
 
-            return await response.Content.ReadFromJsonAsync<ShouldUpdateResponse>() ?? new ShouldUpdateResponse(null);
+            logger.LogInformation("Update downloaded, will install on next restart");
+            return UpdateResult.Success;
         }
-        catch (Exception e)
-        {
-            if (connectivity.NetworkAccess == NetworkAccess.Internet)
-            {
-                logger.LogError(e, "Failed to fetch latest release");
-            }
-            else
-            {
-                logger.LogInformation(e, "Failed to fetch latest release, no internet connection");
-            }
 
-            return new ShouldUpdateResponse(null);
-        }
+        return UpdateResult.Started;
     }
 
-    private bool ShouldCheckForUpdate()
+    public DateTime LastUpdateCheck
     {
-        if (ValidPositiveEnvVarValues.Contains(Environment.GetEnvironmentVariable(ForceUpdateCheckEnvVar) ?? ""))
-        {
-            logger.LogInformation("Should check for update based on env var {EnvVar}", ForceUpdateCheckEnvVar);
-            return true;
-        }
-        var lastChecked = preferences.Get(LastUpdateCheck, DateTime.MinValue);
-        var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
-        //if last checked is in the future (should never happen), then we want to reset the time and check again
-        if (timeSinceLastCheck.TotalHours < -1)
-        {
-            preferences.Set(LastUpdateCheck, DateTime.UtcNow);
-            logger.LogInformation("Should check for update, because last check was in the future: {LastCheck}", lastChecked);
-            return true;
-        }
-        if (timeSinceLastCheck.TotalHours < 8)
-        {
-            logger.LogInformation("Should not check for update, because last check was too recent: {LastCheck}", lastChecked);
-            return false;
-        }
-        preferences.Set(LastUpdateCheck, DateTime.UtcNow);
-        logger.LogInformation("Should check for update based on last check time: {LastCheck}", lastChecked);
-        return true;
+        get => preferences.Get(LastUpdateCheckKey, DateTime.MinValue);
+        set => preferences.Set(LastUpdateCheckKey, value);
     }
 
-    private bool ShouldPromptBeforeUpdate()
-    {
-        return IsOnMeteredConnection();
-    }
+    public bool SupportsAutoUpdate => true;
 
-    private bool IsOnMeteredConnection()
+    public bool IsOnMeteredConnection()
     {
         var profile = NetworkInformation.GetInternetConnectionProfile();
         if (profile == null) return false;
         var cost = profile.GetConnectionCost();
         return cost.NetworkCostType != NetworkCostType.Unrestricted;
-
     }
 }

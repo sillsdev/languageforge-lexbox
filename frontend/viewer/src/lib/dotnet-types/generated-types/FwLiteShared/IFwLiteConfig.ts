@@ -11,5 +11,9 @@ export interface IFwLiteConfig
 	appVersion: string;
 	os: FwLitePlatform;
 	feedbackUrl: string;
+	updateUrl: string;
+	edition: number;
+	updateCheckCondition: number;
+	updateCheckInterval: unknown;
 }
 /* eslint-enable */
