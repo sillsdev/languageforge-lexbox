@@ -74,7 +74,7 @@
     </Editor.Field.Root>
 
     <Editor.Field.Root style="grid-area: complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
-      <Editor.Field.Title name={vt($t`Complex form types`)} helpId={fieldData.complexFormTypes.helpId} />
+      <Editor.Field.Title name={vt($t`Complex form types`, $t`Made of type`)} helpId={fieldData.complexFormTypes.helpId} />
       <Editor.Field.Body>
         <MultiSelect
           onchange={() => onFieldChanged('complexFormTypes')}
