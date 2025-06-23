@@ -55,7 +55,10 @@
 
   let {
     value = $bindable(),
+    id,
     normalWs = undefined,
+    'aria-labelledby': ariaLabelledby,
+    'aria-label': ariaLabel,
     label,
     readonly = false,
     onchange = () => {},
@@ -98,6 +101,12 @@
       },
       attributes: {
         class: inputVariants({class: 'min-h-10 h-auto block'}),
+        // todo: the distribution of props between the editor and the elementRef is not good
+        // there should probably be a wrapper component that provides the elementRef to this one
+        ...(id ? {id} : {}),
+        ...(ariaLabelledby ? {'aria-labelledby': ariaLabelledby} : {}),
+        ...(ariaLabel ? {'aria-label': ariaLabel} : {}),
+        role: 'textbox',
       },
       editable() {
         return !readonly;
@@ -109,8 +118,9 @@
     });
     editor.dom.setAttribute('tabindex', '0');
 
-    const parentLabel = elementRef?.closest('label');
-    if (parentLabel) return on(parentLabel, 'click', onFocusTargetClick);
+    const relatedLabel = elementRef?.closest('label') ??
+      (id ? document.querySelector<HTMLLabelElement>(`label[for="${id}"]`) : undefined);
+    if (relatedLabel) return on(relatedLabel, 'click', onFocusTargetClick);
   });
 
   function onfocus(editor: EditorView) {
@@ -235,5 +245,5 @@
     <div bind:this={elementRef}></div>
   </div>
 {:else}
-  <div bind:this={elementRef}></div>
+  <div bind:this={elementRef} {...rest}></div>
 {/if}
