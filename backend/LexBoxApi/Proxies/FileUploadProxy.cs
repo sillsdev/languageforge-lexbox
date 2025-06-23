@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using LexBoxApi.Auth.Attributes;
 using Microsoft.Extensions.Options;
 using LexCore.Config;
+using LexSyncReverseProxy;
 
 namespace LexBoxApi.Proxies;
 
@@ -18,16 +19,7 @@ public static class FileUploadProxy
     {
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
-        services.AddTelemetryConsumer<LexSyncReverseProxy.ForwarderTelemetryConsumer>();
-        services.AddSingleton(new HttpMessageInvoker(new SocketsHttpHandler
-        {
-            UseProxy = false,
-            UseCookies = false,
-            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
-            ConnectTimeout = TimeSpan.FromSeconds(15)
-        }));
-
-        services.AddHttpForwarder();
+        services.AddForwarder();
     }
 
     public static void MapFileUploadProxy(this IEndpointRouteBuilder app,
