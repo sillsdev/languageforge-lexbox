@@ -539,40 +539,6 @@ namespace LexData.Migrations
                     b.ToTable("FlexProjectMetadata");
                 });
 
-            modelBuilder.Entity("LexCore.Entities.MediaFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Filename")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Metadata")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValueSql("'{}'");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Files");
-                });
-
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1247,15 +1213,6 @@ namespace LexData.Migrations
                         });
 
                     b.Navigation("WritingSystems");
-                });
-
-            modelBuilder.Entity("LexCore.Entities.MediaFile", b =>
-                {
-                    b.HasOne("LexCore.Entities.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
