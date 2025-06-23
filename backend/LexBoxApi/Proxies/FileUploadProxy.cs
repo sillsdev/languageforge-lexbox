@@ -3,6 +3,7 @@ using Yarp.ReverseProxy.Forwarder;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.Auth.Requirements;
 using Microsoft.Extensions.Options;
 using LexCore.Config;
 using LexSyncReverseProxy;
@@ -17,6 +18,7 @@ public static class FileUploadProxy
 
     public static void AddFileUploadProxy(this IServiceCollection services)
     {
+        services.AddSingleton<IAuthorizationHandler, MediaFileRequirementHandler>();
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
         services.AddForwarder();

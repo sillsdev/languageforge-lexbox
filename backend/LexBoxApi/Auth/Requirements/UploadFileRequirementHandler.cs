@@ -4,46 +4,54 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LexBoxApi.Auth.Requirements;
 
-
-public class UserCanUploadMediaFilesRequirement : IAuthorizationRequirement
+public class MediaFilesRequirement(bool writeRequired) : IAuthorizationRequirement
 {
+    public bool WriteAccessRequired { get; set; } = writeRequired;
 }
 
-public class UserCanDownloadMediaFilesRequirement : IAuthorizationRequirement
+public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<MediaFilesRequirement>
 {
-}
-
-public class UploadFileRequirementHandler(IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<UserCanUploadMediaFilesRequirement>
-{
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserCanUploadMediaFilesRequirement requirement)
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, MediaFilesRequirement requirement)
     {
-        return MediaFileRequirementHandlerImpl.HandleRequirementAsync(
-            this,
-            httpContextAccessor,
-            context,
-            requirement,
-            writeAccessRequired: true
-        );
-    }
-}
+        var httpContext = httpContextAccessor.HttpContext;
+        if (httpContext is null) return;
+        var user = httpContext.RequestServices.GetRequiredService<LoggedInContext>().MaybeUser;
+        if (user is null)
+        {
+            context.Fail(new AuthorizationFailureReason(this, $"Must be logged in to upload media files"));
+            return;
+        }
+        var projectId = GetProjectId(httpContext.Request);
+        if (projectId is null)
+        {
+            var fileId = GetFileId(httpContext.Request);
+            if (fileId is not null)
+            {
+                var dbContext = httpContext!.RequestServices.GetRequiredService<LexBoxDbContext>();
+                var file = await dbContext.Files.FindAsync(fileId);
+                if (file is not null) projectId = file.ProjectId;
+            }
+        }
+        if (projectId is null)
+        {
+            context.Fail(new AuthorizationFailureReason(this, $"Media files must have a project ID in order to be uploaded"));
+            return;
+        }
+        var permissionService = httpContext.RequestServices.GetRequiredService<IPermissionService>();
+        var hasAccess =
+            requirement.WriteAccessRequired
+                ? await permissionService.CanSyncProject(projectId.Value)
+                : await permissionService.CanViewProject(projectId.Value);
+        if (!hasAccess)
+        {
+            context.Fail(new AuthorizationFailureReason(this, $"User does not have access to project {projectId.Value}"));
+            return;
+        }
 
-public class DownloadFileRequirementHandler(IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<UserCanDownloadMediaFilesRequirement>
-{
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserCanDownloadMediaFilesRequirement requirement)
-    {
-        return MediaFileRequirementHandlerImpl.HandleRequirementAsync(
-            this,
-            httpContextAccessor,
-            context,
-            requirement,
-            writeAccessRequired: false
-        );
+        context.Succeed(requirement);
     }
-}
 
-internal static class MediaFileRequirementHandlerImpl
-{
-    public static Guid? GetProjectId(HttpRequest request)
+    private static Guid? GetProjectId(HttpRequest request)
     {
         Guid? projectId = null;
         if (request.RouteValues.TryGetValue("projectId", out var projectIdValue))
@@ -60,7 +68,7 @@ internal static class MediaFileRequirementHandlerImpl
         return projectId;
     }
 
-    public static Guid? GetFileId(HttpRequest request)
+    private static Guid? GetFileId(HttpRequest request)
     {
         Guid? fileId = null;
         if (request.RouteValues.TryGetValue("fileId", out var fileIdValue))
@@ -68,47 +76,5 @@ internal static class MediaFileRequirementHandlerImpl
             if (fileIdValue is string s && Guid.TryParse(s, out var parsed)) fileId = parsed;
         }
         return fileId;
-    }
-
-    public static async Task HandleRequirementAsync(IAuthorizationHandler handler, IHttpContextAccessor httpContextAccessor, AuthorizationHandlerContext context, IAuthorizationRequirement requirement, bool writeAccessRequired)
-    {
-        var httpContext = httpContextAccessor.HttpContext;
-        if (httpContext is null) return;
-        var user = httpContext.RequestServices.GetRequiredService<LoggedInContext>().MaybeUser;
-        if (user is null)
-        {
-            context.Fail(new AuthorizationFailureReason(handler, $"Must be logged in to upload media files"));
-            return;
-        }
-        var projectId = GetProjectId(httpContext.Request);
-        if (projectId is null)
-        {
-            var fileId = GetFileId(httpContext.Request);
-            if (fileId is not null)
-            {
-                var dbContext = httpContext!.RequestServices.GetRequiredService<LexBoxDbContext>();
-                var file = await dbContext.Files.FindAsync(fileId);
-                if (file is not null) projectId = file.ProjectId;
-            }
-        }
-        if (projectId is null)
-        {
-            context.Fail(new AuthorizationFailureReason(handler, $"Media files must have a project ID in order to be uploaded"));
-            return;
-        }
-        var permissionService = httpContext!.RequestServices.GetRequiredService<IPermissionService>();
-        var hasAccess =
-            writeAccessRequired
-            ? await permissionService.CanSyncProject(projectId.Value)
-            : await permissionService.CanViewProject(projectId.Value);
-        if (!hasAccess)
-        {
-            context.Fail(new AuthorizationFailureReason(handler, $"User does not have access to project {projectId.Value}"));
-            return;
-        }
-        else
-        {
-            context.Succeed(requirement);
-        }
     }
 }

@@ -46,8 +46,6 @@ public static class AuthKernel
         services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
         services.AddSingleton<IAuthorizationHandler, FeatureFlagRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
-        services.AddSingleton<IAuthorizationHandler, UploadFileRequirementHandler>();
-        services.AddSingleton<IAuthorizationHandler, DownloadFileRequirementHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.
@@ -77,7 +75,7 @@ public static class AuthKernel
                 {
                     builder.RequireAuthenticatedUser()
                         .AddRequirements(
-                            new UserCanDownloadMediaFilesRequirement(),
+                            new MediaFilesRequirement(false),
                             new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
                         );
                 });
@@ -86,7 +84,7 @@ public static class AuthKernel
                 {
                     builder.RequireAuthenticatedUser()
                         .AddRequirements(
-                            new UserCanUploadMediaFilesRequirement(),
+                            new MediaFilesRequirement(true),
                             new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
                         );
                 });
