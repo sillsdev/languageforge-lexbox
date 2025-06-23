@@ -543,24 +543,8 @@ public class FwDataMiniLcmApi(
         }
         catch (Exception e)
         {
-            var headword = LexEntryHeadword(entry);
+            var headword = entry.LexEntryHeadwordOrUnknown();
             throw new InvalidOperationException($"Failed to map FW entry to MiniLCM entry '{headword}' ({entry.Guid})", e);
-        }
-    }
-
-    private string LexEntryHeadword(ILexEntry entry)
-    {
-        try
-        {
-            return new Entry()
-            {
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
-                CitationForm = FromLcmMultiString(entry.CitationForm),
-            }.Headword();
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Failed to get headword for FW entry {entry.Guid}", e);
         }
     }
 
@@ -611,9 +595,9 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = LexEntryHeadword(component),
+            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = LexEntryHeadword(complexEntry)
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown()
         };
     }
 
@@ -623,9 +607,9 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.HeadWord.Text,
+            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = LexEntryHeadword(complexEntry)
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown()
         };
     }
 
@@ -762,17 +746,10 @@ public class FwDataMiniLcmApi(
         if (options.Order.Field == SortField.SearchRelevance)
         {
             //crude emulation of FTS search relevance
-            return options.ApplyOrder(entries, e => Headword(e)?.Length);
+            return options.ApplyOrder(entries, e => e.LexEntryHeadword()?.Length);
         }
 
-        return options.ApplyOrder(entries, Headword);
-
-        string? Headword(ILexEntry e)
-        {
-            string? text = e.CitationForm.get_String(sortWs).Text;
-            text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
-            return text?.Trim(LcmHelpers.WhitespaceChars);
-        }
+        return options.ApplyOrder(entries, e => e.LexEntryHeadword());
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
