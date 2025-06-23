@@ -2,13 +2,13 @@ import papi, {logger} from '@papi/backend';
 import {
   type ExecutionActivationContext,
   type IWebViewProvider,
+  type OpenWebViewOptions,
   type SavedWebViewDefinition,
   type WebViewDefinition,
 } from '@papi/core';
 import type {FindEntryEvent, LaunchServerEvent} from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
-import extensionTemplatestyles from './styles.css?inline';
-import type {GetWebViewOptions} from 'shared/models/web-view.model';
+import extensionTemplateStyles from './styles.css?inline';
 
 const reactWebViewType = 'fw-lite-extension.react';
 
@@ -16,7 +16,7 @@ const reactWebViewType = 'fw-lite-extension.react';
  * Simple web view provider that provides React web views when papi requests them
  */
 const reactWebViewProvider: IWebViewProvider = {
-  async getWebView(savedWebView: SavedWebViewDefinition, options: GetWebViewOptions): Promise<WebViewDefinition | undefined> {
+  async getWebView(savedWebView: SavedWebViewDefinition, options: OpenWebViewOptions): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== reactWebViewType)
       throw new Error(
         `${reactWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
@@ -25,7 +25,7 @@ const reactWebViewProvider: IWebViewProvider = {
       ...savedWebView,
       title: 'FW Lite Extension React',
       content: extensionTemplateReact,
-      styles: extensionTemplatestyles,
+      styles: extensionTemplateStyles,
       iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
       allowedFrameSources: ['http://localhost:*']
     };
@@ -35,7 +35,7 @@ const reactWebViewProvider: IWebViewProvider = {
 export async function activate(context: ExecutionActivationContext) {
   logger.info('FwLite is activating!');
 
-  const reactWebViewProviderPromise = papi.webViewProviders.register(
+  const reactWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     reactWebViewType,
     reactWebViewProvider,
   );
