@@ -506,7 +506,7 @@ public class CrdtMiniLcmApi(
         {
             //only add components if the component entry was created already, otherwise it will be added when the component entry is created
             if (!createdEntryIds.Contains(component.ComponentEntryId)) continue;
-            component.Order = componentOrder++;
+            if (component.Order == 0) component.Order = componentOrder++;
             yield return new AddEntryComponentChange(component);
         }
         foreach (var complexForm in entry.ComplexForms)

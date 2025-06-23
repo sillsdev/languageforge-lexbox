@@ -613,9 +613,12 @@ public class FwDataMiniLcmApi(
             ComponentEntryId = component.Guid,
             ComponentHeadword = LexEntryHeadword(component),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = LexEntryHeadword(complexEntry)
+            ComplexFormHeadword = LexEntryHeadword(complexEntry),
+            Order = Order(component, complexEntry)
         };
     }
+
+
 
     private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
     {
@@ -625,8 +628,29 @@ public class FwDataMiniLcmApi(
             ComponentSenseId = componentSense.Guid,
             ComponentHeadword = componentSense.Entry.HeadWord.Text,
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = LexEntryHeadword(complexEntry)
+            ComplexFormHeadword = LexEntryHeadword(complexEntry),
+            Order = Order(componentSense, complexEntry)
         };
+    }
+
+    private static int Order(ICmObject component, ILexEntry complexEntry)
+    {
+        int order = 0;
+        foreach (var entryRef in complexEntry.ComplexFormEntryRefs)
+        {
+            var foundIndex = entryRef.ComponentLexemesRS.IndexOf(component);
+            if (foundIndex == -1)
+            {
+                order += entryRef.ComponentLexemesRS.Count;
+            }
+            else
+            {
+                order += foundIndex + 1;
+                break;
+            }
+        }
+
+        return order;
     }
 
     private Sense FromLexSense(ILexSense sense)
