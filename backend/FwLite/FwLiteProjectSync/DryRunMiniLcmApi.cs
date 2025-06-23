@@ -299,8 +299,14 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
 
     //this is now called to this method from the ResumableImportApi, but calling GetEntries will fail because there's no writing systems
-    IAsyncEnumerable<Entry> IMiniLcmReadApi.GetEntries(QueryOptions? options)
+    async IAsyncEnumerable<Entry> IMiniLcmReadApi.GetEntries(QueryOptions? options)
     {
-        return AsyncEnumerable.Empty<Entry>();
+        if (await _api.CountEntries() > 0)
+        {
+            await foreach (var entry in _api.GetEntries(options))
+            {
+                yield return entry;
+            }
+        }
     }
 }
