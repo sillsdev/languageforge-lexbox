@@ -87,7 +87,7 @@ public static class MediaFileController
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: false, returnCreatedOnSuccess: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: false);
         return result;
     }
 
@@ -103,7 +103,7 @@ public static class MediaFileController
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: true, returnCreatedOnSuccess: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: true);
         return result;
     }
 
@@ -117,8 +117,7 @@ public static class MediaFileController
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
-        bool newFilesAllowed,
-        bool returnCreatedOnSuccess)
+        bool newFilesAllowed)
     {
         // TODO: Consider handling PUT replacing existing file and not specifying filename, don't think that's working correctly right now
         bool replacedExistingFile = false;
