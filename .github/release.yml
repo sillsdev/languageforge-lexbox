@@ -1,0 +1,11 @@
+changelog:
+  categories:
+    - title: FieldWorks Lite
+      labels:
+        - "💻 FW Lite"
+    - title: Lexbox
+      labels:
+        - "📦 Lexbox"
+    - title: Other Stuff 🤔
+      labels:
+        - "*"

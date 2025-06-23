@@ -6,7 +6,6 @@
     <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" />
     <PackageReference Include="CrystalQuartz.AspNetCore" />
     <PackageReference Include="DataAnnotatedModelValidations" />
     <PackageReference Include="HotChocolate.Analyzers" />

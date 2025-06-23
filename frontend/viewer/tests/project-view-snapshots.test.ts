@@ -1,5 +1,5 @@
 ﻿import {type Page, expect, test} from '@playwright/test';
-import { assertScreenshot } from './snapshot';
+import {assertScreenshot} from './snapshot';
 
 for (const colorScheme of ['light', 'dark'] as const) {
   test(`ui snapshot selected entry (color: ${colorScheme})`, async ({page}) => {
@@ -22,7 +22,6 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await assertScreenshot(page, 'project-view-default-' + colorScheme);
   });
 }
-
 
 async function waitForProjectViewReady(page: Page) {
   await expect(page.locator('.i-mdi-loading')).toHaveCount(0);

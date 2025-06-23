@@ -1,14 +1,13 @@
-﻿import type {FieldIds} from '$lib/entry-editor/field-data';
-import type {I18nType} from '../i18n';
+﻿import type {FieldId} from '$lib/entry-editor/field-data';
 
-interface FieldView {
+export interface FieldView {
   show: boolean;
   order: number;
 }
 
 const defaultDef = Symbol('default spread values');
 
-export const allFields: Record<FieldIds, FieldView> = {
+export const allFields: Record<FieldId, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
@@ -33,7 +32,6 @@ export const allFields: Record<FieldIds, FieldView> = {
 export const FW_LITE_VIEW: RootView = {
   id: 'fwlite',
   type: 'fw-lite',
-  i18nKey: '',
   label: 'FieldWorks Lite',
   fields: allFields,
   get alternateView() { return FW_CLASSIC_VIEW; }
@@ -42,7 +40,6 @@ export const FW_LITE_VIEW: RootView = {
 export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
-  i18nKey: 'fieldworks',
   label: 'FieldWorks',
   fields: recursiveSpread(allFields, {[defaultDef]: {show: true}}),
   alternateView: FW_LITE_VIEW,
@@ -56,7 +53,7 @@ export const views: [RootView, RootView, ...CustomView[]] = [
   FW_LITE_VIEW,
   FW_CLASSIC_VIEW,
   ...viewDefinitions.map(view => {
-    const fields: Record<FieldIds, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fieldOverrides);
+    const fields: Record<FieldId, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fieldOverrides);
     return {
       ...FW_LITE_VIEW,
       ...view,
@@ -65,7 +62,7 @@ export const views: [RootView, RootView, ...CustomView[]] = [
   })
 ];
 
-function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> }): T {
+function recursiveSpread<T extends Record<string | symbol, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> } & { [defaultDef]?: Partial<T[keyof T]> }): T {
   const result: Record<string, unknown> = {...obj1};
   const defaultValues = obj2[defaultDef];
   if (defaultValues) {
@@ -93,17 +90,16 @@ export type ViewType = 'fw-lite' | 'fw-classic';
 interface ViewDefinition {
   id: string;
   type: ViewType;
-  i18nKey: I18nType;
   label: string;
 }
 
 interface CustomViewDefinition extends ViewDefinition {
-  fieldOverrides: Partial<Record<FieldIds, Partial<FieldView>>>;
+  fieldOverrides: Partial<Record<FieldId, Partial<FieldView>>>;
   parentView: RootView;
 }
 
 interface ViewBase extends ViewDefinition {
-  fields: Record<FieldIds, FieldView>;
+  fields: Record<FieldId, FieldView>;
 }
 
 interface RootView extends ViewBase {

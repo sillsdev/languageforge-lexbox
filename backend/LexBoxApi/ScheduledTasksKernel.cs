@@ -16,10 +16,6 @@ public static class ScheduledTasksKernel
 {
     public static void AddScheduledTasks(this IServiceCollection services, IConfiguration configuration)
     {
-        services.ConfigureDbModel(builder =>
-        {
-            builder.AddQuartz(b => b.UsePostgreSql());
-        });
         services.AddQuartz(q =>
         {
             q.UsePersistentStore(options =>

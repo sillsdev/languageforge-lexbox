@@ -3,7 +3,7 @@
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Checkbox} from '$lib/components/ui/checkbox';
   import {DotnetService, type IEntry, type ISense} from '$lib/dotnet-types';
-  import type {FieldIds} from '$lib/entry-editor/field-data';
+  import type {FieldId} from '$lib/entry-editor/field-data';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {InMemoryApiService} from '$lib/in-memory-api-service';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -12,8 +12,7 @@
   import {initView, initViewSettings} from '$lib/views/view-service';
   import {dndzone} from 'svelte-dnd-action';
   import * as Resizable from '$lib/components/ui/resizable';
-  import LcmRichTextEditor from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
-  import {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
+  import LcmRichTextEditor, {lineSeparator} from '$lib/components/lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {EditorGrid} from '$lib/components/editor';
@@ -21,7 +20,7 @@
   import EntryOrSensePicker, {type EntrySenseSelection} from '$lib/entry-editor/EntryOrSensePicker.svelte';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
-  import {TabsList, TabsTrigger, Tabs} from '$lib/components/ui/tabs';
+  import {Tabs, TabsList, TabsTrigger} from '$lib/components/ui/tabs';
   import {Reorderer} from '$lib/components/reorderer/index.js';
   import {Switch} from '$lib/components/ui/switch';
   import {QueryParamState} from '$lib/utils/url.svelte';
@@ -33,6 +32,7 @@
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
   import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
+  import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -55,9 +55,9 @@
     return s;
   }
 
-  let senseFields: ({ id: FieldIds })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
+  let senseFields: ({ id: FieldId })[] = $state([{id: 'gloss'}, {id: 'definition'}]);
 
-  function updateFields(e: CustomEvent<{ items: ({ id: FieldIds })[] }>) {
+  function updateFields(e: CustomEvent<{ items: ({ id: FieldId })[] }>) {
     senseFields = e.detail.items;
   }
   let count = $state(0);
@@ -70,7 +70,7 @@
   }
 
   const originalRichString: IRichString = {
-    spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'ts'}],
+    spans: [{text: 'Hello', ws: 'en'}, {text: ' World', ws: 'js'}, {text: ` type ${lineSeparator}script`, ws: 'en', bold: RichTextToggle.On}],
   };
   let richString: IRichString | undefined = $state(originalRichString);
   let readonly = $state(false);
@@ -155,7 +155,7 @@
         <Checkbox bind:checked={readonly}/> Readonly
       </label>
     </div>
-    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly}
+    <LcmRichTextEditor label="Test Rich Text Editor" bind:value={richString} {readonly} normalWs="en"
        onchange={() => richString = JSON.parse(JSON.stringify($state.snapshot(richString)))} />
     <pre>{JSON.stringify(richString, null, 2)?.replaceAll(lineSeparator, '\n') ?? 'undefined'}</pre>
   </div>

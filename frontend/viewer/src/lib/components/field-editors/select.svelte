@@ -9,6 +9,7 @@
   import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
+  import {computeCommandScore} from 'bits-ui';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -73,10 +74,13 @@
 
   const filteredOptions = $derived.by(() => {
     const filterValueLower = filterValue.toLocaleLowerCase();
-    return options.filter((option) => {
-      const label = getLabel(option).toLocaleLowerCase();
-      return label.includes(filterValueLower);
-    });
+    return options.map(option => ({
+      option,
+      rank: computeCommandScore(getLabel(option).toLocaleLowerCase(), filterValueLower)
+    }))
+      .filter(result => result.rank > 0)
+      .sort((a, b) => b.rank - a.rank)
+      .map(result => result.option);
   });
 
   const RENDER_LIMIT = 100;

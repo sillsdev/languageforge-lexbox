@@ -153,7 +153,7 @@
             helpId={fieldData.note.helpId}
           />
           <Editor.Field.Body>
-            <LcmRichTextEditor bind:value={entry.note} readonly={editorReadonly} onchange={() => onChange('note')} />
+            <LcmRichTextEditor bind:value={entry.note} normalWs="en" readonly={editorReadonly} onchange={() => onChange('note')} />
           </Editor.Field.Body>
         </Editor.Field.Root>
         <Editor.Field.Root>
