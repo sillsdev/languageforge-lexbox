@@ -38,7 +38,7 @@ public class MediaFileDbTests
         _lexBoxDbContext.ChangeTracker.Clear();
 
         var result = await MediaFileMetadataController.GetFileMetadata(fileId, _lexBoxDbContext);
-        var okResult = result.Result.Should().BeOfType<Ok<FileMetadata>>().Subject;
+        var okResult = result.Result.Should().BeOfType<Ok<ApiMetadataEndpointResult>>().Subject;
 
         okResult.Value!.Author.Should().Be("Test Author");
     }
