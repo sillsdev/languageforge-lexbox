@@ -1,6 +1,9 @@
 ﻿version: 3
 output: prefixed
-
+includes:
+  viewer:
+    taskfile: ../viewer/Taskfile.yml
+    dir: ../viewer
 tasks:
   install:
     method: checksum
@@ -26,5 +29,4 @@ tasks:
     cmds:
       - dotnet publish ../../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc --output ./public/fw-lite
   build-viewer:
-    dir: ../viewer
-    cmd: pnpm run build-app
+    deps: [viewer:build-app]
