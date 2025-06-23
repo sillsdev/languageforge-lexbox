@@ -555,6 +555,11 @@ namespace LexData.Migrations
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Metadata")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValueSql("'{}'");
+
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
@@ -1251,44 +1256,6 @@ namespace LexData.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.OwnsOne("LexCore.Entities.FileMetadata", "Metadata", b1 =>
-                        {
-                            b1.Property<Guid>("MediaFileId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Author")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("FileFormat")
-                                .HasColumnType("text");
-
-                            b1.Property<int?>("License")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("MimeType")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Sha256Hash")
-                                .HasColumnType("text");
-
-                            b1.Property<int?>("SizeInBytes")
-                                .HasColumnType("integer");
-
-                            b1.Property<DateTimeOffset?>("UploadDate")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.HasKey("MediaFileId");
-
-                            b1.ToTable("Files");
-
-                            b1.ToJson("Metadata");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MediaFileId");
-                        });
-
-                    b.Navigation("Metadata");
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
