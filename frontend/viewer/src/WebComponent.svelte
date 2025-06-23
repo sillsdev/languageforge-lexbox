@@ -12,6 +12,8 @@
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$lib/project-context.svelte';
+  import {mockFwLiteConfig} from '$lib/in-memory-api-service';
+  import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 
   let loading = true;
 
@@ -45,14 +47,10 @@
     };
   });
   const serviceProvider = window.lexbox.ServiceProvider;
-  serviceProvider.setService(DotnetService.FwLiteConfig, {
-    appVersion: 'lexbox-viewer',
-    feedbackUrl: '',
-    os: FwLitePlatform.Web,
-    useDevAssets: true, //has no effect, but is required
-  });
+  serviceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
   serviceProvider.setService(DotnetService.JsEventListener, {
     nextEventAsync: () => new Promise((_) => {}),
+    lastEvent: () => Promise.resolve<IFwEvent>(undefined!)//the api should allow returning undefined but it's incorrect
   });
 </script>
 

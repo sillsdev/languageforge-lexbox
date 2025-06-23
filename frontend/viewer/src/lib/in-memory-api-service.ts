@@ -24,6 +24,7 @@ import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Model
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
 import type {IFilterQueryOptions} from './dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
+import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -44,6 +45,17 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
 
+export const mockFwLiteConfig: IFwLiteConfig = {
+  appVersion: `dev`,
+  feedbackUrl: '',
+  os: FwLitePlatform.Web,
+  useDevAssets: true,
+  edition: 0,
+  updateCheckCondition: 0,
+  updateCheckInterval: 0,
+  updateUrl: ''
+};
+
 export class InMemoryApiService implements IMiniLcmJsInvokable {
   #writingSystemService: WritingSystemService;
   constructor(private projectContext: ProjectContext) {
@@ -63,12 +75,7 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     const projectContext = initProjectContext();
     const inMemoryLexboxApi = new InMemoryApiService(projectContext);
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
-    window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, {
-      appVersion: `dev`,
-      feedbackUrl: '',
-      os: FwLitePlatform.Web,
-      useDevAssets: true,
-    });
+    window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
         return Promise.resolve([]);
