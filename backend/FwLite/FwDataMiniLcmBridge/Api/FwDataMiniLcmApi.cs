@@ -615,7 +615,6 @@ public class FwDataMiniLcmApi(
 
     private Sense FromLexSense(ILexSense sense)
     {
-        var enWs = GetWritingSystemHandle("en");
         var pos = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech();
         var s =  new Sense
         {
@@ -729,32 +728,31 @@ public class FwDataMiniLcmApi(
     }
 
     public IAsyncEnumerable<Entry> GetEntries(
-        Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
+        Func<ILexEntry, bool>? predicate, QueryOptions? options = null, string? query = null)
     {
         options ??= QueryOptions.Default;
         var entries = GetLexEntries(predicate, options);
 
-        entries = ApplySorting(options, entries);
+        entries = ApplySorting(options, entries, query);
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
-    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries)
+    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries, string? query)
     {
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
         if (options.Order.Field == SortField.SearchRelevance)
         {
-            //crude emulation of FTS search relevance
-            return options.ApplyOrder(entries, e => e.LexEntryHeadword()?.Length);
+            return entries.ApplyRoughBestMatchOrder(options.Order, sortWs, query);
         }
 
-        return options.ApplyOrder(entries, e => e.LexEntryHeadword());
+        return options.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = GetEntries(EntrySearchPredicate(query), options);
+        var entries = GetEntries(EntrySearchPredicate(query), options, query);
         return entries;
     }
 

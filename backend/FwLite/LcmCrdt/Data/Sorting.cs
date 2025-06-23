@@ -2,6 +2,9 @@ namespace LcmCrdt.Data;
 
 public static class Sorting
 {
+    /// <summary>
+    /// crude emulation of FTS search relevance
+    /// </summary>
     public static IQueryable<Entry> ApplyRoughBestMatchOrder(this IQueryable<Entry> entries, SortOptions order, string? query = null)
     {
         if (order.Ascending)
