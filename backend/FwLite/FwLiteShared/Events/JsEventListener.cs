@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Reinforced.Typings.Attributes;
 
 namespace FwLiteShared.Events;
 
@@ -68,6 +69,7 @@ public class JsEventListener : IDisposable
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<IFwEvent | null>")]
     public ValueTask<IFwEvent?> LastEvent(FwEventType type)
     {
         return ValueTask.FromResult(_globalEventBus.GetLastEvent(type));
