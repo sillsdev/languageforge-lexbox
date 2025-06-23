@@ -4,7 +4,6 @@
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
   import EntriesList from './EntriesList.svelte';
-  import { badgeVariants } from '$lib/components/ui/badge';
   import { Icon } from '$lib/components/ui/icon';
   import { t } from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
@@ -17,26 +16,17 @@
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
-  import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {SortField} from '$lib/dotnet-types';
-  import {cn} from '$lib/utils';
+  import SortMenu, {type SortConfig} from './SortMenu.svelte';
 
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
-  let gridifyFilter = $state<string | undefined>(undefined);
-  let selectedSortField = $state<SortField | undefined>(undefined);
-  const sortField = $derived(selectedSortField ?? (search ? SortField.SearchRelevance : SortField.Headword));
-  let sortDirection = $state<'asc' | 'desc'>('asc');
+  let gridifyFilter = $state<string>();
+  let sort = $state<SortConfig>();
   let entryMode: 'preview' | 'simple' = $state('simple');
-
-  const sortOptions = [
-    { value: SortField.SearchRelevance, dir: 'asc', label: $t`Best match`, icon: 'i-mdi-arrow-down' },
-    { value: SortField.Headword, dir: 'asc', label: $t`Headword`, icon: 'i-mdi-sort-alphabetical-ascending' },
-    { value: SortField.Headword, dir: 'desc', label: $t`Headword`, icon: 'i-mdi-sort-alphabetical-descending' }
-  ] as const;
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry();
@@ -67,35 +57,8 @@
           <div class="md:mr-3">
             <SearchFilter bind:search bind:gridifyFilter />
             <div class="my-2 flex items-center justify-between">
-              <ResponsiveMenu.Root>
-                <ResponsiveMenu.Trigger class={badgeVariants({ variant: 'secondary' })}>
-                  {#snippet child({props})}
-                    <button {...props}>
-                      {#if sortField === SortField.Headword}
-                        <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
-                        {$t`Headword`}
-                      {:else}
-                        <Icon icon="i-mdi-arrow-down" class="h-4 w-4" />
-                        {$t`Best match`}
-                      {/if}
-                    </button>
-                  {/snippet}
-                </ResponsiveMenu.Trigger>
-                <ResponsiveMenu.Content>
-                  {#each sortOptions as option}
-                    <ResponsiveMenu.Item
-                      onSelect={() => {
-                        selectedSortField = option.value;
-                        sortDirection = option.dir;
-                      }}
-                      class={cn(sortField === option.value && sortDirection === option.dir && 'bg-muted')}
-                      >
-                      <Icon icon={option.icon} />
-                      {option.label}
-                    </ResponsiveMenu.Item>
-                  {/each}
-                </ResponsiveMenu.Content>
-              </ResponsiveMenu.Root>
+              <SortMenu bind:value={sort}
+                autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
               <ResponsivePopup title={$t`List mode`}>
                 {#snippet trigger({props})}
                   <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />
@@ -119,8 +82,7 @@
           </div>
           <EntriesList {search}
                        selectedEntryId={selectedEntryId.current}
-                       {sortField}
-                       {sortDirection}
+                       {sort}
                        {gridifyFilter}
                        onSelectEntry={(e) => (selectedEntryId.current = e?.id ?? '')}
                        previewDictionary={entryMode === 'preview'}/>
