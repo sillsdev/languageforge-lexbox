@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using System.Text.Json;
+using MimeMapping;
 
 namespace FwHeadless.Controllers;
 
@@ -23,7 +24,10 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var path = Path.Join(projectFolder, relativePath); // Do NOT use Path.Combine here
-        var files = Directory.EnumerateFiles(path).Select(file => Path.GetRelativePath(projectFolder, file)).ToArray();
+        var files =
+            Directory.EnumerateFiles(path, "*", new EnumerationOptions() { RecurseSubdirectories = true })
+                .Select(file => Path.GetRelativePath(projectFolder, file))
+                .ToArray();
         return TypedResults.Ok(new FileListing(files));
     }
 
@@ -64,7 +68,9 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        File.Delete(filePath);
+        SafeDelete(filePath);
+        var dirPath = Path.Join(projectFolder, mediaFile.Id.ToString());
+        SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
         lexBoxDb.Files.Remove(mediaFile);
         await lexBoxDb.SaveChangesAsync();
         return TypedResults.Ok();
@@ -123,7 +129,19 @@ public static class MediaFileController
             var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
             return TypedResults.Problem(statusCode: 413, detail: detail);
         }
-        if (fileId is null) fileId = Guid.NewGuid();
+        // If no filename specified in form, get it from uploaded file
+        if (string.IsNullOrEmpty(filename)) filename = file.FileName;
+        // If *still* no filename, then use `file.ext` where the extension is calculated from the Content-Type header, defaulting to `.bin` if not provided
+        if (string.IsNullOrEmpty(filename))
+        {
+            var mimeType = httpContext.Request.Headers.ContentType.FirstOrDefault();
+            var ext = MimeUtility.GetExtensions(mimeType ?? "")?.FirstOrDefault() ?? "bin";
+            filename = $"file.{ext}";
+        }
+        if (fileId is null || fileId.Value == default)
+        {
+            fileId = Guid.NewGuid();
+        }
         if (metadata is null)
         {
             metadata = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
@@ -132,16 +150,13 @@ public static class MediaFileController
         else
         {
             var fromJson = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
-            // If JSON should override form fields, then...
-            if (fromJson is not null) metadata.Merge(fromJson);
-            // If form fields should override JSON, then...
-            // if (fromJson is not null)
-            // {
-            //     fromJson.Merge(metadata);
-            //     metadata = fromJson;
-            // }
+            // If form fields specified, they should override any JSON passed in "metadata" field
+            if (fromJson is not null)
+            {
+                fromJson.Merge(metadata);
+                metadata = fromJson;
+            }
         }
-        // TODO: Now handle filename
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null && !newFilesAllowed)
         {
@@ -155,15 +170,10 @@ public static class MediaFileController
             }
             // If no filename specified in form, get it from uploaded file
             if (string.IsNullOrEmpty(filename)) filename = file.FileName;
-            // If *still* no filename, then return error because we need *some* filename in order to store it
-            if (string.IsNullOrEmpty(filename))
-            {
-                return TypedResults.BadRequest(FileUploadErrorMessage.FilenameRequiredForNewFiles);
-            }
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
-                Filename = filename,
+                Filename = Path.Join(fileId.Value.ToString(), filename),
                 ProjectId = projectId.Value,
                 Metadata = metadata,
             };
@@ -177,12 +187,7 @@ public static class MediaFileController
             {
                 return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects);
             }
-            filename ??= mediaFile.Filename;
-            // metadata.Filename ??= filename; // TODO: Try test without this line and see if it fails but this line fixes it
-            if (filename != mediaFile.Filename)
-            {
-                return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeRenamed);
-            }
+            filename = Path.GetFileName(mediaFile.Filename); // Strip GUID prefix for consistency with create-file path; we'll be adding it back later
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata ?? new FileMetadata();
             else mediaFile.Metadata.Merge(metadata ?? new FileMetadata());
         }
@@ -193,8 +198,9 @@ public static class MediaFileController
         {
             return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless);
         }
-        var filePath = Path.Join(projectFolder, filename);
-        mediaFile.Metadata.Filename = filename;
+        var fileFolder = Path.Join(projectFolder, fileId.Value.ToString());
+        Directory.CreateDirectory(fileFolder);
+        var filePath = Path.Join(fileFolder, filename);
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
         var readStream = file.OpenReadStream();
         var writtenLength = await WriteFileToDisk(filePath, readStream);
@@ -202,6 +208,7 @@ public static class MediaFileController
         if (writtenLength > maxUploadSize)
         {
             SafeDelete(filePath);
+            SafeDeleteDirectory(fileFolder);
             lexBoxDb.Files.Remove(mediaFile);
             await lexBoxDb.SaveChangesAsync();
             var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
@@ -288,6 +295,13 @@ public static class MediaFileController
     {
         // Delete file at path, ignoring all errors such as "file not found"
         try { File.Delete(filePath); }
+        catch { }
+    }
+
+    private static void SafeDeleteDirectory(string dirPath, bool recursive = false)
+    {
+        // Delete file at path, ignoring all errors such as "directory not empty"
+        try { Directory.Delete(dirPath, recursive); }
         catch { }
     }
 }

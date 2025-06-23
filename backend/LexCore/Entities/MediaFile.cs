@@ -24,7 +24,6 @@ public class MediaFile : EntityBase
             }
             Metadata = new FileMetadata
             {
-                Filename = Filename,
                 SizeInBytes = cappedSize
             };
         }
@@ -33,7 +32,6 @@ public class MediaFile : EntityBase
 
 public class FileMetadata
 {
-    public string? Filename { get; set; }
     public string? Sha256Hash { get; set; } // Used for EntityTag / ETag headers, among other things
     public int? SizeInBytes { get; set; }
     public string? FileFormat { get; set; } // TODO: Define strings we might use here, or else switch to MimeType
@@ -45,14 +43,23 @@ public class FileMetadata
 
     public void Merge(FileMetadata other)
     {
-        if (!string.IsNullOrEmpty(other.Filename)) this.Filename = other.Filename;
         if (other.SizeInBytes > 0) this.SizeInBytes = other.SizeInBytes;
-        if (other.FileFormat is not null) this.FileFormat = other.FileFormat;
-        if (other.MimeType is not null) this.MimeType = other.MimeType;
-        if (other.Author is not null) this.Author = other.Author;
+        if (!string.IsNullOrEmpty(other.FileFormat)) this.FileFormat = other.FileFormat;
+        if (!string.IsNullOrEmpty(other.MimeType)) this.MimeType = other.MimeType;
+        if (!string.IsNullOrEmpty(other.Author)) this.Author = other.Author;
         if (other.UploadDate > DateTimeOffset.MinValue) this.UploadDate = other.UploadDate;
         if (other.License is not null) this.License = other.License;
     }
+}
+
+public class ApiMetadataEndpointResult(): FileMetadata
+{
+    public ApiMetadataEndpointResult(FileMetadata? other) : this()
+    {
+        if (other is not null) Merge(other);
+    }
+
+    public required string Filename { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -13,9 +13,7 @@ public record PostFileResult(Guid guid);
 public enum FileUploadErrorMessage
 {
     ProjectIdRequiredForNewFiles,
-    FilenameRequiredForNewFiles,
     UploadedFilesCannotBeMovedToNewProjects,
-    UploadedFilesCannotBeRenamed,
     ProjectFolderNotFoundInFwHeadless,
 }
 

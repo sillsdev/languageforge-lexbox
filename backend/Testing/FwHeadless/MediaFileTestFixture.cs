@@ -117,13 +117,13 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         if (expectSuccess) result.EnsureSuccessStatusCode();
     }
 
-    public async Task<FileMetadata?> GetFileMetadata(Guid fileId, string loginAs = "admin", bool expectSuccess = true)
+    public async Task<ApiMetadataEndpointResult?> GetFileMetadata(Guid fileId, string loginAs = "admin", bool expectSuccess = true)
     {
         await LoginIfNeeded(loginAs);
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/metadata/{fileId}");
         var result = await HttpClient.SendAsync(request);
         if (expectSuccess) result.EnsureSuccessStatusCode();
-        return await result.Content.ReadFromJsonAsync<FileMetadata>();
+        return await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>();
     }
 
     public void CreateDummyFile(string filename, long length)

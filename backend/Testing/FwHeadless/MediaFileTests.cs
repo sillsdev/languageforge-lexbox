@@ -25,11 +25,11 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         guid.Should().NotBe(Guid.Empty);
         var files = await Fixture.ListFiles(Fixture.ProjectId);
         files.Should().NotBeNull();
-        files.Files.Should().Contain(TestRepoZipFilename);
+        files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
         await Fixture.PutFile(TestRepoZipPath, guid);
         files = await Fixture.ListFiles(Fixture.ProjectId);
         files.Should().NotBeNull();
-        files.Files.Should().Contain(TestRepoZipFilename);
+        files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
     [Fact]
@@ -38,23 +38,23 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         var guid = await Fixture.PostFile(TestRepoZipPath, loginAs: "user", expectSuccess: false);
         guid.Should().Be(Guid.Empty);
         var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "user");
-        (files?.Files ?? []).Should().NotContain(TestRepoZipFilename);
+        (files?.Files ?? []).Should().NotContain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
     [Fact]
     public async Task UploadFile_WorksForProjectManagers()
     {
-        await Fixture.PostFile(TestRepoZipPath, loginAs: "manager", expectSuccess: true);
+        var guid = await Fixture.PostFile(TestRepoZipPath, loginAs: "manager", expectSuccess: true);
         var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "manager");
-        (files?.Files ?? []).Should().Contain(TestRepoZipFilename);
+        (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
     [Fact]
     public async Task UploadFile_WorksForProjectEditors()
     {
-        await Fixture.PostFile(TestRepoZipPath, loginAs: "editor", expectSuccess: true);
+        var guid = await Fixture.PostFile(TestRepoZipPath, loginAs: "editor", expectSuccess: true);
         var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "editor");
-        (files?.Files ?? []).Should().Contain(TestRepoZipFilename);
+        (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
     [Fact]
@@ -76,13 +76,13 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
             Author = "Test Author",
             License = MediaFileLicense.CreativeCommons,
         };
-        var expectedMetadata = new FileMetadata
+        var expectedMetadata = new ApiMetadataEndpointResult(uploadMetadata)
         {
             Filename = TestRepoZipFilename,
             SizeInBytes = (int)expectedLength,
-            Author = uploadMetadata.Author,
-            License = uploadMetadata.License,
         };
+        expectedMetadata.Author.Should().Be(uploadMetadata.Author);
+        expectedMetadata.License.Should().Be(uploadMetadata.License);
         var fileId = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata);
         var metadata = await Fixture.GetFileMetadata(fileId);
         metadata.Should().NotBeNull();
@@ -189,5 +189,4 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
 
     // TODO: Test that metadata can be specified in form fields as well as in JSON format
     // TODO: Test that metadata in form fields will override metadata from JSON format
-    //       (or decide that it should be the other way around)
 }
