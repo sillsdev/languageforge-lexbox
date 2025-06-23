@@ -128,9 +128,6 @@
     selectedEntry = entry;
     selectedSense = sense;
   }
-
-  const searchEmptyStringFw = msg`Search for an entry # or #`;
-  const searchEmptyStringFwLite = msg`Search for a word # or #`;
 </script>
 
 <Dialog.Root bind:open>
@@ -178,7 +175,7 @@
               <Icon icon="i-mdi-magnify-remove-outline"/>
               <NewEntryButton onclick={onClickCreateNewEntry}/>
             {:else}
-              <T msg={pt(searchEmptyStringFw, searchEmptyStringFwLite, $currentView)}>
+              <T msg="Search # or #">
                 <Icon icon="i-mdi-book-search-outline"/>
                 {#snippet second()}
                   <NewEntryButton onclick={onClickCreateNewEntry}/>
