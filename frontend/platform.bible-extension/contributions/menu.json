@@ -8,6 +8,12 @@
         "group": "platform.projectProjects",
         "order": 1006,
         "command": "fwLiteExtension.simpleFind"
+      },
+      {
+        "label": "%fwLiteExtension_open_label%",
+        "group": "platform.projectProjects",
+        "order": 1007,
+        "command": "fwLiteExtension.openFWLite"
       }
     ]
   },

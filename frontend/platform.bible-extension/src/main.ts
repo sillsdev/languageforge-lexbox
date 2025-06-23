@@ -68,6 +68,13 @@ export async function activate(context: ExecutionActivationContext) {
       };
     },
   );
+  const openFwLiteCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.openFWLite',
+    () => {
+      papi.webViews.openWebView(reactWebViewType, undefined, {existingId: '?'})
+      return { success: true}
+    },
+  );
   const simpleFindEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.simpleFind',
     () => {
@@ -92,6 +99,7 @@ export async function activate(context: ExecutionActivationContext) {
     await findEntryCommandPromise,
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
+    await openFwLiteCommandPromise,
     onFindEntryEmitter,
     onLaunchServerEmitter,
     () => fwLiteProcess.kill()

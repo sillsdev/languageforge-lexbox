@@ -17,9 +17,8 @@ declare module 'fw-lite-extension' {
 declare module 'papi-shared-types' {
 
   export interface CommandHandlers {
-    'fwLiteExtension.doStuff': (message: string) => {
-      response: string;
-      occurrence: number;
+    'fwLiteExtension.openFWLite': () => {
+      success: boolean;
     };
     'fwLiteExtension.findEntry': (entry: string) => {
       success: boolean;

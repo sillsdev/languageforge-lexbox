@@ -2,7 +2,8 @@
   "metadata": {},
   "localizedStrings": {
     "en": {
-      "%fwLiteExtension_menu_label%": "Search for 'apple' in FW Lite"
+      "%fwLiteExtension_menu_label%": "Search for 'apple' in FW Lite",
+      "%fwLiteExtension_open_label%": "Open FW Lite"
     }
   }
 }
