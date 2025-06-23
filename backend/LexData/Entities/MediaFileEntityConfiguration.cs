@@ -19,12 +19,13 @@ public class MediaFileEntityConfiguration : IEntityTypeConfiguration<MediaFile>
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
-        builder.Property(u => u.Metadata)
-            .IsRequired(false)
-            .HasDefaultValueSql("'{}'")
-            .HasConversion(
-                v => JsonSerializer.Serialize(v, jsonOptions),
-                v => JsonSerializer.Deserialize<FileMetadata>(v, jsonOptions)
-            );
+        builder.OwnsOne(u => u.Metadata, mb =>
+        {
+            mb.ToJson();
+        });
+        // TODO: Check if we also need to add:
+        // builder.Property(u => u.Metadata)
+        //     .IsRequired(false)
+        //     .HasDefaultValueSql("'{}'");
     }
 }
