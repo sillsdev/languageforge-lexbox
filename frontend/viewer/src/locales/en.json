@@ -1303,6 +1303,18 @@
     ],
     "translation": "Made of"
   },
+  "/K6ChE": {
+    "message": "Made of type",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        77
+      ]
+    ],
+    "translation": "Made of type"
+  },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
     "placeholders": {},
