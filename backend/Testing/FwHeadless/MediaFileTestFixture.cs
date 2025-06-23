@@ -5,6 +5,7 @@ using Testing.ApiTests;
 using Testing.Services;
 using FwHeadless.Models;
 using Microsoft.AspNetCore.Http.Extensions;
+using FluentAssertions.Execution;
 
 namespace Testing.FwHeadless;
 
@@ -81,6 +82,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             request.Content = formData;
             var result = await HttpClient.SendAsync(request);
             if (expectSuccess) result.EnsureSuccessStatusCode();
+            if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
             var obj = await result.Content.ReadFromJsonAsync<PostFileResult>();
             return obj?.guid ?? Guid.Empty;
         }
@@ -106,6 +108,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             request.Content = formData;
             var result = await HttpClient.SendAsync(request);
             if (expectSuccess) result.EnsureSuccessStatusCode();
+            if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
         }
     }
 
@@ -115,6 +118,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         var request = new HttpRequestMessage(HttpMethod.Delete, $"api/media/{fileId}");
         var result = await HttpClient.SendAsync(request);
         if (expectSuccess) result.EnsureSuccessStatusCode();
+        if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
     }
 
     public async Task<ApiMetadataEndpointResult?> GetFileMetadata(Guid fileId, string loginAs = "admin", bool expectSuccess = true)
@@ -123,6 +127,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/metadata/{fileId}");
         var result = await HttpClient.SendAsync(request);
         if (expectSuccess) result.EnsureSuccessStatusCode();
+        if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
         return await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>();
     }
 

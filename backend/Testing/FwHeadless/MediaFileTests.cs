@@ -109,31 +109,20 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
-    public async Task UploadFile_TwiceWithDifferentFilenames_ThrowsError()
+    public async Task UploadFile_TwiceWithDifferentFilenames_FilenameTakenFromFirstUpload()
     {
         var fileId = await Fixture.PostFile(TestRepoZipPath);
         var secondPath = TestRepoZipPath + ".bak";
         if (File.Exists(secondPath)) File.Delete(secondPath);
         File.Copy(TestRepoZipPath, secondPath);
-        await Fixture.PutFile(secondPath, fileId, expectSuccess: false);
+        await Fixture.PutFile(secondPath, fileId);
         var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
+        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
+        (files?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), secondPath));
     }
-
-    // I (Robin) think that should become this instead:
-    // [Fact]
-    // public async Task UploadFile_TwiceWithDifferentFilenames_FilenameTakenFromFirstUpload()
-    // {
-    //     var fileId = await Fixture.PostFile(TestRepoZipPath);
-    //     var secondPath = TestRepoZipPath + ".bak";
-    //     if (File.Exists(secondPath)) File.Delete(secondPath);
-    //     File.Copy(TestRepoZipPath, secondPath);
-    //     await Fixture.PutFile(secondPath, fileId);
-    //     var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
-    //     metadata.Should().NotBeNull();
-    //     metadata.Filename.Should().Be(TestRepoZipFilename);
-    // }
 
     [Fact]
     public async Task UploadFile_TwiceWithDifferentFilenamesButOverridingFilename_Works()
