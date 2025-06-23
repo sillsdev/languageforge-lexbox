@@ -26,6 +26,7 @@
 
 <LcmRichTextEditor
   bind:value={value}
+  normalWs={ws.wsId}
   onchange={onRichTextChange}
   {readonly}
   title={`${ws.name} (${ws.wsId})`}

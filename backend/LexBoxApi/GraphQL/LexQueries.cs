@@ -8,6 +8,7 @@ using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
+using NeinLinq;
 
 namespace LexBoxApi.GraphQL;
 
@@ -25,7 +26,10 @@ public class LexQueries
     {
         var userId = loggedInContext.User.Id;
         var myProjects = await projectService.UserProjects(userId)
-            .AsNoTracking().Project(context).ToListAsync();
+            .ToEntityInjectable()
+            .AsNoTracking()
+            .Project(context)
+            .ToListAsync();
 
         if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
         {
@@ -43,11 +47,11 @@ public class LexQueries
     {
         if (withDeleted)
         {
-            return context.Projects.AsNoTracking().IgnoreQueryFilters();
+            return context.Projects.ToEntityInjectable().AsNoTracking().IgnoreQueryFilters();
         }
         else
         {
-            return context.Projects.AsNoTracking();
+            return context.Projects.ToEntityInjectable().AsNoTracking();
         }
     }
 
@@ -56,7 +60,7 @@ public class LexQueries
     public IQueryable<DraftProject> MyDraftProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
         var userId = loggedInContext.User.Id;
-        return context.DraftProjects.AsNoTracking().Where(p => p.ProjectManagerId == userId);
+        return context.DraftProjects.ToEntityInjectable().AsNoTracking().Where(p => p.ProjectManagerId == userId);
     }
 
     [UseProjection]
@@ -65,7 +69,7 @@ public class LexQueries
     [AdminRequired]
     public IQueryable<DraftProject> DraftProjects(LexBoxDbContext context)
     {
-        return context.DraftProjects.AsNoTracking();
+        return context.DraftProjects.ToEntityInjectable().AsNoTracking();
     }
 
     public record ProjectsByLangCodeAndOrgInput(Guid OrgId, string LangCode);
@@ -76,7 +80,7 @@ public class LexQueries
         if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
         // Convert 3-letter code to 2-letter code if relevant, otherwise leave as-is
         var langCode = LangTagConstants.ThreeToTwo.GetValueOrDefault(input.LangCode, input.LangCode);
-        var query = context.Projects.AsNoTracking().Where(p =>
+        var query = context.Projects.ToEntityInjectable().AsNoTracking().Where(p =>
             p.Organizations.Any(o => o.Id == input.OrgId) &&
             p.FlexProjectMetadata != null &&
             p.FlexProjectMetadata.WritingSystems != null &&
@@ -103,7 +107,7 @@ public class LexQueries
     public IQueryable<Project> ProjectsInMyOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsInMyOrgInput input)
     {
         if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
-        var query = context.Projects.AsNoTracking().Where(p => p.Organizations.Any(o => o.Id == input.OrgId));
+        var query = context.Projects.ToEntityInjectable().AsNoTracking().Where(p => p.Organizations.Any(o => o.Id == input.OrgId));
         // Org admins can see all projects, everyone else can only see non-confidential
         if (!permissionService.CanEditOrg(input.OrgId))
         {
@@ -117,7 +121,7 @@ public class LexQueries
     public async Task<IQueryable<Project>> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)
     {
         await permissionService.AssertCanViewProject(projectId);
-        return context.Projects.AsNoTracking().Where(p => p.Id == projectId);
+        return context.Projects.ToEntityInjectable().AsNoTracking().Where(p => p.Id == projectId);
     }
 
     public record ProjectStatus(Guid Id, bool Exists, bool Deleted, string? AccessibleCode);
@@ -150,7 +154,12 @@ public class LexQueries
         IResolverContext context,
         string code)
     {
-        var project = await dbContext.Projects.Where(p => p.Code == code).AsNoTracking().Project(context).SingleOrDefaultAsync();
+        var project = await dbContext.Projects
+            .ToEntityInjectable()
+            .Where(p => p.Code == code)
+            .AsNoTracking()
+            .Project(context)
+            .SingleOrDefaultAsync();
 
         if (project is null) return project;
 
@@ -167,7 +176,7 @@ public class LexQueries
     [UseSorting]
     public IQueryable<Organization> Orgs(LexBoxDbContext context)
     {
-        return context.Orgs.AsNoTracking();
+        return context.Orgs.ToEntityInjectable().AsNoTracking();
     }
 
     [UseProjection]
@@ -181,7 +190,10 @@ public class LexQueries
     {
         var userId = loggedInContext.User.Id;
         var myOrgs = await dbContext.Orgs.Where(o => o.Members.Any(m => m.UserId == userId))
-            .AsNoTracking().Project(context).ToListAsync();
+            .AsNoTracking()
+            .ToEntityInjectable()
+            .Project(context)
+            .ToListAsync();
 
         if (loggedInContext.User.IsOutOfSyncWithMyOrgs(myOrgs))
         {
@@ -223,7 +235,12 @@ public class LexQueries
         var projectContext =
             context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
             context;
-        var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(projectContext).SingleOrDefaultAsync();
+        var org = await dbContext.Orgs
+            .ToEntityInjectable()
+            .Where(o => o.Id == orgId)
+            .AsNoTracking()
+            .Project(projectContext)
+            .SingleOrDefaultAsync();
         if (org is null) return org;
 
         var updatedUser = loggedInContext.User.IsOutOfSyncWithOrg(org)

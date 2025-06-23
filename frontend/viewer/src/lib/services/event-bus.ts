@@ -1,5 +1,4 @@
-﻿import {type CloseReason} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
-import {DotnetService, type IEntry} from '$lib/dotnet-types';
+﻿import {DotnetService, type IEntry} from '$lib/dotnet-types';
 import {useService} from '$lib/services/service-provider';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
@@ -10,6 +9,11 @@ import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteS
 import {ProjectDataFormat} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {onDestroy} from 'svelte';
+
+export enum CloseReason {
+  User = 0,
+  Locked = 1,
+}
 
 export class EventBus {
   private _onEvent = new Set<(event: IFwEvent) => void>();

@@ -282,7 +282,7 @@ public static class AuthKernel
                 options.SetAuthorizationEndpointUris("api/oauth/open-id-auth");
                 options.SetTokenEndpointUris("api/oauth/token");
                 options.SetIntrospectionEndpointUris("api/oauth/introspect");
-                options.SetUserinfoEndpointUris("api/oauth/userinfo");
+                options.SetUserInfoEndpointUris("api/oauth/userinfo");
                 options.Configure(serverOptions =>
                 {
                     serverOptions.TokenValidationParameters.AuthenticationType = OAuthAuthenticationType;

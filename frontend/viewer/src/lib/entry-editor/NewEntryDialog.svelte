@@ -1,6 +1,5 @@
 <script lang="ts">
   import type {IEntry} from '$lib/dotnet-types';
-  import {fieldName} from '$lib/i18n';
   import {t} from 'svelte-i18n-lingui';
   import {useCurrentView} from '$lib/views/view-service';
   import {Button} from '$lib/components/ui/button';
@@ -14,6 +13,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {pt} from '$lib/views/view-text';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false});
@@ -81,7 +81,7 @@
     entry = defaultEntry();
   }
 
-  let entryLabel = fieldName({id: 'entry'}, $currentView.i18nKey);
+  let entryLabel = $derived(pt($t`Entry`, $t`Word`, $currentView));
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !IsMobile.value) {

@@ -89,6 +89,15 @@ builder.Services.AddHybridCache();
 builder.Services.AddHealthChecks();
 //in prod the exception handler middleware adds the exception feature, but in dev we need to do it manually
 builder.Services.AddSingleton<IDeveloperPageExceptionFilter, AddExceptionFeatureDevExceptionFilter>();
+builder.Services.AddExceptionHandler((options) =>
+{
+    options.StatusCodeSelector = exception =>
+    {
+        if (exception is UnauthorizedAccessException)
+            return StatusCodes.Status401Unauthorized;
+        return StatusCodes.Status500InternalServerError;
+    };
+});
 builder.Services.AddProblemDetails(o =>
 {
     o.CustomizeProblemDetails = context =>
