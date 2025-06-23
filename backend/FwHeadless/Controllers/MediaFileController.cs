@@ -47,7 +47,7 @@ public static class MediaFileController
         var contentType = mediaFile.Metadata.MimeType;
         if (contentType is null)
         {
-            contentType = MimeMapping.MimeUtility.GetMimeMapping(filePath);
+            contentType = MimeUtility.GetMimeMapping(filePath);
             mediaFile.Metadata.MimeType = contentType;
             await lexBoxDb.SaveChangesAsync();
         }
@@ -119,8 +119,7 @@ public static class MediaFileController
         LexBoxDbContext lexBoxDb,
         bool newFilesAllowed)
     {
-        // TODO: Consider handling PUT replacing existing file and not specifying filename, don't think that's working correctly right now
-        bool replacedExistingFile = false;
+        var replacedExistingFile = false;
         // Sanity check: reject ridiculously large uploads before doing any work
         var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
         if ((httpContext.Request.ContentLength is not null && httpContext.Request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
@@ -237,7 +236,7 @@ public static class MediaFileController
         }
     }
 
-    static async Task<long> WriteFileToDisk(string filePath, Stream contents)
+    private static async Task<long> WriteFileToDisk(string filePath, Stream contents)
     {
         if (contents is null) return 0;
         long startPosition = 0;
