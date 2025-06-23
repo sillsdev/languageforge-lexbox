@@ -10,6 +10,9 @@ namespace FwLiteShared.Events;
 public class JsEventListener : IDisposable
 {
     private readonly ILogger<JsEventListener> _logger;
+
+    private readonly GlobalEventBus _globalEventBus;
+
     //just a guess, this may need to be adjusted if we start losing events
     private const int MaxJsEventQueueSize = 10;
     private readonly Channel<IFwEvent> _jsEventChannel = Channel.CreateBounded<IFwEvent>(MaxJsEventQueueSize);
@@ -21,6 +24,7 @@ public class JsEventListener : IDisposable
     public JsEventListener(ILogger<JsEventListener> logger, GlobalEventBus globalEventBus)
     {
         _logger = logger;
+        _globalEventBus = globalEventBus;
         _globalBusSubscription = globalEventBus.OnGlobalEvent.Subscribe(e =>
         {
             if (_jsEventChannel.Writer.TryWrite(e))
@@ -61,6 +65,12 @@ public class JsEventListener : IDisposable
             _logger.LogError(e, "Error reading js event");
             throw;
         }
+    }
+
+    [JSInvokable]
+    public ValueTask<IFwEvent?> LastEvent(FwEventType type)
+    {
+        return ValueTask.FromResult(_globalEventBus.GetLastEvent(type));
     }
 
     public void Dispose()

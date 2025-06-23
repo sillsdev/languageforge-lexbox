@@ -1,25 +1,32 @@
-﻿import {DotnetService, type IEntry} from '$lib/dotnet-types';
-import {useService} from '$lib/services/service-provider';
-import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
-import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
-import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
-import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
-import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
-import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
-import {ProjectDataFormat} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
-import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
-import {onDestroy} from 'svelte';
+﻿import { DotnetService, type IEntry } from '$lib/dotnet-types';
+import { useService } from '$lib/services/service-provider';
+import type { IJsEventListener } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import type { IFwEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
+import { FwEventType } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
+import type { IEntryChangedEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
+import type { IProjectEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
+import type { IEntryDeletedEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
+import { ProjectDataFormat } from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
+import { type ProjectContext, useProjectContext } from '$lib/project-context.svelte';
+import { onDestroy } from 'svelte';
 
 export enum CloseReason {
   User = 0,
   Locked = 1,
 }
 
+interface OnEventOptions {
+  includeLast?: boolean;
+}
+
 export class EventBus {
   private _onEvent = new Set<(event: IFwEvent) => void>();
   private _onProjectClosed = new Set<(reason: CloseReason) => void>();
+  #jsEventListener: IJsEventListener;
+
   constructor() {
-    void this.eventLoop(useService(DotnetService.JsEventListener));
+    this.#jsEventListener = useService(DotnetService.JsEventListener);
+    void this.eventLoop(this.#jsEventListener);
   }
 
   private async eventLoop(jsEventListener: IJsEventListener) {
@@ -52,12 +59,18 @@ export class EventBus {
     return () => this._onEvent.delete(callback);
   }
 
-  public onEventType<T>(type: FwEventType, callback: (event: T) => void): () => void {
-    return this.onEvent((event: IFwEvent) => {
+  public onEventType<T>(type: FwEventType, callback: (event: T) => void, options?: OnEventOptions) {
+    if (options?.includeLast) {
+      this.#jsEventListener.lastEvent(type).then(event => {
+        if (!event) return;
+        callback(event as T);
+      });
+    }
+    onDestroy(this.onEvent((event: IFwEvent) => {
       if (event.type === type) {
         callback(event as T);
       }
-    });
+    }));
   }
 
   public notifyEntryUpdated(entry: IEntry) {

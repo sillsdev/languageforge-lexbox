@@ -4,9 +4,11 @@
 //     the code is regenerated.
 
 import type {IFwEvent} from './IFwEvent';
+import type {FwEventType} from './FwEventType';
 
 export interface IJsEventListener
 {
 	nextEventAsync() : Promise<IFwEvent>;
+	lastEvent(type: FwEventType) : Promise<IFwEvent>;
 }
 /* eslint-enable */
