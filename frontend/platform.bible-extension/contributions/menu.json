@@ -14,6 +14,12 @@
         "group": "platform.projectProjects",
         "order": 1007,
         "command": "fwLiteExtension.openFWLite"
+      },
+      {
+        "label": "%fwLiteExtension_list_projects_label%",
+        "group": "platform.projectProjects",
+        "order": 1008,
+        "command": "fwLiteExtension.localProjects"
       }
     ]
   },
