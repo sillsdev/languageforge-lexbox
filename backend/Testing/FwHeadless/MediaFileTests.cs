@@ -80,6 +80,7 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         {
             Filename = TestRepoZipFilename,
             SizeInBytes = (int)expectedLength,
+            MimeType = "application/zip",
         };
         expectedMetadata.Author.Should().Be(uploadMetadata.Author);
         expectedMetadata.License.Should().Be(uploadMetadata.License);
@@ -88,16 +89,6 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         metadata.Should().NotBeNull();
         metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
     }
-
-    // Filename handling rules:
-    //
-    // 1. If a filename is provided but no file ID (e.g. POST), project ID will be searched for file with same filename (case-SENSITIVE search).
-    //    If found, then that file ID will be used (e.g. the uploaded file replaced the current file).
-    // 2. If no filename field is provided, then the filename of the uploaded file (i.e. the .Filename property of IFormFile) will be used as the filename field
-    // 3. If a filename is provided and the file ID had a *different* filename, an error will be returned
-    //    NOTE: In my (Robin's) option, that logic should become "the filename is forcefully set to the original filename", e.g. if I uploaded IMG_2010.JPG and
-    //    I want to replace it with IMG_2011.JPG then I should be allowed to do that without jumping through hoops. (The filename on FwHeadless will remain IMG_2010
-    //    so that FieldWorks projects won't get their file links broken).
 
     [Fact]
     public async Task UploadFile_WithNoFilenameField_FilenameTakenFromUploadedFile()
@@ -178,4 +169,5 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
 
     // TODO: Test that metadata can be specified in form fields as well as in JSON format
     // TODO: Test that metadata in form fields will override metadata from JSON format
+    // TODO: Test that metadata not in FileMetadata properties will round-trip
 }

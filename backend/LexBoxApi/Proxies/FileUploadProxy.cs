@@ -14,7 +14,6 @@ public static class FileUploadProxy
 {
     public const string UserCanUploadMediaFilesPolicy = "UserCanUploadMediaFiles";
     public const string UserCanDownloadMediaFilesPolicy = "UserCanDownloadMediaFiles";
-    public const string RequireScopePolicy = RequireScopeAttribute.PolicyName;
 
     public static void AddFileUploadProxy(this IServiceCollection services)
     {
@@ -24,19 +23,16 @@ public static class FileUploadProxy
         services.AddForwarder();
     }
 
-    public static void MapFileUploadProxy(this IEndpointRouteBuilder app,
-        string? extraAuthScheme = null)
+    public static void MapFileUploadProxy(this IEndpointRouteBuilder app)
     {
 
         var authorizeForUploadAttribute = new AuthorizeAttribute
         {
-            AuthenticationSchemes = string.Join(',', CookieAuthenticationDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
             Policy = UserCanUploadMediaFilesPolicy
         };
 
         var authorizeForDownloadAttribute = new AuthorizeAttribute
         {
-            AuthenticationSchemes = string.Join(',', CookieAuthenticationDefaults.AuthenticationScheme, extraAuthScheme ?? ""),
             Policy = UserCanDownloadMediaFilesPolicy
         };
 
@@ -50,7 +46,7 @@ public static class FileUploadProxy
         app.MapPut("/api/media/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForUploadAttribute);
         app.MapPost("/api/media/",
-            Forward).RequireAuthorization(authorizeForUploadAttribute); // TODO: Figure out how to extract projectId from form for the UserCanUploadMediaFiles handler to use
+            Forward).RequireAuthorization(authorizeForUploadAttribute);
         app.MapDelete("/api/media/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForUploadAttribute);
 

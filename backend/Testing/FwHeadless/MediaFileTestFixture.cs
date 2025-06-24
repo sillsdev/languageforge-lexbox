@@ -73,7 +73,14 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             formData.Add(new StringContent(ProjectId.ToString()), name: "projectId");
             if (metadata is not null)
             {
-                formData.Add(JsonContent.Create(metadata), name: "metadata");
+                if (metadata.Author is not null)
+                {
+                    formData.Add(new StringContent(metadata.Author), name: "author");
+                }
+                if (metadata.License is not null)
+                {
+                    formData.Add(new StringContent(metadata.License.Value.ToString()), name: "license");
+                }
             }
             var stream = new StreamContent(File.OpenRead(localPath));
             formData.Add(stream, name: "file", fileName: filename);

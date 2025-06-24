@@ -36,6 +36,7 @@ public static class MediaFileController
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
+        var madeChanges = false;
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null) return TypedResults.NotFound();
         var projectId = mediaFile.ProjectId;
@@ -49,9 +50,10 @@ public static class MediaFileController
         {
             contentType = MimeUtility.GetMimeMapping(filePath);
             mediaFile.Metadata.MimeType = contentType;
-            await lexBoxDb.SaveChangesAsync();
+            madeChanges = true;
         }
-        if (await AddEntityTagMetadataIfNotPresent(mediaFile, filePath)) await lexBoxDb.SaveChangesAsync();
+        madeChanges = await AddEntityTagMetadataIfNotPresent(mediaFile, filePath) || madeChanges;
+        if (madeChanges) await lexBoxDb.SaveChangesAsync();
         var entityTag = EntityTagHeaderValue.Parse(mediaFile.Metadata.Sha256Hash!);
         return TypedResults.PhysicalFile(filePath, contentType, mediaFile.Filename, mediaFile.UpdatedDate, entityTag, enableRangeProcessing: true);
     }
@@ -81,13 +83,12 @@ public static class MediaFileController
         [FromForm] Guid? projectId,
         [FromForm] string? filename,
         [FromForm] IFormFile file,
-        [FromForm(Name = "metadata")] string? metadataJson,
-        [FromForm] FileMetadata? metadataObj,
+        [FromForm] FileMetadata? metadata,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: false);
         return result;
     }
 
@@ -97,13 +98,12 @@ public static class MediaFileController
         [FromForm] Guid? fileId,
         [FromForm] string? filename,
         [FromForm] IFormFile file,
-        [FromForm(Name = "metadata")] string? metadataJson,
-        [FromForm] FileMetadata? metadataObj,
+        [FromForm] FileMetadata? metadata,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadataObj, metadataJson, httpContext, config, lexBoxDb, newFilesAllowed: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: true);
         return result;
     }
 
@@ -113,7 +113,6 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
-        string? metadataJson,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
@@ -127,34 +126,24 @@ public static class MediaFileController
             var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
             return TypedResults.Problem(statusCode: 413, detail: detail);
         }
+        // HTTP Content-Type header will be "multipart/form-data; bondary=(something)". We want the content-type from the uploaded file, not HTTP
+        var mimeType = file.ContentType;
         // If no filename specified in form, get it from uploaded file
         if (string.IsNullOrEmpty(filename)) filename = file.FileName;
         // If *still* no filename, then use `file.ext` where the extension is calculated from the Content-Type header, defaulting to `.bin` if not provided
         if (string.IsNullOrEmpty(filename))
         {
-            var mimeType = httpContext.Request.Headers.ContentType.FirstOrDefault();
             var ext = MimeUtility.GetExtensions(mimeType ?? "")?.FirstOrDefault() ?? "bin";
             filename = $"file.{ext}";
         }
+        // If we have a filename but no mime type, then try to guess it from the filename at this point
+        if (string.IsNullOrEmpty(mimeType)) mimeType = MimeUtility.GetMimeMapping(filename);
         if (fileId is null || fileId.Value == default)
         {
             fileId = Guid.NewGuid();
         }
-        if (metadata is null)
-        {
-            metadata = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
-            metadata ??= new FileMetadata();
-        }
-        else
-        {
-            var fromJson = JsonSerializer.Deserialize<FileMetadata>(metadataJson ?? "{}", JsonSerializerOptions.Web);
-            // If form fields specified, they should override any JSON passed in "metadata" field
-            if (fromJson is not null)
-            {
-                fromJson.Merge(metadata);
-                metadata = fromJson;
-            }
-        }
+        metadata ??= new FileMetadata();
+        if (string.IsNullOrEmpty(metadata.MimeType)) metadata.MimeType = mimeType;
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null && !newFilesAllowed)
         {
@@ -186,13 +175,13 @@ public static class MediaFileController
                 return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects);
             }
             filename = Path.GetFileName(mediaFile.Filename); // Strip GUID prefix for consistency with create-file path; we'll be adding it back later
-            if (mediaFile.Metadata is null) mediaFile.Metadata = metadata ?? new FileMetadata();
-            else mediaFile.Metadata.Merge(metadata ?? new FileMetadata());
+            if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
+            else mediaFile.Metadata.Merge(metadata);
         }
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId.Value);
-        if (projectFolder is null)
+        if (projectFolder is null || !Directory.Exists(projectFolder))
         {
             return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless);
         }
@@ -200,9 +189,11 @@ public static class MediaFileController
         Directory.CreateDirectory(fileFolder);
         var filePath = Path.Join(fileFolder, filename);
         mediaFile.Metadata.SizeInBytes = (int)file.Length;
-        var readStream = file.OpenReadStream();
-        var writtenLength = await WriteFileToDisk(filePath, readStream);
-        await readStream.DisposeAsync();
+        long writtenLength = 0;
+        await using (var readStream = file.OpenReadStream())
+        {
+            writtenLength = await WriteFileToDisk(filePath, readStream);
+        }
         if (writtenLength > maxUploadSize)
         {
             SafeDelete(filePath);
@@ -245,12 +236,14 @@ public static class MediaFileController
             startPosition = contents.Position;
         }
         catch { }
-        // TODO: Write to temp file, then move file into place, overwriting existing file
+        // First write to temp file, then move file into place, overwriting existing file
         // That way files will be replaced atomically, and a failure halfway through the process won't result in the existing file being lost
-        // NOTE for when we implement this: temp file should be in same directory with random name, otherwise move operation isn't guaranteed to be atomic on all filesystems
-        var writeStream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-        await contents.CopyToAsync(writeStream);
-        await writeStream.DisposeAsync();
+        var tempFile = Path.Join(Path.GetDirectoryName(filePath), Path.GetRandomFileName());
+        await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
+        {
+            await contents.CopyToAsync(writeStream);
+        }
+        File.Move(tempFile, filePath, overwrite: true);
         long endPosition = 0;
         try
         {
@@ -274,7 +267,7 @@ public static class MediaFileController
     private static async Task AddEntityTagMetadata(MediaFile mediaFile, string filePath)
     {
         mediaFile.InitializeMetadataIfNeeded(filePath);
-        var stream = File.OpenRead(filePath);
+        await using var stream = File.OpenRead(filePath);
         var hash = await SHA256.HashDataAsync(stream);
         mediaFile.Metadata.Sha256Hash = Convert.ToHexStringLower(hash);
     }

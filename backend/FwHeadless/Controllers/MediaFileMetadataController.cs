@@ -7,7 +7,6 @@ namespace FwHeadless.Controllers;
 
 public static class MediaFileMetadataController
 {
-    [HttpGet("/{fileId}")]
     public static async Task<Results<Ok<ApiMetadataEndpointResult>, NotFound>> GetFileMetadata(
         Guid fileId,
         LexBoxDbContext lexBoxDb)

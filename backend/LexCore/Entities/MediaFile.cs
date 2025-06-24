@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LexCore.Entities;
@@ -24,7 +25,7 @@ public class MediaFile : EntityBase
             }
             Metadata = new FileMetadata
             {
-                SizeInBytes = cappedSize
+                SizeInBytes = cappedSize,
             };
         }
     }
@@ -39,7 +40,11 @@ public class FileMetadata
     public string? Author { get; set; }
     public DateTimeOffset? UploadDate { get; set; }
     public MediaFileLicense? License { get; set; }
-    // TODO: Add other optional properties like purpose, transcript, etc.
+
+    // Other optional, not-yet-mapped properties like purpose, transcript, etc., should end up in here
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement> ExtraFields { get; set; } = new Dictionary<string, JsonElement>();
+    // NOTE: Any metadata that is a JSON object or array will NOT be merged, just replaced
 
     public void Merge(FileMetadata other)
     {
@@ -49,10 +54,14 @@ public class FileMetadata
         if (!string.IsNullOrEmpty(other.Author)) this.Author = other.Author;
         if (other.UploadDate > DateTimeOffset.MinValue) this.UploadDate = other.UploadDate;
         if (other.License is not null) this.License = other.License;
+        foreach (var kv in other.ExtraFields)
+        {
+            ExtraFields[kv.Key] = kv.Value;
+        }
     }
 }
 
-public class ApiMetadataEndpointResult(): FileMetadata
+public class ApiMetadataEndpointResult() : FileMetadata
 {
     public ApiMetadataEndpointResult(FileMetadata? other) : this()
     {
