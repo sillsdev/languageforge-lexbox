@@ -1,5 +1,10 @@
 import papi, { logger } from '@papi/frontend';
-import type {FindEntryEvent, LaunchServerEvent} from 'fw-lite-extension';
+import type {
+  FindEntryEvent,
+  FwProject,
+  LaunchServerEvent,
+  LocalProjectsEvent,
+} from 'fw-lite-extension';
 import { useEvent } from 'platform-bible-react';
 import {useState, useRef, useEffect} from 'react';
 
@@ -7,6 +12,8 @@ import {useState, useRef, useEffect} from 'react';
 
 globalThis.webViewComponent = function ExtensionTemplate() {
   const [baseUrl, setBaseUrl] = useState('');
+  const [localProjects, setLocalProjects] = useState<FwProject[] | undefined>();
+
   const iframe = useRef<HTMLIFrameElement | null>(null);
   useEvent<FindEntryEvent>(
     papi.network.getNetworkEvent('fwLiteExtension.findEntry'),
@@ -23,6 +30,11 @@ globalThis.webViewComponent = function ExtensionTemplate() {
     },
   );
 
+  useEvent<LocalProjectsEvent>(
+    papi.network.getNetworkEvent('fwLiteExtension.localProjects'),
+    ({ projects }) => setLocalProjects(projects),
+  );
+
   useEffect(() => void updateUrl(), []);
 
   async function updateUrl() {
@@ -35,7 +47,15 @@ globalThis.webViewComponent = function ExtensionTemplate() {
   }
   return (
     <>
-        <iframe ref={iframe} src={baseUrl}></iframe>
+      {!!localProjects?.length && (
+        <>
+          <p>Projects: {localProjects.map((p) => p.name).join(', ')}</p>
+          <button onClick={() => setLocalProjects(undefined)} type="button">
+            Close
+          </button>
+        </>
+      )}
+      <iframe ref={iframe} src={baseUrl} title="FieldWorks Lite" />
     </>
   );
 };
