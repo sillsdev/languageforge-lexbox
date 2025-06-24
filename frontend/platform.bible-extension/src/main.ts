@@ -6,7 +6,7 @@ import {
   type SavedWebViewDefinition,
   type WebViewDefinition,
 } from '@papi/core';
-import type {FindEntryEvent, LaunchServerEvent} from 'fw-lite-extension';
+import type { FindEntryEvent, LaunchServerEvent, LocalProjectsEvent } from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 
@@ -47,6 +47,10 @@ export async function activate(context: ExecutionActivationContext) {
   const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
     'fwLiteExtension.launchServer',
   );
+  const onLocalProjectsEmitter = papi.network.createNetworkEventEmitter<LocalProjectsEvent>(
+    'fwLiteExtension.localProjects',
+  );
+
   let baseUrlHolder = {baseUrl: ''};
   let {fwLiteProcess, baseUrl} = launchFwLiteFwLiteWeb(context);
   baseUrlHolder.baseUrl = baseUrl;
@@ -85,6 +89,17 @@ export async function activate(context: ExecutionActivationContext) {
     },
   );
 
+  const localProjectsCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.localProjects',
+    async () => {
+      logger.info('Fetching local FieldWorks projects');
+      const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
+      const jsonText = await (await response.blob()).text();
+      const projects = JSON.parse(jsonText);
+      onLocalProjectsEmitter.emit({ projects });
+    },
+  );
+
   // Create WebViews or get an existing WebView if one already exists for this type
   // Note: here, we are using `existingId: '?'` to indicate we do not want to create a new WebView
   // if one already exists. The WebView that already exists could have been created by anyone
@@ -100,6 +115,7 @@ export async function activate(context: ExecutionActivationContext) {
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,
+    await localProjectsCommandPromise,
     onFindEntryEmitter,
     onLaunchServerEmitter,
     () => fwLiteProcess.kill()
