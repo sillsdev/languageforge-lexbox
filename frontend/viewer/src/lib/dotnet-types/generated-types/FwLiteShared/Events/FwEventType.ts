@@ -9,6 +9,6 @@ export enum FwEventType {
 	ProjectEvent = "ProjectEvent",
 	EntryDeleted = "EntryDeleted",
 	Sync = "Sync",
-	AppUpdate = "AppUpdate",
+	AppUpdate = "AppUpdate"
 }
 /* eslint-enable */
