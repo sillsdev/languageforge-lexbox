@@ -44,8 +44,12 @@ export class LexboxServiceProvider {
       nextEventAsync(): Promise<IFwEvent> {
         console.warn('using default JsEvent listener which does nothing');
         return new Promise<IFwEvent>(() => {});
+      },
+      lastEvent(): Promise<IFwEvent | null> {
+        console.warn('using default JsEvent listener which does nothing');
+        return Promise.resolve(null);
       }
-    }
+    } satisfies IJsEventListener
   } as LexboxServiceRegistry;
 
   public setService<K extends ServiceKey>(key: K, service: LexboxServiceRegistry[K]): void {
