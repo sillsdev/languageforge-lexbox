@@ -19,6 +19,7 @@
   import DotnetProjectView from './DotnetProjectView.svelte';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
   import {ModeWatcher} from 'mode-watcher';
+  import {TooltipProvider} from '$lib/components/ui/tooltip';
 
   let url = '';
 
@@ -72,36 +73,39 @@
 
 <ModeWatcher />
 
-<div class="app">
-  <Router {url}>
-    <Route path="/project/:code/*" let:params>
-      <Router {url} basepath="/project/{params.code}">
-        {#key params.code}
-          <DotnetProjectView code={params.code} type="crdt"/>
-        {/key}
-      </Router>
-    </Route>
-    <Route path="/fwdata/:name/*" let:params>
-      <Router {url} basepath="/fwdata/{params.name}">
-        {#key params.name}
-          <DotnetProjectView code={params.name} type="fwdata"/>
-        {/key}
-      </Router>
-    </Route>
-    <Route path="/testing/project-view/*">
-      <Router {url} basepath="/testing/project-view">
-        <TestProjectView/>
-      </Router>
-    </Route>
-    <Route path="/">
-      <HomeView/>
-    </Route>
-    <Route path="/sandbox">
-      <Sandbox/>
-    </Route>
-    <Route path="/*">
-      {setTimeout(() => navigate('/', {replace: true}))}
-    </Route>
-  </Router>
-  <NotificationOutlet/>
-</div>
+
+<TooltipProvider delayDuration={300}>
+  <div class="app">
+    <Router {url}>
+      <Route path="/project/:code/*" let:params>
+        <Router {url} basepath="/project/{params.code}">
+          {#key params.code}
+            <DotnetProjectView code={params.code} type="crdt"/>
+          {/key}
+        </Router>
+      </Route>
+      <Route path="/fwdata/:name/*" let:params>
+        <Router {url} basepath="/fwdata/{params.name}">
+          {#key params.name}
+            <DotnetProjectView code={params.name} type="fwdata"/>
+          {/key}
+        </Router>
+      </Route>
+      <Route path="/testing/project-view/*">
+        <Router {url} basepath="/testing/project-view">
+          <TestProjectView/>
+        </Router>
+      </Route>
+      <Route path="/">
+        <HomeView/>
+      </Route>
+      <Route path="/sandbox">
+        <Sandbox/>
+      </Route>
+      <Route path="/*">
+        {setTimeout(() => navigate('/', {replace: true}))}
+      </Route>
+    </Router>
+    <NotificationOutlet/>
+  </div>
+</TooltipProvider>

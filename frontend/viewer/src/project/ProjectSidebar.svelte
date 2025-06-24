@@ -19,11 +19,15 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$lib/project-stats';
   import {formatNumber} from '$lib/components/ui/format';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
 
   const config = useFwLiteConfig();
   const features = useFeatures();
   const stats = useProjectStats();
-  let isSynchronizing = $state(false);
+  const projectEventBus = useProjectEventBus();
+  let syncStatus = $state<SyncStatus>();
+  projectEventBus.onSync(e => syncStatus = e.status);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
     if (selectedProject.fwdata) {
@@ -95,20 +99,36 @@
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            <Sidebar.MenuItem>
-              <SyncDialog bind:this={syncDialog} />
-              <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
-                <div class="flex items-center gap-2">
-                  <Icon icon="i-mdi-sync" />
-                  <span>{$t`Synchronize`}</span>
-                </div>
-                <div
-                  class="size-2 rounded-full"
-                  class:bg-red-500={isSynchronizing}
-                  class:bg-green-500={!isSynchronizing}
-                ></div>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+              {#if features.sync}
+                <SyncDialog bind:this={syncDialog} {syncStatus} />
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between"
+                    tooltipContentProps={{hidden: syncStatus === SyncStatus.Success}}>
+                    {#snippet tooltipContent()}
+                      {#if syncStatus === SyncStatus.Offline}
+                        <span>{$t`Offline`}</span>
+                      {:else if syncStatus === SyncStatus.NotLoggedIn}
+                        <span>{$t`Not logged in`}</span>
+                      {:else if syncStatus === SyncStatus.NoServer}
+                        <span>{$t`No server configured`}</span>
+                      {:else if syncStatus === SyncStatus.UnknownError}
+                        <span>{$t`Unknown error`}</span>
+                      {:else}
+                        <span>{$t`Error getting sync status`}</span>
+                      {/if}
+                    {/snippet}
+                    <div class="flex items-center gap-2">
+                      <Icon icon="i-mdi-sync"/>
+                      <span>{$t`Synchronize`}</span>
+                    </div>
+                    <div
+                      class="size-2 rounded-full"
+                      class:bg-red-500={syncStatus !== SyncStatus.Success}
+                      class:bg-green-500={syncStatus === SyncStatus.Success}
+                    ></div>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              {/if}
             <DevContent>
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton>
