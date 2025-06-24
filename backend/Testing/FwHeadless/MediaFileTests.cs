@@ -160,8 +160,7 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
             Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 24); // 24 MB
             var (guid, result) = await Fixture.PostFile(dummyPath);
-            // For some reason this returns RequestEntityTooLarge when run in isolation, but BadGateway when run in a group of tests
-            result.StatusCode.Should().BeOneOf(HttpStatusCode.RequestEntityTooLarge, HttpStatusCode.BadGateway);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
             guid.Should().BeEmpty();
         }
         finally

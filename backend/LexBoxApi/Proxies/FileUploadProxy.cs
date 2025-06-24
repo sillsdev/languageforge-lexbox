@@ -64,6 +64,13 @@ public static class FileUploadProxy
 
         var destinationPrefix = mediaFileConfig.Value.FwHeadlessUrl;
 
-        await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty);
+        var error = await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty);
+        if (context.Response.StatusCode == 502 && error.HasFlag(ForwarderError.RequestBodyDestination))
+        {
+            // FwHeadless will close the request early with a 413 if it determines the content-type is too large,
+            // but IHttpForwarder rewrites the status code to 502 if that happens. This is not a Bad Gateway error,
+            // so we really want a 413 in this specific case.
+            context.Response.StatusCode = 413;
+        }
     }
 }
