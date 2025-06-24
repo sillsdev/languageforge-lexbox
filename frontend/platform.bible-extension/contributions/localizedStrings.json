@@ -2,6 +2,7 @@
   "metadata": {},
   "localizedStrings": {
     "en": {
+      "%fwLiteExtension_list_projects_label%": "List all local FieldWorks projects",
       "%fwLiteExtension_menu_label%": "Search for 'apple' in FieldWorks Lite",
       "%fwLiteExtension_open_label%": "Open FieldWorks Lite"
     }

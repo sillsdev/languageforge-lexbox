@@ -12,11 +12,25 @@ declare module 'fw-lite-extension' {
   export type LaunchServerEvent = {
     baseUrl: string;
   };
+
+  export type LocalProjectsEvent = {
+    projects: FwProject[];
+  };
+
+  export type FwProject = {
+    name: string;
+    code: string;
+    crdt: boolean;
+    fwdata: boolean;
+    lexbox: boolean;
+    role: number;
+    id: string;
+  };
 }
 
 declare module 'papi-shared-types' {
-
   export interface CommandHandlers {
+    'fwLiteExtension.localProjects': () => Promise<void>;
     'fwLiteExtension.openFWLite': () => {
       success: boolean;
     };
