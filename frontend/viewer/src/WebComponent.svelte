@@ -9,7 +9,6 @@
   import {mode, theme} from 'mode-watcher';
   import css from './app.postcss?inline';
   import {DotnetService, type IMiniLcmJsInvokable} from '$lib/dotnet-types';
-  import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import ProjectLoader from './ProjectLoader.svelte';
   import {initProjectContext} from '$lib/project-context.svelte';
   import {mockFwLiteConfig} from '$lib/in-memory-api-service';

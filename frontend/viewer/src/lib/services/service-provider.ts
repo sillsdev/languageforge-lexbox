@@ -39,7 +39,7 @@ export type LexboxServiceRegistry = {
 export const SERVICE_KEYS = Object.values(DotnetService);
 
 export class LexboxServiceProvider {
-  private services: LexboxServiceRegistry = {
+  private services: Partial<LexboxServiceRegistry> = {
     [DotnetService.JsEventListener]: {
       nextEventAsync(): Promise<IFwEvent> {
         console.warn('using default JsEvent listener which does nothing');
@@ -49,8 +49,8 @@ export class LexboxServiceProvider {
         console.warn('using default JsEvent listener which does nothing');
         return Promise.resolve(null);
       }
-    } satisfies IJsEventListener
-  } as LexboxServiceRegistry;
+    }
+  };
 
   public setService<K extends ServiceKey>(key: K, service: LexboxServiceRegistry[K]): void {
     this.validateServiceKey(key);
