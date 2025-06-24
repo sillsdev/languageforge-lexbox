@@ -12,8 +12,8 @@ export const allFields: Record<FieldId, FieldView> = {
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
   complexForms: {show: true, order: 3},
-  complexFormTypes: {show: true, order: 4},
-  components: {show: true, order: 5},
+  components: {show: true, order: 4},
+  complexFormTypes: {show: true, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
 
@@ -41,13 +41,43 @@ export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
   label: 'FieldWorks',
-  fields: recursiveSpread(allFields, {[defaultDef]: {show: true}}),
+  fields: applyFieldOperations(
+      recursiveSpread(allFields, {[defaultDef]: {show: true}}),
+      swap('components', 'complexFormTypes')),
   alternateView: FW_LITE_VIEW,
 };
 
 const viewDefinitions: CustomViewDefinition[] = [
   // custom views
 ];
+
+type FieldOperation = (fields: [fieldId: string, fieldView: FieldView][]) => void;
+
+function swap(fieldAId: FieldId, fieldBId: FieldId): FieldOperation {
+  return (fields) => {
+    const fieldA = fields.find(([id]) => id === fieldAId);
+    const fieldB = fields.find(([id]) => id === fieldBId);
+    if (!fieldA || !fieldB) {
+      throw new Error(`Fields ${fieldAId} or ${fieldBId} not found`);
+    }
+    const fieldAView = fieldA[1];
+    const fieldBView = fieldB[1];
+    if (Math.abs(fieldAView.order - fieldBView.order) !== 1) {
+      throw new Error(`Fields ${fieldAId} and ${fieldBId} must be adjacent to swap`);
+    }
+    const fieldAOrder = fieldAView.order;
+    fieldAView.order = fieldBView.order;
+    fieldBView.order = fieldAOrder;
+  };
+}
+
+function applyFieldOperations(fields: Record<FieldId, FieldView>, ...ops: FieldOperation[]): Record<FieldId, FieldView> {
+  const fieldEntries = Object.entries(fields);
+  for (const operation of ops) {
+    operation(fieldEntries);
+  }
+  return Object.fromEntries(fieldEntries) as Record<FieldId, FieldView>;
+}
 
 export const views: [RootView, RootView, ...CustomView[]] = [
   FW_LITE_VIEW,

@@ -40,19 +40,19 @@
 
   function disableEntry(e: IEntry): false | { reason: string } {
     if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, $currentView) };
-    if (entry.components.some((c) => c.componentEntryId === e.id)) return { reason: pt($t`Component`, $t`Part of`, $currentView) };
-    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Made of`, $currentView) };
+    if (entry.components.some((c) => c.componentEntryId === e.id)) return { reason: pt($t`Component`, $t`Part`, $currentView) };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Part of`, $currentView) };
     return false;
   }
 </script>
 
 <EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
   {#snippet actions()}
-    <EntryOrSensePicker title={pt($t`Add component`, $t`Add Made of`, $currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
+    <EntryOrSensePicker title={pt($t`Add component`, $t`Add part of`, $currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
       {disableEntry}>
       {#snippet trigger({ props })}
         <Button {...props} icon="i-mdi-plus" size="xs">
-          {pt($t`Complex Form`, $t`Made of`, $currentView)}
+          {pt($t`Complex Form`, $t`Part of`, $currentView)}
         </Button>
       {/snippet}
     </EntryOrSensePicker>

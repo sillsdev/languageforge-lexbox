@@ -41,8 +41,8 @@
 
   function disableEntry(e: IEntry): false | { disableSenses?: true, reason: string } {
     if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, $currentView), disableSenses: true };
-    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: pt($t`Component`, $t`Part of`, $currentView) };
-    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Made of`, $currentView), disableSenses: true };
+    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: pt($t`Component`, $t`Part`, $currentView) };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Part of`, $currentView), disableSenses: true };
     return false;
   }
 
@@ -54,11 +54,11 @@
 
 <EntryOrSenseItemList bind:items={value} {readonly} orderable {onchange} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
   {#snippet actions()}
-    <EntryOrSensePicker title={pt($t`Add component to complex form`, $t`Add Word Part`, $currentView)} pick={(e) => addComponent(e)}
+    <EntryOrSensePicker title={pt($t`Add component to complex form`, $t`Add part`, $currentView)} pick={(e) => addComponent(e)}
       {disableEntry} {disableSense}>
       {#snippet trigger({ props })}
         <Button {...props} icon="i-mdi-plus" size="xs">
-          {pt($t`Component`, $t`Word Part`, $currentView)}
+          {pt($t`Component`, $t`Part`, $currentView)}
         </Button>
       {/snippet}
     </EntryOrSensePicker>

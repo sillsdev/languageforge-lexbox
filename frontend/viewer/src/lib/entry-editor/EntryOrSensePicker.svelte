@@ -20,7 +20,7 @@
   import EntryRow from '../../project/browse/EntryRow.svelte';
   import SenseRow from '../../project/browse/SenseRow.svelte';
   import Loading from '$lib/components/Loading.svelte';
-  import {t, T, msg} from 'svelte-i18n-lingui';
+  import {t, T} from 'svelte-i18n-lingui';
   import ListItem from '$lib/components/ListItem.svelte';
   import type {DialogTriggerProps} from 'bits-ui';
   import {Badge} from '$lib/components/ui/badge';
