@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Testing.ApiTests;
 using Testing.Fixtures;
+using System.Net;
 
 namespace Testing.FwHeadless;
 
@@ -21,13 +22,16 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadFile_WorksForAdmins()
     {
-        var guid = await Fixture.PostFile(TestRepoZipPath);
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         guid.Should().NotBe(Guid.Empty);
-        var files = await Fixture.ListFiles(Fixture.ProjectId);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
         await Fixture.PutFile(TestRepoZipPath, guid);
-        files = await Fixture.ListFiles(Fixture.ProjectId);
+        (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
@@ -35,25 +39,31 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadFile_FailsForNonMembers()
     {
-        var guid = await Fixture.PostFile(TestRepoZipPath, loginAs: "user", expectSuccess: false);
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "user");
         guid.Should().Be(Guid.Empty);
-        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "user");
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "user");
+        listResult.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         (files?.Files ?? []).Should().NotContain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
     [Fact]
     public async Task UploadFile_WorksForProjectManagers()
     {
-        var guid = await Fixture.PostFile(TestRepoZipPath, loginAs: "manager", expectSuccess: true);
-        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "manager");
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "manager");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "manager");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
     [Fact]
     public async Task UploadFile_WorksForProjectEditors()
     {
-        var guid = await Fixture.PostFile(TestRepoZipPath, loginAs: "editor", expectSuccess: true);
-        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "editor");
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "editor");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "editor");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
@@ -61,8 +71,10 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     public async Task UploadFile_WithOutMetadata_SizeIsCorrect()
     {
         var expectedLength = TestRepoZip.Length;
-        var fileId = await Fixture.PostFile(TestRepoZipPath);
-        var metadata = await Fixture.GetFileMetadata(fileId);
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.SizeInBytes.Should().Be((int)expectedLength);
     }
@@ -84,8 +96,10 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         };
         expectedMetadata.Author.Should().Be(uploadMetadata.Author);
         expectedMetadata.License.Should().Be(uploadMetadata.License);
-        var fileId = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata);
-        var metadata = await Fixture.GetFileMetadata(fileId);
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
     }
@@ -93,8 +107,10 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadFile_WithNoFilenameField_FilenameTakenFromUploadedFile()
     {
-        var fileId = await Fixture.PostFile(TestRepoZipPath, loginAs: "admin", expectSuccess: true);
-        var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "admin");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
     }
@@ -102,15 +118,19 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadFile_TwiceWithDifferentFilenames_FilenameTakenFromFirstUpload()
     {
-        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         var secondPath = TestRepoZipPath + ".bak";
         if (File.Exists(secondPath)) File.Delete(secondPath);
         File.Copy(TestRepoZipPath, secondPath);
-        await Fixture.PutFile(secondPath, fileId);
-        var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        result = await Fixture.PutFile(secondPath, fileId);
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
-        var files = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         (files?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
         (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), secondPath));
     }
@@ -118,12 +138,15 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadFile_TwiceWithDifferentFilenamesButOverridingFilename_Works()
     {
-        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         var secondPath = TestRepoZipPath + ".bak";
         if (File.Exists(secondPath)) File.Delete(secondPath);
         File.Copy(TestRepoZipPath, secondPath);
-        await Fixture.PutFile(secondPath, fileId, overrideFilename: TestRepoZipFilename, expectSuccess: true);
-        var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        result = await Fixture.PutFile(secondPath, fileId, overrideFilename: TestRepoZipFilename);
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
     }
@@ -135,8 +158,10 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 120); // 120 MB
-            await Fixture.PostFile(dummyPath, expectSuccess: false);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 24); // 24 MB
+            var (guid, result) = await Fixture.PostFile(dummyPath);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+            guid.Should().BeEmpty();
         }
         finally
         {
@@ -147,14 +172,17 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     [Fact]
     public async Task UploadReplacementFile_TooLarge_ThrowsError()
     {
-        var fileId = await Fixture.PostFile(TestRepoZipPath);
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         var dummyPath = TestRepoZipPath + ".tooLarge";
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
             Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 120); // 120 MB
-            await Fixture.PutFile(dummyPath, fileId, overrideFilename: TestRepoZipFilename, expectSuccess: false);
-            var metadata = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+            result = await Fixture.PutFile(dummyPath, fileId, overrideFilename: TestRepoZipFilename);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+            var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
+            mResult.StatusCode.Should().Be(HttpStatusCode.OK);
             metadata.Should().NotBeNull();
             metadata.Filename.Should().Be(TestRepoZipFilename);
         }

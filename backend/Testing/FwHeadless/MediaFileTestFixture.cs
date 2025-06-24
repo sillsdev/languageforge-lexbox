@@ -46,7 +46,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         await HttpClient.DeleteAsync($"api/project/{ProjectId}");
     }
 
-    public async Task<FileListing?> ListFiles(Guid projectId, string? relativePath = null, string loginAs = "admin")
+    public async Task<(FileListing?, HttpResponseMessage)> ListFiles(Guid projectId, string? relativePath = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var url = $"/api/list-media/{projectId}";
@@ -57,10 +57,10 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         }
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         var result = await HttpClient.SendAsync(request);
-        return await result.Content.ReadFromJsonAsync<FileListing>();
+        return (await result.Content.ReadFromJsonAsync<FileListing>(), result);
     }
 
-    public async Task<Guid> PostFile(string localPath, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin", bool expectSuccess = true)
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -87,14 +87,12 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/media/?projectId={ProjectId}");
             request.Content = formData;
             var result = await HttpClient.SendAsync(request);
-            if (expectSuccess) result.EnsureSuccessStatusCode();
-            if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
             var obj = await result.Content.ReadFromJsonAsync<PostFileResult>();
-            return obj?.guid ?? Guid.Empty;
+            return (obj?.guid ?? Guid.Empty, result);
         }
     }
 
-    public async Task PutFile(string localPath, Guid fileId, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin", bool expectSuccess = true)
+    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -113,28 +111,24 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/media/{fileId}");
             request.Content = formData;
             var result = await HttpClient.SendAsync(request);
-            if (expectSuccess) result.EnsureSuccessStatusCode();
-            if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
+            return result;
         }
     }
 
-    public async Task DeleteFile(Guid fileId, string loginAs = "admin", bool expectSuccess = true)
+    public async Task<HttpResponseMessage> DeleteFile(Guid fileId, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var request = new HttpRequestMessage(HttpMethod.Delete, $"api/media/{fileId}");
         var result = await HttpClient.SendAsync(request);
-        if (expectSuccess) result.EnsureSuccessStatusCode();
-        if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
+        return result;
     }
 
-    public async Task<ApiMetadataEndpointResult?> GetFileMetadata(Guid fileId, string loginAs = "admin", bool expectSuccess = true)
+    public async Task<(ApiMetadataEndpointResult?, HttpResponseMessage)> GetFileMetadata(Guid fileId, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/metadata/{fileId}");
         var result = await HttpClient.SendAsync(request);
-        if (expectSuccess) result.EnsureSuccessStatusCode();
-        if (!expectSuccess && result.IsSuccessStatusCode) throw new AssertionFailedException($"Expected HTTP call to fail but succeeded instead: {result.StatusCode}");
-        return await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>();
+        return (await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>(), result);
     }
 
     public void CreateDummyFile(string filename, long length)
