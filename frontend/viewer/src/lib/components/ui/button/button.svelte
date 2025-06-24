@@ -61,19 +61,23 @@
     type = 'button',
     loading = false,
     icon = undefined,
-    iconProps = undefined,
+    iconProps: nullableIconProps = undefined,
     children,
     ...restProps
   }: ButtonProps = $props();
+
+  const iconProps = $derived(nullableIconProps && ('icon' in nullableIconProps || 'src' in nullableIconProps)
+    ? nullableIconProps as IconProps
+    : icon ? {icon} : undefined);
 </script>
 
 {#snippet content()}
-  {#if loading || icon}
+  {#if loading || iconProps}
     <span transition:slide={{axis: 'x',}}>
     {#if loading}
-      <Icon {...mergeProps({ class:'animate-spin'}, iconProps)} icon="i-mdi-loading" />
-    {:else if icon}
-      <Icon {...iconProps} {icon} />
+      <Icon {...mergeProps({ class:'animate-spin'}, iconProps ?? {})} icon="i-mdi-loading" />
+    {:else if iconProps}
+      <Icon {...iconProps} />
     {/if}
     </span>
   {/if}

@@ -1,14 +1,15 @@
-﻿import { DotnetService, type IEntry } from '$lib/dotnet-types';
-import { useService } from '$lib/services/service-provider';
-import type { IJsEventListener } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
-import type { IFwEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
-import { FwEventType } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
-import type { IEntryChangedEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
-import type { IProjectEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
-import type { IEntryDeletedEvent } from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
-import { ProjectDataFormat } from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
-import { type ProjectContext, useProjectContext } from '$lib/project-context.svelte';
-import { onDestroy } from 'svelte';
+import {DotnetService, type IEntry} from '$lib/dotnet-types';
+import {useService} from '$lib/services/service-provider';
+import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
+import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
+import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
+import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
+import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
+import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
+import {ProjectDataFormat} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
+import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
+import {onDestroy} from 'svelte';
+import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';
 
 export enum CloseReason {
   User = 0,
@@ -24,9 +25,16 @@ export class EventBus {
   private _onProjectClosed = new Set<(reason: CloseReason) => void>();
   #jsEventListener: IJsEventListener;
 
+  private _lastEventCache: Record<string, Partial<Record<FwEventType, IFwEvent>>> = {};
   constructor() {
     this.#jsEventListener = useService(DotnetService.JsEventListener);
     void this.eventLoop(this.#jsEventListener);
+    this.onEvent(event => {
+      if (isProjectEvent(event)) {
+        this._lastEventCache[event.project.name] ??= {};
+        this._lastEventCache[event.project.name][event.event.type] = event.event;
+      }
+    });
   }
 
   private async eventLoop(jsEventListener: IJsEventListener) {
@@ -73,6 +81,10 @@ export class EventBus {
     }));
   }
 
+  public getLastEvent<T extends IFwEvent>(projectCode: string, eventType: FwEventType): T | undefined {
+    return this._lastEventCache[projectCode]?.[eventType] as T;
+  }
+
   public notifyEntryUpdated(entry: IEntry) {
     console.error('notifyEntryUpdated, no longer supported', entry);
   }
@@ -107,10 +119,21 @@ export class ProjectEventBus {
       }
     });
   }
+
   public onEntryDeleted(callback: (entryId: string) => void) {
     this.onProjectEvent(event => {
       if (isEntryDeletedEvent(event)) {
         callback(event.entryId);
+      }
+    });
+  }
+
+  public onSync(callback: (event: ISyncEvent) => void) {
+    const lastEvent = this.eventBus.getLastEvent<ISyncEvent>(this.projectCode, FwEventType.Sync);
+    if (lastEvent) callback(lastEvent);
+    this.onProjectEvent(event => {
+      if (isSyncEvent(event)) {
+        callback(event);
       }
     });
   }
@@ -145,4 +168,8 @@ function isEntryDeletedEvent(event: IFwEvent): event is IEntryDeletedEvent {
 
 function isProjectEvent(event: IFwEvent): event is IProjectEvent {
   return event.type === FwEventType.ProjectEvent;
+}
+
+function isSyncEvent(event: IFwEvent): event is ISyncEvent {
+  return event.type === FwEventType.Sync;
 }
