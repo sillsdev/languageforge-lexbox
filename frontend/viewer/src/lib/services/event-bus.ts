@@ -64,7 +64,7 @@ export class EventBus {
       this.#jsEventListener.lastEvent(type).then(event => {
         if (!event) return;
         callback(event as T);
-      });
+      }).catch(e => console.error('Error getting last event', e));
     }
     onDestroy(this.onEvent((event: IFwEvent) => {
       if (event.type === type) {

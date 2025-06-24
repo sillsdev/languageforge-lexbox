@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Net.Http.Json;
 using FwLiteShared.Events;
 using LexCore.Entities;
@@ -13,14 +12,10 @@ public class UpdateChecker(
     ILogger<UpdateChecker> logger,
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
-    IPlatformUpdateService? platformUpdateServicesOptional = null): BackgroundService
+    IPlatformUpdateService platformUpdateService): BackgroundService
 {
-    private IPlatformUpdateService PlatformUpdateService =>
-        platformUpdateServicesOptional ?? throw new InvalidOperationException("Platform update services not set");
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (platformUpdateServicesOptional is null) return;
         await TryUpdate();
     }
 
@@ -29,18 +24,18 @@ public class UpdateChecker(
         if (!ShouldCheckForUpdate() && !forceCheck) return;
         var response = await ShouldUpdateAsync();
 
-        PlatformUpdateService.LastUpdateCheck = (DateTime.UtcNow);
+        platformUpdateService.LastUpdateCheck = (DateTime.UtcNow);
         if (!response.Update) return;
         if (ShouldPromptBeforeUpdate() &&
-            !await PlatformUpdateService.RequestPermissionToUpdate(response.Release))
+            !await platformUpdateService.RequestPermissionToUpdate(response.Release))
         {
             return;
         }
 
         UpdateResult updateResult = UpdateResult.ManualUpdateRequired;
-        if (PlatformUpdateService.SupportsAutoUpdate)
+        if (platformUpdateService.SupportsAutoUpdate)
         {
-            updateResult = await PlatformUpdateService.ApplyUpdate(response.Release);
+            updateResult = await platformUpdateService.ApplyUpdate(response.Release);
         }
 
         NotifyResult(updateResult);
@@ -64,7 +59,7 @@ public class UpdateChecker(
             return true;
         }
 
-        var lastChecked = PlatformUpdateService.LastUpdateCheck;
+        var lastChecked = platformUpdateService.LastUpdateCheck;
         var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
         if (timeSinceLastCheck.TotalHours < -1)
         {
@@ -86,7 +81,7 @@ public class UpdateChecker(
 
     private bool ShouldPromptBeforeUpdate()
     {
-        return PlatformUpdateService.IsOnMeteredConnection();
+        return platformUpdateService.IsOnMeteredConnection();
     }
 
     private async Task<ShouldUpdateResponse> ShouldUpdateAsync()

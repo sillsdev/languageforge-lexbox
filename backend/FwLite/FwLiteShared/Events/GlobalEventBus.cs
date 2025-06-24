@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using System.Collections.Concurrent;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +11,7 @@ public class GlobalEventBus(ILogger<GlobalEventBus> logger) : IDisposable
 
     public IObservable<IFwEvent> OnGlobalEvent => _globalEventSubject;
     public IObservable<AuthenticationChangedEvent> OnAuthenticationChanged => OnGlobalEvent.OfType<AuthenticationChangedEvent>();
-    private readonly Dictionary<FwEventType, IFwEvent> _lastEvent = new();
+    private readonly ConcurrentDictionary<FwEventType, IFwEvent> _lastEvent = new();
 
     public void PublishEvent(IFwEvent @event)
     {

@@ -50,7 +50,7 @@
   serviceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
   serviceProvider.setService(DotnetService.JsEventListener, {
     nextEventAsync: () => new Promise((_) => {}),
-    lastEvent: () => Promise.resolve<IFwEvent>(undefined!)//the api should allow returning undefined but it's incorrect
+    lastEvent: () => Promise.resolve<IFwEvent | null>(null)
   });
 </script>
 
