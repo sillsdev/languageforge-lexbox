@@ -7,17 +7,18 @@
   import type {IAppUpdateEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IAppUpdateEvent';
   import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
   import {UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate/UpdateResult';
+  import {t} from 'svelte-i18n-lingui';
 
   const notifications = AppNotification.notifications;
 
   const eventBus = useEventBus();
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
     if (event.result == UpdateResult.ManualUpdateRequired) {
-      AppNotification.displayAction('A new version of FieldWorks lite is available.', 'info', {
+      AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, 'info', {
         callback: () => {
           window.open('https://lexbox.org/fw-lite', '_blank');
         },
-        label: 'Download'
+        label: $t`Download`
       });
     }
   }, {includeLast: true});
