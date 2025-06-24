@@ -54,7 +54,7 @@ public static class MediaFileController
         }
         madeChanges = await AddEntityTagMetadataIfNotPresent(mediaFile, filePath) || madeChanges;
         if (madeChanges) await lexBoxDb.SaveChangesAsync();
-        var entityTag = EntityTagHeaderValue.Parse(mediaFile.Metadata.Sha256Hash!);
+        var entityTag = new EntityTagHeaderValue($"\"{mediaFile.Metadata.Sha256Hash!}\"");
         return TypedResults.PhysicalFile(filePath, contentType, mediaFile.Filename, mediaFile.UpdatedDate, entityTag, enableRangeProcessing: true);
     }
 
@@ -207,7 +207,7 @@ public static class MediaFileController
         await lexBoxDb.SaveChangesAsync();
         // Add ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
         var entityTag = mediaFile.Metadata.Sha256Hash;
-        httpContext.Response.Headers.ETag = entityTag;
+        httpContext.Response.Headers.ETag = $"\"{entityTag}\"";
         var responseBody = new PostFileResult(fileId.Value);
         if (replacedExistingFile)
         {

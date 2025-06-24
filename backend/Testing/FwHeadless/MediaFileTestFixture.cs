@@ -4,7 +4,7 @@ using Testing.ApiTests;
 using Testing.Services;
 using FwHeadless.Models;
 using Microsoft.AspNetCore.Http.Extensions;
-using FluentAssertions.Execution;
+using System.Net.Http.Headers;
 
 namespace Testing.FwHeadless;
 
@@ -119,6 +119,27 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
     {
         await LoginIfNeeded(loginAs);
         var request = new HttpRequestMessage(HttpMethod.Delete, $"api/media/{fileId}");
+        var result = await HttpClient.SendAsync(request);
+        return result;
+    }
+
+    public async Task<HttpResponseMessage> DownloadFile(Guid fileId, string loginAs = "admin", string? hash = null, int startAt = 0, int endAt = 0)
+    {
+        await LoginIfNeeded(loginAs);
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/media/{fileId}");
+        if (hash is not null)
+        {
+            if (!hash.StartsWith('"')) hash = "\"" + hash;
+            if (!hash.EndsWith('"')) hash = hash + "\"";
+            var header = new EntityTagHeaderValue(hash, isWeak: false);
+            Console.WriteLine(header.Tag);
+            Console.WriteLine(header.ToString());
+            request.Headers.IfNoneMatch.Add(header);
+        }
+        if (startAt > 0)
+        {
+            request.Headers.Range = new(startAt, endAt > 0 ? endAt : null);
+        }
         var result = await HttpClient.SendAsync(request);
         return result;
     }
