@@ -69,11 +69,7 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        SafeDelete(filePath);
-        var dirPath = Path.Join(projectFolder, mediaFile.Id.ToString());
-        SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
-        lexBoxDb.Files.Remove(mediaFile);
+        SafeDeleteMediaFile(mediaFile, projectFolder, lexBoxDb);
         await lexBoxDb.SaveChangesAsync();
         return TypedResults.Ok();
     }
@@ -196,9 +192,7 @@ public static class MediaFileController
         }
         if (writtenLength > maxUploadSize)
         {
-            SafeDelete(filePath);
-            SafeDeleteDirectory(fileFolder);
-            lexBoxDb.Files.Remove(mediaFile);
+            SafeDeleteMediaFile(mediaFile, projectFolder, lexBoxDb);
             await lexBoxDb.SaveChangesAsync();
             var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
             return TypedResults.Problem(statusCode: 413, detail: detail);
@@ -294,5 +288,14 @@ public static class MediaFileController
         // Delete file at path, ignoring all errors such as "directory not empty"
         try { Directory.Delete(dirPath, recursive); }
         catch { }
+    }
+
+    private static void SafeDeleteMediaFile(MediaFile mediaFile, string projectFolder, LexBoxDbContext lexBoxDb)
+    {
+        var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        SafeDelete(filePath);
+        var dirPath = Path.Join(projectFolder, mediaFile.Id.ToString());
+        SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
+        lexBoxDb.Files.Remove(mediaFile);
     }
 }
