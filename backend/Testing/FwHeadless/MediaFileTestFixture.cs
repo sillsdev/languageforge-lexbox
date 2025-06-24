@@ -60,7 +60,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return (await result.Content.ReadFromJsonAsync<FileListing>(), result);
     }
 
-    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin")
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -80,6 +80,13 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
                 if (metadata.License is not null)
                 {
                     formData.Add(new StringContent(metadata.License.Value.ToString()), name: "license");
+                }
+                if (extraFields is not null)
+                {
+                    foreach (var kv in extraFields)
+                    {
+                        formData.Add(new StringContent(kv.Value), name: kv.Key);
+                    }
                 }
             }
             var stream = new StreamContent(File.OpenRead(localPath));
