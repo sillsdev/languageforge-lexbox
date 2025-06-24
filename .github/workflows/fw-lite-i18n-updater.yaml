@@ -1,0 +1,38 @@
+name: FieldWorks Lite
+on:
+  pull_request:
+    paths:
+      - 'frontend/viewer/**'
+      - '.github/workflows/fw-lite-i18n-updater.yaml'
+    branches:
+      - develop
+
+jobs:
+  update-i18n:
+    timeout-minutes: 40
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Prepare frontend
+        working-directory: frontend
+        run: pnpm install
+      - name: Extract i18n
+        working-directory: frontend/viewer
+        run: pnpm i18n:extract
+      - uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 # v6.0.1
+        with:
+          commit_message: Update i18n
+          file_pattern: '**/locales/*.json'
