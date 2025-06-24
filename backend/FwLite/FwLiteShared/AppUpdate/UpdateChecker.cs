@@ -24,7 +24,7 @@ public class UpdateChecker(
         if (!ShouldCheckForUpdate() && !forceCheck) return;
         var response = await ShouldUpdateAsync();
 
-        platformUpdateService.LastUpdateCheck = (DateTime.UtcNow);
+        platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
         if (!response.Update) return;
         if (ShouldPromptBeforeUpdate() &&
             !await platformUpdateService.RequestPermissionToUpdate(response.Release))
