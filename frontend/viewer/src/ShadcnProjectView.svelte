@@ -46,11 +46,12 @@
 
   type FwLiteEvent = {type: 'notification', message: string};
 
-  function isFwLiteMessage(data: unknown): data is FwLiteEvent {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function isFwLiteMessage(data: any): data is FwLiteEvent {
     return typeof data ==='object' && data.type === 'notification' && typeof data.message === 'string' && data.message.length > 0 ;
   }
 
-  //listenting to messages from paratext
+  //listening to messages from paratext
   function onMessage(event: {data: unknown}) {
     if (isFwLiteMessage(event.data)) {
       AppNotification.display(event.data.message, 'info', 'long');
