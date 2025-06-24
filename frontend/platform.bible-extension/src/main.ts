@@ -23,7 +23,7 @@ const reactWebViewProvider: IWebViewProvider = {
       );
     return {
       ...savedWebView,
-      title: 'FW Lite Extension React',
+      title: 'FieldWorks Lite Extension React',
       content: extensionTemplateReact,
       styles: extensionTemplateStyles,
       iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
@@ -33,7 +33,7 @@ const reactWebViewProvider: IWebViewProvider = {
 };
 
 export async function activate(context: ExecutionActivationContext) {
-  logger.info('FwLite is activating!');
+  logger.info('FieldWorks Lite is activating!');
 
   const reactWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     reactWebViewType,
@@ -105,21 +105,21 @@ export async function activate(context: ExecutionActivationContext) {
     () => fwLiteProcess.kill()
   );
 
-  logger.info('FwLite is finished activating!');
+  logger.info('FieldWorks Lite is finished activating!');
 }
 
 export async function deactivate() {
-  logger.info('FwLite is deactivating!');
+  logger.info('FieldWorks Lite is deactivating!');
   return true;
 }
 
 function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   let binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
-    throw new Error('FwLite requires createProcess elevated privileges');
+    throw new Error('FieldWorks Lite requires createProcess elevated privileges');
   }
   if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
-    throw new Error('FwLite only supports launching on windows for now');
+    throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
   //todo instead of hardcoding the url and port we should run it and find the url in the output
   let baseUrl = 'http://localhost:29348';
