@@ -183,18 +183,6 @@
     ],
     "translation": ""
   },
-  "5UizkR": {
-    "message": "Add Made of",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        51
-      ]
-    ],
-    "translation": ""
-  },
   "dt7w9L": {
     "message": "Add Meaning",
     "placeholders": {},
@@ -211,6 +199,30 @@
     ],
     "translation": ""
   },
+  "x19kbJ": {
+    "message": "Add part",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        57
+      ]
+    ],
+    "translation": ""
+  },
+  "uvBQSU": {
+    "message": "Add part of",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        51
+      ]
+    ],
+    "translation": ""
+  },
   "0YSbah": {
     "message": "Add Sense",
     "placeholders": {},
@@ -223,18 +235,6 @@
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
         226
-      ]
-    ],
-    "translation": ""
-  },
-  "bbaCcg": {
-    "message": "Add Word Part",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        57
       ]
     ],
     "translation": ""
@@ -486,7 +486,7 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        77
+        88
       ]
     ],
     "translation": ""
@@ -534,7 +534,7 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        91
+        77
       ]
     ],
     "translation": ""
@@ -1279,42 +1279,6 @@
     ],
     "translation": "Cerrar sesión"
   },
-  "wkUvl2": {
-    "message": "Made of",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        91
-      ],
-      [
-        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        55
-      ],
-      [
-        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        44
-      ],
-      [
-        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        45
-      ]
-    ],
-    "translation": ""
-  },
-  "/K6ChE": {
-    "message": "Made of type",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        77
-      ]
-    ],
-    "translation": ""
-  },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
     "placeholders": {},
@@ -1615,6 +1579,26 @@
     ],
     "translation": ""
   },
+  "vgP+9p": {
+    "message": "Part",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        43
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        61
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        44
+      ]
+    ],
+    "translation": ""
+  },
   "qW3eh2": {
     "message": "Part of",
     "placeholders": {},
@@ -1626,11 +1610,15 @@
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        43
+        55
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        44
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        44
+        45
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
@@ -1647,6 +1635,18 @@
       [
         "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
         63
+      ]
+    ],
+    "translation": ""
+  },
+  "pmRbKZ": {
+    "message": "Parts",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        77
       ]
     ],
     "translation": ""
@@ -2147,6 +2147,18 @@
     ],
     "translation": ""
   },
+  "9OF2ex": {
+    "message": "Uses parts as",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        88
+      ]
+    ],
+    "translation": ""
+  },
   "YYdC3A": {
     "message": "Version {0}",
     "placeholders": {},
@@ -2227,18 +2239,6 @@
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
         204
-      ]
-    ],
-    "translation": ""
-  },
-  "sC6QI/": {
-    "message": "Word Part",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        61
       ]
     ],
     "translation": ""
