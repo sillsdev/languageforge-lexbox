@@ -7,7 +7,7 @@
   import {Slider} from '$lib/components/ui/slider';
   import {createSubscriber} from 'svelte/reactivity';
   import {on} from 'svelte/events';
-
+  const durationFormat = new Intl.DurationFormat(undefined, {style: 'digital'});
 
   let {
     loader = defaultLoader,
@@ -115,7 +115,7 @@
                 step="0.01"/>
         {#if !isNaN(audioRuned.duration)}
           <span class="break-keep text-nowrap pr-2">
-            {audioRuned.currentTime.toFixed(2)} / {audioRuned.duration.toFixed(2)}
+            {durationFormat.format({seconds: audioRuned.currentTime.toFixed(0)})} / {durationFormat.format({seconds: audioRuned.duration.toFixed(0)})}
           </span>
         {/if}
       {/if}
