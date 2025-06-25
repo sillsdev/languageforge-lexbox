@@ -1,5 +1,4 @@
 ﻿using LexCore.Entities;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Testing.ApiTests;
 using Testing.Fixtures;
 using System.Net;

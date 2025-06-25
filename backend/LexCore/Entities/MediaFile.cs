@@ -49,11 +49,11 @@ public class FileMetadata
 
     public void Merge(FileMetadata other)
     {
-        if (other.SizeInBytes > 0) this.SizeInBytes = other.SizeInBytes;
+        if (other.SizeInBytes is not null && other.SizeInBytes.Value > 0) this.SizeInBytes = other.SizeInBytes;
         if (!string.IsNullOrEmpty(other.FileFormat)) this.FileFormat = other.FileFormat;
         if (!string.IsNullOrEmpty(other.MimeType)) this.MimeType = other.MimeType;
         if (!string.IsNullOrEmpty(other.Author)) this.Author = other.Author;
-        if (other.UploadDate > DateTimeOffset.MinValue) this.UploadDate = other.UploadDate;
+        if (other.UploadDate is not null) this.UploadDate = other.UploadDate;
         if (other.License is not null) this.License = other.License;
         foreach (var kv in other.ExtraFields)
         {

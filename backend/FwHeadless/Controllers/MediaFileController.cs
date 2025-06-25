@@ -13,7 +13,7 @@ namespace FwHeadless.Controllers;
 
 public static class MediaFileController
 {
-    public static async Task<Results<Ok<FileListing>, NotFound>> ListFiles(
+    public static async Task<Results<Ok<FileListing>, NotFound, BadRequest>> ListFiles(
         Guid projectId,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
@@ -22,6 +22,12 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        // Prevent directory-traversal attacks: no ".." allowed in relativePath
+        if (relativePath.Contains(".."))
+        {
+            // This will also fail for any requests with ".." in the name of a directory, but that's an acceptable loss
+            return TypedResults.BadRequest();
+        }
         var path = Path.Join(projectFolder, relativePath); // Do NOT use Path.Combine here
         var files =
             Directory.EnumerateFiles(path, "*", new EnumerationOptions() { RecurseSubdirectories = true })
@@ -43,6 +49,7 @@ public static class MediaFileController
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        if (!File.Exists(filePath)) return TypedResults.NotFound();
         mediaFile.InitializeMetadataIfNeeded(filePath);
         var contentType = mediaFile.Metadata.MimeType;
         if (contentType is null)
