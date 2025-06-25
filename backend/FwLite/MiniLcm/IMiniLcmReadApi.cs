@@ -22,6 +22,11 @@ public interface IMiniLcmReadApi
     Task<Publication?> GetPublication(Guid id);
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
+
+    Task<Stream?> GetFileStream(string fileId)
+    {
+        return Task.FromResult<Stream?>(null);
+    }
 }
 
 public record FilterQueryOptions(

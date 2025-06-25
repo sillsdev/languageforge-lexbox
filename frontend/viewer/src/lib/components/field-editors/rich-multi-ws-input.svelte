@@ -5,6 +5,7 @@
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import {Label} from '../ui/label';
+  import AudioInput from '$lib/components/field-editors/audio-input.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
   const labelledBy = fieldBodyProps?.labelId;
@@ -33,6 +34,10 @@
     onchange?.(wsId, richString, value);
   }
 
+  function getAudioId(richString: IRichString | undefined): string | undefined {
+    return richString?.spans[0].text;
+  }
+
   const rootId = $props.id();
 </script>
 
@@ -43,16 +48,20 @@
     <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}>
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
-      <LcmRichTextEditor
-        bind:value={value[ws.wsId]}
-        normalWs={ws.wsId}
-        id={inputId}
-        aria-labelledby="{labelledBy ?? ''} {labelId}"
-        {readonly}
-        autofocus={autofocus && (i === 0)}
-        onchange={() => onRichTextChange(ws.wsId)}
-        aria-label={ws.abbreviation}
+      {#if !ws.isAudio}
+        <LcmRichTextEditor
+          bind:value={value[ws.wsId]}
+          normalWs={ws.wsId}
+          id={inputId}
+          aria-labelledby="{labelledBy ?? ''} {labelId}"
+          {readonly}
+          autofocus={autofocus && (i === 0)}
+          onchange={() => onRichTextChange(ws.wsId)}
+          aria-label={ws.abbreviation}
         />
+      {:else}
+        <AudioInput audioId={getAudioId(value[ws.wsId])}/>
+      {/if}
     </div>
   {/each}
 </div>

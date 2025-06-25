@@ -28,6 +28,7 @@
 
   let headwords = $derived.by(() => {
     return wsService.vernacular
+      .filter(ws => !ws.isAudio)
       .map(ws => ({
         wsId: ws.wsId,
         value: wsService.headword(entry, ws.wsId),
@@ -49,6 +50,7 @@
       id: sense.id,
       partOfSpeech: partsOfSpeech.current.find(pos => pos.id === sense.partOfSpeechId)?.label,
       glossesAndDefs: wsService.analysis
+        .filter(ws => !ws.isAudio)
         .map(ws => ({
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
@@ -60,11 +62,14 @@
       exampleSentences: sense.exampleSentences.map(example => ({
         id: example.id,
         sentences: [
-          ...wsService.vernacular.map(ws => ({
+          ...wsService.vernacular
+            .filter(ws => !ws.isAudio)
+            .map(ws => ({
             text: wsService.asString(example.sentence[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'vernacular'),
           })),
-          ...wsService.analysis.map(ws => ({
+          ...wsService.analysis
+            .filter(ws => !ws.isAudio).map(ws => ({
             text: wsService.asString(example.translation[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'analysis'),
           })),

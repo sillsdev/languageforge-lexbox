@@ -29,6 +29,7 @@ public class FwDataMiniLcmApi(
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
     private FwDataBridgeConfig Config => config.Value;
+    private const string AudioVisualFolder = "AudioVisual";
     internal LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
@@ -650,7 +651,15 @@ public class FwDataMiniLcmApi(
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
-            result.Values.Add(GetWritingSystemId(ws), tsString.Text);
+            var wsId = GetWritingSystemId(ws);
+            if (!wsId.IsAudio)
+            {
+                result.Values.Add(wsId, tsString.Text);
+            }
+            else
+            {
+                result.Values.Add(wsId, ToFileId(tsString.Text));
+            }
         }
 
         return result;
@@ -665,10 +674,21 @@ public class FwDataMiniLcmApi(
 
             var richString = ToRichString(tsString);
             if (richString is null) continue;
-            result.Add(GetWritingSystemId(ws), richString);
+            var wsId = GetWritingSystemId(ws);
+            if (wsId.IsAudio && richString.Spans.Count == 1)
+            {
+                var span = richString.Spans[0];
+                richString.Spans[0] = span with { Text = ToFileId(span.Text) };
+            }
+            result.Add(wsId, richString);
         }
 
         return result;
+    }
+
+    private string ToFileId(string tsString)
+    {
+        return Path.IsPathRooted(tsString) ? tsString : Path.Combine(AudioVisualFolder, tsString);
     }
 
     internal RichString? ToRichString(ITsString? tsString)
@@ -1447,5 +1467,20 @@ public class FwDataMiniLcmApi(
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
+    }
+
+    public Task<Stream?> GetFileStream(string fileId)
+    {
+        string fullPath;
+        if (Path.IsPathRooted(fileId))
+        {
+            fullPath = fileId;
+        }
+        else
+        {
+            fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, fileId);
+        }
+
+        return Task.FromResult<Stream?>(File.OpenRead(fullPath));
     }
 }

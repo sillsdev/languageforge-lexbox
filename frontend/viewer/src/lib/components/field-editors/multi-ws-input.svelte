@@ -4,6 +4,7 @@
   import {Input} from '../ui/input';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import {Label} from '../ui/label';
+  import AudioInput from './audio-input.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
   const labeledBy = fieldBodyProps?.labelId;
@@ -36,12 +37,16 @@
     <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}>
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
-      <Input bind:value={value[ws.wsId]}
-        id={inputId}
-        aria-labelledby="{labeledBy ?? ''} {labelId}"
-        {readonly}
-        autofocus={autofocus && (i === 0)}
-        onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
+      {#if !ws.isAudio}
+        <Input bind:value={value[ws.wsId]}
+          id={inputId}
+          aria-labelledby="{labeledBy ?? ''} {labelId}"
+          {readonly}
+          autofocus={autofocus && (i === 0)}
+          onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
+      {:else}
+        <AudioInput audioId={value[ws.wsId]}/>
+      {/if}
     </div>
   {/each}
 </div>
