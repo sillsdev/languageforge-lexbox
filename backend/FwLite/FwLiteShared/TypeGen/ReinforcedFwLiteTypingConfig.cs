@@ -53,6 +53,7 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithName("DotNet.DotNetObject").Imports([
                 new() { From = "@microsoft/dotnet-js-interop", Target = "type {DotNet}" }
             ]));
+        builder.Substitute(typeof(DotNetStreamReference), new RtSimpleTypeName("{stream: () => Promise<ReadableStream>, arrayBuffer: () => Promise<ArrayBuffer>}"));
         builder.ExportAsInterface<IAsyncDisposable>();
 
         ConfigureMiniLcmTypes(builder);
