@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -43,7 +44,7 @@ public class FileMetadata
 
     // Other optional, not-yet-mapped properties like purpose, transcript, etc., should end up in here
     [JsonExtensionData]
-    public IDictionary<string, JsonElement> ExtraFields { get; set; } = new Dictionary<string, JsonElement>();
+    public IDictionary<string, object> ExtraFields { get; set; } = new Dictionary<string, object>();
     // NOTE: Any metadata that is a JSON object or array will NOT be merged, just replaced
 
     public void Merge(FileMetadata other)
@@ -58,6 +59,23 @@ public class FileMetadata
         {
             ExtraFields[kv.Key] = kv.Value;
         }
+    }
+}
+
+public static class FileMetadataProperties
+{
+    public static PropertyInfo[] properties { get; set; }
+    public static string[] propertyNamesLC { get; set; }
+
+    static FileMetadataProperties()
+    {
+        properties = typeof(FileMetadata).GetProperties();
+        propertyNamesLC = properties.Select(p => p.Name.ToLowerInvariant()).ToArray();
+    }
+
+    public static bool IsMetadataProp(string prop)
+    {
+        return propertyNamesLC.Contains(prop.ToLowerInvariant());
     }
 }
 

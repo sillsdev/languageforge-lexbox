@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
-using System.Text.Json;
 using MimeMapping;
 
 namespace FwHeadless.Controllers;
@@ -124,6 +123,18 @@ public static class MediaFileController
         }
         // HTTP Content-Type header will be "multipart/form-data; bondary=(something)". We want the content-type from the uploaded file, not HTTP
         var mimeType = file.ContentType;
+        // Form entries not found in FileMetadata won't automatically be mapped into ExtraFields, we have to do it manually
+        var form = await httpContext.Request.ReadFormAsync();
+        var keysToRemove = new string[] { "file", "filename", "fileId", "projectId" };
+        var extraKeys = form.Keys.Except(keysToRemove).Where(key => !FileMetadataProperties.IsMetadataProp(key));
+        var extraFields = new Dictionary<string, object>();
+        foreach (var key in extraKeys)
+        {
+            if (form.TryGetValue(key, out var values))
+            {
+                if (values.FirstOrDefault() is string s) extraFields[key] = s;
+            }
+        }
         // If no filename specified in form, get it from uploaded file
         if (string.IsNullOrEmpty(filename)) filename = file.FileName;
         // If *still* no filename, then use `file.ext` where the extension is calculated from the Content-Type header, defaulting to `.bin` if not provided
@@ -140,6 +151,7 @@ public static class MediaFileController
         }
         metadata ??= new FileMetadata();
         if (string.IsNullOrEmpty(metadata.MimeType)) metadata.MimeType = mimeType;
+        metadata.ExtraFields = extraFields;
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null && !newFilesAllowed)
         {

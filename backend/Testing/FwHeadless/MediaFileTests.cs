@@ -4,6 +4,7 @@ using Testing.ApiTests;
 using Testing.Fixtures;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace Testing.FwHeadless;
 
@@ -123,16 +124,18 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         };
         expectedMetadata.Author.Should().Be(uploadMetadata.Author);
         expectedMetadata.License.Should().Be(uploadMetadata.License);
-        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata);
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata, extraFields: extraFields);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
         mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
-        metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
+        metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash).Excluding(m => m.ExtraFields));
         metadata.ExtraFields.Should().ContainKey("one");
-        metadata.ExtraFields["one"].GetString().Should().Be("two");
+        metadata.ExtraFields["one"].Should().BeOfType<JsonElement>();
+        ((JsonElement)metadata.ExtraFields["one"]).GetString().Should().Be("two");
         metadata.ExtraFields.Should().ContainKey("three");
-        metadata.ExtraFields["three"].GetString().Should().Be("four");
+        metadata.ExtraFields["three"].Should().BeOfType<JsonElement>();
+        ((JsonElement)metadata.ExtraFields["three"]).GetString().Should().Be("four");
     }
 
     [Fact]
