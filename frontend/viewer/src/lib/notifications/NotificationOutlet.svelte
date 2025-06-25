@@ -14,7 +14,6 @@
   const notifications = AppNotification.notifications;
 
   const eventBus = useEventBus();
-  const fwliteConfig = useFwLiteConfig();
 
   const updateUrls: Partial<Record<FwLitePlatform, string>> = {
     [FwLitePlatform.Android]: 'https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui',
@@ -24,6 +23,7 @@
     if (event.result == UpdateResult.ManualUpdateRequired) {
       AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, 'info', {
         callback: () => {
+          const fwliteConfig = useFwLiteConfig();
           const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
           window.open(url, '_blank');
         },
