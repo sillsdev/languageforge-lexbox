@@ -18,7 +18,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        233
+        239
       ]
     ],
     "translation": ""
@@ -30,7 +30,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        194
+        200
       ]
     ],
     "translation": ""
@@ -42,7 +42,7 @@
     "origin": [
       [
         "src/lib/components/editor/field/field-title.svelte",
-        19
+        22
       ]
     ],
     "translation": ""
@@ -54,7 +54,7 @@
     "origin": [
       [
         "src/lib/components/editor/field/field-title.svelte",
-        20
+        23
       ]
     ],
     "translation": ""
@@ -78,7 +78,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        94
+        95
       ]
     ],
     "translation": ""
@@ -90,11 +90,23 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        91
+        92
       ],
       [
         "src/project/SyncDialog.svelte",
-        92
+        93
+      ]
+    ],
+    "translation": ""
+  },
+  "UuldxO": {
+    "message": "A new version of FieldWorks lite is available.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/notifications/NotificationOutlet.svelte",
+        24
       ]
     ],
     "translation": ""
@@ -106,7 +118,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        110
+        102
       ]
     ],
     "translation": ""
@@ -130,7 +142,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        116
+        136
       ]
     ],
     "translation": "Compte"
@@ -142,7 +154,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        89
+        93
       ]
     ],
     "translation": "Activité"
@@ -155,15 +167,7 @@
       [
         "src/lib/entry-editor/field-editors/ComplexForms.svelte",
         51
-      ]
-    ],
-    "translation": ""
-  },
-  "cqTzBu": {
-    "message": "Add component to complex form",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
+      ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
         57
@@ -195,18 +199,6 @@
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
         226
-      ]
-    ],
-    "translation": ""
-  },
-  "x19kbJ": {
-    "message": "Add part",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        57
       ]
     ],
     "translation": ""
@@ -266,7 +258,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        110
+        102
       ]
     ],
     "translation": ""
@@ -311,6 +303,18 @@
     ],
     "translation": ""
   },
+  "R9Khdg": {
+    "message": "Auto",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SortMenu.svelte",
+        73
+      ]
+    ],
+    "translation": ""
+  },
   "VmDOAV": {
     "message": "Auto synchronizing",
     "placeholders": {},
@@ -318,7 +322,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        179
+        176
       ]
     ],
     "translation": ""
@@ -346,7 +350,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        84
+        88
       ]
     ],
     "translation": "Parcourir"
@@ -394,7 +398,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        220
+        225
       ]
     ],
     "translation": "Projets Classiques de FieldWorks"
@@ -442,7 +446,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        135
+        155
       ]
     ],
     "translation": "Fermer le Dictionnaire"
@@ -570,7 +574,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        198
+        203
       ]
     ],
     "translation": "Créer un Projet d'Exemple"
@@ -626,7 +630,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        82
+        86
       ]
     ],
     "translation": "Tableau de Bord"
@@ -662,7 +666,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        172
+        177
       ]
     ],
     "translation": "Supprimer"
@@ -714,11 +718,11 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        106
+        107
       ],
       [
         "src/home/HomeView.svelte",
-        109
+        110
       ]
     ],
     "translation": "Dictionnaires"
@@ -730,7 +734,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        78
+        82
       ]
     ],
     "translation": "Dictionnaire"
@@ -776,6 +780,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/lib/notifications/NotificationOutlet.svelte",
+        30
+      ],
       [
         "src/home/Server.svelte",
         119
@@ -827,14 +835,38 @@
     ],
     "translation": ""
   },
-  "oi065p": {
-    "message": "Error getting sync status. Are you logged in to the LexBox server?",
+  "yeYJfy": {
+    "message": "Error getting sync status",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        117
+      ]
+    ],
+    "translation": ""
+  },
+  "ggzvfk": {
+    "message": "Error getting sync status.",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        150
+        186
+      ]
+    ],
+    "translation": ""
+  },
+  "TpqeIh": {
+    "message": "Error: {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        250
       ]
     ],
     "translation": ""
@@ -870,7 +902,7 @@
     "origin": [
       [
         "src/project/browse/EntriesList.svelte",
-        133
+        134
       ]
     ],
     "translation": ""
@@ -894,11 +926,11 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        88
+        89
       ],
       [
         "src/project/SyncDialog.svelte",
-        120
+        119
       ]
     ],
     "translation": ""
@@ -910,11 +942,11 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        157
+        177
       ],
       [
         "src/home/HomeView.svelte",
-        121
+        126
       ]
     ],
     "translation": "Retour d'information"
@@ -946,7 +978,7 @@
       ],
       [
         "src/home/HomeView.svelte",
-        226
+        231
       ]
     ],
     "translation": "Logo FieldWorks"
@@ -1075,18 +1107,6 @@
     ],
     "translation": ""
   },
-  "X5C2hm": {
-    "message": "Headword",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/project/browse/BrowseView.svelte",
-        69
-      ]
-    ],
-    "translation": ""
-  },
   "vLyv1R": {
     "message": "Hide",
     "placeholders": {},
@@ -1134,7 +1154,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        232
+        237
       ]
     ],
     "translation": "Importer"
@@ -1146,11 +1166,11 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        197
+        203
       ],
       [
         "src/project/SyncDialog.svelte",
-        236
+        242
       ]
     ],
     "translation": ""
@@ -1162,7 +1182,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        108
+        109
       ]
     ],
     "translation": "Logo Lexbox"
@@ -1186,7 +1206,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        71
+        63
       ]
     ],
     "translation": ""
@@ -1222,7 +1242,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        141
+        146
       ]
     ],
     "translation": "chargement..."
@@ -1234,7 +1254,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        146
+        151
       ]
     ],
     "translation": "Local"
@@ -1246,10 +1266,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        163
+        168
       ]
     ],
     "translation": "Uniquement local"
+  },
+  "z0t9bb": {
+    "message": "Login",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        182
+      ]
+    ],
+    "translation": ""
   },
   "z7IcPF": {
     "message": "Login to see projects",
@@ -1258,11 +1290,11 @@
     "origin": [
       [
         "src/lib/auth/LoginButton.svelte",
-        70
+        71
       ],
       [
         "src/lib/auth/LoginButton.svelte",
-        77
+        78
       ]
     ],
     "translation": "Connectez-vous pour voir les projets"
@@ -1274,7 +1306,7 @@
     "origin": [
       [
         "src/lib/auth/LoginButton.svelte",
-        60
+        61
       ]
     ],
     "translation": "Se déconnecter"
@@ -1286,7 +1318,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        168
+        188
       ]
     ],
     "translation": "Fait avec ❤️ depuis 🇦🇹 🇹🇭 🇺🇸"
@@ -1375,6 +1407,18 @@
     ],
     "translation": ""
   },
+  "qqeAJM": {
+    "message": "Never",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        243
+      ]
+    ],
+    "translation": ""
+  },
   "isRobC": {
     "message": "New",
     "placeholders": {},
@@ -1454,7 +1498,7 @@
     "origin": [
       [
         "src/project/browse/EntriesList.svelte",
-        159
+        160
       ],
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
@@ -1491,6 +1535,22 @@
     ],
     "translation": ""
   },
+  "ylgAlG": {
+    "message": "No server configured",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        184
+      ],
+      [
+        "src/project/ProjectSidebar.svelte",
+        113
+      ]
+    ],
+    "translation": ""
+  },
   "qdJypF": {
     "message": "No words found",
     "placeholders": {},
@@ -1519,6 +1579,22 @@
     ],
     "translation": ""
   },
+  "wMP6DT": {
+    "message": "Not logged in",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        247
+      ],
+      [
+        "src/project/ProjectSidebar.svelte",
+        111
+      ]
+    ],
+    "translation": ""
+  },
   "KiJn9B": {
     "message": "Note",
     "placeholders": {},
@@ -1527,6 +1603,22 @@
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         114
+      ]
+    ],
+    "translation": ""
+  },
+  "6Aih4U": {
+    "message": "Offline",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        180
+      ],
+      [
+        "src/project/ProjectSidebar.svelte",
+        109
       ]
     ],
     "translation": ""
@@ -1590,10 +1682,6 @@
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        61
-      ],
-      [
-        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
         44
       ]
     ],
@@ -1639,18 +1727,6 @@
     ],
     "translation": ""
   },
-  "pmRbKZ": {
-    "message": "Parts",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        77
-      ]
-    ],
-    "translation": ""
-  },
   "kNiQp6": {
     "message": "Pinned",
     "placeholders": {},
@@ -1670,7 +1746,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        84
+        76
       ]
     ],
     "translation": ""
@@ -1682,7 +1758,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        206
+        211
       ]
     ],
     "translation": "Nom du projet..."
@@ -1726,7 +1802,7 @@
       ],
       [
         "src/home/HomeView.svelte",
-        150
+        155
       ]
     ],
     "translation": "Actualiser les Projets"
@@ -1798,7 +1874,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        110
+        102
       ]
     ],
     "translation": ""
@@ -1858,7 +1934,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        122
+        142
       ]
     ],
     "translation": "Paramètres"
@@ -1918,7 +1994,7 @@
     "origin": [
       [
         "src/project/browse/BrowseView.svelte",
-        80
+        72
       ]
     ],
     "translation": ""
@@ -1966,7 +2042,7 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        163
+        168
       ]
     ],
     "translation": "Synchronisé avec {0}"
@@ -1978,15 +2054,15 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        145
+        142
       ],
       [
         "src/project/SyncDialog.svelte",
-        218
+        224
       ],
       [
         "src/project/ProjectSidebar.svelte",
-        103
+        122
       ]
     ],
     "translation": "Synchroniser"
@@ -1998,11 +2074,11 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        177
+        174
       ],
       [
         "src/project/SyncDialog.svelte",
-        216
+        222
       ]
     ],
     "translation": ""
@@ -2014,7 +2090,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        86
+        90
       ]
     ],
     "translation": "Tâches"
@@ -2026,10 +2102,22 @@
     "origin": [
       [
         "src/home/HomeView.svelte",
-        187
+        192
       ]
     ],
     "translation": "Projet de Test"
+  },
+  "qYgnDa": {
+    "message": "This date # and this emoji # are snippets",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/stories/i18n/i18n.stories.svelte",
+        null
+      ]
+    ],
+    "translation": ""
   },
   "f233G3": {
     "message": "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.",
@@ -2086,7 +2174,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        148
+        168
       ],
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
@@ -2094,7 +2182,7 @@
       ],
       [
         "src/home/HomeView.svelte",
-        127
+        132
       ]
     ],
     "translation": "Résoudre les problèmes"
@@ -2117,12 +2205,32 @@
     "comments": [],
     "origin": [
       [
+        "src/project/SyncDialog.svelte",
+        243
+      ],
+      [
+        "src/project/SyncDialog.svelte",
+        250
+      ],
+      [
         "src/lib/history/HistoryView.svelte",
         92
       ],
       [
         "src/lib/activity/ActivityView.svelte",
         95
+      ]
+    ],
+    "translation": ""
+  },
+  "29VNqC": {
+    "message": "Unknown error",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/ProjectSidebar.svelte",
+        115
       ]
     ],
     "translation": ""
@@ -2147,8 +2255,8 @@
     ],
     "translation": ""
   },
-  "9OF2ex": {
-    "message": "Uses parts as",
+  "S/J67B": {
+    "message": "Uses components as",
     "placeholders": {},
     "comments": [],
     "origin": [
@@ -2166,7 +2274,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        167
+        187
       ]
     ],
     "translation": "Version {0}"

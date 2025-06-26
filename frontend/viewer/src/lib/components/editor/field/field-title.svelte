@@ -3,6 +3,9 @@
   import FieldHelpIcon from '../../../entry-editor/FieldHelpIcon.svelte';
   import {useCurrentView} from '$lib/views/view-service';
   import {pickViewText, type ViewText} from '$lib/views/view-text';
+  import {useFieldTitle} from './field-root.svelte';
+
+  const stateProps = useFieldTitle();
 
   const {
     name,
@@ -18,27 +21,13 @@
     : $view.type === 'fw-classic'
       ? $t`${name.lite} (FieldWorks Lite)`
       : $t`${name.classic} (FieldWorks)`);
-
-  // kind of crazy, but I don't think Svelte's white-space handling let's us use &nbsp; between the label and help icon
-  const { lastWord, otherWords } = $derived.by(() => {
-    const words = label.split(' ');
-    return {
-      lastWord: words.pop(),
-      otherWords: words.join(' '),
-    };
-  });
 </script>
 
-<div class="col-span-full me-2 mb-2 @3xl/editor:col-span-1">
-  <span class="inline-flex items-center relative">
-    <span class="name" {title}>
-      {otherWords}
-      <span class="whitespace-nowrap">
-        {lastWord}
-        {#if helpId}
-          <FieldHelpIcon {helpId} />
-        {/if}
-      </span>
-    </span>
+<span class="col-span-full me-2 mb-2 @3xl/editor:col-span-1 max-w-max" {title}>
+  <span id={stateProps.labelId}>{label}</span><span class="whitespace-nowrap"
+    >&#8288;<!-- non-breaking space that glues the last word of the label to the help icon -->
+    {#if helpId}
+      <FieldHelpIcon {helpId} />
+    {/if}
   </span>
-</div>
+</span>

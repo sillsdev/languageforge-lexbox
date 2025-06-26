@@ -11,6 +11,7 @@
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
+  import storybookIcon from '../stories/assets/storybook-icon.svg'
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
     useFwLiteConfig,
@@ -109,6 +110,10 @@
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex">
+    {#if import.meta.env.DEV}
+      <Button href="http://localhost:6006/" target="_blank"
+          variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}} />
+    {/if}
     <DevContent>
       <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube" />
     </DevContent>

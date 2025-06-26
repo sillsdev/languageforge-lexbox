@@ -103,6 +103,38 @@ jobs:
           if-no-files-found: error
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
+  frontend-component-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Prepare frontend
+        working-directory: frontend
+        run: |
+          pnpm install
+        # vitest is configured to use playwright for stories and other browser-based tests
+      - name: Set up Playwright dependencies
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install --with-deps
+      - name: vitest
+        working-directory: frontend/viewer
+        run: pnpm run test --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
+        if: always()
+        with:
+          check_name: UI unit Tests
+          files: ./frontend/viewer/test-results/*.xml
+          action_fail_on_inconclusive: true
+
   publish-mac:
     name: Publish FW Lite app for Mac
     needs: [build-and-test, frontend]

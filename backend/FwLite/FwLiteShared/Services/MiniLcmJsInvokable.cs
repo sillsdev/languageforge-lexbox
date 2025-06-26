@@ -3,6 +3,7 @@ using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Models;
+using Reinforced.Typings.Attributes;
 
 namespace FwLiteShared.Services;
 
@@ -73,6 +74,7 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<IComplexFormType | null>")]
     public Task<ComplexFormType?> GetComplexFormType(Guid id)
     {
         return _wrappedApi.GetComplexFormType(id);
@@ -97,30 +99,35 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<IEntry | null>")]
     public Task<Entry?> GetEntry(Guid id)
     {
         return _wrappedApi.GetEntry(id);
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<ISense | null>")]
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
         return _wrappedApi.GetSense(entryId, id);
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<IPartOfSpeech | null>")]
     public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         return _wrappedApi.GetPartOfSpeech(id);
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<ISemanticDomain | null>")]
     public Task<SemanticDomain?> GetSemanticDomain(Guid id)
     {
         return _wrappedApi.GetSemanticDomain(id);
     }
 
     [JSInvokable]
+    [TsFunction(Type = "Promise<IExampleSentence | null>")]
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
         return _wrappedApi.GetExampleSentence(entryId, senseId, id);

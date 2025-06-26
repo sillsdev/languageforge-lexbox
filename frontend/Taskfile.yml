@@ -20,6 +20,7 @@ tasks:
     method: checksum
     sources:
       - package.json
+      - ./viewer/package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
     cmds:
@@ -36,7 +37,11 @@ tasks:
 
   fw-lite-infr-internal:
     internal: true
-    deps: [ viewer:run-app, run-https-proxy ]
+    deps:
+      - task: viewer:run-app
+      - task: run-https-proxy
+      - task: viewer:storybook
+        vars: { CLI_ARGS: --no-open }
 
   playwright-tests:
     aliases: [ pt ]

@@ -109,18 +109,19 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    public async Task<ProjectSyncStatus?> GetLexboxSyncStatus(LexboxServer server, Guid projectId)
+    public async Task<ProjectSyncStatus> GetLexboxSyncStatus(LexboxServer server, Guid projectId)
     {
         var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return null;
+        if (httpClient is null) return ProjectSyncStatus.Unknown(ProjectSyncStatusErrorCode.NotLoggedIn);
         try
         {
-            return await httpClient.GetFromJsonAsync<ProjectSyncStatus?>($"api/fw-lite/sync/status/{projectId}");
+            var status = await httpClient.GetFromJsonAsync<ProjectSyncStatus>($"api/fw-lite/sync/status/{projectId}");
+            return status ?? ProjectSyncStatus.Unknown(ProjectSyncStatusErrorCode.Unknown, "No status returned from server");
         }
         catch (Exception e)
         {
             logger.LogError(e, "Error getting lexbox sync status");
-            return null;
+            return ProjectSyncStatus.Unknown(ProjectSyncStatusErrorCode.Unknown, e.Message);
         }
     }
 

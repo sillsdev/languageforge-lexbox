@@ -39,11 +39,11 @@
     {@render triggerContent()}
   </ContextMenuTrigger>
 {:else if !IsMobile.value}
-  <DropdownMenuTrigger class={cn(triggerVariant, className)} {...rest} bind:ref>
+  <DropdownMenuTrigger class={cn(rest.child || triggerVariant, className)} {...rest} bind:ref>
     {@render triggerContent()}
   </DropdownMenuTrigger>
 {:else}
-  <DrawerTrigger class={cn(triggerVariant, className)} {...rest} bind:ref>
+  <DrawerTrigger class={cn(rest.child || triggerVariant, className)} {...rest} bind:ref>
     {@render triggerContent()}
   </DrawerTrigger>
 {/if}
