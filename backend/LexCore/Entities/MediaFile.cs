@@ -9,8 +9,7 @@ public class MediaFile : EntityBase
 {
     // Id property comes from EntityBase
     public required string Filename { get; set; }
-    public Guid ProjectId { get; set; } // required; all files must belong to a project
-    public DateTimeOffset LastModified { get; set; } // You know what? We *should* derive from EntityBase after all.
+    public Guid ProjectId { get; set; }
     public FileMetadata? Metadata { get; set; } = new FileMetadata();
 
     [MemberNotNull(nameof(Metadata))]
@@ -34,9 +33,9 @@ public class MediaFile : EntityBase
 
 public class FileMetadata
 {
-    public string? Sha256Hash { get; set; } // Used for EntityTag / ETag headers, among other things
+    public string? Sha256Hash { get; set; }
     public int? SizeInBytes { get; set; }
-    public string? FileFormat { get; set; } // TODO: Define strings we might use here, or else switch to MimeType
+    public string? FileFormat { get; set; }
     public string? MimeType { get; set; }
     public string? Author { get; set; }
     public DateTimeOffset? UploadDate { get; set; }
