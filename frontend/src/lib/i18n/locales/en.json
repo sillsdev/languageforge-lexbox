@@ -178,6 +178,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "name": "Name",
       "created_at": "Created",
       "members": "Members",
+      "projects": "Projects",
       "my_orgs": "My organizations",
       "other_orgs": "Other organizations",
       "not_in_any_orgs": "You aren't a member of any organizations yet.",
