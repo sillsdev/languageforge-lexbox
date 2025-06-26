@@ -11,9 +11,9 @@ export const allFields: Record<FieldId, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
-  complexForms: {show: false, order: 3},
-  complexFormTypes: {show: false, order: 4},
-  components: {show: false, order: 5},
+  complexForms: {show: true, order: 3},
+  components: {show: true, order: 4},
+  complexFormTypes: {show: false, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
 
@@ -41,7 +41,10 @@ export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
   label: 'FieldWorks',
-  fields: recursiveSpread(allFields, {[defaultDef]: {show: true}}),
+  fields: recursiveSpread(allFields, {
+    complexFormTypes: {order: allFields.components.order - 0.1},
+    [defaultDef]: {show: true}
+  }),
   alternateView: FW_LITE_VIEW,
 };
 

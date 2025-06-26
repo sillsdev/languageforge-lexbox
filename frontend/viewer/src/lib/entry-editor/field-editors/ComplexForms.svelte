@@ -6,6 +6,8 @@
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {Button} from '$lib/components/ui/button';
   import {t} from 'svelte-i18n-lingui';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
   type Props = {
     value: IComplexFormComponent[];
@@ -22,6 +24,7 @@
   }: Props = $props();
 
   let writingSystemService = useWritingSystemService();
+  const currentView = useCurrentView();
 
   function addComplexForm(selection: EntrySenseSelection) {
     const complexForm: IComplexFormComponent = {
@@ -35,21 +38,21 @@
     onchange?.(value);
   }
 
-  function disableEntry(e: IEntry): false | { reason: string, andSenses?: true } {
-    if (e.id === entry.id) return { reason: $t`Current Entry` };
-    if (entry.components.some((c) => c.componentEntryId === e.id)) return { reason: $t`Component` };
-    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: $t`Complex Form` };
+  function disableEntry(e: IEntry): false | { reason: string } {
+    if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, $currentView) };
+    if (entry.components.some((c) => c.componentEntryId === e.id)) return { reason: pt($t`Component`, $t`Part`, $currentView) };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Part of`, $currentView) };
     return false;
   }
 </script>
 
 <EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
   {#snippet actions()}
-    <EntryOrSensePicker title={$t`Add complex form`} mode="only-entries" pick={(e) => addComplexForm(e)}
+    <EntryOrSensePicker title={pt($t`Add component`, $t`Add part of`, $currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
       {disableEntry}>
       {#snippet trigger({ props })}
         <Button {...props} icon="i-mdi-plus" size="xs">
-          {$t`Add Complex Form`}
+          {pt($t`Complex Form`, $t`Part of`, $currentView)}
         </Button>
       {/snippet}
     </EntryOrSensePicker>

@@ -106,7 +106,7 @@
     "origin": [
       [
         "src/lib/notifications/NotificationOutlet.svelte",
-        17
+        24
       ]
     ],
     "translation": "A new version of FieldWorks lite is available."
@@ -159,53 +159,21 @@
     ],
     "translation": "Activity"
   },
-  "636uIU": {
-    "message": "Add complex form",
+  "KdJj3U": {
+    "message": "Add component",
     "placeholders": {},
     "comments": [],
     "origin": [
       [
         "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        48
-      ]
-    ],
-    "translation": "Add complex form"
-  },
-  "IumT/4": {
-    "message": "Add Complex Form",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        52
-      ]
-    ],
-    "translation": "Add Complex Form"
-  },
-  "DCsZAl": {
-    "message": "Add Component",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
+        51
+      ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        58
+        57
       ]
     ],
-    "translation": "Add Component"
-  },
-  "cqTzBu": {
-    "message": "Add component to complex form",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        54
-      ]
-    ],
-    "translation": "Add component to complex form"
+    "translation": "Add component"
   },
   "nI3A8B": {
     "message": "Add Example",
@@ -234,6 +202,18 @@
       ]
     ],
     "translation": "Add Meaning"
+  },
+  "uvBQSU": {
+    "message": "Add part of",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        51
+      ]
+    ],
+    "translation": "Add part of"
   },
   "0YSbah": {
     "message": "Add Sense",
@@ -490,11 +470,15 @@
     "origin": [
       [
         "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        41
+        55
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        44
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        42
+        45
       ]
     ],
     "translation": "Complex Form"
@@ -506,7 +490,7 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        77
+        88
       ]
     ],
     "translation": "Complex form types"
@@ -530,15 +514,19 @@
     "origin": [
       [
         "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        40
+        43
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        41
+        61
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        47
+        44
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        50
       ]
     ],
     "translation": "Component"
@@ -550,7 +538,7 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        91
+        77
       ]
     ],
     "translation": "Components"
@@ -610,14 +598,30 @@
     "origin": [
       [
         "src/lib/entry-editor/field-editors/ComplexForms.svelte",
-        39
+        42
       ],
       [
         "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
-        40
+        43
       ]
     ],
     "translation": "Current Entry"
+  },
+  "e2n436": {
+    "message": "Current Word",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        42
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        43
+      ]
+    ],
+    "translation": "Current Word"
   },
   "7p5kLi": {
     "message": "Dashboard",
@@ -778,7 +782,7 @@
     "origin": [
       [
         "src/lib/notifications/NotificationOutlet.svelte",
-        21
+        30
       ],
       [
         "src/home/Server.svelte",
@@ -1043,6 +1047,30 @@
     ],
     "translation": "Filter..."
   },
+  "0KYzFS": {
+    "message": "Find entry...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        140
+      ]
+    ],
+    "translation": "Find entry..."
+  },
+  "gotGzB": {
+    "message": "Find word...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        140
+      ]
+    ],
+    "translation": "Find word..."
+  },
   "F7GHkf": {
     "message": "Gloss",
     "placeholders": {},
@@ -1283,18 +1311,6 @@
     ],
     "translation": "Logout"
   },
-  "wkUvl2": {
-    "message": "Made of",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
-        91
-      ]
-    ],
-    "translation": "Made of"
-  },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
     "placeholders": {},
@@ -1312,6 +1328,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        250
+      ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
         165
@@ -1531,6 +1551,18 @@
     ],
     "translation": "No server configured"
   },
+  "qdJypF": {
+    "message": "No words found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        174
+      ]
+    ],
+    "translation": "No words found"
+  },
   "EdQY6l": {
     "message": "None",
     "placeholders": {},
@@ -1639,6 +1671,22 @@
     ],
     "translation": "Open Log file"
   },
+  "vgP+9p": {
+    "message": "Part",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        43
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        44
+      ]
+    ],
+    "translation": "Part"
+  },
   "qW3eh2": {
     "message": "Part of",
     "placeholders": {},
@@ -1647,6 +1695,22 @@
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         67
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        55
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexForms.svelte",
+        44
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        45
+      ],
+      [
+        "src/lib/entry-editor/field-editors/ComplexFormComponents.svelte",
+        50
       ]
     ],
     "translation": "Part of"
@@ -1767,6 +1831,18 @@
     ],
     "translation": "Reopen"
   },
+  "aKuPxK": {
+    "message": "Search # or #",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        null
+      ]
+    ],
+    "translation": "Search # or #"
+  },
   "3NdSH7": {
     "message": "Search Dictionaries",
     "placeholders": {},
@@ -1778,18 +1854,6 @@
       ]
     ],
     "translation": "Search Dictionaries"
-  },
-  "TBEd/+": {
-    "message": "Search for an entry # or #",
-    "placeholders": {},
-    "comments": [],
-    "origin": [
-      [
-        "src/lib/entry-editor/EntryOrSensePicker.svelte",
-        null
-      ]
-    ],
-    "translation": "Search for an entry # or #"
   },
   "02ePaq": {
     "message": "Select {0}",
@@ -2191,6 +2255,18 @@
     ],
     "translation": "Untitled"
   },
+  "S/J67B": {
+    "message": "Uses components as",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
+        88
+      ]
+    ],
+    "translation": "Uses components as"
+  },
   "YYdC3A": {
     "message": "Version {0}",
     "placeholders": {},
@@ -2241,11 +2317,27 @@
         84
       ],
       [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        250
+      ],
+      [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         43
       ]
     ],
     "translation": "Word"
+  },
+  "yRdLNW": {
+    "message": "Word only",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/entry-editor/EntryOrSensePicker.svelte",
+        211
+      ]
+    ],
+    "translation": "Word only"
   },
   "o0GO4i": {
     "message": "Word or meaning:",

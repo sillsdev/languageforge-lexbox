@@ -6,6 +6,8 @@
   import type { IEntry, ISense, IComplexFormComponent } from '$lib/dotnet-types';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
   type Props = {
     value: IComplexFormComponent[];
@@ -22,6 +24,7 @@
   }: Props = $props();
 
   const writingSystemService = useWritingSystemService();
+  const currentView = useCurrentView();
 
   function addComponent(selection: EntrySenseSelection) {
     const component: IComplexFormComponent = {
@@ -37,25 +40,25 @@
   }
 
   function disableEntry(e: IEntry): false | { disableSenses?: true, reason: string } {
-    if (e.id === entry.id) return { reason: $t`Current Entry`, disableSenses: true };
-    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: $t`Component` };
-    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: $t`Complex Form`, disableSenses: true };
+    if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, $currentView), disableSenses: true };
+    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: pt($t`Component`, $t`Part`, $currentView) };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: pt($t`Complex Form`, $t`Part of`, $currentView), disableSenses: true };
     return false;
   }
 
   function disableSense(s: ISense, e: IEntry): false | string {
-    if (entry.components.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)) return $t`Component`;
+    if (entry.components.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)) return pt($t`Component`, $t`Part of`, $currentView);
     return false;
   }
 </script>
 
 <EntryOrSenseItemList bind:items={value} {readonly} orderable {onchange} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
   {#snippet actions()}
-    <EntryOrSensePicker title={$t`Add component to complex form`} pick={(e) => addComponent(e)}
+    <EntryOrSensePicker title={$t`Add component`} pick={(e) => addComponent(e)}
       {disableEntry} {disableSense}>
       {#snippet trigger({ props })}
         <Button {...props} icon="i-mdi-plus" size="xs">
-          {$t`Add Component`}
+          {$t`Component`}
         </Button>
       {/snippet}
     </EntryOrSensePicker>
