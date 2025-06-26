@@ -128,55 +128,31 @@ public static class MediaFileController
             var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
             return TypedResults.Problem(statusCode: 413, detail: detail);
         }
-        // HTTP Content-Type header will be "multipart/form-data; bondary=(something)". We want the content-type from the uploaded file, not HTTP
-        var mimeType = file.ContentType;
-        // Form entries not found in FileMetadata won't automatically be mapped into ExtraFields, we have to do it manually
-        var form = await httpContext.Request.ReadFormAsync();
-        var keysToRemove = new string[] { "file", "filename", "fileId", "projectId" };
-        var extraKeys = form.Keys.Except(keysToRemove).Where(key => !FileMetadataProperties.IsMetadataProp(key));
-        var extraFields = new Dictionary<string, object>();
-        foreach (var key in extraKeys)
-        {
-            if (form.TryGetValue(key, out var values))
-            {
-                if (values.FirstOrDefault() is string s) extraFields[key] = s;
-            }
-        }
-        // If no filename specified in form, get it from uploaded file
-        if (string.IsNullOrEmpty(filename)) filename = file.FileName;
-        // If *still* no filename, then use `file.ext` where the extension is calculated from the Content-Type header, defaulting to `.bin` if not provided
-        if (string.IsNullOrEmpty(filename))
-        {
-            var ext = MimeUtility.GetExtensions(mimeType ?? "")?.FirstOrDefault() ?? "bin";
-            filename = $"file.{ext}";
-        }
-        // If we have a filename but no mime type, then try to guess it from the filename at this point
-        if (string.IsNullOrEmpty(mimeType)) mimeType = MimeUtility.GetMimeMapping(filename);
         if (fileId is null || fileId.Value == default)
         {
             fileId = Guid.NewGuid();
         }
         metadata ??= new FileMetadata();
-        if (string.IsNullOrEmpty(metadata.MimeType)) metadata.MimeType = mimeType;
-        metadata.ExtraFields = extraFields;
+        await InitMetadata(metadata, file, filename, httpContext.Request);
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null && !newFilesAllowed)
         {
             return TypedResults.NotFound(); // PUT requests must modify an existing file and return 404 if it doesn't exist
         }
+        if (mediaFile is null && projectId is null)
+        {
+            return TypedResults.BadRequest(FileUploadErrorMessage.ProjectIdRequiredForNewFiles);
+        }
+        projectId ??= mediaFile?.ProjectId;
         if (mediaFile is null)
         {
-            if (projectId is null)
-            {
-                return TypedResults.BadRequest(FileUploadErrorMessage.ProjectIdRequiredForNewFiles);
-            }
             // If no filename specified in form, get it from uploaded file
             if (string.IsNullOrEmpty(filename)) filename = file.FileName;
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
                 Filename = Path.Join(fileId.Value.ToString(), filename),
-                ProjectId = projectId.Value,
+                ProjectId = projectId!.Value,
                 Metadata = metadata,
             };
             lexBoxDb.Files.Add(mediaFile);
@@ -293,6 +269,59 @@ public static class MediaFileController
             return true;
         }
         return false;
+    }
+
+    private static readonly string[] KeysToRemove = ["file", "filename", "fileId", "projectId"];
+
+    private static async Task<Dictionary<string, object>> ExtraFieldsFromForm(HttpRequest httpRequest, CancellationToken token = default)
+    {
+        IFormCollection form;
+        try
+        {
+            form = await httpRequest.ReadFormAsync(token);
+        }
+        catch
+        {
+            // Any errors, such as "body is not a form" or cancellation token triggered, and we'll just return an empty dictionary
+            return [];
+        }
+        var extraKeys = form.Keys.Except(KeysToRemove).Where(key => !FileMetadataProperties.IsMetadataProp(key));
+        var extraFields = new Dictionary<string, object>();
+        foreach (var key in extraKeys)
+        {
+            if (form.TryGetValue(key, out var values))
+            {
+                if (values.FirstOrDefault() is string s) extraFields[key] = s;
+            }
+        }
+        return extraFields;
+    }
+
+    private static async Task InitMetadata(FileMetadata metadata, IFormFile file, string? filename, HttpRequest httpRequest)
+    {
+        // HTTP Content-Type header will be "multipart/form-data; bondary=(something)". We want the content-type from the uploaded file, not HTTP
+        var mimeType = file.ContentType;
+        // Form entries not found in FileMetadata won't automatically be mapped into ExtraFields, we have to do it manually
+        var extraFields = await ExtraFieldsFromForm(httpRequest);
+        // If no filename specified in form, get it from uploaded file
+        if (string.IsNullOrEmpty(filename)) filename = file.FileName;
+        // If *still* no filename, then use `file.ext` where the extension is calculated from the Content-Type header, defaulting to `.bin` if not provided
+        if (string.IsNullOrEmpty(filename))
+        {
+            var ext = MimeUtility.GetExtensions(mimeType ?? "")?.FirstOrDefault() ?? "bin";
+            filename = $"file.{ext}";
+        }
+        // If we have a filename but no mime type, then try to guess it from the filename at this point
+        if (string.IsNullOrEmpty(mimeType)) mimeType = MimeUtility.GetMimeMapping(filename);
+        if (string.IsNullOrEmpty(metadata.MimeType)) metadata.MimeType = mimeType;
+        metadata.ExtraFields = extraFields;
+    }
+
+    private static async Task<MediaFile> CreateOrPopulateMediaFile(
+        Guid fileId,
+        Guid projectId)
+    {
+        ;
     }
 
     private static void SafeDelete(string filePath)
