@@ -28,15 +28,16 @@ public record Entry : IObjectWithId<Entry>
 
     public virtual List<Publication> PublishIn { get; set; } = [];
 
+    public const string UnknownHeadword = "(Unknown)";
+
     public string Headword()
     {
         //order by code to ensure the headword is stable
         //todo choose ws by preference based on ws order/default
         var word = CitationForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
         if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.OrderBy(kvp => kvp.Key.Code).FirstOrDefault().Value;
-        return word?.Trim() ?? "(Unknown)";
+        return word?.Trim() ?? UnknownHeadword;
     }
-
 
     public Entry Copy()
     {

@@ -106,6 +106,7 @@
         ...(ariaLabelledby ? {'aria-labelledby': ariaLabelledby} : {}),
         ...(ariaLabel ? {'aria-label': ariaLabel} : {}),
         role: 'textbox',
+        spellcheck: 'false',
       },
       editable() {
         return !readonly;

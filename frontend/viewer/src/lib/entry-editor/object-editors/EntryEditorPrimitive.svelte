@@ -73,8 +73,19 @@
       </Editor.Field.Body>
     </Editor.Field.Root>
 
+    <Editor.Field.Root style="grid-area: components" class={cn($currentView.fields.components.show || 'hidden')}>
+      <Editor.Field.Title name={$t`Components`} helpId={fieldData.components.helpId} />
+      <Editor.Field.Body>
+        <ComplexFormComponents
+          onchange={() => onFieldChanged('components')}
+          bind:value={entry.components}
+          {readonly}
+          {entry} />
+      </Editor.Field.Body>
+    </Editor.Field.Root>
+
     <Editor.Field.Root style="grid-area: complexFormTypes" class={cn($currentView.fields.complexFormTypes.show || 'hidden')}>
-      <Editor.Field.Title name={vt($t`Complex form types`)} helpId={fieldData.complexFormTypes.helpId} />
+      <Editor.Field.Title name={vt($t`Complex form types`, $t`Uses components as`)} helpId={fieldData.complexFormTypes.helpId} />
       <Editor.Field.Body>
         <MultiSelect
           onchange={() => onFieldChanged('complexFormTypes')}
@@ -84,17 +95,6 @@
           labelSelector={(cft) => writingSystemService.pickBestAlternative(cft.name, 'analysis')}
           {readonly}
           idSelector="id" />
-      </Editor.Field.Body>
-    </Editor.Field.Root>
-
-    <Editor.Field.Root style="grid-area: components" class={cn($currentView.fields.components.show || 'hidden')}>
-      <Editor.Field.Title name={vt($t`Components`, $t`Made of`)} helpId={fieldData.components.helpId} />
-      <Editor.Field.Body>
-        <ComplexFormComponents
-          onchange={() => onFieldChanged('components')}
-          bind:value={entry.components}
-          {readonly}
-          {entry} />
       </Editor.Field.Body>
     </Editor.Field.Root>
   {/if}

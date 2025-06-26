@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using MiniLcm.Tests.AutoFakerHelpers;
+using Soenneker.Utils.AutoBogus;
 
 namespace MiniLcm.Tests;
 
@@ -8,6 +10,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
+
+    private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
     public override async Task InitializeAsync()
     {
@@ -225,6 +229,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("Ãp", "Ãpple")]
     [InlineData("Ãp", "ãpple")]
     [InlineData("ap", "Ãpple")]
+    [InlineData("app", "Ãpple")]//crdt fts only kicks in at 3 chars
     public async Task SuccessfulMatches(string searchTerm, string word)
     {
         word = word.Normalize(NormalizationForm.FormD);
@@ -249,5 +254,66 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
         var words = await Api.SearchEntries(searchTerm).Select(e => e.LexemeForm["en"]).ToArrayAsync();
         words.Should().NotContain(word);
+    }
+
+    [Theory]
+    [InlineData("word1", "word1", "word1")]
+    [InlineData("app", "app,apple,banana", "app,apple")]
+    [InlineData("apple", "app,apple,banana", "apple")]
+    [InlineData("att", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")]
+    [InlineData("a", "a,da,ma,aa,c:a,ti:a", "a,aa,da,ma,c,ti")]//test non fts search
+    [InlineData("ap", "app,apple,banana", "app,apple")]//test non fts search
+    [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,zatt,attack,battery,rap")] //test non fts search
+    public async Task RankedOrder(string searchTerm, string wordsAndGlosses, string expectedOrder)
+    {
+        var ids = new HashSet<Guid>();
+        var wordsAndGlossesSplit = wordsAndGlosses.Split(",").Select(w => w.Split(":"));
+        foreach (var wordAndGloss in Faker.Faker.Random.Shuffle(wordsAndGlossesSplit))
+        {
+            wordAndGloss.Should().HaveCountLessThanOrEqualTo(2);
+            var word = wordAndGloss[0];
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            var entry = new Entry() { Id = id, LexemeForm = { { "en", word } } };
+            if (wordAndGloss.Length > 1)
+                entry.Senses.Add(new Sense() { Gloss = { { "en", wordAndGloss[1] } } });
+            await Api.CreateEntry(entry);
+        }
+        var result = await Api.SearchEntries(searchTerm, new(new(SortField.SearchRelevance)))
+            .Where(e => ids.Contains(e.Id))//only include entries from this test
+            .Select(e => e.LexemeForm["en"])
+            .ToArrayAsync();
+        string.Join(",", result).Should().Be(expectedOrder);
+    }
+
+    [Theory]
+    [InlineData("word1", "word1", "word1")]
+    [InlineData("app", "app,apple,banana", "app,apple")]
+    [InlineData("apple", "app,apple,banana", "apple")]
+    [InlineData("att", "battery,att,attack,zatt,rap:pratt", "att,attack,battery,rap,zatt")]
+    [InlineData("a", "a,da,ma,aa,c:a,ti:a", "a,aa,c,da,ma,ti")]//test non fts search
+    [InlineData("ap", "app,apple,banana", "app,apple")] //test non fts search
+    [InlineData("at", "battery,att,attack,zatt,rap:pratt", "att,attack,battery,rap,zatt")] //test non fts search
+    public async Task HeadwordOrder(string searchTerm, string wordsAndGlosses, string expectedOrder)
+    {
+        var ids = new HashSet<Guid>();
+        var wordsAndGlossesSplit = wordsAndGlosses.Split(",").Select(w => w.Split(":"));
+        foreach (var wordAndGloss in Faker.Faker.Random.Shuffle(wordsAndGlossesSplit))
+        {
+            wordAndGloss.Should().HaveCountLessThanOrEqualTo(2);
+            var word = wordAndGloss[0];
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            var entry = new Entry() { Id = id, LexemeForm = { { "en", word } } };
+            if (wordAndGloss.Length > 1)
+                entry.Senses.Add(new Sense() { Gloss = { { "en", wordAndGloss[1] } } });
+            await Api.CreateEntry(entry);
+        }
+
+        var result = (await Api.SearchEntries(searchTerm, new(new(SortField.Headword)))
+                .ToArrayAsync())
+                .Where(e => ids.Contains(e.Id)) //only include entries from this test
+                .Select(e => e.LexemeForm["en"]);
+        string.Join(",", result).Should().Be(expectedOrder);
     }
 }

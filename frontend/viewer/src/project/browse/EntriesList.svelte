@@ -15,18 +15,19 @@
   import EntryMenu from './EntryMenu.svelte';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {VList, type VListHandle} from 'virtua/svelte';
+  import type {SortConfig} from './SortMenu.svelte';
 
   const {
     search = '',
     selectedEntryId = undefined,
-    sortDirection = 'asc',
+    sort,
     onSelectEntry,
     gridifyFilter = undefined,
     previewDictionary = false
   }: {
     search?: string;
     selectedEntryId?: string;
-    sortDirection: 'asc' | 'desc';
+    sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
     previewDictionary?: boolean
@@ -70,9 +71,9 @@
           gridifyFilter: gridifyFilter ? gridifyFilter : undefined,
         },
         order: {
-          field: SortField.Headword,
+          field: sort?.field ?? SortField.SearchRelevance,
           writingSystem: 'default',
-          ascending: sortDirection === 'asc',
+          ascending: sort?.dir !== 'desc',
         },
       };
 
@@ -87,7 +88,7 @@
   }, 300);
 
   const entriesResource = resource(
-    () => ({ search, sortDirection, gridifyFilter }),
+    () => ({ search, sort, gridifyFilter }),
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
 

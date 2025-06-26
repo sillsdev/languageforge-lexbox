@@ -32,6 +32,7 @@
     "test:unit": "vitest --project=unit",
     "check": "svelte-check",
     "lint": "eslint .",
+    "lint:report": "eslint . --output-file eslint_report.json --format json",
     "i18n:extract": "lingui extract --clean && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js",
     "storybook": "storybook dev -p 6006",

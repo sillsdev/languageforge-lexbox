@@ -1,4 +1,5 @@
 using System.Net;
+using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
@@ -6,6 +7,7 @@ using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
@@ -38,8 +40,11 @@ public static class FwLiteSharedKernel
 
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
+        services.AddSingleton<UpdateChecker>();
+        services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
+        services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
         services.AddSingleton<TestingService>();
-        services.AddOptions<FwLiteConfig>();
+        services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>
         {
             var crdtConfig = provider.GetRequiredService<IOptions<CrdtConfig>>().Value;

@@ -1,15 +1,36 @@
 ﻿<script lang="ts">
   import {AppNotification} from './notifications';
-  import {Notification, Icon, Collapse} from 'svelte-ux';
-  import {
-    mdiAlert,
-    mdiAlertCircleOutline,
-    mdiCheckCircleOutline,
-    mdiInformationOutline
-  } from '@mdi/js';
+  import {Collapse, Icon, Notification} from 'svelte-ux';
+  import {mdiAlert, mdiAlertCircleOutline, mdiCheckCircleOutline, mdiInformationOutline} from '@mdi/js';
   import {Button} from '$lib/components/ui/button';
+  import {useEventBus} from '$lib/services/event-bus';
+  import type {IAppUpdateEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IAppUpdateEvent';
+  import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
+  import {UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate/UpdateResult';
+  import {t} from 'svelte-i18n-lingui';
+  import {useFwLiteConfig} from '$lib/services/service-provider';
+  import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
   const notifications = AppNotification.notifications;
+
+  const eventBus = useEventBus();
+
+  const updateUrls: Partial<Record<FwLitePlatform, string>> = {
+    [FwLitePlatform.Android]: 'https://play.google.com/store/apps/details?id=org.sil.FwLiteMaui',
+  };
+
+  eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
+    if (event.result == UpdateResult.ManualUpdateRequired) {
+      AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, 'info', {
+        callback: () => {
+          const fwliteConfig = useFwLiteConfig();
+          const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
+          window.open(url, '_blank');
+        },
+        label: $t`Download`
+      });
+    }
+  }, {includeLast: true});
 </script>
 {#if $notifications.length}
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 p-4 min-w-[min(400px,100%)] overflow-y-auto overflow-x-hidden">
