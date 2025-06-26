@@ -171,7 +171,7 @@ TODO:
               </td>
               <AdminContent>
                 <td class="hidden @md:table-cell">
-                  {$number(org.memberCount)}
+                  {$number(org.projectCount)}
                 </td>
               </AdminContent>
               <td class="hidden @xl:table-cell">
