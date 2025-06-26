@@ -33,9 +33,11 @@ Run `npm install` to install local and published dependencies
 ## To run
 
 First, you must build FieldWorks lite using the task defined in this folder:
+
 ```bash
 task build-fw-lite-web
 ```
+
 this is a normal production build, changes to FwLite files will not be rebuilt automatically. If you want to do FwLite development, I suggest looking at [README.md](../../backend/FwLite/README.md)
 
 ### Running Paranext with your extension

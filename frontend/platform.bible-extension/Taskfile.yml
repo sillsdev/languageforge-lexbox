@@ -15,12 +15,12 @@ tasks:
       - npm install
 
   package:
-    deps: [ build-fw-lite-web, install ]
+    deps: [build-fw-lite-web, install]
     cmds:
       - npm run package
 
   run:
-    deps: [ build-fw-lite-web, install ]
+    deps: [build-fw-lite-web, install]
     cmds:
       - npm run start
 

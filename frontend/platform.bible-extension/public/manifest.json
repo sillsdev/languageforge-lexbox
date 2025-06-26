@@ -1,8 +1,8 @@
 {
   "name": "fw-lite-extension",
   "version": "0.0.1",
-  "description": "FW Lite for Paranext. Powered by webpack",
-  "author": "Lexical tools team",
+  "description": "FieldWorks Lite for Paranext. Powered by webpack",
+  "author": "Lexical Tools team",
   "license": "MIT",
   "main": "fw-lite-extension.ts",
   "activationEvents": [],
