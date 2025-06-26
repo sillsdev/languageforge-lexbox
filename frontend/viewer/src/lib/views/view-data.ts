@@ -42,8 +42,7 @@ export const FW_CLASSIC_VIEW: RootView = {
   type: 'fw-classic',
   label: 'FieldWorks',
   fields: recursiveSpread(allFields, {
-    components: {order: 4},
-    complexFormTypes: {order: 3},
+    complexFormTypes: {order: allFields.components.order - 0.1},
     [defaultDef]: {show: true}
   }),
   alternateView: FW_LITE_VIEW,
@@ -52,36 +51,6 @@ export const FW_CLASSIC_VIEW: RootView = {
 const viewDefinitions: CustomViewDefinition[] = [
   // custom views
 ];
-
-type FieldOperation = (fields: [fieldId: string, fieldView: FieldView][]) => void;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function swap(fieldAId: FieldId, fieldBId: FieldId): FieldOperation {
-  return (fields) => {
-    const fieldA = fields.find(([id]) => id === fieldAId);
-    const fieldB = fields.find(([id]) => id === fieldBId);
-    if (!fieldA || !fieldB) {
-      throw new Error(`Fields ${fieldAId} or ${fieldBId} not found`);
-    }
-    const fieldAView = fieldA[1];
-    const fieldBView = fieldB[1];
-    if (Math.abs(fieldAView.order - fieldBView.order) !== 1) {
-      throw new Error(`Fields ${fieldAId} and ${fieldBId} must be adjacent to swap`);
-    }
-    const fieldAOrder = fieldAView.order;
-    fieldAView.order = fieldBView.order;
-    fieldBView.order = fieldAOrder;
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function applyFieldOperations(fields: Record<FieldId, FieldView>, ...ops: FieldOperation[]): Record<FieldId, FieldView> {
-  const fieldEntries = Object.entries(fields);
-  for (const operation of ops) {
-    operation(fieldEntries);
-  }
-  return Object.fromEntries(fieldEntries) as Record<FieldId, FieldView>;
-}
 
 export const views: [RootView, RootView, ...CustomView[]] = [
   FW_LITE_VIEW,
