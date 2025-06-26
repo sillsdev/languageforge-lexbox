@@ -116,12 +116,10 @@ TODO:
             {$t('org.table.members')}
             <span class:invisible={sortColumn !== 'memberCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
           </th>
-          <AdminContent>
-            <th onclick={() => handleSortClick('projectCount')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
-              {$t('org.table.projects')}
-              <span class:invisible={sortColumn !== 'projectCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
-            </th>
-          </AdminContent>
+          <th onclick={() => handleSortClick('projectCount')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
+            {$t('org.table.projects')}
+            <span class:invisible={sortColumn !== 'projectCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
+          </th>
           <th onclick={() => handleSortClick('createdDate')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
             {$t('org.table.created_at')}
             <span class:invisible={sortColumn !== 'createdDate'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
@@ -169,11 +167,9 @@ TODO:
               <td class="hidden @md:table-cell">
                 {$number(org.memberCount)}
               </td>
-              <AdminContent>
-                <td class="hidden @md:table-cell">
-                  {$number(org.projectCount)}
-                </td>
-              </AdminContent>
+              <td class="hidden @md:table-cell">
+                {$number(org.projectCount)}
+              </td>
               <td class="hidden @xl:table-cell">
                 {$date(org.createdDate)}
               </td>
