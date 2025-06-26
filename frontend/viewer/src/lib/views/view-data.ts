@@ -13,7 +13,7 @@ export const allFields: Record<FieldId, FieldView> = {
   citationForm: {show: true, order: 2},
   complexForms: {show: true, order: 3},
   components: {show: true, order: 4},
-  complexFormTypes: {show: true, order: 5},
+  complexFormTypes: {show: false, order: 5},
   literalMeaning: {show: false, order: 6},
   note: {show: true, order: 7},
 
@@ -41,9 +41,11 @@ export const FW_CLASSIC_VIEW: RootView = {
   id: 'fieldworks',
   type: 'fw-classic',
   label: 'FieldWorks',
-  fields: applyFieldOperations(
-      recursiveSpread(allFields, {[defaultDef]: {show: true}}),
-      swap('components', 'complexFormTypes')),
+  fields: recursiveSpread(allFields, {
+    components: {order: 4},
+    complexFormTypes: {order: 3},
+    [defaultDef]: {show: true}
+  }),
   alternateView: FW_LITE_VIEW,
 };
 
@@ -53,6 +55,7 @@ const viewDefinitions: CustomViewDefinition[] = [
 
 type FieldOperation = (fields: [fieldId: string, fieldView: FieldView][]) => void;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function swap(fieldAId: FieldId, fieldBId: FieldId): FieldOperation {
   return (fields) => {
     const fieldA = fields.find(([id]) => id === fieldAId);
@@ -71,6 +74,7 @@ function swap(fieldAId: FieldId, fieldBId: FieldId): FieldOperation {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function applyFieldOperations(fields: Record<FieldId, FieldView>, ...ops: FieldOperation[]): Record<FieldId, FieldView> {
   const fieldEntries = Object.entries(fields);
   for (const operation of ops) {
