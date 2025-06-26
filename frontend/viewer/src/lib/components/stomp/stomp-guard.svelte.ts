@@ -8,6 +8,8 @@ export class StompGuard<T> {
   constructor(private readonly parentGetter: Getter<T>, private readonly parentSetter: (value: T) => void) {
     this._value = parentGetter();
     watch(parentGetter, (newParentValue) => {
+      if (newParentValue === this._value) return; // we probably updated the parent
+
       if (this._dirty) {
         // ignore and revert parent changes
         parentSetter(this._value);
@@ -32,7 +34,21 @@ export class StompGuard<T> {
   }
 
   commitAndUnlock(): void {
-    this.parentSetter(this._value); // maybe redundant or maybe prevents a tick delay
+    this.assertMatchesParent();
     this._dirty = false;
+  }
+
+  private assertMatchesParent(): void {
+    const parentValue = this.parentGetter();
+    if (parentValue !== this._value) {
+      const p = $state.snapshot(parentValue);
+      const v = $state.snapshot(this._value);
+      if (import.meta.env.DEV) {
+        throw new Error(`Expected parent value to match the guard value. (${JSON.stringify(p)}) (${JSON.stringify(v)})`);
+      } else {
+        console.error('Expected parent value to match the guard value', p, v);
+        this.parentSetter(this._value); // revert to guard value
+      }
+    }
   }
 }
