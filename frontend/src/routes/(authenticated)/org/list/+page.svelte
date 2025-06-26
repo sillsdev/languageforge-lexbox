@@ -27,7 +27,7 @@
   type OrgList = OrgListPageQuery['orgs'];
   type Org = OrgList[number];
 
-  type Column = keyof Pick<Org, 'name' | 'memberCount' | 'createdDate'>;
+  type Column = keyof Pick<Org, 'name' | 'memberCount' | 'projectCount' | 'createdDate'>;
   let sortColumn: Column = $state('name');
   type Dir = 'asc' | 'desc';
   let sortDir: Dir = $state('asc');
@@ -79,30 +79,30 @@ TODO:
 
 <HeaderPage wide titleText={$t('org.table.title')}>
   {#snippet actions()}
-  
+
       <AdminContent>
         <a href="/org/create" class="btn btn-success">
           {$t('org.create.title')}
           <span class="i-mdi-plus text-2xl"></span>
         </a>
       </AdminContent>
-    
+
   {/snippet}
   {#snippet title()}
-  
+
       {$t('org.table.title')}
       <Icon icon="i-mdi-account-group-outline" size="text-5xl" y="10%" />
-    
+
   {/snippet}
   {#snippet headerContent()}
-  
+
       <FilterBar
         searchKey="search"
         filterKeys={['search']}
         filters={queryParamValues}
         filterDefaults={defaultQueryParamValues}
       />
-    
+
   {/snippet}
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
@@ -116,6 +116,12 @@ TODO:
             {$t('org.table.members')}
             <span class:invisible={sortColumn !== 'memberCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
           </th>
+          <AdminContent>
+            <th onclick={() => handleSortClick('projectCount')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
+              {$t('org.table.projects')}
+              <span class:invisible={sortColumn !== 'projectCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
+            </th>
+          </AdminContent>
           <th onclick={() => handleSortClick('createdDate')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
             {$t('org.table.created_at')}
             <span class:invisible={sortColumn !== 'createdDate'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2"></span>
@@ -125,7 +131,7 @@ TODO:
       <tbody>
         {#if !displayOrgs.length}
           <tr>
-            <td colspan="3" class="text-center text-secondary">
+            <td colspan="4" class="text-center text-secondary">
               {$t('org.table.no_orgs_found')}
             </td>
           </tr>
@@ -133,13 +139,13 @@ TODO:
           {@const showingMyOrgsHeader = !filtering || myOrgs.length}
           {#if showingMyOrgsHeader}
             <tr>
-              <td colspan="3" class="text-sm bg-neutral/75 text-neutral-content py-2">
+              <td colspan="4" class="text-sm bg-neutral/75 text-neutral-content py-2">
                 {$t('org.table.my_orgs')}
               </td>
             </tr>
             {#if !$myOrgsMap.size}
               <tr>
-                <td colspan="3" class="text-center text-secondary">
+                <td colspan="4" class="text-center text-secondary">
                   {$t('org.table.not_in_any_orgs')}
                 </td>
               </tr>
@@ -149,7 +155,7 @@ TODO:
             {@const isFirstOtherOrg = i === myOrgs.length}
             {#if showingMyOrgsHeader && isFirstOtherOrg}
               <tr>
-                <td colspan="3" class="text-sm bg-neutral/75 text-neutral-content py-2">
+                <td colspan="4" class="text-sm bg-neutral/75 text-neutral-content py-2">
                   {$t('org.table.other_orgs')}
                 </td>
               </tr>
@@ -163,6 +169,11 @@ TODO:
               <td class="hidden @md:table-cell">
                 {$number(org.memberCount)}
               </td>
+              <AdminContent>
+                <td class="hidden @md:table-cell">
+                  {$number(org.memberCount)}
+                </td>
+              </AdminContent>
               <td class="hidden @xl:table-cell">
                 {$date(org.createdDate)}
               </td>
