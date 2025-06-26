@@ -9,7 +9,7 @@ public interface IEmailService
 {
     public Task SendForgotPasswordEmail(string emailAddress);
 
-    public Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail);
+    public Task SendNewAdminEmail(IAsyncEnumerable<User> admins, LexAuthUser loggedInAdmin, string newAdminName, string newAdminEmail);
 
     /// <summary>
     /// Sends a verification email to the user for their email address.

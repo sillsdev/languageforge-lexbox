@@ -28,7 +28,7 @@ public enum EmailTemplate
 
 public record ForgotPasswordEmail(string Name, string ResetUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.ForgotPassword);
 
-public record NewAdminEmail(string Name, string AdminName, string AdminEmail) : EmailTemplateBase(EmailTemplate.NewAdmin);
+public record NewAdminEmail(string Name, string LoggedInAdminName, string LoggedInAdminEmail, string AdminName, string AdminEmail) : EmailTemplateBase(EmailTemplate.NewAdmin);
 
 public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
