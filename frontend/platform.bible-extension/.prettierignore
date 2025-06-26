@@ -1,4 +1,4 @@
-# Please keep this file in sync with .eslintignore and .stylelintignore
+# Please keep .prettierignore and .stylelintignore in sync!
 
 # Logs
 logs
@@ -27,5 +27,8 @@ dist
 release
 temp-build
 
-# generated files
+# Generated files
 package-lock.json
+
+# FwLite build output
+public/fw-lite
