@@ -1,4 +1,4 @@
-﻿import {DotnetService, type IEntry} from '$lib/dotnet-types';
+import {DotnetService, type IEntry} from '$lib/dotnet-types';
 import {useService} from '$lib/services/service-provider';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
@@ -16,12 +16,19 @@ export enum CloseReason {
   Locked = 1,
 }
 
+interface OnEventOptions {
+  includeLast?: boolean;
+}
+
 export class EventBus {
   private _onEvent = new Set<(event: IFwEvent) => void>();
   private _onProjectClosed = new Set<(reason: CloseReason) => void>();
+  #jsEventListener: IJsEventListener;
+
   private _lastEventCache: Record<string, Partial<Record<FwEventType, IFwEvent>>> = {};
   constructor() {
-    void this.eventLoop(useService(DotnetService.JsEventListener));
+    this.#jsEventListener = useService(DotnetService.JsEventListener);
+    void this.eventLoop(this.#jsEventListener);
     this.onEvent(event => {
       if (isProjectEvent(event)) {
         this._lastEventCache[event.project.name] ??= {};
@@ -58,6 +65,20 @@ export class EventBus {
   public onEvent(callback: (event: IFwEvent) => void): () => void {
     this._onEvent.add(callback);
     return () => this._onEvent.delete(callback);
+  }
+
+  public onEventType<T>(type: FwEventType, callback: (event: T) => void, options?: OnEventOptions) {
+    if (options?.includeLast) {
+      this.#jsEventListener.lastEvent(type).then(event => {
+        if (!event) return;
+        callback(event as T);
+      }).catch(e => console.error('Error getting last event', e));
+    }
+    onDestroy(this.onEvent((event: IFwEvent) => {
+      if (event.type === type) {
+        callback(event as T);
+      }
+    }));
   }
 
   public getLastEvent<T extends IFwEvent>(projectCode: string, eventType: FwEventType): T | undefined {

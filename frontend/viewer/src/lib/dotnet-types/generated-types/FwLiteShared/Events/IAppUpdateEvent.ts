@@ -4,11 +4,13 @@
 //     the code is regenerated.
 
 import type {IFwEvent} from './IFwEvent';
+import type {UpdateResult} from '../AppUpdate/UpdateResult';
 import type {FwEventType} from './FwEventType';
 
-export interface IJsEventListener
+export interface IAppUpdateEvent extends IFwEvent
 {
-	nextEventAsync() : Promise<IFwEvent>;
-	lastEvent(type: FwEventType) : Promise<IFwEvent | null>;
+	result: UpdateResult;
+	type: FwEventType;
+	isGlobal: boolean;
 }
 /* eslint-enable */

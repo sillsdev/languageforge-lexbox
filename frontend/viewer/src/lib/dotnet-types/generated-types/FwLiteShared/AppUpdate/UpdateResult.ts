@@ -3,12 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum FwEventType {
-	EntryChanged = "EntryChanged",
-	AuthenticationChanged = "AuthenticationChanged",
-	ProjectEvent = "ProjectEvent",
-	EntryDeleted = "EntryDeleted",
-	Sync = "Sync",
-	AppUpdate = "AppUpdate"
+export enum UpdateResult {
+	Unknown = "Unknown",
+	Success = "Success",
+	Failed = "Failed",
+	Started = "Started",
+	ManualUpdateRequired = "ManualUpdateRequired"
 }
 /* eslint-enable */
