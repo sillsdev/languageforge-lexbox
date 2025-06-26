@@ -1,25 +1,11 @@
-﻿<script lang="ts" module>
-  import {navigate} from 'svelte-routing';
-  declare global {
-    interface Window {
-      svelteNavigate: (to: string) => void;
-    }
-  }
-  window.svelteNavigate =  (to: string) => {
-   navigate(to, {replace: true});
-  };
-</script>
-<script lang="ts">
-  import {Router, Route} from 'svelte-routing';
-  import TestProjectView from './TestProjectView.svelte';
-  import HomeView from './home/HomeView.svelte';
-  import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
-  import Sandbox from './lib/sandbox/Sandbox.svelte';
-  import {settings} from 'svelte-ux';
-  import DotnetProjectView from './DotnetProjectView.svelte';
+﻿<script lang="ts">
+  import {TooltipProvider} from '$lib/components/ui/tooltip';
   import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
   import {ModeWatcher} from 'mode-watcher';
-  import {TooltipProvider} from '$lib/components/ui/tooltip';
+  import {Router} from 'svelte-routing';
+  import {settings} from 'svelte-ux';
+  import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
+  import AppRoutes from './AppRoutes.svelte';
 
   let url = '';
 
@@ -77,34 +63,7 @@
 <TooltipProvider delayDuration={300}>
   <div class="app">
     <Router {url}>
-      <Route path="/project/:code/*" let:params>
-        <Router {url} basepath="/project/{params.code}">
-          {#key params.code}
-            <DotnetProjectView code={params.code} type="crdt"/>
-          {/key}
-        </Router>
-      </Route>
-      <Route path="/fwdata/:name/*" let:params>
-        <Router {url} basepath="/fwdata/{params.name}">
-          {#key params.name}
-            <DotnetProjectView code={params.name} type="fwdata"/>
-          {/key}
-        </Router>
-      </Route>
-      <Route path="/testing/project-view/*">
-        <Router {url} basepath="/testing/project-view">
-          <TestProjectView/>
-        </Router>
-      </Route>
-      <Route path="/">
-        <HomeView/>
-      </Route>
-      <Route path="/sandbox">
-        <Sandbox/>
-      </Route>
-      <Route path="/*">
-        {setTimeout(() => navigate('/', {replace: true}))}
-      </Route>
+      <AppRoutes />
     </Router>
     <NotificationOutlet/>
   </div>
