@@ -49,7 +49,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
     public async Task<(FileListing?, HttpResponseMessage)> ListFiles(Guid projectId, string? relativePath = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
-        var url = $"/api/list-media/{projectId}";
+        var url = $"/api/media/list/{projectId}";
         if (relativePath is not null)
         {
             var qb = new QueryBuilder { { "relativePath", relativePath } };
@@ -154,7 +154,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
     public async Task<(ApiMetadataEndpointResult?, HttpResponseMessage)> GetFileMetadata(Guid fileId, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/metadata/{fileId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/media/metadata/{fileId}");
         var result = await HttpClient.SendAsync(request);
         return (await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>(), result);
     }

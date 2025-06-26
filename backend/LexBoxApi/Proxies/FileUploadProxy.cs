@@ -37,7 +37,7 @@ public static class FileUploadProxy
         };
 
         //media upload/download
-        app.Map("/api/list-media/{projectId:guid}/{**catch-all}",
+        app.Map("/api/media/list/{projectId:guid}/{**catch-all}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
 
         //media upload/download
@@ -51,7 +51,7 @@ public static class FileUploadProxy
             Forward).RequireAuthorization(authorizeForUploadAttribute);
 
         //metadata requests
-        app.Map("/api/metadata/{fileId:guid}",
+        app.Map("/api/media/metadata/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
     }
 
