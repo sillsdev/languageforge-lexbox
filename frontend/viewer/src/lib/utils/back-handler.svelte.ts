@@ -1,4 +1,5 @@
 import type {Getter} from 'runed';
+import {makeHistoryChange} from './history-orchestrator';
 import {on} from 'svelte/events';
 import {onDestroy} from 'svelte';
 
@@ -19,13 +20,25 @@ export interface BackHandlerConfig {
 class BackHandler {
   #ignoreNextBack: boolean = false;
   static #backStack: BackHandler[] = [];
+  readonly #id = crypto.randomUUID();
+  private get fullKey() {
+    return `BackHandler-${this.#id}-${this.config.key ?? ''}`;
+  };
+
   constructor(private config: BackHandlerConfig) {
     $effect(() => {
       if (this.config.addToStack()) {
         if (BackHandler.#backStack.includes(this)) return;//already added
         BackHandler.#backStack.push(this);
         //add new history to ensure back doesn't pop some other state (like a url change)
-        history.pushState(null, '');
+        void makeHistoryChange(() => history.pushState({
+          backHandler: true,
+          key: this.config.key,
+          id: this.#id,
+        }, ''), {
+          key: this.fullKey,
+          isTeardown: false,
+        });
       } else {
         this.remove();
       }
@@ -56,14 +69,22 @@ class BackHandler {
     if (count !== BackHandler.#backStack.length) {
       //if we removed the last back state, we need to remove the history entry that was pushed
       const currentLocation = location.href;
-      setTimeout(() => {
+      void makeHistoryChange(() => {
         //navigation triggered since remove was called, we don't want to go back now as that would not undo our history but a navigation event
         if (currentLocation !== location.href) {
-          console.warn(`BackHandler${this.config.key ? '-' + this.config.key : ''}: remove called while navigating, ignoring, history entry not removed. Navigation should happen after remove is called, eg: after closing the modal which triggers a navigation.`);
+          console.warn(`${this.fullKey}: remove called while navigating, ignoring, history entry not removed. Navigation should happen after remove is called, eg: after closing the modal which triggers a navigation.`);
+          return;
+        }
+        if (!this.isOnTopOfHistoryStack()) {
+          console.warn(`${this.fullKey}: remove called but not on top of history stack, ignoring, history entry not removed.`);
           return;
         }
         this.ignoreNextBack();
         history.back();
+        return { triggersPopstate: true };
+      }, {
+        key: this.fullKey,
+        isTeardown: true,
       });
     }
   }
@@ -72,6 +93,12 @@ class BackHandler {
     for (const backHandler of BackHandler.#backStack) {
       backHandler.#ignoreNextBack = true;
     }
+  }
+
+  private isOnTopOfHistoryStack() {
+    const state = history.state as unknown;
+    if (typeof state !== 'object' || !state) return false;
+    return 'backHandler' in state && state.backHandler === true;
   }
 }
 
