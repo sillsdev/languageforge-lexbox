@@ -705,7 +705,7 @@ Click the button below to request to join the early access program. It may take 
     "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
       "subject": "New Lexbox administrator {adminName}",
-      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox."
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox. {loggedInAdminName} ({loggedInAdminEmail}) made this change and should be emailed with any questions."
     },
     "verify_email": {
       "subject": "Verify your e-mail address",
