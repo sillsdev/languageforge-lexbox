@@ -12,7 +12,7 @@ import type {
   LaunchServerEvent,
   LocalProjectsEvent,
 } from 'fw-lite-extension';
-import extensionTemplateReact from './extension-template.web-view?inline';
+import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 
 const reactWebViewType = 'fw-lite-extension.react';
@@ -33,7 +33,7 @@ const reactWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       title: 'FieldWorks Lite Extension React',
-      content: extensionTemplateReact,
+      content: fwLiteMainWindow,
       styles: extensionTemplateStyles,
       iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
       allowedFrameSources: ['http://localhost:*'],
