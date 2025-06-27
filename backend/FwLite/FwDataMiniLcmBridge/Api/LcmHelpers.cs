@@ -8,6 +8,31 @@ namespace FwDataMiniLcmBridge.Api;
 
 internal static class LcmHelpers
 {
+    internal static string? LexEntryHeadword(this ILexEntry entry, int? ws = null)
+    {
+        var citationFormTs =
+            ws.HasValue ? entry.CitationForm.get_String(ws.Value)
+            : entry.CitationForm.StringCount > 0 ? entry.CitationForm.GetStringFromIndex(0, out var _)
+            : null;
+        var citationForm = citationFormTs?.Text?.Trim(WhitespaceChars);
+
+        if (!string.IsNullOrEmpty(citationForm)) return citationForm;
+
+        var lexemeFormTs =
+            ws.HasValue ? entry.LexemeFormOA.Form.get_String(ws.Value)
+            : entry.LexemeFormOA.Form.StringCount > 0 ? entry.LexemeFormOA.Form.GetStringFromIndex(0, out var _)
+            : null;
+        var lexemeForm = lexemeFormTs?.Text?.Trim(WhitespaceChars);
+
+        return lexemeForm;
+    }
+
+    internal static string? LexEntryHeadwordOrUnknown(this ILexEntry entry, int? ws = null)
+    {
+        var headword = entry.LexEntryHeadword(ws);
+        return string.IsNullOrEmpty(headword) ? Entry.UnknownHeadword : headword;
+    }
+
     internal static bool SearchValue(this ITsMultiString multiString, string value)
     {
         for (var i = 0; i < multiString.StringCount; i++)

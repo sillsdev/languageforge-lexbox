@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
-using EntityFrameworkCore.Projectables;
+using NeinLinq;
 
 namespace LexCore.Entities;
 
@@ -12,12 +12,12 @@ public class Organization : EntityBase
     public required List<Project> Projects { get; set; }
 
     [NotMapped]
-    [Projectable(UseMemberBody = nameof(SqlMemberCount))]
+    [InjectLambda(nameof(SqlMemberCount))]
     public int MemberCount { get; set; }
     private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
 
     [NotMapped]
-    [Projectable(UseMemberBody = nameof(SqlProjectCount))]
+    [InjectLambda(nameof(SqlProjectCount))]
     public int ProjectCount { get; set; }
     private static Expression<Func<Organization, int>> SqlProjectCount => org => org.Projects.Count;
 }

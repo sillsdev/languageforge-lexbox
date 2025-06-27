@@ -1,4 +1,4 @@
-
+Typical development workflow should be to run `task fw-lite-web` in the repo root.
 
 ### i18n 
 

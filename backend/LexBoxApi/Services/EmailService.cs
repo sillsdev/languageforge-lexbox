@@ -46,14 +46,20 @@ public class EmailService(
         await SendEmailWithRetriesAsync(email, retryCount: 5, retryWaitSeconds: 30);
     }
 
-    public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
+    public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, LexAuthUser loggedInAdmin, string newAdminName, string newAdminEmail)
     {
         var email = new MimeMessage();
         await foreach (var admin in admins)
         {
             email.Bcc.Add(new MailboxAddress(admin.Name, admin.Email));
         }
-        await RenderEmail(email, new NewAdminEmail("Admin", newAdminName, newAdminEmail), User.DefaultLocalizationCode);
+        var emailTemplate = new NewAdminEmail(
+            "Admin",
+            loggedInAdmin.Name,
+            loggedInAdmin.Email ?? "(no email - this should never happen)",
+            newAdminName,
+            newAdminEmail);
+        await RenderEmail(email, emailTemplate, User.DefaultLocalizationCode);
         await SendEmailAsync(email);
     }
 

@@ -3,6 +3,10 @@
   import type { ReadonlyDeep } from 'type-fest';
   import LcmRichTextEditor from '../lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
+  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+
+  const fieldBodyProps = tryUseFieldBody();
+  const labelledBy = fieldBodyProps?.labelId;
 
   let {
     value = $bindable(),
@@ -26,8 +30,11 @@
 
 <LcmRichTextEditor
   bind:value={value}
+  normalWs={ws.wsId}
   onchange={onRichTextChange}
   {readonly}
   title={`${ws.name} (${ws.wsId})`}
   {autofocus}
-  placeholder={ws.abbreviation} />
+  placeholder={ws.abbreviation}
+  aria-label={ws.abbreviation}
+  aria-labelledby={labelledBy} />

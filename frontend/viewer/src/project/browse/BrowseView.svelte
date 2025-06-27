@@ -4,7 +4,6 @@
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
   import EntriesList from './EntriesList.svelte';
-  import { badgeVariants } from '$lib/components/ui/badge';
   import { Icon } from '$lib/components/ui/icon';
   import { t } from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
@@ -17,19 +16,17 @@
   import {pt} from '$lib/views/view-text';
   import {useCurrentView} from '$lib/views/view-service';
   import IfOnce from '$lib/components/if-once/if-once.svelte';
+  import {SortField} from '$lib/dotnet-types';
+  import SortMenu, {type SortConfig} from './SortMenu.svelte';
 
   const currentView = useCurrentView();
   const dialogsService = useDialogsService();
   const selectedEntryId = new QueryParamState({key: 'entryId', allowBack: true, replaceOnDefaultValue: true});
   const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
   let search = $state('');
-  let gridifyFilter = $state<string | undefined>(undefined);
-  let sortDirection = $state<'asc' | 'desc'>('asc');
+  let gridifyFilter = $state<string>();
+  let sort = $state<SortConfig>();
   let entryMode: 'preview' | 'simple' = $state('simple');
-
-  function toggleSort() {
-    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-  }
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry();
@@ -39,6 +36,7 @@
 
   let leftPane: ResizablePane | undefined = $state();
   let rightPane: ResizablePane | undefined = $state();
+  let listModeOpen = $state(false);
 </script>
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
@@ -60,25 +58,20 @@
           <div class="md:mr-3">
             <SearchFilter bind:search bind:gridifyFilter />
             <div class="my-2 flex items-center justify-between">
-              <button
-                class={badgeVariants({ variant: 'secondary' })}
-                onclick={toggleSort}
-              >
-                <Icon icon={sortDirection === 'asc' ? 'i-mdi-sort-alphabetical-ascending' : 'i-mdi-sort-alphabetical-descending'} class="h-4 w-4" />
-                {$t`Headword`}
-              </button>
-              <ResponsivePopup title={$t`List mode`}>
+              <SortMenu bind:value={sort}
+                autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
+              <ResponsivePopup bind:open={listModeOpen} title={$t`List mode`}>
                 {#snippet trigger({props})}
                   <Button {...props} size="xs-icon" variant="ghost" icon="i-mdi-format-list-text" />
                 {/snippet}
                 <div class="space-y-6">
-                  <Tabs bind:value={entryMode} class="mb-1">
-                    <TabsList>
-                      <TabsTrigger value="simple">
+                  <Tabs bind:value={entryMode} class="mb-1 text-center">
+                    <TabsList onkeydown={(e) => {if (e.key === 'Enter') listModeOpen = false}}>
+                      <TabsTrigger value="simple" onclick={() => listModeOpen = false}>
                         <Icon icon="i-mdi-format-list-bulleted-square" class="mr-1"/>
                         {$t`Simple`}
                       </TabsTrigger>
-                      <TabsTrigger value="preview">
+                      <TabsTrigger value="preview" onclick={() => listModeOpen = false}>
                         <Icon icon="i-mdi-format-list-text" class="mr-1"/>
                         {$t`Preview`}
                       </TabsTrigger>
@@ -90,7 +83,7 @@
           </div>
           <EntriesList {search}
                        selectedEntryId={selectedEntryId.current}
-                       {sortDirection}
+                       {sort}
                        {gridifyFilter}
                        onSelectEntry={(e) => (selectedEntryId.current = e?.id ?? '')}
                        previewDictionary={entryMode === 'preview'}/>

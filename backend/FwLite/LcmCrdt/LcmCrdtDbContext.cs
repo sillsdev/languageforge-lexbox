@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using LcmCrdt.Data;
+using LcmCrdt.FullTextSearch;
 using SIL.Harmony;
 using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,12 @@ using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
 
-public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOptions, IOptions<CrdtConfig> options, SetupCollationInterceptor setupCollationInterceptor)
+public class LcmCrdtDbContext(
+    DbContextOptions<LcmCrdtDbContext> dbContextOptions,
+    IOptions<CrdtConfig> options,
+    SetupCollationInterceptor setupCollationInterceptor,
+    UpdateEntrySearchTableInterceptor? updateEntrySearchTableInterceptor = null
+    )
     : DbContext(dbContextOptions), ICrdtDbContext
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
@@ -16,6 +22,10 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(setupCollationInterceptor, new CustomSqliteFunctionInterceptor());
+        if (updateEntrySearchTableInterceptor is not null)
+        {
+            optionsBuilder.AddInterceptors(updateEntrySearchTableInterceptor);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,6 +37,9 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
         projectDataModel.Ignore(p => p.ServerId);
         //setting default value to handle migration
         projectDataModel.Property(p => p.Role).HasConversion<EnumToStringConverter<UserProjectRole>>().HasDefaultValue(UserProjectRole.Editor);
+
+        var entrySearchModel = modelBuilder.Entity<EntrySearchRecord>();
+        entrySearchModel.ToTable(nameof(EntrySearchRecord), tb => tb.ExcludeFromMigrations());
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

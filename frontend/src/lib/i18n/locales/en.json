@@ -178,6 +178,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "name": "Name",
       "created_at": "Created",
       "members": "Members",
+      "projects": "Projects",
       "my_orgs": "My organizations",
       "other_orgs": "Other organizations",
       "not_in_any_orgs": "You aren't a member of any organizations yet.",
@@ -705,7 +706,7 @@ Click the button below to request to join the early access program. It may take 
     "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
       "subject": "New Lexbox administrator {adminName}",
-      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox."
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox. {loggedInAdminName} ({loggedInAdminEmail}) made this change and should be emailed with any questions."
     },
     "verify_email": {
       "subject": "Verify your e-mail address",
@@ -752,7 +753,7 @@ Click the button below to request to join the early access program. It may take 
     },
     "join_fw_lite_beta_request_email": {
       "subject": "FW Lite Beta join request: {name}",
-      "body": "User {name} requested to join the FW Lite beta. Click below to approve this request.",
+      "body": "User {name} ({email}) requested to join the FW Lite beta. Click below to approve this request.",
       "approve_button": "Approve Request"
     },
     "user_added": {

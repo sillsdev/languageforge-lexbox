@@ -543,24 +543,8 @@ public class FwDataMiniLcmApi(
         }
         catch (Exception e)
         {
-            var headword = LexEntryHeadword(entry);
+            var headword = entry.LexEntryHeadwordOrUnknown();
             throw new InvalidOperationException($"Failed to map FW entry to MiniLCM entry '{headword}' ({entry.Guid})", e);
-        }
-    }
-
-    private string LexEntryHeadword(ILexEntry entry)
-    {
-        try
-        {
-            return new Entry()
-            {
-                LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
-                CitationForm = FromLcmMultiString(entry.CitationForm),
-            }.Headword();
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Failed to get headword for FW entry {entry.Guid}", e);
         }
     }
 
@@ -611,9 +595,9 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = LexEntryHeadword(component),
+            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = LexEntryHeadword(complexEntry),
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
             Order = Order(component, complexEntry)
         };
     }
@@ -626,9 +610,9 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.HeadWord.Text,
+            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = LexEntryHeadword(complexEntry),
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
             Order = Order(componentSense, complexEntry)
         };
     }
@@ -655,7 +639,6 @@ public class FwDataMiniLcmApi(
 
     private Sense FromLexSense(ILexSense sense)
     {
-        var enWs = GetWritingSystemHandle("en");
         var pos = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech();
         var s =  new Sense
         {
@@ -769,33 +752,31 @@ public class FwDataMiniLcmApi(
     }
 
     public IAsyncEnumerable<Entry> GetEntries(
-        Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
+        Func<ILexEntry, bool>? predicate, QueryOptions? options = null, string? query = null)
     {
         options ??= QueryOptions.Default;
         var entries = GetLexEntries(predicate, options);
 
-        var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        string? order(ILexEntry e)
-        {
-            string? text = e.CitationForm.get_String(sortWs).Text;
-            text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
-            return text?.Trim(LcmHelpers.WhitespaceChars);
-        }
-        if (options.Order.Ascending)
-        {
-            entries = entries.OrderBy(order);
-        } else
-        {
-            entries = entries.OrderByDescending(order);
-        }
+        entries = ApplySorting(options, entries, query);
         entries = options.ApplyPaging(entries);
 
         return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
+    private IEnumerable<ILexEntry> ApplySorting(QueryOptions options, IEnumerable<ILexEntry> entries, string? query)
+    {
+        var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
+        if (options.Order.Field == SortField.SearchRelevance)
+        {
+            return entries.ApplyRoughBestMatchOrder(options.Order, sortWs, query);
+        }
+
+        return options.ApplyOrder(entries, e => e.LexEntryHeadword(sortWs));
+    }
+
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = GetEntries(EntrySearchPredicate(query), options);
+        var entries = GetEntries(EntrySearchPredicate(query), options, query);
         return entries;
     }
 

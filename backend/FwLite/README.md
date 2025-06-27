@@ -3,7 +3,7 @@
 ## Development
 
 ### Prerequisites
- * [dotnet sdk](https://dotnet.microsoft.com/en-us/download)
+ * [dotnet sdk](https://dotnet.microsoft.com/en-us/download) currently 9.0 is required
  * [node](https://nodejs.org/en/download/)
  * [Taskfile](https://taskfile.dev/installation/)
     * windows: `winget install Task.Task`
@@ -18,12 +18,13 @@ sudo dotnet workload restore
 * Android SDK API 35+ (can be installed via Android Studio)
   * Java SDK 17 (for Android)
 
-### Running FWLite Web
+### Running FWLite Web (typical workflow)
 
-from repo root you will be able to develop the UI as well. From this folder it will just run the backend and use the most recent build of the frontend for the UI.
+from repo root:
 ```bash
-task web-for-develop
+task fw-lite-web
 ```
+this will start the frontend vite server (in `frontend/viewer`) and the backend web server (in `backend/FwLite/FwLiteWeb`).
 
 ### Running Tests
 For .Net tests, you can run them from the command line, in the repo root:

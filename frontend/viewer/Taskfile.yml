@@ -8,6 +8,9 @@ tasks:
   run-app:
     interactive: true
     cmd: pnpm run dev-app
+  storybook:
+    interactive: true
+    cmd: pnpm storybook {{.CLI_ARGS}}
   web-component:
     aliases: [ wc ]
     interactive: true

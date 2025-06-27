@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 using MiniLcm.Filtering;
 using MiniLcm.Models;
@@ -58,9 +59,33 @@ public record QueryOptions(
         if (Count == QueryAll) return queryable;
         return queryable.Take(Count);
     }
+
+    public IOrderedEnumerable<T> ApplyOrder<T, TKey>(IEnumerable<T> enumerable, Func<T, TKey> orderFunc)
+    {
+        if (Order.Ascending)
+        {
+            return enumerable.OrderBy(orderFunc);
+        }
+        else
+        {
+            return enumerable.OrderByDescending(orderFunc);
+        }
+    }
+
+    public IOrderedQueryable<T> ApplyOrder<T, TKey>(IQueryable<T> enumerable, Expression<Func<T, TKey>> orderFunc)
+    {
+        if (Order.Ascending)
+        {
+            return enumerable.OrderBy(orderFunc);
+        }
+        else
+        {
+            return enumerable.OrderByDescending(orderFunc);
+        }
+    }
 }
 
-public record SortOptions(SortField Field, WritingSystemId WritingSystem, bool Ascending = true)
+public record SortOptions(SortField Field, WritingSystemId WritingSystem = default, bool Ascending = true)
 {
     public const string DefaultWritingSystem = "default";
     public static SortOptions Default { get; } = new(SortField.Headword, DefaultWritingSystem);
@@ -72,4 +97,5 @@ public record ExemplarOptions(string Value, WritingSystemId WritingSystem);
 public enum SortField
 {
     Headword, //citation form -> lexeme form
+    SearchRelevance
 }

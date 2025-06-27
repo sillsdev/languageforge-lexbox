@@ -1,8 +1,12 @@
 <script lang="ts">
   import {type IMultiString, type IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import {Label} from '../ui/label';
   import {Input} from '../ui/input';
+  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import {Label} from '../ui/label';
+
+  const fieldBodyProps = tryUseFieldBody();
+  const labeledBy = fieldBodyProps?.labelId;
 
   let {
     value = $bindable(),
@@ -21,16 +25,23 @@
     onchange,
     autofocus,
   } = $derived(constProps);
+
+  const rootId = $props.id();
 </script>
 
 <div class="grid grid-cols-subgrid col-span-full gap-y-2">
   {#each writingSystems as ws, i (ws.wsId)}
-    <Label class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
-      <span>{ws.abbreviation}</span>
+    {@const inputId = `${rootId}-${ws.wsId}`}
+    {@const labelId = `${inputId}-label`}
+    <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
+      title={`${ws.name} (${ws.wsId})`}>
+      <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       <Input bind:value={value[ws.wsId]}
+        id={inputId}
+        aria-labelledby="{labeledBy ?? ''} {labelId}"
         {readonly}
         autofocus={autofocus && (i === 0)}
         onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
-    </Label>
+    </div>
   {/each}
 </div>

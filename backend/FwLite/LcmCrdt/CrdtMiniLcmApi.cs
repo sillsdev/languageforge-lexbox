@@ -1,5 +1,4 @@
 using System.Data;
-using System.Linq.Expressions;
 using FluentValidation;
 using Gridify;
 using SIL.Harmony;
@@ -7,6 +6,7 @@ using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
+using LcmCrdt.FullTextSearch;
 using LcmCrdt.Objects;
 using LcmCrdt.Utils;
 using LinqToDB;
@@ -31,7 +31,8 @@ public class CrdtMiniLcmApi(
     MiniLcmValidators validators,
     LcmCrdtDbContext dbContext,
     IOptions<LcmCrdtConfig> config,
-    ILogger<CrdtMiniLcmApi> logger) : IMiniLcmApi
+    ILogger<CrdtMiniLcmApi> logger,
+    EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -135,9 +136,9 @@ public class CrdtMiniLcmApi(
 
     private WritingSystem? _defaultVernacularWs;
     private WritingSystem? _defaultAnalysisWs;
-    private async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    private async ValueTask<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        if (id == "default")
+        if (id.Code == "default")
         {
             return type switch
             {
@@ -366,40 +367,30 @@ public class CrdtMiniLcmApi(
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
-        var predicate = string.IsNullOrEmpty(query) ? null : Filtering.SearchFilter(query);
-        var queryable = await FilterEntries(predicate, options);
+        options ??= FilterQueryOptions.Default;
+        var (queryable, _) = await FilterEntries(Entries, query, options);
         return await queryable.CountAsync();
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        return GetEntriesAsyncEnum(predicate: null, options);
+        return SearchEntries(null, options);
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string? query, QueryOptions? options = null)
     {
-        if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
-
-        return GetEntriesAsyncEnum(Filtering.SearchFilter(query), options);
+        return GetEntries(Entries, query, options);
     }
 
-    private IAsyncEnumerable<Entry> GetEntriesAsyncEnum(
-        Expression<Func<Entry, bool>>? predicate = null,
-        QueryOptions? options = null)
-    {
-        return GetEntries(predicate, options);
-    }
-
-    private async IAsyncEnumerable<Entry> GetEntries(
-        Expression<Func<Entry, bool>>? predicate = null,
+    private async IAsyncEnumerable<Entry> GetEntries(IQueryable<Entry> queryable,
+        string? query = null,
         QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
-        var queryable = await FilterEntries(predicate, options);
+        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options);
+        if (!sortingHandled)
+            queryable = await ApplySorting(queryable, options, query);
 
-        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular));
-        if (sortWs is null)
-            throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
@@ -407,17 +398,9 @@ public class CrdtMiniLcmApi(
             .LoadWith(e => e.ComplexForms)
             .LoadWith(e => e.Components)
             .AsQueryable();
-        if (options.Order.Ascending)
-        {
-            queryable = queryable.OrderBy(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs)).ThenBy(e => e.Id);
-        }
-        else
-        {
-            queryable = queryable.OrderByDescending(e => e.Headword(sortWs.WsId).CollateUnicode(sortWs)).ThenBy(e => e.Id);
-        }
 
         queryable = options.ApplyPaging(queryable);
-        var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
+        var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
             .AsComplexFormComparer();
         var entries = queryable.AsAsyncEnumerable();
         await foreach (var entry in EfExtensions.SafeIterate(entries))
@@ -427,13 +410,29 @@ public class CrdtMiniLcmApi(
         }
     }
 
-    private async Task<IQueryable<Entry>> FilterEntries(
-        Expression<Func<Entry, bool>>? predicate = null,
-        FilterQueryOptions? options = null)
+    private async Task<(IQueryable<Entry> queryable, bool sortingHandled)> FilterEntries(IQueryable<Entry> queryable,
+        string? query,
+        FilterQueryOptions options)
     {
-        options ??= FilterQueryOptions.Default;
-        var queryable = Entries;
-        if (predicate is not null) queryable = queryable.Where(predicate);
+        bool sortingHandled = false;
+        if (!string.IsNullOrEmpty(query))
+        {
+            if (entrySearchService is not null && entrySearchService.ValidSearchTerm(query))
+            {
+                var queryOptions = options as QueryOptions;
+                //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
+                sortingHandled = queryOptions?.Order.Field == SortField.SearchRelevance;
+                queryable = entrySearchService.FilterAndRank(queryable,
+                    query,
+                    sortingHandled,
+                    queryOptions?.Order.Ascending == true);
+            }
+            else
+            {
+                queryable = queryable.Where(Filtering.SearchFilter(query));
+            }
+        }
+
         if (options.Exemplar is not null)
         {
             var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
@@ -446,7 +445,25 @@ public class CrdtMiniLcmApi(
         {
             queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
         }
-        return queryable;
+        return (queryable, sortingHandled);
+    }
+
+    private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
+    {
+        var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular);
+        if (sortWs is null)
+            throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
+
+        switch (options.Order.Field)
+        {
+            case SortField.SearchRelevance:
+                return queryable.ApplyRoughBestMatchOrder(options.Order with { WritingSystem = sortWs.WsId }, query);
+            case SortField.Headword:
+                var ordered = options.ApplyOrder(queryable, e => e.Headword(sortWs.WsId).CollateUnicode(sortWs));
+                return ordered.ThenBy(e => e.Id);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field);
+        }
     }
 
     public async Task<Entry?> GetEntry(Guid id)
@@ -493,6 +510,8 @@ public class CrdtMiniLcmApi(
         {
             await AddChanges(changeList);
         }
+
+        await (entrySearchService?.RegenerateEntrySearchTable() ?? Task.CompletedTask);
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry,
@@ -628,14 +647,16 @@ public class CrdtMiniLcmApi(
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
         await AddChanges(entry.ToChanges(update.Patch));
-        return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+        var updatedEntry = await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+        return updatedEntry;
     }
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
         await validators.ValidateAndThrow(after);
         await EntrySync.Sync(before, after, api ?? this);
-        return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
+        var updatedEntry = await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
+        return updatedEntry;
     }
 
     public async Task DeleteEntry(Guid id)
