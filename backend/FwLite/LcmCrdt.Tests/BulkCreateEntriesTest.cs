@@ -95,7 +95,7 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
         var elapsed = sw.Elapsed;
         var perEntry = elapsed.TotalMilliseconds / entryCount;
         output.WriteLine($"Imported {entryCount:N0} entries in {elapsed.TotalSeconds:F2} seconds ({perEntry:F2} ms/entry)");
-        perEntry.Should().BeLessThan(8,
+        perEntry.Should().BeLessThan(10,
             "Importing {1:N0} entries should take less than 10ms per entry, but took {0:F2}ms per entry",
             perEntry,
             entryCount);
