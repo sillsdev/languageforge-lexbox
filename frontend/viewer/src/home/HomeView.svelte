@@ -198,7 +198,7 @@
               </ButtonListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ButtonListItem on:click={() => createExampleProject()} disabled={createProjectLoading}>
+              <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
                 <ListItem
                   title={$t`Create Example Project`}
                   loading={createProjectLoading}
