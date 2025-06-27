@@ -20,7 +20,7 @@ export interface BackHandlerConfig {
 class BackHandler {
   #ignoreNextBack: boolean = false;
   static #backStack: BackHandler[] = [];
-  readonly #id = crypto.randomUUID();
+  readonly #id = crypto.randomUUID().split('-')[0];
   private get fullKey() {
     return `BackHandler-${this.#id}-${this.config.key ?? ''}`;
   };
@@ -35,10 +35,7 @@ class BackHandler {
           backHandler: true,
           key: this.config.key,
           id: this.#id,
-        }, ''), {
-          key: this.fullKey,
-          isTeardown: false,
-        });
+        }, ''), this.fullKey);
       } else {
         this.remove();
       }
@@ -81,11 +78,8 @@ class BackHandler {
         }
         this.ignoreNextBack();
         history.back();
-        return { triggersPopstate: true };
-      }, {
-        key: this.fullKey,
-        isTeardown: true,
-      });
+        return { triggeredPopstate: true };
+      }, this.fullKey);
     }
   }
 

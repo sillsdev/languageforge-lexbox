@@ -60,7 +60,7 @@
 {:else}
   <DrawerClose
     class={cn(buttonVariants({ variant: 'ghost', class: 'w-full justify-start gap-2' }), className)}
-    onclick={onSelect}
+    onclick={() => /* wait for drawer to close/start closing */ setTimeout(() => onSelect?.())}
     child={rest.href ? anchorChild : undefined}
     {...rest}
     bind:ref>
