@@ -31,46 +31,50 @@ export class QueryParamState {
   }
 
   private async updateHistory(): Promise<void> {
-    this.#waitingForHistoryChange = true;
-    const currentUrl = new URL(document.location.href);
     const isDefault = this.#current === this.defaultValue;
-    if (isDefault) {
-      currentUrl.searchParams.delete(this.config.key);
-    } else {
-      currentUrl.searchParams.set(this.config.key, this.#current);
-    }
+    const isTeardown = this.config.replaceOnDefaultValue && isDefault;
     this.#waitingForHistoryChange = true;
-    if (this.config.replaceOnDefaultValue && isDefault) {
-      await makeHistoryChange(() => {
-        const state = history.state as unknown;
-        const pushKey = state && typeof state === 'object' && 'pushKey' in state ? state.pushKey as string : undefined;
-        if (pushKey === this.config.key) {
-          //the last history event was push by us so we need to just go back otherwise the next back will do nothing
-          history.go(-1);
-          return { triggersPopstate: true };
-        } else {
-          history.replaceState(null, '', currentUrl.href);
-        }
-        this.#waitingForHistoryChange = false;
-      }, {
-        key: this.config.key,
-        isTeardown: true,
-      });
-    } else {
-      await makeHistoryChange(() => {
+    await makeHistoryChange(() => {
+      const currentUrl = new URL(document.location.href);
+      if (isDefault) {
+        currentUrl.searchParams.delete(this.config.key);
+      } else {
+        currentUrl.searchParams.set(this.config.key, this.#current);
+      }
+      if (isTeardown) {
         if (this.config.allowBack) {
-          history.pushState({pushKey: this.config.key}, '', currentUrl.href);
+          if (!this.isOnTopOfHistoryStack()) {
+            console.warn(`${this.fullKey}: wanted to pop history, but not on top of history stack, ignoring, history entry not removed.`);
+            return;
+          }
+          //the last history event was pushed by us so we need to just go back otherwise the next back will do nothing
+          history.go(-1);
+          return { triggeredPopstate: true };
         } else {
           history.replaceState(null, '', currentUrl.href);
         }
-        this.#waitingForHistoryChange = false;
-      }, {
-        key: this.config.key,
-        isTeardown: false,
-      });
-    }
+      } else {
+        if (this.config.allowBack) {
+          console.log(`Pushing history state for key "${this.fullKey}" with value "${this.#current}" (${currentUrl.href}).`);
+          history.pushState({pushKey: this.fullKey}, '', currentUrl.href);
+        } else {
+          history.replaceState(null, '', currentUrl.href);
+        }
+      }
+    }, this.fullKey);
     this.#waitingForHistoryChange = false;
   }
+
+  private isOnTopOfHistoryStack() {
+    const state = history.state as unknown;
+    const pushKey = state && typeof state === 'object' && 'pushKey' in state ? state.pushKey as string : undefined;
+    return pushKey === this.fullKey;
+  }
+
+  readonly #id = crypto.randomUUID().split('-')[0];
+  private get fullKey() {
+    return `QueryParamState-${this.#id}-${this.config.key ?? ''}`;
+  };
 
   constructor(private config: QueryParamStateConfig, private defaultValue: string = '') {
     const location = useLocation();

@@ -1,60 +1,61 @@
-import {navigate} from 'svelte-routing';
+import {delay} from './time';
 import {useDebounce} from 'runed';
 
-type HistoryChanger = () => { triggersPopstate: true } | void;
+type HistoryChanger = () => { triggeredPopstate: true } | void;
 
 type HistoryChange = {
   callback: HistoryChanger;
   key: string;
-  isTeardown: boolean;
 };
 
 const historyQueue: HistoryChange[] = [];
 
 const processHistory = useDebounce(async () => {
-  [...new Set(historyQueue.map(change => change.key))].forEach((value, _, items) => {
-    if (items.filter(item => item === value).length > 1) {
-      throw new Error(`Multiple history changes for key "${value}" detected.`);
-    }
-  });
-
-  if (historyQueue.length === 0) return;
-
   while (historyQueue.length > 0) {
-    const nextTeardown = historyQueue.find(change => change.isTeardown);
-    if (nextTeardown) { // prioritize teardown
-      if (historyQueue[0] !== nextTeardown) {
-        console.debug(`Teardown "${nextTeardown.key}" jumped the queue.`);
-      }
-      await doHistoryChange(nextTeardown.callback);
-      historyQueue.splice(historyQueue.indexOf(nextTeardown), 1);
-
-    } else {
-      await doHistoryChange(historyQueue.shift()!.callback);
-    }
+    console.debug(`Processing history change "${historyQueue[0].key}"`);
+    await doHistoryChange(historyQueue.shift()!);
   }
-}, 1);
+}, 0);
 
-export async function makeHistoryChange(callback: HistoryChanger, options: Omit<HistoryChange, 'callback'>): Promise<void> {
-  const change: HistoryChange = { callback, ...options };
+let proccessingPromise: Promise<Promise<void>> | null = null;
+export async function makeHistoryChange(callback: HistoryChanger, key: string): Promise<void> {
+  const change: HistoryChange = { callback, key };
   historyQueue.push(change);
-  await processHistory();
+  if (proccessingPromise) {
+    // If we're already processing, we just wait for it to finish
+    return proccessingPromise;
+  }
+
+  proccessingPromise = processHistory();
+  try {
+    await proccessingPromise;
+  } finally {
+    proccessingPromise = null;
+  }
 }
 
-async function doHistoryChange(callback: HistoryChanger): Promise<void> {
-  const triggersPopstate = callback();
-  if (triggersPopstate && triggersPopstate.triggersPopstate) {
-    await new Promise<void>(resolve => {
-      const abortController = new AbortController();
-      window.addEventListener('popstate', () => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        navigate(document.location.href, { replace: true, state: history.state });
-        console.debug('History orchestrator: popstate event triggered');
-        resolve();
-        abortController.abort();
-      }, {
-        signal: abortController.signal,
-      });
-    });
+async function doHistoryChange(change: HistoryChange): Promise<void> {
+  const triggeredPopstate = change.callback();
+  if (triggeredPopstate && triggeredPopstate.triggeredPopstate) {
+    if (!await awaitPopstate()) {
+      const message = `Timeout waiting for popstate event after history change "${change.key}".`;
+      if (import.meta.env.DEV) {
+        throw new Error(message);
+      } else {
+        console.warn(message);
+      }
+    }
   }
+}
+
+async function awaitPopstate(timeout = 1000): Promise<boolean> {
+  const controller = new AbortController();
+  const result = await Promise.any([
+    new Promise<'popstate'>(resolve => {
+      window.addEventListener('popstate', () => resolve('popstate'), {signal: controller.signal});
+    }),
+    delay(timeout),
+  ]);
+  controller.abort();
+  return result === 'popstate';
 }
