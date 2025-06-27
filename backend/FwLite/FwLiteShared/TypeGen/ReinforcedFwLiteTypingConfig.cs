@@ -1,7 +1,6 @@
 using System.Drawing;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using System.Reflection;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
@@ -81,7 +80,7 @@ public static class ReinforcedFwLiteTypingConfig
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
-            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null || exportBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is {Condition: JsonIgnoreCondition.Always})
+            if (exportBuilder.Member.GetCustomAttribute<MiniLcmInternalAttribute>() is not null || exportBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is { Condition: JsonIgnoreCondition.Always })
             {
                 exportBuilder.Ignore();
             }
@@ -171,7 +170,7 @@ public static class ReinforcedFwLiteTypingConfig
     {
         var isUpdatePatchMethod = exportBuilder.Member.GetParameters()
             .Any(p => p.ParameterType.IsGenericType &&
-                      p.ParameterType.GetGenericTypeDefinition() == (typeof(UpdateObjectInput<>)));
+                      p.ParameterType.GetGenericTypeDefinition() == typeof(UpdateObjectInput<>));
         if (isUpdatePatchMethod)
         {
             exportBuilder.Ignore();
@@ -239,7 +238,7 @@ public static class ReinforcedFwLiteTypingConfig
         public override void Visit(RtImport node)
         {
             //change import, was:
-            // import { IEntry} from './i-entry';
+            // import { IEntry } from './i-entry';
             //now:
             // import type {IEntry} from './i-entry';
             if (!node.Target.StartsWith("type "))
