@@ -15,9 +15,14 @@ export default defineConfig({
   test: {
     projects: [
       {
+        plugins: [
+          svelte(),
+        ],
         test: {
           name: 'unit',
-          environment: 'node',
+          // $effect.root requires a dom.
+          // We can add a node environment test project later if needed.
+          environment:'jsdom',
           exclude: [browserTestPattern, e2eTestPattern, ...defaultExcludeList],
         },
         resolve: {

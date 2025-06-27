@@ -1,8 +1,8 @@
 <script lang="ts">
   import {cn} from '$lib/utils.js';
-  import type {WithElementRef} from 'bits-ui';
   import type {Snippet} from 'svelte';
   import type {HTMLAnchorAttributes} from 'svelte/elements';
+  import Anchor from '../anchor/anchor.svelte';
 
   let {
     ref = $bindable(null),
@@ -11,7 +11,8 @@
     child,
     children,
     ...restProps
-  }: WithElementRef<HTMLAnchorAttributes> & {
+  }: HTMLAnchorAttributes & {
+    ref?: HTMLElement | null;
     child?: Snippet<[{ props: HTMLAnchorAttributes }]>;
   } = $props();
 
@@ -25,7 +26,7 @@
 {#if child}
   {@render child({ props: attrs })}
 {:else}
-  <a bind:this={ref} {...attrs}>
+  <Anchor bind:ref {...attrs}>
     {@render children?.()}
-  </a>
+  </Anchor>
 {/if}
