@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.Media;
 using Gridify;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,6 +27,7 @@ public class FwDataMiniLcmApi(
     ILogger<FwDataMiniLcmApi> logger,
     FwDataProject project,
     MiniLcmValidators validators,
+    IMediaAdapter mediaAdapter,
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
     private FwDataBridgeConfig Config => config.Value;
@@ -658,7 +660,7 @@ public class FwDataMiniLcmApi(
             }
             else
             {
-                result.Values.Add(wsId, ToFileId(tsString.Text));
+                result.Values.Add(wsId, ToMediaUri(tsString.Text));
             }
         }
 
@@ -678,7 +680,7 @@ public class FwDataMiniLcmApi(
             if (wsId.IsAudio && richString.Spans.Count == 1)
             {
                 var span = richString.Spans[0];
-                richString.Spans[0] = span with { Text = ToFileId(span.Text) };
+                richString.Spans[0] = span with { Text = ToMediaUri(span.Text) };
             }
             result.Add(wsId, richString);
         }
@@ -686,9 +688,12 @@ public class FwDataMiniLcmApi(
         return result;
     }
 
-    private string ToFileId(string tsString)
+    private string ToMediaUri(string tsString)
     {
-        return Path.IsPathRooted(tsString) ? tsString : Path.Combine(AudioVisualFolder, tsString);
+        //rooted media paths aren't supported
+        if (Path.IsPathRooted(tsString))
+            throw new ArgumentException("Media path must be relative", nameof(tsString));
+        return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
     }
 
     internal RichString? ToRichString(ITsString? tsString)
@@ -1469,18 +1474,9 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public Task<Stream?> GetFileStream(string fileId)
+    public Task<Stream?> GetFileStream(MediaUri mediaUri)
     {
-        string fullPath;
-        if (Path.IsPathRooted(fileId))
-        {
-            fullPath = fileId;
-        }
-        else
-        {
-            fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, fileId);
-        }
-
+        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
         return Task.FromResult<Stream?>(File.OpenRead(fullPath));
     }
 }

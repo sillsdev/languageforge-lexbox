@@ -23,7 +23,7 @@ public interface IMiniLcmReadApi
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
 
-    Task<Stream?> GetFileStream(string fileId)
+    Task<Stream?> GetFileStream(MediaUri mediaUri)
     {
         return Task.FromResult<Stream?>(null);
     }

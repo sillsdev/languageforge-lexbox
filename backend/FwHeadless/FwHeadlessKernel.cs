@@ -1,7 +1,9 @@
 using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.Media;
 using FwHeadless.Services;
 using FwLiteProjectSync;
 using LcmCrdt;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace FwHeadless;
@@ -26,6 +28,8 @@ public static class FwHeadlessKernel
             .AddLcmCrdtClientCore()
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
+        services.RemoveAll(typeof(IMediaAdapter));
+        services.AddSingleton<IMediaAdapter, LexboxFwDataMediaAdapter>();
 
         services.AddSingleton<SyncHostedService>();
         services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());

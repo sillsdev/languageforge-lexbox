@@ -120,6 +120,7 @@
     <PackageVersion Include="SystemTextJson.JsonDiffPatch" Version="2.0.0" />
     <PackageVersion Include="SystemTextJsonPatch" Version="3.2.1" />
     <PackageVersion Include="tusdotnet" Version="2.8.0" />
+    <PackageVersion Include="UUIDNext" Version="4.1.2" />
     <PackageVersion Include="Verify.Xunit" Version="28.2.1" />
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
