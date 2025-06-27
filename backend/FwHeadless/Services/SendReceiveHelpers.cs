@@ -100,7 +100,7 @@ public static class SendReceiveHelpers
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl.AbsoluteUri },
             { "deleteRepoIfNoSuchBranch", "false" },
-            { "user", "Fieldworks Lite" }, // Not necessary if username was set at clone time, but why not
+            { "user", "FieldWorks Lite" }, // Not necessary if username was set at clone time, but why not
         };
         if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
         return await CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions, progress);
