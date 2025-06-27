@@ -12,6 +12,7 @@
   import {cn} from '$lib/utils';
   import {DrawerClose} from '../ui/drawer';
   import type {HTMLAnchorAttributes} from 'svelte/elements';
+  import Anchor from '../ui/anchor/anchor.svelte';
 
   type Props = {
     children?: Snippet;
@@ -41,9 +42,9 @@
 {/snippet}
 
 {#snippet anchorChild({ props }: { props: Record<string, unknown> })}
-  <a {...props}>
+  <Anchor {...props}>
     {@render content()}
-  </a>
+  </Anchor>
 {/snippet}
 
 {#if state.contextMenu}
