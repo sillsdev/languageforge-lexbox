@@ -5,8 +5,8 @@ export * from './generated-types/FwLiteShared/Projects/ICombinedProjectsService'
 export * from './generated-types/FwLiteShared/Projects/IProjectModel';
 export * from './generated-types/FwLiteShared/Projects/IServerProjects';
 export * from './generated-types/FwLiteShared/Services/DotnetService';
-export * from './generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 export * from './generated-types/FwLiteShared/Services/IMiniLcmFeatures';
+export * from './generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 export * from './generated-types/MiniLcm/Models/IComplexFormComponent';
 export * from './generated-types/MiniLcm/Models/IComplexFormType';
 export * from './generated-types/MiniLcm/Models/IEntry';
