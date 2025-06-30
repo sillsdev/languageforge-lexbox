@@ -153,7 +153,12 @@ public class SyncWorker(
 
         var miniLcmApi = await services.OpenCrdtProject(crdtProject);
         var crdtSyncService = services.GetRequiredService<CrdtSyncService>();
-        await crdtSyncService.SyncHarmonyProject();
+
+        // If the last merge was successful, we can sync the Harmony project, otherwise we risk pushing a partial sync
+        if (CrdtFwdataProjectSyncService.HasSyncedSuccessfully(fwDataProject))
+        {
+            await crdtSyncService.SyncHarmonyProject();
+        }
 
         var result = await syncService.Sync(miniLcmApi, fwdataApi);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",

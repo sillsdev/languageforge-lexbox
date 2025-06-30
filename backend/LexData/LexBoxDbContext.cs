@@ -27,6 +27,7 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
     {
     }
 
+    public DbSet<MediaFile> Files => Set<MediaFile>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<ProjectUsers> ProjectUsers => Set<ProjectUsers>();

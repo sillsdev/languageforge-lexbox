@@ -597,9 +597,12 @@ public class FwDataMiniLcmApi(
             ComponentEntryId = component.Guid,
             ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown()
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            Order = Order(component, complexEntry)
         };
     }
+
+
 
     private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
     {
@@ -609,8 +612,29 @@ public class FwDataMiniLcmApi(
             ComponentSenseId = componentSense.Guid,
             ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown()
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            Order = Order(componentSense, complexEntry)
         };
+    }
+
+    private static int Order(ICmObject component, ILexEntry complexEntry)
+    {
+        int order = 0;
+        foreach (var entryRef in complexEntry.ComplexFormEntryRefs)
+        {
+            var foundIndex = entryRef.ComponentLexemesRS.IndexOf(component);
+            if (foundIndex == -1)
+            {
+                order += entryRef.ComponentLexemesRS.Count;
+            }
+            else
+            {
+                order += foundIndex + 1;
+                break;
+            }
+        }
+
+        return order;
     }
 
     private Sense FromLexSense(ILexSense sense)
@@ -907,6 +931,8 @@ public class FwDataMiniLcmApi(
     {
         var lexComponent = FindSenseOrEntryComponent(component);
         InsertComplexFormComponent(lexComplexForm, lexComponent, between);
+        //match the behavior of Crdt to satisfy tests
+        component.Order = Order(lexComponent, lexComplexForm);
     }
 
     internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
@@ -1152,13 +1178,19 @@ public class FwDataMiniLcmApi(
             }
             else
             {
-                // todo the user might have wanted it to be a subsense of previousSense
-                var allSiblings = previousSense.Owner == lexEntry ? lexEntry.SensesOS
-                    : previousSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                var owner = previousSense.Owner;
+                // prefer flat hierarchies: if the previous sense is the last subsense of its parent, we can promote lexSense
+                while (owner is ILexSense parent && previousSense == parent.SensesOS.LastOrDefault())
+                {
+                    owner = parent.Owner;
+                    previousSense = parent;
+                }
+                var allSiblings = owner == lexEntry ? lexEntry.SensesOS
+                    : owner is ILexSense parentSense ? parentSense.SensesOS
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
                 var insertI = allSiblings.IndexOf(previousSense) + 1;
                 // ILcmOwningSequence treats an insert as a move if the item is already in it
-                lexEntry.SensesOS.Insert(insertI, lexSense);
+                allSiblings.Insert(insertI, lexSense);
             }
             return;
         }
@@ -1172,7 +1204,7 @@ public class FwDataMiniLcmApi(
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
             var insertI = allSiblings.IndexOf(nextSense);
             // ILcmOwningSequence treats an insert as a move if the item is already in it
-            lexEntry.SensesOS.Insert(insertI, lexSense);
+            allSiblings.Insert(insertI, lexSense);
             return;
         }
 
