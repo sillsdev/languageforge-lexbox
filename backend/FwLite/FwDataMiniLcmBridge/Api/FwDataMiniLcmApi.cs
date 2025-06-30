@@ -931,6 +931,8 @@ public class FwDataMiniLcmApi(
     {
         var lexComponent = FindSenseOrEntryComponent(component);
         InsertComplexFormComponent(lexComplexForm, lexComponent, between);
+        //match the behavior of Crdt to satisfy tests
+        component.Order = Order(lexComponent, lexComplexForm);
     }
 
     internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
