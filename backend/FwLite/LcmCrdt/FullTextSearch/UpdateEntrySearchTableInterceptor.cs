@@ -29,28 +29,23 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
     {
         if (dbContext is null) return;
         List<Entry> toUpdate = [];
-        List<WritingSystem> newWritingSystems = [];
+        var newWritingSystems = dbContext.ChangeTracker.Entries()
+            .Where(e => e.Entity is WritingSystem && e.State == EntityState.Added)
+            .Select(e => (WritingSystem)e.Entity).ToList();
         foreach (var group in dbContext.ChangeTracker.Entries()
-                     .Where(e => e is { State: EntityState.Added or EntityState.Modified, Entity: Entry or Sense or WritingSystem })
+                     .Where(e => e is { State: EntityState.Added or EntityState.Modified, Entity: Entry or Sense })
                      .GroupBy(e =>
                      {
                          return e.Entity switch
                          {
                              Entry entry => entry.Id,
                              Sense sense => sense.EntryId,
-                             WritingSystem => new Guid?(),
                              _ => throw new InvalidOperationException(
                                  $"Entity is not Entry or Sense: {e.Entity.GetType().Name}")
                          };
                      }))
         {
-            if (group.Key is null)
-            {
-                //writing system
-                newWritingSystems.AddRange(group.Where(e => e.State == EntityState.Added).Select(e =>(WritingSystem) e.Entity));
-                continue;
-            }
-            toUpdate.Add(await ForUpdate(group, group.Key.Value, dbContext));
+            toUpdate.Add(await ForUpdate(group, group.Key, dbContext));
         }
         if (toUpdate is []) return;
         await EntrySearchService.UpdateEntrySearchTable(toUpdate, newWritingSystems, (LcmCrdtDbContext)dbContext);
