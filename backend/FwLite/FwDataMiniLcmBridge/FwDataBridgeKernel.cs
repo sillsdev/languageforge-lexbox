@@ -1,4 +1,5 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MiniLcm;
@@ -20,6 +21,7 @@ public static class FwDataBridgeKernel
         services.AddSingleton<FieldWorksProjectList>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<FieldWorksProjectList>());
         services.AddSingleton<IProjectLoader, ProjectLoader>();
+        services.AddSingleton<IMediaAdapter, LocalMediaAdapter>();
         services.AddKeyedScoped<IMiniLcmApi>(FwDataApiKey,
             (provider, o) =>
             {

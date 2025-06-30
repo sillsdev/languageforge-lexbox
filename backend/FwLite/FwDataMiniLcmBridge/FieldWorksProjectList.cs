@@ -47,4 +47,9 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config, FwDataFa
         if (project is not FwDataProject fwDataProject) throw new ArgumentException("Project is not a fwdata project");
         return fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, saveOnDispose);
     }
+
+    public IMiniLcmApi OpenProject(string name, bool saveOnDispose = true)
+    {
+        return OpenProject(GetProject(name) ?? throw new ArgumentException("Project not found"), saveOnDispose);
+    }
 }

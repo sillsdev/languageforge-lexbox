@@ -37,8 +37,8 @@ export class WritingSystemService {
       const result = await api.getWritingSystems();
       return {
         //hide audio writing systems since we don't support them for now
-        vernacular: result.vernacular.filter(ws => !ws.isAudio),
-        analysis: result.analysis.filter(ws => !ws.isAudio)
+        vernacular: result.vernacular,
+        analysis: result.analysis
       };
     });
   }
