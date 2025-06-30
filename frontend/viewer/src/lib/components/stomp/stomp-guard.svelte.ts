@@ -24,6 +24,7 @@ export class StompGuard<T> {
     if (this._dirty) {
       return this._value;
     }
+    // we could always return this._value, but this saves us a tick
     return this.parentGetter();
   }
 
