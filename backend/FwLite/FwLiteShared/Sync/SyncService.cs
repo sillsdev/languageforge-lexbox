@@ -66,7 +66,7 @@ public class SyncService(
             return new SyncResults([], [], false);
         }
         var currentUser = await oAuthClient.GetCurrentUser();
-        await currentProjectService.UpdateLastUser(currentUser?.Name ?? "FieldWorks", currentUser?.Id);
+        await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
 
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
         if (!await remoteModel.ShouldSync())
