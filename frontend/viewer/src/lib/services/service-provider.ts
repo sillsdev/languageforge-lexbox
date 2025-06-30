@@ -1,8 +1,7 @@
 import './service-declaration';
 import {openSearch} from '../search-bar/search';
-import {DotnetService, type IAuthService, type ICombinedProjectsService} from '../dotnet-types';
+import {DotnetService, type IAuthService, type ICombinedProjectsService, type IMiniLcmJsInvokable} from '../dotnet-types';
 import type {IImportFwdataService} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/IImportFwdataService';
-import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {
   IProjectServicesProvider

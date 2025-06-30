@@ -1,4 +1,4 @@
-import {DotnetService, type IEntry} from '$lib/dotnet-types';
+﻿import {DotnetService, type IEntry, ProjectDataFormat} from '$lib/dotnet-types';
 import {useService} from '$lib/services/service-provider';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
@@ -6,7 +6,6 @@ import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events
 import type {IEntryChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryChangedEvent';
 import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
 import type {IEntryDeletedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntryDeletedEvent';
-import {ProjectDataFormat} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ProjectDataFormat';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {onDestroy} from 'svelte';
 import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';

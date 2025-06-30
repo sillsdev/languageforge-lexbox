@@ -6,9 +6,11 @@ import {
   type IComplexFormType,
   type IEntry,
   type IExampleSentence,
+  type IFilterQueryOptions,
   type IMiniLcmFeatures,
   type IMiniLcmJsInvokable,
   type IPartOfSpeech,
+  type IPublication,
   type IQueryOptions,
   type ISemanticDomain,
   type ISense,
@@ -17,8 +19,6 @@ import {
   type WritingSystemType,
 } from 'viewer/mini-lcm-api';
 
-import type {IFilterQueryOptions} from '$lib/dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
-import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
 
 function prepareEntriesForUi(entries: IEntry[]): void {

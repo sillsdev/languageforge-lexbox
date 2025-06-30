@@ -6,8 +6,11 @@ import {
   type IComplexFormType,
   type IEntry,
   type IExampleSentence,
+  type IFilterQueryOptions,
   type IMiniLcmJsInvokable,
-  type IPartOfSpeech, type IProjectModel,
+  type IPartOfSpeech,
+  type IProjectModel,
+  type IPublication,
   type IQueryOptions,
   type ISemanticDomain,
   type ISense,
@@ -20,10 +23,8 @@ import {entries, partsOfSpeech, projectName, writingSystems} from './demo-entry-
 
 import {WritingSystemService} from './writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
-import type {IPublication} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IPublication';
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
-import type {IFilterQueryOptions} from './dotnet-types/generated-types/MiniLcm/IFilterQueryOptions';
 import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 
 function pickWs(ws: string, defaultWs: string): string {
