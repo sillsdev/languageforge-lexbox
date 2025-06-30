@@ -21,17 +21,8 @@ public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccesso
             context.Fail(new AuthorizationFailureReason(this, $"Must be logged in to upload media files"));
             return;
         }
-        var projectId = GetProjectId(httpContext.Request);
-        if (projectId is null)
-        {
-            var fileId = GetFileId(httpContext.Request);
-            if (fileId is not null)
-            {
-                var dbContext = httpContext!.RequestServices.GetRequiredService<LexBoxDbContext>();
-                var file = await dbContext.Files.FindAsync(fileId);
-                if (file is not null) projectId = file.ProjectId;
-            }
-        }
+        var projectId = await GetProjectId(httpContext.Request);
+
         if (projectId is null)
         {
             context.Fail(new AuthorizationFailureReason(this, $"Media files must have a project ID in order to be uploaded"));
@@ -51,7 +42,7 @@ public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccesso
         context.Succeed(requirement);
     }
 
-    private static Guid? GetProjectId(HttpRequest request)
+    private static async ValueTask<Guid?> GetProjectId(HttpRequest request)
     {
         Guid? projectId = null;
         if (request.RouteValues.TryGetValue("projectId", out var projectIdValue))
@@ -64,6 +55,13 @@ public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccesso
             {
                 if (projectIdValueFromQuery.FirstOrDefault() is string sq && Guid.TryParse(sq, out var parsed)) projectId = parsed;
             }
+        }
+
+        if (projectId is null && GetFileId(request) is {} fileId)
+        {
+            var dbContext = request.HttpContext.RequestServices.GetRequiredService<LexBoxDbContext>();
+            var file = await dbContext.Files.FindAsync(fileId);
+            projectId = file?.ProjectId;
         }
         return projectId;
     }
