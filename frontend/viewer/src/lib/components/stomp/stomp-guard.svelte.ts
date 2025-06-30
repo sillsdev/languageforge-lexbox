@@ -2,7 +2,7 @@ import {watch, type Getter} from 'runed';
 
 export class StompGuard<T> {
 
-  private _dirty = false;
+  private _dirty = $state(false);
   private _value: T = $state<T>()!;
 
   constructor(private readonly parentGetter: Getter<T>, private readonly parentSetter: (value: T) => void) {

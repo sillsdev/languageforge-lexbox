@@ -2,6 +2,7 @@ import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {StompGuard} from './stomp-guard.svelte';
 import {tick} from 'svelte';
+import {watch} from 'runed';
 
 describe('StompGuard', () => {
 
@@ -67,6 +68,28 @@ describe('StompGuard', () => {
     await tick();
     parentObjValue.value = 200; // parent change
     expect(objStompGuard!.value.value).toBe(200); // stomped the deep change
+    cleanup();
+  });
+
+  it('keeps subscribers up to date when it becomes dirty', async () => {
+    const parentValue = $state(42);
+    let stompGuard: StompGuard<number>;
+    let derivedValue: number | undefined = undefined;
+    const cleanup = $effect.root(() => {
+      stompGuard = new StompGuard(
+        () => parentValue,
+        /* no-op to ensure subscribers are actually using the guarded value */
+        (_value) => { });
+      watch(() => stompGuard.value, (newValue) => {
+        derivedValue = newValue;
+      });
+    });
+    await tick(); // let effects run
+    expect(derivedValue).toBe(42); // Ensure the derived value is subscribed
+
+    stompGuard!.value = 100; // make dirty/update
+    await tick();
+    expect(derivedValue).toBe(100); // derived value is listening to the guard value
     cleanup();
   });
 });
