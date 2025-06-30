@@ -89,7 +89,7 @@ public static class LexBoxKernel
             // .AddCheck<FwHeadlessHealthCheck>("fw-headless", HealthStatus.Unhealthy, ["fw-headless"], TimeSpan.FromSeconds(5))
             ;
         services.AddSyncProxy();
-        services.AddFileUploadProxy(); // TODO: If this duplicates anything, such as services.AddMemoryCache() or services.AddHttpContextAccessor(), does that matter?
+        services.AddFileUploadProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
     }

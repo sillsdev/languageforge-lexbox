@@ -48,22 +48,14 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         (files?.Files ?? []).Should().NotContain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
-    [Fact]
-    public async Task UploadFile_WorksForProjectManagers()
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("user")]
+    public async Task UploadFile_WorksForProjectMembers(string loginAs)
     {
-        var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "manager");
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: loginAs);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "manager");
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
-        (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
-    }
-
-    [Fact]
-    public async Task UploadFile_WorksForProjectEditors()
-    {
-        var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "editor");
-        result.StatusCode.Should().Be(HttpStatusCode.Created);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "editor");
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: loginAs);
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
@@ -103,6 +95,22 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
+    }
+
+    [Fact]
+    public async Task UploadFile_WithFilenameOverride_FilenameIsCorrect()
+    {
+        var overrideFilename = TestRepoZipFilename + ".override";
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideFilename: overrideFilename);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        metadata.Should().NotBeNull();
+        metadata.Filename.Should().Be(overrideFilename);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        files.Should().NotBeNull();
+        files.Files.Should().Contain(Path.Join(fileId.ToString(), overrideFilename));
     }
 
     [Fact]
@@ -269,9 +277,6 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
         var origSha = await Sha256WithQuotes(TestRepoZipPath);
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
-        var dlPath = TestRepoZipPath + ".download";
-        if (File.Exists(dlPath)) File.Delete(dlPath);
-        await using var dlStream = File.Open(dlPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
         result = await Fixture.DownloadFile(fileId, hash: origSha);
         result.StatusCode.Should().Be(HttpStatusCode.NotModified);
     }

@@ -70,7 +70,6 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
             }
-            formData.Add(new StringContent(ProjectId.ToString()), name: "projectId");
             if (metadata is not null)
             {
                 if (metadata.Author is not null)

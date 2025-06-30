@@ -22,6 +22,7 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        if (!File.Exists(projectFolder)) return TypedResults.NotFound();
         // Prevent directory-traversal attacks: no ".." allowed in relativePath
         if (relativePath.Contains(".."))
         {
@@ -61,7 +62,7 @@ public static class MediaFileController
         madeChanges = await AddEntityTagMetadataIfNotPresent(mediaFile, filePath) || madeChanges;
         if (madeChanges) await lexBoxDb.SaveChangesAsync();
         var entityTag = new EntityTagHeaderValue($"\"{mediaFile.Metadata.Sha256Hash!}\"");
-        return TypedResults.PhysicalFile(filePath, contentType, mediaFile.Filename, mediaFile.UpdatedDate, entityTag, enableRangeProcessing: true);
+        return TypedResults.PhysicalFile(filePath, contentType, Path.GetFileName(mediaFile.Filename), mediaFile.UpdatedDate, entityTag, enableRangeProcessing: true);
     }
 
     public static async Task<Results<Ok, NotFound>> DeleteFile(
@@ -184,12 +185,21 @@ public static class MediaFileController
         catch { }
         // First write to temp file, then move file into place, overwriting existing file
         // That way files will be replaced atomically, and a failure halfway through the process won't result in the existing file being lost
-        var tempFile = Path.Join(Path.GetDirectoryName(filePath), Path.GetRandomFileName());
-        await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
+        string tempFile = "";
+        try
         {
-            await contents.CopyToAsync(writeStream);
+            tempFile = Path.Join(Path.GetDirectoryName(filePath), Path.GetRandomFileName());
+            await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
+            {
+                await contents.CopyToAsync(writeStream);
+            }
+            File.Move(tempFile, filePath, overwrite: true);
         }
-        File.Move(tempFile, filePath, overwrite: true);
+        finally
+        {
+            // If anything fails, delete temp file
+            if (!string.IsNullOrEmpty(tempFile) && File.Exists(tempFile)) SafeDelete(tempFile);
+        }
         long endPosition = 0;
         try
         {
