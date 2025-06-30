@@ -193,6 +193,24 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
+    public async Task UploadFile_ContentTooLarge_ThrowsError()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length will be too large
+            var (guid, result) = await Fixture.PostFile(dummyPath);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+            guid.Should().BeEmpty();
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
     public async Task UploadFile_TooLarge_ThrowsError()
     {
         var dummyPath = TestRepoZipPath + ".tooLarge";
