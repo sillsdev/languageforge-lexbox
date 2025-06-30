@@ -21,7 +21,7 @@ public static class MediaFileController
     {
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
-        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
         if (!Directory.Exists(projectFolder)) return TypedResults.NotFound();
         // Prevent directory-traversal attacks: no ".." allowed in relativePath
         if (relativePath.Contains(".."))
@@ -48,7 +48,7 @@ public static class MediaFileController
         var projectId = mediaFile.ProjectId;
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
-        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
         if (!File.Exists(filePath)) return TypedResults.NotFound();
         mediaFile.InitializeMetadataIfNeeded(filePath);
@@ -75,7 +75,7 @@ public static class MediaFileController
         var projectId = mediaFile.ProjectId;
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
-        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
         SafeDeleteMediaFile(mediaFile, projectFolder, lexBoxDb);
         await lexBoxDb.SaveChangesAsync();
         return TypedResults.Ok();
@@ -331,7 +331,7 @@ public static class MediaFileController
 
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) throw new NotFoundException();
-        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
         await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, file, config.Value.MaxUploadFileSizeBytes);
         return (mediaFile, newFile);
     }
