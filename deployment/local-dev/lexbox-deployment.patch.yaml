@@ -21,6 +21,12 @@ spec:
                 memory: 1Gi
             limits:
                 memory: 2Gi
+        volumeMounts:
+#          used for prod builds just to make these dirs writable
+          - mountPath: /var/www
+            name: www
+          - mountPath: /frontend
+            name: frontend
         env:
           - name: DbConfig__DefaultSeedUserPassword
             value: "pass"
@@ -87,4 +93,9 @@ spec:
       initContainers:
         - $patch: delete
           name: db-migrations
+      volumes:
+        - name: www
+          emptyDir:
+        - name: frontend
+          emptyDir:
 
