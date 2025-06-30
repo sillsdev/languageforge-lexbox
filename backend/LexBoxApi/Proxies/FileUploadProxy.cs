@@ -23,7 +23,7 @@ public static class FileUploadProxy
         services.AddForwarder();
     }
 
-    public static void MapFileUploadProxy(this IEndpointRouteBuilder app)
+    public static IEndpointConventionBuilder MapFileUploadProxy(this IEndpointRouteBuilder app)
     {
 
         var authorizeForUploadAttribute = new AuthorizeAttribute
@@ -36,23 +36,27 @@ public static class FileUploadProxy
             Policy = UserCanDownloadMediaFilesPolicy
         };
 
+        var group = app.MapGroup("/api/media").WithOpenApi();
+
         //media upload/download
-        app.Map("/api/media/list/{projectId:guid}/{**catch-all}",
+        group.Map("/list/{projectId:guid}/{**catch-all}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
 
         //media upload/download
-        app.MapGet("/api/media/{fileId:guid}",
+        group.MapGet("/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
-        app.MapPut("/api/media/{fileId:guid}",
+        group.MapPut("/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForUploadAttribute);
-        app.MapPost("/api/media/",
+        group.MapPost("/",
             Forward).RequireAuthorization(authorizeForUploadAttribute);
-        app.MapDelete("/api/media/{fileId:guid}",
+        group.MapDelete("/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForUploadAttribute);
 
         //metadata requests
-        app.Map("/api/media/metadata/{fileId:guid}",
+        group.Map("/metadata/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
+
+        return group;
     }
 
     private static async Task Forward(HttpContext context)
