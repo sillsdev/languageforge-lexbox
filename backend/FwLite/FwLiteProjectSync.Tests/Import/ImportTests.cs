@@ -73,7 +73,7 @@ public class ImportTests : IClassFixture<SyncFixture>
         await ImportService.ImportProject(_fixture.CrdtApi, _fixture.FwDataApi, 1);
         var importedWritingSystems = await _fixture.CrdtApi.GetWritingSystems();
         var importedWritingSystem = importedWritingSystems.Vernacular.SingleOrDefault(vws => vws.WsId == ws.WsId);
-        importedWritingSystem.Should().BeEquivalentTo(ws);
+        importedWritingSystem.Should().BeEquivalentTo(ws, c => c.Excluding(w => w.Id));//Id is not mapped from FW to Crdt as FW does not have an ID for writing systems
     }
 
     [Fact]
