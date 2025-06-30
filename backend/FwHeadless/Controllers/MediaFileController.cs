@@ -22,7 +22,7 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
-        if (!File.Exists(projectFolder)) return TypedResults.NotFound();
+        if (!Directory.Exists(projectFolder)) return TypedResults.NotFound();
         // Prevent directory-traversal attacks: no ".." allowed in relativePath
         if (relativePath.Contains(".."))
         {
