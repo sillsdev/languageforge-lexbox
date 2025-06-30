@@ -148,7 +148,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
-        await validators.ValidateAndThrow(writingSystem);
         var type = writingSystem.Type;
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
@@ -187,7 +186,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        await validators.ValidateAndThrow(update);
         if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
         {
             throw new InvalidOperationException($"Writing system {id.Code} not found");
@@ -209,7 +207,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
             async () =>
@@ -238,7 +235,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        await validators.ValidateAndThrow(partOfSpeech);
         IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
@@ -269,7 +265,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await PartOfSpeechSync.Sync(before, after, api ?? this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
@@ -358,7 +353,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        await validators.ValidateAndThrow(semanticDomain);
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
             "Remove semantic domain",
@@ -391,7 +385,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await SemanticDomainSync.Sync(before, after, api ?? this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
@@ -433,7 +426,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
@@ -466,7 +458,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, api ?? this);
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
     }
@@ -772,7 +763,6 @@ public class FwDataMiniLcmApi(
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
-        await validators.ValidateAndThrow(entry);
         try
         {
             UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
@@ -1099,7 +1089,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
@@ -1241,7 +1230,6 @@ public class FwDataMiniLcmApi(
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
-        await validators.ValidateAndThrow(sense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1266,7 +1254,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
@@ -1359,7 +1346,6 @@ public class FwDataMiniLcmApi(
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
-        await validators.ValidateAndThrow(exampleSentence);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
@@ -1391,7 +1377,6 @@ public class FwDataMiniLcmApi(
         ExampleSentence after,
         IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert Example Sentence",
             async () =>
