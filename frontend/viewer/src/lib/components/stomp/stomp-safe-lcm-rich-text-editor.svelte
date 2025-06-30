@@ -8,14 +8,14 @@
 
   let { value = $bindable(), ...rest}: Props = $props();
 
-  const guardedValue = new StompGuard(
+  const guard = new StompGuard(
     () => value,
     (newValue) => value = newValue
   );
 </script>
 
-<LcmRichTextEditor bind:value={guardedValue.value} {...mergeProps({
+<LcmRichTextEditor bind:value={guard.value} {...mergeProps({
   onchange: () => {
-    guardedValue.commitAndUnlock();
+    guard.commitAndUnlock();
   }
 }, rest)} />

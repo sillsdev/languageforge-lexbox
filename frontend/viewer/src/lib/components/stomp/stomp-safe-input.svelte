@@ -8,14 +8,14 @@
 
   let { value = $bindable(), ...rest}: Props = $props();
 
-  const guardedValue = new StompGuard(
+  const guard = new StompGuard(
     () => value,
     (newValue) => value = newValue
   );
 </script>
 
-<Input bind:value={guardedValue.value} {...mergeProps({
+<Input bind:value={guard.value} {...mergeProps({
   onchange: () => {
-    guardedValue.commitAndUnlock();
+    guard.commitAndUnlock();
   }
 }, rest)} />
