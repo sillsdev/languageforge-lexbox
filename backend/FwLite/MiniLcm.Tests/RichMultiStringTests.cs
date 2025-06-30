@@ -224,6 +224,16 @@ public class RichMultiStringTests
     }
 
     [Fact]
+    public void JsonPatchCanUpdateRichMultiStringWhenValueIsEmptyString()
+    {
+        var ms = new RichMultiString() { { "en", new RichString("test") } };
+        var patch = new JsonPatchDocument<RichMultiString>();
+        patch.Operations.Add(new Operation<RichMultiString>("replace", "/en", null, ""));
+        patch.ApplyTo(ms);
+        ms.Should().BeEmpty();
+    }
+
+    [Fact]
     public void JsonPatchCanRemoveRichMultiString()
     {
         var ms = new RichMultiString() { { "en", new RichString("test") } };

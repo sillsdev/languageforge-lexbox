@@ -161,19 +161,40 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
             };
         set
         {
-            var valStr = value as RichString ??
-                         throw new ArgumentException("unable to convert value to string", nameof(value));
-            if (key is WritingSystemId keyWs)
+            // value will be null if an empty string was deserialized as a RichString (e.g. from a JsonPatch operation).
+            // Usually that's what we want, because when deserializing a whole RichMultiString it will result in the key being dropped.
+            // So we mimic that behaviour.
+            if (value is null)
             {
-                this[keyWs] = valStr;
-            }
-            else if (key is string keyStr)
-            {
-                this[keyStr] = valStr;
+                if (key is WritingSystemId keyWs)
+                {
+                    Remove(keyWs);
+                }
+                else if (key is string keyStr)
+                {
+                    Remove(keyStr);
+                }
+                else
+                {
+                    throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+                }
             }
             else
             {
-                throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+                var valStr = value as RichString ??
+                             throw new ArgumentException("unable to convert value to string", nameof(value));
+                if (key is WritingSystemId keyWs)
+                {
+                    this[keyWs] = valStr;
+                }
+                else if (key is string keyStr)
+                {
+                    this[keyStr] = valStr;
+                }
+                else
+                {
+                    throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+                }
             }
         }
     }
