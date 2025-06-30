@@ -7,7 +7,6 @@ public record PostFileResult(Guid guid);
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum FileUploadErrorMessage
 {
-    ProjectIdRequiredForNewFiles,
     UploadedFilesCannotBeMovedToNewProjects,
     ProjectFolderNotFoundInFwHeadless,
 }

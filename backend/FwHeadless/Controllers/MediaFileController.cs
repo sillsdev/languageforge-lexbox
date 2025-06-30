@@ -82,7 +82,7 @@ public static class MediaFileController
 
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PutFile(
         Guid fileId,
-        [FromForm] Guid? projectId,
+        [FromForm] Guid projectId,
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
@@ -97,7 +97,7 @@ public static class MediaFileController
     [HttpPost]
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
         [FromQuery] Guid projectId,
-        [FromForm] Guid? fileId,
+        [FromForm] Guid fileId,
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
@@ -111,7 +111,7 @@ public static class MediaFileController
 
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> HandleFileUpload(
         Guid? fileId,
-        Guid? projectId,
+        Guid projectId,
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
@@ -120,44 +120,34 @@ public static class MediaFileController
         LexBoxDbContext lexBoxDb,
         bool newFilesAllowed)
     {
-        // Sanity check: reject ridiculously large uploads before doing any work
-        var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
-        if ((httpContext.Request.ContentLength is not null && httpContext.Request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
-        {
-            var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
-            return TypedResults.Problem(statusCode: 413, detail: detail);
-        }
-        if (fileId is null || fileId.Value == default)
-        {
-            fileId = Guid.NewGuid();
-        }
-        var replacingExistingFile = false;
-        metadata ??= new FileMetadata();
-        await InitMetadata(metadata, file, filename, httpContext.Request);
-        var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
-        if (mediaFile != null) replacingExistingFile = true;
+        if (CheckUploadSize(file, httpContext, config) is {} result) return result;
+        MediaFile? mediaFile;
+        bool replacingExistingFile;
         try
         {
-            (mediaFile, projectId) = CreateOrPopulateMediaFileDbEntity(lexBoxDb, mediaFile, fileId.Value, projectId, filename, file, metadata, newFilesAllowed);
+            (mediaFile, replacingExistingFile) = await CreateOrUpdateMediaFile(lexBoxDb,
+                fileId,
+                projectId,
+                filename,
+                file,
+                metadata,
+                newFilesAllowed,
+                httpContext,
+                config);
         }
         catch (NotFoundException) { return TypedResults.NotFound(); }
-        catch (ProjectIdRequiredForNewFiles) { return TypedResults.BadRequest(FileUploadErrorMessage.ProjectIdRequiredForNewFiles); }
         catch (UploadedFilesCannotBeMovedToNewProjects) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects); }
         catch (ProjectFolderNotFoundInFwHeadless) { return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless); }
         catch (FileTooLarge)
         {
-            var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
+            var detail = $"Max upload size is {config.Value.MaxUploadFileSizeBytes.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
             return TypedResults.Problem(statusCode: 413, detail: detail);
         }
-        filename = Path.GetFileName(mediaFile.Filename); // Strip GUID prefix for consistency with create-file path; we'll be adding it back later
-        var project = await lexBoxDb.Projects.FindAsync(projectId);
-        if (project is null) throw new NotFoundException();
-        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId.Value);
-        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, fileId.Value, filename, file, maxUploadSize);
+
         // Add ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
         var entityTag = mediaFile.Metadata!.Sha256Hash;
         httpContext.Response.Headers.ETag = $"\"{entityTag}\"";
-        var responseBody = new PostFileResult(fileId.Value);
+        var responseBody = new PostFileResult(mediaFile.Id);
         if (replacingExistingFile)
         {
             return TypedResults.Ok(responseBody);
@@ -168,6 +158,19 @@ public static class MediaFileController
             var newLocation = $"/api/media/{fileId}";
             return TypedResults.Created(newLocation, responseBody);
         }
+    }
+
+    private static ProblemHttpResult? CheckUploadSize(IFormFile file, HttpContext httpContext, IOptions<FwHeadlessConfig> config)
+    {
+        // Sanity check: reject ridiculously large uploads before doing any work
+        var maxUploadSize = config.Value.MaxUploadFileSizeBytes;
+        if ((httpContext.Request.ContentLength is not null && httpContext.Request.ContentLength > maxUploadSize) || file.Length > maxUploadSize)
+        {
+            var detail = $"Max upload size is {maxUploadSize.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
+            return TypedResults.Problem(statusCode: 413, detail: detail);
+        }
+
+        return null;
     }
 
     private static async Task<long> WriteFileToDisk(string filePath, Stream contents)
@@ -251,67 +254,63 @@ public static class MediaFileController
         return extraFields;
     }
 
-    private static async Task InitMetadata(FileMetadata metadata, IFormFile file, string? filename, HttpRequest httpRequest)
+    private static async Task<FileMetadata> InitMetadata(FileMetadata? metadata, IFormFile file, string filename, HttpRequest httpRequest)
     {
+        metadata ??= new FileMetadata();
         // HTTP Content-Type header will be "multipart/form-data; bondary=(something)". We want the content-type from the uploaded file, not HTTP
-        var mimeType = file.ContentType;
-        // Form entries not found in FileMetadata won't automatically be mapped into ExtraFields, we have to do it manually
-        var extraFields = await ExtraFieldsFromForm(httpRequest);
-        // If no filename specified in form, get it from uploaded file
-        if (string.IsNullOrEmpty(filename)) filename = file.FileName;
-        // If *still* no filename, then use `file.ext` where the extension is calculated from the Content-Type header, defaulting to `.bin` if not provided
-        if (string.IsNullOrEmpty(filename))
-        {
-            var ext = MimeUtility.GetExtensions(mimeType ?? "")?.FirstOrDefault() ?? "bin";
-            filename = $"file.{ext}";
-        }
+        var mimeType = !string.IsNullOrEmpty(metadata.MimeType) ?  metadata.MimeType : file.ContentType;
         // If we have a filename but no mime type, then try to guess it from the filename at this point
-        if (string.IsNullOrEmpty(mimeType)) mimeType = MimeUtility.GetMimeMapping(filename);
-        if (string.IsNullOrEmpty(metadata.MimeType)) metadata.MimeType = mimeType;
-        metadata.ExtraFields = extraFields;
+        if (string.IsNullOrEmpty(mimeType))
+            mimeType = MimeUtility.GetMimeMapping(filename);
+        metadata.MimeType = mimeType;
+        // Form entries not found in FileMetadata won't automatically be mapped into ExtraFields, we have to do it manually
+        metadata.ExtraFields = await ExtraFieldsFromForm(httpRequest);
+        return metadata;
     }
 
     private class NotFoundException : Exception;
-    private class ProjectIdRequiredForNewFiles : Exception;
     private class UploadedFilesCannotBeMovedToNewProjects : Exception;
     private class ProjectFolderNotFoundInFwHeadless : Exception;
     private class FileTooLarge : Exception;
-    private static (MediaFile, Guid) CreateOrPopulateMediaFileDbEntity(
+    private static async Task<(MediaFile, bool newFile)> CreateOrUpdateMediaFile(
         LexBoxDbContext lexBoxDb,
-        MediaFile? mediaFile,
-        Guid fileId,
-        Guid? projectId,
+        Guid? fileId,
+        Guid projectId,
         string? filename,
         IFormFile file,
-        FileMetadata metadata,
-        bool newFilesAllowed)
+        FileMetadata? metadata,
+        bool newFilesAllowed,
+        HttpContext httpContext,
+        IOptions<FwHeadlessConfig> config)
     {
+        if (fileId is null || fileId.Value == default)
+        {
+            fileId = Guid.NewGuid();
+        }
+        var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+        var newFile = mediaFile is null;
         if (mediaFile is null && !newFilesAllowed)
         {
             // PUT requests must modify an existing file and return 404 if it doesn't exist
             throw new NotFoundException();
         }
-        if (mediaFile is null && projectId is null)
-        {
-            throw new ProjectIdRequiredForNewFiles();
-        }
-        projectId ??= mediaFile?.ProjectId;
+
+        // If no filename specified in form, get it from uploaded file
+        if (string.IsNullOrEmpty(filename)) filename = file.FileName;
+        metadata = await InitMetadata(metadata, file, filename, httpContext.Request);
         if (mediaFile is null)
         {
-            // If no filename specified in form, get it from uploaded file
-            if (string.IsNullOrEmpty(filename)) filename = file.FileName;
             mediaFile = new MediaFile()
             {
-                Id = fileId,
+                Id = fileId.Value,
                 Filename = Path.Join(fileId.ToString(), filename),
-                ProjectId = projectId!.Value,
+                ProjectId = projectId,
                 Metadata = metadata,
             };
             lexBoxDb.Files.Add(mediaFile);
         }
         else
         {
-            projectId ??= mediaFile.ProjectId;
             if (projectId != mediaFile.ProjectId)
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
@@ -319,25 +318,23 @@ public static class MediaFileController
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
             else mediaFile.Metadata.Merge(metadata);
         }
-        return (mediaFile, projectId.Value);
+
+        var project = await lexBoxDb.Projects.FindAsync(projectId);
+        if (project is null) throw new NotFoundException();
+        var projectFolder = config.Value.GetProjectFolder(project.Code, projectId);
+        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, file, config.Value.MaxUploadFileSizeBytes);
+        return (mediaFile, newFile);
     }
 
-    private static async Task WriteFileAndUpdateMediaFileMetadata(
-        LexBoxDbContext lexBoxDb,
-        MediaFile mediaFile,
-        string? projectFolder,
-        Guid fileId,
-        string filename,
-        IFormFile file,
-        long maxUploadSize)
+    private static async Task WriteFileAndUpdateMediaFileMetadata(LexBoxDbContext lexBoxDb, MediaFile mediaFile, string projectFolder, IFormFile file, long maxUploadSize)
     {
-        if (projectFolder is null || !Directory.Exists(projectFolder))
+        if (!Directory.Exists(projectFolder))
         {
             throw new ProjectFolderNotFoundInFwHeadless();
         }
-        var fileFolder = Path.Join(projectFolder, fileId.ToString());
-        Directory.CreateDirectory(fileFolder);
-        var filePath = Path.Join(fileFolder, filename);
+
+        Directory.CreateDirectory(Path.Join(projectFolder, mediaFile.Id.ToString()));
+        var filePath = Path.Join(projectFolder, mediaFile.Filename);
         if (mediaFile.Metadata is not null) mediaFile.Metadata.SizeInBytes = (int)file.Length;
         long writtenLength = 0;
         await using (var readStream = file.OpenReadStream())
