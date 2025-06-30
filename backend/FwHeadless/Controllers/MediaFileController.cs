@@ -98,7 +98,7 @@ public static class MediaFileController
     [HttpPost]
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
         [FromQuery] Guid projectId,
-        [FromForm] Guid fileId,
+        [FromForm] Guid? fileId,
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
@@ -123,10 +123,10 @@ public static class MediaFileController
     {
         if (CheckUploadSize(file, httpContext, config) is {} result) return result;
         MediaFile? mediaFile;
-        bool replacingExistingFile;
+        bool newFile;
         try
         {
-            (mediaFile, replacingExistingFile) = await CreateOrUpdateMediaFile(lexBoxDb,
+            (mediaFile, newFile) = await CreateOrUpdateMediaFile(lexBoxDb,
                 fileId,
                 projectId,
                 filename,
@@ -149,15 +149,15 @@ public static class MediaFileController
         var entityTag = mediaFile.Metadata!.Sha256Hash;
         httpContext.Response.Headers.ETag = $"\"{entityTag}\"";
         var responseBody = new PostFileResult(mediaFile.Id);
-        if (replacingExistingFile)
-        {
-            return TypedResults.Ok(responseBody);
-        }
-        else
+        if (newFile)
         {
             // TODO: Put "/api/media" into a constant so if it changes in MediaFileRoutes it will change here as well
             var newLocation = $"/api/media/{fileId}";
             return TypedResults.Created(newLocation, responseBody);
+        }
+        else
+        {
+            return TypedResults.Ok(responseBody);
         }
     }
 

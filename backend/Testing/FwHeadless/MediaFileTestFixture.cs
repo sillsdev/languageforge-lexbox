@@ -112,6 +112,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             {
                 formData.Add(JsonContent.Create(metadata), name: "metadata");
             }
+            formData.Add(new StringContent(ProjectId.ToString()), name: "projectId");
             var stream = new StreamContent(File.OpenRead(localPath));
             formData.Add(stream, name: "file", fileName: filename);
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/media/{fileId}");
@@ -138,8 +139,6 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             if (!hash.StartsWith('"')) hash = "\"" + hash;
             if (!hash.EndsWith('"')) hash = hash + "\"";
             var header = new EntityTagHeaderValue(hash, isWeak: false);
-            Console.WriteLine(header.Tag);
-            Console.WriteLine(header.ToString());
             request.Headers.IfNoneMatch.Add(header);
         }
         if (startAt > 0)

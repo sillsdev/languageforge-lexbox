@@ -49,8 +49,8 @@ public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
     }
 
     [Theory]
-    [InlineData("admin")]
-    [InlineData("user")]
+    [InlineData("manager")]
+    [InlineData("editor")]
     public async Task UploadFile_WorksForProjectMembers(string loginAs)
     {
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: loginAs);
