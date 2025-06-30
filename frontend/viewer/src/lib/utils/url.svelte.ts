@@ -1,5 +1,5 @@
 import {createSubscriber} from 'svelte/reactivity';
-import {makeHistoryChange} from './history-orchestrator';
+import {queueHistoryChange} from './history';
 import {useLocation} from 'svelte-routing';
 
 export interface QueryParamStateConfig {
@@ -21,6 +21,11 @@ export class QueryParamState {
     return this.#current;
   }
 
+  readonly #id = crypto.randomUUID().split('-')[0];
+  private get fullKey() {
+    return `QueryParamState-${this.#id}-${this.config.key}`;
+  };
+
   #waitingForHistoryChange: boolean = false;
 
   public set current(value: string) {
@@ -32,37 +37,38 @@ export class QueryParamState {
 
   private async updateHistory(): Promise<void> {
     const isDefault = this.#current === this.defaultValue;
-    const isTeardown = this.config.replaceOnDefaultValue && isDefault;
     this.#waitingForHistoryChange = true;
-    await makeHistoryChange(() => {
-      const currentUrl = new URL(document.location.href);
-      if (isDefault) {
-        currentUrl.searchParams.delete(this.config.key);
-      } else {
-        currentUrl.searchParams.set(this.config.key, this.#current);
-      }
-      if (isTeardown) {
-        if (this.config.allowBack) {
-          if (!this.isOnTopOfHistoryStack()) {
-            console.warn(`${this.fullKey}: wanted to pop history, but not on top of history stack, ignoring, history entry not removed.`);
-            return;
+    await queueHistoryChange(() => {
+      try {
+        const currentUrl = new URL(document.location.href);
+        if (isDefault) {
+          currentUrl.searchParams.delete(this.config.key);
+        } else {
+          currentUrl.searchParams.set(this.config.key, this.#current);
+        }
+        if (this.config.replaceOnDefaultValue && isDefault) {
+          if (this.config.allowBack) {
+            if (!this.isOnTopOfHistoryStack()) {
+              console.warn(`${this.fullKey}: wanted to pop history, but not on top of history stack, ignoring, history entry not removed.`);
+              return;
+            }
+            //the last history event was pushed by us so we need to just go back otherwise the next back will do nothing
+            history.go(-1);
+            return {triggeredPopstate: true};
+          } else {
+            history.replaceState(null, '', currentUrl.href);
           }
-          //the last history event was pushed by us so we need to just go back otherwise the next back will do nothing
-          history.go(-1);
-          return { triggeredPopstate: true };
         } else {
-          history.replaceState(null, '', currentUrl.href);
+          if (this.config.allowBack) {
+            history.pushState({pushKey: this.fullKey}, '', currentUrl.href);
+          } else {
+            history.replaceState(null, '', currentUrl.href);
+          }
         }
-      } else {
-        if (this.config.allowBack) {
-          console.log(`Pushing history state for key "${this.fullKey}" with value "${this.#current}" (${currentUrl.href}).`);
-          history.pushState({pushKey: this.fullKey}, '', currentUrl.href);
-        } else {
-          history.replaceState(null, '', currentUrl.href);
-        }
+      } finally {
+        this.#waitingForHistoryChange = false;
       }
     }, this.fullKey);
-    this.#waitingForHistoryChange = false;
   }
 
   private isOnTopOfHistoryStack() {
@@ -70,11 +76,6 @@ export class QueryParamState {
     const pushKey = state && typeof state === 'object' && 'pushKey' in state ? state.pushKey as string : undefined;
     return pushKey === this.fullKey;
   }
-
-  readonly #id = crypto.randomUUID().split('-')[0];
-  private get fullKey() {
-    return `QueryParamState-${this.#id}-${this.config.key ?? ''}`;
-  };
 
   constructor(private config: QueryParamStateConfig, private defaultValue: string = '') {
     const location = useLocation();

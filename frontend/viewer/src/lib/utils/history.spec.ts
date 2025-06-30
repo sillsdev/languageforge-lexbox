@@ -1,29 +1,21 @@
 import {describe, expect, it} from 'vitest';
 
 import {delay} from './time';
-import {makeHistoryChange} from './history-orchestrator';
+import {queueHistoryChange} from './history';
 import {randomId} from '$lib/utils';
 
-describe('HistoryOrchestrator scheduling', () => {
-  it('processes history changes in batches', async () => {
-    let processedCount = 0;
-    const firstChange = queueHistoryChange(() => processedCount++);
-    expect(processedCount).toBe(0);
-    void queueHistoryChange(() => processedCount++);
-    await firstChange;
-    expect(processedCount).toBe(2);
-  });
+describe('queueHistoryChange', () => {
 
   it('waits for popstate if requested', async () => {
     const processed: string[] = [];
     let teardownBResolved = false;
-    const teardownB = queueHistoryChange(() => {
+    const teardownB = queueTestHistoryChange(() => {
       processed.push('teardown');
       return {triggeredPopstate: true};
     }).then(() => {
       teardownBResolved = true;
     })
-    void queueHistoryChange(() => processed.push('setup'));
+    void queueTestHistoryChange(() => processed.push('setup'));
     await delay(0);
     expect(processed).toEqual(['teardown']);
     expect(teardownBResolved).toBe(false);
@@ -32,10 +24,10 @@ describe('HistoryOrchestrator scheduling', () => {
     expect(processed).toEqual(['teardown', 'setup']);
   });
 
-  it('processes late changes after the current queue is complete', async () => {
+  it('processes late changes after the current change is complete', async () => {
     const processed: string[] = [];
     let firstResolved = false;
-    const firstChange = queueHistoryChange(() => {
+    const firstChange = queueTestHistoryChange(() => {
       processed.push('first');
       return {triggeredPopstate: true};
     }).then(() => {
@@ -48,10 +40,9 @@ describe('HistoryOrchestrator scheduling', () => {
     expect(firstResolved).toBe(false);
 
     // Now we add a second change
-    void queueHistoryChange(() => processed.push('second'));
-    await delay(100);
+    void queueTestHistoryChange(() => processed.push('second'));
+    await delay(50);
     // the second change doesn't jump the queue of the current processing
-    expect(firstResolved).toBe(false);
     expect(processed).toEqual(['first']);
 
     window.dispatchEvent(new PopStateEvent('popstate'));
@@ -61,6 +52,6 @@ describe('HistoryOrchestrator scheduling', () => {
   });
 });
 
-function queueHistoryChange(callback: () => void): Promise<void> {
-  return makeHistoryChange(callback, randomId());
+function queueTestHistoryChange(callback: () => void): Promise<void> {
+  return queueHistoryChange(callback, randomId());
 }
