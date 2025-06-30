@@ -1,5 +1,4 @@
 <script module lang="ts">
-  import { writingSystems } from '$lib/demo-entry-data';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { expect, fn, userEvent, within } from 'storybook/test';
   import {tick} from 'svelte';
