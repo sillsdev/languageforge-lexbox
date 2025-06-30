@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace Testing.FwHeadless;
 
 [Trait("Category", "Integration")]
-public class MediaFileTests : ApiTestBase, IClassFixture<MediaFileTestFixture>
+public class MediaFileTests : IClassFixture<MediaFileTestFixture>
 {
     private MediaFileTestFixture Fixture { get; init; }
     private readonly FileInfo TestRepoZip = IntegrationFixture.TemplateRepoZip;
