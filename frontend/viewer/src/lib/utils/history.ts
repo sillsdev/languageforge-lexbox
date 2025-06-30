@@ -10,15 +10,15 @@ type HistoryChange = {
 
 const historyQueue: HistoryChange[] = [];
 
-let proccessingPromise: Promise<void> | null = null;
+let processingPromise: Promise<void> | null = null;
 export function queueHistoryChange(callback: HistoryChanger, key: string): Promise<void> {
   const historyPromise = new Promise<void>(resolve => {
     const change = {callback, key, resolve};
     historyQueue.push(change);
   });
   // ensure the queue is being processed
-  proccessingPromise ??= processHistory().finally(() => {
-    proccessingPromise = null;
+  processingPromise ??= processHistory().finally(() => {
+    processingPromise = null;
   });
   // we don't wait for the whole queue, just for our change
   return historyPromise;

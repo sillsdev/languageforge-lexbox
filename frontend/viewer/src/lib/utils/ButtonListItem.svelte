@@ -10,12 +10,13 @@
     disabled?: boolean;
   }
 
-  let { href, children, ...rest }: Props = $props();
+  let { href, children, disabled, ...rest }: Props = $props();
 
   const mergedProps = $derived(mergeProps({
-    class: cn('button-list-item w-full text-start', rest.disabled && 'pointer-events-none'),
+    class: cn('button-list-item w-full text-start', disabled && 'pointer-events-none'),
     role: 'button',
     tabindex: 0,
+    disabled,
   }, rest));
 </script>
 
