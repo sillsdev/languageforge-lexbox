@@ -29,26 +29,34 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
     {
         if (dbContext is null) return;
         List<Entry> toUpdate = [];
+        List<WritingSystem> newWritingSystems = [];
         foreach (var group in dbContext.ChangeTracker.Entries()
-                     .Where(e => e is { State: EntityState.Added or EntityState.Modified, Entity: Entry or Sense })
+                     .Where(e => e is { State: EntityState.Added or EntityState.Modified, Entity: Entry or Sense or WritingSystem })
                      .GroupBy(e =>
                      {
                          return e.Entity switch
                          {
                              Entry entry => entry.Id,
                              Sense sense => sense.EntryId,
+                             WritingSystem => new Guid?(),
                              _ => throw new InvalidOperationException(
                                  $"Entity is not Entry or Sense: {e.Entity.GetType().Name}")
                          };
                      }))
         {
-            toUpdate.Add(await ForUpdate(group, dbContext));
+            if (group.Key is null)
+            {
+                //writing system
+                newWritingSystems.AddRange(group.Where(e => e.State == EntityState.Added).Select(e =>(WritingSystem) e.Entity));
+                continue;
+            }
+            toUpdate.Add(await ForUpdate(group, group.Key.Value, dbContext));
         }
         if (toUpdate is []) return;
-        await EntrySearchService.UpdateEntrySearchTable(toUpdate, (LcmCrdtDbContext)dbContext);
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, newWritingSystems, (LcmCrdtDbContext)dbContext);
     }
 
-    private async Task<Entry> ForUpdate(IGrouping<Guid, EntityEntry> group, DbContext dbContext)
+    private async Task<Entry> ForUpdate(IEnumerable<EntityEntry> group, Guid entryId, DbContext dbContext)
     {
         var entities = group.ToArray();
         //scope created so the entry variables don't collide
@@ -61,11 +69,11 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 
         var fullEntry = await dbContext.Set<Entry>()
             .Include(e => e.Senses)
-            .FirstOrDefaultAsync(e => e.Id == group.Key);
+            .FirstOrDefaultAsync(e => e.Id == entryId);
         if (fullEntry is null)
         {
             //null when a new entry is added along with some senses
-            fullEntry = new Entry() { Id = group.Key };
+            fullEntry = new Entry() { Id = entryId };
         }
 
         foreach (var entity in entities)
