@@ -1,4 +1,6 @@
 using FwLiteProjectSync.Tests.Fixtures;
+using LcmCrdt;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Models;
 
@@ -12,6 +14,8 @@ public class ImportTests : IClassFixture<SyncFixture>
     public ImportTests(SyncFixture fixture)
     {
         _fixture = fixture;
+        //hopefully avoid race conditions where linq2db uses it's own connection
+        _fixture.Services.GetRequiredService<LcmCrdtDbContext>().Database.OpenConnection();
     }
 
     [Fact]
