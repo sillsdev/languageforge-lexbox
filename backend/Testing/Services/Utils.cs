@@ -85,7 +85,7 @@ public static class Utils
     }
 
     public static async Task AddMemberToProject(
-        ProjectConfig config,
+        Guid projectId,
         ApiTestBase apiTester,
         string usernameOrEmail,
         ProjectRole role,
@@ -95,7 +95,7 @@ public static class Utils
         await apiTester.ExecuteGql($$"""
             mutation {
                 addProjectMember(input: {
-                    projectId: "{{config.Id}}",
+                    projectId: "{{projectId}}",
                     usernameOrEmail: "{{usernameOrEmail}}"
                     role: {{role.ToString().ToUpper()}}
                     canInvite: false
@@ -115,6 +115,17 @@ public static class Utils
                 }
             }
             """, overrideJwt: overrideJwt);
+    }
+
+    public static Task AddMemberToProject(
+        ProjectConfig config,
+        ApiTestBase apiTester,
+        string usernameOrEmail,
+        ProjectRole role,
+        string? overrideJwt = null
+    )
+    {
+        return AddMemberToProject(config.Id, apiTester, usernameOrEmail, role, overrideJwt);
     }
 
     public static void ValidateSendReceiveOutput(string srOutput)

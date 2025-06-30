@@ -5,6 +5,7 @@ using System.Text;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Controllers;
+using LexBoxApi.Proxies;
 using LexCore.Auth;
 using LexData;
 using LexSyncReverseProxy;
@@ -65,6 +66,25 @@ public static class AuthKernel
                     policyBuilder.RequireAuthenticatedUser()
                         .AddRequirements(
                             new UserHasAccessToProjectRequirement(),
+                            new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
+                        );
+                });
+
+            options.AddPolicy(FileUploadProxy.UserCanDownloadMediaFilesPolicy,
+                builder =>
+                {
+                    builder.RequireAuthenticatedUser()
+                        .AddRequirements(
+                            new MediaFilesRequirement(false),
+                            new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
+                        );
+                });
+            options.AddPolicy(FileUploadProxy.UserCanUploadMediaFilesPolicy,
+                builder =>
+                {
+                    builder.RequireAuthenticatedUser()
+                        .AddRequirements(
+                            new MediaFilesRequirement(true),
                             new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
                         );
                 });

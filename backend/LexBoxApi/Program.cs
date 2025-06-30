@@ -8,6 +8,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.ErrorHandling;
 using LexBoxApi.Hub;
 using LexBoxApi.Otel;
+using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Exceptions;
@@ -201,6 +202,7 @@ app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 //should normally be handled by svelte, but if it does reach this we need to return a 401, otherwise we'll get stuck in a redirect loop
 app.Map("/login", Results.Unauthorized).AllowAnonymous();
 
+app.MapFileUploadProxy();
 app.MapSyncProxy(AuthKernel.DefaultScheme);
 
 await app.RunAsync();

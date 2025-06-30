@@ -2,6 +2,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
 using LexBoxApi.GraphQL.CustomTypes;
+using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexBoxApi.Services.FwLiteReleases;
@@ -45,6 +46,10 @@ public static class LexBoxKernel
             .BindConfiguration("Tus")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<MediaFileConfig>()
+            .BindConfiguration("MediaFileConfig")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddOptions<HealthChecksConfig>()
             .BindConfiguration("HealthChecks")
             .ValidateDataAnnotations()
@@ -84,6 +89,7 @@ public static class LexBoxKernel
             // .AddCheck<FwHeadlessHealthCheck>("fw-headless", HealthStatus.Unhealthy, ["fw-headless"], TimeSpan.FromSeconds(5))
             ;
         services.AddSyncProxy();
+        services.AddFileUploadProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
     }
