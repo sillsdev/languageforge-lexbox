@@ -34,6 +34,7 @@
     <ProjectReference Include="..\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj" />
     <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
     <ProjectReference Include="..\FwLiteWeb\FwLiteWeb.csproj" />
+    <ProjectReference Include="..\LcmCrdt.Tests\LcmCrdt.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- json files get imported by default in web projects, so exclude those here so they aren't imported again below -->

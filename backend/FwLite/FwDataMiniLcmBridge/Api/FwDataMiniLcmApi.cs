@@ -597,9 +597,12 @@ public class FwDataMiniLcmApi(
             ComponentEntryId = component.Guid,
             ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown()
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            Order = Order(component, complexEntry)
         };
     }
+
+
 
     private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
     {
@@ -609,8 +612,29 @@ public class FwDataMiniLcmApi(
             ComponentSenseId = componentSense.Guid,
             ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown()
+            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            Order = Order(componentSense, complexEntry)
         };
+    }
+
+    private static int Order(ICmObject component, ILexEntry complexEntry)
+    {
+        int order = 0;
+        foreach (var entryRef in complexEntry.ComplexFormEntryRefs)
+        {
+            var foundIndex = entryRef.ComponentLexemesRS.IndexOf(component);
+            if (foundIndex == -1)
+            {
+                order += entryRef.ComponentLexemesRS.Count;
+            }
+            else
+            {
+                order += foundIndex + 1;
+                break;
+            }
+        }
+
+        return order;
     }
 
     private Sense FromLexSense(ILexSense sense)
@@ -907,6 +931,8 @@ public class FwDataMiniLcmApi(
     {
         var lexComponent = FindSenseOrEntryComponent(component);
         InsertComplexFormComponent(lexComplexForm, lexComponent, between);
+        //match the behavior of Crdt to satisfy tests
+        component.Order = Order(lexComponent, lexComplexForm);
     }
 
     internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)

@@ -43,6 +43,8 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
 
     private void ShouldAllBeEquivalentTo(Dictionary<Guid, Entry> crdtEntries, Dictionary<Guid, Entry> fwdataEntries)
     {
+        crdtEntries.Keys.Except(fwdataEntries.Keys).Should().BeEmpty("there should be no entries in CRDT that are not in FwData");
+        fwdataEntries.Keys.Except(crdtEntries.Keys).Should().BeEmpty("there should be no entries in FwData that are not in CRDT");
         crdtEntries.Keys.Should().BeEquivalentTo(fwdataEntries.Keys);
         using (new AssertionScope())
         {
