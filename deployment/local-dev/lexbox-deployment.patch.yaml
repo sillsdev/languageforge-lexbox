@@ -23,8 +23,8 @@ spec:
                 memory: 2Gi
         volumeMounts:
 #          used for prod builds just to make these dirs writable
-          - mountPath: /var/www
-            name: www
+#          - mountPath: /var/www
+#            name: www
           - mountPath: /frontend
             name: frontend
         env:
