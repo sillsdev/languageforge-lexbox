@@ -2,7 +2,7 @@
   "name": "https-proxy",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.12.3",
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
