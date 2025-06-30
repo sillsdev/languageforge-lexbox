@@ -122,7 +122,7 @@
     <ResponsiveMenu.Root>
       <ResponsiveMenu.Trigger />
       <ResponsiveMenu.Content>
-        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} icon="i-mdi-chat-question">
+        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
           {$t`Feedback`}
         </ResponsiveMenu.Item>
         {#if supportsTroubleshooting}
