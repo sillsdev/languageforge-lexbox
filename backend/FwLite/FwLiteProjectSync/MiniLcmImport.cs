@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FwDataMiniLcmBridge;
+using FwLiteProjectSync.Import;
 using Humanizer;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,7 @@ public class MiniLcmImport(
     public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
+        importTo = new ResumableImportApi(importTo);
         await ImportWritingSystems(importTo, importFrom);
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
@@ -68,31 +70,11 @@ public class MiniLcmImport(
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
         }
 
+        logger.LogInformation("Importing semantic domains");
+        await importTo.BulkImportSemanticDomains(importFrom.GetSemanticDomains());
+        logger.LogInformation("Importing {Count} entries", entryCount);
+        await importTo.BulkCreateEntries(importFrom.GetAllEntries());
 
-        var semanticDomains = importFrom.GetSemanticDomains();
-        var entries = importFrom.GetAllEntries();
-        if (importTo is CrdtMiniLcmApi crdtLexboxApi)
-        {
-            logger.LogInformation("Importing semantic domains");
-            await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains.ToBlockingEnumerable());
-            logger.LogInformation("Importing {Count} entries", entryCount);
-            await crdtLexboxApi.BulkCreateEntries(entries);
-        }
-        else
-        {
-            await foreach (var semanticDomain in semanticDomains)
-            {
-                await importTo.CreateSemanticDomain(semanticDomain);
-                logger.LogTrace("Imported semantic domain {Id}", semanticDomain.Id);
-            }
-
-            var index = 0;
-            await foreach (var entry in entries)
-            {
-                await importTo.CreateEntry(entry);
-                logger.LogTrace("Imported entry, {Index} of {Count} {Id}", index++, entryCount, entry.Id);
-            }
-        }
 
         activity?.SetTag("app.import.entries", entryCount);
         logger.LogInformation("Imported {Count} entries", entryCount);

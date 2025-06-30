@@ -98,12 +98,13 @@ public static class EntryFakerHelper
                 {
                     complexFormComponent.ComponentHeadword = createdEntry.Headword();
                     complexFormComponent.ComplexFormHeadword = entry.Headword();
+                    complexFormComponent.Order = i++;
                 } else
                 {
                     complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
                     complexFormComponent.ComponentHeadword = entry.Headword();
+                    complexFormComponent.Order = 1;
                 }
-                i++;
             }
         }
 
