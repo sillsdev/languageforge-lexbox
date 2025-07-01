@@ -87,12 +87,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        [FromForm] string? LinkedFilesSubfolderOverride,
+        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, LinkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: false);
         return result;
     }
 
@@ -103,12 +103,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        [FromForm] string? LinkedFilesSubfolderOverride,
+        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, LinkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: true);
         return result;
     }
 
@@ -118,7 +118,7 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
-        string? LinkedFilesSubfolderOverride,
+        string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
@@ -135,7 +135,7 @@ public static class MediaFileController
                 filename,
                 file,
                 metadata,
-                LinkedFilesSubfolderOverride,
+                linkedFilesSubfolderOverride,
                 newFilesAllowed,
                 httpContext,
                 config);

@@ -72,7 +72,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             }
             if (overrideSubfolder is not null)
             {
-                formData.Add(new StringContent(overrideSubfolder), name: "LinkedFilesSubfolderOverride");
+                formData.Add(new StringContent(overrideSubfolder), name: "linkedFilesSubfolderOverride");
             }
             if (metadata is not null)
             {
@@ -116,7 +116,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             }
             if (overrideSubfolder is not null)
             {
-                formData.Add(new StringContent(overrideSubfolder), name: "LinkedFilesSubfolderOverride");
+                formData.Add(new StringContent(overrideSubfolder), name: "linkedFilesSubfolderOverride");
             }
             if (metadata is not null)
             {
