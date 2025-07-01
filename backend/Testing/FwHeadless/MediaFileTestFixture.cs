@@ -60,7 +60,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return (await result.Content.ReadFromJsonAsync<FileListing>(), result);
     }
 
-    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -93,6 +93,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
                 }
             }
             var stream = new StreamContent(File.OpenRead(localPath));
+            if (contentType is not null) stream.Headers.ContentType = new(contentType);
             formData.Add(stream, name: "file", fileName: filename);
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/media/?projectId={ProjectId}");
             request.Content = formData;
@@ -103,7 +104,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         }
     }
 
-    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, string? overrideSubfolder = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin")
+    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -123,6 +124,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             }
             formData.Add(new StringContent(ProjectId.ToString()), name: "projectId");
             var stream = new StreamContent(File.OpenRead(localPath));
+            if (contentType is not null) stream.Headers.ContentType = new(contentType);
             formData.Add(stream, name: "file", fileName: filename);
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/media/{fileId}");
             request.Content = formData;
