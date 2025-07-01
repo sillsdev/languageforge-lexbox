@@ -1178,13 +1178,19 @@ public class FwDataMiniLcmApi(
             }
             else
             {
-                // todo the user might have wanted it to be a subsense of previousSense
-                var allSiblings = previousSense.Owner == lexEntry ? lexEntry.SensesOS
-                    : previousSense.Owner is ILexSense parentSense ? parentSense.SensesOS
+                var owner = previousSense.Owner;
+                // prefer flat hierarchies: if the previous sense is the last subsense of its parent, we can promote lexSense
+                while (owner is ILexSense parent && previousSense == parent.SensesOS.LastOrDefault())
+                {
+                    owner = parent.Owner;
+                    previousSense = parent;
+                }
+                var allSiblings = owner == lexEntry ? lexEntry.SensesOS
+                    : owner is ILexSense parentSense ? parentSense.SensesOS
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
                 var insertI = allSiblings.IndexOf(previousSense) + 1;
                 // ILcmOwningSequence treats an insert as a move if the item is already in it
-                lexEntry.SensesOS.Insert(insertI, lexSense);
+                allSiblings.Insert(insertI, lexSense);
             }
             return;
         }
@@ -1198,7 +1204,7 @@ public class FwDataMiniLcmApi(
                     : throw new InvalidOperationException("Sense parent is not a sense or the expected entry");
             var insertI = allSiblings.IndexOf(nextSense);
             // ILcmOwningSequence treats an insert as a move if the item is already in it
-            lexEntry.SensesOS.Insert(insertI, lexSense);
+            allSiblings.Insert(insertI, lexSense);
             return;
         }
 
