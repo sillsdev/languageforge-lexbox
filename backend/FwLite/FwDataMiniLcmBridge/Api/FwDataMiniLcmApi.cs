@@ -1120,6 +1120,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString.Values)
         {
+            if (ws.IsAudio) throw new NotImplementedException();
             var writingSystemHandle = GetWritingSystemHandle(ws);
             multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
         }
@@ -1129,6 +1130,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString)
         {
+            if (ws.IsAudio) throw new NotImplementedException();
             var writingSystemHandle = GetWritingSystemHandle(ws);
             multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
         }
