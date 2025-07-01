@@ -75,18 +75,7 @@ public class MultiString: IDictionary
         {
             var valStr = value as string ??
                          throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string", nameof(value));
-            if (key is WritingSystemId keyWs)
-            {
-                Add(keyWs, valStr);
-            }
-            else if (key is string keyStr)
-            {
-                Add(keyStr, valStr);
-            }
-            else
-            {
-                throw new ArgumentException("unable to convert key to writing system id", nameof(key));
-            }
+            Add(WritingSystemId.FromUnknown(key), valStr);
         }
     }
 
