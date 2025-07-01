@@ -7,9 +7,16 @@
   import SenseEditorPrimitive from '../entry-editor/object-editors/SenseEditorPrimitive.svelte';
   import {type HistoryItem, useHistoryService} from '../services/history-service';
   import {EditorGrid} from '$lib/components/editor';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
   export let id: string;
   export let open: boolean;
+
+  useBackHandler({
+    addToStack: () => open,
+    onBack: () => open = false,
+    key: 'history-view'
+  });
 
   let loading = false;
   let record: HistoryItem | undefined;

@@ -1,20 +1,38 @@
 <script lang="ts">
-  export let href: string | undefined = undefined;
+  import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import {cn} from '$lib/utils';
+  import {mergeProps} from 'bits-ui';
+  import type {HTMLAttributes} from 'svelte/elements';
+  import type {HTMLAnchorAttributes} from 'svelte/elements';
+
+  type Props = HTMLAttributes<HTMLButtonElement> & HTMLAnchorAttributes & {
+    href?: string | undefined;
+    disabled?: boolean;
+  }
+
+  let { href, children, disabled, ...rest }: Props = $props();
+
+  const mergedProps = $derived(mergeProps({
+    class: cn('button-list-item w-full text-start', disabled && 'pointer-events-none'),
+    role: 'button',
+    tabindex: 0,
+    disabled,
+  }, rest));
 </script>
 
-<svelte:element
-  this={href ? 'a' : 'button'}
-  on:click
-  {href}
-  {...$$restProps}
-  class="button-list-item w-full text-start"
-  class:pointer-events-none={$$restProps.disabled}
-  role="button"
-  tabindex="0">
-  <div></div> <!-- avoid internal first: styles -->
-  <slot />
-  <div></div> <!-- avoid internal last: styles -->
-</svelte:element>
+{#snippet content()}
+  <div></div>
+  {@render children?.()}
+  <div></div>
+{/snippet}
+
+{#if href}
+  <Anchor {href} children={content} {...mergedProps} />
+{:else}
+  <button {...mergedProps} type="button">
+    {@render content()}
+  </button>
+{/if}
 
 <style lang="postcss">
   .button-list-item {

@@ -51,6 +51,7 @@
   import {cn} from '$lib/utils.js';
   import {Icon} from '../icon';
   import {slide} from 'svelte/transition';
+  import Anchor from '../anchor/anchor.svelte';
 
   let {
     class: className,
@@ -86,9 +87,9 @@
 {/snippet}
 
 {#if href}
-  <a bind:this={ref} class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
+  <Anchor bind:ref class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
     {@render content()}
-  </a>
+  </Anchor>
 {:else}
   <button
     bind:this={ref}

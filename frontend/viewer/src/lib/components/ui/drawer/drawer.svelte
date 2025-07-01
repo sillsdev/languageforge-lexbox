@@ -10,7 +10,7 @@
     ...restProps
   }: DrawerPrimitive.RootProps = $props();
 
-  useBackHandler({addToStack: () => open && IsMobile.value, onBack: () => open = false});
+  useBackHandler({addToStack: () => open && IsMobile.value, onBack: () => open = false, key: 'drawer'});
 </script>
 
 <DrawerPrimitive.Root {shouldScaleBackground} bind:open bind:activeSnapPoint {...restProps} />

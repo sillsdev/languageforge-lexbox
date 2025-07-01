@@ -16,7 +16,7 @@
   import {pt} from '$lib/views/view-text';
 
   let open = $state(false);
-  useBackHandler({addToStack: () => open, onBack: () => open = false});
+  useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
   let loading = $state(false);
   let entry: IEntry = $state(defaultEntry());
 
