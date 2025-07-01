@@ -41,7 +41,7 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
         var valStr = value as RichString ??
                      throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
                          nameof(value));
-        Add(WritingSystemId.FromUnknown(value), valStr);
+        Add(WritingSystemId.FromUnknown(key), valStr);
     }
 
     public void Add(WritingSystemId key, RichString value)
