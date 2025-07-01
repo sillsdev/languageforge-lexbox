@@ -29,7 +29,7 @@ public static class MediaFileController
             // This will also fail for any requests with ".." in the name of a directory, but that's an acceptable loss
             return TypedResults.BadRequest();
         }
-        var path = Path.Join(projectFolder, relativePath); // Do NOT use Path.Combine here
+        var path = Path.Join(projectFolder, "LinkedFiles", relativePath); // Do NOT use Path.Combine here
         var files =
             Directory.EnumerateFiles(path, "*", new EnumerationOptions() { RecurseSubdirectories = true })
                 .Select(file => Path.GetRelativePath(path, file))
