@@ -1,10 +1,10 @@
 <script lang="ts">
   import {type IRichMultiString, type IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import LcmRichTextEditor from '../lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import {Label} from '../ui/label';
+  import StompSafeLcmRichTextEditor from '../stomp/stomp-safe-lcm-rich-text-editor.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
   const labelledBy = fieldBodyProps?.labelId;
@@ -43,7 +43,7 @@
     <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}>
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
-      <LcmRichTextEditor
+      <StompSafeLcmRichTextEditor
         bind:value={value[ws.wsId]}
         normalWs={ws.wsId}
         id={inputId}
