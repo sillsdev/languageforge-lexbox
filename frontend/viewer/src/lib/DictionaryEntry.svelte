@@ -6,7 +6,6 @@
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import type {Snippet} from 'svelte';
-  import {Link} from 'svelte-routing';
   let {
     entry,
     showLinks = false,
@@ -79,13 +78,13 @@
 
 {#snippet senseNumber(index: number)}
   {#if showLinks}
-    <Link to={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
+    <a href={`${location.href.replace(location.hash, '')}#sense${index+1}`} class="font-bold group/sense underline">
       <Icon icon="i-mdi-link" class={cn(
           'opacity-0',
           'group-hover/sense:opacity-100 group-hover/sense:visible transition-all',
           'size-4 align-sub'
         )}/><span class="ml-[2px]">{index + 1}</span>
-    </Link>
+    </a>
   {:else}
     <span class="font-bold">{index + 1}</span>
   {/if}
