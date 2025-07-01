@@ -276,6 +276,66 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
+    public async Task UploadFile_ContentWouldBeTooLargeButActualFileIsNot_Succeeds()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length would be too large if included
+            var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
+            result.StatusCode.Should().Be(HttpStatusCode.Created);
+            guid.Should().NotBeEmpty();
+            result = await Fixture.PutFile(dummyPath, guid, deleteContentLengthHeader: true);
+            result.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
+    public async Task UploadFile_ContentTooLarge_FailsDespiteLackOfContentLengthHeader()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 1); // 10 MB plus one byte, file is too large
+            var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+            guid.Should().BeEmpty();
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
+    public async Task UploadFile_ReplacementWouldBeTooLargeButActualFileIsNot_SucceedsPostButFailsPut()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length would be too large if included
+            var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
+            result.StatusCode.Should().Be(HttpStatusCode.Created);
+            guid.Should().NotBeEmpty();
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 1); // 10 MB plus one byte, file is too large
+            result = await Fixture.PutFile(dummyPath, guid, deleteContentLengthHeader: true);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
     public async Task UploadFile_TooLarge_ThrowsError()
     {
         var dummyPath = TestRepoZipPath + ".tooLarge";
