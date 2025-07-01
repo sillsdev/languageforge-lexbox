@@ -53,3 +53,4 @@ patches:
 images:
   - name: busybox:1.36.1
     newName: local-dev-init
+    newTag: latest

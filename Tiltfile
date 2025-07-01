@@ -5,36 +5,52 @@ version_settings(constraint='>=0.33.20')
 secret_settings(disable_scrub=True)
 config.define_bool("lexbox-api-local")
 config.define_bool("prod-ui-build")
+config.define_bool("prod-build")
 cfg = config.parse()
 forward_lexbox = not cfg.get("lexbox-api-local", False)
 prod_ui_build = cfg.get("prod-ui-build", False)
+prod_build = cfg.get("prod-build", False)
+if prod_build:
+    prod_ui_build = True
 
-docker_build(
-    'local-dev-init',
-    'data'
-)
+if prod_build:
+    docker_build(
+        'ghcr.io/sillsdev/lexbox-api',
+        context='backend',
+        dockerfile='./backend/Dockerfile',
+        only=['.']
+    )
 
-docker_build(
-    'ghcr.io/sillsdev/lexbox-api',
-    context='backend',
-    dockerfile='./backend/LexBoxApi/dev.Dockerfile',
-    only=['.'],
-    ignore=['FwHeadless'],
-    live_update=[
-        sync('backend', '/src/backend')
-    ]
-)
+    docker_build(
+        'ghcr.io/sillsdev/lexbox-fw-headless',
+        context='backend',
+        dockerfile='./backend/FwHeadless/Dockerfile',
+        only=['.']
+    )
+else:
 
-docker_build(
-    'ghcr.io/sillsdev/lexbox-fw-headless',
-    context='backend',
-    dockerfile='./backend/FwHeadless/dev.Dockerfile',
-    only=['.'],
-    ignore=['LexBoxApi', '**/Mercurial', '**/MercurialExtensions'],
-    live_update=[
-        sync('backend', '/src/backend')
-    ]
-)
+    docker_build(
+        'ghcr.io/sillsdev/lexbox-api',
+        context='backend',
+        dockerfile='./backend/LexBoxApi/dev.Dockerfile',
+        only=['.'],
+        ignore=['FwHeadless'],
+        live_update=[
+            sync('backend', '/src/backend')
+        ]
+    )
+
+    docker_build(
+        'ghcr.io/sillsdev/lexbox-fw-headless',
+        context='backend',
+        dockerfile='./backend/FwHeadless/dev.Dockerfile',
+        only=['.'],
+        ignore=['LexBoxApi', '**/Mercurial', '**/MercurialExtensions'],
+        live_update=[
+            sync('backend', '/src/backend')
+        ]
+    )
+
 if prod_ui_build:
     docker_build(
         'ghcr.io/sillsdev/lexbox-ui',

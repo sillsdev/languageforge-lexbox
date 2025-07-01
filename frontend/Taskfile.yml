@@ -20,6 +20,7 @@ tasks:
     method: checksum
     sources:
       - package.json
+      - ./viewer/package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
     cmds:

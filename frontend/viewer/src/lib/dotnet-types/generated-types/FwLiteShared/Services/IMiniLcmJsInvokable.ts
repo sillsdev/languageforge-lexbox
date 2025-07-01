@@ -12,11 +12,11 @@ import type {IComplexFormType} from '../../MiniLcm/Models/IComplexFormType';
 import type {IFilterQueryOptions} from '../../MiniLcm/IFilterQueryOptions';
 import type {IEntry} from '../../MiniLcm/Models/IEntry';
 import type {IQueryOptions} from '../../MiniLcm/IQueryOptions';
-import type {ISense} from '../../MiniLcm/Models/ISense';
-import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
 import type {IWritingSystem} from '../../MiniLcm/Models/IWritingSystem';
 import type {WritingSystemType} from '../../MiniLcm/Models/WritingSystemType';
 import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormComponent';
+import type {ISense} from '../../MiniLcm/Models/ISense';
+import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
 
 export interface IMiniLcmJsInvokable
 {
@@ -26,15 +26,15 @@ export interface IMiniLcmJsInvokable
 	getPublications() : Promise<IPublication[]>;
 	getSemanticDomains() : Promise<ISemanticDomain[]>;
 	getComplexFormTypes() : Promise<IComplexFormType[]>;
-	getComplexFormType(id: string) : Promise<IComplexFormType>;
+	getComplexFormType(id: string) : Promise<IComplexFormType | null>;
 	countEntries(query?: string, options?: IFilterQueryOptions) : Promise<number>;
 	getEntries(options?: IQueryOptions) : Promise<IEntry[]>;
 	searchEntries(query: string, options?: IQueryOptions) : Promise<IEntry[]>;
-	getEntry(id: string) : Promise<IEntry>;
-	getSense(entryId: string, id: string) : Promise<ISense>;
-	getPartOfSpeech(id: string) : Promise<IPartOfSpeech>;
-	getSemanticDomain(id: string) : Promise<ISemanticDomain>;
-	getExampleSentence(entryId: string, senseId: string, id: string) : Promise<IExampleSentence>;
+	getEntry(id: string) : Promise<IEntry | null>;
+	getSense(entryId: string, id: string) : Promise<ISense | null>;
+	getPartOfSpeech(id: string) : Promise<IPartOfSpeech | null>;
+	getSemanticDomain(id: string) : Promise<ISemanticDomain | null>;
+	getExampleSentence(entryId: string, senseId: string, id: string) : Promise<IExampleSentence | null>;
 	createWritingSystem(type: WritingSystemType, writingSystem: IWritingSystem) : Promise<IWritingSystem>;
 	updateWritingSystem(before: IWritingSystem, after: IWritingSystem) : Promise<IWritingSystem>;
 	createPartOfSpeech(partOfSpeech: IPartOfSpeech) : Promise<IPartOfSpeech>;

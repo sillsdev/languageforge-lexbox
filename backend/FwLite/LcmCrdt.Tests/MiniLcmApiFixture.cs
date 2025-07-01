@@ -11,6 +11,7 @@ namespace LcmCrdt.Tests;
 
 public class MiniLcmApiFixture : IAsyncLifetime
 {
+    private readonly bool _seedWs = true;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
@@ -22,8 +23,19 @@ public class MiniLcmApiFixture : IAsyncLifetime
         return _services.ServiceProvider.GetRequiredService<T>();
     }
 
+    //must have an empty constructor for xunit
     public MiniLcmApiFixture()
     {
+    }
+
+    public static MiniLcmApiFixture Create(bool seedWs = true)
+    {
+        return new MiniLcmApiFixture(seedWs);
+    }
+
+    private MiniLcmApiFixture(bool seedWs = true)
+    {
+        _seedWs = seedWs;
     }
 
     public async Task InitializeAsync()
@@ -53,26 +65,28 @@ public class MiniLcmApiFixture : IAsyncLifetime
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
             new ProjectData("Sena 3", "sena-3", Guid.NewGuid(), null, Guid.NewGuid()));
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().RefreshProjectData();
-
-        await Api.CreateWritingSystem(new WritingSystem()
+        if (_seedWs)
         {
-            Id = Guid.NewGuid(),
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Exemplars = ["a", "b"],
-            Type = WritingSystemType.Vernacular
-        });
-        await Api.CreateWritingSystem(new WritingSystem()
-        {
-            Id = Guid.NewGuid(),
-            WsId = "en",
-            Name = "English",
-            Abbreviation = "en",
-            Font = "Arial",
-            Type = WritingSystemType.Analysis
-        });
+            await Api.CreateWritingSystem(new WritingSystem()
+            {
+                Id = Guid.NewGuid(),
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Exemplars = ["a", "b"],
+                Type = WritingSystemType.Vernacular
+            });
+            await Api.CreateWritingSystem(new WritingSystem()
+            {
+                Id = Guid.NewGuid(),
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Type = WritingSystemType.Analysis
+            });
+        }
     }
 
     ITestOutputHelper? _outputHelper;

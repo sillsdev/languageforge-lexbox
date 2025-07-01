@@ -8,6 +8,7 @@ namespace FwLiteShared.Events;
 [JsonDerivedType(typeof(ProjectEvent), nameof(ProjectEvent))]
 [JsonDerivedType(typeof(AuthenticationChangedEvent), nameof(AuthenticationChangedEvent))]
 [JsonDerivedType(typeof(SyncEvent), nameof(SyncEvent))]
+[JsonDerivedType(typeof(AppUpdateEvent), nameof(AppUpdateEvent))]
 public interface IFwEvent
 {
     FwEventType Type { get; }
@@ -22,5 +23,6 @@ public enum FwEventType
     AuthenticationChanged,
     ProjectEvent,
     EntryDeleted,
-    Sync
+    Sync,
+    AppUpdate,
 }

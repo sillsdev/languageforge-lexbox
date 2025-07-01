@@ -29,6 +29,9 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
     {
         if (dbContext is null) return;
         List<Entry> toUpdate = [];
+        var newWritingSystems = dbContext.ChangeTracker.Entries()
+            .Where(e => e.Entity is WritingSystem && e.State == EntityState.Added)
+            .Select(e => (WritingSystem)e.Entity).ToList();
         foreach (var group in dbContext.ChangeTracker.Entries()
                      .Where(e => e is { State: EntityState.Added or EntityState.Modified, Entity: Entry or Sense })
                      .GroupBy(e =>
@@ -42,13 +45,13 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
                          };
                      }))
         {
-            toUpdate.Add(await ForUpdate(group, dbContext));
+            toUpdate.Add(await ForUpdate(group, group.Key, dbContext));
         }
         if (toUpdate is []) return;
-        await EntrySearchService.UpdateEntrySearchTable(toUpdate, (LcmCrdtDbContext)dbContext);
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, newWritingSystems, (LcmCrdtDbContext)dbContext);
     }
 
-    private async Task<Entry> ForUpdate(IGrouping<Guid, EntityEntry> group, DbContext dbContext)
+    private async Task<Entry> ForUpdate(IEnumerable<EntityEntry> group, Guid entryId, DbContext dbContext)
     {
         var entities = group.ToArray();
         //scope created so the entry variables don't collide
@@ -61,11 +64,11 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 
         var fullEntry = await dbContext.Set<Entry>()
             .Include(e => e.Senses)
-            .FirstOrDefaultAsync(e => e.Id == group.Key);
+            .FirstOrDefaultAsync(e => e.Id == entryId);
         if (fullEntry is null)
         {
             //null when a new entry is added along with some senses
-            fullEntry = new Entry() { Id = group.Key };
+            fullEntry = new Entry() { Id = entryId };
         }
 
         foreach (var entity in entities)

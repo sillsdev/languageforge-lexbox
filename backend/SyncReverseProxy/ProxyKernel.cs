@@ -8,6 +8,7 @@ using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTelemetry.Trace;
 using Yarp.ReverseProxy.Forwarder;
 
@@ -24,18 +25,23 @@ public static class ProxyKernel
         services.AddMemoryCache();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
-        services.AddSingleton(new HttpMessageInvoker(new SocketsHttpHandler
+        services.AddSingleton(new HgRequestTransformer());
+        services.AddForwarder();
+
+        services.AddAuthentication()
+            .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
+    }
+
+    public static void AddForwarder(this IServiceCollection services)
+    {
+        services.AddHttpForwarder();
+        services.TryAddSingleton(new HttpMessageInvoker(new SocketsHttpHandler
         {
             UseProxy = false,
             UseCookies = false,
             ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
             ConnectTimeout = TimeSpan.FromSeconds(15)
         }));
-        services.AddSingleton(new HgRequestTransformer());
-
-        services.AddHttpForwarder();
-        services.AddAuthentication()
-            .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
     }
 
     public static void MapSyncProxy(this IEndpointRouteBuilder app,

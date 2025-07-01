@@ -60,6 +60,7 @@
     class={cn(inputVariants({ variant }), className)}
     {type}
     bind:value
+    spellcheck="false"
     {...restProps}
   />
 {/if}

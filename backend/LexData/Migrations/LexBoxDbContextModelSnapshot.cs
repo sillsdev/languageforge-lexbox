@@ -19,7 +19,7 @@ namespace LexData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "9.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -537,6 +537,37 @@ namespace LexData.Migrations
                     b.HasKey("ProjectId");
 
                     b.ToTable("FlexProjectMetadata");
+                });
+
+            modelBuilder.Entity("LexCore.Entities.MediaFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Filename")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Metadata")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValueSql("'{}'");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
@@ -1158,7 +1189,7 @@ namespace LexData.Migrations
                                     b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
                                         .HasColumnType("uuid");
 
-                                    b2.Property<int>("Id")
+                                    b2.Property<int>("__synthesizedOrdinal")
                                         .ValueGeneratedOnAdd()
                                         .HasColumnType("integer");
 
@@ -1172,7 +1203,7 @@ namespace LexData.Migrations
                                         .IsRequired()
                                         .HasColumnType("text");
 
-                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
+                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "__synthesizedOrdinal");
 
                                     b2.ToTable("FlexProjectMetadata");
 
@@ -1185,7 +1216,7 @@ namespace LexData.Migrations
                                     b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
                                         .HasColumnType("uuid");
 
-                                    b2.Property<int>("Id")
+                                    b2.Property<int>("__synthesizedOrdinal")
                                         .ValueGeneratedOnAdd()
                                         .HasColumnType("integer");
 
@@ -1199,7 +1230,7 @@ namespace LexData.Migrations
                                         .IsRequired()
                                         .HasColumnType("text");
 
-                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
+                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "__synthesizedOrdinal");
 
                                     b2.ToTable("FlexProjectMetadata");
 
@@ -1213,6 +1244,15 @@ namespace LexData.Migrations
                         });
 
                     b.Navigation("WritingSystems");
+                });
+
+            modelBuilder.Entity("LexCore.Entities.MediaFile", b =>
+                {
+                    b.HasOne("LexCore.Entities.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>

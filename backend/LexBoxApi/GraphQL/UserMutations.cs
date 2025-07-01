@@ -238,7 +238,7 @@ public class UserMutations
         {
             var admins = dbContext.Users.Where(u => u.IsAdmin).AsAsyncEnumerable();
             ArgumentException.ThrowIfNullOrEmpty(user.Email);
-            await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
+            await emailService.SendNewAdminEmail(admins, loggedInContext.User, user.Name, user.Email);
         }
         return user;
     }

@@ -9,6 +9,6 @@
 </script>
 
 <Email subject={$t('emails.join_fw_lite_beta_request_email.subject', { name })}>
-  <mj-text>{$t('emails.join_fw_lite_beta_request_email.body', { name })}</mj-text>
+  <mj-text>{$t('emails.join_fw_lite_beta_request_email.body', { name, email })}</mj-text>
   <mj-button href={approveUrl}>{$t('emails.join_fw_lite_beta_request_email.approve_button')}</mj-button>
 </Email>

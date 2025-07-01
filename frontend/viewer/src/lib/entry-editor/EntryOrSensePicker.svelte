@@ -137,7 +137,7 @@
       <Dialog.Title class="mb-4">
         {title}
       </Dialog.Title>
-      <ComposableInput bind:value={search} placeholder="Find entry..." autofocus class="px-1">
+      <ComposableInput bind:value={search} placeholder={pt($t`Find entry...`, $t`Find word...`, $currentView)} autofocus class="px-1">
         {#snippet before()}
           <Icon icon="i-mdi-book-search-outline"/>
         {/snippet}
@@ -171,11 +171,11 @@
         {:else}
           <div class="p-4 text-center opacity-75 flex justify-center items-center gap-2">
             {#if search}
-              {$t`No entries found`}
+              {pt($t`No entries found`, $t`No words found`, $currentView)}
               <Icon icon="i-mdi-magnify-remove-outline"/>
               <NewEntryButton onclick={onClickCreateNewEntry}/>
             {:else}
-              <T msg="Search for an entry # or #">
+              <T msg="Search # or #">
                 <Icon icon="i-mdi-book-search-outline"/>
                 {#snippet second()}
                   <NewEntryButton onclick={onClickCreateNewEntry}/>
@@ -208,7 +208,7 @@
             disabled={!!disableEntry?.(selectedEntry)}
             selected={!selectedSense}
             onclick={() => select(selectedEntry, undefined)}>
-            <p class="font-medium">{$t`Entry Only`}</p>
+            <p class="font-medium">{pt($t`Entry Only`, $t`Word only`, $currentView)}</p>
             {#if disabledEntry}
               <Badge variant="outline" class="border-destructive text-destructive">
                 {disabledEntry.reason}
@@ -247,7 +247,7 @@
         <Button variant="default" class="basis-3/4"
                 disabled={!selectedEntry || (disableEntry && !!disableEntry(selectedEntry) && !selectedSense)}
                 onclick={onPick}>
-          {$t`Select ${selectedSense ? $t`Sense` : $t`Entry`}`}
+          {$t`Select ${selectedSense ? pt($t`Sense`, $t`Meaning`, $currentView) : pt($t`Entry`, $t`Word`, $currentView)}`}
         </Button>
       </div>
 
