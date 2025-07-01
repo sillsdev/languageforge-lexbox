@@ -1,9 +1,9 @@
 <script lang="ts">
   import {type IMultiString, type IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import {Input} from '../ui/input';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import {Label} from '../ui/label';
+  import StompSafeInput from '../stomp/stomp-safe-input.svelte';
   import AudioInput from './audio-input.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
@@ -38,7 +38,7 @@
       title={`${ws.name} (${ws.wsId})`}>
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       {#if !ws.isAudio}
-        <Input bind:value={value[ws.wsId]}
+        <StompSafeInput bind:value={value[ws.wsId]}
           id={inputId}
           aria-labelledby="{labeledBy ?? ''} {labelId}"
           {readonly}

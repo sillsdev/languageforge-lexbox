@@ -157,13 +157,13 @@ export class WritingSystemService {
   }
 
   private first(value: IMultiString | IRichMultiString, writingSystems: IWritingSystem[]): string | undefined {
-    return firstTruthy(writingSystems, ws => this.asString(value[ws.wsId]));
+    return firstTruthy(writingSystems, ws => asString(value[ws.wsId]));
   }
+}
 
-  public asString(value: IRichString | string | undefined): string | undefined {
-    if (!value || typeof value === 'string') return value;
-    return value.spans.map(s => s.text).join('');
-  }
+export function asString(value: IRichString | string | undefined): string | undefined {
+  if (!value || typeof value === 'string') return value;
+  return value.spans.map(s => s.text).join('');
 }
 
 type WritingSystemColors = {

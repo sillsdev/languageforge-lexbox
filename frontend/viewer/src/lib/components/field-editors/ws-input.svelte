@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { IWritingSystem } from '$lib/dotnet-types';
   import type { ReadonlyDeep } from 'type-fest';
-  import { Input } from '../ui/input';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import StompSafeInput from '../stomp/stomp-safe-input.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
   const labelledBy = fieldBodyProps?.labelId;
@@ -22,7 +22,7 @@
   const { readonly = false, writingSystem: ws, onchange } = $derived(constProps);
 </script>
 
-<Input
+<StompSafeInput
   {readonly}
   bind:value
   title={`${ws.name} (${ws.wsId})`}

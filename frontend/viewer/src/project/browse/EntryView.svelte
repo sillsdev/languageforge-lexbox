@@ -52,7 +52,7 @@
   const sticky = $derived.by(() => dictionaryPreview === 'sticky');
 
   let readonly = $state(false);
-  const entryPersistence = new EntryPersistence(() => entry, () => void entryResource.refetch());
+  const entryPersistence = new EntryPersistence(() => entry);
 
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);

@@ -1,10 +1,10 @@
 <script lang="ts">
   import {type IRichMultiString, type IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import LcmRichTextEditor from '../lcm-rich-text-editor/lcm-rich-text-editor.svelte';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import {Label} from '../ui/label';
+  import StompSafeLcmRichTextEditor from '../stomp/stomp-safe-lcm-rich-text-editor.svelte';
   import AudioInput from '$lib/components/field-editors/audio-input.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
@@ -49,7 +49,7 @@
       title={`${ws.name} (${ws.wsId})`}>
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       {#if !ws.isAudio}
-        <LcmRichTextEditor
+        <StompSafeLcmRichTextEditor
           bind:value={value[ws.wsId]}
           normalWs={ws.wsId}
           id={inputId}

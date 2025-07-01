@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { IEntry, ISense } from '$lib/dotnet-types';
-  import {useWritingSystemService} from './writing-system-service.svelte';
+  import {asString, useWritingSystemService} from './writing-system-service.svelte';
   import { usePartsOfSpeech } from './parts-of-speech.svelte';
   import type {HTMLAttributes} from 'svelte/elements';
   import {Icon} from '$lib/components/ui/icon';
@@ -55,7 +55,7 @@
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
           gloss: sense.gloss[ws.wsId],
-          definition: wsService.asString(sense.definition[ws.wsId]),
+          definition: asString(sense.definition[ws.wsId]),
           color: wsService.wsColor(ws.wsId, 'analysis'),
         }))
         .filter(({gloss, definition}) => gloss || definition),
@@ -65,12 +65,12 @@
           ...wsService.vernacular
             .filter(ws => !ws.isAudio)
             .map(ws => ({
-            text: wsService.asString(example.sentence[ws.wsId]),
+            text: asString(example.sentence[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'vernacular'),
           })),
           ...wsService.analysis
             .filter(ws => !ws.isAudio).map(ws => ({
-            text: wsService.asString(example.translation[ws.wsId]),
+            text: asString(example.translation[ws.wsId]),
             color: wsService.wsColor(ws.wsId, 'analysis'),
           })),
         ].filter(({text}) => !!text),
