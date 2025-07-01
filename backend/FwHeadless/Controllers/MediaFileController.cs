@@ -49,8 +49,7 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        var subfolder = mediaFile.Metadata?.LinkedFilesSubfolder ?? GuessFileTypeFromMimeType(mediaFile.Metadata?.MimeType) ?? "";
-        var filePath = Path.Join(projectFolder, "LinkedFiles", subfolder, mediaFile.Filename);
+        var filePath = Path.Join(projectFolder, mediaFile.Filename);
         if (!File.Exists(filePath)) return TypedResults.NotFound();
         mediaFile.InitializeMetadataIfNeeded(filePath);
         var contentType = mediaFile.Metadata.MimeType;
@@ -318,10 +317,11 @@ public static class MediaFileController
         metadata = await InitMetadata(metadata, file, filename, httpContext.Request);
         if (mediaFile is null)
         {
+            var subfolder = subfolderOverride ?? GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
-                Filename = Path.Join(fileId.ToString(), filename),
+                Filename = Path.Join("LinkedFiles", subfolder, fileId.ToString(), filename),
                 ProjectId = projectId,
                 Metadata = metadata,
             };
@@ -332,6 +332,10 @@ public static class MediaFileController
             if (projectId != mediaFile.ProjectId)
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
+            }
+            if (subfolderOverride is not null && !mediaFile.Filename.StartsWith(Path.Join("LinkedFiles", subfolderOverride)))
+            {
+                throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
             else mediaFile.Metadata.Merge(metadata);
@@ -351,14 +355,7 @@ public static class MediaFileController
             throw new ProjectFolderNotFoundInFwHeadless();
         }
 
-        if (subfolderOverride is not null && mediaFile.Metadata?.LinkedFilesSubfolder is not null && mediaFile.Metadata?.LinkedFilesSubfolder != subfolderOverride)
-        {
-            throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
-        }
-
-        var subfolder = mediaFile.Metadata?.LinkedFilesSubfolder ?? subfolderOverride ?? GuessFileTypeFromMimeType(mediaFile.Metadata?.MimeType) ?? "";
-        if (mediaFile.Metadata is not null) mediaFile.Metadata.LinkedFilesSubfolder = subfolder;
-        var filePath = Path.Join(projectFolder, "LinkedFiles", subfolder, mediaFile.Filename);
+        var filePath = Path.Join(projectFolder, mediaFile.Filename);
         Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? "");
         if (mediaFile.Metadata is not null) mediaFile.Metadata.SizeInBytes = (int)file.Length;
         long writtenLength = 0;
@@ -382,7 +379,7 @@ public static class MediaFileController
         await lexBoxDb.SaveChangesAsync();
     }
 
-    private static string? GuessFileTypeFromMimeType(string? mimeType)
+    private static string? GuessSubfolderFromMimeType(string? mimeType)
     {
         if (mimeType is null) return null;
         if (mimeType.StartsWith("image/")) return "Pictures";
