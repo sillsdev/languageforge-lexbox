@@ -209,9 +209,11 @@ public class CrdtMiniLcmApi(
         return await GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
     }
 
-    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await PublicationSync.Sync(before, after, api ?? this);
+        var updatedPublication = await GetPublication(after.Id) ?? throw new NullReferenceException("Unable to find publication with id " + after.Id);
+        return updatedPublication;
     }
 
     public async Task DeletePublication(Guid id)

@@ -306,12 +306,23 @@ public class FwDataMiniLcmApi(
 
     public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        throw new NotImplementedException();
+        var lcmPublication = GetLcmPublication(id);
+        if (lcmPublication is null) throw new InvalidOperationException("Tried to update a non-existent publication");
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update publication",
+            "Revert publication",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdatePublicationProxy(lcmPublication, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmPossibility(lcmPublication));
     }
 
-    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await PublicationSync.Sync(before, after, api ?? this);
+        return await GetPublication(after.Id) ?? throw new NullReferenceException($"Unable to find publication with id {after.Id}");
     }
 
     public Task DeletePublication(Guid id)
