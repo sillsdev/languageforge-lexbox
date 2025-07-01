@@ -343,11 +343,11 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) throw new NotFoundException();
         var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, subfolderOverride, file, config.Value.MaxUploadFileSizeBytes);
+        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, file, config.Value.MaxUploadFileSizeBytes);
         return (mediaFile, newFile);
     }
 
-    private static async Task WriteFileAndUpdateMediaFileMetadata(LexBoxDbContext lexBoxDb, MediaFile mediaFile, string projectFolder, string? subfolderOverride, IFormFile file, long maxUploadSize)
+    private static async Task WriteFileAndUpdateMediaFileMetadata(LexBoxDbContext lexBoxDb, MediaFile mediaFile, string projectFolder, IFormFile file, long maxUploadSize)
     {
         if (!Directory.Exists(projectFolder))
         {
