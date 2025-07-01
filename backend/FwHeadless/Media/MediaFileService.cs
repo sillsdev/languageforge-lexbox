@@ -29,12 +29,12 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         //files not removed are newly created, and we need to record them in the db
         foreach (var newFwFile in existingFwFiles)
         {
-            dbContext.Files.Add(new MediaFile()
+            dbContext.Files.Add(new MediaFile
             {
                 Id = Guid.NewGuid(),
                 Filename = newFwFile,
                 ProjectId = projectId,
-                Metadata = new FileMetadata()
+                Metadata = new FileMetadata
                 {
                     MimeType = MimeMapping.MimeUtility.GetMimeMapping(newFwFile),
                     SizeInBytes = (int)new FileInfo(Path.Join(cache.ProjectId.ProjectFolder, newFwFile)).Length,

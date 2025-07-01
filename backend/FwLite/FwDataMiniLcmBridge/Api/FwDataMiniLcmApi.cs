@@ -32,7 +32,7 @@ public class FwDataMiniLcmApi(
 {
     private FwDataBridgeConfig Config => config.Value;
     private const string AudioVisualFolder = "AudioVisual";
-    internal LcmCache Cache => cacheLazy.Value;
+    public LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
