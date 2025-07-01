@@ -192,7 +192,9 @@ public static class MediaFileController
         string tempFile = "";
         try
         {
-            tempFile = Path.Join(Path.GetDirectoryName(filePath), Path.GetRandomFileName());
+            var dirName = Path.GetDirectoryName(filePath);
+            if (dirName is not null) Directory.CreateDirectory(dirName);
+            tempFile = Path.Join(dirName, Path.GetRandomFileName());
             await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
             {
                 await contents.CopyToAsync(writeStream);
@@ -355,7 +357,6 @@ public static class MediaFileController
         }
 
         var filePath = Path.Join(projectFolder, mediaFile.Filename);
-        Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? "");
         if (mediaFile.Metadata is not null) mediaFile.Metadata.SizeInBytes = (int)file.Length;
         long writtenLength = 0;
         await using (var readStream = file.OpenReadStream())
