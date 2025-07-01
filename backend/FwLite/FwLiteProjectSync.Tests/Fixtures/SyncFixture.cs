@@ -4,9 +4,9 @@ using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using LcmCrdt;
 using LexCore.Utils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MiniLcm.Models;
 
 namespace FwLiteProjectSync.Tests.Fixtures;
 
@@ -67,7 +67,10 @@ public class SyncFixture : IAsyncLifetime
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
             .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
-        CrdtApi = (CrdtMiniLcmApi) await _services.ServiceProvider.OpenCrdtProject(crdtProject);
+        CrdtApi = (CrdtMiniLcmApi)await _services.ServiceProvider.OpenCrdtProject(crdtProject);
+
+        //hopefully avoid race conditions where linq2db uses it's own connection
+        Services.GetRequiredService<LcmCrdtDbContext>().Database.OpenConnection();
     }
 
     public async Task DisposeAsync()
