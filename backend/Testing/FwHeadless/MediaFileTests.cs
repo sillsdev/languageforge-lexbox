@@ -26,12 +26,12 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         guid.Should().NotBe(Guid.Empty);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
         await Fixture.PutFile(TestRepoZipPath, guid);
-        (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
@@ -43,7 +43,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "user");
         guid.Should().Be(Guid.Empty);
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "user");
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles", loginAs: "user");
         listResult.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         (files?.Files ?? []).Should().NotContain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
@@ -55,7 +55,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     {
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: loginAs);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: loginAs);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles", loginAs: loginAs);
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
@@ -107,7 +107,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(overrideFilename);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(fileId.ToString(), overrideFilename));
@@ -170,7 +170,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles", loginAs: "admin");
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
         (files?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
         (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), secondPath));
@@ -190,6 +190,71 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
+    }
+
+    [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_Works()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        (files?.Files ?? []).Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        // LinkedFiles subfolder must NOT be part of filename returned by metadata endpoint
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        metadata.Should().NotBeNull();
+        metadata.Filename.Should().Be(TestRepoZipFilename);
+    }
+
+    [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondTimeDifferent_Fails()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "AudioVisual");
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        (files?.Files ?? []).Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+    }
+
+    [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_ThenReplacingWithoutOverriding_PutsReplacementInOriginalLocation()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, fileId);
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        (files?.Files ?? []).Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+    }
+
+    [Fact]
+    public async Task UploadFile_WithoutOverridingLinkedPathSubfolderFirst_ThenReplacingWithOverride_Fails()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath); // MIME type "application/zip" will go into LinkedFiles, no subfolder
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        (files?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        (files?.Files ?? []).Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "Pictures");
+        // result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var (files2, listResult2) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
+        listResult2.StatusCode.Should().Be(HttpStatusCode.OK);
+        (files2?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        (files2?.Files ?? []).Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        (files2?.Files ?? []).Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        (files2?.Files ?? []).Should().BeEquivalentTo(files?.Files ?? []);
     }
 
     [Fact]

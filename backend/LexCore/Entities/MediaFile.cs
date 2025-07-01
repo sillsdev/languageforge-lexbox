@@ -37,6 +37,7 @@ public class FileMetadata
     public int? SizeInBytes { get; set; }
     public string? FileFormat { get; set; }
     public string? MimeType { get; set; }
+    public string? LinkedFilesSubfolder { get; set; }
     public string? Author { get; set; }
     public DateTimeOffset? UploadDate { get; set; }
     public MediaFileLicense? License { get; set; }
@@ -51,6 +52,7 @@ public class FileMetadata
         if (other.SizeInBytes is not null && other.SizeInBytes.Value > 0) this.SizeInBytes = other.SizeInBytes;
         if (!string.IsNullOrEmpty(other.FileFormat)) this.FileFormat = other.FileFormat;
         if (!string.IsNullOrEmpty(other.MimeType)) this.MimeType = other.MimeType;
+        if (!string.IsNullOrEmpty(other.LinkedFilesSubfolder)) this.LinkedFilesSubfolder = other.LinkedFilesSubfolder;
         if (!string.IsNullOrEmpty(other.Author)) this.Author = other.Author;
         if (other.UploadDate is not null) this.UploadDate = other.UploadDate;
         if (other.License is not null) this.License = other.License;

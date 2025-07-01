@@ -32,7 +32,7 @@ public static class MediaFileController
         var path = Path.Join(projectFolder, relativePath); // Do NOT use Path.Combine here
         var files =
             Directory.EnumerateFiles(path, "*", new EnumerationOptions() { RecurseSubdirectories = true })
-                .Select(file => Path.GetRelativePath(projectFolder, file))
+                .Select(file => Path.GetRelativePath(path, file))
                 .ToArray();
         return TypedResults.Ok(new FileListing(files));
     }
@@ -49,7 +49,8 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) return TypedResults.NotFound();
         var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        var subfolder = mediaFile.Metadata?.LinkedFilesSubfolder ?? GuessFileTypeFromMimeType(mediaFile.Metadata?.MimeType) ?? "";
+        var filePath = Path.Join(projectFolder, "LinkedFiles", subfolder, mediaFile.Filename);
         if (!File.Exists(filePath)) return TypedResults.NotFound();
         mediaFile.InitializeMetadataIfNeeded(filePath);
         var contentType = mediaFile.Metadata.MimeType;
@@ -87,11 +88,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
+        [FromForm] string? LinkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, LinkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: false);
         return result;
     }
 
@@ -102,11 +104,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
+        [FromForm] string? LinkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, newFilesAllowed: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, LinkedFilesSubfolderOverride, httpContext, config, lexBoxDb, newFilesAllowed: true);
         return result;
     }
 
@@ -116,6 +119,7 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
+        string? LinkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         LexBoxDbContext lexBoxDb,
@@ -132,12 +136,14 @@ public static class MediaFileController
                 filename,
                 file,
                 metadata,
+                LinkedFilesSubfolderOverride,
                 newFilesAllowed,
                 httpContext,
                 config);
         }
         catch (NotFoundException) { return TypedResults.NotFound(); }
         catch (UploadedFilesCannotBeMovedToNewProjects) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects); }
+        catch (UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders); }
         catch (ProjectFolderNotFoundInFwHeadless) { return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless); }
         catch (FileTooLarge)
         {
@@ -268,7 +274,7 @@ public static class MediaFileController
     {
         metadata ??= new FileMetadata();
         // HTTP Content-Type header will be "multipart/form-data; bondary=(something)". We want the content-type from the uploaded file, not HTTP
-        var mimeType = !string.IsNullOrEmpty(metadata.MimeType) ?  metadata.MimeType : file.ContentType;
+        var mimeType = !string.IsNullOrEmpty(metadata.MimeType) ? metadata.MimeType : file.ContentType;
         // If we have a filename but no mime type, then try to guess it from the filename at this point
         if (string.IsNullOrEmpty(mimeType))
             mimeType = MimeUtility.GetMimeMapping(filename);
@@ -280,6 +286,7 @@ public static class MediaFileController
 
     private class NotFoundException : Exception;
     private class UploadedFilesCannotBeMovedToNewProjects : Exception;
+    private class UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders : Exception;
     private class ProjectFolderNotFoundInFwHeadless : Exception;
     private class FileTooLarge : Exception;
     private static async Task<(MediaFile, bool newFile)> CreateOrUpdateMediaFile(
@@ -289,6 +296,7 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
+        string? subfolderOverride,
         bool newFilesAllowed,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config)
@@ -332,19 +340,26 @@ public static class MediaFileController
         var project = await lexBoxDb.Projects.FindAsync(projectId);
         if (project is null) throw new NotFoundException();
         var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, file, config.Value.MaxUploadFileSizeBytes);
+        await WriteFileAndUpdateMediaFileMetadata(lexBoxDb, mediaFile, projectFolder, subfolderOverride, file, config.Value.MaxUploadFileSizeBytes);
         return (mediaFile, newFile);
     }
 
-    private static async Task WriteFileAndUpdateMediaFileMetadata(LexBoxDbContext lexBoxDb, MediaFile mediaFile, string projectFolder, IFormFile file, long maxUploadSize)
+    private static async Task WriteFileAndUpdateMediaFileMetadata(LexBoxDbContext lexBoxDb, MediaFile mediaFile, string projectFolder, string? subfolderOverride, IFormFile file, long maxUploadSize)
     {
         if (!Directory.Exists(projectFolder))
         {
             throw new ProjectFolderNotFoundInFwHeadless();
         }
 
-        Directory.CreateDirectory(Path.Join(projectFolder, mediaFile.Id.ToString()));
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        if (subfolderOverride is not null && mediaFile.Metadata?.LinkedFilesSubfolder is not null && mediaFile.Metadata?.LinkedFilesSubfolder != subfolderOverride)
+        {
+            throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
+        }
+
+        var subfolder = mediaFile.Metadata?.LinkedFilesSubfolder ?? subfolderOverride ?? GuessFileTypeFromMimeType(mediaFile.Metadata?.MimeType) ?? "";
+        if (mediaFile.Metadata is not null) mediaFile.Metadata.LinkedFilesSubfolder = subfolder;
+        var filePath = Path.Join(projectFolder, "LinkedFiles", subfolder, mediaFile.Filename);
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? "");
         if (mediaFile.Metadata is not null) mediaFile.Metadata.SizeInBytes = (int)file.Length;
         long writtenLength = 0;
         await using (var readStream = file.OpenReadStream())
@@ -365,6 +380,15 @@ public static class MediaFileController
         await AddEntityTagMetadata(mediaFile, filePath);
         mediaFile.UpdateUpdatedDate();
         await lexBoxDb.SaveChangesAsync();
+    }
+
+    private static string? GuessFileTypeFromMimeType(string? mimeType)
+    {
+        if (mimeType is null) return null;
+        if (mimeType.StartsWith("image/")) return "Pictures";
+        if (mimeType.StartsWith("audio/")) return "AudioVisual";
+        if (mimeType.StartsWith("video/")) return "AudioVisual";
+        return null;
     }
 
     private static void SafeDelete(string filePath)

@@ -60,7 +60,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return (await result.Content.ReadFromJsonAsync<FileListing>(), result);
     }
 
-    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -69,6 +69,10 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             if (overrideFilename is not null)
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
+            }
+            if (overrideSubfolder is not null)
+            {
+                formData.Add(new StringContent(overrideSubfolder), name: "LinkedFilesSubfolderOverride");
             }
             if (metadata is not null)
             {
@@ -98,7 +102,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         }
     }
 
-    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, FileMetadata? metadata = null, string loginAs = "admin")
+    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, string? overrideSubfolder = null, FileMetadata? metadata = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -107,6 +111,10 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             if (overrideFilename is not null)
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
+            }
+            if (overrideSubfolder is not null)
+            {
+                formData.Add(new StringContent(overrideSubfolder), name: "LinkedFilesSubfolderOverride");
             }
             if (metadata is not null)
             {
