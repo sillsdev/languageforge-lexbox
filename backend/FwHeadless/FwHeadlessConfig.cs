@@ -15,6 +15,8 @@ public class FwHeadlessConfig
     public required string LexboxPassword { get; init; }
     [Required]
     public required string ProjectStorageRoot { get; init; }
+    [Required]
+    public required string MediaFileAuthority { get; init; }
     public int MaxUploadFileSizeKb { get; init; } = 10240;
     public long MaxUploadFileSizeBytes => MaxUploadFileSizeKb * 1024;
     public string FdoDataModelVersion { get; init; } = "7000072";
