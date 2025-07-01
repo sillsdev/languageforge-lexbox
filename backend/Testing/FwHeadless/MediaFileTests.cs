@@ -224,7 +224,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
-    public async Task UploadFile_OverridingLinkedPathSubfolder_ThenReplacingWithoutOverriding_PutsReplacementInOriginalLocation()
+    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondUploadsDoNotMoveFile()
     {
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -238,7 +238,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
-    public async Task UploadFile_WithoutOverridingLinkedPathSubfolderFirst_ThenReplacingWithOverride_Fails()
+    public async Task UploadFile_WithoutSubfolder_ThenTryingToOverride_Fails()
     {
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath); // MIME type "application/zip" will go into LinkedFiles, no subfolder
         result.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -248,7 +248,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         (files?.Files ?? []).Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
         (files?.Files ?? []).Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
         result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "Pictures");
-        // result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var (files2, listResult2) = await Fixture.ListFiles(Fixture.ProjectId, relativePath: "LinkedFiles");
         listResult2.StatusCode.Should().Be(HttpStatusCode.OK);
         (files2?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
