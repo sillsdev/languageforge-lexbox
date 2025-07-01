@@ -5,7 +5,10 @@
   import {Label} from '../ui/label';
   import StompSafeInput from '../stomp/stomp-safe-input.svelte';
   import AudioInput from './audio-input.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
+  const projectContext = useProjectContext();
+  const supportsAudio = $derived(projectContext?.features.audio);
   const fieldBodyProps = tryUseFieldBody();
   const labeledBy = fieldBodyProps?.labelId;
 
@@ -26,12 +29,13 @@
     onchange,
     autofocus,
   } = $derived(constProps);
+  let visibleWritingSystems = $derived(supportsAudio ? writingSystems : writingSystems.filter(ws => !ws.isAudio));
 
   const rootId = $props.id();
 </script>
 
 <div class="grid grid-cols-subgrid col-span-full gap-y-2">
-  {#each writingSystems as ws, i (ws.wsId)}
+  {#each visibleWritingSystems as ws, i (ws.wsId)}
     {@const inputId = `${rootId}-${ws.wsId}`}
     {@const labelId = `${inputId}-label`}
     <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
