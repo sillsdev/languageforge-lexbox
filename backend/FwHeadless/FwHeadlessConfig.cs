@@ -50,8 +50,9 @@ public class FwHeadlessConfig
                 $"Project folder is not in the project storage root, instead it is: '{projectFolder}'");
         }
 
-        return IdFromProjectFolder(projectFolder.EndsWith("\\fw") || projectFolder.EndsWith("/fw")  ? projectFolder.AsSpan()[..^3] : projectFolder);
+        return IdFromProjectFolder(projectFolder.EndsWith($"\\{FwDataSubFolder}") || projectFolder.EndsWith($"/{FwDataSubFolder}")  ? projectFolder.AsSpan()[..^3] : projectFolder);
     }
+    private const string FwDataSubFolder = "fw";
 
     public string GetCrdtFile(string projectCode, Guid projectId)
     {
@@ -60,6 +61,11 @@ public class FwHeadlessConfig
 
     public FwDataProject GetFwDataProject(string projectCode, Guid projectId)
     {
-        return new FwDataProject("fw", GetProjectFolder(projectCode, projectId));
+        return new FwDataProject(FwDataSubFolder, GetProjectFolder(projectCode, projectId));
+    }
+
+    public string GetFwDataFolder(string projectRootFolder)
+    {
+        return Path.Join(projectRootFolder, FwDataSubFolder);
     }
 }

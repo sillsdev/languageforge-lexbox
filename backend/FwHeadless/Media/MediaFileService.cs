@@ -53,8 +53,26 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         }
     }
 
+    /// <summary>
+    /// find a media file based on the path and project
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="path">full file path to find the file at</param>
+    /// <returns></returns>
+    /// <exception cref="NotFoundException">Throws when it can't find the file</exception>
     public MediaFile FindMediaFile(Guid projectId, string path)
     {
+        if (!Path.IsPathRooted(path))
+        {
+            throw new ArgumentException("Path must be absolute", nameof(path));
+        }
+        var fwDataFolder = config.Value.GetFwDataFolder(config.Value.GetProjectFolder(projectId));
+        if (!path.StartsWith(fwDataFolder))
+        {
+            throw new ArgumentException("Path must be in the project storage root", nameof(path));
+        }
+
+        path = Path.GetRelativePath(fwDataFolder, path);
         return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path) ??
                throw new NotFoundException(
                    $"Unable to find file {path}, in project {projectId}.",
