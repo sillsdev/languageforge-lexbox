@@ -327,7 +327,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length will be too large
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 64); // 10 MB minus 64 bytes, file is not too large but Content-Length will be too large
             var (guid, result) = await Fixture.PostFile(dummyPath);
             result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
             guid.Should().BeEmpty();
@@ -345,7 +345,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length would be too large if included
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 64); // 10 MB minus 64 bytes, file is not too large but Content-Length would be too large if included
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             result.StatusCode.Should().Be(HttpStatusCode.Created);
             guid.Should().NotBeEmpty();
@@ -365,7 +365,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 1); // 10 MB plus one byte, file is too large
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 64); // 10 MB plus 64 bytes, file is too large
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
             guid.Should().BeEmpty();
@@ -383,12 +383,12 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length would be too large if included
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 64); // 10 MB minus 64 bytes, file is not too large but Content-Length would be too large if included
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             result.StatusCode.Should().Be(HttpStatusCode.Created);
             guid.Should().NotBeEmpty();
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 1); // 10 MB plus one byte, file is too large
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 64); // 10 MB plus 64 bytes, file is too large
             result = await Fixture.PutFile(dummyPath, guid, deleteContentLengthHeader: true);
             result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
         }
