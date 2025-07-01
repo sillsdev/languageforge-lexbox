@@ -20,9 +20,8 @@ export interface BackHandlerConfig {
 class BackHandler {
   static #ignorePopstate = false;
   static #backStack: BackHandler[] = [];
-  readonly #id = crypto.randomUUID().split('-')[0];
   private get fullKey() {
-    return `BackHandler-${this.#id}-${this.config.key}`;
+    return `BackHandler-${this.config.key}`;
   };
 
   constructor(private config: BackHandlerConfig) {
@@ -34,7 +33,6 @@ class BackHandler {
         void queueHistoryChange(() => history.pushState({
           backHandler: true,
           key: this.config.key,
-          id: this.#id,
         }, ''), this.fullKey);
       } else {
         this.remove();

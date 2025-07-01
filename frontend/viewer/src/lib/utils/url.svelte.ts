@@ -21,9 +21,8 @@ export class QueryParamState {
     return this.#current;
   }
 
-  readonly #id = crypto.randomUUID().split('-')[0];
   private get fullKey() {
-    return `QueryParamState-${this.#id}-${this.config.key}`;
+    return `QueryParamState-${this.config.key}`;
   };
 
   #waitingForHistoryChange: boolean = false;
