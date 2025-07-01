@@ -156,8 +156,7 @@ public static class MediaFileController
         var responseBody = new PostFileResult(mediaFile.Id);
         if (newFile)
         {
-            // TODO: Put "/api/media" into a constant so if it changes in MediaFileRoutes it will change here as well
-            var newLocation = $"/api/media/{fileId}";
+            var newLocation = $"{Routes.MediaFileRoutes.RootRoute}/{fileId}";
             return TypedResults.Created(newLocation, responseBody);
         }
         else
