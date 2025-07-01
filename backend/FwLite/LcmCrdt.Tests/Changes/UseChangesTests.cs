@@ -76,24 +76,24 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         }
     }
 
-    private bool AreSatisfied([NotNullWhen(false)] IEnumerable<IChange>? dependencies, IEnumerable<IChange> queuedChanges)
+    private bool AreSatisfied([NotNullWhen(false)] IEnumerable<IChange>? dependencies, IEnumerable<IChange> appliedChanges)
     {
-        return dependencies == null || dependencies.All(queuedChanges.Contains);
+        return dependencies == null || dependencies.All(appliedChanges.Contains);
     }
 
     private IChange FindFirstSatisfiedChangeRecursive(List<IChange> changes,
         Dictionary<IChange, List<IChange>?> allChangesWithDependencies,
-        List<IChange> queuedChanges)
+        List<IChange> appliedChanges)
     {
-        var change = changes.First(d => !queuedChanges.Contains(d));
+        var change = changes.First(d => !appliedChanges.Contains(d));
         var dependencies = allChangesWithDependencies[change];
-        if (AreSatisfied(dependencies, queuedChanges))
+        if (AreSatisfied(dependencies, appliedChanges))
         {
             return change;
         }
         else
         {
-            return FindFirstSatisfiedChangeRecursive(dependencies, allChangesWithDependencies, queuedChanges);
+            return FindFirstSatisfiedChangeRecursive(dependencies, allChangesWithDependencies, appliedChanges);
         }
     }
 
