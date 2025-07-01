@@ -51,7 +51,7 @@ export async function awaitPopstate(timeout = 100): Promise<boolean> {
   const controller = new AbortController();
   const result = await Promise.any([
     new Promise<'popstate'>(resolve => {
-      window.addEventListener('popstate', () => resolve('popstate'), {signal: controller.signal});
+      window.addEventListener('popstate', () => resolve('popstate'), {signal: controller.signal, once: true});
     }),
     delay(timeout),
   ]);
