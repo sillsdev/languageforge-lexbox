@@ -6,6 +6,7 @@
   type Props = HTMLAnchorAttributes & {
     children?: Snippet;
     ref?: HTMLElement | null,
+    external?: boolean;
   };
 
   let {
@@ -13,11 +14,12 @@
     target,
     ref = $bindable(null),
     children,
+    external,
     ...rest
   }: Props = $props();
 </script>
 
-  {#if target === '_blank' || !href}
+  {#if target === '_blank' || external || !href}
     <a bind:this={ref} {href} {target} {...rest}>
       {@render children?.()}
     </a>

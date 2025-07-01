@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import type {IconClass} from '$lib/icon-class';
   import {mergeProps, type WithElementRef} from 'bits-ui';
+  import type {ComponentProps} from 'svelte';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
   import type {IconProps} from '../icon/icon.svelte';
@@ -38,7 +39,7 @@
   export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
   export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
-    WithElementRef<HTMLAnchorAttributes> & {
+    WithElementRef<HTMLAnchorAttributes> & ComponentProps<typeof Anchor> & {
       variant?: ButtonVariant;
       size?: ButtonSize;
       loading?: boolean;
