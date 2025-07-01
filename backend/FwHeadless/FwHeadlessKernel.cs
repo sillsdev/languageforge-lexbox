@@ -30,8 +30,8 @@ public static class FwHeadlessKernel
             .AddFwDataBridge()
             .AddFwLiteProjectSync();
         services.RemoveAll(typeof(IMediaAdapter));
-        services.AddScoped<IMediaAdapter, LexboxFwDataMediaAdapter>();
-        services.AddScoped<MediaFileService>();
+        services.AddSingleton<IMediaAdapter, LexboxFwDataMediaAdapter>();
+        services.AddSingleton<MediaFileService>();
 
         services.AddSingleton<SyncHostedService>();
         services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());
