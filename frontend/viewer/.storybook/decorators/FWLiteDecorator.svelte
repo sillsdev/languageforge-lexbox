@@ -27,6 +27,7 @@
   import {setupDotnetServiceProvider} from '$lib/services/service-provider-dotnet';
   import {XButton} from '$lib/components/ui/button';
   import {extract} from 'runed';
+  import {setupGlobalErrorHandlers} from '$lib/errors/global-errors';
 
 
   let { children }: { children: Snippet } = $props();
@@ -36,6 +37,7 @@
   InMemoryApiService.setup();
   initView();
   const storyContext = useSvelteStoryContext();
+  setupGlobalErrorHandlers();
 
   const {
     themePicker = true,
