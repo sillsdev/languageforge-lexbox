@@ -4,6 +4,7 @@ using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 
 namespace LcmCrdt.Tests.Changes;
@@ -45,7 +46,34 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             var serializedQueuedChanges = JsonSerializer.Serialize(queuedChanges, Options);
             throw new Exception($"Failed to add changes: {e.Message}. JSON:\n\n{serializedQueuedChanges}", e);
         }
+    }
 
+    [Fact]
+    public async Task CanSyncAllChangesWithDuplicates()
+    {
+        var shuffledChangesWithDependencies = random.Shuffle(GetAllChanges())
+            .ToDictionary(change => change.Change, change => change.Dependencies == null ? null : random.Shuffle(change.Dependencies).ToList());
+        var pendingChanges = shuffledChangesWithDependencies.Select(c => c.Key).ToList();
+        var committedChanges = new List<IChange>(pendingChanges.Count);
+
+        while (pendingChanges is not [])
+        {
+            var change = FindFirstSatisfiedChangeRecursive(pendingChanges, shuffledChangesWithDependencies, committedChanges);
+            if (!pendingChanges.Remove(change)) throw new InvalidOperationException("Change not found in pending changes");
+
+            await fixture.DataModel.AddChange(Guid.NewGuid(), change);
+
+            // Add a duplicate change
+            // but we obviously can't create entities with the same ID
+            if (IsCreateChange(change)) change.EntityId = Guid.NewGuid();
+            await fixture.DataModel.AddChange(Guid.NewGuid(), change);
+
+            var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
+            var result = await EntrySync.Sync(allEntries, allEntries, fixture.Api);
+            result.Should().Be(0);
+
+            committedChanges.Add(change);
+        }
     }
 
     private bool AreSatisfied([NotNullWhen(false)] IEnumerable<IChange>? dependencies, IEnumerable<IChange> queuedChanges)
@@ -165,7 +193,21 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
 
-        var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new (){{"en", "Main"}});
+        var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new() { { "en", "Main" } });
         yield return new ChangeWithDependencies(createPublicationChange);
+    }
+
+    private static bool IsCreateChange(IChange obj)
+    {
+        var type = obj.GetType();
+        while (type != null && type != typeof(object))
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(CreateChange<>))
+            {
+                return true;
+            }
+            type = type.BaseType;
+        }
+        return false;
     }
 }
