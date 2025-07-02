@@ -31,7 +31,7 @@ public class FwDataMiniLcmApi(
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
     private FwDataBridgeConfig Config => config.Value;
-    private const string AudioVisualFolder = "AudioVisual";
+    public const string AudioVisualFolder = "AudioVisual";
     public LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
@@ -720,6 +720,13 @@ public class FwDataMiniLcmApi(
         return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
     }
 
+    private string FromMediaUri(string mediaUri)
+    {
+        //path includes `AudioVisual` currently
+        var path = mediaAdapter.PathFromMediaUri(new MediaUri(mediaUri), Cache);
+        return Path.GetRelativePath(AudioVisualFolder, path);
+    }
+
     internal RichString? ToRichString(ITsString? tsString)
     {
         if (tsString is null or { Length: 0 }) return null;
@@ -1120,9 +1127,19 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString.Values)
         {
-            if (ws.IsAudio) throw new NotImplementedException();
             var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            if (!ws.IsAudio)
+            {
+                multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            }
+            else
+            {
+                var tsString = TsStringUtils.MakeString(FromMediaUri(value),
+                    writingSystemHandle
+                );
+                multiString.set_String(writingSystemHandle, tsString);
+            }
+
         }
     }
 
@@ -1130,9 +1147,16 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString)
         {
-            if (ws.IsAudio) throw new NotImplementedException();
             var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
+            if (!ws.IsAudio)
+            {
+                multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
+            }
+            else
+            {
+                var tsString = TsStringUtils.MakeString(FromMediaUri(value.GetPlainText()), writingSystemHandle);
+                multiString.set_String(writingSystemHandle, tsString);
+            }
         }
     }
 
