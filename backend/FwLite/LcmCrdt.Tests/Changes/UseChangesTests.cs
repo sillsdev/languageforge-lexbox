@@ -64,9 +64,14 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             await fixture.DataModel.AddChange(Guid.NewGuid(), change);
 
             // Add a duplicate change
-            // but we obviously can't create entities with the same ID
-            if (IsCreateChange(change)) change.EntityId = Guid.NewGuid();
-            await fixture.DataModel.AddChange(Guid.NewGuid(), change);
+            var duplicateChange = JsonSerializer.Deserialize(
+                JsonSerializer.Serialize(change, Options),
+                change.GetType()) as IChange;
+            duplicateChange.Should().NotBeNull();
+            duplicateChange.GetType().Should().Be(change.GetType());
+            // we can't create duplicate entities with the same ID
+            if (IsCreateChange(change)) duplicateChange.EntityId = Guid.NewGuid();
+            await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateChange);
 
             var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
             var result = await EntrySync.Sync(allEntries, allEntries, fixture.Api);
