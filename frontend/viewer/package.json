@@ -91,6 +91,7 @@
     "vitest-browser-svelte": "^0.1.0"
   },
   "dependencies": {
+    "@formatjs/intl-durationformat": "^0.7.4",
     "@lingui/core": "^5.2.0",
     "@microsoft/dotnet-js-interop": "^8.0.0",
     "@microsoft/signalr": "^8.0.0",

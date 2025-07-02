@@ -33,7 +33,7 @@
   import {Slider} from '$lib/components/ui/slider';
   import {createSubscriber} from 'svelte/reactivity';
   import {on} from 'svelte/events';
-  const durationFormat = new Intl.DurationFormat(undefined, {style: 'digital'});
+  import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
 
   let {
     loader = defaultLoader,
@@ -102,7 +102,14 @@
   let playIcon: 'i-mdi-play' | 'i-mdi-pause' = $derived(playerState === 'playing'
     ? 'i-mdi-pause'
     : 'i-mdi-play');
-
+  let totalLength = $derived(normalizeDuration({seconds: audioRuned?.duration}));
+  let formatOpts = $derived({
+    style: 'digital',
+    hoursDisplay: totalLength.hours > 0 ? 'always' : 'auto',
+    minutesDisplay: totalLength.minutes > 0 ? 'always' : 'auto',
+    secondsDisplay: 'always'
+  } as const);
+  let smallestUnit = $derived(totalLength.minutes > 0 ? 'seconds' as const : 'milliseconds' as const);
 </script>
 {#if supportsAudio}
   {#if audioId}
@@ -122,11 +129,11 @@
                 step={0.01}/>
         {#if !isNaN(audioRuned.duration)}
           <span class="break-keep text-nowrap pr-2">
-            {durationFormat.format({seconds: audioRuned.currentTime.toFixed(0)})} / {durationFormat.format({seconds: audioRuned.duration.toFixed(0)})}
+            {formatDuration({seconds: audioRuned.currentTime}, smallestUnit, formatOpts)} / {formatDuration(totalLength, smallestUnit, formatOpts)}
           </span>
         {/if}
       {/if}
-      <audio class="rounded"  bind:this={audio} onplay={load}>
+      <audio bind:this={audio} onplay={load}>
       </audio>
     </div>
   {:else}
