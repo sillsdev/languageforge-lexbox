@@ -60,6 +60,7 @@
     'aria-labelledby': ariaLabelledby,
     'aria-label': ariaLabel,
     label,
+    autocapitalize = 'off',
     readonly = false,
     onchange = () => {},
     autofocus,
@@ -106,6 +107,7 @@
         ...(ariaLabelledby ? {'aria-labelledby': ariaLabelledby} : {}),
         ...(ariaLabel ? {'aria-label': ariaLabel} : {}),
         role: 'textbox',
+        ...(autocapitalize ? {autocapitalize} : {}),
         spellcheck: 'false',
       },
       editable() {
