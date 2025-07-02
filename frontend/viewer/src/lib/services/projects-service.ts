@@ -41,7 +41,7 @@ export class ProjectService implements ICombinedProjectsService {
       method: 'POST',
     });
     if (!r.ok) {
-      AppNotification.display(`Failed to import FieldWorks project ${name}: ${r.statusText} (${r.status})`, 'error', 'long');
+      AppNotification.display(`Failed to import FieldWorks project ${name}: ${r.statusText} (${r.status})`, 'error');
       console.error(`Failed to import FieldWorks project ${name}: ${r.statusText} (${r.status})`, r, await r.text())
     }
     return r.ok;
@@ -50,7 +50,7 @@ export class ProjectService implements ICombinedProjectsService {
   async downloadCrdtProject(project: Project) {
     const r = await fetch(`/api/download/crdt/${project.server!.authority}/${project.code}`, {method: 'POST'});
     if (!r.ok) {
-      AppNotification.display(`Failed to download project ${project.code}: ${r.statusText} (${r.status})`, 'error', 'long');
+      AppNotification.display(`Failed to download project ${project.code}: ${r.statusText} (${r.status})`, 'error');
       console.error(`Failed to download project ${project.code}: ${r.statusText} (${r.status})`, r, await r.text())
     }
     return r.ok;
@@ -59,7 +59,7 @@ export class ProjectService implements ICombinedProjectsService {
   async uploadCrdtProject(server: string, projectName: string, lexboxProjectId: string): Promise<boolean> {
     const r = await fetch(`/api/upload/crdt/${server}/${projectName}?lexboxProjectId=${lexboxProjectId}`, {method: 'POST'});
     if (!r.ok) {
-      AppNotification.display(`Failed to upload project ${projectName}: ${r.statusText} (${r.status})`, 'error', 'long');
+      AppNotification.display(`Failed to upload project ${projectName}: ${r.statusText} (${r.status})`, 'error');
       console.error(`Failed to upload project ${projectName}: ${r.statusText} (${r.status})`, r, await r.text())
     }
     return r.ok;

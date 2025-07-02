@@ -17,7 +17,7 @@
 
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
     if (event.result == UpdateResult.ManualUpdateRequired) {
-      AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, 'info', {
+      AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, {
         callback: () => {
           const fwliteConfig = useFwLiteConfig();
           const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
@@ -29,4 +29,11 @@
   }, {includeLast: true});
 </script>
 
-<Toaster />
+<!--
+Prevent dialogs from disabling clicking on toasts
+and prevent those clicks from dismissing the dialog.
+-->
+<Toaster
+  class="pointer-events-auto"
+  onpointerdown={e => {e.stopPropagation();}}
+/>

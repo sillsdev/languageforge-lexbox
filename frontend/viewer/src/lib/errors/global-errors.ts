@@ -39,7 +39,7 @@ export function setupGlobalErrorHandlers() {
 
     if (suppressErrorNotification(event.message)) return;
     const {message: simpleMessage, detail} = processErrorIntoDetails(event.message);
-    AppNotification.display(simpleMessage, 'error', undefined, detail);
+    AppNotification.display(simpleMessage, {type: 'error', description: detail});
   });
 
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
@@ -48,6 +48,6 @@ export function setupGlobalErrorHandlers() {
 
     if (suppressErrorNotification(message)) return;
     const {message: simpleMessage, detail} = processErrorIntoDetails(message);
-    AppNotification.display(simpleMessage, 'error', undefined, detail);
+    AppNotification.display(simpleMessage, {type: 'error', description: detail});
   });
 }
