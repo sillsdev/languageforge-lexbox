@@ -1,48 +1,88 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
-  import {Toaster} from '$lib/components/ui/sonner';
+  import NotificationOutlet from '$lib/notifications/NotificationOutlet.svelte';
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
   const { Story } = defineMeta({
     title: 'notifications/examples',
-    component: Toaster,
+    component: NotificationOutlet,
   });
 </script>
 
 <script lang="ts">
-  import {AppNotification} from '$lib/notifications/notifications';
+  import {AppNotification, pickDuration} from '$lib/notifications/notifications';
   import {Button} from '$lib/components/ui/button';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import {Dialog, DialogTrigger} from '$lib/components/ui/dialog';
+  import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
+  import {delay} from '$lib/utils/time';
 
   function triggerNotificationWithLargeDetail() {
-    let detail = '';
+    let description = '';
     for (let i = 0; i < 100; i++) {
-      if (i % 10 === 0) detail += '='.repeat(20);
-      detail += `This is line ${i + 1} of the detail\n`;
+      if (i % 10 === 0) description += '='.repeat(20);
+      description += `This is line ${i + 1} of the detail\n`;
     }
-    AppNotification.display('This is a notification with a large detail', 'info', duration, detail);
+    AppNotification.display(`This is a notification with a large detail. Duration: ${currDuration()}`, { type: 'info', timeout: durationMs, description });
   }
 
-  let duration = $state<number>();
+  function triggerPromiseNotification() {
+    const resolveTime = 3000;
+    AppNotification.promise(delay(resolveTime).then(() => 42),
+      {
+        loading: `Waiting for promise... (${resolveTime / 1000}s)`,
+        success: (r: number) => `Resolved with ${r} (Duration: ${currDuration()})`,
+        timeout: durationMs,
+      },
+    );
+  }
+
+  let duration = $state<number | undefined>(3);
+  const durationMs = $derived(duration ? duration * 1000 : undefined);
+
+  function currDuration(): string {
+    if (durationMs === undefined) return 'Permanent';
+    return `${pickDuration(durationMs) / 1000}s`;
+  }
 </script>
 
-<div class="flex flex-col gap-4">
-  <h1 class="text-2xl font-bold">Notifications</h1>
-  <Label>
-    Duration (ms):
-    <Input type="number" bind:value={duration} />
-    <span class="text-sm text-muted-foreground">Only applies to non-error and non-action notifications</span>
+{#snippet notificationControls()}
+  <Label class="flex flex-col gap-1">
+    Duration (s):
+    <div class="flex gap-2">
+      <Input type="number" min="2" step="0.5" bind:value={duration} />
+      <Button size="sm" onclick={() => duration = undefined}>Clear</Button>
+    </div>
+    <span class="text-sm text-muted-foreground">Ignored by exception and action notifications. Min duration: 3s.</span>
   </Label>
   <div class="flex flex-wrap gap-2">
-    <Button onclick={() => {throw new Error('This is a test exception');}}>Throw Exception</Button>
-    <Button onclick={() => new Promise(() => { throw new Error('This is a test exception');})}>Throw Exception Async</Button>
-    <Button onclick={() => AppNotification.display('This is a simple notification', 'info', duration)}>Simple
-      Notification
+    <Button onclick={() => AppNotification.display(`This is a simple notification. Duration: ${currDuration()}`, { timeout: durationMs })}>
+      Plain / Default
     </Button>
-    <Button onclick={() => AppNotification.displayAction('This is a notification with an action', 'info', {
-      label: 'Action',
-      callback: () => alert('Action clicked')
+    <Button onclick={() => AppNotification.display(`This is a simple notification. Duration: ${currDuration()}`, { type: 'info', timeout: durationMs })}>
+      Info
+    </Button>
+    <Button onclick={() => AppNotification.display(`This is a simple notification. Duration: ${currDuration()}`, { type: 'success', timeout: durationMs })}>
+      Success
+    </Button>
+    <Button onclick={() => AppNotification.display(`This is a simple notification. Duration: ${currDuration()}`, { type: 'warning', timeout: durationMs })}>
+      Warning
+    </Button>
+    <Button variant="destructive" onclick={() => AppNotification.display(`This is a simple notification. Duration: ${currDuration()}`, { type: 'error', timeout: durationMs })}>
+      Error
+    </Button>
+    <Button onclick={() => triggerPromiseNotification()}>
+      Promise
+    </Button>
+  </div>
+  <div class="flex flex-wrap gap-2">
+
+    <Button variant="destructive" onclick={() => {throw new Error('This is a test exception');}}>Throw Exception</Button>
+    <Button variant="destructive" onclick={() => new Promise(() => { throw new Error('This is a test exception');})}>Throw Exception Async</Button>
+    <Button onclick={() => AppNotification.displayAction('This is a notification with an action', {
+      label: 'Clear',
+      callback: () => AppNotification.clear(),
     })}>
       Notification with action
     </Button>
@@ -50,6 +90,23 @@
       Notification with a large detail
     </Button>
   </div>
+{/snippet}
+
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">Notifications</h1>
+    <Dialog>
+      <DialogContent class="flex flex-col">
+        {@render notificationControls()}
+      </DialogContent>
+      <DialogTrigger>
+        {#snippet child({props})}
+          <Button {...props}>Dialog</Button>
+        {/snippet}
+      </DialogTrigger>
+    </Dialog>
+  </div>
+  {@render notificationControls()}
 </div>
 
 <Story name="Notifications" />

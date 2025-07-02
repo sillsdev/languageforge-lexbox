@@ -38,12 +38,12 @@
   const testingService = tryUseService(DotnetService.TestingService);
 
   function triggerNotificationWithLargeDetail() {
-    let detail = '';
+    let description = '';
     for (let i = 0; i < 100; i++) {
-      if (i % 10 === 0) detail += '='.repeat(20);
-      detail += `This is line ${i + 1} of the detail\n`;
+      if (i % 10 === 0) description += '='.repeat(20);
+      description += `This is line ${i + 1} of the detail\n`;
     }
-    AppNotification.display('This is a notification with a large detail', 'info', undefined, detail);
+    AppNotification.display('This is a notification with a large detail', { type: 'plain', description });
   }
 
   InMemoryApiService.setup();
@@ -254,10 +254,10 @@
         Notifications
         <Button onclick={() => testingService?.throwException()}>Throw Exception</Button>
         <Button onclick={() => testingService?.throwExceptionAsync()}>Throw Exception Async</Button>
-        <Button onclick={() => AppNotification.display('This is a simple notification', 'info')}>Simple
+        <Button onclick={() => AppNotification.display('This is a simple notification')}>Simple
           Notification
         </Button>
-        <Button onclick={() => AppNotification.displayAction('This is a notification with an action', 'info', {
+        <Button onclick={() => AppNotification.displayAction('This is a notification with an action', {
           label: 'Action',
           callback: () => alert('Action clicked')
         })}>Notification with action
