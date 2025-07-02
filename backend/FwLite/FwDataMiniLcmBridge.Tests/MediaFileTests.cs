@@ -40,9 +40,10 @@ public class MediaFileTests : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    private async Task<Guid> AddFileDirectly(string fileName, string? contents)
+    private async Task<Guid> AddFileDirectly(string fileName, string? contents, bool storeFile = true)
     {
-        await StoreFileContentsAsync(fileName, contents);
+        if (storeFile)
+            await StoreFileContentsAsync(fileName, contents);
 
         var entry = await _api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "test" } });
         var lexEntry = _api.EntriesRepository.GetObject(entry.Id);
@@ -94,13 +95,33 @@ public class MediaFileTests : IAsyncLifetime
         var mediaUri = new MediaUri(fileId, "localhost");
         var entry = await _api.CreateEntry(new Entry()
         {
-            LexemeForm = { ["en"] = "test" },
-            CitationForm = { [_audioWs] = mediaUri.ToString() }
+            LexemeForm = { ["en"] = "test" }, CitationForm = { [_audioWs] = mediaUri.ToString() }
         });
 
         var fwAudioValue = GetFwAudioValue(entry.Id);
         fwAudioValue.Should().Be("CreateEntry_MapsMediaUrisForAudioWs.txt");
         entry.CitationForm[_audioWs].Should().Be(mediaUri.ToString());
+    }
+
+    [Fact]
+    public async Task UpdateEntry_MapsMediaUrisForAudioWs()
+    {
+        var fileName = "UpdateEntry_MapsMediaUrisForAudioWs.txt";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var mediaUri = new MediaUri(fileId, "localhost");
+        var entry = await _api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "test" } });
+        entry.Should().NotBeNull();
+
+        var after = entry.Copy();
+        after.CitationForm[_audioWs] = mediaUri.ToString();
+        await _api.UpdateEntry(entry, after);
+
+        entry = await _api.GetEntry(entry.Id);
+
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(mediaUri.ToString());
+        var fwAudioValue = GetFwAudioValue(entry.Id);
+        fwAudioValue.Should().Be(fileName);
     }
 
     [Fact]
@@ -117,5 +138,46 @@ public class MediaFileTests : IAsyncLifetime
         using var streamReader = new StreamReader(file);
         var contents = await streamReader.ReadToEndAsync();
         contents.Should().Be("test");
+    }
+
+    [Fact]
+    public async Task GetEntry_MissingFileWorks()
+    {
+        var fileName = "GetEntry_MissingFileWorks.txt";
+        var entryId = await AddFileDirectly(fileName, "test", storeFile: false);
+        File.Exists(Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
+            FwDataMiniLcmApi.AudioVisualFolder,
+            fileName)).Should().BeFalse();
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(MediaUri.NotFound.ToString());
+        GetFwAudioValue(entryId).Should().Be(fileName);
+    }
+
+    [Fact]
+    public async Task UpdateEntry_MissingFileDoesNotOverwriteFwData()
+    {
+        var fileName = "CreateEntry_MissingFileWorks.txt";
+        var entryId = await AddFileDirectly(fileName, "test", storeFile: false);
+        File.Exists(Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
+            FwDataMiniLcmApi.AudioVisualFolder,
+            fileName)).Should().BeFalse();
+
+        var entry = await _api.GetEntry(entryId);
+        entry.Should().NotBeNull();
+        await _api.UpdateEntry(entryId,
+            new UpdateObjectInput<Entry>().Set(e => e.CitationForm[_audioWs], MediaUri.NotFound.ToString()));
+
+        var fwAudioValue = GetFwAudioValue(entry.Id);
+        fwAudioValue.Should().Be(fileName);
+    }
+
+    [Fact]
+    public async Task GetStreamForNotFoundIsNull()
+    {
+        var fileStream = await _api.GetFileStream(MediaUri.NotFound);
+        fileStream.Should().BeNull();
     }
 }

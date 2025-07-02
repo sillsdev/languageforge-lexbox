@@ -29,7 +29,7 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
     //path is expected to be relative to the LinkedFilesRootDir
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
-        if (!File.Exists(Path.Combine(cache.LangProject.LinkedFilesRootDir, path))) throw new FileNotFoundException("File not found in LinkedFiles folder at: " + path, path);
+        if (!File.Exists(Path.Combine(cache.LangProject.LinkedFilesRootDir, path))) return MediaUri.NotFound;
         return new MediaUri(NewGuidV5(path), LocalMediaAuthority);
     }
 

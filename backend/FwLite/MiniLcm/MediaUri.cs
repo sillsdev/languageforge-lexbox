@@ -3,6 +3,7 @@ namespace MiniLcm;
 public record struct MediaUri
 {
     public static readonly MediaUri NotFound = new MediaUri(Guid.Empty, "not-found");
+    public static readonly string NotFoundString = NotFound.ToString();
     public const string Scheme = "sil-media";
     public MediaUri(Guid fileId, string authority)
     {

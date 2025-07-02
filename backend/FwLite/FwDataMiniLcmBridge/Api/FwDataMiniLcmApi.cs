@@ -720,7 +720,7 @@ public class FwDataMiniLcmApi(
         return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
     }
 
-    private string FromMediaUri(string mediaUri)
+    internal string FromMediaUri(string mediaUri)
     {
         //path includes `AudioVisual` currently
         var path = mediaAdapter.PathFromMediaUri(new MediaUri(mediaUri), Cache);
@@ -1127,19 +1127,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString.Values)
         {
-            var writingSystemHandle = GetWritingSystemHandle(ws);
-            if (!ws.IsAudio)
-            {
-                multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
-            }
-            else
-            {
-                var tsString = TsStringUtils.MakeString(FromMediaUri(value),
-                    writingSystemHandle
-                );
-                multiString.set_String(writingSystemHandle, tsString);
-            }
-
+            multiString.SetString(this, ws, value);
         }
     }
 
@@ -1147,16 +1135,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString)
         {
-            var writingSystemHandle = GetWritingSystemHandle(ws);
-            if (!ws.IsAudio)
-            {
-                multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
-            }
-            else
-            {
-                var tsString = TsStringUtils.MakeString(FromMediaUri(value.GetPlainText()), writingSystemHandle);
-                multiString.set_String(writingSystemHandle, tsString);
-            }
+            multiString.SetString(this, ws, value);;
         }
     }
 
@@ -1534,6 +1513,7 @@ public class FwDataMiniLcmApi(
 
     public Task<Stream?> GetFileStream(MediaUri mediaUri)
     {
+        if (mediaUri == MediaUri.NotFound) return Task.FromResult<Stream?>(null);
         string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
         return Task.FromResult<Stream?>(File.OpenRead(fullPath));
     }

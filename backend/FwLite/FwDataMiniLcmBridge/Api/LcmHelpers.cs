@@ -3,6 +3,7 @@ using MiniLcm.Culture;
 using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
+using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -157,5 +158,35 @@ internal static class LcmHelpers
         var abbr = semanticDomain.Abbreviation;
         // UiString can be null even though there is an abbreviation available
         return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+    }
+
+    internal static void SetString(this ITsMultiString multiString, FwDataMiniLcmApi api, WritingSystemId ws, string value)
+    {
+        var writingSystemHandle = api.GetWritingSystemHandle(ws);
+        if (!ws.IsAudio)
+        {
+            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+        }
+        else
+        {
+            var tsString = TsStringUtils.MakeString(api.FromMediaUri(value),
+                writingSystemHandle
+            );
+            multiString.set_String(writingSystemHandle, tsString);
+        }
+    }
+    internal static void SetString(this ITsMultiString multiString, FwDataMiniLcmApi api, WritingSystemId ws, RichString value)
+    {
+        var writingSystemHandle = api.GetWritingSystemHandle(ws);
+        if (!ws.IsAudio)
+        {
+            multiString.set_String(writingSystemHandle,
+                RichTextMapping.ToTsString(value, id => api.GetWritingSystemHandle(id)));
+        }
+        else
+        {
+            var tsString = TsStringUtils.MakeString(api.FromMediaUri(value.GetPlainText()), writingSystemHandle);
+            multiString.set_String(writingSystemHandle, tsString);
+        }
     }
 }
