@@ -548,7 +548,7 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
+    private List<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
     {
         return entry.ComplexFormEntryRefs
             .SelectMany(r => r.ComplexEntryTypesRS, (_, type) => ToComplexFormType(type))

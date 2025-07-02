@@ -11,15 +11,9 @@ public class ReplaceComplexFormTypeChange(Guid entityId, ComplexFormType newComp
 
     public override async ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
-        entity.ComplexFormTypes = [..entity.ComplexFormTypes.Where(s => s.Id != OldComplexFormTypeId)];
-        if (await context.IsObjectDeleted(NewComplexFormType.Id))
-        {
-            //do nothing, don't add the type if it's already deleted
-        }
-        else if (entity.ComplexFormTypes.All(s => s.Id != NewComplexFormType.Id))
-        {
-            //only add if it's not already in the list
-            entity.ComplexFormTypes = [..entity.ComplexFormTypes, NewComplexFormType];
-        }
+        entity.ComplexFormTypes.RemoveAll(t => t.Id == OldComplexFormTypeId);
+        if (entity.ComplexFormTypes.Any(t => t.Id == NewComplexFormType.Id)) return;
+        if (await context.IsObjectDeleted(NewComplexFormType.Id)) return;
+        entity.ComplexFormTypes.Add(NewComplexFormType);
     }
 }
