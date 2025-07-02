@@ -1,3 +1,29 @@
+<script lang="ts" module>
+  class AudioRuned {
+    #currentTimeSub = createSubscriber(update => {
+      const off = on(this.audio, 'timeupdate', update);
+      return () => off();
+    });
+    #durationSub = createSubscriber(update => on(this.audio, 'durationchange', update));
+
+    constructor(private audio: HTMLAudioElement) {
+    }
+
+    get currentTime() {
+      this.#currentTimeSub();
+      return this.audio.currentTime;
+    }
+
+    set currentTime(value) {
+      this.audio.currentTime = value;
+    }
+
+    get duration() {
+      this.#durationSub();
+      return this.audio.duration;
+    }
+  }
+</script>
 <script lang="ts">
   import {onDestroy} from 'svelte';
   import {useEventListener, watch} from 'runed';
@@ -14,7 +40,7 @@
     audioId,
   }: {
     loader?: (audioId: string) => Promise<ReadableStream | undefined>,
-    audioId: string,
+    audioId: string | undefined,
   } = $props();
 
   watch(() => audioId, () => {
@@ -33,7 +59,7 @@
   }
 
   async function load() {
-    if (!audio || loadedAudioId === audioId) return;
+    if (!audio || loadedAudioId === audioId || !audioId) return;
     playerState = 'loading';
     const stream = await loader(audioId);
     if (!stream) {
@@ -76,26 +102,7 @@
   let playIcon: 'i-mdi-play' | 'i-mdi-pause' = $derived(playerState === 'playing'
     ? 'i-mdi-pause'
     : 'i-mdi-play');
-  class AudioRuned {
-    #currentTimeSub = createSubscriber(update => {
-      const off = on(this.audio, 'timeupdate', update);
-      return () => off();
-    });
-    #durationSub = createSubscriber(update => on(this.audio, 'durationchange', update));
-    constructor(private audio: HTMLAudioElement) {
-    }
-    get currentTime() {
-      this.#currentTimeSub();
-      return this.audio.currentTime;
-    }
-    set currentTime(value) {
-      this.audio.currentTime = value;
-    }
-    get duration() {
-      this.#durationSub();
-      return this.audio.duration;
-    }
-  }
+
 </script>
 {#if supportsAudio}
   {#if audioId}
@@ -112,7 +119,7 @@
                 value={audioRuned.currentTime}
                 onValueCommit={(v) => audioRuned.currentTime = v}
                 max={audioRuned?.duration}
-                step="0.01"/>
+                step={0.01}/>
         {#if !isNaN(audioRuned.duration)}
           <span class="break-keep text-nowrap pr-2">
             {durationFormat.format({seconds: audioRuned.currentTime.toFixed(0)})} / {durationFormat.format({seconds: audioRuned.duration.toFixed(0)})}

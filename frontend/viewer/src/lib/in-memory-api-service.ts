@@ -345,4 +345,11 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
+  getFileStream(_mediaUri: string): Promise<{
+    stream: () => Promise<ReadableStream>;
+    arrayBuffer: () => Promise<ArrayBuffer>
+  }> {
+    throw new Error('Method not implemented.');
+  }
+
 }
