@@ -12,7 +12,9 @@ public class LexboxFwDataMediaAdapter(IOptions<FwHeadlessConfig> config, MediaFi
 {
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
-        return MediaUriForMediaFile(mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), Path.Join(cache.LangProject.LinkedFilesRootDir, path)));
+        var fullPath = Path.Join(cache.LangProject.LinkedFilesRootDir, path);
+        if (!File.Exists(fullPath)) return MediaUri.NotFound;
+        return MediaUriForMediaFile(mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), fullPath));
     }
 
     public string PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
