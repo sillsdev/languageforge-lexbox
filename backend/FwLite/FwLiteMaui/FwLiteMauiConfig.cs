@@ -20,8 +20,8 @@ public class FwLiteMauiConfig
         set => field = Path.GetFullPath(value);
     }
 
-    public int MaxLogFileSize = 50 * 1024 * 1024;
-    public int MaxLogFileCount = 2;
+    public int MaxLogFileSize { get; set; } = 50 * 1024 * 1024;
+    public int MaxLogFileCount { get; set; } = 2;
 
     public string AppLogFilePath => Path.Combine(BaseDataDir, "app.log");
     public string AppLogAlternateFilePath => Path.Combine(BaseDataDir, "app1.log");
