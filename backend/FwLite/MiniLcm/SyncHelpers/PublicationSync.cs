@@ -5,6 +5,16 @@ namespace MiniLcm.SyncHelpers;
 
 public static class PublicationSync
 {
+    public static async Task<int> Sync(Publication[] beforePublications,
+        Publication[] afterPublications,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(
+            beforePublications,
+            afterPublications,
+            new PublicationsDiffApi(api));
+    }
+
     public static async Task<int> Sync(
         Publication beforePublication,
         Publication afterPublication,
@@ -27,5 +37,25 @@ public static class PublicationSync
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Publication>(patchDocument);
+    }
+
+    private class PublicationsDiffApi(IMiniLcmApi api) : ObjectWithIdCollectionDiffApi<Publication>
+    {
+        public override async Task<int> Add(Publication currentPub)
+        {
+            await api.CreatePublication(currentPub);
+            return 1;
+        }
+
+        public override async Task<int> Remove(Publication beforePub)
+        {
+            await api.DeletePublication(beforePub.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(Publication beforePub, Publication afterPub)
+        {
+            return Sync(beforePub, afterPub, api);
+        }
     }
 }

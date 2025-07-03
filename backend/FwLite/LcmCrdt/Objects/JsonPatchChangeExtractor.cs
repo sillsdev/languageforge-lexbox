@@ -143,6 +143,34 @@ public static class JsonPatchChangeExtractor
             yield return rewriteChange;
         }
 
+        foreach (var rewriteChange in patch.RewriteChanges(
+                     s => s.PublishIn,
+                     (publication, index, operationType) =>
+                     {
+                         if (operationType == OperationType.Add)
+                         {
+                             ArgumentNullException.ThrowIfNull(publication);
+                             return new AddPublicationChange(entry.Id, publication);
+                         }
+
+                         if (operationType == OperationType.Remove)
+                         {
+                             publication ??= entry.PublishIn[index];
+                             return new RemovePublicationChange(entry.Id, publication.Id);
+                         }
+
+                         if (operationType == OperationType.Replace)
+                         {
+                             ArgumentNullException.ThrowIfNull(publication);
+                             var currentPublication = entry.PublishIn[index];
+                             return new ReplacePublicationChange(entry.Id, publication, currentPublication.Id);
+                         }
+                         throw new NotSupportedException($"operation {operationType} not supported for publications");
+                     }))
+        {
+            yield return rewriteChange;
+        }
+
 
 
         if (patch.Operations.Count > 0)

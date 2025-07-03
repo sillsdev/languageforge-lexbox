@@ -1,0 +1,17 @@
+using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
+using SIL.Harmony.Entities;
+
+namespace LcmCrdt.Changes.Entries;
+
+public class AddPublicationChange(Guid entityId, Publication publication)
+    : EditChange<Entry>(entityId), ISelfNamedType<AddPublicationChange>
+{
+    public Publication publication { get; } = publication;
+
+    public override async ValueTask ApplyChange(Entry entity, IChangeContext context)
+    {
+        if (await context.IsObjectDeleted(publication.Id)) return;
+        entity.PublishIn.Add(publication);
+    }
+}
