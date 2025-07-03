@@ -221,14 +221,14 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<Publication>(id));
     }
 
-    public Task AddPublication(Guid entryId, Guid publicationId)
+    public async Task AddPublication(Guid entryId, Guid publicationId)
     {
-        throw new NotImplementedException();
+        await AddChange(new AddPublicationChange(entryId, await Publications.SingleAsync(pub => pub.Id == publicationId)));
     }
 
-    public Task RemovePublication(Guid entryId, Guid publicationId)
+    public async Task RemovePublication(Guid entryId, Guid publicationId)
     {
-        throw new NotImplementedException();
+        await AddChange(new RemovePublicationChange(entryId, publicationId));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
@@ -530,6 +530,10 @@ public class CrdtMiniLcmApi(
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {
             yield return addComplexFormTypeChange;
+        }
+        foreach (var addPublicationChange in entry.PublishIn.Select(c => new AddPublicationChange(entry.Id, c)))
+        {
+            yield return addPublicationChange;
         }
         var senseOrder = 1;
         foreach (var sense in entry.Senses)
