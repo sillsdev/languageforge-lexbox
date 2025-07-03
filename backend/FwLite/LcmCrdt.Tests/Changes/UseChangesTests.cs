@@ -200,6 +200,20 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
 
         var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new() { { "en", "Main" } });
         yield return new ChangeWithDependencies(createPublicationChange);
+
+        var publication = new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } } };
+        var addPublicationChange = new AddPublicationChange(Guid.NewGuid(), publication);
+        yield return new ChangeWithDependencies(addPublicationChange);
+
+        var publication2 = new Publication { Id = Guid.NewGuid(), Name = { { "en", "Second" } } };
+        var addPublication2Change = new AddPublicationChange(Guid.NewGuid(), publication2);
+        yield return new ChangeWithDependencies(addPublication2Change);
+
+        var replacePublicationChange = new ReplacePublicationChange(Guid.NewGuid(), publication2, publication.Id);
+        yield return new ChangeWithDependencies(replacePublicationChange, [addPublicationChange, addPublication2Change]);
+
+        var removePublicationChange = new RemovePublicationChange(Guid.NewGuid(), publication2.Id);
+        yield return new ChangeWithDependencies(removePublicationChange, [replacePublicationChange]);
     }
 
     private static bool IsCreateChange(IChange obj)
