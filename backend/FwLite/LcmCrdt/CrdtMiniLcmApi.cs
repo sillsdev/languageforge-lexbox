@@ -152,19 +152,9 @@ public class CrdtMiniLcmApi(
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<Publication> GetPublications()
-    {
-        return Publications.AsAsyncEnumerable();
-    }
-
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
-    }
-
-    public async Task<Publication?> GetPublication(Guid id)
-    {
-        return await Publications.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -192,6 +182,16 @@ public class CrdtMiniLcmApi(
     public async Task DeletePartOfSpeech(Guid id)
     {
         await AddChange(new DeleteChange<PartOfSpeech>(id));
+    }
+
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        return Publications.AsAsyncEnumerable();
+    }
+
+    public async Task<Publication?> GetPublication(Guid id)
+    {
+        return await Publications.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Publication> CreatePublication(Publication pub)
