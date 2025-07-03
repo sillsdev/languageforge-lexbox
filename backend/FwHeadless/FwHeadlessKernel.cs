@@ -27,11 +27,11 @@ public static class FwHeadlessKernel
         services.AddScoped<SafeLoggingProgress>();
         services
             .AddLcmCrdtClientCore()
-            .AddFwDataBridge()
+            .AddFwDataBridge(ServiceLifetime.Scoped)
             .AddFwLiteProjectSync();
         services.RemoveAll(typeof(IMediaAdapter));
-        services.AddSingleton<IMediaAdapter, LexboxFwDataMediaAdapter>();
-        services.AddSingleton<MediaFileService>();
+        services.AddScoped<IMediaAdapter, LexboxFwDataMediaAdapter>();
+        services.AddScoped<MediaFileService>();
 
         services.AddSingleton<SyncHostedService>();
         services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());
