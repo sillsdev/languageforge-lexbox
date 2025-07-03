@@ -13,6 +13,8 @@ namespace FwHeadless.Controllers;
 
 public static class MediaFileController
 {
+    public const string LinkedFiles = "LinkedFiles";
+
     public static async Task<Results<Ok<FileListing>, NotFound, BadRequest>> ListFiles(
         Guid projectId,
         IOptions<FwHeadlessConfig> config,
@@ -29,7 +31,7 @@ public static class MediaFileController
             // This will also fail for any requests with ".." in the name of a directory, but that's an acceptable loss
             return TypedResults.BadRequest();
         }
-        var path = Path.Join(projectFolder, "LinkedFiles", relativePath); // Do NOT use Path.Combine here
+        var path = Path.Join(projectFolder, LinkedFiles, relativePath); // Do NOT use Path.Combine here
         var files =
             Directory.EnumerateFiles(path, "*", new EnumerationOptions() { RecurseSubdirectories = true })
                 .Select(file => Path.GetRelativePath(path, file))
@@ -322,7 +324,7 @@ public static class MediaFileController
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
-                Filename = Path.Join("LinkedFiles", subfolder, fileId.ToString(), filename),
+                Filename = Path.Join(LinkedFiles, subfolder, fileId.ToString(), filename),
                 ProjectId = projectId,
                 Metadata = metadata,
             };
@@ -334,7 +336,7 @@ public static class MediaFileController
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
             }
-            if (subfolderOverride is not null && !mediaFile.Filename.StartsWith(Path.Join("LinkedFiles", subfolderOverride)))
+            if (subfolderOverride is not null && !mediaFile.Filename.StartsWith(Path.Join(LinkedFiles, subfolderOverride)))
             {
                 throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }
