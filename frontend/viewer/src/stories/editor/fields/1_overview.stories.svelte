@@ -247,3 +247,14 @@
     </Editor.Root>
   {/snippet}
 </Story>
+
+<Story name="Value alignment">
+  {#snippet template()}
+    <div class="flex flex-nowrap w-96 gap-1">
+      <WsInput value="Standard Input..." writingSystem={ws1} />
+      <RichWsInput value={{spans: [{ws: ws1.wsId, text: 'Rich '}, {ws: ws2.wsId, text: ' Input...'}]}} writingSystem={ws1} />
+      <WsInput value="R/O Input..." writingSystem={ws1} />
+      <RichWsInput value={{spans: [{ws: ws1.wsId, text: 'R/O '}, {ws: ws2.wsId, text: ' Rich Input...'}]}} writingSystem={ws1} />
+    </div>
+  {/snippet}
+</Story>
