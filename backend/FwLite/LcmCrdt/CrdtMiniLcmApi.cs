@@ -564,6 +564,7 @@ public class CrdtMiniLcmApi(
                     return CreateSenseChanges(entry.Id, s);
                 })
                 .ToArrayAsync(),
+            ..await ToPublications(entry.PublishIn).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
@@ -629,7 +630,24 @@ public class CrdtMiniLcmApi(
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
+
+        async IAsyncEnumerable<AddPublicationChange> ToPublications(IList<Publication> publications)
+        {
+            foreach (var publication in publications)
+            {
+                if (publication.Id == default)
+                {
+                    throw new InvalidOperationException("Publication must have an id");
+                }
+
+                if (!await Publications.AnyAsyncEF(t => t.Id == publication.Id))
+                {
+                    throw new InvalidOperationException($"Publication {publication} does not exist");
+                }
+                yield return new AddPublicationChange(entry.Id, publication);
             }
+        }
+    }
 
     private async ValueTask<bool> IsEntryDeleted(Guid id)
     {
