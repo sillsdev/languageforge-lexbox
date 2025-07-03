@@ -9,14 +9,14 @@ namespace FwHeadless.Media;
 
 public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config)
 {
+    // TODO: This assumes FieldWorks is the source of truth, which is not true when FWL starts adding/deleting files
     public async Task SyncMediaFiles(LcmCache cache)
     {
         var projectId = config.Value.LexboxProjectId(cache);
-        Queue<MediaFile> existingDbFiles = new(await dbContext.Files.Where(p => p.ProjectId == projectId).AsTracking().ToArrayAsync());
+        var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsTracking().AsAsyncEnumerable();
         var existingFwFiles = FilesRelativeToHgRepo(cache).ToHashSet();
-        while (existingDbFiles.Count > 0)
+        await foreach (var mediaFile in existingDbFiles)
         {
-            var mediaFile = existingDbFiles.Dequeue();
             if (existingFwFiles.Remove(mediaFile.Filename))
             {
                 //nothing to do, the file exists in the db and in the hg repo
