@@ -91,4 +91,23 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         entry.Should().NotBeNull();
         entry.PublishIn.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task UpdatePublication_WithUpdateObject_Works()
+    {
+        var publication = new Publication() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreatePublication(publication);
+        var updatedPublication = await Api.UpdatePublication(publication.Id, new UpdateObjectInput<Publication>().Set(c => c.Name["en"], "updated"));
+        updatedPublication.Name["en"].Should().Be("updated");
+    }
+
+    [Fact]
+    public async Task UpdatePublication_WithBeforeAndAfter_Works()
+    {
+        var publication = new Publication() { Id = Guid.NewGuid(), Name = new() { { "en", "test" } } };
+        await Api.CreatePublication(publication);
+        var afterPub = new Publication() { Id = publication.Id, Name = new() { { "en", "updated" } } };
+        var actualPub = await Api.UpdatePublication(publication, afterPub);
+        actualPub.Should().BeEquivalentTo(afterPub, options => options.Excluding(c => c.Id));
+    }
 }
