@@ -16,6 +16,7 @@ export function formatDuration(value: Partial<Duration>, smallestUnit?: 'hours' 
   millisecondsDisplay?: 'auto' | 'always'
 }) {
 
+  // @ts-expect-error TS2339
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
   const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
