@@ -30,6 +30,7 @@
     "test:watch": "vitest",
     "test:storybook": "vitest --project=storybook",
     "test:unit": "vitest --project=unit",
+    "test:browser": "vitest --project=browser",
     "check": "svelte-check",
     "lint": "eslint .",
     "lint:report": "eslint . --output-file eslint_report.json --format json",

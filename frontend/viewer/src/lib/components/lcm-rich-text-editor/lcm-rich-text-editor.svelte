@@ -3,9 +3,14 @@
   import {gt} from 'svelte-i18n-lingui';
   import {cn} from '$lib/utils';
 
+  /*
+  whitespace: pre tells prose-mirror how to parse the dom, not how to render it, that's our job
+  */
   const textSchema = new Schema({
     nodes: {
-      text: {},
+      text: {
+        whitespace: 'pre',
+      },
       /**
        * Note: it seems that our spans likely should have been modeled as "marks" rather than "nodes".
        * Conceptually our users "mark" up a text.
@@ -15,6 +20,7 @@
       span: {
         selectable: false,
         content: 'text*',
+        inline: true,
         whitespace: 'pre',
         toDOM: (node) => {
           return ['span', {
@@ -27,7 +33,12 @@
         //this allows us to update the text property without having to map all the span properties into the schema
         attrs: {richSpan: {default: {}}, className: {default: ''}}
       },
-      doc: {content: 'span*', attrs: {}}
+      doc: {
+        whitespace: 'pre',
+        inline: true,
+        content: 'span*',
+        attrs: {}
+      }
     }
   });
 
@@ -41,7 +52,7 @@
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {Label} from '$lib/components/ui/label';
   import {EditorView} from 'prosemirror-view';
-  import {AllSelection, EditorState} from 'prosemirror-state';
+  import {AllSelection, EditorState, Selection} from 'prosemirror-state';
   import {keymap} from 'prosemirror-keymap';
   import {baseKeymap} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
@@ -50,8 +61,10 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {IsUsingKeyboard} from 'bits-ui';
   import type {IRichSpan} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichSpan';
-  import {inputVariants} from '../ui/input/input.svelte';
   import {on} from 'svelte/events';
+  import InputShell from '../ui/input/input-shell.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {findNextTabbable} from '$lib/utils/tabbable';
 
   let {
     value = $bindable(),
@@ -64,6 +77,8 @@
     readonly = false,
     onchange = () => {},
     autofocus,
+    class: className,
+    enterkeyhint = 'next',
     ...rest
   }:
     {
@@ -82,6 +97,8 @@
   let editor: EditorView | null = null;
 
   const isUsingKeyboard = new IsUsingKeyboard();
+  // isUsingKeyboard.current isn't entirely reliable on mobile due to virtual keyboards
+  let pointerDown = false;
 
   onMount(() => {
     // docs https://prosemirror.net/docs/
@@ -100,7 +117,6 @@
         editor.updateState(newState);
       },
       attributes: {
-        class: inputVariants({class: 'min-h-10 h-auto block'}),
         // todo: the distribution of props between the editor and the elementRef is not good
         // there should probably be a wrapper component that provides the elementRef to this one
         ...(id ? {id} : {}),
@@ -109,13 +125,25 @@
         role: 'textbox',
         ...(autocapitalize ? {autocapitalize} : {}),
         spellcheck: 'false',
+        ...(enterkeyhint ? {enterkeyhint} : {}),
       },
       editable() {
         return !readonly;
       },
       handleDOMEvents: {
-        'focus': onfocus,
+        pointerdown() {
+          pointerDown = true;
+          setTimeout(() => pointerDown = false, 100); // yes, apparently we need a decently high timeout value
+        },
+        'focus'(editor) {
+          onfocus(editor, !pointerDown);
+        },
         'blur': onblur,
+        keydown(_view, event) {
+          if (event.key === 'Enter') {
+            onEnterKey();
+          }
+        },
       }
     });
     editor.dom.setAttribute('tabindex', '0');
@@ -125,9 +153,22 @@
     if (relatedLabel) return on(relatedLabel, 'click', onFocusTargetClick);
   });
 
-  function onfocus(editor: EditorView) {
-    if (isUsingKeyboard.current) { // tabbed in
-      selectAll(editor);
+  let prevSelection: Selection | undefined;
+  function onfocus(editor: EditorView, viaKeyboard: boolean) {
+    const usingKeyboard = isUsingKeyboard.current ||
+      IsMobile.value && viaKeyboard;
+    if (usingKeyboard) { // tabbed in
+      if (IsMobile.value) {
+        if (prevSelection) {
+          const prevSelectionForCurrentDoc = Selection.fromJSON(editor.state.doc, prevSelection.toJSON());
+          setSelection(prevSelectionForCurrentDoc);
+          prevSelection = undefined;
+        } else {
+          setSelection(Selection.atEnd(editor.state.doc));
+        }
+      } else {
+        selectAll(editor);
+      }
     }
   }
 
@@ -136,6 +177,7 @@
       onchange(value);
       dirty = false;
     }
+    prevSelection = editor.state.selection;
     clearSelection(editor);
   }
 
@@ -167,6 +209,15 @@
         keymap({
           'Mod-z': undo,
           'Mod-y': redo,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'Enter': () => {
+            // This handler is not triggered reliably on mobile, so we're using handleDOMEvents.keydown instead
+            // if (IsMobile.value) onEnterKey();
+
+            // and we never want to do anything on desktop
+            // (partially because it causes range errors - on mobile too)
+            return true;
+          },
           'Shift-Enter': (state, dispatch) => {
             if (dispatch) dispatch(state.tr.insertText(newLine));
             return true;
@@ -175,6 +226,14 @@
         keymap(baseKeymap)
       ]
     });
+  }
+
+  function onEnterKey(): void {
+    if (IsMobile.value && enterkeyhint === 'next' && editor?.dom) {
+      // mimic <input> 'next' behaviour
+      const nextTabbable = findNextTabbable(editor.dom);
+      nextTabbable?.focus();
+    }
   }
 
   function valueToDoc(): Node {
@@ -197,7 +256,16 @@
   }
 
   function selectAll(editor: EditorView) {
-    editor.dispatch(editor.state.tr.setSelection(new AllSelection(editor.state.doc)));
+    setSelection(new AllSelection(editor.state.doc));
+
+    if (!readonly) return; // happens automatically if not readonly
+
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = document.createRange();
+    range.selectNodeContents(editor.dom);
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   function clearSelection(editor: EditorView) {
@@ -209,6 +277,19 @@
     }
   }
 
+  function setSelection(selection: Selection): void {
+    if (!editor) return;
+    editor.dispatch(editor.state.tr.setSelection(selection));
+    setTimeout(() => {
+      if (!editor) return;
+      if (editor.state.selection.eq(selection) || selection.$anchor.doc !== editor.state.doc) return;
+      // when tabbing back and forth between 2 rich text editors, the previous setSelection is not sufficient 🤷
+      // (It doesn't have anything to do with the clearSelection() below)
+      // The first call is kept, because it avoid a visible delay when possible
+      editor.dispatch(editor.state.tr.setSelection(selection));
+    }, 1); // 0 is not enough on Firefox
+  }
+
   //lcm expects line separators, but html does not render them, so we replace them with \n
   function replaceNewLineWithLineSeparator(text: string) {
     return text.replaceAll(newLine, lineSeparator);
@@ -218,18 +299,31 @@
   }
 
   function onFocusTargetClick(event: MouseEvent) {
-    if (!editor) return;
-    if (event.target === editor?.dom) return; // the editor will handle focus itself
-    editor.focus();
+    if (!editor || !event.target) return;
+    if (event.target === editor.dom || event.target instanceof globalThis.Node && editor.dom.contains(event.target))
+      return; // the editor will handle focus itself
+    editor?.focus();
+    // Minorly dissatisfying is that when you click on the padding to the right of prose-mirror,
+    // the caret is not intelligently placed at the end of the text (and on the correct line if multi-line)
+    // Everything else seems good
   }
+
+  const wrapperClasses = 'px-3 min-h-10 h-max block overflow-hidden cursor-text place-content-center focus:ring-2';
 </script>
-<style lang="postcss">
-  :global(.ProseMirror) {
+
+<style lang="postcss" global>
+  .ProseMirror {
+    height: 100%;
+    @apply py-1.5;
+    place-content: center;
     flex-grow: 1;
     outline: none;
     cursor: text;
-    /*white-space must be here, if it's directly on span then it will crash with a null node error*/
-    white-space: pre-wrap;
+    overflow: auto;
+    scrollbar-width: none;
+
+    /* "pre" => only wrap for line breaks, NOT simply because the text doesn't have enough space */
+    white-space: pre;
 
     :global(.customized) {
       text-decoration: underline;
@@ -246,11 +340,19 @@
   }
 </style>
 
+<!-- tabindex=-1 allows focus, but not tabbing, which makes focus:ring-2 work
+when clicking around the real editor (just aesthetics) -->
 {#if label}
-  <div {...rest}>
-    <Label onclick={onFocusTargetClick}>{label}</Label>
-    <div bind:this={elementRef}></div>
+  <div class={className} {...rest}>
+    <Label>{label}</Label>
+    <InputShell onclick={onFocusTargetClick}
+      class={wrapperClasses}
+      bind:ref={elementRef}
+      tabindex={-1} />
   </div>
 {:else}
-  <div bind:this={elementRef} {...rest}></div>
+  <InputShell onclick={onFocusTargetClick}
+    class={cn(wrapperClasses, className)} bind:ref={elementRef}
+    tabindex={-1}
+    {...rest} />
 {/if}
