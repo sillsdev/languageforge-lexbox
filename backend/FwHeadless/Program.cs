@@ -30,8 +30,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddLexData(
     autoApplyMigrations: false,
     useOpenIddict: false,
-    useSeeding: false,
-    ServiceLifetime.Singleton
+    useSeeding: false
 );
 
 builder.Services.AddFwHeadless();
