@@ -239,6 +239,38 @@
     "EntityId": "428b9279-8cbb-bcda-49e2-1ff80d8cba2f"
   },
   {
+    "$type": "AddPublicationChange",
+    "Publication": {
+      "Id": "84597629-7d00-a415-9ac1-2865b7efa9bf",
+      "DeletedAt": null,
+      "Name": {
+        "dgw": "Money Market Account",
+        "yrn": "parse"
+      }
+    },
+    "EntityId": "4dcbedc5-c4f1-54fd-f0b0-ede17a5af7e7"
+  },
+  {
+    "$type": "RemovePublicationChange",
+    "PublicationId": "26a3eeec-bd3d-fa76-c66d-7d41df729d1f",
+    "EntityId": "3f1e7bbf-ea5f-fdfd-6f24-2cf129fce912"
+  },
+  {
+    "$type": "ReplacePublicationChange",
+    "NewPublication": {
+      "Id": "09c00842-481a-516f-f9fc-e6732c9ada73",
+      "DeletedAt": null,
+      "Name": {
+        "iap": "whiteboard",
+        "jiy": "Trafficway",
+        "enu": "Kip",
+        "dtm": "optimize"
+      }
+    },
+    "OldPublicationId": "e0fca592-c089-8850-8026-0c34610352fa",
+    "EntityId": "727546c3-8a97-c721-4a9a-5205cc029c77"
+  },
+  {
     "$type": "CreateComplexFormType",
     "Name": {
       "slu": "yellow"
