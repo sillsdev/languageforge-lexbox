@@ -19,6 +19,14 @@ public class LcmCrdtDbContext(
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
+    public IQueryable<Entry> Entries => Set<Entry>().AsNoTracking();
+    public IQueryable<ComplexFormComponent> ComplexFormComponents => Set<ComplexFormComponent>().AsNoTracking();
+    public IQueryable<ComplexFormType> ComplexFormTypes => Set<ComplexFormType>().AsNoTracking();
+    public IQueryable<Sense> Senses => Set<Sense>().AsNoTracking();
+    public IQueryable<ExampleSentence> ExampleSentences => Set<ExampleSentence>().AsNoTracking();
+    public IQueryable<SemanticDomain> SemanticDomains => Set<SemanticDomain>().AsNoTracking();
+    public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
+    public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(setupCollationInterceptor, new CustomSqliteFunctionInterceptor());

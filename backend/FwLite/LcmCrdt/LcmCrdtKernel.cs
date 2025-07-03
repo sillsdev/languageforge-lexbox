@@ -36,7 +36,7 @@ public static class LcmCrdtKernel
     {
         services.AddLcmCrdtClientCore();
         services.AddScoped<UpdateEntrySearchTableInterceptor>();
-        services.AddScoped<EntrySearchService>();
+        services.AddScoped<EntrySearchServiceFactory>();
         return services;
     }
 
@@ -49,13 +49,14 @@ public static class LcmCrdtKernel
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
-        services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
+        services.AddPooledDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions);
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
         services.AddCrdtData<LcmCrdtDbContext>(
             ConfigureCrdt
         );
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();

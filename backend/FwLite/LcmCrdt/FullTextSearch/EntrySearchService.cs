@@ -6,18 +6,35 @@ using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SQLite;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt.FullTextSearch;
 
-public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchService> logger)
+public class EntrySearchServiceFactory(
+    Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory,
+    IServiceProvider serviceProvider)
+{
+    public EntrySearchService CreateSearchService(LcmCrdtDbContext? dbContext = null)
+    {
+        return ActivatorUtilities.CreateInstance<EntrySearchService>(serviceProvider,
+            dbContext ?? dbContextFactory.CreateDbContext(),
+            dbContext is null);
+    }
+}
+
+public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchService> logger, bool disposeOfDbContext)
+    : IAsyncDisposable, IDisposable
 {
     internal IQueryable<EntrySearchRecord> EntrySearchRecords => dbContext.Set<EntrySearchRecord>();
 
     //ling2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable, string query, bool rankResults, bool orderAscending)
+    public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
+        string query,
+        bool rankResults,
+        bool orderAscending)
     {
         //starting from EntrySearchRecordsTable rather than queryable otherwise linq2db loses track of the table
         var filtered = from searchRecord in EntrySearchRecordsTable
@@ -34,9 +51,11 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             }
             else
             {
-                filtered = filtered.OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord)).ThenBy(t => t.entry.Id);
+                filtered = filtered.OrderByDescending(t => Sql.Ext.SQLite().Rank(t.searchRecord))
+                    .ThenBy(t => t.entry.Id);
             }
         }
+
         return filtered.Select(t => t.entry);
     }
 
@@ -53,7 +72,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     {
         return wss.Where(ws => ws.Type == type)
             .Select(ws => ms.TryGetValue(ws.WsId, out var value) ? value : null)
-             .FirstOrDefault(v => v is not null)?.GetPlainText();
+            .FirstOrDefault(v => v is not null)?.GetPlainText();
     }
 
     public static string LexemeForm(WritingSystem[] wss, Entry entry)
@@ -147,9 +166,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         await UpdateEntrySearchTable(entries, [], dbContext);
     }
 
-    public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries, IEnumerable<WritingSystem> newWritingSystems, LcmCrdtDbContext dbContext)
+    public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries,
+        IEnumerable<WritingSystem> newWritingSystems,
+        LcmCrdtDbContext dbContext)
     {
-        WritingSystem[] writingSystems = [
+        WritingSystem[] writingSystems =
+        [
             ..dbContext.WritingSystems,
             ..newWritingSystems
         ];
@@ -219,5 +241,17 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public async Task RemoveSearchRecord(Guid entryId)
     {
         await EntrySearchRecordsTable.DeleteAsync(e => e.Id == entryId);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (disposeOfDbContext)
+            await dbContext.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        if (disposeOfDbContext)
+            dbContext.Dispose();
     }
 }
