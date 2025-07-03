@@ -7,14 +7,13 @@ using SIL.LCModel;
 
 namespace FwHeadless.Media;
 
-public class MediaFileService(IOptions<FwHeadlessConfig> config, IHttpContextAccessor contextAccessor)
+public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config)
 {
-    private LexBoxDbContext DbContext => contextAccessor.HttpContext?.RequestServices.GetRequiredService<LexBoxDbContext>() ?? throw new InvalidOperationException("HttpContext is null");
     // TODO: This assumes FieldWorks is the source of truth, which is not true when FWL starts adding/deleting files
     public async Task SyncMediaFiles(LcmCache cache)
     {
         var projectId = config.Value.LexboxProjectId(cache);
-        var existingDbFiles = DbContext.Files.Where(p => p.ProjectId == projectId).AsTracking().AsAsyncEnumerable();
+        var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsTracking().AsAsyncEnumerable();
         var existingFwFiles = FilesRelativeToHgRepo(cache).ToHashSet();
         await foreach (var mediaFile in existingDbFiles)
         {
@@ -25,12 +24,12 @@ public class MediaFileService(IOptions<FwHeadlessConfig> config, IHttpContextAcc
             }
 
             //file has been deleted from hg, so remove it from the db
-            DbContext.Files.Remove(mediaFile);
+            dbContext.Files.Remove(mediaFile);
         }
         //files not removed are newly created, and we need to record them in the db
         foreach (var newFwFile in existingFwFiles)
         {
-            DbContext.Files.Add(new MediaFile
+            dbContext.Files.Add(new MediaFile
             {
                 Id = Guid.NewGuid(),
                 Filename = newFwFile,
@@ -43,7 +42,7 @@ public class MediaFileService(IOptions<FwHeadlessConfig> config, IHttpContextAcc
             });
         }
 
-        await DbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 
     private IEnumerable<string> FilesRelativeToHgRepo(LcmCache cache)
@@ -74,7 +73,7 @@ public class MediaFileService(IOptions<FwHeadlessConfig> config, IHttpContextAcc
         }
 
         path = Path.GetRelativePath(fwDataFolder, path);
-        return DbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path) ??
+        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path) ??
                throw new NotFoundException(
                    $"Unable to find file {path}, in project {projectId}.",
                    nameof(MediaFile));
@@ -82,7 +81,7 @@ public class MediaFileService(IOptions<FwHeadlessConfig> config, IHttpContextAcc
 
     public MediaFile FindMediaFile(Guid fileId)
     {
-        return DbContext.Files.Find(fileId) ??
+        return dbContext.Files.Find(fileId) ??
                throw new NotFoundException($"Unable to find file {fileId}.", nameof(MediaFile));
     }
 }
