@@ -47,8 +47,8 @@ public class MediaFileTests : IAsyncLifetime
 
         var entry = await _api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "test" } });
         var lexEntry = _api.EntriesRepository.GetObject(entry.Id);
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set LexemeFormOA to null",
-            "Restore LexemeFormOA",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set CitationForm audio",
+            "Undo setting CitationForm audio",
             _api.Cache.ServiceLocator.ActionHandler,
             () =>
             {
@@ -91,7 +91,8 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task CreateEntry_MapsMediaUrisForAudioWs()
     {
-        var fileId = await StoreFileContentsAsync("CreateEntry_MapsMediaUrisForAudioWs.txt", "test");
+        var fileName = "UpdateEntry_MapsMediaUrisForAudioWs.txt";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
         var mediaUri = new MediaUri(fileId, "localhost");
         var entry = await _api.CreateEntry(new Entry()
         {
@@ -159,7 +160,7 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task UpdateEntry_MissingFileDoesNotOverwriteFwData()
     {
-        var fileName = "CreateEntry_MissingFileWorks.txt";
+        var fileName = "UpdateEntry_MissingFileDoesNotOverwriteFwData.txt";
         var entryId = await AddFileDirectly(fileName, "test", storeFile: false);
         File.Exists(Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
             FwDataMiniLcmApi.AudioVisualFolder,
