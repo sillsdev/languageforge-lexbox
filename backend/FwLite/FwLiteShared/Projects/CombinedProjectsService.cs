@@ -157,7 +157,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
         var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
-        await crdtProjectsService.CreateProject(new(project.Name,
+        await Task.Run(async () => await crdtProjectsService.CreateProject(new(project.Name,
             project.Code,
             projectId,
             server.Authority,
@@ -168,7 +168,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             SeedNewProjectData: false,
             AuthenticatedUser: currentUser?.Name,
             AuthenticatedUserId: currentUser?.Id,
-            Role: ToRole(project.Role)));
+            Role: ToRole(project.Role))));
     }
 
     [JSInvokable]
