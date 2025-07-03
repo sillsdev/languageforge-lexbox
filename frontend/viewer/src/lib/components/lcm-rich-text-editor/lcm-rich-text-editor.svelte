@@ -236,6 +236,11 @@
     :global(.customized ~ .customized) {
       margin-left: 2px;
     }
+
+    &::before {
+      /* Ensure baseline-alignment even works when empty */
+      content: '\200B';
+    }
   }
 </style>
 
