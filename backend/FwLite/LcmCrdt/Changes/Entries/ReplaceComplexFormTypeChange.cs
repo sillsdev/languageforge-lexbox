@@ -1,5 +1,4 @@
-﻿using MiniLcm.Models;
-using SIL.Harmony.Changes;
+﻿using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
@@ -10,13 +9,11 @@ public class ReplaceComplexFormTypeChange(Guid entityId, ComplexFormType newComp
     public ComplexFormType NewComplexFormType { get; } = newComplexFormType;
     public Guid OldComplexFormTypeId { get; } = oldComplexFormTypeId;
 
-    public override ValueTask ApplyChange(Entry entity, IChangeContext context)
+    public override async ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
-        entity.ComplexFormTypes =
-        [
-            ..entity.ComplexFormTypes.Where(t => t.Id != OldComplexFormTypeId),
-            NewComplexFormType
-        ];
-        return ValueTask.CompletedTask;
+        entity.ComplexFormTypes.RemoveAll(t => t.Id == OldComplexFormTypeId);
+        if (entity.ComplexFormTypes.Any(t => t.Id == NewComplexFormType.Id)) return;
+        if (await context.IsObjectDeleted(NewComplexFormType.Id)) return;
+        entity.ComplexFormTypes.Add(NewComplexFormType);
     }
 }

@@ -55,7 +55,7 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
             {
                 Id = Guid.NewGuid(),
                 LexemeForm = { ["en"] = AutoFaker.Faker.Hacker.Noun() },
-                ComplexFormTypes = AutoFaker.Faker.Random.ListItems(complexFormTypes),
+                ComplexFormTypes = [.. AutoFaker.Faker.Random.ListItems(complexFormTypes)],
                 Senses = Enumerable
                     .Range(0, AutoFaker.Faker.Random.Int(1, 3))
                     .Select(_ => new Sense

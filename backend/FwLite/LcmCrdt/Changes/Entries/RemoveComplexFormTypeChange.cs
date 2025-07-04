@@ -9,7 +9,7 @@ public class RemoveComplexFormTypeChange(Guid entityId, Guid complexFormTypeId) 
     public Guid ComplexFormTypeId { get; } = complexFormTypeId;
     public override ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
-        entity.ComplexFormTypes = entity.ComplexFormTypes.Where(t => t.Id != ComplexFormTypeId).ToList();
+        entity.ComplexFormTypes.RemoveAll(t => t.Id == ComplexFormTypeId);
         return ValueTask.CompletedTask;
     }
 }
