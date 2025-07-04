@@ -37,10 +37,10 @@
       }
     }
     if (opened) {
-      AppNotification.displayAction($t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`, 'warning', {
+      AppNotification.displayAction($t`This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.`, {
         label: $t`Reopen`,
         callback: () => window.location.reload()
-      });
+      }, 'warning');
     } else {
       AppNotification.display($t`Unable to open in FieldWorks`, 'error');
     }

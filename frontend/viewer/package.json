@@ -76,7 +76,7 @@
     "svelte": "catalog:",
     "svelte-check": "catalog:",
     "svelte-eslint-parser": "catalog:",
-    "svelte-sonner": "^0.3.28",
+    "svelte-sonner": "^1.0.5",
     "tailwind-merge": "^3.0.2",
     "tailwind-variants": "^1.0.0",
     "tailwindcss": "catalog:",
