@@ -33,7 +33,7 @@
   } = $props();
 
   const features = useFeatures();
-  const id = crypto.randomUUID();
+  const id = $props.id();
   const isActive = $derived(
     // explicitly active
     instances[id] === true ||
