@@ -41,18 +41,7 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
         var valStr = value as RichString ??
                      throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to RichString",
                          nameof(value));
-        if (key is WritingSystemId keyWs)
-        {
-            Add(keyWs, valStr);
-        }
-        else if (key is string keyStr)
-        {
-            Add(keyStr, valStr);
-        }
-        else
-        {
-            throw new ArgumentException("unable to convert key to writing system id", nameof(key));
-        }
+        Add(WritingSystemId.FromUnknown(key), valStr);
     }
 
     public void Add(WritingSystemId key, RichString value)
@@ -152,28 +141,22 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
 
     object? IDictionary.this[object key]
     {
-        get =>
-            key switch
-            {
-                WritingSystemId keyWs => this[keyWs],
-                string keyStr => this[keyStr],
-                _ => throw new ArgumentException("unable to convert key to writing system id", nameof(key))
-            };
+        get => this[WritingSystemId.FromUnknown(key)];
         set
         {
-            var valStr = value as RichString ??
-                         throw new ArgumentException("unable to convert value to string", nameof(value));
-            if (key is WritingSystemId keyWs)
+            // value will be null if an empty string was deserialized as a RichString (e.g. from a JsonPatch operation).
+            // Usually that's what we want, because when deserializing a whole RichMultiString it will result in the key being dropped.
+            // So we mimic that behaviour.
+            var wsId = WritingSystemId.FromUnknown(key);
+            if (value is null)
             {
-                this[keyWs] = valStr;
-            }
-            else if (key is string keyStr)
-            {
-                this[keyStr] = valStr;
+                Remove(wsId);
             }
             else
             {
-                throw new ArgumentException("unable to convert key to writing system id", nameof(key));
+                var valStr = value as RichString ??
+                             throw new ArgumentException("unable to convert value to string", nameof(value));
+                this[wsId] = valStr;
             }
         }
     }

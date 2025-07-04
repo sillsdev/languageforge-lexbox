@@ -60,6 +60,7 @@
     'aria-labelledby': ariaLabelledby,
     'aria-label': ariaLabel,
     label,
+    autocapitalize = 'off',
     readonly = false,
     onchange = () => {},
     autofocus,
@@ -106,6 +107,7 @@
         ...(ariaLabelledby ? {'aria-labelledby': ariaLabelledby} : {}),
         ...(ariaLabel ? {'aria-label': ariaLabel} : {}),
         role: 'textbox',
+        ...(autocapitalize ? {autocapitalize} : {}),
         spellcheck: 'false',
       },
       editable() {
@@ -186,7 +188,7 @@
     //ProseMirror will keep the text up to date itself, if we store it on the richSpan attr then it will become out of date
     let {text, ...rest} = s;
     //if the ws doesn't match expected, or there's more than just the ws key in props
-    const isCustomized = (!!normalWs && normalWs !== s.ws) || Object.keys(rest).length > 1;
+    const isCustomized = (!!s.ws && !!normalWs && normalWs !== s.ws) || Object.keys(rest).length > 1;
     return textSchema.node('span', {richSpan: rest, className: cn(isCustomized && 'customized')}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
   }
 

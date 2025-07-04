@@ -74,6 +74,7 @@
         <Button {loading}
                 variant="secondary"
                 href="/api/auth/login/{server.id}"
+                external
                 icon="i-mdi-login">
           {text ?? $t`Login to see projects`}
         </Button>

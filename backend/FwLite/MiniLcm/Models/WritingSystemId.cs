@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SIL.WritingSystems;
@@ -36,6 +37,13 @@ public readonly record struct WritingSystemId: ISpanFormattable, ISpanParsable<W
     public bool IsAudio { get; } = false;
 
     public static readonly WritingSystemId Default = "default";
+
+    public static WritingSystemId FromUnknown(object? obj)
+    {
+        if (obj is WritingSystemId wsId) return wsId;
+        if (obj is string str) return new WritingSystemId(str);
+        throw new ArgumentException($"Unable to convert object: '{obj}' to writing system id", nameof(obj));
+    }
 
     public WritingSystemId(string code)
     {
