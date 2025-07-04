@@ -53,19 +53,24 @@ public record HistoryLineItem(
     }
 }
 
-public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
+public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory)
 {
-    public IAsyncEnumerable<ProjectActivity> ProjectActivity()
+    public async IAsyncEnumerable<ProjectActivity> ProjectActivity()
     {
-        return dbContext.Commits
-                .DefaultOrderDescending()
-                .Take(100)
-                .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities, c.Metadata))
-                .AsAsyncEnumerable();
+        await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
+        await foreach (var projectActivity in dbContext.Commits
+                       .DefaultOrderDescending()
+                       .Take(100)
+                       .Select(c => new ProjectActivity(c.Id, c.HybridDateTime.DateTime, c.ChangeEntities, c.Metadata))
+                       .AsAsyncEnumerable())
+        {
+            yield return projectActivity;
+        }
     }
 
     public async Task<ObjectSnapshot?> GetSnapshot(Guid snapshotId)
     {
+        await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
         return await dbContext.Snapshots.SingleOrDefaultAsync(s => s.Id == snapshotId);
     }
 
@@ -81,8 +86,9 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
         return await dataModel.GetAtTime<IObjectWithId>(new DateTimeOffset(timestamp), entityId);
     }
 
-    public IAsyncEnumerable<HistoryLineItem> GetHistory(Guid entityId)
+    public async IAsyncEnumerable<HistoryLineItem> GetHistory(Guid entityId)
     {
+        await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
         var changeEntities = dbContext.Set<ChangeEntity<IChange>>();
         var query =
             from commit in dbContext.Commits.DefaultOrder()
@@ -102,7 +108,10 @@ public class HistoryService(ICrdtDbContext dbContext, DataModel dataModel)
                 snapshot.Entity,
                 snapshot.TypeName,
                 commit.Metadata.AuthorName);
-        return query.ToLinqToDB().AsAsyncEnumerable();
+        await foreach (var historyLineItem in query.ToLinqToDB().AsAsyncEnumerable())
+        {
+            yield return historyLineItem;
+        }
     }
 
     public static string ChangesNameHelper(List<ChangeEntity<IChange>> changeEntities)

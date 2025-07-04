@@ -16,6 +16,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
     private LcmCrdtDbContext? _crdtDbContext;
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
     public DataModel DataModel => _services.ServiceProvider.GetRequiredService<DataModel>();
+    public LcmCrdtDbContext DbContext => _crdtDbContext ?? throw new InvalidOperationException("MiniLcmApiFixture not initialized");
     public CrdtConfig CrdtConfig => _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
 
     public T GetService<T>() where T : notnull
@@ -40,7 +41,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var db = ":memory:";
+        var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared" ;
         if (Debugger.IsAttached)
         {
             db = "test.db";
@@ -59,7 +60,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
                 .SetMinimumLevel(LogLevel.Error))
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
-        _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        _crdtDbContext = await _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
@@ -121,6 +122,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
+        await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
     }
 }

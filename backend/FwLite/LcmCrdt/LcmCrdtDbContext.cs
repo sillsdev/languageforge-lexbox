@@ -11,22 +11,20 @@ namespace LcmCrdt;
 
 public class LcmCrdtDbContext(
     DbContextOptions<LcmCrdtDbContext> dbContextOptions,
-    IOptions<CrdtConfig> options,
-    SetupCollationInterceptor setupCollationInterceptor,
-    UpdateEntrySearchTableInterceptor? updateEntrySearchTableInterceptor = null
+    IOptions<CrdtConfig> options
     )
     : DbContext(dbContextOptions), ICrdtDbContext
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
     public IQueryable<WritingSystem> WritingSystems => Set<WritingSystem>().AsNoTracking();
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.AddInterceptors(setupCollationInterceptor, new CustomSqliteFunctionInterceptor());
-        if (updateEntrySearchTableInterceptor is not null)
-        {
-            optionsBuilder.AddInterceptors(updateEntrySearchTableInterceptor);
-        }
-    }
+    public IQueryable<Entry> Entries => Set<Entry>().AsNoTracking();
+    public IQueryable<ComplexFormComponent> ComplexFormComponents => Set<ComplexFormComponent>().AsNoTracking();
+    public IQueryable<ComplexFormType> ComplexFormTypes => Set<ComplexFormType>().AsNoTracking();
+    public IQueryable<Sense> Senses => Set<Sense>().AsNoTracking();
+    public IQueryable<ExampleSentence> ExampleSentences => Set<ExampleSentence>().AsNoTracking();
+    public IQueryable<SemanticDomain> SemanticDomains => Set<SemanticDomain>().AsNoTracking();
+    public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
+    public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
