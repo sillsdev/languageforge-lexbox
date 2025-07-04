@@ -91,7 +91,7 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task CreateEntry_MapsMediaUrisForAudioWs()
     {
-        var fileName = "UpdateEntry_MapsMediaUrisForAudioWs.txt";
+        var fileName = "CreateEntry_MapsMediaUrisForAudioWs.txt";
         var fileId = await StoreFileContentsAsync(fileName, "test");
         var mediaUri = new MediaUri(fileId, "localhost");
         var entry = await _api.CreateEntry(new Entry()
@@ -100,7 +100,7 @@ public class MediaFileTests : IAsyncLifetime
         });
 
         var fwAudioValue = GetFwAudioValue(entry.Id);
-        fwAudioValue.Should().Be("CreateEntry_MapsMediaUrisForAudioWs.txt");
+        fwAudioValue.Should().Be(fileName);
         entry.CitationForm[_audioWs].Should().Be(mediaUri.ToString());
     }
 
