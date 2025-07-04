@@ -115,7 +115,12 @@ public static class FwLiteMauiKernel
             config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");
         });
 
-        logging.AddFile(fwLiteMauiConfig.AppLogFilePath);
+        logging.AddFile(fwLiteMauiConfig.AppLogFilePath, options =>
+        {
+            options.RollingFilesConvention = FileLoggerOptions.FileRollingConvention.Descending;
+            options.FileSizeLimitBytes = fwLiteMauiConfig.MaxLogFileSize;
+            options.MaxRollingFiles = fwLiteMauiConfig.MaxLogFileCount;
+        });
         services.AddSingleton<IPreferences>(Preferences.Default);
         services.AddSingleton<IVersionTracking>(VersionTracking.Default);
         services.AddSingleton<IConnectivity>(Connectivity.Current);
