@@ -12,7 +12,6 @@ public class ReplaceSemanticDomainChange(Guid oldSemanticDomainId, SemanticDomai
 
     public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        //remove the old domain
         entity.SemanticDomains = [..entity.SemanticDomains.Where(s => s.Id != OldSemanticDomainId)];
         if (entity.SemanticDomains.Any(s => s.Id == SemanticDomain.Id)) return;
         if (await context.IsObjectDeleted(SemanticDomain.Id)) return;
