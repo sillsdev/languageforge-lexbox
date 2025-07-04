@@ -155,19 +155,9 @@ public class CrdtMiniLcmApi(
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<Publication> GetPublications()
-    {
-        return Publications.AsAsyncEnumerable();
-    }
-
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
-    }
-
-    public async Task<Publication?> GetPublication(Guid id)
-    {
-        return await Publications.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -199,6 +189,16 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
+    public IAsyncEnumerable<Publication> GetPublications()
+    {
+        return Publications.AsAsyncEnumerable();
+    }
+
+    public async Task<Publication?> GetPublication(Guid id)
+    {
+        return await Publications.SingleOrDefaultAsync(p => p.Id == id);
+    }
+
     public async Task<Publication> CreatePublication(Publication pub)
     {
         await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
@@ -214,9 +214,11 @@ public class CrdtMiniLcmApi(
         return await GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
     }
 
-    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await PublicationSync.Sync(before, after, api ?? this);
+        var updatedPublication = await GetPublication(after.Id) ?? throw new NullReferenceException("Unable to find publication with id " + after.Id);
+        return updatedPublication;
     }
 
     public async Task DeletePublication(Guid id)
@@ -224,14 +226,14 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<Publication>(id));
     }
 
-    public Task AddPublication(Guid entryId, Guid publicationId)
+    public async Task AddPublication(Guid entryId, Guid publicationId)
     {
-        throw new NotImplementedException();
+        await AddChange(new AddPublicationChange(entryId, await Publications.SingleAsync(pub => pub.Id == publicationId)));
     }
 
-    public Task RemovePublication(Guid entryId, Guid publicationId)
+    public async Task RemovePublication(Guid entryId, Guid publicationId)
     {
-        throw new NotImplementedException();
+        await AddChange(new RemovePublicationChange(entryId, publicationId));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
@@ -538,6 +540,10 @@ public class CrdtMiniLcmApi(
         {
             yield return addComplexFormTypeChange;
         }
+        foreach (var addPublicationChange in entry.PublishIn.Select(c => new AddPublicationChange(entry.Id, c)))
+        {
+            yield return addPublicationChange;
+        }
         var senseOrder = 1;
         foreach (var sense in entry.Senses)
         {
@@ -568,6 +574,7 @@ public class CrdtMiniLcmApi(
                     return CreateSenseChanges(entry.Id, s);
                 })
                 .ToArrayAsync(),
+            ..await ToPublications(entry.PublishIn).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
@@ -633,7 +640,24 @@ public class CrdtMiniLcmApi(
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
+
+        async IAsyncEnumerable<AddPublicationChange> ToPublications(IList<Publication> publications)
+        {
+            foreach (var publication in publications)
+            {
+                if (publication.Id == default)
+                {
+                    throw new InvalidOperationException("Publication must have an id");
+                }
+
+                if (!await Publications.AnyAsyncEF(t => t.Id == publication.Id))
+                {
+                    throw new InvalidOperationException($"Publication {publication} does not exist");
+                }
+                yield return new AddPublicationChange(entry.Id, publication);
             }
+        }
+    }
 
     private async ValueTask<bool> IsEntryDeleted(Guid id)
     {

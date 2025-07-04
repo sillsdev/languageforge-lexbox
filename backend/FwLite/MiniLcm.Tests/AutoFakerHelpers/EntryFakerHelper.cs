@@ -10,21 +10,15 @@ public static class EntryFakerHelper
         Guid? entryId = null,
         bool createComplexForms = true,
         bool createComplexFormTypes = true,
-        bool createComponents = true)
+        bool createComponents = true,
+        bool createPublications = true)
     {
         var entry = autoFaker.Generate<Entry>();
         if (entryId.HasValue) entry.Id = entryId.Value;
         if (createComponents) await CreateComplexFormComponentEntry(entry, true, entry.Components, api);
         if (createComplexForms) await CreateComplexFormComponentEntry(entry, false, entry.ComplexForms, api);
         if (createComplexFormTypes) await CreateComplexFormTypes(entry.ComplexFormTypes, api);
-        if (Publication.SupportsCrdts)
-        {
-            await CreatePublications(entry.PublishIn, api);
-        }
-        else
-        {
-            entry.PublishIn = [];
-        }
+        if (createPublications) await CreatePublications(entry.PublishIn, api);
 
         foreach (var sense in entry.Senses)
         {
