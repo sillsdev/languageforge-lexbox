@@ -23,6 +23,7 @@
         lg: 'h-11 rounded-md px-8',
         'badge-icon': 'h-5 w-5 min-h-5 min-w-5',
         'xs-icon': 'h-8 w-8 min-h-8 min-w-8',
+        'sm-icon': 'h-9 w-9 min-h-9 min-w-9',
         icon: 'h-10 w-10 min-h-10 min-w-10',
         'extended-fab': 'h-14 pl-4 pr-5',
         'fab': 'h-14 px-4'
