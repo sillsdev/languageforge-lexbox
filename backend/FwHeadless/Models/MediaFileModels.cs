@@ -8,6 +8,7 @@ public record PostFileResult(Guid guid);
 public enum FileUploadErrorMessage
 {
     UploadedFilesCannotBeMovedToNewProjects,
+    UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders,
     ProjectFolderNotFoundInFwHeadless,
 }
 

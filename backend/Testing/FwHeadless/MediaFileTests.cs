@@ -1,5 +1,4 @@
 ﻿using LexCore.Entities;
-using Testing.ApiTests;
 using Testing.Fixtures;
 using System.Net;
 using System.Security.Cryptography;
@@ -170,10 +169,11 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         mResult.StatusCode.Should().Be(HttpStatusCode.OK);
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
-        var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
+        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
         listResult.StatusCode.Should().Be(HttpStatusCode.OK);
-        (files?.Files ?? []).Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
-        (files?.Files ?? []).Should().NotContain(Path.Join(fileId.ToString(), secondPath));
+        var files = fileListing?.Files ?? [];
+        files.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join(fileId.ToString(), secondPath));
     }
 
     [Fact]
@@ -193,16 +193,221 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_Works()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        var files = fileListing?.Files ?? [];
+        files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        // LinkedFiles subfolder must NOT be part of filename returned by metadata endpoint
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
+        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        metadata.Should().NotBeNull();
+        metadata.Filename.Should().Be(TestRepoZipFilename);
+    }
+
+    [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondTimeDifferent_Fails()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "AudioVisual");
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        var files = fileListing?.Files ?? [];
+        files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+    }
+
+    [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondUploadsDoNotMoveFile()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, fileId);
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        var files = fileListing?.Files ?? [];
+        files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+    }
+
+    [Fact]
+    public async Task UploadFile_WithoutSubfolder_ThenTryingToOverride_Fails()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath); // MIME type "application/zip" will go into LinkedFiles, no subfolder
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        var files = fileListing?.Files ?? [];
+        files.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var (fileListing2, listResult2) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult2.StatusCode.Should().Be(HttpStatusCode.OK);
+        var files2 = fileListing2?.Files ?? [];
+        files2.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        files2.Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        files2.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
+        files2.Should().BeEquivalentTo(files);
+    }
+
+    [Theory]
+    [InlineData(".mp3", "AudioVisual")]
+    [InlineData(".wav", "AudioVisual")]
+    [InlineData(".mp4", "AudioVisual")]
+    [InlineData(".mkv", "AudioVisual")]
+    [InlineData(".jpg", "Pictures")]
+    [InlineData(".jpeg", "Pictures")]
+    [InlineData(".gif", "Pictures")]
+    [InlineData(".png", "Pictures")]
+    public async Task UploadFile_WithoutContentType_GuessesFromFilename(string extension, string expectedFolder)
+    {
+        var otherPath = TestRepoZipPath.Replace(".zip", extension);
+        var otherFilename = TestRepoZipFilename.Replace(".zip", extension);
+        var wrongFolder = expectedFolder == "Pictures" ? "AudioVisual" : "Pictures";
+        try
+        {
+            File.Copy(TestRepoZipPath, otherPath, overwrite: true);
+            var (fileId, result) = await Fixture.PostFile(otherPath);
+            result.StatusCode.Should().Be(HttpStatusCode.Created);
+            var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+            listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+            var files = fileListing?.Files ?? [];
+            files.Should().NotContain(Path.Join(wrongFolder, fileId.ToString(), otherFilename));
+            files.Should().NotContain(Path.Join(fileId.ToString(), otherFilename));
+            files.Should().Contain(Path.Join(expectedFolder, fileId.ToString(), otherFilename));
+        }
+        finally { if (File.Exists(otherPath)) File.Delete(otherPath); }
+    }
+
+    [Theory]
+    [InlineData(".mp3", "image/jpeg", "Pictures")]
+    [InlineData(".wav", "image/png", "Pictures")]
+    [InlineData(".mp4", "image/tiff", "Pictures")]
+    [InlineData(".mkv", "image/gif", "Pictures")]
+    [InlineData(".jpg", "audio/mp3", "AudioVisual")]
+    [InlineData(".jpeg", "audio/wav", "AudioVisual")]
+    [InlineData(".gif", "video/mp4", "AudioVisual")]
+    [InlineData(".png", "video/x-matroska", "AudioVisual")]
+    public async Task UploadFile_WithContentType_GuessesFromContentTypeAndNotFilename(string extension, string mimeType, string expectedFolder)
+    {
+        var otherPath = TestRepoZipPath.Replace(".zip", extension);
+        var otherFilename = TestRepoZipFilename.Replace(".zip", extension);
+        var wrongFolder = expectedFolder == "Pictures" ? "AudioVisual" : "Pictures";
+        try
+        {
+            File.Copy(TestRepoZipPath, otherPath, overwrite: true);
+            var (fileId, result) = await Fixture.PostFile(otherPath, contentType: mimeType);
+            result.StatusCode.Should().Be(HttpStatusCode.Created);
+            var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
+            listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+            var files = fileListing?.Files ?? [];
+            files.Should().NotContain(Path.Join(wrongFolder, fileId.ToString(), otherFilename));
+            files.Should().NotContain(Path.Join(fileId.ToString(), otherFilename));
+            files.Should().Contain(Path.Join(expectedFolder, fileId.ToString(), otherFilename));
+        }
+        finally { if (File.Exists(otherPath)) File.Delete(otherPath); }
+    }
+
+    [Fact]
     public async Task UploadFile_ContentTooLarge_ThrowsError()
     {
         var dummyPath = TestRepoZipPath + ".tooLarge";
         try
         {
             if (File.Exists(dummyPath)) File.Delete(dummyPath);
-            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 1); // 10 MB minus one byte, file is not too large but Content-Length will be too large
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 64); // 10 MB minus 64 bytes, file is not too large but Content-Length will be too large
             var (guid, result) = await Fixture.PostFile(dummyPath);
             result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
             guid.Should().BeEmpty();
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
+    public async Task UploadFile_ContentWouldBeTooLargeButActualFileIsNot_Succeeds()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 64); // 10 MB minus 64 bytes, file is not too large but Content-Length would be too large if included
+            var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
+            if (result.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+            {
+                // GitHub Actions runner forces Content-Length header to be present even if we omit it, so this test becomes meaningless on GHA
+                // We would skip it, but the ability to skip tests at runtime was only added in xUnit 3 and we're currently on xUnit 2.9.2
+            }
+            else
+            {
+                result.StatusCode.Should().Be(HttpStatusCode.Created);
+                guid.Should().NotBeEmpty();
+                result = await Fixture.PutFile(dummyPath, guid, deleteContentLengthHeader: true);
+                result.StatusCode.Should().Be(HttpStatusCode.OK);
+            }
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
+    public async Task UploadFile_ContentTooLarge_FailsDespiteLackOfContentLengthHeader()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 64); // 10 MB plus 64 bytes, file is too large
+            var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
+            result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+            guid.Should().BeEmpty();
+        }
+        finally
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+        }
+    }
+
+    [Fact]
+    public async Task UploadFile_ReplacementWouldBeTooLargeButActualFileIsNot_SucceedsPostButFailsPut()
+    {
+        var dummyPath = TestRepoZipPath + ".tooLarge";
+        try
+        {
+            if (File.Exists(dummyPath)) File.Delete(dummyPath);
+            Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 - 64); // 10 MB minus 64 bytes, file is not too large but Content-Length would be too large if included
+            var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
+            if (result.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+            {
+                // GitHub Actions runner forces Content-Length header to be present even if we omit it, so this test becomes meaningless on GHA
+                // We would skip it, but the ability to skip tests at runtime was only added in xUnit 3 and we're currently on xUnit 2.9.2
+            }
+            else
+            {
+                // Running locally, so this test can proceed
+                result.StatusCode.Should().Be(HttpStatusCode.Created);
+                guid.Should().NotBeEmpty();
+                if (File.Exists(dummyPath)) File.Delete(dummyPath);
+                Fixture.CreateDummyFile(dummyPath, 1024 * 1024 * 10 + 64); // 10 MB plus 64 bytes, file is too large
+                result = await Fixture.PutFile(dummyPath, guid, deleteContentLengthHeader: true);
+                result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+            }
         }
         finally
         {
