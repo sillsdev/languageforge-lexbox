@@ -1,8 +1,17 @@
 ﻿<script lang="ts" module>
+  import {locale} from 'svelte-i18n-lingui';
   const hasSetLang = {value: false};
+
+  export async function setLanguage(lang: string) {
+    const wasDefault = lang === 'default';
+    if (!lang || wasDefault) lang = localStorage.getItem('locale') ?? 'en';
+    let {messages} = await import(`../../locales/${lang}.json?lingui`);
+    locale.set(lang, messages);
+    //only save when the user changes locale
+    if (!wasDefault) localStorage.setItem('locale', lang);
+  }
 </script>
 <script lang="ts">
-import {locale} from 'svelte-i18n-lingui';
 import {onMount} from 'svelte';
 import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 import {Button} from '$lib/components/ui/button';
@@ -15,14 +24,7 @@ const languages: Record<string, string> = {
   'es': 'Español'
 };
 const currentLanguage = $derived(languages[$locale] ?? 'Unknown: ' + $locale);
-async function setLanguage(lang: string) {
-  const wasDefault = lang === 'default';
-  if (!lang || wasDefault) lang = localStorage.getItem('locale') ?? 'en';
-  let {messages} = await import(`../../locales/${lang}.json?lingui`);
-  locale.set(lang, messages);
-  //only save when the user changes locale
-  if (!wasDefault) localStorage.setItem('locale', lang);
-}
+
 onMount(() => {
   if (!hasSetLang.value) {
     void setLanguage($locale);
