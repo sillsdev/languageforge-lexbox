@@ -28,7 +28,7 @@ public class SyncService(
     IMiniLcmApi lexboxApi,
     IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
-    LcmCrdtDbContext dbContext)
+    IDbContextFactory<LcmCrdtDbContext> dbContextFactory)
 {
     public async Task<SyncResults> SafeExecuteSync(bool skipNotifications = false)
     {
@@ -204,6 +204,7 @@ public class SyncService(
         {
             //the prop name is hardcoded into the sql so we just want to assert it's what we expect
             Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
             await dbContext.Database.ExecuteSqlAsync(
                 $"""
                  UPDATE Commits
@@ -223,6 +224,7 @@ public class SyncService(
         {
             // Assert sync date prop for same reason as in UpdateSyncDate
             Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
             int count = await dbContext.Database.SqlQuery<int>(
                 $"""
                  SELECT COUNT(*) AS Value FROM Commits
@@ -243,6 +245,7 @@ public class SyncService(
         {
             // Assert sync date prop for same reason as in UpdateSyncDate
             Debug.Assert(CommitHelpers.SyncDateProp == "SyncDate");
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
             var date = await dbContext.Database.SqlQuery<DateTimeOffset>(
                 $"""
                  SELECT MAX(json_extract(Metadata, '$.ExtraMetadata.SyncDate')) AS Value FROM Commits

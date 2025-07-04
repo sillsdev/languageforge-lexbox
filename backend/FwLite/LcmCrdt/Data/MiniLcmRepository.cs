@@ -1,8 +1,10 @@
+using System.Data;
 using Gridify;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Utils;
 using LinqToDB;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MiniLcm.Culture;
@@ -42,6 +44,12 @@ public class MiniLcmRepository(
 {
     public EntrySearchService? SearchService { get; } = entrySearchService;
 
+    private async ValueTask EnsureConnectionOpen()
+    {
+        if (dbContext.Database.GetDbConnection().State == ConnectionState.Open) return;
+        await RelationalDatabaseFacadeExtensions.OpenConnectionAsync(dbContext.Database);
+    }
+
     public ValueTask DisposeAsync()
     {
         return dbContext.DisposeAsync();
@@ -73,14 +81,14 @@ public class MiniLcmRepository(
             return type switch
             {
                 WritingSystemType.Analysis => _defaultAnalysisWs ??=
-                    await dbContext.WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
+                    await AsyncExtensions.FirstOrDefaultAsync(dbContext.WritingSystems, ws => ws.Type == type),
                 WritingSystemType.Vernacular => _defaultVernacularWs ??=
-                    await dbContext.WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
+                    await AsyncExtensions.FirstOrDefaultAsync(dbContext.WritingSystems, ws => ws.Type == type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             } ?? throw new NullReferenceException($"Unable to find a default writing system of type {type}");
         }
 
-        return await dbContext.WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
+        return await AsyncExtensions.FirstOrDefaultAsync(dbContext.WritingSystems, ws => ws.WsId == id && ws.Type == type);
     }
 
     public async Task<AddEntryComponentChange> CreateComplexFormComponentChange(
@@ -95,7 +103,8 @@ public class MiniLcmRepository(
 
     public async Task<ComplexFormComponent?> FindComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        return await ComplexFormComponents.SingleOrDefaultAsync(c =>
+        return await AsyncExtensions.SingleOrDefaultAsync(ComplexFormComponents,
+            c =>
             c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
             && c.ComponentEntryId == complexFormComponent.ComponentEntryId
             && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
@@ -103,7 +112,7 @@ public class MiniLcmRepository(
 
     public async Task<ComplexFormComponent> FindComplexFormComponent(Guid objectId)
     {
-        return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == objectId)) ??
+        return (await AsyncExtensions.SingleOrDefaultAsync(ComplexFormComponents, c => c.Id == objectId)) ??
                throw NotFoundException.ForType<ComplexFormComponent>();
     }
 
@@ -111,7 +120,7 @@ public class MiniLcmRepository(
     {
         options ??= FilterQueryOptions.Default;
         var (queryable, _) = await FilterEntries(Entries, query, options);
-        return await queryable.CountAsync();
+        return await AsyncExtensions.CountAsync(queryable);
     }
 
     public async IAsyncEnumerable<Entry> GetEntries(
@@ -135,7 +144,8 @@ public class MiniLcmRepository(
         queryable = options.ApplyPaging(queryable);
         var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
             .AsComplexFormComparer();
-        var entries = queryable.AsAsyncEnumerable();
+        var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
+        await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
         {
             entry.ApplySortOrder(complexFormComparer);
@@ -201,14 +211,13 @@ public class MiniLcmRepository(
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries
-            .LoadWith(e => e.Senses)
-            .ThenLoad(s => s.ExampleSentences)
-            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
-            .LoadWith(e => e.ComplexForms)
-            .LoadWith(e => e.Components)
-            .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == id);
+        var entry = await AsyncExtensions.SingleOrDefaultAsync(Entries
+                .LoadWith(e => e.Senses)
+                .ThenLoad(s => s.ExampleSentences)
+                .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
+                .LoadWith(e => e.ComplexForms)
+                .LoadWith(e => e.Components)
+                .AsQueryable(), e => e.Id == id);
         if (entry is not null)
         {
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
@@ -222,18 +231,16 @@ public class MiniLcmRepository(
 
     public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
     {
-        var sense = await Senses.LoadWith(s => s.PartOfSpeech)
-            .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == senseId);
+        var sense = await AsyncExtensions.SingleOrDefaultAsync(Senses.LoadWith(s => s.PartOfSpeech)
+                .AsQueryable(), e => e.Id == senseId);
         sense?.ApplySortOrder();
         return sense;
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        var exampleSentence = await ExampleSentences
-            .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == id);
+        var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
+                .AsQueryable(), e => e.Id == id);
         return exampleSentence;
     }
 }

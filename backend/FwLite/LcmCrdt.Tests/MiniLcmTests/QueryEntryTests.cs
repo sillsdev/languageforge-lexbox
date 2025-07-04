@@ -3,6 +3,7 @@ using Bogus;
 using LcmCrdt.FullTextSearch;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MiniLcm.Culture;
 using Xunit.Abstractions;
 
@@ -19,17 +20,26 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         return api;
     }
 
+    private async Task DeleteAllEntries()
+    {
+        foreach (var entry in await _fixture.Api.GetEntries().ToArrayAsync())
+        {
+            await _fixture.Api.DeleteEntry(entry.Id);
+        }
+    }
+
     [Theory]
+    [InlineData(5_000)]
     [InlineData(50_000)]
     [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
-        await _fixture.GetService<LcmCrdtDbContext>().GetTable<Entry>().TruncateAsync();
+        await DeleteAllEntries();
         var faker = new Faker { Random = new Randomizer(8675309) };
         var ids = Enumerable.Range(0, count).Select(_ => Guid.NewGuid()).ToHashSet();
         var entries = ids.Select(id => new Entry { Id = id, LexemeForm = { ["en"] = faker.Name.FirstName() } }).ToArray();
         await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
-        var entrySearchService = _fixture.GetService<EntrySearchService>();
+        var entrySearchService = _fixture.GetService<EntrySearchServiceFactory>().CreateSearchService(_fixture.DbContext);
         entrySearchService.EntrySearchRecords.Should().HaveCount(count);
         var searchString = "tes";
         var expectedResultCount = entries.Count(e => e.LexemeForm["en"].ContainsDiacriticMatch(searchString));

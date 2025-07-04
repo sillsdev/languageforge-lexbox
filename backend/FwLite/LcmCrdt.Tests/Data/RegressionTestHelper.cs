@@ -18,7 +18,7 @@ public class RegressionTestHelper(string dbName): IAsyncLifetime
         var crdtProject = new CrdtProject(dbName, $"{dbName}.sqlite");
         if (File.Exists(crdtProject.DbPath)) File.Delete(crdtProject.DbPath);
         projectsService.SetupProjectContextForNewDb(crdtProject);
-        var lcmCrdtDbContext = _asyncScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        await using var lcmCrdtDbContext = await _asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         var sql = await File.ReadAllTextAsync(initialSqlFile);
         var dbConnection = lcmCrdtDbContext.Database.GetDbConnection();
         await dbConnection.OpenAsync();

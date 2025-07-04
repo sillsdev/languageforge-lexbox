@@ -11,9 +11,7 @@ namespace LcmCrdt;
 
 public class LcmCrdtDbContext(
     DbContextOptions<LcmCrdtDbContext> dbContextOptions,
-    IOptions<CrdtConfig> options,
-    SetupCollationInterceptor setupCollationInterceptor,
-    UpdateEntrySearchTableInterceptor? updateEntrySearchTableInterceptor = null
+    IOptions<CrdtConfig> options
     )
     : DbContext(dbContextOptions), ICrdtDbContext
 {
@@ -27,14 +25,6 @@ public class LcmCrdtDbContext(
     public IQueryable<SemanticDomain> SemanticDomains => Set<SemanticDomain>().AsNoTracking();
     public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
     public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.AddInterceptors(setupCollationInterceptor, new CustomSqliteFunctionInterceptor());
-        if (updateEntrySearchTableInterceptor is not null)
-        {
-            optionsBuilder.AddInterceptors(updateEntrySearchTableInterceptor);
-        }
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

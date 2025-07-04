@@ -40,8 +40,8 @@ public class EntrySearchServiceTests : IAsyncLifetime
             Exemplars = ["a", "b"],
             Type = WritingSystemType.Analysis
         });
-        _context = fixture.GetService<LcmCrdtDbContext>();
-        _service = fixture.GetService<EntrySearchService>();
+        _context = await fixture.GetService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        _service = fixture.GetService<EntrySearchServiceFactory>().CreateSearchService(_context);
     }
 
     [Fact]
@@ -242,6 +242,7 @@ public class EntrySearchServiceTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
+        await _context.DisposeAsync();
         await fixture.DisposeAsync();
     }
 }

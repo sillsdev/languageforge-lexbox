@@ -54,28 +54,14 @@ public class CrdtMiniLcmApi(
 
     private async Task AddChanges(IEnumerable<IChange> changes)
     {
-        await AddChanges(changes.Chunk(100));
+        AssertWritable();
+        await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
     }
 
     private void AssertWritable()
     {
         if (ProjectData.IsReadonly)
             throw new ReadOnlyException($"project is readonly because you are logged in with the {ProjectData.Role} role. If your role recently changed, try refreshing the server project list on the home page.");
-    }
-
-    /// <summary>
-    /// use when making a large number of changes at once
-    /// </summary>
-    /// <param name="changeChunks"></param>
-    private async Task AddChanges(IEnumerable<IReadOnlyCollection<IChange>> changeChunks)
-    {
-        AssertWritable();
-        foreach (var chunk in changeChunks)
-        {
-            await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
-        }
-
-        await dataModel.FlushDeferredCommits();
     }
 
     public async Task<WritingSystems> GetWritingSystems()
