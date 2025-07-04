@@ -1,9 +1,6 @@
 <script lang="ts" module>
   class AudioRuned {
-    #currentTimeSub = createSubscriber(update => {
-      const off = on(this.audio, 'timeupdate', update);
-      return () => off();
-    });
+    #currentTimeSub = createSubscriber(update => on(this.audio, 'timeupdate', update));
     #durationSub = createSubscriber(update => on(this.audio, 'durationchange', update));
 
     constructor(private audio: HTMLAudioElement) {
