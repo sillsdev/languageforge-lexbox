@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using MiniLcm.Validators;
 using Polly;
 using Polly.Simmy;
 using SIL.Harmony;
@@ -32,6 +33,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<CombinedProjectsService>();
         services.AddSingleton<GlobalEventBus>();
         services.AddSingleton<ProjectEventBus>();
+        services.AddSingleton<MiniLcmApiValidationWrapperFactory>();
         services.AddSingleton<MiniLcmApiNotifyWrapperFactory>();
         services.AddScoped<JsEventListener>();
         //this is scoped so that there will be once instance per blazor circuit, this prevents issues where the same instance is used when reloading the page.
