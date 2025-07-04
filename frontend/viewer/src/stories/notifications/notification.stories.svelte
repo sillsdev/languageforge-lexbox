@@ -54,7 +54,10 @@
       <Input type="number" min="2" step="0.5" bind:value={duration} />
       <Button size="sm" onclick={() => duration = undefined}>Clear</Button>
     </div>
-    <span class="text-sm text-muted-foreground">Ignored by exception and action notifications. Min duration: 3s.</span>
+    <span class="text-sm text-muted-foreground">
+      Exception and action notifications ignore this duration setting.
+      The notification service enforces a minimum duration of 3s.
+    </span>
   </Label>
   <div class="flex flex-wrap gap-2">
     <Button onclick={() => AppNotification.display(`This is a simple notification. Duration: ${currDuration()}`, { timeout: durationMs })}>
