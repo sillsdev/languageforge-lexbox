@@ -3,6 +3,7 @@
 import 'vite/modulepreload-polyfill';
 import './lib/append-head-hack';
 import './app.postcss';
+import '@formatjs/intl-durationformat/polyfill';
 
 import App from './App.svelte';
 import {mount} from 'svelte';

@@ -8,6 +8,10 @@ namespace LexCore.Entities;
 public class MediaFile : EntityBase
 {
     // Id property comes from EntityBase
+
+    /// <summary>
+    /// path to the file, relative to the hg repo, or where the fwdata file is located
+    /// </summary>
     public required string Filename { get; set; }
     public Guid ProjectId { get; set; }
     public FileMetadata? Metadata { get; set; } = new FileMetadata();
@@ -28,6 +32,11 @@ public class MediaFile : EntityBase
                 SizeInBytes = cappedSize,
             };
         }
+    }
+
+    public override string ToString()
+    {
+        return $"{nameof(Filename)}: {Filename}, {nameof(ProjectId)}: {ProjectId}, {nameof(Metadata)}: {Metadata}";
     }
 }
 

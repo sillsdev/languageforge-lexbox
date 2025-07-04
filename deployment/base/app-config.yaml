@@ -7,4 +7,5 @@ data:
   hg-otel-disabled: "false" # "true" to disable OpenTelemetry
   hg-domain: "hg.localhost"
   enable-oauth: "true"
+  media-authority: 'localhost'
 

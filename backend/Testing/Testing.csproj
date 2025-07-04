@@ -49,6 +49,7 @@
     <PackageReference Include="XunitXml.TestLogger" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FwLite\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj" />
     <ProjectReference Include="..\LexBoxApi\LexBoxApi.csproj" />
     <ProjectReference Include="..\LexCore\LexCore.csproj" />
     <ProjectReference Include="..\LexData\LexData.csproj" />

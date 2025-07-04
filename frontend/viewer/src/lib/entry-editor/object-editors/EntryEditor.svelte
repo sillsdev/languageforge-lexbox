@@ -29,6 +29,7 @@
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   let {
     entry = $bindable(),
@@ -227,6 +228,14 @@
         </div>
       {/if}
     {/if}
+    <DevContent>
+      <details>
+        <summary>Entry as JSON</summary>
+        <code class="col-span-3 whitespace-pre">
+          {JSON.stringify(entry, null, '  ')}
+        </code>
+      </details>
+    </DevContent>
   </Editor.Grid>
 </Editor.Root>
 

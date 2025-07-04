@@ -10,5 +10,6 @@ export interface IMiniLcmFeatures
 	openWithFlex?: boolean;
 	feedback?: boolean;
 	sync?: boolean;
+	audio?: boolean;
 }
 /* eslint-enable */

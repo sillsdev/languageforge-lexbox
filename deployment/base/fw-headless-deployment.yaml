@@ -112,6 +112,11 @@ spec:
                 name: fw-headless
           - name: FwHeadlessConfig__FdoDataModelVersion
             value: "7000072"
+          - name: FwHeadlessConfig__MediaFileAuthority
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: media-authority
           - name: OTEL_RESOURCE_ATTRIBUTES
             value: k8s.node.name=$(K8S_NODE_NAME),k8s.pod.name=$(K8S_POD_NAME)
           - name: OTEL_EXPORTER_OTLP_ENDPOINT

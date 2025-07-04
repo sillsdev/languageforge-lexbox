@@ -1,6 +1,7 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
@@ -9,7 +10,7 @@ public static class FwDataTestsKernel
     public static IServiceCollection AddTestFwDataBridge(this IServiceCollection services, bool mockProjectLoader = true)
     {
         services.AddFwDataBridge();
-        services.AddSingleton<IConfiguration>(_ => new ConfigurationRoot([]));
+        services.TryAddSingleton<IConfiguration>(_ => new ConfigurationRoot([]));
         if (mockProjectLoader)
         {
             services.AddSingleton<MockFwProjectLoader>();
