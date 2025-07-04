@@ -14,15 +14,18 @@ export function normalizeDuration(value: Duration, smallestUnit: 'seconds'): Omi
 export function normalizeDuration(value: Duration): Duration
 export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration {
   let distanceMs = (value.hours ?? 0) * 3600000 + (value.minutes ?? 0) * 60000 + (value.seconds ?? 0) * 1000 + (value.milliseconds ?? 0);
-  const hours = Math.floor(distanceMs / 3600000);
+  let hours = distanceMs / 3600000;
   if (smallestUnit === 'hours') return {hours};
+  hours = Math.floor(hours);
   distanceMs -= hours * 3600000;
-  const minutes = Math.floor(distanceMs / 60000);
+  let minutes = distanceMs / 60000;
   if (smallestUnit === 'minutes') return {hours, minutes};
+  minutes = Math.floor(minutes);
   distanceMs -= minutes * 60000;
-  const seconds = Math.floor(distanceMs / 1000);
+  let seconds = distanceMs / 1000;
   if (smallestUnit === 'seconds') return {hours, minutes, seconds};
+  seconds = Math.floor(seconds);
   distanceMs -= seconds * 1000;
-  const milliseconds = Math.floor(distanceMs);
+  const milliseconds = distanceMs;
   return {hours, minutes, seconds, milliseconds};
 }
