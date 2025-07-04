@@ -3,7 +3,7 @@ using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 
-namespace FwLiteShared.Services;
+namespace MiniLcm.Validators;
 
 public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators)
 {

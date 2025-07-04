@@ -11,10 +11,10 @@ public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
-    MiniLcmApiNotifyWrapperFactory apiWrapperFactory,
+    MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory) : IDisposable
 {
-    private readonly IMiniLcmApi _wrappedApi = validationWrapperFactory.Create(apiWrapperFactory.Create(api, project));
+    private readonly IMiniLcmApi _wrappedApi = validationWrapperFactory.Create(notificationWrapperFactory.Create(api, project));
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
