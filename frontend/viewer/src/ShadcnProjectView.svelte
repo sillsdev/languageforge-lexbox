@@ -54,7 +54,7 @@
   //listening to messages from paratext
   function onMessage(event: {data: unknown}) {
     if (isFwLiteMessage(event.data)) {
-      AppNotification.display(event.data.message, 'info', 'long');
+      AppNotification.display(event.data.message, { timeout: 'long' });
     }
   }
 </script>
