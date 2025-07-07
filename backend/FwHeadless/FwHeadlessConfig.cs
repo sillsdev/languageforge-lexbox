@@ -26,7 +26,7 @@ public class FwHeadlessConfig
     public string GetProjectFolder(string projectCode, Guid projectId)
     {
         //don't change projectId format, everything will break
-        return Path.Join(ProjectStorageRoot, $"{projectCode}-{projectId:D}");
+        return Path.Join(Path.GetFullPath(ProjectStorageRoot), $"{projectCode}-{projectId:D}");
     }
 
     public string GetProjectFolder(Guid projectId)
