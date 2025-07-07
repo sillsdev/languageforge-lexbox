@@ -56,14 +56,14 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
     {
+        crdtApi = validationWrapperFactory.Create(crdtApi);
+        fwdataApi = validationWrapperFactory.Create(fwdataApi);
+
         if (dryRun)
         {
             crdtApi = new DryRunMiniLcmApi(crdtApi);
             fwdataApi = new DryRunMiniLcmApi(fwdataApi);
         }
-
-        crdtApi = validationWrapperFactory.Create(crdtApi);
-        fwdataApi = validationWrapperFactory.Create(fwdataApi);
 
         if (projectSnapshot is null)
         {
