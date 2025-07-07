@@ -20,6 +20,7 @@
       span: {
         selectable: false,
         content: 'text*',
+        // If we remove this Backspace + Delete start removing whole spans
         inline: true,
         whitespace: 'pre',
         toDOM: (node) => {
@@ -35,6 +36,7 @@
       },
       doc: {
         whitespace: 'pre',
+        // if we remove this Shift + Enter creates new spans and then Backspace starts removing whole spans
         inline: true,
         content: 'span*',
         attrs: {}
