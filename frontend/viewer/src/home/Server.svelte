@@ -12,6 +12,7 @@
   import {cn} from '$lib/utils';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   const projectsService = useProjectsService();
 
@@ -31,7 +32,14 @@
 
     downloading = project.code;
     try {
-      await projectsService.downloadProject(project);
+      const downloadPromise = projectsService.downloadProject(project);
+      AppNotification.promise(downloadPromise, {
+        loading: $t`Downloading ${project.name}...`,
+        success: () => $t`Downloaded ${project.name}`,
+        error: () => $t`Failed to download ${project.name}`,
+        timeout: 'short',
+      });
+      await downloadPromise;
       dispatch('refreshAll');
       // Getting an updated list of localProjects will take a moment. For the time being, we do it manually.
       localProjects.push(project);

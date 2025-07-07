@@ -12,6 +12,7 @@ type ToasterFn = typeof toast['info'];
 const INFINITY = 60_000 * 60 * 24 * 5; // 5 days
 const NAMED_DURATIONS = {
   min: 3_000,
+  short: 5_000,
   long: 30_000,
   infinite: INFINITY,
 } as const;
