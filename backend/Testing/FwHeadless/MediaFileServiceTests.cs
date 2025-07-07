@@ -89,7 +89,7 @@ public class MediaFileServiceTests : IDisposable
         files.Should().Contain(f => f.Filename.EndsWith(fileName));
     }
 
-    private async Task AssertDbFileDoesNotExists(string fileName)
+    private async Task AssertDbFileDoesNotExist(string fileName)
     {
         var files = await _lexBoxDbContext.Files.Where(f => f.ProjectId == _projectId).ToArrayAsync();
         files.Should().NotContain(f => f.Filename.EndsWith(fileName));
@@ -119,7 +119,7 @@ public class MediaFileServiceTests : IDisposable
         await AssertDbFileExists("NewDbFile.txt");
 
         await _service.SyncMediaFiles(_cache);
-        await AssertDbFileDoesNotExists("NewDbFile.txt");
+        await AssertDbFileDoesNotExist("NewDbFile.txt");
     }
 
     [Fact]

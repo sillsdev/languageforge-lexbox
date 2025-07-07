@@ -37,7 +37,6 @@ export class WritingSystemService {
     this.#wsResource = projectContext.apiResource({analysis: [], vernacular: []}, async api => {
       const result = await api.getWritingSystems();
       return {
-        //hide audio writing systems since we don't support them for now
         vernacular: result.vernacular,
         analysis: result.analysis
       };
