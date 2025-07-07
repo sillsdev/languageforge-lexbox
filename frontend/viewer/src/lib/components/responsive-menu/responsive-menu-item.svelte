@@ -11,12 +11,15 @@
   import type {DrawerCloseProps} from 'vaul-svelte';
   import {cn} from '$lib/utils';
   import {DrawerClose} from '../ui/drawer';
+  import type {HTMLAnchorAttributes} from 'svelte/elements';
+  import Anchor from '../ui/anchor/anchor.svelte';
 
   type Props = {
     children?: Snippet;
     icon?: IconClass;
     onSelect?: () => void;
     href?: string;
+    target?: HTMLAnchorAttributes['target'];
   } & Omit<ContextMenuItemProps & DrawerCloseProps, 'onclick'>;
 
   let {
@@ -39,9 +42,9 @@
 {/snippet}
 
 {#snippet anchorChild({ props }: { props: Record<string, unknown> })}
-  <a {...props}>
+  <Anchor {...props}>
     {@render content()}
-  </a>
+  </Anchor>
 {/snippet}
 
 {#if state.contextMenu}
@@ -57,7 +60,8 @@
 {:else}
   <DrawerClose
     class={cn(buttonVariants({ variant: 'ghost', class: 'w-full justify-start gap-2' }), className)}
-    onclick={onSelect}
+    onclick={() => /* wait for drawer to close/start closing */ setTimeout(() => onSelect?.())}
+    child={rest.href ? anchorChild : undefined}
     {...rest}
     bind:ref>
     {@render content()}

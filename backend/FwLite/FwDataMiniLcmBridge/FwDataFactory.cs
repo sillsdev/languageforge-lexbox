@@ -84,6 +84,7 @@ public class FwDataFactory(
         {
             lcmCache.Dispose();
             logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
+            GC.Collect();
         }
     }
 

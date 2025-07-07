@@ -17,9 +17,10 @@ export class EntryPersistence {
   get entryEditorProps(): Partial<Props> {
     return {
       onchange: async (changed: { entry: IEntry }) => {
-        await this.updateEntry(changed.entry);
+        const updatedEntry = await this.updateEntry(changed.entry);
         this.onUpdated();
-        this.updateInitialEntry();
+        // use the version from the server or else we might get unsaved changes in initialEntry
+        this.updateInitialEntry(updatedEntry);
       },
       ondelete: async (e: { entry: IEntry, example?: IExampleSentence, sense?: ISense }) => {
         if (e.example !== undefined && e.sense !== undefined) {
@@ -36,14 +37,13 @@ export class EntryPersistence {
     };
   }
 
-  private async updateEntry(updatedEntry: IEntry) {
+  private async updateEntry(updatedEntry: IEntry): Promise<IEntry> {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
     if (this.initialEntry.id != updatedEntry.id) throw new Error('Entry id mismatch');
-    await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, $state.snapshot(updatedEntry)));
+    return await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry!, $state.snapshot(updatedEntry)));
   }
 
-  private updateInitialEntry() {
-    const entry = this.entryGetter();
+  private updateInitialEntry(entry = this.entryGetter()): void {
     if (!entry) this.initialEntry = undefined;
     else this.initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }

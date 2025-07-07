@@ -122,7 +122,7 @@
     <ResponsiveMenu.Root>
       <ResponsiveMenu.Trigger />
       <ResponsiveMenu.Content>
-        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} icon="i-mdi-chat-question">
+        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
           {$t`Feedback`}
         </ResponsiveMenu.Item>
         {#if supportsTroubleshooting}
@@ -198,7 +198,7 @@
               </ButtonListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ButtonListItem on:click={() => createExampleProject()} disabled={createProjectLoading}>
+              <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
                 <ListItem
                   title={$t`Create Example Project`}
                   loading={createProjectLoading}

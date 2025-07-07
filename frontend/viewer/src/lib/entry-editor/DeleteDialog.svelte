@@ -12,7 +12,7 @@
   const subjectWithDescription = $derived(description ? `${subject}: ${description}` : subject);
 
   let open = $state(false);
-  useBackHandler({addToStack: () => open, onBack: () => open = false});
+  useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'delete-dialog'});
   let requester: {
     resolve: (result: boolean) => void
   } | undefined = undefined;

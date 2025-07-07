@@ -1,9 +1,9 @@
 <script lang="ts">
   import {type IMultiString, type IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import {Input} from '../ui/input';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import {Label} from '../ui/label';
+  import StompSafeInput from '../stomp/stomp-safe-input.svelte';
 
   const fieldBodyProps = tryUseFieldBody();
   const labeledBy = fieldBodyProps?.labelId;
@@ -36,11 +36,12 @@
     <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}>
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
-      <Input bind:value={value[ws.wsId]}
+      <StompSafeInput bind:value={value[ws.wsId]}
         id={inputId}
         aria-labelledby="{labeledBy ?? ''} {labelId}"
         {readonly}
         autofocus={autofocus && (i === 0)}
+        autocapitalize="off"
         onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
     </div>
   {/each}

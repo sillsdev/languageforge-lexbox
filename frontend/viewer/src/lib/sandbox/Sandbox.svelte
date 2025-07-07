@@ -105,10 +105,10 @@
   let nameSearchParam = new QueryParamState({key: 'name'});
   let isGood = $state(false);
   let isBetter = $state(false);
-  useBackHandler({addToStack: () => isGood, onBack: () => isGood = false});
-  useBackHandler({addToStack: () => isBetter, onBack: () => isBetter = false});
+  useBackHandler({addToStack: () => isGood, onBack: () => isGood = false, key: 'sandbox-good'});
+  useBackHandler({addToStack: () => isBetter, onBack: () => isBetter = false, key: 'sandbox-better'});
   let dialogOpen = $state(false);
-  useBackHandler({addToStack: () => dialogOpen, onBack: () => dialogOpen = false});
+  useBackHandler({addToStack: () => dialogOpen, onBack: () => dialogOpen = false, key: 'sandbox-dialog'});
 
   const variants = Object.keys(buttonVariants.variants.variant) as unknown as (keyof typeof buttonVariants.variants.variant)[];
   const sizes = Object.keys(buttonVariants.variants.size) as unknown as (keyof typeof buttonVariants.variants.size)[];

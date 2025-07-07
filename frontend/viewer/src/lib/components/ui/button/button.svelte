@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import type {IconClass} from '$lib/icon-class';
   import {mergeProps, type WithElementRef} from 'bits-ui';
+  import type {ComponentProps} from 'svelte';
   import type {HTMLAnchorAttributes, HTMLButtonAttributes} from 'svelte/elements';
   import {type VariantProps, tv} from 'tailwind-variants';
   import type {IconProps} from '../icon/icon.svelte';
@@ -38,7 +39,7 @@
   export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
   export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
-    WithElementRef<HTMLAnchorAttributes> & {
+    WithElementRef<HTMLAnchorAttributes> & ComponentProps<typeof Anchor> & {
       variant?: ButtonVariant;
       size?: ButtonSize;
       loading?: boolean;
@@ -51,6 +52,7 @@
   import {cn} from '$lib/utils.js';
   import {Icon} from '../icon';
   import {slide} from 'svelte/transition';
+  import Anchor from '../anchor/anchor.svelte';
 
   let {
     class: className,
@@ -86,9 +88,9 @@
 {/snippet}
 
 {#if href}
-  <a bind:this={ref} class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
+  <Anchor bind:ref class={cn(buttonVariants({ variant, size }), className, loading && 'loading')} {href} {...restProps}>
     {@render content()}
-  </a>
+  </Anchor>
 {:else}
   <button
     bind:this={ref}

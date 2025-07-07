@@ -1,7 +1,7 @@
 {
   "name": "viewer",
   "private": true,
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.12.3",
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
@@ -29,6 +29,7 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
     "test:storybook": "vitest --project=storybook",
+    "test:unit": "vitest --project=unit",
     "check": "svelte-check",
     "lint": "eslint .",
     "lint:report": "eslint . --output-file eslint_report.json --format json",
@@ -46,7 +47,6 @@
     "@lingui/format-json": "^5.2.0",
     "@lingui/vite-plugin": "^5.2.0",
     "@mdi/js": "^7.4.47",
-    "playwright": "catalog:",
     "@playwright/test": "catalog:",
     "@storybook/addon-a11y": "^9.0.8",
     "@storybook/addon-docs": "^9.0.8",
@@ -69,9 +69,9 @@
     "eslint": "catalog:",
     "eslint-plugin-storybook": "^9.0.8",
     "eslint-plugin-svelte": "catalog:",
-    "happy-dom": "^17.1.0",
     "mode-watcher": "^1.0.7",
     "paneforge": "1.0.0-next.4",
+    "playwright": "catalog:",
     "storybook": "^9.0.8",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
@@ -96,6 +96,7 @@
     "@microsoft/signalr": "^8.0.0",
     "autoprefixer": "^10.4.19",
     "fast-json-patch": "^3.1.1",
+    "jsdom": "^26.1.0",
     "just-throttle": "^4.2.0",
     "postcss": "catalog:",
     "prosemirror-commands": "^1.7.0",

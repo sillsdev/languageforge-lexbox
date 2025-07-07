@@ -4,7 +4,7 @@ FROM node:20 AS builder-base
 WORKDIR /app
 # Version of corepack distributed with node currently (2025-02-04) has a bug that prevents PNPM installation; latest version has the bugfix
 RUN npm install -g corepack@latest
-RUN corepack enable && corepack prepare pnpm@9.11.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.12.3 --activate
 
 FROM builder-base AS builder-viewer
 COPY pnpm-lock.yaml pnpm-workspace.yaml /app/
