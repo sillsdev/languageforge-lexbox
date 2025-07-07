@@ -25,7 +25,7 @@ public static class FwLiteSharedKernel
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
         services.AddLogging();
-        services.AddSingleton<ImportFwdataService>();
+        services.AddScoped<ImportFwdataService>();
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
         services.AddSingleton<LexboxProjectService>();
