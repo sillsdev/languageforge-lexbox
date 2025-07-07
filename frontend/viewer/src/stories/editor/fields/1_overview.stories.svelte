@@ -3,6 +3,7 @@
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import * as Editor from '$lib/components/editor';
   import {writingSystems as demoWritingSystems} from '$lib/demo-entry-data';
+  import {inputVariants} from '$lib/components/ui/input/input.svelte';
 
   const { Story } = defineMeta({
     title: 'editor/fields/overview',
@@ -250,11 +251,17 @@
 
 <Story name="Value alignment">
   {#snippet template()}
-    <div class="flex flex-nowrap w-96 gap-1">
-      <WsInput value="Standard Input..." writingSystem={ws1} />
-      <RichWsInput value={{spans: [{ws: ws1.wsId, text: 'Rich '}, {ws: ws2.wsId, text: ' Input...'}]}} writingSystem={ws1} />
-      <WsInput value="R/O Input..." writingSystem={ws1} />
-      <RichWsInput value={{spans: [{ws: ws1.wsId, text: 'R/O '}, {ws: ws2.wsId, text: ' Rich Input...'}]}} writingSystem={ws1} />
+    <div class="font-bold">Editable</div>
+    <div class="grid grid-cols-3 w-96 gap-1">
+      <WsInput value="WS Input ... ... ..." writingSystem={ws1} />
+      <RichWsInput value={{spans: [{ws: ws1.wsId, text: 'Rich '}, {ws: ws2.wsId, text: ' WS Input ... ... ...'}]}} writingSystem={ws1} />
+      <textarea class={inputVariants()}>Text area ... ... ...</textarea>
+    </div>
+    <div class="font-bold">Readonly</div>
+    <div class="grid grid-cols-3 w-96 gap-1">
+      <WsInput readonly value="WS Input ... ... ..." writingSystem={ws1} />
+      <RichWsInput readonly value={{spans: [{ws: ws1.wsId, text: 'Rich '}, {ws: ws2.wsId, text: ' WS Input ... ... ...'}]}} writingSystem={ws1} />
+      <textarea readonly class={inputVariants()}>Text area ... ... ...</textarea>
     </div>
   {/snippet}
 </Story>

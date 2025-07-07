@@ -62,9 +62,9 @@
   import {IsUsingKeyboard} from 'bits-ui';
   import type {IRichSpan} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichSpan';
   import {on} from 'svelte/events';
-  import InputShell from '../ui/input/input-shell.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findNextTabbable} from '$lib/utils/tabbable';
+  import {inputVariants} from '../ui/input/input.svelte';
 
   let {
     value = $bindable(),
@@ -117,6 +117,7 @@
         editor.updateState(newState);
       },
       attributes: {
+        class: inputVariants({class: 'min-h-10 h-auto'}),
         // todo: the distribution of props between the editor and the elementRef is not good
         // there should probably be a wrapper component that provides the elementRef to this one
         ...(id ? {id} : {}),
@@ -307,23 +308,17 @@
     // the caret is not intelligently placed at the end of the text (and on the correct line if multi-line)
     // Everything else seems good
   }
-
-  const wrapperClasses = 'px-3 min-h-10 h-max block overflow-hidden cursor-text place-content-center focus:ring-2';
 </script>
 
 <style lang="postcss" global>
   .ProseMirror {
-    height: 100%;
-    @apply py-1.5;
+    display: block;
     place-content: center;
     flex-grow: 1;
     outline: none;
     cursor: text;
-    overflow: auto;
-    scrollbar-width: none;
 
-    /* "pre" => only wrap for line breaks, NOT simply because the text doesn't have enough space */
-    white-space: pre;
+    white-space: pre-wrap;
 
     :global(.customized) {
       text-decoration: underline;
@@ -340,19 +335,11 @@
   }
 </style>
 
-<!-- tabindex=-1 allows focus, but not tabbing, which makes focus:ring-2 work
-when clicking around the real editor (just aesthetics) -->
 {#if label}
   <div class={className} {...rest}>
     <Label>{label}</Label>
-    <InputShell onclick={onFocusTargetClick}
-      class={wrapperClasses}
-      bind:ref={elementRef}
-      tabindex={-1} />
+    <div bind:this={elementRef}></div>
   </div>
 {:else}
-  <InputShell onclick={onFocusTargetClick}
-    class={cn(wrapperClasses, className)} bind:ref={elementRef}
-    tabindex={-1}
-    {...rest} />
+  <div bind:this={elementRef} class={className} {...rest}></div>
 {/if}
