@@ -13,19 +13,22 @@ export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'min
 export function normalizeDuration(value: Duration, smallestUnit: 'seconds'): Omit<Duration, 'milliseconds'>
 export function normalizeDuration(value: Duration): Duration
 export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds'): Duration {
-  let distanceMs = (value.hours ?? 0) * 3600000 + (value.minutes ?? 0) * 60000 + (value.seconds ?? 0) * 1000 + (value.milliseconds ?? 0);
-  let hours = distanceMs / 3600000;
+  const msPerHour = 3_600_000;
+  const msPerMinute = 60_000;
+  const msPerSecond = 1_000;
+  let distanceMs = (value.hours ?? 0) * msPerHour + (value.minutes ?? 0) * msPerMinute + (value.seconds ?? 0) * msPerSecond + (value.milliseconds ?? 0);
+  let hours = distanceMs / msPerHour;
   if (smallestUnit === 'hours') return {hours};
   hours = Math.floor(hours);
-  distanceMs -= hours * 3600000;
-  let minutes = distanceMs / 60000;
+  distanceMs -= hours * msPerHour;
+  let minutes = distanceMs / msPerMinute;
   if (smallestUnit === 'minutes') return {hours, minutes};
   minutes = Math.floor(minutes);
-  distanceMs -= minutes * 60000;
-  let seconds = distanceMs / 1000;
+  distanceMs -= minutes * msPerMinute;
+  let seconds = distanceMs / msPerSecond;
   if (smallestUnit === 'seconds') return {hours, minutes, seconds};
   seconds = Math.floor(seconds);
-  distanceMs -= seconds * 1000;
+  distanceMs -= seconds * msPerSecond;
   const milliseconds = distanceMs;
   return {hours, minutes, seconds, milliseconds};
 }
