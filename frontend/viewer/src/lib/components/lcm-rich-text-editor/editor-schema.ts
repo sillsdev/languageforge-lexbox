@@ -17,7 +17,9 @@ export const textSchema = new Schema({
       whitespace: 'pre',
       toDOM: (node) => {
         return ['span', {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
           title: gt`Writing system: ${node.attrs.richSpan.ws}`,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           class: cn(node.attrs.className),
         }, 0];
       },

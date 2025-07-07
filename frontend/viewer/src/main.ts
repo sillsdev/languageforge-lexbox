@@ -9,13 +9,13 @@ import {mount} from 'svelte';
 import {setupDotnetServiceProvider} from './lib/services/service-provider-dotnet';
 import {setupServiceProvider} from '$lib/services/service-provider';
 import {useEventBus} from '$lib/services/event-bus';
-import {setLanguage} from '$lib/i18n/LocalizationPicker.svelte';
+import {setLanguage} from '$lib/i18n';
 
 setupServiceProvider();
 setupDotnetServiceProvider();
 useEventBus();
 
-//dont mount the app until after we've loaded the local
+//don't mount the app until after we've loaded the local
 void setLanguage('default')
   .then(() => {
     mount(App, {
