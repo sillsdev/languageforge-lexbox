@@ -53,6 +53,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
     private IEnumerable<string> FilesRelativeToHgRepo(LcmCache cache)
     {
+        if (!Directory.Exists(cache.LangProject.LinkedFilesRootDir)) yield break;
         foreach (var file in Directory.EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories))
         {
             yield return Path.GetRelativePath(cache.ProjectId.ProjectFolder, file);
