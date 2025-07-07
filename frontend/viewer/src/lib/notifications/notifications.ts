@@ -2,7 +2,7 @@
 
 interface NotificationAction {
   label: string;
-  callback: () => void;
+  callback: () => {dismiss: boolean} | void;
 }
 
 type NotificationType = 'plain' | 'success' | 'error' | 'info' | 'warning';
@@ -61,8 +61,11 @@ export class AppNotification {
       action: {
         label: action.label,
         onClick: (event) => {
+          const result = action.callback();
+          if (result?.dismiss) {
+            return;
+          }
           event.preventDefault();
-          action.callback();
         },
       },
       ...rest,

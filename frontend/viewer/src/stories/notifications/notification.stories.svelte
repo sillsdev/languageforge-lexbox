@@ -84,8 +84,8 @@
     <Button variant="destructive" onclick={() => {throw new Error('This is a test exception');}}>Throw Exception</Button>
     <Button variant="destructive" onclick={() => new Promise(() => { throw new Error('This is a test exception');})}>Throw Exception Async</Button>
     <Button onclick={() => AppNotification.displayAction('This is a notification with an action', {
-      label: 'Clear',
-      callback: () => AppNotification.clear(),
+      label: 'Action',
+      callback: () => window.alert('Action clicked'),
     })}>
       Notification with action
     </Button>
