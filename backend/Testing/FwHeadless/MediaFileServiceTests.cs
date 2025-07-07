@@ -98,7 +98,9 @@ public class MediaFileServiceTests : IDisposable
     [Fact]
     public async Task Sync_NothingWorks()
     {
-        await _service.SyncMediaFiles(_cache);
+        var result = await _service.SyncMediaFiles(_cache);
+        result.Added.Should().BeEmpty();
+        result.Removed.Should().BeEmpty();
     }
 
     [Fact]
@@ -106,7 +108,9 @@ public class MediaFileServiceTests : IDisposable
     {
         AddFwFile("NewFile.txt");
 
-        await _service.SyncMediaFiles(_cache);
+        var result = await _service.SyncMediaFiles(_cache);
+        result.Added.Should().HaveCount(1);
+        result.Removed.Should().BeEmpty();
 
         await AssertDbFileExists("NewFile.txt");
     }
@@ -118,7 +122,10 @@ public class MediaFileServiceTests : IDisposable
 
         await AssertDbFileExists("NewDbFile.txt");
 
-        await _service.SyncMediaFiles(_cache);
+        var result = await _service.SyncMediaFiles(_cache);
+        result.Added.Should().BeEmpty();
+        result.Removed.Should().HaveCount(1);
+
         await AssertDbFileDoesNotExist("NewDbFile.txt");
     }
 
@@ -128,7 +135,10 @@ public class MediaFileServiceTests : IDisposable
         AddFwFile("SomeFile.txt");
         await AddDbFile("SomeFile.txt");
 
-        await _service.SyncMediaFiles(_cache);
+        var result = await _service.SyncMediaFiles(_cache);
+        result.Added.Should().BeEmpty();
+        result.Removed.Should().BeEmpty();
+
         await AssertDbFileExists("SomeFile.txt");
     }
 
