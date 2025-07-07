@@ -163,10 +163,11 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     public async Task UpdateEntrySearchTable(IEnumerable<Entry> entries)
     {
-        await UpdateEntrySearchTable(entries, [], dbContext);
+        await UpdateEntrySearchTable(entries, [], [], dbContext);
     }
 
     public static async Task UpdateEntrySearchTable(IEnumerable<Entry> entries,
+        IEnumerable<Guid> removed,
         IEnumerable<WritingSystem> newWritingSystems,
         LcmCrdtDbContext dbContext)
     {
@@ -178,6 +179,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         Array.Sort(writingSystems, (ws1, ws2) => ws1.Order.CompareTo(ws2.Order));
         await dbContext.GetTable<EntrySearchRecord>()
             .BulkCopyAsync(entries.Select(entry => ToEntrySearchRecord(entry, writingSystems)));
+        await dbContext.GetTable<EntrySearchRecord>()
+            .Where(e => removed.Contains(e.Id))
+            .DeleteAsync();
     }
 
     public async Task RegenerateEntrySearchTable()

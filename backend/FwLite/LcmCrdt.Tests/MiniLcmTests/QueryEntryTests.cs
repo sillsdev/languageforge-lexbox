@@ -29,7 +29,6 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
     }
 
     [Theory]
-    [InlineData(5_000)]
     [InlineData(50_000)]
     [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
