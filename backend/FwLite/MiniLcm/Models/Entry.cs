@@ -24,7 +24,7 @@ public record Entry : IObjectWithId<Entry>
     /// </summary>
     public virtual List<ComplexFormComponent> ComplexForms { get; set; } = [];
 
-    public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
+    public virtual List<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
     public virtual List<Publication> PublishIn { get; set; } = [];
 
