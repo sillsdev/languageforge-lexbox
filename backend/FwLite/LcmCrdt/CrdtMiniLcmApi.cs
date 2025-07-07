@@ -54,7 +54,7 @@ public class CrdtMiniLcmApi(
         {
             ClientVersion = AppVersion.Version,
             //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName,
+            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
             AuthorId = ProjectData.LastUserId
         };
         return metadata;
