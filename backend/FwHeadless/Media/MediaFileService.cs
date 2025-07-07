@@ -9,9 +9,11 @@ namespace FwHeadless.Media;
 
 public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config)
 {
+    public record MediaFileSyncResult(List<MediaFile> Added, List<MediaFile> Removed);
     // TODO: This assumes FieldWorks is the source of truth, which is not true when FWL starts adding/deleting files
-    public async Task SyncMediaFiles(LcmCache cache)
+    public async Task<MediaFileSyncResult> SyncMediaFiles(LcmCache cache)
     {
+        var result = new MediaFileSyncResult([], []);
         var projectId = config.Value.LexboxProjectId(cache);
         var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsTracking().AsAsyncEnumerable();
         var existingFwFiles = FilesRelativeToHgRepo(cache).ToHashSet();
@@ -25,11 +27,12 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
             //file has been deleted from hg, so remove it from the db
             dbContext.Files.Remove(mediaFile);
+            result.Removed.Add(mediaFile);
         }
         //files not removed are newly created, and we need to record them in the db
         foreach (var newFwFile in existingFwFiles)
         {
-            dbContext.Files.Add(new MediaFile
+            var mediaFile = new MediaFile
             {
                 Id = Guid.NewGuid(),
                 Filename = newFwFile,
@@ -39,10 +42,13 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                     MimeType = MimeMapping.MimeUtility.GetMimeMapping(newFwFile),
                     SizeInBytes = (int)new FileInfo(Path.Join(cache.ProjectId.ProjectFolder, newFwFile)).Length,
                 }
-            });
+            };
+            dbContext.Files.Add(mediaFile);
+            result.Added.Add(mediaFile);
         }
 
         await dbContext.SaveChangesAsync();
+        return result;
     }
 
     private IEnumerable<string> FilesRelativeToHgRepo(LcmCache cache)
