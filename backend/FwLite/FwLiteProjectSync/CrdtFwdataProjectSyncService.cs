@@ -8,12 +8,14 @@ using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Validators;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
 
 namespace FwLiteProjectSync;
 
-public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger)
+public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger,
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -59,6 +61,9 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
             crdtApi = new DryRunMiniLcmApi(crdtApi);
             fwdataApi = new DryRunMiniLcmApi(fwdataApi);
         }
+
+        crdtApi = validationWrapperFactory.Create(crdtApi);
+        fwdataApi = validationWrapperFactory.Create(fwdataApi);
 
         if (projectSnapshot is null)
         {

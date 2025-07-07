@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.Project;
+using MiniLcm.Validators;
 
 namespace FwLiteWeb.Routes;
 
@@ -85,8 +86,12 @@ public static class MiniLcmRoutes
                     return Results.Problem($"Project {projectCode} not found");
                 }
 
-                miniLcmHolder.MiniLcmApi =
-                    await projectProvider.OpenProject(project, context.HttpContext.RequestServices);
+                var validationWrapperFactory = context.HttpContext.RequestServices
+                    .GetRequiredService<MiniLcmApiValidationWrapperFactory>();
+
+                miniLcmHolder.MiniLcmApi = validationWrapperFactory.Create(
+                    await projectProvider.OpenProject(project, context.HttpContext.RequestServices)
+                );
                 return await next(context);
             });
 
