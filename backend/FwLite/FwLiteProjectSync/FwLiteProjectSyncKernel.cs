@@ -7,9 +7,9 @@ public static class FwLiteProjectSyncKernel
 {
     public static IServiceCollection AddFwLiteProjectSync(this IServiceCollection services)
     {
-        services.AddSingleton<CrdtFwdataProjectSyncService>();
-        services.AddSingleton<MiniLcmImport>();
-        services.AddSingleton<IProjectImport>(s => s.GetRequiredService<MiniLcmImport>());
+        services.AddScoped<CrdtFwdataProjectSyncService>();
+        services.AddScoped<MiniLcmImport>();
+        services.AddScoped<IProjectImport>(s => s.GetRequiredService<MiniLcmImport>());
         return services;
     }
 }
