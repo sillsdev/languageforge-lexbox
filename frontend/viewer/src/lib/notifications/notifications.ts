@@ -47,6 +47,23 @@ export class AppNotification {
     });
   }
 
+  public static error(message: string, detail?: string, clipboardText?: string): void {
+    clipboardText ??= `${message}${detail ? `\n\n${detail}` : ''}`;
+    toast.error(message, {
+      duration: INFINITY,
+      description: detail,
+      action: {
+        label: '',
+        onClick: (event) => {
+          event.preventDefault();
+          void navigator.clipboard.writeText(clipboardText);
+          const actionButton = event.currentTarget as HTMLButtonElement | null;
+          actionButton?.classList.add('copied');
+        },
+      },
+    });
+  }
+
   public static promise<T>(promise: Promise<T>, options: PromiseToastOptions<T>) {
     const { timeout = 'infinite', ...rest } = options;
     return toast.promise(promise, { duration: pickDuration(timeout), ...rest });

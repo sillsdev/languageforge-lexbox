@@ -37,8 +37,8 @@ I.e. If there's small, big, small, then sonner thinks the big one is small and p
     classes: {
       toast: 'gap-3 group toast [&[data-expanded="true"]]:!h-max [&[data-expanded="true"]]:max-h-max group-[.toaster]:!bg-background group-[.toaster]:!border-border group-[.toaster]:shadow-lg',
       description: 'group-[.toast]:!text-muted-foreground max-h-[30vh] overflow-y-auto whitespace-break-spaces',
-      actionButton: buttonVariants({size: 'sm', variant: 'default', class: 'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 !px-3'}),
-      cancelButton: buttonVariants({size: 'sm', variant: 'secondary', class: 'group-[.toast]:!bg-muted group-[.toast]:!text-muted-foreground !h-9 !px-3'}),
+      actionButton: buttonVariants({size: 'sm', variant: 'default', class: 'group-[.toast]:!bg-primary group-[.toast]:!text-primary-foreground !h-9 min-h-9 !px-3 group-[.toast[data-type="error"]]:i-mdi-content-copy [&.copied]:!i-mdi-check'}),
+      cancelButton: buttonVariants({size: 'sm', variant: 'secondary', class: 'group-[.toast]:!bg-muted group-[.toast]:!text-muted-foreground !h-9 min-h-9 !px-3'}),
     },
   }}
   {...restProps}

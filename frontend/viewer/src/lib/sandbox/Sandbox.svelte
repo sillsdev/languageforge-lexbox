@@ -43,7 +43,7 @@
       if (i % 10 === 0) description += '='.repeat(20);
       description += `This is line ${i + 1} of the detail\n`;
     }
-    AppNotification.display('This is a notification with a large detail', { type: 'plain', description });
+    AppNotification.error('This is a notification with a large detail', description);
   }
 
   InMemoryApiService.setup();
@@ -252,8 +252,8 @@
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <div class="flex flex-col gap-2">
         Notifications
-        <Button onclick={() => testingService?.throwException()}>Throw Exception</Button>
-        <Button onclick={() => testingService?.throwExceptionAsync()}>Throw Exception Async</Button>
+        <Button onclick={() => {if (testingService) void testingService.throwException(); else throw new Error('Failed to throw exception')}}>Throw Exception</Button>
+        <Button onclick={() => {if (testingService) void testingService.throwExceptionAsync(); else throw new Error('Failed to throw exception async')}}>Throw Exception Async</Button>
         <Button onclick={() => AppNotification.display('This is a simple notification')}>Simple
           Notification
         </Button>

@@ -55,8 +55,9 @@
       <Button size="sm" onclick={() => duration = undefined}>Clear</Button>
     </div>
     <span class="text-sm text-muted-foreground">
-      Exception and action notifications ignore this duration setting.
-      The notification service enforces a minimum duration of 3s.
+      Exception and action notifications ignore this duration setting. <br />
+      The notification service enforces a minimum duration of 3s. <br />
+      Copying to clipboard is not supported in the Storybook iframe.
     </span>
   </Label>
   <div class="flex flex-wrap gap-2">
@@ -80,7 +81,6 @@
     </Button>
   </div>
   <div class="flex flex-wrap gap-2">
-
     <Button variant="destructive" onclick={() => {throw new Error('This is a test exception');}}>Throw Exception</Button>
     <Button variant="destructive" onclick={() => new Promise(() => { throw new Error('This is a test exception');})}>Throw Exception Async</Button>
     <Button onclick={() => AppNotification.displayAction('This is a notification with an action', {
