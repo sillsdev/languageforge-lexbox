@@ -5,6 +5,7 @@ using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmDebugger;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ var crdtProjectsService = app.Services.GetRequiredService<CrdtProjectsService>()
 var crdtApi = await crdtProjectsService.OpenProject(
     new CrdtProject("test", "sbe-flex - Copy.sqlite"),
     scope.ServiceProvider);
-var dbContext = scope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
 var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
 {
     TypeInfoResolver = scope.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value

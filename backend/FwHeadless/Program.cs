@@ -184,7 +184,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     var pendingHgCommits = srService.PendingCommitCount(fwDataProject, lexboxProject.Code); // NOT awaited here so that this long-running task can run in parallel with others
 
     var crdtCommitsOnServer = await lexBoxDb.Set<ServerCommit>().CountAsync(c => c.ProjectId == projectId);
-    var lcmCrdtDbContext = services.GetRequiredService<LcmCrdtDbContext>();
+    await using var lcmCrdtDbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
     var localCrdtCommits = await lcmCrdtDbContext.Set<Commit>().CountAsync();
     var pendingCrdtCommits = crdtCommitsOnServer - localCrdtCommits;
 

@@ -198,7 +198,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(project);
-        var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await db.Database.EnsureDeletedAsync();
     }
 
