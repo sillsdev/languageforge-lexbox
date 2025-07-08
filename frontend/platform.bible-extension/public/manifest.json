@@ -1,7 +1,7 @@
 {
   "name": "fw-lite-extension",
   "version": "0.0.1",
-  "description": "FieldWorks Lite for Paranext. Powered by webpack",
+  "description": "FieldWorks Lite for Platform.Bible, powered by webpack",
   "publisher": "SIL",
   "license": "MIT",
   "main": "fw-lite-extension.ts",
