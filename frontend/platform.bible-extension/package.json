@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "main": "fw-lite-extension.js",
   "types": "fw-lite-extension.d.ts",
-  "author": "Paranext",
+  "author": "SIL Global",
   "license": "MIT",
   "scripts": {
     "build:web-view": "webpack --config ./webpack/webpack.config.web-view.ts",
