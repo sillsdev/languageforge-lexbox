@@ -23,7 +23,6 @@ namespace LcmCrdt;
 public class CrdtMiniLcmApi(
     DataModel dataModel,
     CurrentProjectService projectService,
-    IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
     MiniLcmRepositoryFactory repoFactory,
     IOptions<LcmCrdtConfig> config,
