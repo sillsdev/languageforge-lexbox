@@ -1,3 +1,5 @@
+import {ProjectModel} from 'fw-lite-api';
+
 declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   /** Network event that informs subscribers when the command `fwLiteExtension.doStuff` is run */
@@ -15,17 +17,7 @@ declare module 'fw-lite-extension' {
   };
 
   export type LocalProjectsEvent = {
-    projects: FwProject[];
-  };
-
-  export type FwProject = {
-    name: string;
-    code: string;
-    crdt: boolean;
-    fwdata: boolean;
-    lexbox: boolean;
-    role: number;
-    id: string;
+    projects: ProjectModel[];
   };
 }
 
