@@ -1,4 +1,5 @@
 declare module 'fw-lite-extension' {
+  export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   /** Network event that informs subscribers when the command `fwLiteExtension.doStuff` is run */
   export type DoStuffEvent = {
     /** How many times the extension template has run the command `fwLiteExtension.doStuff` */
@@ -31,10 +32,14 @@ declare module 'fw-lite-extension' {
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'fwLiteExtension.localProjects': () => Promise<void>;
-    'fwLiteExtension.openFWLite': () => {
+    'fwLiteExtension.openFWLite': (webviewId: string) => {
       success: boolean;
     };
     'fwLiteExtension.findEntry': (entry: string) => {
+    'fwLiteExtension.findEntry': (
+      webviewId: string,
+      entry: string,
+    ) => {
       success: boolean;
     };
     'fwLiteExtension.simpleFind': () => {
@@ -43,5 +48,11 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.getBaseUrl': () => {
       baseUrl: string;
     };
+  }
+  export interface ProjectSettingTypes {
+    'fw-lite-extension.fwProject': string;
+  }
+  export interface NetworkableObject {
+    'fwLiteExtension.entryService': IEntryService;
   }
 }
