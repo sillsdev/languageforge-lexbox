@@ -9,7 +9,7 @@
         99
       ]
     ],
-    "translation": ""
+    "translation": "– ({0} cambios)"
   },
   "mpbC3j": {
     "message": "{0} - FieldWorks",
@@ -21,7 +21,7 @@
         239
       ]
     ],
-    "translation": ""
+    "translation": "{0} - FieldWorks"
   },
   "35GcOB": {
     "message": "{0} - FieldWorks Lite",
@@ -33,7 +33,7 @@
         200
       ]
     ],
-    "translation": ""
+    "translation": "{0} - FieldWorks Lite"
   },
   "0jQasM": {
     "message": "{0} (FieldWorks Lite)",
@@ -45,7 +45,7 @@
         22
       ]
     ],
-    "translation": ""
+    "translation": "{0} (FieldWorks Lite)"
   },
   "Bi6Xst": {
     "message": "{0} (FieldWorks)",
@@ -57,7 +57,7 @@
         23
       ]
     ],
-    "translation": ""
+    "translation": "{0} (FieldWorks)"
   },
   "dhBPPx": {
     "message": "{0} Server",
@@ -81,7 +81,7 @@
         95
       ]
     ],
-    "translation": ""
+    "translation": "{0} sincronizado con FieldWorks. {1} sincronizado con FieldWorks Lite."
   },
   "ubuwKa": {
     "message": "{num, plural, one {# change} other {# changes}}",
@@ -97,7 +97,7 @@
         93
       ]
     ],
-    "translation": ""
+    "translation": "{num, plural, one {# cambio} other {# cambios}}"
   },
   "UuldxO": {
     "message": "A new version of FieldWorks lite is available.",
@@ -109,7 +109,7 @@
         24
       ]
     ],
-    "translation": ""
+    "translation": "Una nueva versión de FieldWorks lite está disponible."
   },
   "fhKYsI": {
     "message": "a word",
@@ -121,7 +121,7 @@
         102
       ]
     ],
-    "translation": ""
+    "translation": "una palabra"
   },
   "uyJsf6": {
     "message": "About",
@@ -133,7 +133,7 @@
         22
       ]
     ],
-    "translation": ""
+    "translation": "Acerca de"
   },
   "AeXO77": {
     "message": "Account",
@@ -173,7 +173,7 @@
         57
       ]
     ],
-    "translation": ""
+    "translation": "Añadir componente"
   },
   "nI3A8B": {
     "message": "Add Example",
@@ -185,7 +185,7 @@
         211
       ]
     ],
-    "translation": ""
+    "translation": "Añadir Ejemplo"
   },
   "dt7w9L": {
     "message": "Add Meaning",
@@ -201,7 +201,7 @@
         226
       ]
     ],
-    "translation": ""
+    "translation": "Añadir Significado"
   },
   "uvBQSU": {
     "message": "Add part of",
@@ -213,7 +213,7 @@
         51
       ]
     ],
-    "translation": ""
+    "translation": "Añadir parte de"
   },
   "0YSbah": {
     "message": "Add Sense",
@@ -229,7 +229,7 @@
         226
       ]
     ],
-    "translation": ""
+    "translation": "Añadir Acepción"
   },
   "XeIoU/": {
     "message": "ago",
@@ -249,7 +249,7 @@
         105
       ]
     ],
-    "translation": ""
+    "translation": "hace"
   },
   "iPthvs": {
     "message": "an entry",
@@ -261,7 +261,7 @@
         102
       ]
     ],
-    "translation": ""
+    "translation": "una entrada"
   },
   "ZYimak": {
     "message": "Application version",
@@ -273,7 +273,7 @@
         33
       ]
     ],
-    "translation": ""
+    "translation": "Versión de la aplicación"
   },
   "GKJXpX": {
     "message": "Are you sure you want to delete {0}?",
@@ -285,7 +285,7 @@
         55
       ]
     ],
-    "translation": ""
+    "translation": "¿Estás seguro de que quieres eliminar {0}?"
   },
   "6QeoeO": {
     "message": "Author:",
@@ -301,7 +301,7 @@
         91
       ]
     ],
-    "translation": ""
+    "translation": "Autor:"
   },
   "R9Khdg": {
     "message": "Auto",
@@ -313,7 +313,7 @@
         73
       ]
     ],
-    "translation": ""
+    "translation": "Automático"
   },
   "VmDOAV": {
     "message": "Auto synchronizing",
@@ -325,7 +325,7 @@
         176
       ]
     ],
-    "translation": ""
+    "translation": "Sincronización automática"
   },
   "CI9Ae4": {
     "message": "before",
@@ -341,7 +341,7 @@
         75
       ]
     ],
-    "translation": ""
+    "translation": "antes"
   },
   "3qtIhN": {
     "message": "Best match",
@@ -353,7 +353,7 @@
         9
       ]
     ],
-    "translation": ""
+    "translation": "Mejor coincidencia"
   },
   "O2UpM1": {
     "message": "Browse",
@@ -389,7 +389,7 @@
         280
       ]
     ],
-    "translation": ""
+    "translation": "Cancelar"
   },
   "7Esn9Y": {
     "message": "Citation form",
@@ -401,7 +401,7 @@
         55
       ]
     ],
-    "translation": ""
+    "translation": "Forma de citación"
   },
   "Q01cKL": {
     "message": "Classic FieldWorks Projects",
@@ -429,7 +429,7 @@
         205
       ]
     ],
-    "translation": ""
+    "translation": "limpiar"
   },
   "yz7wBu": {
     "message": "Close",
@@ -449,7 +449,7 @@
         28
       ]
     ],
-    "translation": ""
+    "translation": "Cerrar"
   },
   "Iy+nsd": {
     "message": "Close Dictionary",
@@ -473,7 +473,7 @@
         32
       ]
     ],
-    "translation": ""
+    "translation": "Color"
   },
   "PkH7DZ": {
     "message": "Complex Form",
@@ -493,7 +493,7 @@
         45
       ]
     ],
-    "translation": ""
+    "translation": "Forma Compleja"
   },
   "W+5v9T": {
     "message": "Complex form types",
@@ -505,7 +505,7 @@
         88
       ]
     ],
-    "translation": ""
+    "translation": "Tipos de formas complejas"
   },
   "j6HACU": {
     "message": "Complex forms",
@@ -517,7 +517,7 @@
         67
       ]
     ],
-    "translation": ""
+    "translation": "Formas complejas"
   },
   "dK3Z9j": {
     "message": "Component",
@@ -541,7 +541,7 @@
         50
       ]
     ],
-    "translation": ""
+    "translation": "Componente"
   },
   "RRa/CR": {
     "message": "Components",
@@ -553,7 +553,7 @@
         77
       ]
     ],
-    "translation": ""
+    "translation": "Componentes"
   },
   "b9XOHo": {
     "message": "Create {0}",
@@ -565,7 +565,7 @@
         112
       ]
     ],
-    "translation": ""
+    "translation": "Crear {0}"
   },
   "sYP6Ef": {
     "message": "Create entry",
@@ -577,7 +577,7 @@
         12
       ]
     ],
-    "translation": ""
+    "translation": "Crear entrada"
   },
   "0widty": {
     "message": "Create Example Project",
@@ -601,7 +601,7 @@
         12
       ]
     ],
-    "translation": ""
+    "translation": "Crear palabra"
   },
   "Jxxmun": {
     "message": "Current Entry",
@@ -617,7 +617,7 @@
         43
       ]
     ],
-    "translation": ""
+    "translation": "Entrada Actual"
   },
   "e2n436": {
     "message": "Current Word",
@@ -633,7 +633,7 @@
         43
       ]
     ],
-    "translation": ""
+    "translation": "Palabra Actual"
   },
   "7p5kLi": {
     "message": "Dashboard",
@@ -657,7 +657,7 @@
         35
       ]
     ],
-    "translation": ""
+    "translation": "Directorio de datos"
   },
   "MbRyzp": {
     "message": "Definition",
@@ -669,7 +669,7 @@
         52
       ]
     ],
-    "translation": ""
+    "translation": "Definición"
   },
   "cnGeoo": {
     "message": "Delete",
@@ -697,7 +697,7 @@
         59
       ]
     ],
-    "translation": ""
+    "translation": "Eliminar {0}"
   },
   "P0mjNu": {
     "message": "Delete Entry",
@@ -709,7 +709,7 @@
         55
       ]
     ],
-    "translation": ""
+    "translation": "Eliminar Entrada"
   },
   "i/7SVG": {
     "message": "Delete Word",
@@ -721,7 +721,7 @@
         55
       ]
     ],
-    "translation": ""
+    "translation": "Eliminar Palabra"
   },
   "RY27RL": {
     "message": "Dictionaries",
@@ -761,7 +761,7 @@
         38
       ]
     ],
-    "translation": ""
+    "translation": "Vista previa del diccionario"
   },
   "NagCcF": {
     "message": "Display as",
@@ -773,7 +773,7 @@
         55
       ]
     ],
-    "translation": ""
+    "translation": "Mostrar como"
   },
   "z9VIKz": {
     "message": "Don't delete",
@@ -785,7 +785,7 @@
         58
       ]
     ],
-    "translation": ""
+    "translation": "No eliminar"
   },
   "mzI/c+": {
     "message": "Download",
@@ -821,7 +821,7 @@
         250
       ]
     ],
-    "translation": ""
+    "translation": "Entrada"
   },
   "byQjNm": {
     "message": "Entry Only",
@@ -833,7 +833,7 @@
         211
       ]
     ],
-    "translation": ""
+    "translation": "Solo Entrada"
   },
   "bQ8ysI": {
     "message": "Entry or sense:",
@@ -845,7 +845,7 @@
         204
       ]
     ],
-    "translation": ""
+    "translation": "Entrada o acepción:"
   },
   "yeYJfy": {
     "message": "Error getting sync status",
@@ -857,7 +857,7 @@
         117
       ]
     ],
-    "translation": ""
+    "translation": "Error al obtener el estado de sincronización"
   },
   "ggzvfk": {
     "message": "Error getting sync status.",
@@ -869,7 +869,7 @@
         186
       ]
     ],
-    "translation": ""
+    "translation": "Error al obtener el estado de sincronización."
   },
   "TpqeIh": {
     "message": "Error: {0}",
@@ -881,7 +881,7 @@
         250
       ]
     ],
-    "translation": ""
+    "translation": "Error: {0}"
   },
   "HmI5oK": {
     "message": "Example",
@@ -893,7 +893,7 @@
         183
       ]
     ],
-    "translation": ""
+    "translation": "Ejemplo"
   },
   "BGP/S1": {
     "message": "Example sentence",
@@ -905,7 +905,7 @@
         90
       ]
     ],
-    "translation": ""
+    "translation": "Frase de ejemplo"
   },
   "9QXzjh": {
     "message": "Failed to load entries",
@@ -917,7 +917,7 @@
         134
       ]
     ],
-    "translation": ""
+    "translation": "Error al cargar las entradas"
   },
   "MS0/dh": {
     "message": "Failed to open data directory, use the path in the text field instead",
@@ -929,7 +929,7 @@
         22
       ]
     ],
-    "translation": ""
+    "translation": "No se pudo abrir el directorio de datos, use la ruta en el campo de texto en su lugar"
   },
   "yPkUF+": {
     "message": "Failed to synchronize",
@@ -945,7 +945,7 @@
         119
       ]
     ],
-    "translation": ""
+    "translation": "Error al sincronizar"
   },
   "YirHq7": {
     "message": "Feedback",
@@ -973,7 +973,7 @@
         32
       ]
     ],
-    "translation": ""
+    "translation": "Etiquetas de campo"
   },
   "uKNYWn": {
     "message": "FieldWorks logo",
@@ -1005,7 +1005,7 @@
         53
       ]
     ],
-    "translation": ""
+    "translation": "Filtrar # entradas"
   },
   "zGI/cf": {
     "message": "Filter # words",
@@ -1017,7 +1017,7 @@
         53
       ]
     ],
-    "translation": ""
+    "translation": "Filtrar # palabras"
   },
   "ctQd0R": {
     "message": "Filter entries",
@@ -1029,7 +1029,7 @@
         59
       ]
     ],
-    "translation": ""
+    "translation": "Filtrar entradas"
   },
   "IrEBhq": {
     "message": "Filter words",
@@ -1041,7 +1041,7 @@
         59
       ]
     ],
-    "translation": ""
+    "translation": "Filtrar palabras"
   },
   "6HLTEb": {
     "message": "Filter...",
@@ -1057,7 +1057,7 @@
         201
       ]
     ],
-    "translation": ""
+    "translation": "Filtrar..."
   },
   "0KYzFS": {
     "message": "Find entry...",
@@ -1069,7 +1069,7 @@
         140
       ]
     ],
-    "translation": ""
+    "translation": "Buscar entrada..."
   },
   "gotGzB": {
     "message": "Find word...",
@@ -1081,7 +1081,7 @@
         140
       ]
     ],
-    "translation": ""
+    "translation": "Buscar palabra..."
   },
   "F7GHkf": {
     "message": "Gloss",
@@ -1093,7 +1093,7 @@
         41
       ]
     ],
-    "translation": ""
+    "translation": "Glosa"
   },
   "u8+PAt": {
     "message": "Go to {0}",
@@ -1105,7 +1105,7 @@
         26
       ]
     ],
-    "translation": ""
+    "translation": "Ir a {0}"
   },
   "Ks+qfd": {
     "message": "Grammatical info.",
@@ -1117,7 +1117,7 @@
         63
       ]
     ],
-    "translation": ""
+    "translation": "Información gramatical."
   },
   "X5C2hm": {
     "message": "Headword",
@@ -1129,7 +1129,7 @@
         10
       ]
     ],
-    "translation": ""
+    "translation": "Lema"
   },
   "vLyv1R": {
     "message": "Hide",
@@ -1141,7 +1141,7 @@
         40
       ]
     ],
-    "translation": ""
+    "translation": "Ocultar"
   },
   "0caMy7": {
     "message": "History",
@@ -1157,7 +1157,7 @@
         59
       ]
     ],
-    "translation": ""
+    "translation": "Historial"
   },
   "E8KyPm": {
     "message": "I don't see my project",
@@ -1169,7 +1169,7 @@
         129
       ]
     ],
-    "translation": ""
+    "translation": "No veo mi proyecto"
   },
   "l3s5ri": {
     "message": "Import",
@@ -1197,7 +1197,7 @@
         242
       ]
     ],
-    "translation": ""
+    "translation": "Último cambio: {0}"
   },
   "Cb8zzH": {
     "message": "Lexbox logo",
@@ -1221,7 +1221,7 @@
         43
       ]
     ],
-    "translation": ""
+    "translation": "Forma del lexema"
   },
   "8oegWV": {
     "message": "List mode",
@@ -1233,7 +1233,7 @@
         63
       ]
     ],
-    "translation": ""
+    "translation": "Modo de lista"
   },
   "2kUuXE": {
     "message": "Literal meaning",
@@ -1245,7 +1245,7 @@
         103
       ]
     ],
-    "translation": ""
+    "translation": "Significado literal"
   },
   "4PN67S": {
     "message": "Loading Dictionaries...",
@@ -1257,7 +1257,7 @@
         104
       ]
     ],
-    "translation": ""
+    "translation": "Cargando diccionarios..."
   },
   "+yD+Wu": {
     "message": "loading...",
@@ -1305,7 +1305,7 @@
         182
       ]
     ],
-    "translation": ""
+    "translation": "Iniciar sesión"
   },
   "z7IcPF": {
     "message": "Login to see projects",
@@ -1369,7 +1369,7 @@
         15
       ]
     ],
-    "translation": ""
+    "translation": "Significado"
   },
   "oPBJ/O": {
     "message": "Missing Examples",
@@ -1381,7 +1381,7 @@
         81
       ]
     ],
-    "translation": ""
+    "translation": "Faltan ejemplos"
   },
   "sb65UQ": {
     "message": "Missing Part of Speech",
@@ -1393,7 +1393,7 @@
         83
       ]
     ],
-    "translation": ""
+    "translation": "Falta la categoría gramatical"
   },
   "XOUmTu": {
     "message": "Missing Semantic Domains",
@@ -1405,7 +1405,7 @@
         84
       ]
     ],
-    "translation": ""
+    "translation": "Faltan dominios semánticos"
   },
   "1H/nm7": {
     "message": "Missing Senses",
@@ -1417,7 +1417,7 @@
         82
       ]
     ],
-    "translation": ""
+    "translation": "Faltan acepciones"
   },
   "QWdKwH": {
     "message": "Move",
@@ -1429,7 +1429,7 @@
         61
       ]
     ],
-    "translation": ""
+    "translation": "Mover"
   },
   "qqeAJM": {
     "message": "Never",
@@ -1441,7 +1441,7 @@
         243
       ]
     ],
-    "translation": ""
+    "translation": "Nunca"
   },
   "isRobC": {
     "message": "New",
@@ -1453,7 +1453,7 @@
         48
       ]
     ],
-    "translation": ""
+    "translation": "Nuevo"
   },
   "6WSYbN": {
     "message": "New {0}",
@@ -1465,7 +1465,7 @@
         97
       ]
     ],
-    "translation": ""
+    "translation": "Nuevo {0}"
   },
   "eL8osE": {
     "message": "New Entry",
@@ -1477,7 +1477,7 @@
         50
       ]
     ],
-    "translation": ""
+    "translation": "Nueva Entrada"
   },
   "QUaH5J": {
     "message": "No activity found",
@@ -1489,7 +1489,7 @@
         61
       ]
     ],
-    "translation": ""
+    "translation": "No se encontró actividad"
   },
   "cJKxGt": {
     "message": "No change name",
@@ -1501,7 +1501,7 @@
         71
       ]
     ],
-    "translation": ""
+    "translation": "Sin nombre de cambio"
   },
   "hcFut8": {
     "message": "No Dictionaries found",
@@ -1513,7 +1513,7 @@
         108
       ]
     ],
-    "translation": ""
+    "translation": "No se encontraron diccionarios"
   },
   "bakDdy": {
     "message": "No entries found",
@@ -1529,7 +1529,7 @@
         174
       ]
     ],
-    "translation": ""
+    "translation": "No se encontraron entradas"
   },
   "7elymg": {
     "message": "No history found",
@@ -1541,7 +1541,7 @@
         66
       ]
     ],
-    "translation": ""
+    "translation": "No se encontró historial"
   },
   "V9PAEu": {
     "message": "No items found",
@@ -1557,7 +1557,7 @@
         220
       ]
     ],
-    "translation": ""
+    "translation": "No se encontraron elementos"
   },
   "ylgAlG": {
     "message": "No server configured",
@@ -1573,7 +1573,7 @@
         113
       ]
     ],
-    "translation": ""
+    "translation": "No hay servidor configurado"
   },
   "qdJypF": {
     "message": "No words found",
@@ -1585,7 +1585,7 @@
         174
       ]
     ],
-    "translation": ""
+    "translation": "No se encontraron palabras"
   },
   "EdQY6l": {
     "message": "None",
@@ -1601,7 +1601,7 @@
         176
       ]
     ],
-    "translation": ""
+    "translation": "Ninguno"
   },
   "wMP6DT": {
     "message": "Not logged in",
@@ -1617,7 +1617,7 @@
         111
       ]
     ],
-    "translation": ""
+    "translation": "No ha iniciado sesión"
   },
   "KiJn9B": {
     "message": "Note",
@@ -1629,7 +1629,7 @@
         114
       ]
     ],
-    "translation": ""
+    "translation": "Nota"
   },
   "6Aih4U": {
     "message": "Offline",
@@ -1645,7 +1645,7 @@
         109
       ]
     ],
-    "translation": ""
+    "translation": "Sin conexión"
   },
   "LqMYkh": {
     "message": "Open Data Directory",
@@ -1657,7 +1657,7 @@
         40
       ]
     ],
-    "translation": ""
+    "translation": "Abrir Directorio de Datos"
   },
   "Y4BKCd": {
     "message": "Open in FieldWorks",
@@ -1669,7 +1669,7 @@
         57
       ]
     ],
-    "translation": ""
+    "translation": "Abrir en FieldWorks"
   },
   "OsAKOS": {
     "message": "Open in new Window",
@@ -1681,7 +1681,7 @@
         65
       ]
     ],
-    "translation": ""
+    "translation": "Abrir en una nueva ventana"
   },
   "sccXTS": {
     "message": "Open Log file",
@@ -1693,7 +1693,7 @@
         46
       ]
     ],
-    "translation": ""
+    "translation": "Abrir archivo de registro"
   },
   "vgP+9p": {
     "message": "Part",
@@ -1709,7 +1709,7 @@
         44
       ]
     ],
-    "translation": ""
+    "translation": "Parte"
   },
   "qW3eh2": {
     "message": "Part of",
@@ -1737,7 +1737,7 @@
         50
       ]
     ],
-    "translation": ""
+    "translation": "Parte de"
   },
   "h6kyNd": {
     "message": "Part of speech",
@@ -1749,7 +1749,7 @@
         63
       ]
     ],
-    "translation": ""
+    "translation": "Categoría gramatical"
   },
   "kNiQp6": {
     "message": "Pinned",
@@ -1761,7 +1761,7 @@
         41
       ]
     ],
-    "translation": ""
+    "translation": "Fijado"
   },
   "rdUucN": {
     "message": "Preview",
@@ -1773,7 +1773,7 @@
         76
       ]
     ],
-    "translation": ""
+    "translation": "Vista previa"
   },
   "Xp1CO/": {
     "message": "Project name...",
@@ -1797,7 +1797,7 @@
         60
       ]
     ],
-    "translation": ""
+    "translation": "Referencia"
   },
   "4mRsmF": {
     "message": "Refine your filter to see more...",
@@ -1813,7 +1813,7 @@
         256
       ]
     ],
-    "translation": ""
+    "translation": "Refine su filtro para ver más..."
   },
   "TG4hr2": {
     "message": "Refresh Projects",
@@ -1841,7 +1841,7 @@
         73
       ]
     ],
-    "translation": ""
+    "translation": "Quitar"
   },
   "M7SqjM": {
     "message": "Reopen",
@@ -1853,7 +1853,7 @@
         41
       ]
     ],
-    "translation": ""
+    "translation": "Reabrir"
   },
   "aKuPxK": {
     "message": "Search # or #",
@@ -1865,7 +1865,7 @@
         null
       ]
     ],
-    "translation": ""
+    "translation": "Buscar # o #"
   },
   "3NdSH7": {
     "message": "Search Dictionaries",
@@ -1877,7 +1877,7 @@
         98
       ]
     ],
-    "translation": ""
+    "translation": "Buscar Diccionarios"
   },
   "02ePaq": {
     "message": "Select {0}",
@@ -1889,7 +1889,7 @@
         250
       ]
     ],
-    "translation": ""
+    "translation": "Seleccionar {0}"
   },
   "bbTYV2": {
     "message": "Select {0} to view details",
@@ -1901,7 +1901,7 @@
         102
       ]
     ],
-    "translation": ""
+    "translation": "Seleccione {0} para ver los detalles"
   },
   "mEtszZ": {
     "message": "Semantic domains",
@@ -1913,7 +1913,7 @@
         79
       ]
     ],
-    "translation": ""
+    "translation": "Dominios semánticos"
   },
   "Ivc0e8": {
     "message": "Sense",
@@ -1937,7 +1937,7 @@
         15
       ]
     ],
-    "translation": ""
+    "translation": "Acepción"
   },
   "FDpH/H": {
     "message": "Sentence",
@@ -1949,7 +1949,7 @@
         37
       ]
     ],
-    "translation": ""
+    "translation": "Frase"
   },
   "Tz0i8g": {
     "message": "Settings",
@@ -1973,7 +1973,7 @@
         null
       ]
     ],
-    "translation": ""
+    "translation": "Shadcn Sandbox # #"
   },
   "mFKqBL": {
     "message": "Share Log file",
@@ -1985,7 +1985,7 @@
         50
       ]
     ],
-    "translation": ""
+    "translation": "Compartir archivo de registro"
   },
   "8vETh9": {
     "message": "Show",
@@ -1997,7 +1997,7 @@
         39
       ]
     ],
-    "translation": ""
+    "translation": "Mostrar"
   },
   "0IaUwR": {
     "message": "Show {0} more...",
@@ -2009,7 +2009,7 @@
         191
       ]
     ],
-    "translation": ""
+    "translation": "Mostrar {0} más..."
   },
   "AQK14J": {
     "message": "Simple",
@@ -2021,7 +2021,7 @@
         72
       ]
     ],
-    "translation": ""
+    "translation": "Sencillo"
   },
   "hQRttt": {
     "message": "Submit",
@@ -2041,7 +2041,7 @@
         283
       ]
     ],
-    "translation": ""
+    "translation": "Enviar"
   },
   "N2FcBE": {
     "message": "Synced",
@@ -2105,7 +2105,7 @@
         222
       ]
     ],
-    "translation": ""
+    "translation": "Sincronizando..."
   },
   "GtycJ/": {
     "message": "Tasks",
@@ -2141,7 +2141,7 @@
         null
       ]
     ],
-    "translation": ""
+    "translation": "Esta fecha # y este emoji # son fragmentos"
   },
   "f233G3": {
     "message": "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.",
@@ -2153,7 +2153,7 @@
         40
       ]
     ],
-    "translation": ""
+    "translation": "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajando en FieldWorks Lite, cierre el proyecto en FieldWorks y haga clic en Reabrir."
   },
   "L2twOB": {
     "message": "Toggle filters",
@@ -2165,7 +2165,7 @@
         72
       ]
     ],
-    "translation": ""
+    "translation": "Alternar filtros"
   },
   "2N0C4b": {
     "message": "Toggle theme",
@@ -2177,7 +2177,7 @@
         24
       ]
     ],
-    "translation": ""
+    "translation": "Cambiar tema"
   },
   "wFcvZJ": {
     "message": "Translation",
@@ -2189,7 +2189,7 @@
         48
       ]
     ],
-    "translation": ""
+    "translation": "Traducción"
   },
   "et+mIi": {
     "message": "Troubleshoot",
@@ -2221,7 +2221,7 @@
         45
       ]
     ],
-    "translation": ""
+    "translation": "No se puede abrir en FieldWorks"
   },
   "Ef7StM": {
     "message": "Unknown",
@@ -2245,7 +2245,7 @@
         95
       ]
     ],
-    "translation": ""
+    "translation": "Desconocido"
   },
   "29VNqC": {
     "message": "Unknown error",
@@ -2257,7 +2257,7 @@
         115
       ]
     ],
-    "translation": ""
+    "translation": "Error desconocido"
   },
   "wja8aL": {
     "message": "Untitled",
@@ -2277,7 +2277,7 @@
         32
       ]
     ],
-    "translation": ""
+    "translation": "Sin título"
   },
   "S/J67B": {
     "message": "Uses components as",
@@ -2289,7 +2289,7 @@
         88
       ]
     ],
-    "translation": ""
+    "translation": "Usa componentes como"
   },
   "YYdC3A": {
     "message": "Version {0}",
@@ -2313,7 +2313,7 @@
         26
       ]
     ],
-    "translation": ""
+    "translation": "Ver Configuración"
   },
   "LhKBuY": {
     "message": "Where are my projects?",
@@ -2325,7 +2325,7 @@
         86
       ]
     ],
-    "translation": ""
+    "translation": "¿Dónde están mis proyectos?"
   },
   "dZiBrj": {
     "message": "Word",
@@ -2349,7 +2349,7 @@
         43
       ]
     ],
-    "translation": ""
+    "translation": "Palabra"
   },
   "yRdLNW": {
     "message": "Word only",
@@ -2361,7 +2361,7 @@
         211
       ]
     ],
-    "translation": ""
+    "translation": "Solo Palabra"
   },
   "o0GO4i": {
     "message": "Word or meaning:",
@@ -2373,7 +2373,7 @@
         204
       ]
     ],
-    "translation": ""
+    "translation": "Palabra o significado:"
   },
   "cDHTt1": {
     "message": "Writing system: {0}",
@@ -2385,6 +2385,6 @@
         20
       ]
     ],
-    "translation": ""
+    "translation": "Sistema de escritura: {0}"
   }
 }
