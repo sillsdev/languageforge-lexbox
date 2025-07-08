@@ -11,11 +11,20 @@ public class ReplacePublicationChange(Guid entityId, Publication newPublication,
 
     public override ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
-        entity.PublishIn =
-        [
-            ..entity.PublishIn.Where(t => t.Id != OldPublicationId),
-            NewPublication
-        ];
+        if (entity.PublishIn.Any(t => t.Id == NewPublication.Id))
+        {
+            // Just remove old one, don't add new as it would be a duplicate
+            entity.PublishIn.RemoveAll(t => t.Id == OldPublicationId);
+        }
+        else
+        {
+            // More efficient to add and remove in one step
+            entity.PublishIn =
+            [
+                ..entity.PublishIn.Where(t => t.Id != OldPublicationId),
+                NewPublication
+            ];
+        }
         return ValueTask.CompletedTask;
     }
 }

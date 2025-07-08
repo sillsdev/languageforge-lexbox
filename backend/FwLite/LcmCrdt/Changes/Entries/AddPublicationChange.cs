@@ -11,6 +11,7 @@ public class AddPublicationChange(Guid entityId, Publication publication)
 
     public override async ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
+        if (entity.PublishIn.Any(t => t.Id == Publication.Id)) return;
         if (await context.IsObjectDeleted(Publication.Id)) return;
         entity.PublishIn.Add(Publication);
     }
