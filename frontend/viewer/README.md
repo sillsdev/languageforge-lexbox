@@ -13,8 +13,15 @@ for the english text 'Logout'. Then to make localization files run:
 ```bash
 pnpm run i18n:extract
 ```
-this will update the files under /src/locales/
+this will update the files under `/src/locales/`
 if you want you can then feed those files to an AI and it'll translate them for you.
+
+
+#### Adding a new langauge
+The `/src/locales/` folder contains one file per language, named appropriately using its language code e.g. es.json for Spanish
+
+To add a new language for localization, copy the existing en.json file in the folder above and name it for the new language.  Ask AI to translate the "translation" strings into the language you want, and then commit those changes.
+You also need to update the `frontend/viewer/lingui.config.ts` with the additional language code
 
 #### advanced usage
 
