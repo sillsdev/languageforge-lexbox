@@ -70,7 +70,7 @@
 
   const iconProps = $derived(nullableIconProps && ('icon' in nullableIconProps || 'src' in nullableIconProps)
     ? nullableIconProps as IconProps
-    : icon ? {icon} : undefined);
+    : icon ? {icon, ...nullableIconProps} : undefined);
 </script>
 
 {#snippet content()}
