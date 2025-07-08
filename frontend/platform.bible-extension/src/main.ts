@@ -14,6 +14,7 @@ import type {
 } from 'fw-lite-extension';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
+import { EntryService } from './entry-service';
 
 const reactWebViewType = 'fw-lite-extension.react';
 
@@ -24,7 +25,7 @@ const reactWebViewProvider: IWebViewProvider = {
   // eslint-disable-next-line @typescript-eslint/require-await
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    _: OpenWebViewOptions,
+    options: OpenWebViewOptions & { projectId?: string },
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== reactWebViewType)
       throw new Error(
@@ -64,6 +65,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   baseUrlHolder.baseUrl = baseUrl;
   onLaunchServerEmitter.emit(baseUrlHolder);
+
+  const entryService = papi.networkObjects.set(
+    'fwliteextension.entryService',
+    new EntryService(baseUrl),
+    'fw-lite-extension.IEntryService',
+  );
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
@@ -125,6 +132,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,
     await localProjectsCommandPromise,
+    await entryService,
     onFindEntryEmitter,
     onLaunchServerEmitter,
     () => fwLiteProcess?.kill(),
