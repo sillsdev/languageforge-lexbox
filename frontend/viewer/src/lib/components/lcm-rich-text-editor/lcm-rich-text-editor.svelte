@@ -19,7 +19,7 @@
        * */
       span: {
         selectable: false,
-        content: 'text*',
+        content: 'text* br?',
         // If we remove this Backspace + Delete start removing whole spans
         inline: true,
         whitespace: 'pre',
@@ -33,6 +33,14 @@
         //richSpan is used to track the original span which was modified
         //this allows us to update the text property without having to map all the span properties into the schema
         attrs: {richSpan: {default: {}}, className: {default: ''}}
+      },
+      br: {
+        inline: true,
+        group: 'inline',
+        selectable: false,
+        linebreakReplacement: true,
+        toDOM: () => ['br'],
+        parseDOM: [{tag: 'br'}]
       },
       doc: {
         whitespace: 'pre',
@@ -242,16 +250,21 @@
   function valueToDoc(): Node {
     return textSchema.node('doc', {}, value?.spans
       .filter(s => s.text)
-      .map(s => richSpanToNode(s)) ?? []);
+      .map((s, i, all) => richSpanToNode(s, i === all.length - 1)) ?? []);
   }
 
-  function richSpanToNode(s: IRichSpan) {
+  function richSpanToNode(s: IRichSpan, isLast: boolean): Node {
     //we must pull text out of what is stored on the node attrs
     //ProseMirror will keep the text up to date itself, if we store it on the richSpan attr then it will become out of date
     let {text, ...rest} = s;
     //if the ws doesn't match expected, or there's more than just the ws key in props
     const isCustomized = (!!s.ws && !!normalWs && normalWs !== s.ws) || Object.keys(rest).length > 1;
-    return textSchema.node('span', {richSpan: rest, className: cn(isCustomized && 'customized')}, [textSchema.text(replaceLineSeparatorWithNewLine(text))]);
+    return textSchema.node('span', {richSpan: rest, className: cn(isCustomized && 'customized')}, [
+      textSchema.text(replaceLineSeparatorWithNewLine(text)),
+      // a <br> seems to be the only thing that will cause a trailing \n to be rendered
+      // this is what Prose-Mirror does if inline: false, which we can't use
+      ...(isLast ? [textSchema.node('br')] : [])
+    ]);
   }
 
   function richSpanFromNode(node: Node) {
