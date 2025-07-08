@@ -6,8 +6,12 @@ import {
   type SavedWebViewDefinition,
   type WebViewDefinition,
 } from '@papi/core';
-import type { ProjectModel } from 'fw-lite-api';
-import type { FindEntryEvent, LaunchServerEvent, LocalProjectsEvent } from 'fw-lite-extension';
+import type {
+  FindEntryEvent,
+  IProjectModel,
+  LaunchServerEvent,
+  LocalProjectsEvent,
+} from 'fw-lite-extension';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 import { EntryService } from './entry-service';
@@ -107,7 +111,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info('Fetching local FieldWorks projects');
       const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
       const jsonText = await (await response.blob()).text();
-      const projects = JSON.parse(jsonText) as ProjectModel[];
+      const projects = JSON.parse(jsonText) as IProjectModel[];
       onLocalProjectsEmitter.emit({ projects });
     },
   );
