@@ -127,7 +127,7 @@
         editor.updateState(newState);
       },
       attributes: {
-        class: inputVariants({class: 'min-h-10 h-auto'}),
+        class: inputVariants({class: 'min-h-10 h-auto pb-1.5'}),
         // todo: the distribution of props between the editor and the elementRef is not good
         // there should probably be a wrapper component that provides the elementRef to this one
         ...(id ? {id} : {}),
