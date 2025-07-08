@@ -65,7 +65,6 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
             }
         }
 
-        var senses = new List<Sense>();
         Entry? fullEntry = null;
         var sensesToReplace = new List<Sense>();
         var sensesToRemove = new List<Guid>();
