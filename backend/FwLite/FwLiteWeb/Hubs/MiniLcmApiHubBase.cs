@@ -2,20 +2,24 @@
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Validators;
 using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
-public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHubClient>
+public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi,
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory) : Hub<ILexboxHubClient>
 {
+    private readonly IMiniLcmApi _miniLcmApi = validationWrapperFactory.Create(miniLcmApi);
+
     public async Task<WritingSystems> GetWritingSystems()
     {
-        return await miniLcmApi.GetWritingSystems();
+        return await _miniLcmApi.GetWritingSystems();
     }
 
     public virtual async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
-        var newWritingSystem = await miniLcmApi.CreateWritingSystem(writingSystem);
+        var newWritingSystem = await _miniLcmApi.CreateWritingSystem(writingSystem);
         return newWritingSystem;
     }
 
@@ -24,81 +28,81 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
         JsonPatchDocument<WritingSystem> update)
     {
         var writingSystem =
-            await miniLcmApi.UpdateWritingSystem(id, type, new UpdateObjectInput<WritingSystem>(update));
+            await _miniLcmApi.UpdateWritingSystem(id, type, new UpdateObjectInput<WritingSystem>(update));
         return writingSystem;
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        return miniLcmApi.GetPartsOfSpeech();
+        return _miniLcmApi.GetPartsOfSpeech();
     }
 
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        return miniLcmApi.GetSemanticDomains();
+        return _miniLcmApi.GetSemanticDomains();
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
     {
-        return miniLcmApi.GetComplexFormTypes();
+        return _miniLcmApi.GetComplexFormTypes();
     }
 
     public virtual IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        return miniLcmApi.GetEntries(options);
+        return _miniLcmApi.GetEntries(options);
     }
 
     public virtual IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        return miniLcmApi.SearchEntries(query, options);
+        return _miniLcmApi.SearchEntries(query, options);
     }
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        return await miniLcmApi.GetEntry(id);
+        return await _miniLcmApi.GetEntry(id);
     }
 
     public virtual async Task<Entry> CreateEntry(Entry entry)
     {
-        var newEntry = await miniLcmApi.CreateEntry(entry);
+        var newEntry = await _miniLcmApi.CreateEntry(entry);
         await NotifyEntryUpdated(newEntry);
         return newEntry;
     }
 
     public virtual async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        var entry = await miniLcmApi.UpdateEntry(before, after);
+        var entry = await _miniLcmApi.UpdateEntry(before, after);
         await NotifyEntryUpdated(entry);
         return entry;
     }
 
     public async Task DeleteEntry(Guid id)
     {
-        await miniLcmApi.DeleteEntry(id);
+        await _miniLcmApi.DeleteEntry(id);
     }
 
     public virtual async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
-        var createdSense = await miniLcmApi.CreateSense(entryId, sense);
+        var createdSense = await _miniLcmApi.CreateSense(entryId, sense);
         return createdSense;
     }
 
     public virtual async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonPatchDocument<Sense> update)
     {
-        var sense = await miniLcmApi.UpdateSense(entryId, senseId, new UpdateObjectInput<Sense>(update));
+        var sense = await _miniLcmApi.UpdateSense(entryId, senseId, new UpdateObjectInput<Sense>(update));
         return sense;
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        await miniLcmApi.DeleteSense(entryId, senseId);
+        await _miniLcmApi.DeleteSense(entryId, senseId);
     }
 
     public virtual async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
         Guid senseId,
         ExampleSentence exampleSentence)
     {
-        var createdSentence = await miniLcmApi.CreateExampleSentence(entryId, senseId, exampleSentence);
+        var createdSentence = await _miniLcmApi.CreateExampleSentence(entryId, senseId, exampleSentence);
         return createdSentence;
     }
 
@@ -107,7 +111,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
         Guid exampleSentenceId,
         JsonPatchDocument<ExampleSentence> update)
     {
-        var sentence = await miniLcmApi.UpdateExampleSentence(entryId,
+        var sentence = await _miniLcmApi.UpdateExampleSentence(entryId,
             senseId,
             exampleSentenceId,
             new UpdateObjectInput<ExampleSentence>(update));
@@ -116,7 +120,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        await miniLcmApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
+        await _miniLcmApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
     }
 
     protected virtual async Task NotifyEntryUpdated(Entry entry)

@@ -4,6 +4,7 @@ using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 
 namespace LcmCrdt.Tests.Changes;
@@ -45,27 +46,59 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             var serializedQueuedChanges = JsonSerializer.Serialize(queuedChanges, Options);
             throw new Exception($"Failed to add changes: {e.Message}. JSON:\n\n{serializedQueuedChanges}", e);
         }
-
     }
 
-    private bool AreSatisfied([NotNullWhen(false)] IEnumerable<IChange>? dependencies, IEnumerable<IChange> queuedChanges)
+    [Fact]
+    public async Task CanSyncAllChangesWithDuplicates()
     {
-        return dependencies == null || dependencies.All(queuedChanges.Contains);
+        var shuffledChangesWithDependencies = random.Shuffle(GetAllChanges())
+            .ToDictionary(change => change.Change, change => change.Dependencies == null ? null : random.Shuffle(change.Dependencies).ToList());
+        var pendingChanges = shuffledChangesWithDependencies.Select(c => c.Key).ToList();
+        var committedChanges = new List<IChange>(pendingChanges.Count);
+
+        while (pendingChanges is not [])
+        {
+            var change = FindFirstSatisfiedChangeRecursive(pendingChanges, shuffledChangesWithDependencies, committedChanges);
+            if (!pendingChanges.Remove(change)) throw new InvalidOperationException("Change not found in pending changes");
+
+            await fixture.DataModel.AddChange(Guid.NewGuid(), change);
+
+            // Add a duplicate change
+            var duplicateChange = JsonSerializer.Deserialize(
+                JsonSerializer.Serialize(change, Options),
+                change.GetType()) as IChange;
+            duplicateChange.Should().NotBeNull();
+            duplicateChange.GetType().Should().Be(change.GetType());
+            // we can't create duplicate entities with the same ID
+            if (IsCreateChange(change)) duplicateChange.EntityId = Guid.NewGuid();
+            await fixture.DataModel.AddChange(Guid.NewGuid(), duplicateChange);
+
+            var allEntries = await fixture.Api.GetEntries().ToArrayAsync();
+            var result = await EntrySync.Sync(allEntries, allEntries, fixture.Api);
+            result.Should().Be(0);
+
+            committedChanges.Add(change);
+        }
+    }
+
+    private bool AreSatisfied([NotNullWhen(false)] IEnumerable<IChange>? dependencies, IEnumerable<IChange> appliedChanges)
+    {
+        return dependencies == null || dependencies.All(appliedChanges.Contains);
     }
 
     private IChange FindFirstSatisfiedChangeRecursive(List<IChange> changes,
         Dictionary<IChange, List<IChange>?> allChangesWithDependencies,
-        List<IChange> queuedChanges)
+        List<IChange> appliedChanges)
     {
-        var change = changes.First(d => !queuedChanges.Contains(d));
+        var change = changes.First(d => !appliedChanges.Contains(d));
         var dependencies = allChangesWithDependencies[change];
-        if (AreSatisfied(dependencies, queuedChanges))
+        if (AreSatisfied(dependencies, appliedChanges))
         {
             return change;
         }
         else
         {
-            return FindFirstSatisfiedChangeRecursive(dependencies, allChangesWithDependencies, queuedChanges);
+            return FindFirstSatisfiedChangeRecursive(dependencies, allChangesWithDependencies, appliedChanges);
         }
     }
 
@@ -165,7 +198,21 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
 
-        var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new (){{"en", "Main"}});
+        var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new() { { "en", "Main" } });
         yield return new ChangeWithDependencies(createPublicationChange);
+    }
+
+    private static bool IsCreateChange(IChange obj)
+    {
+        var type = obj.GetType();
+        while (type != null && type != typeof(object))
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(CreateChange<>))
+            {
+                return true;
+            }
+            type = type.BaseType;
+        }
+        return false;
     }
 }

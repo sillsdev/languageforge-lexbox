@@ -1,5 +1,4 @@
-﻿using MiniLcm.Models;
-using SIL.Harmony.Changes;
+﻿using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
 
@@ -12,6 +11,7 @@ public class AddComplexFormTypeChange(Guid entityId, ComplexFormType complexForm
 
     public override async ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
+        if (entity.ComplexFormTypes.Any(t => t.Id == ComplexFormType.Id)) return;
         if (await context.IsObjectDeleted(ComplexFormType.Id)) return;
         entity.ComplexFormTypes.Add(ComplexFormType);
     }

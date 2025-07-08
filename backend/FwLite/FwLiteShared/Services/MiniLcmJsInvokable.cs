@@ -3,6 +3,7 @@ using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Validators;
 using Reinforced.Typings.Attributes;
 
 namespace FwLiteShared.Services;
@@ -11,9 +12,10 @@ public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
-    MiniLcmApiNotifyWrapperFactory apiWrapperFactory) : IDisposable
+    MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory) : IDisposable
 {
-    private readonly IMiniLcmApi _wrappedApi = apiWrapperFactory.Create(api, project);
+    private readonly IMiniLcmApi _wrappedApi = validationWrapperFactory.Create(notificationWrapperFactory.Create(api, project));
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
