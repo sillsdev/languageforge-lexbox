@@ -106,7 +106,7 @@
       CitationForm (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      ComplexFormTypes (IList<ComplexFormType>) Required
+      ComplexFormTypes (List<ComplexFormType>) Required
         Annotations: 
           Relational:ColumnType: jsonb
       DeletedAt (DateTimeOffset?)

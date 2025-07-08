@@ -39,7 +39,7 @@ public class CrdtMiniLcmApi(
         {
             ClientVersion = AppVersion.Version,
             //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName,
+            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
             AuthorId = ProjectData.LastUserId
         };
         return metadata;
@@ -78,7 +78,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
-        await validators.ValidateAndThrow(writingSystem);
         await using var repo = await repoFactory.CreateRepoAsync();
         var entityId = Guid.NewGuid();
         var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == writingSystem.Type);
@@ -91,7 +90,6 @@ public class CrdtMiniLcmApi(
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        await validators.ValidateAndThrow(update);
         var ws = await repo.GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
@@ -101,7 +99,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await WritingSystemSync.Sync(before, after, api ?? this);
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
@@ -145,7 +142,6 @@ public class CrdtMiniLcmApi(
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         if (partOfSpeech.Id == Guid.Empty) partOfSpeech.Id = Guid.NewGuid();
-        await validators.ValidateAndThrow(partOfSpeech);
         await AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
     }
@@ -161,7 +157,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api)
     {
-        await validators.ValidateAndThrow(after);
         await PartOfSpeechSync.Sync(before, after, api ?? this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
@@ -223,7 +218,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
     {
-        await validators.ValidateAndThrow(semanticDomain);
         await AddChange(new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new NullReferenceException();
     }
@@ -239,7 +233,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await SemanticDomainSync.Sync(before, after, api ?? this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
@@ -271,7 +264,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        await validators.ValidateAndThrow(complexFormType);
         await using var repo = await repoFactory.CreateRepoAsync();
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
@@ -286,7 +278,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, api ?? this);
         return await GetComplexFormType(after.Id) ?? throw new NullReferenceException($"unable to find complex form type with id {after.Id}");
     }
@@ -441,7 +432,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        await validators.ValidateAndThrow(entry);
         await using var repo = await repoFactory.CreateRepoAsync();
         await AddChanges([
             new CreateEntryChange(entry),
@@ -533,7 +523,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await EntrySync.Sync(before, after, api ?? this);
         var updatedEntry = await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
         return updatedEntry;
@@ -569,7 +558,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
-        await validators.ValidateAndThrow(sense);
         await using var repo = await repoFactory.CreateRepoAsync();
         if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
@@ -592,7 +580,6 @@ public class CrdtMiniLcmApi(
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await SenseSync.Sync(entryId, before, after, api ?? this);
         return await GetSense(entryId, after.Id) ?? throw new NullReferenceException("unable to find sense with id " + after.Id);
     }
@@ -624,7 +611,6 @@ public class CrdtMiniLcmApi(
         ExampleSentence exampleSentence,
         BetweenPosition? between = null)
     {
-        await validators.ValidateAndThrow(exampleSentence);
         await using var repo = await repoFactory.CreateRepoAsync();
         exampleSentence.Order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
         await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
@@ -654,7 +640,6 @@ public class CrdtMiniLcmApi(
         ExampleSentence after,
         IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this);
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException();
     }

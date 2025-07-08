@@ -4,6 +4,7 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BeaKona.AutoInterfaceGenerator" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="Gridify" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />

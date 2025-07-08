@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Validators;
 using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
@@ -21,8 +22,9 @@ public class CrdtMiniLcmApiHub(
     CurrentProjectService projectContext,
     LexboxProjectService lexboxProjectService,
     IMemoryCache memoryCache,
-    IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext
-) : MiniLcmApiHubBase(miniLcmApi)
+    IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory
+) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;
