@@ -1,7 +1,7 @@
 import papi from '@papi/frontend';
-import type {ProjectModel} from 'fw-lite-api';
 import type {
   FindEntryEvent,
+  IProjectModel,
   LaunchServerEvent,
   LocalProjectsEvent,
 } from 'fw-lite-extension';
@@ -10,7 +10,7 @@ import { useState, useRef, useEffect } from 'react';
 
 globalThis.webViewComponent = function fwLiteMainWindow() {
   const [baseUrl, setBaseUrl] = useState('');
-  const [localProjects, setLocalProjects] = useState<ProjectModel[] | undefined>();
+  const [localProjects, setLocalProjects] = useState<IProjectModel[] | undefined>();
 
   const iframe = useRef<HTMLIFrameElement | null>(null);
   useEvent<FindEntryEvent>(
