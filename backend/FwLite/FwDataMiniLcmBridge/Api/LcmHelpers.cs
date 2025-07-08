@@ -152,6 +152,16 @@ internal static class LcmHelpers
         return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
     }
 
+    internal static ILexEntry CreateEntry(this LcmCache cache, Guid id)
+    {
+        var lexEntry = cache.ServiceLocator.GetInstance<ILexEntryFactory>().Create(id,
+            cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
+        lexEntry.LexemeFormOA = cache.CreateLexemeForm();
+        //must be done after the IMoForm is set on the LexemeForm property
+        lexEntry.LexemeFormOA.MorphTypeRA = cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>().GetObject(MoMorphTypeTags.kguidMorphStem);
+        return lexEntry;
+    }
+
     internal static string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
     {
         var abbr = semanticDomain.Abbreviation;
