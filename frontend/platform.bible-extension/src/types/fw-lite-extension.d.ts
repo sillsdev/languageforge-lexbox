@@ -19,6 +19,21 @@ declare module 'fw-lite-extension' {
   export type LocalProjectsEvent = {
     projects: ProjectModel[];
   };
+
+  export interface IEntryQuery {
+    readonly projectId: string;
+    readonly surfaceForm?: string;
+    readonly exactMatch?: boolean;
+    readonly partOfSpeech?: string;
+    readonly semanticDomain?: string;
+  }
+
+  export interface IEntryService {
+    getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
+    addEntry(projectId: string, reference: IEntry): Promise<void>;
+    updateEntry(projectId: string, reference: IEntry): Promise<void>;
+    deleteEntry(projectId: string, id: string): Promise<void>;
+  }
 }
 
 declare module 'papi-shared-types' {
