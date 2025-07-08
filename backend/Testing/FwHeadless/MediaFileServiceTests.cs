@@ -48,6 +48,7 @@ public class MediaFileServiceTests : IDisposable
     public void Dispose()
     {
         Directory.Delete(_fwHeadlessConfig.ProjectStorageRoot, true);
+        _lexBoxDbContext.Files.ExecuteDelete();
     }
 
     private string RelativeToLinkedFiles(string path)
