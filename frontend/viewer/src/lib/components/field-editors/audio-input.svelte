@@ -71,7 +71,7 @@
     playerState = 'loading';
     const stream = await loader(audioId);
     if (!stream) {
-      AppNotification.display(`Failed to load audio ${audioId}`, 'error', 'long');
+      AppNotification.error(`Failed to load audio ${audioId}`);
       return;
     }
     let blob = await new Response(stream).blob();
