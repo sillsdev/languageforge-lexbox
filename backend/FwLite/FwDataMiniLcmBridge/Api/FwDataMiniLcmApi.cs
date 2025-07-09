@@ -26,7 +26,6 @@ public class FwDataMiniLcmApi(
     bool onCloseSave,
     ILogger<FwDataMiniLcmApi> logger,
     FwDataProject project,
-    MiniLcmValidators validators,
     IMediaAdapter mediaAdapter,
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
