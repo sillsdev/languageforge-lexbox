@@ -26,6 +26,7 @@ using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.MediaServer;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MiniLcm.Filtering;
 
@@ -62,6 +63,7 @@ public static class LcmCrdtKernel
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<MediaServerClient>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 

@@ -144,6 +144,9 @@ public class SyncWorker(
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
 
         var fwdataApi = await SetupFwData(fwDataProject, projectCode);
+        //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
+        await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
+
         using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
@@ -203,8 +206,6 @@ public class SyncWorker(
         }
 
         var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
-        //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
-        await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
         return fwdataApi;
     }
 

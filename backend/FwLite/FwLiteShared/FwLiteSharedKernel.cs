@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using MiniLcm.Project;
 using MiniLcm.Validators;
 using Polly;
 using Polly.Simmy;
@@ -29,6 +30,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<ImportFwdataService>();
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
+        services.AddScoped<IServerHttpClientProvider, LexboxServerClientProvider>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
         services.AddSingleton<GlobalEventBus>();
