@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
-using MiniLcm.Validators;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
 
@@ -23,7 +22,6 @@ namespace LcmCrdt;
 public class CrdtMiniLcmApi(
     DataModel dataModel,
     CurrentProjectService projectService,
-    MiniLcmValidators validators,
     MiniLcmRepositoryFactory repoFactory,
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
