@@ -17,8 +17,7 @@ This will update the files under `/src/locales/`. If you want, you can then feed
 
 #### Adding a new language
 The `/src/locales/` folder contains one file per language, named using its language code (e.g. `es.json` for Spanish).
-To add a new language, copy `en.json`, rename it, translate the `"translation"` fields, and commit the changes.
-You must also update `frontend/viewer/lingui.config.ts` with the additional language code.
+You must update `frontend/viewer/lingui.config.ts` with the additional language code, then run `pnpm run i18n:extract` to generate the new locale file
 
 #### Advanced Usage
 
