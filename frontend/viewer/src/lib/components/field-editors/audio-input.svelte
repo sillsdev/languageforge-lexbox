@@ -1,4 +1,6 @@
 <script lang="ts" module>
+  import {createSubscriber} from 'svelte/reactivity';
+  import {on} from 'svelte/events';
   class AudioRuned {
     #currentTimeSub = createSubscriber(update => on(this.audio, 'timeupdate', update));
     #durationSub = createSubscriber(update => on(this.audio, 'durationchange', update));
@@ -42,8 +44,6 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Button} from '$lib/components/ui/button';
   import {Slider} from '$lib/components/ui/slider';
-  import {createSubscriber} from 'svelte/reactivity';
-  import {on} from 'svelte/events';
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
 
@@ -55,10 +55,6 @@
     audioId: string | undefined,
   } = $props();
 
-  watch(() => audioId, () => {
-    if (!audio || !audio.src) return;
-    URL.revokeObjectURL(audio.src);
-  });
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
   const supportsAudio = $derived(projectContext?.features.audio);
@@ -137,6 +133,10 @@
     if (!audio || !audio.src) return;
     URL.revokeObjectURL(audio.src);
   });
+  watch(() => audio, (current, previous) => {
+    if (previous?.src) URL.revokeObjectURL(previous.src);
+    playerState = 'paused';
+  });
   let playerState = $state<'loading' | 'playing' | 'paused'>('paused');
   let loading = $derived(playerState === 'loading');
   let playing = $derived(playerState === 'playing');
@@ -198,8 +198,10 @@
               {/if}
           </span>
       {/if}
-      <audio bind:this={audio} onplay={load}>
-      </audio>
+      {#key audioId}
+        <audio bind:this={audio} onplay={load}>
+        </audio>
+      {/key}
     </div>
   {/if}
 {/if}
