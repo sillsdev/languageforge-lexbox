@@ -575,7 +575,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var sense = await repo.GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
-        await AddChanges([..sense.ToChanges(update.Patch)]);
+        await AddChanges(update.Patch.ToChanges(sense.Id));
         return await repo.GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 

@@ -37,61 +37,10 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         set => throw new NotImplementedException();
     }
 
-    //the frontend may sometimes try to issue patches to remove Domain.Code or Name, but all we care about is Id
-    //when those cases happen then Id will be default, so we ignore them.
     public override IList<SemanticDomain> SemanticDomains
     {
-        get =>
-            new UpdateListProxy<SemanticDomain>(
-                semanticDomain =>
-                {
-#pragma warning disable VSTHRD002
-                    lexboxLcmApi.AddSemanticDomainToSense(sense.Guid, semanticDomain).Wait();
-                },
-                semanticDomain =>
-                {
-                    lexboxLcmApi.RemoveSemanticDomainFromSense(sense.Guid, semanticDomain.Id).Wait();
-#pragma warning restore VSTHRD002
-                },
-                i => new UpdateProxySemanticDomain(sense.SemanticDomainsRC,
-                    sense.SemanticDomainsRC.ElementAt(i).Guid,
-                    lexboxLcmApi),
-                sense.SemanticDomainsRC.Count
-            );
+        get => throw new NotImplementedException();
         set => throw new NotImplementedException();
-    }
-
-    public class UpdateProxySemanticDomain : SemanticDomain
-    {
-        private readonly ILcmReferenceCollection<ICmSemanticDomain> _senseSemanticDomainsRc;
-        private Guid _id;
-        private readonly FwDataMiniLcmApi _lexboxLcmApi;
-
-        [SetsRequiredMembers]
-        public UpdateProxySemanticDomain(ILcmReferenceCollection<ICmSemanticDomain> senseSemanticDomainsRc,
-            Guid id,
-            FwDataMiniLcmApi lexboxLcmApi)
-        {
-            _senseSemanticDomainsRc = senseSemanticDomainsRc;
-            _id = id;
-            _lexboxLcmApi = lexboxLcmApi;
-            Name = new MultiString();
-            Code = "";
-        }
-
-        public override required Guid Id
-        {
-            get => _id;
-            set
-            {
-                if (value == _id) return;
-                if (value == default) throw new ArgumentException("Cannot set to default");
-                _senseSemanticDomainsRc.Remove(_senseSemanticDomainsRc.First(sd => sd.Guid == _id));
-                var lcmSemanticDomain = _lexboxLcmApi.GetLcmSemanticDomain(value);
-                if (lcmSemanticDomain is not null) _senseSemanticDomainsRc.Add(lcmSemanticDomain);
-                _id = value;
-            }
-        }
     }
 
     public override List<ExampleSentence> ExampleSentences

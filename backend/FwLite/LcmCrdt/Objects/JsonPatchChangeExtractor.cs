@@ -11,46 +11,7 @@ public static class JsonPatchChangeExtractor
 {
     public static IEnumerable<IChange> ToChanges(this Sense sense, JsonPatchDocument<Sense> patch)
     {
-        //the part of speech text should not be changed directly, instead we should set the part of speech id
-        patch.RemoveChanges(s => s.PartOfSpeech);
-        foreach (var rewriteChange in patch.RewriteChanges(s => s.PartOfSpeechId,
-                     (partOfSpeechId, operationType) =>
-                     {
-                         if (operationType == OperationType.Replace)
-                            return new SetPartOfSpeechChange(sense.Id, partOfSpeechId);
-                         throw new NotSupportedException($"operation {operationType} not supported for part of speech");
-                     }))
-        {
-            yield return rewriteChange;
-        }
-
-        foreach (var rewriteChange in patch.RewriteChanges(s => s.SemanticDomains,
-                     (semanticDomain, index, operationType) =>
-                     {
-                         if (operationType is OperationType.Add)
-                         {
-                             ArgumentNullException.ThrowIfNull(semanticDomain);
-                             return new AddSemanticDomainChange(semanticDomain, sense.Id);
-                         }
-
-                         if (operationType is OperationType.Replace)
-                         {
-                             ArgumentNullException.ThrowIfNull(semanticDomain);
-                             return new ReplaceSemanticDomainChange(sense.SemanticDomains[index].Id, semanticDomain, sense.Id);
-                         }
-                         if (operationType is OperationType.Remove)
-                         {
-                             return new RemoveSemanticDomainChange(sense.SemanticDomains[index].Id, sense.Id);
-                         }
-
-                         throw new NotSupportedException($"operation {operationType} not supported for semantic domains");
-                     }))
-        {
-            yield return rewriteChange;
-        }
-
-        if (patch.Operations.Count > 0)
-            yield return new JsonPatchChange<Sense>(sense.Id, patch);
+        return patch.ToChanges(sense.Id);
     }
 
 
@@ -149,20 +110,9 @@ public static class JsonPatchChangeExtractor
             yield return new JsonPatchChange<Entry>(entry.Id, patch);
     }
 
-    public static IEnumerable<IChange> ToChanges(this PartOfSpeech pos, JsonPatchDocument<PartOfSpeech> patch)
+    public static IEnumerable<IChange> ToChanges<T>(this JsonPatchDocument<T> patch, Guid entityId) where T : class
     {
         if (patch.Operations.Count > 0)
-            yield return new JsonPatchChange<PartOfSpeech>(pos.Id, patch);
-    }
-    public static IEnumerable<IChange> ToChanges(this Publication pub, JsonPatchDocument<Publication> patch)
-    {
-        if (patch.Operations.Count > 0)
-            yield return new JsonPatchChange<Publication>(pub.Id, patch);
-    }
-
-    public static IEnumerable<IChange> ToChanges(this SemanticDomain semDom, JsonPatchDocument<SemanticDomain> patch)
-    {
-        if (patch.Operations.Count > 0)
-            yield return new JsonPatchChange<SemanticDomain>(semDom.Id, patch);
+            yield return new JsonPatchChange<T>(entityId, patch);
     }
 }
