@@ -108,6 +108,6 @@ public abstract class PublicationsTestsBase : MiniLcmTestBase
         await Api.CreatePublication(publication);
         var afterPub = new Publication() { Id = publication.Id, Name = new() { { "en", "updated" } } };
         var actualPub = await Api.UpdatePublication(publication, afterPub);
-        actualPub.Should().BeEquivalentTo(afterPub, options => options.Excluding(c => c.Id));
+        actualPub.Should().BeEquivalentTo(afterPub);
     }
 }
