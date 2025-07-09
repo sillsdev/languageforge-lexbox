@@ -12,17 +12,18 @@ import type {
   LaunchServerEvent,
   LocalProjectsEvent,
 } from 'fw-lite-extension';
+import fwLiteProjectSelect from './fw-lite-project-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 import { EntryService } from './entry-service';
 
 const reactWebViewType = 'fw-lite-extension.react';
+const projectSelectWebViewType = 'fw-lite-project-select.react';
 
 /**
  * Simple web view provider that provides React web views when papi requests them
  */
 const reactWebViewProvider: IWebViewProvider = {
-  // eslint-disable-next-line @typescript-eslint/require-await
   async getWebView(
     savedWebView: SavedWebViewDefinition,
     options: OpenWebViewOptions & { projectId?: string },
@@ -42,12 +43,35 @@ const reactWebViewProvider: IWebViewProvider = {
   },
 };
 
+const projectSelectWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: OpenWebViewOptions & { projectId?: string },
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== projectSelectWebViewType)
+      throw new Error(
+        `${projectSelectWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
+      );
+    return {
+      ...savedWebView,
+      title: 'Select a FieldWorks project',
+      content: fwLiteProjectSelect,
+      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
+    };
+  },
+};
+
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
 
   const reactWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     reactWebViewType,
     reactWebViewProvider,
+  );
+
+  const projectSelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    projectSelectWebViewType,
+    projectSelectWebViewProvider,
   );
 
   // Emitter to tell subscribers how many times we have done stuff
@@ -108,6 +132,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const localProjectsCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.localProjects',
     async () => {
+      await papi.webViews.openWebView(
+        projectSelectWebViewType,
+        { type: 'float' },
+        { existingId: '?' },
+      );
       logger.info('Fetching local FieldWorks projects');
       const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
       const jsonText = await (await response.blob()).text();
@@ -127,6 +156,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   // Await the data provider promise at the end so we don't hold everything else up
   context.registrations.add(
     await reactWebViewProviderPromise,
+    await projectSelectWebViewProviderPromise,
     await findEntryCommandPromise,
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
