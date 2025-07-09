@@ -517,7 +517,7 @@ public class CrdtMiniLcmApi(
         var entry = await repo.GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
-        await AddChanges(entry.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(entry.Id));
         var updatedEntry = await repo.GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
         return updatedEntry;
     }
