@@ -33,6 +33,7 @@
   import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
+  import {loadFFmpeg} from '$lib/components/audio/ffmpeg-loader';
 
 
   const testingService = tryUseService(DotnetService.TestingService);
@@ -125,6 +126,12 @@
   let reseter = $state(0);
 
   let currentDate = new SvelteDate();
+
+  async function preloadFFmpeg() {
+    console.log('Loading FFmpeg...');
+    let ffmpeg = await loadFFmpeg();
+    console.log('FFmpeg loaded:', ffmpeg);
+  }
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -136,6 +143,7 @@
       {/snippet}
     </T>
   </h2>
+  <Button onclick={preloadFFmpeg}>Load FFmpeg</Button>
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <Button onclick={incrementAsync} {loading} icon="i-mdi-ab-testing">Shadcn FTW {count}</Button>
