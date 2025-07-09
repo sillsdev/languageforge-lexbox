@@ -59,6 +59,7 @@ public static class MiniLcmValidatorsExtensions
 {
     public static IServiceCollection AddMiniLcmValidators(this IServiceCollection services)
     {
+        services.AddTransient<MiniLcmApiValidationWrapperFactory>();
         services.AddTransient<MiniLcmValidators>();
         services.AddTransient<IValidator<ComplexFormType>, ComplexFormTypeValidator>();
         services.AddTransient<IValidator<Entry>, EntryValidator>();

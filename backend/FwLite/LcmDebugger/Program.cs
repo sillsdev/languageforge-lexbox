@@ -25,17 +25,4 @@ using var app = builder.Build();
 
 await using var scope = app.Services.CreateAsyncScope();
 
-var crdtProjectsService = app.Services.GetRequiredService<CrdtProjectsService>();
-var crdtApi = await crdtProjectsService.OpenProject(
-    new CrdtProject("test", "sbe-flex - Copy.sqlite"),
-    scope.ServiceProvider);
-var dbContext = scope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
-var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-{
-    TypeInfoResolver = scope.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value
-        .MakeLcmCrdtExternalJsonTypeResolver()
-};
-await using var transaction = await dbContext.Database.BeginTransactionAsync();
-var dataModel = scope.ServiceProvider.GetRequiredService<DataModel>();
-await dataModel.SyncWith(FakeSyncSource.FromJsonFile("changes.json", jsonOptions));
-await transaction.RollbackAsync();
+await scope.ServiceProvider.PrintAllEntries("sena-3");

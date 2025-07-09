@@ -57,7 +57,7 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
-    public override IList<ComplexFormType> ComplexFormTypes
+    public override List<ComplexFormType> ComplexFormTypes
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();

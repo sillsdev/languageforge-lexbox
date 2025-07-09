@@ -84,17 +84,17 @@
   async function syncLexboxToFlex() {
     loadingSyncLexboxToFlex = true;
     try {
-      const result = await service.triggerFwHeadlessSync();
-      if (!result) {
-        AppNotification.display($t`Failed to synchronize`, 'error');
-        return;
-      }
-      const fwdataChangesText = $plural(result.fwdataChanges, { one: '# change', other: '# changes' });
-      const crdtChangesText = $plural(result.crdtChanges, { one: '# change', other: '# changes' });
-      AppNotification.display(
-        $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`,
-        'success',
-      );
+      const syncPromise = service.triggerFwHeadlessSync();
+      AppNotification.promise(syncPromise, {
+        loading: $t`Synchronizing FieldWorks Lite with FieldWorks...`,
+        success: (result) => {
+          const fwdataChangesText = $plural(result.fwdataChanges, { one: '# change', other: '# changes' });
+          const crdtChangesText = $plural(result.crdtChanges, { one: '# change', other: '# changes' });
+          return $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`;
+        },
+        error: $t`Failed to synchronize.`,
+      });
+      await syncPromise;
     } finally {
       loadingSyncLexboxToFlex = false;
     }

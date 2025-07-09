@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.Media;
 using Gridify;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,10 +27,12 @@ public class FwDataMiniLcmApi(
     ILogger<FwDataMiniLcmApi> logger,
     FwDataProject project,
     MiniLcmValidators validators,
+    IMediaAdapter mediaAdapter,
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
     private FwDataBridgeConfig Config => config.Value;
-    internal LcmCache Cache => cacheLazy.Value;
+    public const string AudioVisualFolder = "AudioVisual";
+    public LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
@@ -148,7 +151,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
-        await validators.ValidateAndThrow(writingSystem);
         var type = writingSystem.Type;
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
@@ -187,7 +189,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        await validators.ValidateAndThrow(update);
         if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
         {
             throw new InvalidOperationException($"Writing system {id.Code} not found");
@@ -209,7 +210,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
             async () =>
@@ -238,7 +238,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        await validators.ValidateAndThrow(partOfSpeech);
         IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
@@ -269,7 +268,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await PartOfSpeechSync.Sync(before, after, api ?? this);
         return await GetPartOfSpeech(after.Id) ?? throw new NullReferenceException($"unable to find part of speech with id {after.Id}");
     }
@@ -358,7 +356,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        await validators.ValidateAndThrow(semanticDomain);
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
             "Remove semantic domain",
@@ -391,7 +388,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await SemanticDomainSync.Sync(before, after, api ?? this);
         return await GetSemanticDomain(after.Id) ?? throw new NullReferenceException($"unable to find semantic domain with id {after.Id}");
     }
@@ -433,7 +429,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        await validators.ValidateAndThrow(complexFormType);
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
@@ -466,7 +461,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await ComplexFormTypeSync.Sync(before, after, api ?? this);
         return ToComplexFormType(ComplexFormTypesFlattened.Single(c => c.Guid == after.Id));
     }
@@ -548,7 +542,7 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
+    private List<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
     {
         return entry.ComplexFormEntryRefs
             .SelectMany(r => r.ComplexEntryTypesRS, (_, type) => ToComplexFormType(type))
@@ -674,7 +668,15 @@ public class FwDataMiniLcmApi(
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
-            result.Values.Add(GetWritingSystemId(ws), tsString.Text);
+            var wsId = GetWritingSystemId(ws);
+            if (!wsId.IsAudio)
+            {
+                result.Values.Add(wsId, tsString.Text);
+            }
+            else
+            {
+                result.Values.Add(wsId, ToMediaUri(tsString.Text));
+            }
         }
 
         return result;
@@ -689,10 +691,31 @@ public class FwDataMiniLcmApi(
 
             var richString = ToRichString(tsString);
             if (richString is null) continue;
-            result.Add(GetWritingSystemId(ws), richString);
+            var wsId = GetWritingSystemId(ws);
+            if (wsId.IsAudio && richString.Spans.Count == 1)
+            {
+                var span = richString.Spans[0];
+                richString.Spans[0] = span with { Text = ToMediaUri(span.Text) };
+            }
+            result.Add(wsId, richString);
         }
 
         return result;
+    }
+
+    private string ToMediaUri(string tsString)
+    {
+        //rooted media paths aren't supported
+        if (Path.IsPathRooted(tsString))
+            throw new ArgumentException("Media path must be relative", nameof(tsString));
+        return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
+    }
+
+    internal string FromMediaUri(string mediaUri)
+    {
+        //path includes `AudioVisual` currently
+        var path = mediaAdapter.PathFromMediaUri(new MediaUri(mediaUri), Cache);
+        return Path.GetRelativePath(AudioVisualFolder, path);
     }
 
     internal RichString? ToRichString(ITsString? tsString)
@@ -796,7 +819,6 @@ public class FwDataMiniLcmApi(
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
-        await validators.ValidateAndThrow(entry);
         try
         {
             UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
@@ -1095,8 +1117,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString.Values)
         {
-            var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            multiString.SetString(this, ws, value);
         }
     }
 
@@ -1104,8 +1125,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString)
         {
-            var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
+            multiString.SetString(this, ws, value);;
         }
     }
 
@@ -1125,7 +1145,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
@@ -1273,7 +1292,6 @@ public class FwDataMiniLcmApi(
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
-        await validators.ValidateAndThrow(sense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1298,7 +1316,6 @@ public class FwDataMiniLcmApi(
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
@@ -1391,7 +1408,6 @@ public class FwDataMiniLcmApi(
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
-        await validators.ValidateAndThrow(exampleSentence);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
@@ -1423,7 +1439,6 @@ public class FwDataMiniLcmApi(
         ExampleSentence after,
         IMiniLcmApi? api = null)
     {
-        await validators.ValidateAndThrow(after);
         await Cache.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert Example Sentence",
             async () =>
@@ -1479,5 +1494,12 @@ public class FwDataMiniLcmApi(
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
+    }
+
+    public Task<Stream?> GetFileStream(MediaUri mediaUri)
+    {
+        if (mediaUri == MediaUri.NotFound) return Task.FromResult<Stream?>(null);
+        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
+        return Task.FromResult<Stream?>(File.OpenRead(fullPath));
     }
 }

@@ -43,6 +43,18 @@ public class MauiTroubleshootingService(IOptions<FwLiteMauiConfig> config, ILogg
     [JSInvokable]
     public async Task ShareLogFile()
     {
-        await _share.RequestAsync(new ShareFileRequest("FieldWorks Lite logs", new ShareFile(Config.AppLogFilePath, "text/plain")));
+        if (File.Exists(Config.AppLogAlternateFilePath))
+        {
+            var mainLogFile = new ShareFile(Config.AppLogFilePath, "text/plain");
+            var secondLogFile = new ShareFile(Config.AppLogAlternateFilePath, "text/plain");
+            var shareRequest = new ShareMultipleFilesRequest("FieldWorks Lite logs", [mainLogFile, secondLogFile]);
+            await _share.RequestAsync(shareRequest);
+        }
+        else
+        {
+            var shareRequest =
+                new ShareFileRequest("FieldWorks Lite logs", new ShareFile(Config.AppLogFilePath, "text/plain"));
+            await _share.RequestAsync(shareRequest);
+        }
     }
 }

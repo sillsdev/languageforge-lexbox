@@ -12,16 +12,9 @@ public class ReplaceSemanticDomainChange(Guid oldSemanticDomainId, SemanticDomai
 
     public override async ValueTask ApplyChange(Sense entity, IChangeContext context)
     {
-        //remove the old domain
         entity.SemanticDomains = [..entity.SemanticDomains.Where(s => s.Id != OldSemanticDomainId)];
-        if (await context.IsObjectDeleted(SemanticDomain.Id))
-        {
-            //do nothing, don't add the domain if it's already deleted
-        }
-        else if (entity.SemanticDomains.All(s => s.Id != SemanticDomain.Id))
-        {
-            //only add if it's not already in the list
-            entity.SemanticDomains = [..entity.SemanticDomains, SemanticDomain];
-        }
+        if (entity.SemanticDomains.Any(s => s.Id == SemanticDomain.Id)) return;
+        if (await context.IsObjectDeleted(SemanticDomain.Id)) return;
+        entity.SemanticDomains.Add(SemanticDomain);
     }
 }

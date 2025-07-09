@@ -238,7 +238,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        76
+        83
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -294,7 +294,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        88
+        95
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -334,11 +334,23 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        73
+        80
       ],
       [
         "src/lib/activity/ActivityView.svelte",
         75
+      ]
+    ],
+    "translation": ""
+  },
+  "3qtIhN": {
+    "message": "Best match",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SortMenu.svelte",
+        9
       ]
     ],
     "translation": ""
@@ -1107,6 +1119,18 @@
     ],
     "translation": ""
   },
+  "X5C2hm": {
+    "message": "Headword",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SortMenu.svelte",
+        10
+      ]
+    ],
+    "translation": ""
+  },
   "vLyv1R": {
     "message": "Hide",
     "placeholders": {},
@@ -1130,7 +1154,7 @@
       ],
       [
         "src/lib/history/HistoryView.svelte",
-        52
+        59
       ]
     ],
     "translation": ""
@@ -1294,7 +1318,7 @@
       ],
       [
         "src/lib/auth/LoginButton.svelte",
-        78
+        79
       ]
     ],
     "translation": "Inicie sesión para ver proyectos"
@@ -1474,7 +1498,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        64
+        71
       ]
     ],
     "translation": ""
@@ -1514,7 +1538,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        59
+        66
       ]
     ],
     "translation": ""
@@ -2214,7 +2238,7 @@
       ],
       [
         "src/lib/history/HistoryView.svelte",
-        92
+        99
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -2347,6 +2371,18 @@
       [
         "src/lib/entry-editor/EntryOrSensePicker.svelte",
         204
+      ]
+    ],
+    "translation": ""
+  },
+  "cDHTt1": {
+    "message": "Writing system: {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/lcm-rich-text-editor/editor-schema.ts",
+        20
       ]
     ],
     "translation": ""

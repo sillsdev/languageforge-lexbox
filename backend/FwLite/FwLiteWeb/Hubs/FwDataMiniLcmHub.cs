@@ -2,13 +2,19 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Validators;
 using SIL.LCModel;
 using SystemTextJsonPatch;
 
 namespace FwLiteWeb.Hubs;
 
-public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)] IMiniLcmApi miniLcmApi, FwDataFactory fwDataFactory,
-    FwDataProjectContext context) : MiniLcmApiHubBase(miniLcmApi)
+public class FwDataMiniLcmHub(
+    [FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)]
+    IMiniLcmApi miniLcmApi,
+    FwDataFactory fwDataFactory,
+    FwDataProjectContext context,
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory
+) : MiniLcmApiHubBase(miniLcmApi, validationWrapperFactory)
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()

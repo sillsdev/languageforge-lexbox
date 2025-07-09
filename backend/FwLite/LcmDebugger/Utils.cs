@@ -20,4 +20,16 @@ public static class Utils
         var entryRepo = cache.ServiceLocator.GetInstance<ILexEntryRepository>() ?? throw new InvalidOperationException("Entry repository not found.");
         return entryRepo.GetObject(entryId) ?? throw new InvalidOperationException(message: "Entry not found.");
     }
+
+    public static async Task PrintAllEntries(this IServiceProvider services, string code)
+    {
+        var projectList = services.GetRequiredService<FieldWorksProjectList>();
+        var fwDataProject = projectList.GetProject(code);
+        if (fwDataProject is null) throw new InvalidOperationException($"project {code} not found");
+        var api = projectList.OpenProject(fwDataProject);
+        await foreach (var entry in api.GetEntries())
+        {
+            Console.WriteLine(entry.Headword());
+        }
+    }
 }

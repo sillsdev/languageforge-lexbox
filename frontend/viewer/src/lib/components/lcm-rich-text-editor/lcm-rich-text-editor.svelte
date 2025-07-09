@@ -1,6 +1,5 @@
 ﻿<script lang="ts" module>
-  import {type Node, Schema} from 'prosemirror-model';
-  import {gt} from 'svelte-i18n-lingui';
+  import {type Node} from 'prosemirror-model';
   import {cn} from '$lib/utils';
 
   /*

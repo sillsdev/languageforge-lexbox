@@ -5,4 +5,5 @@ metadata:
 data:
   environment-name: "Production"
   hg-domain: "hg-public.languageforge.org"
+  media-authority: 'lexbox.org'
 
