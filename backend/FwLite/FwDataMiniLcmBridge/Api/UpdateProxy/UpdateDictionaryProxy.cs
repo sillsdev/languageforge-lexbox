@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using MiniLcm;
 using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -16,8 +17,14 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
 
     public void Add(WritingSystemId key, string value)
     {
-        var writingSystemHandle = lexboxLcmApi.GetWritingSystemHandle(key);
-        multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+        if (ShouldSet(key, value))
+            multiString.SetString(lexboxLcmApi, key, value);
+    }
+
+    public static bool ShouldSet(WritingSystemId wsId, string value)
+    {
+        if (!wsId.IsAudio) return true;
+        return value != MediaUri.NotFoundString;
     }
 
     public bool ContainsKey(WritingSystemId key)
@@ -69,8 +76,8 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
         }
         set
         {
-            var writingSystemHandle = lexboxLcmApi.GetWritingSystemHandle(key);
-            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            if (ShouldSet(key, value))
+                multiString.SetString(lexboxLcmApi, key, value);
         }
     }
 
@@ -199,6 +206,12 @@ public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi 
 public class UpdateRichMultiStringDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi)
     : IDictionary<WritingSystemId, RichString>, IDictionary
 {
+    public static bool ShouldSet(WritingSystemId wsId, RichString value)
+    {
+        if (!wsId.IsAudio || value.IsEmpty) return true;
+
+        return value.Spans.Count == 1 && value.Spans[0].Text != MediaUri.NotFoundString;
+    }
     public void Add(KeyValuePair<WritingSystemId, RichString> item)
     {
         Add(item.Key, item.Value);
@@ -206,9 +219,8 @@ public class UpdateRichMultiStringDictionaryProxy(ITsMultiString multiString, Fw
 
     public void Add(WritingSystemId key, RichString value)
     {
-        var writingSystemHandle = lexboxLcmApi.GetWritingSystemHandle(key);
-        multiString.set_String(writingSystemHandle,
-            RichTextMapping.ToTsString(value, ws => lexboxLcmApi.GetWritingSystemHandle(ws)));
+        if (ShouldSet(key, value))
+            multiString.SetString(lexboxLcmApi, key, value);
     }
 
     public bool ContainsKey(WritingSystemId key)
@@ -260,8 +272,8 @@ public class UpdateRichMultiStringDictionaryProxy(ITsMultiString multiString, Fw
         }
         set
         {
-            var writingSystemHandle = lexboxLcmApi.GetWritingSystemHandle(key);
-            multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => lexboxLcmApi.GetWritingSystemHandle(id)));
+            if (ShouldSet(key, value))
+                multiString.SetString(lexboxLcmApi, key, value);
         }
     }
 
