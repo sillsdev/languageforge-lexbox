@@ -3,6 +3,7 @@ using MiniLcm.Culture;
 using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
+using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -19,8 +20,8 @@ internal static class LcmHelpers
         if (!string.IsNullOrEmpty(citationForm)) return citationForm;
 
         var lexemeFormTs =
-            ws.HasValue ? entry.LexemeFormOA.Form.get_String(ws.Value)
-            : entry.LexemeFormOA.Form.StringCount > 0 ? entry.LexemeFormOA.Form.GetStringFromIndex(0, out var _)
+            ws.HasValue ? entry.LexemeFormOA?.Form.get_String(ws.Value)
+            : entry.LexemeFormOA?.Form.StringCount > 0 ? entry.LexemeFormOA?.Form.GetStringFromIndex(0, out var _)
             : null;
         var lexemeForm = lexemeFormTs?.Text?.Trim(WhitespaceChars);
 
@@ -152,10 +153,50 @@ internal static class LcmHelpers
         return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
     }
 
+    internal static ILexEntry CreateEntry(this LcmCache cache, Guid id)
+    {
+        var lexEntry = cache.ServiceLocator.GetInstance<ILexEntryFactory>().Create(id,
+            cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
+        lexEntry.LexemeFormOA = cache.CreateLexemeForm();
+        //must be done after the IMoForm is set on the LexemeForm property
+        lexEntry.LexemeFormOA.MorphTypeRA = cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>().GetObject(MoMorphTypeTags.kguidMorphStem);
+        return lexEntry;
+    }
+
     internal static string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)
     {
         var abbr = semanticDomain.Abbreviation;
         // UiString can be null even though there is an abbreviation available
         return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+    }
+
+    internal static void SetString(this ITsMultiString multiString, FwDataMiniLcmApi api, WritingSystemId ws, string value)
+    {
+        var writingSystemHandle = api.GetWritingSystemHandle(ws);
+        if (!ws.IsAudio)
+        {
+            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+        }
+        else
+        {
+            var tsString = TsStringUtils.MakeString(api.FromMediaUri(value),
+                writingSystemHandle
+            );
+            multiString.set_String(writingSystemHandle, tsString);
+        }
+    }
+    internal static void SetString(this ITsMultiString multiString, FwDataMiniLcmApi api, WritingSystemId ws, RichString value)
+    {
+        var writingSystemHandle = api.GetWritingSystemHandle(ws);
+        if (!ws.IsAudio)
+        {
+            multiString.set_String(writingSystemHandle,
+                RichTextMapping.ToTsString(value, id => api.GetWritingSystemHandle(id)));
+        }
+        else
+        {
+            var tsString = TsStringUtils.MakeString(api.FromMediaUri(value.GetPlainText()), writingSystemHandle);
+            multiString.set_String(writingSystemHandle, tsString);
+        }
     }
 }

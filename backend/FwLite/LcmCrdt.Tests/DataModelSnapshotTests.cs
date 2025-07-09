@@ -32,7 +32,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
             .AddLogging(builder => builder.AddDebug())
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
-        _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        _crdtDbContext = _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContext();
         _crdtConfig = _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
     }
 
@@ -50,6 +50,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
     {
         await _crdtDbContext.Database.CloseConnectionAsync();
         await _crdtDbContext.Database.EnsureDeletedAsync();
+        await _crdtDbContext.DisposeAsync();
         await _services.DisposeAsync();
     }
 

@@ -17,14 +17,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = validationWrapperFactory.Create(notificationWrapperFactory.Create(api, project));
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: isFwDataProject);
     }
 
     private bool CanWrite =>
@@ -64,9 +64,9 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public ValueTask<SemanticDomain[]> GetSemanticDomains()
+    public Task<SemanticDomain[]> GetSemanticDomains()
     {
-        return _wrappedApi.GetSemanticDomains().ToArrayAsync();
+        return Task.Run(async () => await _wrappedApi.GetSemanticDomains().ToArrayAsync());
     }
 
     [JSInvokable]
@@ -85,26 +85,26 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public Task<int> CountEntries(string? query, FilterQueryOptions? options)
     {
-        return _wrappedApi.CountEntries(query, options);
+        return Task.Run(() => _wrappedApi.CountEntries(query, options));
     }
 
     [JSInvokable]
-    public ValueTask<Entry[]> GetEntries(QueryOptions? options = null)
+    public Task<Entry[]> GetEntries(QueryOptions? options = null)
     {
-        return _wrappedApi.GetEntries(options).ToArrayAsync();
+        return Task.Run(async () => await _wrappedApi.GetEntries(options).ToArrayAsync());
     }
 
     [JSInvokable]
-    public ValueTask<Entry[]> SearchEntries(string query, QueryOptions? options = null)
+    public Task<Entry[]> SearchEntries(string query, QueryOptions? options = null)
     {
-        return _wrappedApi.SearchEntries(query, options).ToArrayAsync();
+        return Task.Run(async () => await _wrappedApi.SearchEntries(query, options).ToArrayAsync());
     }
 
     [JSInvokable]
     [TsFunction(Type = "Promise<IEntry | null>")]
     public Task<Entry?> GetEntry(Guid id)
     {
-        return _wrappedApi.GetEntry(id);
+        return Task.Run(async () => await _wrappedApi.GetEntry(id));
     }
 
     [JSInvokable]
@@ -229,7 +229,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        var result = await _wrappedApi.UpdateEntry(before, after);
+        var result = await Task.Run(async () => await _wrappedApi.UpdateEntry(before, after));
         OnDataChanged();
         return result;
     }
@@ -328,6 +328,14 @@ public class MiniLcmJsInvokable(
     {
         await _wrappedApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
         OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task<DotNetStreamReference?> GetFileStream(string mediaUri)
+    {
+        var stream = await _wrappedApi.GetFileStream(new MediaUri(mediaUri));
+        if (stream is null) return null;
+        return new DotNetStreamReference(stream);
     }
 
     public void Dispose()

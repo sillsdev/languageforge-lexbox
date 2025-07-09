@@ -15,8 +15,8 @@ public class CurrentProjectService(
 {
     private CrdtProject? _project;
     //creating a DbContext depends on the CurrentProjectService, so we can't create it in the constructor otherwise we'll create a circular dependency
-    private LcmCrdtDbContext DbContext => services.GetRequiredService<LcmCrdtDbContext>();
-    private EntrySearchService? EntrySearchService => services.GetService<EntrySearchService>();
+    private IDbContextFactory<LcmCrdtDbContext> DbContextFactory => services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
+    private EntrySearchServiceFactory? EntrySearchServiceFactory => services.GetService<EntrySearchServiceFactory>();
     public CrdtProject Project => _project ?? throw new NullReferenceException("Not in the context of a project");
     public CrdtProject? MaybeProject => _project;
 
@@ -29,7 +29,8 @@ public class CurrentProjectService(
         var result = LookupProjectData(memoryCache, Project);
         if (result is null || forceRefresh)
         {
-            result = await DbContext.ProjectData.AsNoTracking().FirstAsync();
+            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+            result = await dbContext.ProjectData.AsNoTracking().FirstAsync();
             memoryCache.Set(CacheKey(Project), result);
         }
         if (result is null) throw new InvalidOperationException($"Project data not found for project {MaybeProject?.Name}");
@@ -101,8 +102,13 @@ public class CurrentProjectService(
         {
             try
             {
-                await DbContext.Database.MigrateAsync();
-                await (EntrySearchService?.RegenerateIfMissing() ?? Task.CompletedTask);
+                await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+                await dbContext.Database.MigrateAsync();
+                if (EntrySearchServiceFactory is not null)
+                {
+                    await using var  ess = EntrySearchServiceFactory.CreateSearchService(dbContext);
+                    await ess.RegenerateIfMissing();
+                }
             }
             catch (Exception e)
             {
@@ -115,15 +121,16 @@ public class CurrentProjectService(
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
     {
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         var originDomain = ProjectData.GetOriginDomain(domain);
         if (id is null)
         {
-            await DbContext.Set<ProjectData>()
+            await dbContext.Set<ProjectData>()
                 .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain, originDomain));
         }
         else
         {
-            await DbContext.Set<ProjectData>()
+            await dbContext.Set<ProjectData>()
                 .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain, originDomain)
                     .SetProperty(p => p.Id, id));
         }
@@ -136,7 +143,8 @@ public class CurrentProjectService(
         if (userName is null && userId is null) return;
         if (userName != ProjectData.LastUserName || userId != ProjectData.LastUserId)
         {
-            await DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+            await dbContext.ProjectData.ExecuteUpdateAsync(calls => calls
                 .SetProperty(p => p.LastUserName, userName)
                 .SetProperty(p => p.LastUserId, userId));
             await RefreshProjectData();
@@ -146,7 +154,8 @@ public class CurrentProjectService(
     public async Task UpdateUserRole(UserProjectRole role)
     {
         if (ProjectData.Role == role) return;
-        await DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+        await dbContext.ProjectData.ExecuteUpdateAsync(calls => calls
             .SetProperty(p => p.Role, role));
         await RefreshProjectData();
     }

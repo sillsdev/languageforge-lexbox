@@ -120,8 +120,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fixture.SyncService.Sync(crdtApi, fwdataApi);
 
         var newFwProjectId = Guid.NewGuid();
-        await fixture.Services.GetRequiredService<LcmCrdtDbContext>().ProjectData.
-            ExecuteUpdateAsync(updates => updates.SetProperty(p => p.FwProjectId, newFwProjectId));
+        await using var dbContext = await fixture.Services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        await dbContext.ProjectData.ExecuteUpdateAsync(updates => updates.SetProperty(p => p.FwProjectId, newFwProjectId));
         await fixture.Services.GetRequiredService<CurrentProjectService>().RefreshProjectData();
 
         Func<Task> syncTask = async () => await fixture.SyncService.Sync(crdtApi, fwdataApi);

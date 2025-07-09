@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.Media;
 using Gridify;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,10 +27,12 @@ public class FwDataMiniLcmApi(
     ILogger<FwDataMiniLcmApi> logger,
     FwDataProject project,
     MiniLcmValidators validators,
+    IMediaAdapter mediaAdapter,
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
     private FwDataBridgeConfig Config => config.Value;
-    internal LcmCache Cache => cacheLazy.Value;
+    public const string AudioVisualFolder = "AudioVisual";
+    public LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
@@ -676,7 +679,15 @@ public class FwDataMiniLcmApi(
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
-            result.Values.Add(GetWritingSystemId(ws), tsString.Text);
+            var wsId = GetWritingSystemId(ws);
+            if (!wsId.IsAudio)
+            {
+                result.Values.Add(wsId, tsString.Text);
+            }
+            else
+            {
+                result.Values.Add(wsId, ToMediaUri(tsString.Text));
+            }
         }
 
         return result;
@@ -691,10 +702,31 @@ public class FwDataMiniLcmApi(
 
             var richString = ToRichString(tsString);
             if (richString is null) continue;
-            result.Add(GetWritingSystemId(ws), richString);
+            var wsId = GetWritingSystemId(ws);
+            if (wsId.IsAudio && richString.Spans.Count == 1)
+            {
+                var span = richString.Spans[0];
+                richString.Spans[0] = span with { Text = ToMediaUri(span.Text) };
+            }
+            result.Add(wsId, richString);
         }
 
         return result;
+    }
+
+    private string ToMediaUri(string tsString)
+    {
+        //rooted media paths aren't supported
+        if (Path.IsPathRooted(tsString))
+            throw new ArgumentException("Media path must be relative", nameof(tsString));
+        return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
+    }
+
+    internal string FromMediaUri(string mediaUri)
+    {
+        //path includes `AudioVisual` currently
+        var path = mediaAdapter.PathFromMediaUri(new MediaUri(mediaUri), Cache);
+        return Path.GetRelativePath(AudioVisualFolder, path);
     }
 
     internal RichString? ToRichString(ITsString? tsString)
@@ -805,9 +837,7 @@ public class FwDataMiniLcmApi(
                 Cache.ServiceLocator.ActionHandler,
                 () =>
                 {
-                    var lexEntry = LexEntryFactory.Create(entry.Id,
-                        Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-                    lexEntry.LexemeFormOA = Cache.CreateLexemeForm();
+                    var lexEntry = Cache.CreateEntry(entry.Id);
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
@@ -1096,8 +1126,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString.Values)
         {
-            var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, TsStringUtils.MakeString(value, writingSystemHandle));
+            multiString.SetString(this, ws, value);
         }
     }
 
@@ -1105,8 +1134,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString)
         {
-            var writingSystemHandle = GetWritingSystemHandle(ws);
-            multiString.set_String(writingSystemHandle, RichTextMapping.ToTsString(value, id => GetWritingSystemHandle(id)));
+            multiString.SetString(this, ws, value);;
         }
     }
 
@@ -1475,5 +1503,12 @@ public class FwDataMiniLcmApi(
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
+    }
+
+    public Task<Stream?> GetFileStream(MediaUri mediaUri)
+    {
+        if (mediaUri == MediaUri.NotFound) return Task.FromResult<Stream?>(null);
+        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
+        return Task.FromResult<Stream?>(File.OpenRead(fullPath));
     }
 }

@@ -39,5 +39,8 @@ public class BasicApiTests(ProjectLoaderFixture fixture) : BasicApiTestsBase
         retrievedEntry.Should().NotBeNull();
         retrievedEntry.LexemeForm.Should().NotBeNull();
         retrievedEntry.LexemeForm.Values.Should().BeEmpty(); // Since we deleted the LexemeFormOA, it should return an empty MultiString
+
+        //ensure we can still get the entry
+        (await Api.GetEntries().ToArrayAsync()).Should().NotBeEmpty();
     }
 }

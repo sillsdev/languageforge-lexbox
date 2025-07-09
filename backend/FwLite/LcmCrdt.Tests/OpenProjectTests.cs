@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using static LcmCrdt.CrdtProjectsService;
 
@@ -68,6 +69,7 @@ public class OpenProjectTests
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
         miniLcmApi.ProjectData.Name.Should().Be("OpeningAProjectWorks");
 
-        await asyncScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>().Database.EnsureDeletedAsync();
+        await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        await dbContext.Database.EnsureDeletedAsync();
     }
 }
