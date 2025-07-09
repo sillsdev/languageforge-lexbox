@@ -826,9 +826,7 @@ public class FwDataMiniLcmApi(
                 Cache.ServiceLocator.ActionHandler,
                 () =>
                 {
-                    var lexEntry = LexEntryFactory.Create(entry.Id,
-                        Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-                    lexEntry.LexemeFormOA = Cache.CreateLexemeForm();
+                    var lexEntry = Cache.CreateEntry(entry.Id);
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
