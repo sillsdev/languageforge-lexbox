@@ -19,8 +19,8 @@ internal static class LcmHelpers
         if (!string.IsNullOrEmpty(citationForm)) return citationForm;
 
         var lexemeFormTs =
-            ws.HasValue ? entry.LexemeFormOA.Form.get_String(ws.Value)
-            : entry.LexemeFormOA.Form.StringCount > 0 ? entry.LexemeFormOA.Form.GetStringFromIndex(0, out var _)
+            ws.HasValue ? entry.LexemeFormOA?.Form.get_String(ws.Value)
+            : entry.LexemeFormOA?.Form.StringCount > 0 ? entry.LexemeFormOA?.Form.GetStringFromIndex(0, out var _)
             : null;
         var lexemeForm = lexemeFormTs?.Text?.Trim(WhitespaceChars);
 
