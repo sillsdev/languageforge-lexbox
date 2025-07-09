@@ -163,7 +163,7 @@ public class CrdtMiniLcmApi(
     public async Task<Publication?> GetPublication(Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.Publications.SingleOrDefaultAsync(p => p.Id == id);
+        return await repo.GetPublication(id);
     }
 
     public async Task<Publication> CreatePublication(Publication pub)
@@ -175,9 +175,10 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        var pub = await GetPublication(id) ?? throw new NullReferenceException($"Unable to find publication with id {id}");
-        await AddChanges(pub.ToChanges(update.Patch));
-        return await GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var pub = await repo.GetPublication(id) ?? throw new NullReferenceException($"Unable to find publication with id {id}");
+        await AddChanges([.. pub.ToChanges(update.Patch)]);
+        return await repo.GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
