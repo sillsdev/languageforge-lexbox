@@ -1366,6 +1366,35 @@ public class FwDataMiniLcmApi(
         return Task.CompletedTask;
     }
 
+    public Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Semantic Domain from Sense",
+            "Add Semantic Domain to Sense",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexSense = SenseRepository.GetObject(senseId);
+                if (partOfSpeechId.HasValue)
+                {
+                    var partOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>()
+                        .GetObject(partOfSpeechId.Value);
+                    if (lexSense.MorphoSyntaxAnalysisRA == null)
+                    {
+                        lexSense.SandboxMSA = SandboxGenericMSA.Create(lexSense.GetDesiredMsaType(), partOfSpeech);
+                    }
+                    else
+                    {
+                        lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
+                    }
+                }
+                else
+                {
+                    lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(null);
+                }
+            });
+        return Task.CompletedTask;
+    }
+
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);

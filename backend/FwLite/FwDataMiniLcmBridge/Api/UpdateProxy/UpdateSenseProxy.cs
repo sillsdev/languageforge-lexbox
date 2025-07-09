@@ -34,26 +34,7 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
     public override Guid? PartOfSpeechId
     {
         get => throw new NotImplementedException();
-        set
-        {
-            if (value.HasValue)
-            {
-                var partOfSpeech = sense.Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>()
-                    .GetObject(value.Value);
-                if (sense.MorphoSyntaxAnalysisRA == null)
-                {
-                    sense.SandboxMSA = SandboxGenericMSA.Create(sense.GetDesiredMsaType(), partOfSpeech);
-                }
-                else
-                {
-                    sense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
-                }
-            }
-            else
-            {
-                sense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(null);
-            }
-        }
+        set => throw new NotImplementedException();
     }
 
     //the frontend may sometimes try to issue patches to remove Domain.Code or Name, but all we care about is Id

@@ -311,14 +311,13 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
                 }
             ]
         });
-        var updatedSense = await Api.UpdateSense(entry.Id,
-            entry.Senses[0].Id,
-            new UpdateObjectInput<Sense>()
-                .Set(e => e.PartOfSpeech, new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "updated" } } }) // should be ignored
-                .Set(e => e.PartOfSpeechId, partOfSpeechId));
-        updatedSense.PartOfSpeech.Should().NotBeNull();
-        updatedSense.PartOfSpeech.Name.Should().BeEquivalentTo(new MultiString() { { "en", "Adverb" } });
-        updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
+        var updatedSense = entry.Senses[0].Copy();
+        updatedSense.PartOfSpeech = new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "updated" } } }; // should be ignored
+        updatedSense.PartOfSpeechId = partOfSpeechId;
+        var actualSense = await Api.UpdateSense(entry.Id, entry.Senses[0], updatedSense);
+        actualSense.PartOfSpeech.Should().NotBeNull();
+        actualSense.PartOfSpeech.Name.Should().BeEquivalentTo(new MultiString() { { "en", "Adverb" } });
+        actualSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 
     [Fact]
