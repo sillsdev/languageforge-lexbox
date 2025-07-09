@@ -1,5 +1,6 @@
 import {fromStore} from 'svelte/store';
 import {locale} from 'svelte-i18n-lingui';
+import '@formatjs/intl-durationformat/polyfill';
 
 const currentLocale = fromStore(locale);
 type Duration = Pick<Intl.DurationLike, 'hours' | 'minutes' | 'seconds' | 'milliseconds'>;
@@ -18,17 +19,17 @@ export function normalizeDuration(value: Duration, smallestUnit?: 'hours' | 'min
   const msPerSecond = 1_000;
   let distanceMs = (value.hours ?? 0) * msPerHour + (value.minutes ?? 0) * msPerMinute + (value.seconds ?? 0) * msPerSecond + (value.milliseconds ?? 0);
   let hours = distanceMs / msPerHour;
-  if (smallestUnit === 'hours') return {hours};
   hours = Math.floor(hours);
+  if (smallestUnit === 'hours') return {hours};
   distanceMs -= hours * msPerHour;
   let minutes = distanceMs / msPerMinute;
-  if (smallestUnit === 'minutes') return {hours, minutes};
   minutes = Math.floor(minutes);
+  if (smallestUnit === 'minutes') return {hours, minutes};
   distanceMs -= minutes * msPerMinute;
   let seconds = distanceMs / msPerSecond;
-  if (smallestUnit === 'seconds') return {hours, minutes, seconds};
   seconds = Math.floor(seconds);
+  if (smallestUnit === 'seconds') return {hours, minutes, seconds};
   distanceMs -= seconds * msPerSecond;
-  const milliseconds = distanceMs;
+  const milliseconds = Math.floor(distanceMs);
   return {hours, minutes, seconds, milliseconds};
 }
