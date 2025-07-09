@@ -135,6 +135,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await entryService,
     onFindEntryEmitter,
     onLaunchServerEmitter,
+    onLocalProjectsEmitter,
     () => fwLiteProcess?.kill(),
   );
 
