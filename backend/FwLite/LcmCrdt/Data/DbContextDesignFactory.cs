@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Design;
+﻿ using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,6 @@ public class DbContextDesignFactory: IDesignTimeDbContextFactory<LcmCrdtDbContex
             .BuildServiceProvider();
         var scope = servicesRoot.CreateScope();
         scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContextForNewDb(new ("DesignDb", "design.sqlite"));
-        return scope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
+        return scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContext();
     }
 }

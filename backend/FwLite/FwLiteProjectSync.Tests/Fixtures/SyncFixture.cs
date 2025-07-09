@@ -69,8 +69,6 @@ public class SyncFixture : IAsyncLifetime
             .CreateProject(new(_projectName, _projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: false));
         CrdtApi = (CrdtMiniLcmApi)await _services.ServiceProvider.OpenCrdtProject(crdtProject);
 
-        //hopefully avoid race conditions where linq2db uses it's own connection
-        Services.GetRequiredService<LcmCrdtDbContext>().Database.OpenConnection();
     }
 
     public async Task DisposeAsync()

@@ -26,6 +26,7 @@ using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
 using LcmCrdt.FullTextSearch;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MiniLcm.Filtering;
 
 namespace LcmCrdt;
@@ -36,7 +37,7 @@ public static class LcmCrdtKernel
     {
         services.AddLcmCrdtClientCore();
         services.AddScoped<UpdateEntrySearchTableInterceptor>();
-        services.AddScoped<EntrySearchService>();
+        services.AddScoped<EntrySearchServiceFactory>();
         return services;
     }
 
@@ -49,13 +50,15 @@ public static class LcmCrdtKernel
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
         services.AddSingleton<SetupCollationInterceptor>();
-        services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
+        services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
+        services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
-        services.AddCrdtData<LcmCrdtDbContext>(
+        services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
             ConfigureCrdt
         );
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
@@ -108,6 +111,11 @@ public static class LcmCrdtKernel
                 if (loggerFactory is not null)
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
+
+        builder.AddInterceptors(new CustomSqliteFunctionInterceptor(), provider.GetRequiredService<SetupCollationInterceptor>());
+        var updateSearchTableInterceptor = provider.GetService<UpdateEntrySearchTableInterceptor>();
+        if (updateSearchTableInterceptor is not null)
+            builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
     private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()

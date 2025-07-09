@@ -1,5 +1,4 @@
 using System.Data;
-using FluentValidation;
 using Gridify;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
@@ -11,25 +10,21 @@ using LcmCrdt.Objects;
 using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 using SIL.Harmony.Core;
-using SIL.Harmony.Db;
 using MiniLcm.Culture;
-using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
 public class CrdtMiniLcmApi(
     DataModel dataModel,
     CurrentProjectService projectService,
-    IMiniLcmCultureProvider cultureProvider,
     MiniLcmValidators validators,
-    LcmCrdtDbContext dbContext,
+    MiniLcmRepositoryFactory repoFactory,
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
@@ -37,16 +32,6 @@ public class CrdtMiniLcmApi(
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
     private LcmCrdtConfig LcmConfig => config.Value;
-
-    private IQueryable<Entry> Entries => dataModel.QueryLatest<Entry>();
-    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.QueryLatest<ComplexFormComponent>();
-    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.QueryLatest<ComplexFormType>();
-    private IQueryable<Sense> Senses => dataModel.QueryLatest<Sense>();
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.QueryLatest<ExampleSentence>();
-    private IQueryable<WritingSystem> WritingSystems => dataModel.QueryLatest<WritingSystem>();
-    private IQueryable<SemanticDomain> SemanticDomains => dataModel.QueryLatest<SemanticDomain>();
-    private IQueryable<PartOfSpeech> PartsOfSpeech => dataModel.QueryLatest<PartOfSpeech>();
-    private IQueryable<Publication> Publications => dataModel.QueryLatest<Publication>();
 
     private CommitMetadata NewMetadata()
     {
@@ -68,7 +53,8 @@ public class CrdtMiniLcmApi(
 
     private async Task AddChanges(IEnumerable<IChange> changes)
     {
-        await AddChanges(changes.Chunk(100));
+        AssertWritable();
+        await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
     }
 
     private void AssertWritable()
@@ -77,26 +63,10 @@ public class CrdtMiniLcmApi(
             throw new ReadOnlyException($"project is readonly because you are logged in with the {ProjectData.Role} role. If your role recently changed, try refreshing the server project list on the home page.");
     }
 
-    /// <summary>
-    /// use when making a large number of changes at once
-    /// </summary>
-    /// <param name="changeChunks"></param>
-    private async Task AddChanges(IEnumerable<IReadOnlyCollection<IChange>> changeChunks)
-    {
-        AssertWritable();
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        foreach (var chunk in changeChunks)
-        {
-            await dataModel.AddChanges(ClientId, chunk, commitMetadata: NewMetadata(), deferCommit: true);
-        }
-
-        await dataModel.FlushDeferredCommits();
-        await transaction.CommitAsync();
-    }
-
     public async Task<WritingSystems> GetWritingSystems()
     {
-        var systems = await WritingSystems.ToArrayAsync();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var systems = await repo.WritingSystems.ToArrayAsync();
         return new WritingSystems
         {
             Analysis = systems.Where(ws => ws.Type == WritingSystemType.Analysis)
@@ -108,21 +78,23 @@ public class CrdtMiniLcmApi(
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
     {
+        await using var repo = await repoFactory.CreateRepoAsync();
         var entityId = Guid.NewGuid();
-        var exists = await WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == writingSystem.Type);
+        var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == writingSystem.Type);
         if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
-        var wsCount = await WritingSystems.CountAsync(ws => ws.Type == writingSystem.Type);
+        var wsCount = await repo.WritingSystems.CountAsync(ws => ws.Type == writingSystem.Type);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, wsCount));
-        return await GetWritingSystem(writingSystem.WsId, writingSystem.Type) ?? throw new NullReferenceException();
+        return await repo.GetWritingSystem(writingSystem.WsId, writingSystem.Type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
-        var ws = await GetWritingSystem(id, type);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var ws = await repo.GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
         await AddChange(patchChange);
-        return await GetWritingSystem(id, type) ?? throw new NullReferenceException();
+        return await repo.GetWritingSystem(id, type) ?? throw new NullReferenceException();
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
@@ -131,40 +103,40 @@ public class CrdtMiniLcmApi(
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
 
-    private WritingSystem? _defaultVernacularWs;
-    private WritingSystem? _defaultAnalysisWs;
     private async ValueTask<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        if (id.Code == "default")
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetWritingSystem(id, type);
+    }
+
+    public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var partOfSpeech in repo.PartsOfSpeech.AsAsyncEnumerable())
         {
-            return type switch
-            {
-                WritingSystemType.Analysis => _defaultAnalysisWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
-                WritingSystemType.Vernacular => _defaultVernacularWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            } ?? throw new NullReferenceException($"Unable to find a default writing system of type {type}");
+            yield return partOfSpeech;
         }
-        return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
     }
 
-    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    public async IAsyncEnumerable<Publication> GetPublications()
     {
-        return PartsOfSpeech.AsAsyncEnumerable();
-    }
-
-    public IAsyncEnumerable<Publication> GetPublications()
-    {
-        return Publications.AsAsyncEnumerable();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var publication in repo.Publications.AsAsyncEnumerable())
+        {
+            yield return publication;
+        }
     }
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        return await PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
     }
 
     public async Task<Publication?> GetPublication(Guid id)
     {
-        return await Publications.SingleOrDefaultAsync(p => p.Id == id);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.Publications.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -229,14 +201,19 @@ public class CrdtMiniLcmApi(
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
+    public async IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
     {
-        return SemanticDomains.AsAsyncEnumerable();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var semanticDomain in repo.SemanticDomains.AsAsyncEnumerable())
+        {
+            yield return semanticDomain;
+        }
     }
 
-    public Task<MiniLcm.Models.SemanticDomain?> GetSemanticDomain(Guid id)
+    public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
     {
-        return SemanticDomains.FirstOrDefaultAsync(semdom => semdom.Id == id);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.SemanticDomains.FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
     public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
@@ -270,21 +247,27 @@ public class CrdtMiniLcmApi(
         await AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)).ToArrayAsync());
     }
 
-    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    public async IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
     {
-        return ComplexFormTypes.AsAsyncEnumerable();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var complexFormType in repo.ComplexFormTypes.AsAsyncEnumerable())
+        {
+            yield return complexFormType;
+        }
     }
 
     public async Task<ComplexFormType?> GetComplexFormType(Guid id)
     {
-        return await ComplexFormTypes.SingleOrDefaultAsync(c => c.Id == id);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.ComplexFormTypes.SingleOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
+        await using var repo = await repoFactory.CreateRepoAsync();
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
-        return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
+        return await repo.ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
@@ -304,28 +287,20 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<ComplexFormType>(id));
     }
 
-    private async Task<AddEntryComponentChange> CreateComplexFormComponentChange(ComplexFormComponent complexFormComponent, BetweenPosition? between = null)
-    {
-        complexFormComponent.Order = await OrderPicker.PickOrder(ComplexFormComponents.Where(c => c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId), between);
-        return new AddEntryComponentChange(complexFormComponent);
-    }
-
     public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
+        await using var repo = await repoFactory.CreateRepoAsync();
         // tests in seperate PR:
         // 1: call create with the same ID should throw.
         // 2: change a propertyId => should result in a new ID (in Crdt test not base).
         // 3: "normal" create also changes provided ID.
-        var existing = await ComplexFormComponents.SingleOrDefaultAsync(c =>
-            c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
-            && c.ComponentEntryId == complexFormComponent.ComponentEntryId
-            && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
+        var existing = await repo.FindComplexFormComponent(complexFormComponent);
         if (existing is null)
         {
             var betweenIds = between is null ? null : new BetweenPosition(between.Previous?.Id, between.Next?.Id);
-            var addEntryComponentChange = await CreateComplexFormComponentChange(complexFormComponent, betweenIds);
+            var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
             await AddChange(addEntryComponentChange);
-            return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
+            return await repo.FindComplexFormComponent(addEntryComponentChange.EntityId);
         }
         else if (between is not null)
         {
@@ -336,8 +311,9 @@ public class CrdtMiniLcmApi(
 
     public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
     {
+        await using var repo = await repoFactory.CreateRepoAsync();
         var betweenIds = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
-        var order = await OrderPicker.PickOrder(ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
+        var order = await OrderPicker.PickOrder(repo.ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
         await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(component.Id, order));
     }
 
@@ -348,7 +324,8 @@ public class CrdtMiniLcmApi(
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await AddChange(new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await AddChange(new AddComplexFormTypeChange(entryId, await repo.ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
     }
 
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
@@ -358,9 +335,8 @@ public class CrdtMiniLcmApi(
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
-        options ??= FilterQueryOptions.Default;
-        var (queryable, _) = await FilterEntries(Entries, query, options);
-        return await queryable.CountAsync();
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.CountEntries(query, options);
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -368,122 +344,29 @@ public class CrdtMiniLcmApi(
         return SearchEntries(null, options);
     }
 
-    public IAsyncEnumerable<Entry> SearchEntries(string? query, QueryOptions? options = null)
+    public async IAsyncEnumerable<Entry> SearchEntries(string? query, QueryOptions? options = null)
     {
-        return GetEntries(Entries, query, options);
-    }
-
-    private async IAsyncEnumerable<Entry> GetEntries(IQueryable<Entry> queryable,
-        string? query = null,
-        QueryOptions? options = null)
-    {
-        options ??= QueryOptions.Default;
-        (queryable, var sortingHandled) = await FilterEntries(queryable, query, options);
-        if (!sortingHandled)
-            queryable = await ApplySorting(queryable, options, query);
-
-        queryable = queryable
-            .LoadWith(e => e.Senses)
-            .ThenLoad(s => s.ExampleSentences)
-            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
-            .LoadWith(e => e.ComplexForms)
-            .LoadWith(e => e.Components)
-            .AsQueryable();
-
-        queryable = options.ApplyPaging(queryable);
-        var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
-            .AsComplexFormComparer();
-        var entries = queryable.AsAsyncEnumerable();
-        await foreach (var entry in EfExtensions.SafeIterate(entries))
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var entry in repo.GetEntries(query, options))
         {
-            entry.ApplySortOrder(complexFormComparer);
             yield return entry;
-        }
-    }
-
-    private async Task<(IQueryable<Entry> queryable, bool sortingHandled)> FilterEntries(IQueryable<Entry> queryable,
-        string? query,
-        FilterQueryOptions options)
-    {
-        bool sortingHandled = false;
-        if (!string.IsNullOrEmpty(query))
-        {
-            if (entrySearchService is not null && entrySearchService.ValidSearchTerm(query))
-            {
-                var queryOptions = options as QueryOptions;
-                //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
-                sortingHandled = queryOptions?.Order.Field == SortField.SearchRelevance;
-                queryable = entrySearchService.FilterAndRank(queryable,
-                    query,
-                    sortingHandled,
-                    queryOptions?.Order.Ascending == true);
-            }
-            else
-            {
-                queryable = queryable.Where(Filtering.SearchFilter(query));
-            }
-        }
-
-        if (options.Exemplar is not null)
-        {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
-            if (ws is null)
-                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
-            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
-        }
-
-        if (options.Filter?.GridifyFilter != null)
-        {
-            queryable = queryable.ApplyFiltering(options.Filter.GridifyFilter, LcmConfig.Mapper);
-        }
-        return (queryable, sortingHandled);
-    }
-
-    private async ValueTask<IQueryable<Entry>> ApplySorting(IQueryable<Entry> queryable, QueryOptions options, string? query = null)
-    {
-        var sortWs = await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        if (sortWs is null)
-            throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
-
-        switch (options.Order.Field)
-        {
-            case SortField.SearchRelevance:
-                return queryable.ApplyRoughBestMatchOrder(options.Order with { WritingSystem = sortWs.WsId }, query);
-            case SortField.Headword:
-                var ordered = options.ApplyOrder(queryable, e => e.Headword(sortWs.WsId).CollateUnicode(sortWs));
-                return ordered.ThenBy(e => e.Id);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field);
         }
     }
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries
-            .LoadWith(e => e.Senses)
-            .ThenLoad(s => s.ExampleSentences)
-            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
-            .LoadWith(e => e.ComplexForms)
-            .LoadWith(e => e.Components)
-            .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == id);
-        if (entry is not null)
-        {
-            var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
-            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
-                .AsComplexFormComparer();
-            entry.ApplySortOrder(complexFormComparer);
-        }
-        return entry;
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetEntry(id);
     }
 
     public async Task BulkCreateEntries(IAsyncEnumerable<Entry> entries)
     {
-        var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var semanticDomains = await repo.SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
         //we're using this change list to ensure that we partially commit in case of an error
         //this lets us attempt an import again skipping the entries that were already imported
         var changeList = new List<IChange>(1300);
-        var createdEntryIds = await Entries.Select(e => e.Id).ToAsyncEnumerable().ToHashSetAsync();
+        var createdEntryIds = await repo.Entries.Select(e => e.Id).ToAsyncEnumerable().ToHashSetAsync();
         int entryCount = 0;
         await foreach (var entry in entries)
         {
@@ -549,20 +432,21 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
+        await using var repo = await repoFactory.CreateRepoAsync();
         await AddChanges([
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany((s, i) =>
                 {
                     s.Order = i + 1;
-                    return CreateSenseChanges(entry.Id, s);
+                    return CreateSenseChanges(entry.Id, s, repo.SemanticDomains);
                 })
                 .ToArrayAsync(),
             ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
-        return await GetEntry(entry.Id) ?? throw new NullReferenceException();
+        return await repo.GetEntry(entry.Id) ?? throw new NullReferenceException();
 
         async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
         {
@@ -602,7 +486,7 @@ public class CrdtMiniLcmApi(
                 else
                 {
                     // the entry is a component, so we let its complex-form pick the order
-                    yield return await CreateComplexFormComponentChange(complexFormComponent);
+                    yield return await repo.CreateComplexFormComponentChange(complexFormComponent);
                 }
             }
         }
@@ -616,28 +500,24 @@ public class CrdtMiniLcmApi(
                     throw new InvalidOperationException("Complex form type must have an id");
                 }
 
-                if (!await ComplexFormTypes.AnyAsyncEF(t => t.Id == complexFormType.Id))
+                if (!await repo.ComplexFormTypes.AnyAsyncEF(t => t.Id == complexFormType.Id))
                 {
                     throw new InvalidOperationException($"Complex form type {complexFormType} does not exist");
                 }
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
-            }
-
-    private async ValueTask<bool> IsEntryDeleted(Guid id)
-    {
-        return !await Entries.AnyAsyncEF(e => e.Id == id);
     }
 
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
     {
-        var entry = await GetEntry(id);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var entry = await repo.GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
         await AddChanges(entry.ToChanges(update.Patch));
-        var updatedEntry = await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
+        var updatedEntry = await repo.GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
         return updatedEntry;
     }
 
@@ -653,9 +533,11 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<Entry>(id));
     }
 
-    private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId, Sense sense)
+    private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId,
+        Sense sense,
+        IQueryable<SemanticDomain> semanticDomains)
     {
-        sense.SemanticDomains = await SemanticDomains
+        sense.SemanticDomains = await semanticDomains
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
             .ToListAsync();
 
@@ -670,31 +552,30 @@ public class CrdtMiniLcmApi(
 
     public async Task<Sense?> GetSense(Guid entryId, Guid senseId)
     {
-        var sense = await Senses.LoadWith(s => s.PartOfSpeech)
-            .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == senseId);
-        sense?.ApplySortOrder();
-        return sense;
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetSense(entryId, senseId);
     }
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
     {
+        await using var repo = await repoFactory.CreateRepoAsync();
         if (sense.PartOfSpeechId.HasValue && await GetPartOfSpeech(sense.PartOfSpeechId.Value) is null)
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
 
-        sense.Order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
-        await AddChanges(await CreateSenseChanges(entryId, sense).ToArrayAsync());
-        return await GetSense(entryId, sense.Id) ?? throw new NullReferenceException("unable to find sense " + sense.Id);
+        sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
+        await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
+        return await repo.GetSense(entryId, sense.Id) ?? throw new NullReferenceException("unable to find sense " + sense.Id);
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
         Guid senseId,
         UpdateObjectInput<Sense> update)
     {
-        var sense = await GetSense(entryId, senseId);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var sense = await repo.GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
         await AddChanges([..sense.ToChanges(update.Patch)]);
-        return await GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
+        return await repo.GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
@@ -705,7 +586,8 @@ public class CrdtMiniLcmApi(
 
     public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
-        var order = await OrderPicker.PickOrder(Senses.Where(s => s.EntryId == entryId), between);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
         await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
     }
 
@@ -729,17 +611,16 @@ public class CrdtMiniLcmApi(
         ExampleSentence exampleSentence,
         BetweenPosition? between = null)
     {
-        exampleSentence.Order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        exampleSentence.Order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
         await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
-        return await GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw new NullReferenceException();
+        return await repo.GetExampleSentence(entryId, senseId, exampleSentence.Id) ?? throw new NullReferenceException();
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        var exampleSentence = await ExampleSentences
-            .AsQueryable()
-            .SingleOrDefaultAsync(e => e.Id == id);
-        return exampleSentence;
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetExampleSentence(entryId, senseId, id);
     }
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -765,7 +646,8 @@ public class CrdtMiniLcmApi(
 
     public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
     {
-        var order = await OrderPicker.PickOrder(ExampleSentences.Where(s => s.SenseId == senseId), between);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
         await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
     }
 
