@@ -238,7 +238,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        76
+        83
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -294,7 +294,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        88
+        95
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -334,7 +334,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        73
+        80
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -342,6 +342,18 @@
       ]
     ],
     "translation": "before"
+  },
+  "3qtIhN": {
+    "message": "Best match",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SortMenu.svelte",
+        9
+      ]
+    ],
+    "translation": "Best match"
   },
   "O2UpM1": {
     "message": "Browse",
@@ -1107,6 +1119,18 @@
     ],
     "translation": "Grammatical info."
   },
+  "X5C2hm": {
+    "message": "Headword",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SortMenu.svelte",
+        10
+      ]
+    ],
+    "translation": "Headword"
+  },
   "vLyv1R": {
     "message": "Hide",
     "placeholders": {},
@@ -1130,7 +1154,7 @@
       ],
       [
         "src/lib/history/HistoryView.svelte",
-        52
+        59
       ]
     ],
     "translation": "History"
@@ -1294,7 +1318,7 @@
       ],
       [
         "src/lib/auth/LoginButton.svelte",
-        78
+        79
       ]
     ],
     "translation": "Login to see projects"
@@ -1474,7 +1498,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        64
+        71
       ]
     ],
     "translation": "No change name"
@@ -1514,7 +1538,7 @@
     "origin": [
       [
         "src/lib/history/HistoryView.svelte",
-        59
+        66
       ]
     ],
     "translation": "No history found"
@@ -2214,7 +2238,7 @@
       ],
       [
         "src/lib/history/HistoryView.svelte",
-        92
+        99
       ],
       [
         "src/lib/activity/ActivityView.svelte",
@@ -2350,5 +2374,17 @@
       ]
     ],
     "translation": "Word or meaning:"
+  },
+  "cDHTt1": {
+    "message": "Writing system: {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/lcm-rich-text-editor/editor-schema.ts",
+        20
+      ]
+    ],
+    "translation": "Writing system: {0}"
   }
 }

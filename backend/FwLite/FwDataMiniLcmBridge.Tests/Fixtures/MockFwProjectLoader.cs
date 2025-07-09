@@ -25,7 +25,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         var cache = LcmCache.CreateCacheWithNewBlankLangProj(
-            new SimpleProjectId(BackendProviderType.kMemoryOnly, project.FileName),
+            new SimpleProjectId(BackendProviderType.kMemoryOnly, Path.GetFullPath(project.FilePath)),
             analysisWs,
             vernacularWs,
             null,

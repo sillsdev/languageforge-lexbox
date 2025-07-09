@@ -5,7 +5,6 @@ using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmDebugger;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,17 +25,4 @@ using var app = builder.Build();
 
 await using var scope = app.Services.CreateAsyncScope();
 
-var crdtProjectsService = app.Services.GetRequiredService<CrdtProjectsService>();
-var crdtApi = await crdtProjectsService.OpenProject(
-    new CrdtProject("test", "sbe-flex - Copy.sqlite"),
-    scope.ServiceProvider);
-await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-{
-    TypeInfoResolver = scope.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value
-        .MakeLcmCrdtExternalJsonTypeResolver()
-};
-await using var transaction = await dbContext.Database.BeginTransactionAsync();
-var dataModel = scope.ServiceProvider.GetRequiredService<DataModel>();
-await dataModel.SyncWith(FakeSyncSource.FromJsonFile("changes.json", jsonOptions));
-await transaction.RollbackAsync();
+await scope.ServiceProvider.PrintAllEntries("sena-3");

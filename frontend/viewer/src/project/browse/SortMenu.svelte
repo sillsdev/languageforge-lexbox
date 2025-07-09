@@ -1,13 +1,13 @@
 <script lang="ts" module>
   import {SortField} from '$lib/dotnet-types';
-  import {gt, t} from 'svelte-i18n-lingui';
+  import {msg, t} from 'svelte-i18n-lingui';
   import type {IconClass} from '$lib/icon-class';
 
   export type SortDirection = 'asc' | 'desc';
 
   const sortLabels = {
-    [SortField.SearchRelevance]: gt`Best match`,
-    [SortField.Headword]: gt`Headword`
+    [SortField.SearchRelevance]: msg`Best match`,
+    [SortField.Headword]: msg`Headword`
   } as const;
 
   const sortIcons: Partial<Record<SortField, Record<SortDirection, IconClass>>> = {
@@ -58,7 +58,7 @@
     {#snippet child({props})}
       <button {...props}>
         <Icon icon={sortIcons[sortField]?.[direction] ?? 'i-mdi-arrow-down'} class="size-4 mr-1" />
-        {sortLabels[sortField]}
+        {$t(sortLabels[sortField])}
       </button>
     {/snippet}
   </ResponsiveMenu.Trigger>
@@ -72,7 +72,7 @@
         >
         {$t`Auto`}
         <span class="text-muted-foreground ml-auto">
-          ({sortLabels[autoSort]})
+          ({$t(sortLabels[autoSort])})
         </span>
     </ResponsiveMenu.Item>
     {#each sortOptions as option}
@@ -87,7 +87,7 @@
         {#if icon}
           <Icon {icon} />
         {/if}
-        {sortLabels[option.field]}
+        {$t(sortLabels[option.field])}
       </ResponsiveMenu.Item>
     {/each}
   </ResponsiveMenu.Content>

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Channels;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
+using FwHeadless.Media;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
@@ -102,7 +103,8 @@ public class SyncWorker(
     SyncJobStatusService syncStatusService,
     CrdtFwdataProjectSyncService syncService,
     CrdtHttpSyncService crdtHttpSyncService,
-    IHttpClientFactory httpClientFactory
+    IHttpClientFactory httpClientFactory,
+    MediaFileService mediaFileService
 )
 {
     public async Task<SyncJobResult> ExecuteSync(CancellationToken stoppingToken)
@@ -141,7 +143,7 @@ public class SyncWorker(
         logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
         logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
 
-        var fwdataApi = await SetupFwData(fwDataProject, srService, projectCode, logger, fwDataFactory);
+        var fwdataApi = await SetupFwData(fwDataProject, projectCode);
         using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
@@ -179,11 +181,7 @@ public class SyncWorker(
         return new SyncJobResult(SyncJobResultEnum.Success, null, result);
     }
 
-    static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
-        SendReceiveService srService,
-        string projectCode,
-        ILogger logger,
-        FwDataFactory fwDataFactory)
+    private async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)
     {
         if (File.Exists(fwDataProject.FilePath))
         {
@@ -205,6 +203,8 @@ public class SyncWorker(
         }
 
         var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
+        //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
+        await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
         return fwdataApi;
     }
 

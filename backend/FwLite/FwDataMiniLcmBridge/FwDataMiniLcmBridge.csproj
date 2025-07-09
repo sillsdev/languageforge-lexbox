@@ -13,6 +13,7 @@
     <PackageReference Include="SIL.LCModel" />
     <PackageReference Include="structuremap.patched" />
     <PackageReference Include="System.Linq.Async" />
+    <PackageReference Include="UUIDNext" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests" />

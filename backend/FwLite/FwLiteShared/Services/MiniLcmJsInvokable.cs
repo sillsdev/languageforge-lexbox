@@ -17,14 +17,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = validationWrapperFactory.Create(notificationWrapperFactory.Create(api, project));
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: isFwDataProject);
     }
 
     private bool CanWrite =>
@@ -328,6 +328,14 @@ public class MiniLcmJsInvokable(
     {
         await _wrappedApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
         OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task<DotNetStreamReference?> GetFileStream(string mediaUri)
+    {
+        var stream = await _wrappedApi.GetFileStream(new MediaUri(mediaUri));
+        if (stream is null) return null;
+        return new DotNetStreamReference(stream);
     }
 
     public void Dispose()
