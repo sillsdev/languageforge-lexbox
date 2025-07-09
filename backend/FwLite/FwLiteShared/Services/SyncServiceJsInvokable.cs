@@ -40,7 +40,7 @@ public class SyncServiceJsInvokable(SyncService syncService)
     }
 
     [JSInvokable]
-    public Task<LexboxServer> GetCurrentServer()
+    public Task<LexboxServer?> GetCurrentServer()
     {
         return syncService.GetCurrentServer();
     }
