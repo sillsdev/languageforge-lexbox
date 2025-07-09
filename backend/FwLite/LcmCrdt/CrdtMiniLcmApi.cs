@@ -175,8 +175,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        var pub = await GetPublication(id);
-        if(pub is null) throw new NullReferenceException($"unable to find publication with id {id}");
+        var pub = await GetPublication(id) ?? throw new NullReferenceException($"Unable to find publication with id {id}");
         await AddChanges(pub.ToChanges(update.Patch));
         return await GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
     }
@@ -195,7 +194,8 @@ public class CrdtMiniLcmApi(
 
     public async Task AddPublication(Guid entryId, Guid publicationId)
     {
-        await AddChange(new AddPublicationChange(entryId, await Publications.SingleAsync(pub => pub.Id == publicationId)));
+        var pub = await GetPublication(publicationId) ?? throw new NullReferenceException("Unable to find publication with id {id}");
+        await AddChange(new AddPublicationChange(entryId, pub));
     }
 
     public async Task RemovePublication(Guid entryId, Guid publicationId)
@@ -535,7 +535,8 @@ public class CrdtMiniLcmApi(
 
     private async ValueTask<bool> IsEntryDeleted(Guid id)
     {
-        return !await Entries.AnyAsyncEF(e => e.Id == id);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return !await repo.Entries.AnyAsyncEF(e => e.Id == id);
     }
 
     public async Task<Entry> UpdateEntry(Guid id,
