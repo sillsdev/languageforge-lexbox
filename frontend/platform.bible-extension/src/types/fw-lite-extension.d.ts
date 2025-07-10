@@ -41,6 +41,9 @@ declare module 'fw-lite-extension' {
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'fwLiteExtension.localProjects': () => Promise<void>;
+    'fwLiteExtension.openFWProjectSelector': () => Promise<{
+      success: boolean;
+    }>;
     'fwLiteExtension.openFWLite': (webviewId: string) => {
       success: boolean;
     };

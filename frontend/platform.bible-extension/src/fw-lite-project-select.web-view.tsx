@@ -1,4 +1,4 @@
-import papi, { logger } from '@papi/frontend';
+import papi from '@papi/frontend';
 import type { IProjectModel, LocalProjectsEvent } from 'fw-lite-extension';
 import { useEvent } from 'platform-bible-react';
 import { useState, useEffect } from 'react';
@@ -9,7 +9,6 @@ globalThis.webViewComponent = function fwLiteProjectSelect() {
   useEvent<LocalProjectsEvent>(
     papi.network.getNetworkEvent('fwLiteExtension.localProjects'),
     ({ projects }) => {
-      logger.info('localProjects', projects);
       setLocalProjects(projects);
     },
   );
@@ -24,7 +23,7 @@ globalThis.webViewComponent = function fwLiteProjectSelect() {
         <>
           <p>Projects: {localProjects.map((p) => p.name).join(', ')}</p>
           <button onClick={() => setLocalProjects(undefined)} type="button">
-            Close
+            Clear
           </button>
         </>
       )}
