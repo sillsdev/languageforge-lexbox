@@ -202,14 +202,18 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
-    [
-      '--urls',
-      baseUrl,
-      '--FwLiteWeb:OpenBrowser=false',
-      '--FwLiteWeb:CorsAllowAny=true',
-      '--FwLiteWeb:LogFileName=./../../fw-lite-web.log', //required at dev time otherwise the log file will trigger a restart of the extension by PT
-    ],
-    { stdio: [null, null, null] },
+    ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
+    { stdio: [null, 'pipe', 'pipe'] },
   );
+  if (fwLiteProcess.stdout) {
+    fwLiteProcess.stdout.on('data', (data: Buffer) => {
+      logger.info(`[FwLiteWeb]: ${data.toString().trim()}`);
+    });
+  }
+  if (fwLiteProcess.stderr) {
+    fwLiteProcess.stderr.on('data', (data: Buffer) => {
+      logger.error(`[FwLiteWeb]: ${data.toString().trim()}`);
+    });
+  }
   return { baseUrl, fwLiteProcess };
 }
