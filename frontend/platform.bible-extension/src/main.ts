@@ -129,14 +129,21 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const localProjectsCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.localProjects',
+  const openFwProjectSelectorCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.openFWProjectSelector',
     async () => {
+      logger.info('Opening FieldWorks project selector');
       await papi.webViews.openWebView(
         projectSelectWebViewType,
         { type: 'float' },
         { existingId: '?' },
       );
+      return { success: true };
+    },
+  );
+  const localProjectsCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.localProjects',
+    async () => {
       logger.info('Fetching local FieldWorks projects');
       const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
       const jsonText = await (await response.blob()).text();
@@ -161,6 +168,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,
+    await openFwProjectSelectorCommandPromise,
     await localProjectsCommandPromise,
     await entryService,
     onFindEntryEmitter,
