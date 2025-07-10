@@ -21,6 +21,7 @@
     "start:core": "cd ../../../paranext-core && npm run start",
     "start": "cross-env MAIN_ARGS=\"--extensions $INIT_CWD/dist\" concurrently \"npm:watch\" \"npm:start:core\"",
     "start:production": "cross-env MAIN_ARGS=\"--extensions $INIT_CWD/dist\" concurrently \"npm:watch:production\" \"npm:start:core\"",
+    "stop": "cd ../../../paranext-core && npm run stop",
     "lint": "npm run lint:scripts && npm run lint:styles",
     "lint:scripts": "cross-env NODE_ENV=development node ../node_modules/eslint/bin/eslint.js .",
     "lint:styles": "stylelint **/*.{css,scss}",
