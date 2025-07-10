@@ -2,26 +2,7 @@
   "mainMenu": {
     "columns": {},
     "groups": {},
-    "items": [
-      {
-        "label": "%fwLiteExtension_menu_label%",
-        "group": "platform.projectProjects",
-        "order": 1006,
-        "command": "fwLiteExtension.simpleFind"
-      },
-      {
-        "label": "%fwLiteExtension_open_label%",
-        "group": "platform.projectProjects",
-        "order": 1007,
-        "command": "fwLiteExtension.openFWLite"
-      },
-      {
-        "label": "%fwLiteExtension_list_projects_label%",
-        "group": "platform.projectProjects",
-        "order": 1008,
-        "command": "fwLiteExtension.openFWProjectSelector"
-      }
-    ]
+    "items": []
   },
   "defaultWebViewTopMenu": {
     "columns": {},
@@ -32,5 +13,36 @@
     "groups": {},
     "items": []
   },
-  "webViewMenus": {}
+  "webViewMenus": {
+    "platformScriptureEditor.react": {
+      "topMenu": {
+        "groups": {
+          "fw-lite-extension.editor": {
+            "column": "platformScriptureEditor.edit",
+            "order": 2
+          }
+        },
+        "items": [
+          {
+            "label": "%fwLiteExtension_menu_label%",
+            "group": "fw-lite-extension.editor",
+            "order": 1006,
+            "command": "fwLiteExtension.simpleFind"
+          },
+          {
+            "label": "%fwLiteExtension_open_label%",
+            "group": "fw-lite-extension.editor",
+            "order": 1007,
+            "command": "fwLiteExtension.openFWLite"
+          },
+          {
+            "label": "%fwLiteExtension_list_projects_label%",
+            "group": "fw-lite-extension.editor",
+            "order": 1008,
+            "command": "fwLiteExtension.openFWProjectSelector"
+          }
+        ]
+      }
+    }
+  }
 }
