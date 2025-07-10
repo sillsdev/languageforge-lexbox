@@ -19,7 +19,7 @@
         "label": "%fwLiteExtension_list_projects_label%",
         "group": "platform.projectProjects",
         "order": 1008,
-        "command": "fwLiteExtension.localProjects"
+        "command": "fwLiteExtension.openFWProjectSelector"
       }
     ]
   },
