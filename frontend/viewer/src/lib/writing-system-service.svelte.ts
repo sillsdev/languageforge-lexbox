@@ -55,6 +55,14 @@ export class WritingSystemService {
     return this.pickWritingSystems('vernacular');
   }
 
+  get analysisNoAudio(): IWritingSystem[] {
+    return this.analysis.filter(ws => !ws.isAudio);
+  }
+
+  get vernacularNoAudio(): IWritingSystem[] {
+    return this.vernacular.filter(ws => !ws.isAudio);
+  }
+
   get defaultVernacular(): IWritingSystem | undefined {
     return this.writingSystems.vernacular[0];
   }
@@ -94,7 +102,7 @@ export class WritingSystemService {
       return WritingSystemService.headword(entry, ws) || '';
     }
 
-    return firstTruthy(this.vernacular, ws => WritingSystemService.headword(entry, ws.wsId)) || '';
+    return firstTruthy(this.vernacularNoAudio, ws => WritingSystemService.headword(entry, ws.wsId)) || '';
   }
 
   private static headword(entry: IEntry, ws: string): string | undefined {

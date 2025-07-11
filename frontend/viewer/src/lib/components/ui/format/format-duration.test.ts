@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {normalizeDuration} from './format-duration';
+import {normalizeDuration, formatDuration} from './format-duration';
 
 describe('normalizeDuration', () => {
   describe('basic normalization without smallestUnit', () => {
@@ -74,6 +74,19 @@ describe('normalizeDuration', () => {
     });
   });
 
+  //this prevents the exception `RangeError: 500.23 isn't a valid milliseconds duration because it isn't an integer`
+  it('should floor fractional milliseconds', () => {
+    const result = normalizeDuration({
+      milliseconds: 500.23
+    });
+    expect(result).toEqual({
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 500
+    });
+  });
+
   describe('normalization with smallestUnit = "hours"', () => {
     it('should return only hours', () => {
       const result = normalizeDuration({
@@ -83,8 +96,7 @@ describe('normalizeDuration', () => {
         milliseconds: 500
       }, 'hours');
 
-      // 2 + 30/60 + 45/3600 + 500/3600000 = 2 + 0.5 + 0.0125 + 0.0001388... ≈ 2.5126
-      expect(result.hours).toBeCloseTo(2.5126, 4);
+      expect(result.hours).toEqual(2)
     });
   });
 
@@ -99,7 +111,7 @@ describe('normalizeDuration', () => {
 
       expect(result).toEqual({
         hours: 1,
-        minutes: 30.75
+        minutes: 30
       });
     });
   });
@@ -116,7 +128,7 @@ describe('normalizeDuration', () => {
       expect(result).toEqual({
         hours: 1,
         minutes: 30,
-        seconds: 45.5 // 45 + 500/1000
+        seconds: 45
       });
     });
   });
@@ -137,5 +149,28 @@ describe('normalizeDuration', () => {
         milliseconds: 500
       });
     });
+  });
+});
+
+describe('formatDuration', () => {
+  it('formats durations', () => {
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500})).toEqual('1 hr, 30 min, 45 sec, 500 ms');
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45})).toEqual('1 hr, 30 min, 45 sec');
+    expect(formatDuration({hours: 1, minutes: 30})).toEqual('1 hr, 30 min');
+    expect(formatDuration({hours: 1})).toEqual('1 hr');
+  });
+
+  it('formats fractional durations', () => {
+    expect(formatDuration({milliseconds: 500.23})).toEqual('500 ms');
+    expect(formatDuration({seconds: 45.23})).toEqual('45 sec, 230 ms');
+    expect(formatDuration({minutes: 30.23})).toEqual('30 min, 13 sec, 800 ms');
+    expect(formatDuration({hours: 2.23})).toEqual('2 hr, 13 min, 48 sec');
+  });
+
+  it('formats durations with smallest unit', () => {
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'hours')).toEqual('1 hr');
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'minutes')).toEqual('1 hr, 30 min');
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'seconds')).toEqual('1 hr, 30 min, 45 sec');
+    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500}, 'milliseconds')).toEqual('1 hr, 30 min, 45 sec, 500 ms');
   });
 });
