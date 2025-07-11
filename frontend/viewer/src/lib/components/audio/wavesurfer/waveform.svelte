@@ -61,8 +61,6 @@
     }
 
     duration = wavesurfer.getDuration();
-
-    await wavesurfer.play();
   }
 </script>
 
