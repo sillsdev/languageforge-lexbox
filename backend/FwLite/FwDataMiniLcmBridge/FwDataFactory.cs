@@ -6,7 +6,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MiniLcm.Validators;
 using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge;
@@ -16,7 +15,6 @@ public class FwDataFactory(
     IMemoryCache cache,
     ILogger<FwDataFactory> logger,
     IProjectLoader projectLoader,
-    MiniLcmValidators validators,
     IMediaAdapter mediaAdapter,
     IOptions<FwDataBridgeConfig> config) : IDisposable, IHostedService
 {
@@ -26,9 +24,8 @@ public class FwDataFactory(
         ILogger<FwDataFactory> logger,
         IProjectLoader projectLoader,
         IHostApplicationLifetime lifetime,
-        MiniLcmValidators validators,
         IMediaAdapter mediaAdapter,
-        IOptions<FwDataBridgeConfig> config) : this(fwdataLogger, cache, logger, projectLoader, validators, mediaAdapter, config)
+        IOptions<FwDataBridgeConfig> config) : this(fwdataLogger, cache, logger, projectLoader, mediaAdapter, config)
     {
         lifetime.ApplicationStopping.Register(() =>
         {
@@ -42,7 +39,7 @@ public class FwDataFactory(
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
-        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, validators, mediaAdapter, config);
+        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, mediaAdapter, config);
     }
 
     private HashSet<string> _projects = [];

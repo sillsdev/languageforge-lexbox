@@ -12,6 +12,7 @@ public record MiniLcmValidators(
     IValidator<WritingSystem> WritingSystemValidator,
     IValidator<PartOfSpeech> PartOfSpeechValidator,
     IValidator<SemanticDomain> SemanticDomainValidator,
+    IValidator<Publication> PublicationValidator,
     IValidator<UpdateObjectInput<WritingSystem>> WritingSystemUpdateValidator)
 {
     public async Task ValidateAndThrow(ComplexFormType value)
@@ -49,6 +50,11 @@ public record MiniLcmValidators(
         await SemanticDomainValidator.ValidateAndThrowAsync(value);
     }
 
+    public async Task ValidateAndThrow(Publication value)
+    {
+        await PublicationValidator.ValidateAndThrowAsync(value);
+    }
+
     public async Task ValidateAndThrow(UpdateObjectInput<WritingSystem> update)
     {
         await WritingSystemUpdateValidator.ValidateAndThrowAsync(update);
@@ -68,6 +74,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<WritingSystem>, WritingSystemValidator>();
         services.AddTransient<IValidator<PartOfSpeech>, PartOfSpeechValidator>();
         services.AddTransient<IValidator<SemanticDomain>, SemanticDomainValidator>();
+        services.AddTransient<IValidator<Publication>, PublicationValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
         return services;
     }

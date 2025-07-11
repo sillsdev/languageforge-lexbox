@@ -243,4 +243,11 @@ public class MiniLcmRepository(
                 .AsQueryable(), e => e.Id == id);
         return exampleSentence;
     }
+
+    public async Task<Publication?> GetPublication(Guid publicationId)
+    {
+        var publication = await AsyncExtensions.SingleOrDefaultAsync(Publications
+                .AsQueryable(), p => p.Id == publicationId);
+        return publication;
+    }
 }
