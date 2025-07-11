@@ -12,6 +12,10 @@ public static class SenseSync
     {
         var updateObjectInput = SenseDiffToUpdate(beforeSense, afterSense);
         if (updateObjectInput is not null) await api.UpdateSense(entryId, beforeSense.Id, updateObjectInput);
+        if (beforeSense.PartOfSpeechId != afterSense.PartOfSpeechId)
+        {
+            await api.SetSensePartOfSpeech(beforeSense.Id, afterSense.PartOfSpeechId);
+        }
         var changes = await ExampleSentenceSync.Sync(entryId,
             beforeSense.Id,
             beforeSense.ExampleSentences,
@@ -32,11 +36,6 @@ public static class SenseSync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Sense>(nameof(Sense.Definition),
             beforeSense.Definition,
             afterSense.Definition));
-
-        if (beforeSense.PartOfSpeechId != afterSense.PartOfSpeechId)
-        {
-            patchDocument.Replace(sense => sense.PartOfSpeechId, afterSense.PartOfSpeechId);
-        }
 
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Sense>(patchDocument);

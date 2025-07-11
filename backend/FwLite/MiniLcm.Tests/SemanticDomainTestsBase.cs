@@ -66,36 +66,66 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task Sense_AddSemanticDomain()
+    public async Task UpdateSense_AddSemanticDomain()
     {
         var entry = await GetEntry();
         var sense = entry.Senses.First(s => s.SemanticDomains.Any());
         var currentSemanticDomain = sense.SemanticDomains.First();
         var newSemanticDomain = await Api.GetSemanticDomains().FirstAsync(sd => sd.Id != currentSemanticDomain.Id);
 
-        var update = new UpdateObjectInput<Sense>()
-            .Add(s => s.SemanticDomains, newSemanticDomain);
-        await Api.UpdateSense(entry.Id, sense.Id, update);
+        var updatedSense = sense.Copy();
+        updatedSense.SemanticDomains.Add(newSemanticDomain);
+        await Api.UpdateSense(entry.Id, sense, updatedSense);
 
         entry = await GetEntry();
-        var updatedSense = entry.Senses.First(s => s.Id == sense.Id);
-        updatedSense.SemanticDomains.Select(sd => sd.Id).Should().Contain(newSemanticDomain.Id);
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.SemanticDomains.Select(sd => sd.Id).Should().Contain(newSemanticDomain.Id);
     }
 
     [Fact]
-    public async Task Sense_RemoveSemanticDomain()
+    public async Task AddSemanticDomainToSense_AddSemanticDomain()
+    {
+        var entry = await GetEntry();
+        var sense = entry.Senses.First(s => s.SemanticDomains.Any());
+        var currentSemanticDomain = sense.SemanticDomains.First();
+        var newSemanticDomain = await Api.GetSemanticDomains().FirstAsync(sd => sd.Id != currentSemanticDomain.Id);
+
+        await Api.AddSemanticDomainToSense(sense.Id, newSemanticDomain);
+
+        entry = await GetEntry();
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.SemanticDomains.Select(sd => sd.Id).Should().Contain(newSemanticDomain.Id);
+    }
+
+    [Fact]
+    public async Task UpdateSense_RemoveSemanticDomain()
     {
         var entry = await GetEntry();
         var sense = entry.Senses.First(s => s.SemanticDomains.Any());
         var domainToRemove = sense.SemanticDomains[0];
 
-        var update = new UpdateObjectInput<Sense>()
-            .Remove(s => s.SemanticDomains, 0);
-        await Api.UpdateSense(entry.Id, sense.Id, update);
+        var updatedSense = sense.Copy();
+        updatedSense.SemanticDomains = [..updatedSense.SemanticDomains.Where(sd => sd.Id != domainToRemove.Id)];
+        await Api.UpdateSense(entry.Id, sense, updatedSense);
 
         entry = await GetEntry();
         ArgumentNullException.ThrowIfNull(entry);
-        var updatedSense = entry.Senses.First(s => s.Id == sense.Id);
-        updatedSense.SemanticDomains.Select(sd => sd.Id).Should().NotContain(domainToRemove.Id);
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.SemanticDomains.Select(sd => sd.Id).Should().NotContain(domainToRemove.Id);
+    }
+
+    [Fact]
+    public async Task RemoveSemanticDomainFromSense_RemoveSemanticDomain()
+    {
+        var entry = await GetEntry();
+        var sense = entry.Senses.First(s => s.SemanticDomains.Any());
+        var domainToRemove = sense.SemanticDomains[0];
+
+        await Api.RemoveSemanticDomainFromSense(sense.Id, domainToRemove.Id);
+
+        entry = await GetEntry();
+        ArgumentNullException.ThrowIfNull(entry);
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.SemanticDomains.Select(sd => sd.Id).Should().NotContain(domainToRemove.Id);
     }
 }

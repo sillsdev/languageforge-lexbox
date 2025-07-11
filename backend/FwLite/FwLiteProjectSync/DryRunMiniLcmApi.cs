@@ -195,6 +195,12 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(SetSensePartOfSpeech), $"Set part of speech {partOfSpeechId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence} between {position?.Previous} and {position?.Next}"));
