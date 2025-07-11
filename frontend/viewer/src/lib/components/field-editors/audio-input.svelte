@@ -48,6 +48,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {isDev} from '$lib/layout/DevContent.svelte';
+  import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
   let {
     loader = defaultLoader,
@@ -167,6 +168,14 @@
       // await load();
     }
   }
+
+  function onRemoveAudio() {
+    audioId = undefined;
+    if (audio && audio.src) {
+      URL.revokeObjectURL(audio.src);
+      audio.src = '';
+    }
+  }
 </script>
 {#if supportsAudio}
   {#if !audioId}
@@ -209,13 +218,28 @@
                 {onDraggingChange}
                 max={audioRuned?.duration}
                 step={0.01}/>
-        <span class="break-keep text-nowrap pr-2 flex flex-nowrap gap-1">
-              {#if !isNaN(audioRuned.duration)}
-                <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
-              {:else}
-                <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
-              {/if}
-          </span>
+        <span class="break-keep text-nowrap flex flex-nowrap gap-1">
+          {#if !isNaN(audioRuned.duration)}
+            <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
+          {:else}
+            <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
+          {/if}
+        </span>
+        <ResponsiveMenu.Root>
+          <ResponsiveMenu.Trigger>
+            {#snippet child({props})}
+              <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
+            {/snippet}
+          </ResponsiveMenu.Trigger>
+          <ResponsiveMenu.Content>
+            <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
+              {$t`Replace audio`}
+            </ResponsiveMenu.Item>
+            <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
+              {$t`Remove audio`}
+            </ResponsiveMenu.Item>
+          </ResponsiveMenu.Content>
+        </ResponsiveMenu.Root>
       {/if}
       {#key audioId}
         <audio bind:this={audio} onplay={load}>
