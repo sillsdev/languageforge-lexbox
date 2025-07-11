@@ -2,7 +2,6 @@
   import { Button } from '$lib/components/ui/button';
   import { Icon, PingingIcon } from '$lib/components/ui/icon';
   import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
-  import type { ILexboxServer } from '$lib/dotnet-types';
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
   import { t, plural } from 'svelte-i18n-lingui';
   import { AppNotification } from '$lib/notifications/notifications';
@@ -31,7 +30,7 @@
   const features = useFeatures();
   let remoteStatus = $state<IProjectSyncStatus>();
   let localStatus = $state<IPendingCommits>();
-  let server = $state<ILexboxServer>();
+  let server = $derived(projectContext.server);
   let loading = $state(false);
   const openQueryParam = new QueryParamStateBool(
     { key: 'syncDialogOpen', replaceOnDefaultValue: true, allowBack: true },
@@ -45,7 +44,7 @@
   const lastFlexSyncDate = $derived(remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined);
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges);
-  const serverName = $derived(server?.displayName ?? 'LexBox');
+  const serverName = $derived(server?.displayName ?? projectContext.projectData?.serverId ?? 'unknown');
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
@@ -180,7 +179,9 @@
             <div><Icon icon="i-mdi-cloud-off-outline" /> {$t`Offline`}</div>
           {:else if syncStatus === SyncStatus.NotLoggedIn && projectContext.server}
             <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} />
-          {:else if syncStatus === SyncStatus.NoServer || syncStatus === SyncStatus.NotLoggedIn}
+          {:else if syncStatus === SyncStatus.NoServer && projectContext.projectData?.serverId}
+            <div>{$t`Unknown server: ${projectContext.projectData?.serverId}`}</div>
+          {:else if syncStatus === SyncStatus.NoServer}
             <div>{$t`No server configured`}</div>
           {:else}
             <div class="text-destructive">{$t`Error getting sync status.`}</div>
@@ -203,55 +204,57 @@
             {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
           </span>
         </div>
-        <div class="text-center content-center">
-          {flexToLbCount}
-          <PingingIcon
-            icon="i-mdi-arrow-up"
-            ping={loadingSyncLexboxToFlex && !!flexToLbCount}
-            class={cn(loadingSyncLexboxToFlex && !!flexToLbCount && 'text-primary')}
-          />
-        </div>
-        <div class="content-center text-center">
-          <Button
-            loading={loadingSyncLexboxToFlex}
-            disabled={loadingSyncLexboxToLocal || !features.write}
-            onclick={syncLexboxToFlex}
-            icon="i-mdi-sync"
-            iconProps={{ class: 'size-5' }}>
-            {#if loadingSyncLexboxToFlex}
-              {$t`Synchronizing...`}
-            {:else}
-              {$t`Synchronize`}
+        {#if server}
+          <div class="text-center content-center">
+            {flexToLbCount}
+            <PingingIcon
+              icon="i-mdi-arrow-up"
+              ping={loadingSyncLexboxToFlex && !!flexToLbCount}
+              class={cn(loadingSyncLexboxToFlex && !!flexToLbCount && 'text-primary')}
+            />
+          </div>
+          <div class="content-center text-center">
+            <Button
+              loading={loadingSyncLexboxToFlex}
+              disabled={loadingSyncLexboxToLocal || !features.write}
+              onclick={syncLexboxToFlex}
+              icon="i-mdi-sync"
+              iconProps={{ class: 'size-5' }}>
+              {#if loadingSyncLexboxToFlex}
+                {$t`Synchronizing...`}
+              {:else}
+                {$t`Synchronize`}
+              {/if}
+            </Button>
+          </div>
+          <div class="text-center content-center">
+            <PingingIcon
+              icon="i-mdi-arrow-down"
+              ping={loadingSyncLexboxToFlex && !!lbToFlexCount}
+              class={cn(loadingSyncLexboxToFlex && !!lbToFlexCount && 'text-primary')}
+            />
+            {lbToFlexCount}
+          </div>
+          <div class="col-span-full text-center flex flex-col">
+            <span class="font-medium">
+              <Icon icon="i-mdi-cloud-outline" />
+              {$t`${serverName} - FieldWorks`}
+            </span>
+            <span class="text-foreground/80">
+              {$t`Last change: ${formatDate(lastFlexSyncDate, undefined,
+                remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
+            </span>
+            {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
+              {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
+                {$t`Not logged in`}
+              {:else}
+                <span class="text-destructive brightness-200">
+                  {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
+                </span>
+              {/if}
             {/if}
-          </Button>
-        </div>
-        <div class="text-center content-center">
-          <PingingIcon
-            icon="i-mdi-arrow-down"
-            ping={loadingSyncLexboxToFlex && !!lbToFlexCount}
-            class={cn(loadingSyncLexboxToFlex && !!lbToFlexCount && 'text-primary')}
-          />
-          {lbToFlexCount}
-        </div>
-        <div class="col-span-full text-center flex flex-col">
-          <span class="font-medium">
-            <Icon icon="i-mdi-cloud-outline" />
-            {$t`${serverName} - FieldWorks`}
-          </span>
-          <span class="text-foreground/80">
-            {$t`Last change: ${formatDate(lastFlexSyncDate, undefined,
-              remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
-          </span>
-          {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
-            {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
-              {$t`Not logged in`}
-            {:else}
-              <span class="text-destructive brightness-200">
-                {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
-              </span>
-            {/if}
-          {/if}
-        </div>
+          </div>
+        {/if}
       </div>
     {/if}
   </DialogContent>

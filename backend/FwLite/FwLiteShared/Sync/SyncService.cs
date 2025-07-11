@@ -50,11 +50,16 @@ public class SyncService(
         {
             logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client",
                 project.Name);
-            UpdateSyncStatus(SyncStatus.NotLoggedIn);
+            UpdateSyncStatus(SyncStatus.NoServer);
             return new SyncResults([], [], false);
         }
-
-        var oAuthClient = oAuthClientFactory.GetClient(project);
+        if (!authOptions.Value.TryGetServer(project, out var server))
+        {
+            logger.LogWarning("Unable to find server for project {ProjectName}", project.Name);
+            UpdateSyncStatus(SyncStatus.NoServer);
+            return new SyncResults([], [], false);
+        }
+        var oAuthClient = oAuthClientFactory.GetClient(server);
         var httpClient = await oAuthClient.CreateHttpClient();
         if (httpClient is null)
         {
@@ -94,7 +99,7 @@ public class SyncService(
     public async Task<ProjectSyncStatus> GetSyncStatus()
     {
         var project = await currentProjectService.GetProjectData();
-        var server = authOptions.Value.GetServer(project);
+        if (!authOptions.Value.TryGetServer(project, out var server)) return ProjectSyncStatus.Unknown(ProjectSyncStatusErrorCode.NotLoggedIn);
         var status = await lexboxProjectService.GetLexboxSyncStatus(server, project.Id);
         return status;
     }
@@ -102,28 +107,29 @@ public class SyncService(
     public async Task<HttpResponseMessage?> TriggerSync()
     {
         var project = await currentProjectService.GetProjectData();
-        var server = authOptions.Value.GetServer(project);
+        if (!authOptions.Value.TryGetServer(project, out var server)) return null;
         return await lexboxProjectService.TriggerLexboxSync(server, project.Id);
     }
 
     public async Task<SyncResult?> AwaitSyncFinished()
     {
         var project = await currentProjectService.GetProjectData();
-        var server = authOptions.Value.GetServer(project);
+        if (!authOptions.Value.TryGetServer(project, out var server)) return null;
         return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
     }
 
-    public async Task<LexboxServer> GetCurrentServer()
+    public async Task<LexboxServer?> GetCurrentServer()
     {
         var project = await currentProjectService.GetProjectData();
-        return authOptions.Value.GetServer(project);
+        if (!authOptions.Value.TryGetServer(project, out var server)) return null;
+        return server;
     }
 
     public async Task<PendingCommits?> CountPendingCrdtCommits()
     {
         var project = await currentProjectService.GetProjectData();
         var localSyncState = await dataModel.GetSyncState();
-        var server = authOptions.Value.GetServer(project);
+        if (!authOptions.Value.TryGetServer(project, out var server)) return null;
         var localChangesPending = CountPendingCommits(); // Not awaited yet
         var remoteChangesPending = lexboxProjectService.CountPendingCrdtCommits(server, project.Id, localSyncState); // Not awaited yet
         await Task.WhenAll(localChangesPending, remoteChangesPending);
