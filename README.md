@@ -1,3 +1,5 @@
+![Alt](https://repobeats.axiom.co/api/embed/141687e565b553d7d31c4b2b95f9d6762a4a901d.svg "Repobeats analytics image")
+
 [![Staging workflow](https://github.com/sillsdev/languageforge-lexbox/actions/workflows/lexbox-api.yaml/badge.svg?branch=develop)](https://github.com/sillsdev/languageforge-lexbox/actions/workflows/lexbox-api.yaml?query=branch%3Adevelop)
 
 # Lexbox (formerly Language Depot)
