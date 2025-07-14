@@ -1,10 +1,14 @@
 import {Schema} from 'prosemirror-model';
 import {gt} from 'svelte-i18n-lingui';
 import {cn} from '$lib/utils';
-
+/*
+  whitespace: pre tells prose-mirror how to parse the dom, not how to render it, that's our job
+  */
 export const textSchema = new Schema({
   nodes: {
-    text: {},
+    text: {
+      whitespace: 'pre',
+    },
     /**
      * Note: it seems that our spans likely should have been modeled as "marks" rather than "nodes".
      * Conceptually our users "mark" up a text.
@@ -13,7 +17,9 @@ export const textSchema = new Schema({
      * */
     span: {
       selectable: false,
-      content: 'text*',
+      content: 'text* br?',
+      // If we remove this Backspace + Delete start removing whole spans
+      inline: true,
       whitespace: 'pre',
       toDOM: (node) => {
         return ['span', {
@@ -28,6 +34,20 @@ export const textSchema = new Schema({
       //this allows us to update the text property without having to map all the span properties into the schema
       attrs: {richSpan: {default: {}}, className: {default: ''}}
     },
-    doc: {content: 'span*', attrs: {}}
+    br: {
+      inline: true,
+      group: 'inline',
+      selectable: false,
+      linebreakReplacement: true,
+      toDOM: () => ['br'],
+      parseDOM: [{tag: 'br'}]
+    },
+    doc: {
+      whitespace: 'pre',
+      // if we remove this Shift + Enter creates new spans and then Backspace starts removing whole spans
+      inline: true,
+      content: 'span*',
+      attrs: {}
+    }
   }
 });

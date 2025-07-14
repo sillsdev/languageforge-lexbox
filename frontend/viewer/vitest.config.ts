@@ -34,7 +34,7 @@ export default defineConfig({
           svelte(),
         ],
         test: {
-          name: 'browser (non storybook)',
+          name: 'browser',
           browser: {
             enabled: true,
             headless: true,

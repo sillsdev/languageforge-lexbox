@@ -8,6 +8,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
+import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
 const projectContextKey = 'current-project';
 
@@ -21,6 +22,7 @@ interface ProjectContextSetup {
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
   server?: ILexboxServer;
+  projectData?: IProjectData;
 }
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
@@ -37,6 +39,7 @@ export class ProjectContext {
   #projectCode: string | undefined = $state(undefined);
   #projectType: ProjectType = $state(undefined);
   #server = $state<ILexboxServer>();
+  #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #features = resource(() => this.#api, (api) => {
@@ -64,6 +67,9 @@ export class ProjectContext {
   public get server(): ILexboxServer | undefined {
     return this.#server;
   }
+  public get projectData(): IProjectData | undefined {
+    return this.#projectData;
+  }
   public get features(): IMiniLcmFeatures {
     return this.#features.current;
   }
@@ -82,6 +88,7 @@ export class ProjectContext {
     this.#projectCode = args?.projectCode;
     this.#projectType = args?.projectType;
     this.#server = args?.server;
+    this.#projectData = args?.projectData;
   }
 
   public setup(args: ProjectContextSetup) {
@@ -92,6 +99,7 @@ export class ProjectContext {
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
     this.#server = args.server;
+    this.#projectData = args.projectData;
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {

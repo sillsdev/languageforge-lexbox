@@ -5,12 +5,14 @@
 
 import type {DotNet} from '@microsoft/dotnet-js-interop';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
+import type {IProjectData} from '../../LcmCrdt/IProjectData';
 
 export interface IProjectScope
 {
 	cleanup?: DotNet.DotNetObject;
 	projectName: string;
 	server?: ILexboxServer;
+	projectData?: IProjectData;
 	miniLcm: DotNet.DotNetObject;
 	historyService?: DotNet.DotNetObject;
 	syncService?: DotNet.DotNetObject;
