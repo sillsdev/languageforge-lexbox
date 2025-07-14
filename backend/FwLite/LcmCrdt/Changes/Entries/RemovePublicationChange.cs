@@ -9,7 +9,7 @@ public class RemovePublicationChange(Guid entityId, Guid publicationId) : EditCh
     public Guid PublicationId { get; } = publicationId;
     public override ValueTask ApplyChange(Entry entity, IChangeContext context)
     {
-        entity.PublishIn = entity.PublishIn.Where(t => t.Id != PublicationId).ToList();
+        entity.PublishIn.RemoveAll(t => t.Id == PublicationId);
         return ValueTask.CompletedTask;
     }
 }
