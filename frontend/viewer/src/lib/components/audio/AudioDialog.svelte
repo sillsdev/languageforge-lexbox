@@ -9,7 +9,7 @@
   import AudioProvider from './audio-provider.svelte';
   import AudioEditor from './audio-editor.svelte';
 
-  let open = $state(false);
+  let open = $state(true);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
   const dialogsService = useDialogsService();
   dialogsService.invokeAudioDialog = getAudio;

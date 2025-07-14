@@ -33,8 +33,7 @@
   import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
-  import {loadFFmpeg} from '$lib/components/audio/ffmpeg-loader';
-
+  import {loadFFmpeg} from '$lib/components/audio/ffmpeg';
 
   const testingService = tryUseService(DotnetService.TestingService);
 

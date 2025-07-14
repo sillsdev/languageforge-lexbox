@@ -29,7 +29,10 @@
 
   watch([() => container, () => audio], ([newContainer, newAudio], [oldContainer, oldAudio]) => {
     let createdWavesurfer = false;
-    if (newContainer !== oldContainer) {
+    if (newContainer !== oldContainer
+    // wavesurfer doesn't seem to render audio the second time load/loadBlob is called
+    // so we recreate it if the audio changes
+    || newAudio !== oldAudio) {
       wavesurfer?.destroy();
       wavesurfer = undefined;
 

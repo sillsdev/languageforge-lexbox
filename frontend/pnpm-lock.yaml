@@ -80,15 +80,6 @@ importers:
 
   .:
     dependencies:
-      '@ffmpeg/core':
-        specifier: 0.12.10
-        version: 0.12.10
-      '@ffmpeg/ffmpeg':
-        specifier: 0.12.15
-        version: 0.12.15
-      '@ffmpeg/util':
-        specifier: 0.12.2
-        version: 0.12.2
       '@floating-ui/dom':
         specifier: ^1.6.13
         version: 1.6.13
@@ -339,6 +330,15 @@ importers:
 
   viewer:
     dependencies:
+      '@ffmpeg/core':
+        specifier: 0.12.10
+        version: 0.12.10
+      '@ffmpeg/ffmpeg':
+        specifier: 0.12.15
+        version: 0.12.15
+      '@ffmpeg/util':
+        specifier: 0.12.2
+        version: 0.12.2
       '@formatjs/intl-durationformat':
         specifier: ^0.7.4
         version: 0.7.4
