@@ -1368,8 +1368,8 @@ public class FwDataMiniLcmApi(
 
     public Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
     {
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Semantic Domain from Sense",
-            "Add Semantic Domain to Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set Sense Part Of Speech",
+            "Revert Sense Part Of Speech",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
