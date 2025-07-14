@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
+using LcmCrdt.MediaServer;
 using SIL.Harmony;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -214,6 +215,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(project);
+        Directory.Delete(serviceScope.ServiceProvider.GetRequiredService<MediaServerClient>().ProjectResourceCachePath, true);
         await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await db.Database.EnsureDeletedAsync();
     }
