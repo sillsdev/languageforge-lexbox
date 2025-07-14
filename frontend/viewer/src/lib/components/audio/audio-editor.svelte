@@ -19,15 +19,15 @@
   const name = $derived(audio instanceof File ? audio.name : undefined);
   let duration = $state<number | null>(null);
   const mb = $derived((audio.size / 1024 / 1024).toFixed(2));
-  const formatedDuration = $derived(duration ? formatDigitalDuration({ seconds: duration }) : '');
+  const formatedDuration = $derived(duration ? formatDigitalDuration({ seconds: duration }) : 'unknown');
 
 </script>
 
 <div class="flex flex-col gap-4 items-center justify-center">
   <span class="inline-grid grid-cols-[auto_auto_1rem_auto_auto] gap-2 items-baseline">
-    <Label class="justify-self-end">{$t`Length:`}</Label> {$t`${formatedDuration}`}
+    <Label class="justify-self-end">{$t`Length:`}</Label> <span>{$t`${formatedDuration}`}</span>
     <span></span>
-    <Label class="justify-self-end">{$t`Size:`}</Label> {$t`${mb} MB`}
+    <Label class="justify-self-end">{$t`Size:`}</Label> <span>{$t`${mb} MB`}</span>
     {#if name}
       <Label class="justify-self-end">{$t`File name:`}</Label>
       <span class="col-span-4">{$t`${name}`}</span>
