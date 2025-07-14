@@ -8,6 +8,7 @@
   import {delay} from '$lib/utils/time';
   import AudioProvider from './audio-provider.svelte';
   import AudioEditor from './audio-editor.svelte';
+  import Loading from '$lib/components/Loading.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
@@ -89,8 +90,11 @@
     selectedFile = undefined;
   }
 
+  let loading = $state(false);
   async function processAudio(blob: Blob): Promise<Blob> {
+    loading = true;
     await delay(1000); // Simulate processing delay
+    loading = false;
     return blob;
   }
 </script>
@@ -102,7 +106,11 @@
       <Dialog.DialogTitle>{$t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     {#if !audio}
-      <AudioProvider {onFileSelected} {onRecordingComplete} />
+      {#if loading}
+        <Loading class="self-center justify-self-center size-16"/>
+      {:else}
+        <AudioProvider {onFileSelected} {onRecordingComplete}/>
+      {/if}
     {:else}
       <AudioEditor {audio} onDiscard={onDiscard} />
 
