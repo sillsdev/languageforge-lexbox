@@ -16,6 +16,7 @@ using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -134,7 +135,7 @@ public class CrdtMiniLcmApi(
         var pos = await GetPartOfSpeech(id);
         if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
 
-        await AddChanges(pos.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(pos.Id));
         return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
     }
 
@@ -175,7 +176,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var pub = await repo.GetPublication(id) ?? throw new NullReferenceException($"Unable to find publication with id {id}");
-        await AddChanges([.. pub.ToChanges(update.Patch)]);
+        await AddChanges(update.Patch.ToChanges(pub.Id));
         return await repo.GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
     }
 
@@ -228,7 +229,7 @@ public class CrdtMiniLcmApi(
         var semDom = await GetSemanticDomain(id);
         if (semDom is null) throw new NullReferenceException($"unable to find semantic domain with id {id}");
 
-        await AddChanges(semDom.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(semDom.Id));
         return await GetSemanticDomain(id) ?? throw new NullReferenceException();
     }
 
@@ -545,7 +546,7 @@ public class CrdtMiniLcmApi(
         var entry = await repo.GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
-        await AddChanges(entry.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(entry.Id));
         var updatedEntry = await repo.GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
         return updatedEntry;
     }
@@ -603,7 +604,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var sense = await repo.GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
-        await AddChanges([..sense.ToChanges(update.Patch)]);
+        await AddChanges(update.Patch.ToChanges(sense.Id));
         return await repo.GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
@@ -633,6 +634,11 @@ public class CrdtMiniLcmApi(
     public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
         await AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
+    }
+
+    public async Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
+    {
+        await AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,

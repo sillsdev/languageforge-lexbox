@@ -5,7 +5,7 @@ import {formatter} from '@lingui/format-json';
 
 export default defineConfig({
   format: formatter({style: 'lingui'}),
-  locales: ['en', 'es', 'fr'],
+  locales: ['en', 'es', 'fr', 'ko', 'id'],
   sourceLocale: 'en',
   catalogs: [
     {

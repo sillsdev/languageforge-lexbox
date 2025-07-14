@@ -70,6 +70,7 @@ public interface IMiniLcmWriteApi
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);
+    Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId);
     #endregion
 
     #region ExampleSentence

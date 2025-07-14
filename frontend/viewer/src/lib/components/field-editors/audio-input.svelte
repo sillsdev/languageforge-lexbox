@@ -1,4 +1,6 @@
 <script lang="ts" module>
+  import {createSubscriber} from 'svelte/reactivity';
+  import {on} from 'svelte/events';
   class AudioRuned {
     #currentTimeSub = createSubscriber(update => on(this.audio, 'timeupdate', update));
     #durationSub = createSubscriber(update => on(this.audio, 'durationchange', update));
@@ -29,6 +31,10 @@
     fractionalDigits: 2,
   }));
 
+  function isNotFoundAudioId(audioId: string) {
+    return audioId === 'sil-media://not-found/00000000-0000-0000-0000-000000000000';
+  }
+
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
 </script>
 <script lang="ts">
@@ -38,8 +44,6 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {Button} from '$lib/components/ui/button';
   import {Slider} from '$lib/components/ui/slider';
-  import {createSubscriber} from 'svelte/reactivity';
-  import {on} from 'svelte/events';
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
 
@@ -51,10 +55,6 @@
     audioId: string | undefined,
   } = $props();
 
-  watch(() => audioId, () => {
-    if (!audio || !audio.src) return;
-    URL.revokeObjectURL(audio.src);
-  });
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
   const supportsAudio = $derived(projectContext?.features.audio);
@@ -133,6 +133,10 @@
     if (!audio || !audio.src) return;
     URL.revokeObjectURL(audio.src);
   });
+  watch(() => audio, (current, previous) => {
+    if (previous?.src) URL.revokeObjectURL(previous.src);
+    playerState = 'paused';
+  });
   let playerState = $state<'loading' | 'playing' | 'paused'>('paused');
   let loading = $derived(playerState === 'loading');
   let playing = $derived(playerState === 'playing');
@@ -152,7 +156,15 @@
   let smallestUnit = $derived(totalLength.minutes > 0 ? 'seconds' as const : 'milliseconds' as const);
 </script>
 {#if supportsAudio}
-  {#if audioId}
+  {#if !audioId}
+    <div class="text-muted-foreground p-1">
+      {$t`No audio`}
+    </div>
+  {:else if isNotFoundAudioId(audioId)}
+    <div class="text-muted-foreground p-1">
+      {$t`Audio file not included in Send & Receive`}
+    </div>
+  {:else}
     <div class="flex space-x-3 items-center">
       {#if loading}
         <!--for some reason using the same button for loading, play and pause doesn't work and pause is never shown-->
@@ -165,31 +177,31 @@
                 class="pl-2"
                 value={sliderValue}
                 onValueChange={(value) => {
-                  // store the value, because !playing is not necessarrily up to date when a drag starts
-                  lastEmittedSliderValue = value;
-                  // keep displayed time up to date while dragging
-                  if (!playing) audioRuned.currentTime = sliderValue = value;
-                }}
+                    // store the value, because !playing is not necessarrily up to date when a drag starts
+                    lastEmittedSliderValue = value;
+                    // keep displayed time up to date while dragging
+                    if (!playing) audioRuned.currentTime = sliderValue = value;
+                  }}
                 onValueCommit={(value) => {
-                  // sometimes all value change events are fired before pausedViaDragging === true
-                  // then we need this
-                  audioRuned.currentTime = sliderValue = value;
-                }}
+                    // sometimes all value change events are fired before pausedViaDragging === true
+                    // then we need this
+                    audioRuned.currentTime = sliderValue = value;
+                  }}
                 {onDraggingChange}
                 max={audioRuned?.duration}
-                step={0.01} />
-          <span class="break-keep text-nowrap pr-2 flex flex-nowrap gap-1">
-            {#if !isNaN(audioRuned.duration)}
-              <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
-            {:else}
-              <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
-            {/if}
-        </span>
+                step={0.01}/>
+        <span class="break-keep text-nowrap pr-2 flex flex-nowrap gap-1">
+              {#if !isNaN(audioRuned.duration)}
+                <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
+              {:else}
+                <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
+              {/if}
+          </span>
       {/if}
-      <audio bind:this={audio} onplay={load}>
-      </audio>
+      {#key audioId}
+        <audio bind:this={audio} onplay={load}>
+        </audio>
+      {/key}
     </div>
-  {:else}
-    <div class="text-muted-foreground p-1">{$t`No audio`}</div>
   {/if}
 {/if}

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using LcmCrdt;
 
 namespace FwLiteShared.Auth;
@@ -17,7 +18,15 @@ public class AuthConfig
 
     public LexboxServer GetServerByAuthority(string authority)
     {
-        return LexboxServers.FirstOrDefault(s => s.Authority.Authority == authority) ?? throw new ArgumentException($"Server {authority} not found");
+        if (!TryGetServerByAuthority(authority, out var server))
+            throw new ArgumentException($"Server {authority} not found");
+        return server;
+    }
+
+    public bool TryGetServerByAuthority(string authority, [NotNullWhen(true)] out LexboxServer? server)
+    {
+        server = LexboxServers.FirstOrDefault(s => s.Authority.Authority == authority);
+        return server is not null;
     }
 
     public LexboxServer GetServer(ProjectData projectData)
@@ -25,6 +34,17 @@ public class AuthConfig
         var originDomain = projectData.OriginDomain;
         if (string.IsNullOrEmpty(originDomain)) throw new InvalidOperationException("No origin domain in project data");
         return GetServerByAuthority(new Uri(originDomain).Authority);
+    }
+
+    public bool TryGetServer(ProjectData projectData, [NotNullWhen(true)] out LexboxServer? server)
+    {
+        var originDomain = projectData.OriginDomain;
+        if (string.IsNullOrEmpty(originDomain))
+        {
+            server = null;
+            return false;
+        }
+        return TryGetServerByAuthority(new Uri(originDomain).Authority, out server);
     }
     public LexboxServer GetServer(string serverName)
     {

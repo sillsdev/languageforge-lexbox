@@ -13,10 +13,13 @@ for the english text 'Logout'. Then to make localization files run:
 ```bash
 pnpm run i18n:extract
 ```
-this will update the files under /src/locales/
-if you want you can then feed those files to an AI and it'll translate them for you.
+This will update the files under `/src/locales/`. If you want, you can then feed those files to an AI and it will translate them for you.
 
-#### advanced usage
+#### Adding a new language
+The `/src/locales/` folder contains one file per language, named using its language code (e.g. `es.json` for Spanish).
+You must update `frontend/viewer/lingui.config.ts` with the additional language code, then run `pnpm run i18n:extract` to generate the new locale file
+
+#### Advanced Usage
 
 for formatted values you can do this:
 ```sveltehtml
