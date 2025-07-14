@@ -17,9 +17,10 @@
   const projectServicesProvider = useProjectServicesProvider();
   const projectContext = initProjectContext();
 
-  const {code, type: projectType}: {
+  const {code, type: projectType, paratext = false}: {
     code: string; // Code for CRDTs, project-name for FWData
-    type: 'fwdata' | 'crdt'
+    type: 'fwdata' | 'crdt';
+    paratext?: boolean;
   } = $props();
 
 
@@ -60,7 +61,8 @@
       projectCode: code,
       projectType,
       server: projectScope.server,
-      projectData: projectScope.projectData
+      projectData: projectScope.projectData,
+      paratext
     });
     serviceLoaded = true;
   });
@@ -79,8 +81,7 @@
   }
 </script>
 
-<div data-paratext={paratext} class="contents">
-  <ProjectLoader readyToLoadProject={serviceLoaded} {loading} {projectName}>
-      <ProjectView isConnected onloaded={() => loading = false}></ProjectView>
-  </ProjectLoader>
-</div>
+<ProjectLoader readyToLoadProject={serviceLoaded} {loading} {projectName}>
+  <ProjectView onloaded={() => loading = false} data-paratext={paratext}></ProjectView>
+</ProjectLoader>
+

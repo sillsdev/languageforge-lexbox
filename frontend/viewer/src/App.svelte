@@ -80,6 +80,20 @@
           {/key}
         </Router>
       </Route>
+      <Route path="/paratext/project/:code/*" let:params>
+        <Router {url} basepath="/project/{params.code}">
+          {#key params.code}
+            <DotnetProjectView code={params.code} type="crdt" paratext />
+          {/key}
+        </Router>
+      </Route>
+      <Route path="/paratext/fwdata/:name/*" let:params>
+        <Router {url} basepath="/fwdata/{params.name}">
+          {#key params.name}
+            <DotnetProjectView code={params.name} type="fwdata" paratext />
+          {/key}
+        </Router>
+      </Route>
       <Route path="/testing/project-view/*">
         <Router {url} basepath="/testing/project-view">
           <TestProjectView />
