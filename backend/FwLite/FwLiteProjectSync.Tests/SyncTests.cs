@@ -81,8 +81,6 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             .For(e => e.Components).Exclude(c => c.Order)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
             .For(e => e.ComplexForms).Exclude(c => c.Order);
-        //todo enable this once we support publications in crdts
-        if (!Publication.SupportsCrdts) options = options.Excluding(e => e.PublishIn);
         return options;
     }
 

@@ -15,16 +15,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
-using MiniLcm.Validators;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
 public class CrdtMiniLcmApi(
     DataModel dataModel,
     CurrentProjectService projectService,
-    MiniLcmValidators validators,
     MiniLcmRepositoryFactory repoFactory,
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
@@ -120,25 +119,10 @@ public class CrdtMiniLcmApi(
         }
     }
 
-    public async IAsyncEnumerable<Publication> GetPublications()
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var publication in repo.Publications.AsAsyncEnumerable())
-        {
-            yield return publication;
-        }
-    }
-
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         return await repo.PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
-    }
-
-    public async Task<Publication?> GetPublication(Guid id)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.Publications.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -153,7 +137,7 @@ public class CrdtMiniLcmApi(
         var pos = await GetPartOfSpeech(id);
         if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
 
-        await AddChanges(pos.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(pos.Id));
         return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
     }
 
@@ -168,6 +152,21 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
+    public async IAsyncEnumerable<Publication> GetPublications()
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var publication in repo.Publications.AsAsyncEnumerable())
+        {
+            yield return publication;
+        }
+    }
+
+    public async Task<Publication?> GetPublication(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetPublication(id);
+    }
+
     public async Task<Publication> CreatePublication(Publication pub)
     {
         await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
@@ -177,15 +176,17 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        var pub = await GetPublication(id);
-        if(pub is null) throw new NullReferenceException($"unable to find publication with id {id}");
-        await AddChanges(pub.ToChanges(update.Patch));
-        return await GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var pub = await repo.GetPublication(id) ?? throw new NullReferenceException($"Unable to find publication with id {id}");
+        await AddChanges(update.Patch.ToChanges(pub.Id));
+        return await repo.GetPublication(id) ?? throw new NullReferenceException("Update resulted in missing publication (invalid patching to a new id?)");
     }
 
-    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await PublicationSync.Sync(before, after, api ?? this);
+        var updatedPublication = await GetPublication(after.Id) ?? throw new NullReferenceException("Unable to find publication with id " + after.Id);
+        return updatedPublication;
     }
 
     public async Task DeletePublication(Guid id)
@@ -193,17 +194,18 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<Publication>(id));
     }
 
-    public Task AddPublication(Guid entryId, Guid publicationId)
+    public async Task AddPublication(Guid entryId, Guid publicationId)
     {
-        throw new NotImplementedException();
+        var pub = await GetPublication(publicationId) ?? throw new NullReferenceException("Unable to find publication with id {id}");
+        await AddChange(new AddPublicationChange(entryId, pub));
     }
 
-    public Task RemovePublication(Guid entryId, Guid publicationId)
+    public async Task RemovePublication(Guid entryId, Guid publicationId)
     {
-        throw new NotImplementedException();
+        await AddChange(new RemovePublicationChange(entryId, publicationId));
     }
 
-    public async IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
+    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         await foreach (var semanticDomain in repo.SemanticDomains.AsAsyncEnumerable())
@@ -218,7 +220,7 @@ public class CrdtMiniLcmApi(
         return await repo.SemanticDomains.FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
-    public async Task<MiniLcm.Models.SemanticDomain> CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
+    public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         await AddChange(new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new NullReferenceException();
@@ -229,7 +231,7 @@ public class CrdtMiniLcmApi(
         var semDom = await GetSemanticDomain(id);
         if (semDom is null) throw new NullReferenceException($"unable to find semantic domain with id {id}");
 
-        await AddChanges(semDom.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(semDom.Id));
         return await GetSemanticDomain(id) ?? throw new NullReferenceException();
     }
 
@@ -414,12 +416,16 @@ public class CrdtMiniLcmApi(
         {
             yield return addComplexFormTypeChange;
         }
+        foreach (var addPublicationChange in entry.PublishIn.Select(c => new AddPublicationChange(entry.Id, c)))
+        {
+            yield return addPublicationChange;
+        }
         var senseOrder = 1;
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
                 .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
-                .OfType<MiniLcm.Models.SemanticDomain>()
+                .OfType<SemanticDomain>()
                 .ToList();
             sense.Order = senseOrder++;
             yield return new CreateSenseChange(sense, entry.Id);
@@ -444,6 +450,7 @@ public class CrdtMiniLcmApi(
                     return CreateSenseChanges(entry.Id, s, repo.SemanticDomains);
                 })
                 .ToArrayAsync(),
+            ..await ToPublications(entry.PublishIn).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
             ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
@@ -509,6 +516,29 @@ public class CrdtMiniLcmApi(
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
+
+        async IAsyncEnumerable<AddPublicationChange> ToPublications(IList<Publication> publications)
+        {
+            foreach (var publication in publications)
+            {
+                if (publication.Id == default)
+                {
+                    throw new InvalidOperationException("Publication must have an id");
+                }
+
+                if (!await repo.Publications.AnyAsyncEF(t => t.Id == publication.Id))
+                {
+                    throw new InvalidOperationException($"Publication {publication} does not exist");
+                }
+                yield return new AddPublicationChange(entry.Id, publication);
+            }
+        }
+    }
+
+    private async ValueTask<bool> IsEntryDeleted(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return !await repo.Entries.AnyAsyncEF(e => e.Id == id);
     }
 
     public async Task<Entry> UpdateEntry(Guid id,
@@ -518,7 +548,7 @@ public class CrdtMiniLcmApi(
         var entry = await repo.GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
-        await AddChanges(entry.ToChanges(update.Patch));
+        await AddChanges(update.Patch.ToChanges(entry.Id));
         var updatedEntry = await repo.GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
         return updatedEntry;
     }
@@ -576,7 +606,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var sense = await repo.GetSense(entryId, senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
-        await AddChanges([..sense.ToChanges(update.Patch)]);
+        await AddChanges(update.Patch.ToChanges(sense.Id));
         return await repo.GetSense(entryId, senseId) ?? throw new NullReferenceException("unable to find sense with id " + senseId);
     }
 
@@ -606,6 +636,11 @@ public class CrdtMiniLcmApi(
     public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
         await AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
+    }
+
+    public async Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
+    {
+        await AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,

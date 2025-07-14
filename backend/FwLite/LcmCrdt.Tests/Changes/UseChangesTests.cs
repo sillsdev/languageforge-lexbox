@@ -199,8 +199,22 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
 
-        var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new() { { "en", "Main" } });
+        var publication = new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } } };
+        var createPublicationChange = new CreatePublicationChange(publication.Id, publication.Name);
         yield return new ChangeWithDependencies(createPublicationChange);
+
+        var publication2 = new Publication { Id = Guid.NewGuid(), Name = { { "en", "Second" } } };
+        var createPublication2Change = new CreatePublicationChange(publication2.Id, publication2.Name);
+        yield return new ChangeWithDependencies(createPublication2Change);
+
+        var addPublicationChange = new AddPublicationChange(entry.Id, publication);
+        yield return new ChangeWithDependencies(addPublicationChange, [createPublicationChange, createEntryChange]);
+
+        var replacePublicationChange = new ReplacePublicationChange(entry.Id, publication2, publication.Id);
+        yield return new ChangeWithDependencies(replacePublicationChange, [createPublicationChange, addPublicationChange, createPublication2Change]);
+
+        var removePublicationChange = new RemovePublicationChange(entry.Id, publication2.Id);
+        yield return new ChangeWithDependencies(removePublicationChange, [replacePublicationChange]);
 
         yield return new ChangeWithDependencies(new CreateRemoteResourceChange(Guid.NewGuid(), "test-remote-id"));
         var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange(Guid.NewGuid());

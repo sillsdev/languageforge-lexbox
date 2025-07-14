@@ -12,7 +12,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using MiniLcm.Project;
-using MiniLcm.Validators;
 using Polly;
 using Polly.Simmy;
 using SIL.Harmony;

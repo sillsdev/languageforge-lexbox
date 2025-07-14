@@ -24,7 +24,4 @@ public class Publication : IPossibility
         };
     }
     public virtual MultiString Name { get; set; } = new();
-
-    // used as a marker for whether this type supports crdts, once it does remove this property and fix any code related to it
-    public static bool SupportsCrdts => false;
 }

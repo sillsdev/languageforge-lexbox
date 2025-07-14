@@ -141,6 +141,18 @@
       TypeDiscriminator: RemoveComplexFormTypeChange
     },
     {
+      DerivedType: AddPublicationChange,
+      TypeDiscriminator: AddPublicationChange
+    },
+    {
+      DerivedType: RemovePublicationChange,
+      TypeDiscriminator: RemovePublicationChange
+    },
+    {
+      DerivedType: ReplacePublicationChange,
+      TypeDiscriminator: ReplacePublicationChange
+    },
+    {
       DerivedType: SetComplexFormComponentChange,
       TypeDiscriminator: SetComplexFormComponentChange
     },
