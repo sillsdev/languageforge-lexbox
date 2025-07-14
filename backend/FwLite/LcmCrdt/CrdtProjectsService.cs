@@ -13,6 +13,7 @@ namespace LcmCrdt;
 
 public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache): IProjectProvider
 {
+    private Lock _ensureProjectDataCacheIsLoadedLock = new();
     public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
     IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
     {
@@ -30,14 +31,29 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return await serviceProvider.OpenCrdtProject(crdtProject);
     }
 
-    private async Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
+    private Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
     {
-        if (project.Data is not null) return project.Data;
-        await using var scope = provider.CreateAsyncScope();
-        var scopedServices = scope.ServiceProvider;
-        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
-        return await currentProjectService.SetupProjectContext(project);
+        if (project.Data is not null) return Task.FromResult(project.Data);
+        lock (_ensureProjectDataCacheIsLoadedLock)
+        {
+            var task = memoryCache.GetOrCreate(
+                           project.DbPath + "|EnsureDataLoaded",
+                           _ => Exec(),
+                           new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }
+                       )
+                       ?? throw new InvalidOperationException("Unable to get ensure project data cache is loaded");
+            return task;
+        }
+
+        async Task<ProjectData> Exec()
+        {
+            await using var scope = provider.CreateAsyncScope();
+            var scopedServices = scope.ServiceProvider;
+            var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+            return await currentProjectService.SetupProjectContext(project);
+        }
     }
+
 
     public async ValueTask EnsureProjectDataCacheIsLoaded()
     {
