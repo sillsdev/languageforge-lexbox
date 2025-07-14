@@ -21,6 +21,9 @@ declare module 'fw-lite-extension' {
   export type LocalProjectsEvent = {
     projects: IProjectModel[];
   };
+  export type OpenProjectEvent = {
+    projectCode: string;
+  };
 
   export interface IEntryQuery {
     readonly projectId: string;
@@ -42,6 +45,9 @@ declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'fwLiteExtension.localProjects': () => Promise<void>;
     'fwLiteExtension.openFWProjectSelector': () => Promise<{
+      success: boolean;
+    }>;
+    'fwLiteExtension.openProject': (projectCode: string) => Promise<{
       success: boolean;
     }>;
     'fwLiteExtension.openFWLite': (webviewId: string) => {

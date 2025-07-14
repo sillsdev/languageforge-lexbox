@@ -11,6 +11,7 @@ import type {
   IProjectModel,
   LaunchServerEvent,
   LocalProjectsEvent,
+  OpenProjectEvent,
 } from 'fw-lite-extension';
 import fwLiteProjectSelect from './fw-lite-project-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
@@ -84,6 +85,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const onLocalProjectsEmitter = papi.network.createNetworkEventEmitter<LocalProjectsEvent>(
     'fwLiteExtension.localProjects',
   );
+  const onOpenProjectEmitter = papi.network.createNetworkEventEmitter<OpenProjectEvent>(
+    'fwLiteExtension.openProject',
+  );
 
   const baseUrlHolder = { baseUrl: '' };
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
@@ -151,6 +155,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       onLocalProjectsEmitter.emit({ projects });
     },
   );
+  const openProjectCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.openProject',
+    async (projectCode: string) => {
+      logger.info(`Opening FieldWorks project: ${projectCode}`);
+      onOpenProjectEmitter.emit({ projectCode });
+      return { success: true };
+    },
+  );
 
   // Create WebViews or get an existing WebView if one already exists for this type
   // Note: here, we are using `existingId: '?'` to indicate we do not want to create a new WebView
@@ -170,10 +182,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await openFwLiteCommandPromise,
     await openFwProjectSelectorCommandPromise,
     await localProjectsCommandPromise,
+    await openProjectCommandPromise,
     await entryService,
     onFindEntryEmitter,
     onLaunchServerEmitter,
     onLocalProjectsEmitter,
+    onOpenProjectEmitter,
     () => fwLiteProcess?.kill(),
   );
 
