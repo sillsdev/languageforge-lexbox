@@ -7,6 +7,7 @@
       "%fieldworks_project_settings_label_description%": "The FieldWorks project to use with this project",
       "%fwLiteExtension_find_in_dictionary%": "Find in FieldWorks Lite",
       "%fwLiteExtension_list_projects_label%": "List all local FieldWorks projects",
+      "%fwLiteExtension_menu_column_label%": "FieldWorks Lite",
       "%fwLiteExtension_menu_label%": "Search for 'apple' in FieldWorks Lite",
       "%fwLiteExtension_open_label%": "Open FieldWorks Lite",
       "%fwlite_choose_new_entry_button%": "Choose New Entry",

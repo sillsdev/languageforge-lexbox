@@ -16,10 +16,17 @@
   "webViewMenus": {
     "platformScriptureEditor.react": {
       "topMenu": {
+        "columns": {
+          "fw-lite-extension.platformScriptureEditor": {
+            "isExtensible": true,
+            "label": "%fwLiteExtension_menu_column_label%",
+            "order": 2.5
+          }
+        },
         "groups": {
           "fw-lite-extension.editor": {
-            "column": "platformScriptureEditor.edit",
-            "order": 2
+            "column": "fw-lite-extension.platformScriptureEditor",
+            "order": 1
           }
         },
         "items": [
