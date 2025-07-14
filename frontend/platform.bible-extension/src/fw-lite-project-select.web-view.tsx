@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 globalThis.webViewComponent = function fwLiteProjectSelect() {
   const [localProjects, setLocalProjects] = useState<IProjectModel[] | undefined>();
-  const [selectedProjectName, setSelectedProjectName] = useState('');
+  const [selectedProjectCode, setSelectedProjectCode] = useState('');
 
   useEvent<LocalProjectsEvent>(
     papi.network.getNetworkEvent('fwLiteExtension.localProjects'),
@@ -24,20 +24,30 @@ globalThis.webViewComponent = function fwLiteProjectSelect() {
             ? 'Loading projects...'
             : !localProjects.length
               ? 'No projects found'
-              : !selectedProjectName
+              : !selectedProjectCode
                 ? 'Select a project'
-                : `Selected: ${selectedProjectName}`
+                : `Selected: ${selectedProjectCode}`
         }
         commandEmptyMessage="No projects found"
         isDisabled={!localProjects?.length}
-        onChange={(projName) => setSelectedProjectName(projName)}
-        options={localProjects?.map((p) => p.name)}
+        onChange={setSelectedProjectCode}
+        options={localProjects?.map((p) => p.code)}
         textPlaceholder="Select a project"
       />
-      {!!selectedProjectName && (
-        <button onClick={() => setSelectedProjectName('')} type="button">
-          Clear selection
-        </button>
+      {!!selectedProjectCode && (
+        <>
+          <button
+            onClick={() =>
+              papi.commands.sendCommand('fwLiteExtension.openProject', selectedProjectCode)
+            }
+            type="button"
+          >
+            Open project
+          </button>
+          <button onClick={() => setSelectedProjectCode('')} type="button">
+            Clear selection
+          </button>
+        </>
       )}
     </div>
   );
