@@ -6,6 +6,7 @@
   import {formatDigitalDuration} from '../ui/format/format-duration';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {Label} from '../ui/label';
+  import {convertToWav, loadFFmpeg} from './ffmpeg';
 
   type Props = {
     audio: Blob;
@@ -21,6 +22,10 @@
   const mb = $derived((audio.size / 1024 / 1024).toFixed(2));
   const formatedDuration = $derived(duration ? formatDigitalDuration({ seconds: duration }) : 'unknown');
 
+  void loadFFmpeg().then(async (ffmpeg) => {
+    if (!audio) return;
+    audio = await convertToWav(ffmpeg, audio);
+  });
 </script>
 
 <div class="flex flex-col gap-4 items-center justify-center">
@@ -37,9 +42,11 @@
       <span class="col-span-4">{$t`${audio.type}`}</span>
     </DevContent>
   </span>
-  <!-- contain-inline-size prevents wavesurfer from freaking out inside a grid -->
+  <!-- contain-size prevents wavesurfer from freaking out inside a grid
+  contain-inline-size would improve the height reactivity of the waveform, but
+  results in the waveform sometimes change its height unexpectedly -->
   <!-- pb-8 ensures the timeline is in the bounds of the container -->
-  <div class="w-full grow max-h-32 pb-3 contain-inline-size border-y">
+  <div class="w-full grow max-h-32 pb-3 contain-size border-y">
     <Waveform {audio} bind:playing bind:audioApi bind:duration showTimeline autoplay class="size-full" />
   </div>
   <div class="flex gap-2">

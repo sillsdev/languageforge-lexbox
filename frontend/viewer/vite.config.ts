@@ -58,9 +58,6 @@ export default defineConfig(({ mode, command }) => {
       minifyCss: false
     })
     ],
-    optimizeDeps: {
-      exclude: ['@ffmpeg/ffmpeg'],
-    },
     server: {
       origin: 'http://localhost:5173',
       host: true,
