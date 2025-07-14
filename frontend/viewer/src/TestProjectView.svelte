@@ -8,5 +8,5 @@ let loading = $state(true);
 </script>
 
 <ProjectLoader {projectName} {loading}>
-  <ProjectView isConnected onloaded={() => loading = false}></ProjectView>
+  <ProjectView onloaded={() => loading = false}></ProjectView>
 </ProjectLoader>
