@@ -6,6 +6,7 @@ using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Resource;
 
 namespace LcmCrdt.Tests.Changes;
 
@@ -200,6 +201,13 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
 
         var createPublicationChange = new CreatePublicationChange(Guid.NewGuid(), new() { { "en", "Main" } });
         yield return new ChangeWithDependencies(createPublicationChange);
+
+        yield return new ChangeWithDependencies(new CreateRemoteResourceChange(Guid.NewGuid(), "test-remote-id"));
+        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange(Guid.NewGuid());
+        yield return new ChangeWithDependencies(createRemoteResourcePendingUploadChange);
+        yield return new ChangeWithDependencies(
+            new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
+            [createRemoteResourcePendingUploadChange]);
     }
 
     private static bool IsCreateChange(IChange obj)

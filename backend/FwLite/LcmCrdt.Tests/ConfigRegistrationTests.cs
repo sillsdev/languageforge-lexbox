@@ -2,6 +2,7 @@
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Resource;
 
 namespace LcmCrdt.Tests;
 
@@ -12,7 +13,8 @@ public class ConfigRegistrationTests
     private readonly HashSet<Type> _excludedChangeTypes =
     [
         typeof(ReplaceComplexFormTypeChange), //not currently in use
-        typeof(JsonPatchChange<ComplexFormComponent>) //not supported
+        typeof(JsonPatchChange<ComplexFormComponent>), //not supported
+        typeof(JsonPatchChange<RemoteResource>), //not supported
     ];
 
     private readonly CrdtConfig _config;
