@@ -14,6 +14,7 @@
   import {mockFwLiteConfig} from '$lib/in-memory-api-service';
   import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 
+  let connecting = true;
   let loading = true;
 
   export let projectName: string;
@@ -39,7 +40,7 @@
       signal: abortController.signal,
     });
 
-    loading = false;
+    connecting = false;
 
     return () => {
       abortController.abort();
@@ -60,7 +61,7 @@
 </svelte:element>
 
 <div class="app contents" class:dark={mode.current === 'dark'} data-theme={theme.current}>
-  <ProjectLoader readyToLoadProject={!loading} {projectName} let:onProjectLoaded>
-    <ProjectView isConnected showHomeButton={false} {about}  onloaded={onProjectLoaded} />
+  <ProjectLoader readyToLoadProject={!connecting} {loading} {projectName}>
+    <ProjectView isConnected showHomeButton={false} {about}  onloaded={() => loading = false} />
   </ProjectLoader>
 </div>

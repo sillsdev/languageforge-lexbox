@@ -27,6 +27,7 @@
   let projectName = $state<string>(code);
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
+  let loading = $state(true);
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
@@ -78,6 +79,8 @@
   }
 </script>
 
-<ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
-  <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>
-</ProjectLoader>
+<div data-paratext={paratext} class="contents">
+  <ProjectLoader readyToLoadProject={serviceLoaded} {loading} {projectName}>
+      <ProjectView isConnected onloaded={() => loading = false}></ProjectView>
+  </ProjectLoader>
+</div>
