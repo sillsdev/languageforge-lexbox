@@ -63,9 +63,13 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing project scope {ProjectName}", projectData.Name);
             return Task.CompletedTask;
-        }), serviceScope, this, projectData.Name, miniLcm, server,
+        }), serviceScope, this, projectData.Name, miniLcm,
                 ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
-                ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices));
+                ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices))
+        {
+            ProjectData = projectData,
+            Server = server
+        };
         _projectScopes.TryAdd(scope, scope);
         return scope;
     }
@@ -86,7 +90,7 @@ public class ProjectServicesProvider(
         {
             logger.LogInformation("Disposing fwdata project scope {ProjectName}", projectName);
             return Task.CompletedTask;
-        }), serviceScope, this, projectName, miniLcm, null, null, null);
+        }), serviceScope, this, projectName, miniLcm, null, null);
         _projectScopes.TryAdd(scope, scope);
         return scope;
     }
@@ -99,12 +103,10 @@ public class ProjectScope
         ProjectServicesProvider projectServicesProvider,
         string projectName,
         MiniLcmJsInvokable miniLcm,
-        LexboxServer? server,
         HistoryServiceJsInvokable? historyService,
         SyncServiceJsInvokable? syncService)
     {
         ProjectName = projectName;
-        Server = server;
         MiniLcm = DotNetObjectReference.Create(miniLcm);
         HistoryService = historyService is null ? null : DotNetObjectReference.Create(historyService);
         SyncService = syncService is null ? null : DotNetObjectReference.Create(syncService);
@@ -133,6 +135,7 @@ public class ProjectScope
     public DotNetObjectReference<IAsyncDisposable>? Cleanup { get; set; }
     public string ProjectName { get; set; }
     public LexboxServer? Server { get; set; }
+    public ProjectData? ProjectData { get; init; }
     public DotNetObjectReference<MiniLcmJsInvokable> MiniLcm { get; set; }
     public DotNetObjectReference<HistoryServiceJsInvokable>? HistoryService { get; set; }
     public DotNetObjectReference<SyncServiceJsInvokable>? SyncService { get; set; }

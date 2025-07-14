@@ -191,8 +191,8 @@ public class LexboxProjectService : IDisposable
 
     public async Task ListenForProjectChanges(ProjectData projectData, CancellationToken stoppingToken)
     {
-        if (string.IsNullOrEmpty(projectData.OriginDomain)) return;
-        var lexboxConnection = await StartLexboxProjectChangeListener(options.Value.GetServer(projectData), stoppingToken);
+        if (!options.Value.TryGetServer(projectData, out var server)) return;
+        var lexboxConnection = await StartLexboxProjectChangeListener(server, stoppingToken);
         if (lexboxConnection is null) return;
         await lexboxConnection.SendAsync("ListenForProjectChanges", projectData.Id, stoppingToken);
     }
