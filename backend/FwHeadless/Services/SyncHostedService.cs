@@ -6,6 +6,7 @@ using FwDataMiniLcmBridge.Api;
 using FwHeadless.Media;
 using FwLiteProjectSync;
 using LcmCrdt;
+using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
 using LexCore.Sync;
 using LexCore.Utils;
@@ -164,6 +165,7 @@ public class SyncWorker(
         {
             await crdtSyncService.SyncHarmonyProject();
         }
+        await mediaFileService.SyncMediaFiles(projectId, services.GetRequiredService<LcmMediaService>());
 
         var result = await syncService.Sync(miniLcmApi, fwdataApi);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}",

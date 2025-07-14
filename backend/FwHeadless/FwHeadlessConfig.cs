@@ -64,6 +64,10 @@ public class FwHeadlessConfig
         return new FwDataProject(FwDataSubFolder, GetProjectFolder(projectCode, projectId));
     }
 
+    public string GetFwDataFolder(Guid projectId)
+    {
+        return GetFwDataFolder(GetProjectFolder(projectId));
+    }
     public string GetFwDataFolder(string projectRootFolder)
     {
         return Path.Join(projectRootFolder, FwDataSubFolder);
