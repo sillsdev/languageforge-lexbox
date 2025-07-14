@@ -24,13 +24,24 @@ public static class EntrySync
             changes += await SyncComplexFormComponents(afterEntry, beforeEntry.Components, afterEntry.Components, api);
             changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
             changes += await Sync(afterEntry.Id, beforeEntry.ComplexFormTypes, afterEntry.ComplexFormTypes, api);
-            //todo sync publications
+            changes += await SyncPublications(afterEntry.Id, beforeEntry.PublishIn, afterEntry.PublishIn, api);
             return changes + (updateObjectInput is null ? 0 : 1);
         }
         catch (Exception e)
         {
             throw new SyncObjectException($"Failed to sync entry {afterEntry}", e);
         }
+    }
+
+    private static async Task<int> SyncPublications(Guid entryId,
+        IList<Publication> beforePublications,
+        IList<Publication> afterPublications,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(
+            beforePublications,
+            afterPublications,
+            new PublicationsDiffApi(api, entryId));
     }
 
     private static async Task<int> Sync(Guid entryId,
@@ -125,6 +136,26 @@ public static class EntrySync
         }
 
         public override Task<int> Replace(ComplexFormType before, ComplexFormType after)
+        {
+            return Task.FromResult(0);
+        }
+    }
+
+    private class PublicationsDiffApi(IMiniLcmApi api, Guid entryId) : ObjectWithIdCollectionDiffApi<Publication>
+    {
+        public override async Task<int> Add(Publication afterPub)
+        {
+            await api.AddPublication(entryId, afterPub.Id);
+            return 1;
+        }
+
+        public override async Task<int> Remove(Publication beforePub)
+        {
+            await api.RemovePublication(entryId, beforePub.Id);
+            return 1;
+        }
+
+        public override Task<int> Replace(Publication beforePub, Publication afterPub)
         {
             return Task.FromResult(0);
         }
