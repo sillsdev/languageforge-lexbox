@@ -14,7 +14,7 @@ namespace LcmCrdt;
 
 public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache): IProjectProvider
 {
-    private Lock _ensureProjectDataCacheIsLoadedLock = new();
+    private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
     public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
     IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
     {
@@ -35,7 +35,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     private Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
     {
         if (project.Data is not null) return Task.FromResult(project.Data);
-        lock (_ensureProjectDataCacheIsLoadedLock)
+        lock (EnsureProjectDataCacheIsLoadedLock)
         {
             var task = memoryCache.GetOrCreate(
                            project.DbPath + "|EnsureDataLoaded",
