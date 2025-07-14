@@ -215,7 +215,8 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(project);
-        Directory.Delete(serviceScope.ServiceProvider.GetRequiredService<MediaServerClient>().ProjectResourceCachePath, true);
+        var projectResourceCachePath = serviceScope.ServiceProvider.GetRequiredService<MediaServerClient>().ProjectResourceCachePath;
+        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await db.Database.EnsureDeletedAsync();
     }
