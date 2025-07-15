@@ -5,6 +5,8 @@
       "%dictionary_project_settings_label%": "FieldWorks Lite Settings",
       "%fieldworks_project_settings_label%": "FieldWorks Project",
       "%fieldworks_project_settings_label_description%": "The FieldWorks project to use with this project",
+      "%fwLiteExtension_menu_browseDictionary%": "Browse FieldWorks dictionary",
+      "%fwLiteExtension_selectDictionary_title%": "Select FieldWorks dictionary",
       "%fwLiteExtension_find_in_dictionary%": "Find in FieldWorks Lite",
       "%fwLiteExtension_list_projects_label%": "List all local FieldWorks projects",
       "%fwLiteExtension_menu_column_label%": "FieldWorks Lite",

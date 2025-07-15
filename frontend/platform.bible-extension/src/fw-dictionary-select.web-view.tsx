@@ -3,7 +3,7 @@ import type { IProjectModel, LocalProjectsEvent } from 'fw-lite-extension';
 import { ComboBox, useEvent } from 'platform-bible-react';
 import { useState, useEffect } from 'react';
 
-globalThis.webViewComponent = function fwLiteProjectSelect() {
+globalThis.webViewComponent = function fwDictionarySelect() {
   const [localProjects, setLocalProjects] = useState<IProjectModel[] | undefined>();
   const [selectedProjectCode, setSelectedProjectCode] = useState('');
 
