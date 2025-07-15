@@ -6,15 +6,6 @@ WORKDIR /app
 RUN npm install -g corepack@latest
 RUN corepack enable && corepack prepare pnpm@10.12.3 --activate
 
-FROM builder-base AS builder-viewer
-COPY pnpm-lock.yaml pnpm-workspace.yaml /app/
-WORKDIR /app/viewer
-COPY viewer/package.json viewer/.npmrc /app/viewer/
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
-
-COPY ./viewer /app/viewer
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
-
 FROM builder-base AS builder
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
@@ -24,7 +15,6 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
-COPY --from=builder-viewer /app/viewer/dist-web-component /app/viewer/dist-web-component
 ARG APP_VERSION
 ENV VITE_APP_VERSION=$APP_VERSION
 

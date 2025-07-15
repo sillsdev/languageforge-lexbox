@@ -71,7 +71,7 @@ tasks:
     cmd: pnpm {{.CLI_ARGS}}
 
   build-viewer-app:
-    deps: [viewer:build-app]
+    deps: [viewer:build]
     label: vite
   watch-viewer-app:
     deps: [viewer:watch-app]

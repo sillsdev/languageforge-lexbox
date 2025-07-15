@@ -4,10 +4,10 @@ tasks:
   app:
     interactive: true
     deps: [ install ]
-    cmd: pnpm run dev-app
+    cmd: pnpm run dev
   run-app:
     interactive: true
-    cmd: pnpm run dev-app
+    cmd: pnpm run dev
   storybook:
     interactive: true
     cmd: pnpm storybook {{.CLI_ARGS}}
@@ -23,12 +23,12 @@ tasks:
     cmds:
       - pnpm run --filter viewer check
       - pnpm run --filter viewer lint
-  build-app:
+  build:
     deps: [ install ]
-    cmd: pnpm run build-app
-  watch-app:
+    cmd: pnpm run build
+  watch:
     deps: [ install ]
-    cmd: pnpm run build-app --watch
+    cmd: pnpm run build --watch
 
   install:
     method: checksum
@@ -48,7 +48,7 @@ tasks:
     desc: 'runs playwright tests against already running server'
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
   playwright-test-standalone:
-    desc: 'runs playwright tests and runs dev-app automatically, run ui mode by calling with -- --ui or use --update-snapshots'
+    desc: 'runs playwright tests and runs dev automatically, run ui mode by calling with -- --ui or use --update-snapshots'
     env:
       AUTO_START_SERVER: true
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
