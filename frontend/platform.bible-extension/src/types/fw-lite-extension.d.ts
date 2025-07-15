@@ -15,8 +15,8 @@ declare module 'fw-lite-extension' {
     baseUrl: string;
   };
 
-  export type LocalProjectsEvent = {
-    projects: IProjectModel[];
+  export type FwDictionariesEvent = {
+    dictionaries: IProjectModel[];
   };
   export type OpenProjectEvent = {
     projectCode: string;
@@ -43,10 +43,13 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<{
       success: boolean;
     }>;
-    'fwLiteExtension.localProjects': () => Promise<void>;
-    'fwLiteExtension.openFwDictionarySelector': () => Promise<{
+    'fwLiteExtension.selectDictionary': (
+      projectId: string,
+      dictionaryCode: string,
+    ) => Promise<{
       success: boolean;
     }>;
+    'fwLiteExtension.fwDictionaries': () => Promise<void>;
     'fwLiteExtension.openProject': (projectCode: string) => Promise<{
       success: boolean;
     }>;
