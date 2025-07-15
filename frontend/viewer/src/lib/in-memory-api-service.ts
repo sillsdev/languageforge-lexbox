@@ -26,7 +26,6 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
 import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
-import type { IReadFileResponseJs } from './dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 
 function pickWs(ws: string, defaultWs: string): string {
