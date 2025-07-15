@@ -21,7 +21,7 @@
 
   let recorderContainerElem = $state<HTMLElement>();
   let recording = $state(false);
-  let walkieTalkieMode = $state<boolean>(null!);
+  let walkieTalkieMode = $state<boolean>(false);
   let duration = $state<number>();
   let fileInputElement = $state<HTMLInputElement>();
 
@@ -42,7 +42,7 @@
       target.value = '';
       throw error;
     }
-    onFileSelected?.(file);
+    onFileSelected(file);
   }
 
   const recordingMode = $derived(recording || digitalDuration);

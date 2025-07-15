@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {Snippet} from 'svelte';
+  import {onDestroy, type Snippet} from 'svelte';
   import {Button, type ButtonProps} from '$lib/components/ui/button';
   import {mergeProps} from 'bits-ui';
   import {useRecorderTrigger} from './recorder.svelte';
@@ -45,6 +45,12 @@
     }
   }
 
+  onDestroy(() => {
+    if (walkedTalkieTimeout) {
+      clearTimeout(walkedTalkieTimeout);
+    }
+  })
+
   function onTriggerUp() {
     if (recorderApi.recording) {
       if (releaseToStop)
@@ -75,12 +81,14 @@
 
   function onKeyDown(event: KeyboardEvent) {
     if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+      event.preventDefault();
       void onTriggerDown();
     }
   }
 
   function onKeyUp(event: KeyboardEvent) {
     if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+      event.preventDefault();
       onTriggerUp();
     }
   }

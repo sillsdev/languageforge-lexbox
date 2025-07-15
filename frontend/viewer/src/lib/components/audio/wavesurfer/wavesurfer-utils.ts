@@ -7,8 +7,8 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.esm.js';
 type AudioUrl = string;
 export type WaveSurferAudio = AudioUrl | Blob;
 
-function getPrimaryColor() {
-  return `hsl(${getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()})`;
+function getPrimaryColor(element: HTMLElement | null = null): string {
+  return `hsl(${getComputedStyle(element ?? document.documentElement).getPropertyValue('--primary').trim()})`;
 };
 
 function darkenColor(color: string): string {
@@ -16,7 +16,7 @@ function darkenColor(color: string): string {
 }
 
 function setThemeColors(wavesurfer: WaveSurfer) {
-  const primaryColor = getPrimaryColor();
+  const primaryColor = getPrimaryColor(typeof wavesurfer.options.container === 'string' ? null : wavesurfer.options.container);
   const darkPrimaryColor = darkenColor(primaryColor);
 
   wavesurfer.setOptions({
