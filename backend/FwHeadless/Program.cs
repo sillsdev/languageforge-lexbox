@@ -221,6 +221,9 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
     catch (Exception e)
     {
         activity?.AddException(e);
-        throw;
+        var error = e.ToString();
+        // TODO: Consider only returning exception error for certain users (admins, devs, managers)?
+        // Note 200 OK returned here; SyncController will turn that into a 500 error with the exception details in it
+        return TypedResults.Ok(new SyncJobResult(SyncJobResultEnum.CrdtSyncFailed, error));
     }
 }
