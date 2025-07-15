@@ -111,14 +111,30 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.findEntry',
     (entry: string) => {
       onFindEntryEmitter.emit({ entry });
-      return {
-        success: true,
-      };
+      return { success: true };
     },
   );
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
-    () => {
+    (webviewId: string) => {
+      if (webviewId) {
+        papi.webViews.getOpenWebViewDefinition(webviewId).then((webViewDef) => {
+          const projectId = webViewDef?.projectId;
+          if (projectId) {
+            logger.info(
+              `Opening FieldWorks Lite from web view '${webviewId}' (Platform.Bible project '${projectId}')`,
+            );
+            papi.projectDataProviders.get('platform.base', projectId).then((pdp) => {
+              pdp.getSetting('fw-lite-extension.fwProject').then((setting) => {
+                logger.info(
+                  `In Platform > Settings > Project Settings, the FieldWorks project is: ${setting}`,
+                );
+              });
+            });
+          }
+        });
+      }
+
       void papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
       return { success: true };
     },
@@ -127,9 +143,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.simpleFind',
     () => {
       onFindEntryEmitter.emit({ entry: 'apple' });
-      return {
-        success: true,
-      };
+      return { success: true };
     },
   );
 
