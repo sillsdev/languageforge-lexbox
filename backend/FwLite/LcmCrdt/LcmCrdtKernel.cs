@@ -81,6 +81,7 @@ public static class LcmCrdtKernel
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
+        services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
         return services;
     }
 

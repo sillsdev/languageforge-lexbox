@@ -4,6 +4,7 @@ using Refit;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Resource;
+using LcmCrdt.RemoteSync;
 
 namespace LcmCrdt.MediaServer;
 
@@ -11,7 +12,7 @@ public class LcmMediaService(
     ResourceService resourceService,
     CurrentProjectService currentProjectService,
     IOptions<CrdtConfig> options,
-    RefitSettings refitSettings,
+    IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider
 ) : IRemoteResourceService
 {
@@ -68,7 +69,8 @@ public class LcmMediaService(
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)
     {
         var httpClient = await httpClientProvider.GetHttpClient();
-        var response = await RestService.For<IMediaServerClient>(httpClient, refitSettings).DownloadFile(fileId);
+        var mediaClient = refitFactory.Service<IMediaServerClient>(httpClient);
+        var response = await mediaClient.DownloadFile(fileId);
         return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName);
     }
 
