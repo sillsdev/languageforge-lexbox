@@ -8,9 +8,9 @@ import type {
 } from '@papi/core';
 import type {
   FindEntryEvent,
+  FwDictionariesEvent,
   IProjectModel,
   LaunchServerEvent,
-  LocalProjectsEvent,
   OpenFwLiteEvent,
   OpenProjectEvent,
 } from 'fw-lite-extension';
@@ -22,6 +22,10 @@ import { EntryService } from './entry-service';
 const reactWebViewType = 'fw-lite-extension.react';
 const dictionarySelectWebViewType = 'fw-dictionary-select.react';
 
+interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
+  projectId?: string;
+}
+
 const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 
 /**
@@ -30,7 +34,7 @@ const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 const reactWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: OpenWebViewOptions & { projectId?: string },
+    options: OpenWebViewOptionsWithProjectId,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== reactWebViewType)
       throw new Error(
@@ -50,7 +54,7 @@ const reactWebViewProvider: IWebViewProvider = {
 const dictionarySelectWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: OpenWebViewOptions & { projectId?: string },
+    options: OpenWebViewOptionsWithProjectId,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== dictionarySelectWebViewType)
       throw new Error(
@@ -88,8 +92,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
     'fwLiteExtension.launchServer',
   );
-  const onLocalProjectsEmitter = papi.network.createNetworkEventEmitter<LocalProjectsEvent>(
-    'fwLiteExtension.localProjects',
+  const onFwDictionariesEmitter = papi.network.createNetworkEventEmitter<FwDictionariesEvent>(
+    'fwLiteExtension.fwDictionaries',
   );
   const onOpenProjectEmitter = papi.network.createNetworkEventEmitter<OpenProjectEvent>(
     'fwLiteExtension.openProject',
@@ -136,17 +140,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const pdp = await papi.projectDataProviders.get('platform.base', projectId);
       const name = (await pdp.getSetting('platform.name')) ?? projectId;
       const dictionary = await pdp.getSetting('fw-lite-extension.fwProject');
+      const options: OpenWebViewOptionsWithProjectId = { existingId: '?', projectId };
       if (dictionary) {
         logger.info(`Project '${name}' is using FieldWorks dictionary '${dictionary}'`);
         urlHolder.dictionaryUrl = `${urlHolder.baseUrl}/paratext/fwdata/${dictionary}`;
-        papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
+        papi.webViews.openWebView(reactWebViewType, undefined, options);
       } else {
         logger.warn(`FieldWorks dictionary not selected for project '${name}'`);
-        await papi.webViews.openWebView(
-          dictionarySelectWebViewType,
-          { type: 'float' },
-          { existingId: '?' },
-        );
+        await papi.webViews.openWebView(dictionarySelectWebViewType, { type: 'float' }, options);
       }
       return { success: true };
     },
@@ -191,34 +192,23 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const openFwDictionarySelectorCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.openFwDictionarySelector',
-    async () => {
-      logger.info('Opening FieldWorks dictionary selector');
-      await papi.webViews.openWebView(
-        dictionarySelectWebViewType,
-        { type: 'float' },
-        { existingId: '?' },
-      );
+  const selectFwDictionaryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.selectDictionary',
+    async (projectId: string, dictionaryCode: string) => {
+      logger.info(`Selecting FieldWorks dictionary '${dictionaryCode}' for project '${projectId}'`);
+      const pdp = await papi.projectDataProviders.get('platform.base', projectId);
+      await pdp.setSetting('fw-lite-extension.fwProject', dictionaryCode);
       return { success: true };
     },
   );
-  const localProjectsCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.localProjects',
+  const fwDictionariesCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.fwDictionaries',
     async () => {
-      logger.info('Fetching local FieldWorks projects');
+      logger.info('Fetching local FieldWorks dictionaries');
       const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
       const jsonText = await (await response.blob()).text();
-      const projects = JSON.parse(jsonText) as IProjectModel[];
-      onLocalProjectsEmitter.emit({ projects });
-    },
-  );
-  const openProjectCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.openProject',
-    async (projectCode: string) => {
-      logger.info(`Opening FieldWorks project: ${projectCode}`);
-      onOpenProjectEmitter.emit({ projectCode });
-      return { success: true };
+      const dictionaries = JSON.parse(jsonText) as IProjectModel[];
+      onFwDictionariesEmitter.emit({ dictionaries });
     },
   );
 
@@ -241,16 +231,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,
-    await openFwDictionarySelectorCommandPromise,
-    await localProjectsCommandPromise,
-    await openProjectCommandPromise,
+    await selectFwDictionaryCommandPromise,
+    await fwDictionariesCommandPromise,
     // Services
     await entryService,
     // Event emitters
     onOpenFwLiteEmitter,
     onFindEntryEmitter,
     onLaunchServerEmitter,
-    onLocalProjectsEmitter,
+    onFwDictionariesEmitter,
     onOpenProjectEmitter,
     // Other cleanup
     () => fwLiteProcess?.kill(),
