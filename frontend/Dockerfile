@@ -9,7 +9,6 @@ RUN corepack enable && corepack prepare pnpm@10.12.3 --activate
 FROM builder-base AS builder
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
-COPY viewer/package.json /app/viewer/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
 COPY . /app/
