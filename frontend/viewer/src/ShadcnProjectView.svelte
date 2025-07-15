@@ -60,17 +60,20 @@
   <Sidebar.Provider bind:open>
     <ProjectSidebar/>
     <Sidebar.Inset class="flex-1 relative">
-      <Route path="browse">
+      <Route path="/browse">
         <BrowseView/>
       </Route>
-      <Route path="tasks">
+      <Route path="/tasks">
         <TasksView/>
       </Route>
-      <Route path="activity">
+      <Route path="/activity">
         <ActivityView />
       </Route>
-      <Route default>
+      <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
+      </Route>
+      <Route path="/*">
+        Unknown route
       </Route>
     </Sidebar.Inset>
   </Sidebar.Provider>
