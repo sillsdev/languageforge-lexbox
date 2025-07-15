@@ -10,6 +10,47 @@ namespace Testing.FwHeadless;
 [Trait("Category", "Integration")]
 public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
+
+    private async Task AddWritingSystemCommit(Guid projectId, string writingSystemId = "en")
+    {
+        var wsGuid = Guid.NewGuid();
+        var change = JsonSerializer.Deserialize<ServerJsonChange>(
+            $$"""
+                {
+                    "$type": "CreateWritingSystemChange",
+                    "WsId": "{{writingSystemId}}",
+                    "Name": "TestWritingSystem",
+                    "Abbreviation": "{{writingSystemId}}",
+                    "Type": 1,
+                    "Order": 1,
+                    "EntityId": "{{wsGuid}}"
+                }
+                """
+        ) ?? throw new JsonException("unable to deserialize");
+
+        ServerCommit[] serverCommits =
+        [
+            new ServerCommit(Guid.NewGuid())
+            {
+                ChangeEntities =
+                [
+                    new ChangeEntity<ServerJsonChange>()
+                    {
+                        Change = change,
+                        Index = 0,
+                        CommitId = Guid.NewGuid(),
+                        EntityId = wsGuid
+                    }
+                ],
+                ClientId = Guid.NewGuid(),
+                ProjectId = projectId,
+                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 0)
+            }
+        ];
+        var result = await HttpClient.PostAsJsonAsync($"api/crdt/{projectId}/add", serverCommits);
+        result.EnsureSuccessStatusCode();
+    }
+
     private async Task AddTestCommit(Guid projectId, string writingSystemId = "en")
     {
         var entryId = Guid.NewGuid();
@@ -45,7 +86,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
                 ],
                 ClientId = Guid.NewGuid(),
                 ProjectId = projectId,
-                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 0)
+                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 1)
             }
         ];
         var result = await HttpClient.PostAsJsonAsync($"api/crdt/{projectId}/add", serverCommits);
@@ -99,15 +140,29 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
     {
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        var needCleanup = false;
 
-        await AddTestCommit(_projectId, writingSystemId: "fr"); // Should not exist in the project
-        await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-        var result = await FwHeadlessTestHelpers.AwaitSyncFinishedExpectingFailure(HttpClient, _projectId);
-        result.Should().NotBeNull();
-        result.Detail.Should().NotBeNullOrEmpty();
-        Console.WriteLine(result.Detail);
-        result.Status.Should().Be(500);
-        result.Detail.Should().StartWith("Failed to create entry");
-        // TODO: Any way to clean up the project now? I.e., removing the invalid commit so sync can start succeeding again?
+        try
+        {
+            await AddTestCommit(_projectId, writingSystemId: "fr"); // Should not exist in the project
+            needCleanup = true;
+            await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
+            var result = await FwHeadlessTestHelpers.AwaitSyncFinishedExpectingFailure(HttpClient, _projectId);
+            result.Should().NotBeNull();
+            result.Detail.Should().NotBeNullOrEmpty();
+            Console.WriteLine(result.Detail);
+            result.Status.Should().Be(500);
+            result.Detail.Should().StartWith("Failed to create entry");
+        }
+        finally
+        {
+            if (needCleanup)
+            {
+                await AddWritingSystemCommit(_projectId, writingSystemId: "fr");
+                // Now the entry change should be valid and we should be able to sync the project again
+                await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
+                await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+            }
+        }
     }
 }
