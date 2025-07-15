@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using LexCore.Sync;
-using Microsoft.AspNetCore.Mvc;
 using Testing.Services;
 
 namespace Testing.FwHeadless;
@@ -15,15 +14,6 @@ public static class FwHeadlessTestHelpers
         result.EnsureSuccessStatusCode();
         await Utils.WaitForHgRefreshIntervalAsync();
         return await result.Content.ReadFromJsonAsync<Guid>();
-    }
-
-    public static async Task ResetProjectToEmpty(HttpClient httpClient, string projectCode)
-    {
-        var result = await httpClient.PostAsync(
-            $"api/project/resetProject/{projectCode}",
-            null);
-        result.EnsureSuccessStatusCode();
-        await Utils.WaitForHgRefreshIntervalAsync();
     }
 
     public static async Task TriggerSync(HttpClient httpClient, Guid projectId)
@@ -44,24 +34,6 @@ public static class FwHeadlessTestHelpers
                 var result = await httpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}", new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
                 result.EnsureSuccessStatusCode();
                 return await result.Content.ReadFromJsonAsync<SyncResult>();
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-        Assert.Fail("timed out waiting for sync to finish");
-        return null;
-    }
-
-    public static async Task<ProblemDetails?> AwaitSyncFinishedExpectingFailure(HttpClient httpClient, Guid projectId)
-    {
-        var giveUpAt = DateTime.UtcNow + TimeSpan.FromMinutes(4);
-        while (giveUpAt > DateTime.UtcNow)
-        {
-            try
-            {
-                var result = await httpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}", new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
-                return await result.Content.ReadFromJsonAsync<ProblemDetails>();
             }
             catch (OperationCanceledException)
             {

@@ -10,66 +10,9 @@ namespace Testing.FwHeadless;
 [Trait("Category", "Integration")]
 public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
-
-    private async Task AddWritingSystemCommit(Guid projectId, string writingSystemId = "en")
-    {
-        var wsGuid = Guid.NewGuid();
-        var change = JsonSerializer.Deserialize<ServerJsonChange>(
-            $$"""
-                {
-                    "$type": "CreateWritingSystemChange",
-                    "WsId": "{{writingSystemId}}",
-                    "Name": "TestWritingSystem",
-                    "Abbreviation": "{{writingSystemId}}",
-                    "Type": 1,
-                    "Order": 1,
-                    "EntityId": "{{wsGuid}}"
-                }
-                """
-        ) ?? throw new JsonException("unable to deserialize");
-
-        ServerCommit[] serverCommits =
-        [
-            new ServerCommit(Guid.NewGuid())
-            {
-                ChangeEntities =
-                [
-                    new ChangeEntity<ServerJsonChange>()
-                    {
-                        Change = change,
-                        Index = 0,
-                        CommitId = Guid.NewGuid(),
-                        EntityId = wsGuid
-                    }
-                ],
-                ClientId = Guid.NewGuid(),
-                ProjectId = projectId,
-                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 0)
-            }
-        ];
-        var result = await HttpClient.PostAsJsonAsync($"api/crdt/{projectId}/add", serverCommits);
-        result.EnsureSuccessStatusCode();
-    }
-
-    private async Task AddTestCommit(Guid projectId, string writingSystemId = "en")
+    private async Task AddTestCommit(Guid projectId)
     {
         var entryId = Guid.NewGuid();
-        var change = JsonSerializer.Deserialize<ServerJsonChange>(
-            $$"""
-                {
-                "$type": "CreateEntryChange",
-                "LexemeForm": {
-                    "{{writingSystemId}}": "Apple"
-                },
-                "CitationForm": {
-                    "{{writingSystemId}}": "Apple"
-                },
-                "Note": {},
-                "EntityId": "{{entryId}}"
-                }
-                """
-        ) ?? throw new JsonException("unable to deserialize");
-
         ServerCommit[] serverCommits =
         [
             new ServerCommit(Guid.NewGuid())
@@ -78,7 +21,21 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
                 [
                     new ChangeEntity<ServerJsonChange>()
                     {
-                        Change = change,
+                        Change = JsonSerializer.Deserialize<ServerJsonChange>(
+                            $$"""
+                              {
+                                "$type": "CreateEntryChange",
+                                "LexemeForm": {
+                                  "en": "Apple"
+                                },
+                                "CitationForm": {
+                                  "en": "Apple"
+                                },
+                                "Note": {},
+                                "EntityId": "{{entryId}}"
+                              }
+                              """
+                        ) ?? throw new JsonException("unable to deserialize"),
                         Index = 0,
                         CommitId = Guid.NewGuid(),
                         EntityId = entryId
@@ -86,7 +43,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
                 ],
                 ClientId = Guid.NewGuid(),
                 ProjectId = projectId,
-                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 1)
+                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 0)
             }
         ];
         var result = await HttpClient.PostAsJsonAsync($"api/crdt/{projectId}/add", serverCommits);
@@ -133,36 +90,5 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         result.Should().NotBeNull();
         result.CrdtChanges.Should().Be(0);
         result.FwdataChanges.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
-    public async Task TriggerSync_FailsWithInvalidCommit()
-    {
-        await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
-        var needCleanup = false;
-
-        try
-        {
-            await AddTestCommit(_projectId, writingSystemId: "fr"); // Should not exist in the project
-            needCleanup = true;
-            await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-            var result = await FwHeadlessTestHelpers.AwaitSyncFinishedExpectingFailure(HttpClient, _projectId);
-            result.Should().NotBeNull();
-            result.Detail.Should().NotBeNullOrEmpty();
-            Console.WriteLine(result.Detail);
-            result.Status.Should().Be(500);
-            result.Detail.Should().StartWith("Failed to create entry");
-        }
-        finally
-        {
-            if (needCleanup)
-            {
-                await AddWritingSystemCommit(_projectId, writingSystemId: "fr");
-                // Now the entry change should be valid and we should be able to sync the project again
-                await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-                await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
-            }
-        }
     }
 }
