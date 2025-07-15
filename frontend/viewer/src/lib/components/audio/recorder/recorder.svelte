@@ -143,7 +143,7 @@
 
       recorder.on('record-end', (blob) => onRecordingEnd(blob));
       recorder.on('record-progress', (time) => duration = time);
-    };
+    }
 </script>
 
 {@render children?.()}
