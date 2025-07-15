@@ -10,9 +10,25 @@ namespace Testing.FwHeadless;
 [Trait("Category", "Integration")]
 public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
-    private async Task AddTestCommit(Guid projectId)
+    private async Task AddTestCommit(Guid projectId, string writingSystemId = "en")
     {
         var entryId = Guid.NewGuid();
+        var change = JsonSerializer.Deserialize<ServerJsonChange>(
+            $$"""
+                {
+                "$type": "CreateEntryChange",
+                "LexemeForm": {
+                    "{{writingSystemId}}": "Apple"
+                },
+                "CitationForm": {
+                    "{{writingSystemId}}": "Apple"
+                },
+                "Note": {},
+                "EntityId": "{{entryId}}"
+                }
+                """
+        ) ?? throw new JsonException("unable to deserialize");
+
         ServerCommit[] serverCommits =
         [
             new ServerCommit(Guid.NewGuid())
@@ -21,21 +37,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
                 [
                     new ChangeEntity<ServerJsonChange>()
                     {
-                        Change = JsonSerializer.Deserialize<ServerJsonChange>(
-                            $$"""
-                              {
-                                "$type": "CreateEntryChange",
-                                "LexemeForm": {
-                                  "en": "Apple"
-                                },
-                                "CitationForm": {
-                                  "en": "Apple"
-                                },
-                                "Note": {},
-                                "EntityId": "{{entryId}}"
-                              }
-                              """
-                        ) ?? throw new JsonException("unable to deserialize"),
+                        Change = change,
                         Index = 0,
                         CommitId = Guid.NewGuid(),
                         EntityId = entryId
@@ -90,5 +92,22 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         result.Should().NotBeNull();
         result.CrdtChanges.Should().Be(0);
         result.FwdataChanges.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task TriggerSync_FailsWithInvalidCommit()
+    {
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
+        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+
+        await AddTestCommit(_projectId, writingSystemId: "fr"); // Should not exist in the project
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
+        var result = await FwHeadlessTestHelpers.AwaitSyncFinishedExpectingFailure(HttpClient, _projectId);
+        result.Should().NotBeNull();
+        result.Detail.Should().NotBeNullOrEmpty();
+        Console.WriteLine(result.Detail);
+        result.Status.Should().Be(500);
+        result.Detail.Should().StartWith("Failed to create entry");
+        // TODO: Any way to clean up the project now? I.e., removing the invalid commit so sync can start succeeding again?
     }
 }
