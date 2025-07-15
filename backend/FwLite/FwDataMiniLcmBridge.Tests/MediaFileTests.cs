@@ -134,9 +134,10 @@ public class MediaFileTests : IAsyncLifetime
         var entry = await _api.GetEntry(entryId);
 
         entry.Should().NotBeNull();
-        await using var file = await _api.GetFileStream(new MediaUri(entry.CitationForm[_audioWs]));
-        file.Should().NotBeNull();
-        using var streamReader = new StreamReader(file);
+        var file = await _api.GetFileStream(new MediaUri(entry.CitationForm[_audioWs]));
+        await using var stream = file.Stream;
+        stream.Should().NotBeNull();
+        using var streamReader = new StreamReader(stream);
         var contents = await streamReader.ReadToEndAsync();
         contents.Should().Be("test");
     }
@@ -179,6 +180,7 @@ public class MediaFileTests : IAsyncLifetime
     public async Task GetStreamForNotFoundIsNull()
     {
         var fileStream = await _api.GetFileStream(MediaUri.NotFound);
-        fileStream.Should().BeNull();
+        fileStream.Stream.Should().BeNull();
+        fileStream.Result.Should().Be(ReadFileResult.NotFound);
     }
 }

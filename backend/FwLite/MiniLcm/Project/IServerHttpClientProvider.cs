@@ -6,4 +6,14 @@ namespace MiniLcm.Project;
 public interface IServerHttpClientProvider
 {
     ValueTask<HttpClient> GetHttpClient();
+    ValueTask<ConnectionStatus> ConnectionStatus(bool forceRefresh = false);
+}
+
+public enum ConnectionStatus
+{
+    Unknown,
+    Online,
+    Offline,
+    NoServer,
+    NotLoggedIn,
 }

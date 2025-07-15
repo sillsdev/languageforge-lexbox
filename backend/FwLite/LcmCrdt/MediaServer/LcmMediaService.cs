@@ -44,14 +44,25 @@ public class LcmMediaService(
     /// <param name="fileId">media file Id</param>
     /// <returns></returns>
     /// <exception cref="FileNotFoundException"></exception>
-    public async Task<Stream?> GetFileStream(Guid fileId)
+    public async Task<ReadFileResponse> GetFileStream(Guid fileId)
     {
-        var localResource = await resourceService.GetLocalResource(fileId)
-                            ?? await resourceService.DownloadResource(fileId, this);
+        var localResource = await resourceService.GetLocalResource(fileId);
+        if (localResource is null)
+        {
+            var connectionStatus = await httpClientProvider.ConnectionStatus();
+            if (connectionStatus == ConnectionStatus.Online)
+            {
+                localResource = await resourceService.DownloadResource(fileId, this);
+            }
+            else
+            {
+                return new ReadFileResponse(ReadFileResult.Offline);
+            }
+        }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
-        return File.OpenRead(localResource.LocalPath);
+        return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
     }
 
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)

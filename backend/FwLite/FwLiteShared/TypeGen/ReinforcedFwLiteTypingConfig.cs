@@ -99,12 +99,20 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(RichTextObjectDataType),
         ]);
         builder.ExportAsEnum<WritingSystemType>();
+        builder.ExportAsEnum<ReadFileResult>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()
             .WithPublicMethods(b => b.AlwaysReturnPromise().OnlyJsInvokable());
         builder.ExportAsEnum<SortField>().UseString();
-        builder.ExportAsInterfaces([typeof(QueryOptions), typeof(FilterQueryOptions), typeof(SortOptions), typeof(ExemplarOptions), typeof(EntryFilter)],
+        builder.ExportAsInterfaces([
+                typeof(QueryOptions),
+                typeof(FilterQueryOptions),
+                typeof(SortOptions),
+                typeof(ExemplarOptions),
+                typeof(EntryFilter),
+                typeof(MiniLcmJsInvokable.ReadFileResponseJs)
+            ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(propExportBuilder =>
         {
             propExportBuilder.IgnoreComputedGetters();

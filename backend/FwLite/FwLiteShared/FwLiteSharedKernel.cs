@@ -29,7 +29,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<ImportFwdataService>();
         services.AddScoped<SyncService>();
         services.AddScoped<ProjectServicesProvider>();
-        services.AddScoped<IServerHttpClientProvider, LexboxServerClientProvider>();
+        services.AddScoped<IServerHttpClientProvider, LexboxOauthServerClientProvider>();
         services.AddSingleton<LexboxProjectService>();
         services.AddSingleton<CombinedProjectsService>();
         services.AddSingleton<GlobalEventBus>();

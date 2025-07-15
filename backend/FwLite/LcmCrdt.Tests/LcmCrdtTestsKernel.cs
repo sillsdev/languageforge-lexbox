@@ -32,5 +32,10 @@ public static class LcmCrdtTestsKernel
         {
             throw new NotImplementedException();
         }
+
+        public ValueTask<ConnectionStatus> ConnectionStatus(bool forceRefresh = false)
+        {
+            return ValueTask.FromResult(MiniLcm.Project.ConnectionStatus.Offline);
+        }
     }
 }

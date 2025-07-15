@@ -46,12 +46,14 @@
   import {Slider} from '$lib/components/ui/slider';
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
+  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ReadFileResult';
 
+  const handled = Symbol();
   let {
     loader = defaultLoader,
     audioId,
   }: {
-    loader?: (audioId: string) => Promise<ReadableStream | undefined>,
+    loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
     audioId: string | undefined,
   } = $props();
 
@@ -61,27 +63,47 @@
 
   async function defaultLoader(audioId: string) {
     if (!api) throw new Error('No api, unable to load audio');
-    const dotnetStream = await api.getFileStream(audioId);
-    if (!dotnetStream) return;
-    return await dotnetStream.stream();
+    const file = await api.getFileStream(audioId);
+    if (!file.stream) {
+      switch (file.result){
+        case ReadFileResult.NotFound:
+          AppNotification.display($t`File not found`, 'warning');
+          break;
+        case ReadFileResult.Offline:
+          AppNotification.display($t`Offline, unable to download`, 'warning');
+          break;
+        default:
+          AppNotification.error($t`Unknown error ${file.errorMessage ?? file.result}`);
+          break;
+      }
+
+      return handled;
+    }
+    return await file.stream.stream();
   }
 
   async function load() {
-    if (!audio || loadedAudioId === audioId || !audioId) return;
+    if (!audio || loadedAudioId === audioId || !audioId) return !!audioId;
     playerState = 'loading';
-    const stream = await loader(audioId);
-    if (!stream) {
-      AppNotification.error(`Failed to load audio ${audioId}`);
-      return;
+    try {
+      const stream = await loader(audioId);
+      if (stream === handled) return false;
+      if (!stream) {
+        AppNotification.error(`Failed to load audio ${audioId}`);
+        return;
+      }
+      let blob = await new Response(stream).blob();
+      if (audio.src) URL.revokeObjectURL(audio.src);
+      audio.src = URL.createObjectURL(blob);
+      loadedAudioId = audioId;
+      return true;
+    } finally {
+      playerState = 'paused';
     }
-    let blob = await new Response(stream).blob();
-    if (audio.src) URL.revokeObjectURL(audio.src);
-    audio.src = URL.createObjectURL(blob);
-    loadedAudioId = audioId;
   }
 
   async function play() {
-    await load();
+    if (!await load()) return;
     void audio?.play();
     playerState = 'playing';
   }
@@ -199,7 +221,7 @@
           </span>
       {/if}
       {#key audioId}
-        <audio bind:this={audio} onplay={load}>
+        <audio bind:this={audio}>
         </audio>
       {/key}
     </div>

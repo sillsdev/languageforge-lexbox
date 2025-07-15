@@ -693,8 +693,9 @@ public class CrdtMiniLcmApi(
         await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
-    public async Task<Stream?> GetFileStream(MediaUri mediaUri)
+    public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
+        if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);
         return await lcmMediaService.GetFileStream(mediaUri.FileId);
     }
 

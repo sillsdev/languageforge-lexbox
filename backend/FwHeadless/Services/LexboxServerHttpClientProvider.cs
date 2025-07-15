@@ -8,4 +8,9 @@ public class LexboxServerHttpClientProvider(IHttpClientFactory httpClientFactory
     {
         return ValueTask.FromResult(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName));
     }
+
+    public ValueTask<ConnectionStatus> ConnectionStatus(bool forceRefresh = false)
+    {
+        return new ValueTask<ConnectionStatus>(MiniLcm.Project.ConnectionStatus.Online);
+    }
 }
