@@ -405,6 +405,9 @@ importers:
       virtua:
         specifier: ^0.41.2
         version: 0.41.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(svelte@5.28.0)
+      wavesurfer.js:
+        specifier: ^7.9.9
+        version: 7.9.9
     devDependencies:
       '@argos-ci/playwright':
         specifier: ^5.0.4
@@ -6654,6 +6657,9 @@ packages:
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
+
+  wavesurfer.js@7.9.9:
+    resolution: {integrity: sha512-8O/zu+RC7yjikxiuhsXzRZ8vvjV+Qq4PUKZBQsLLcq6fqbrSF3Vh99l7fT8zeEjKjDBNH2Qxsxq5mRJIuBmM3Q==}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -14160,6 +14166,8 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
+
+  wavesurfer.js@7.9.9: {}
 
   wcwidth@1.0.1:
     dependencies:
