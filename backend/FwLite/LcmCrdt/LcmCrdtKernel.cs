@@ -67,7 +67,6 @@ public static class LcmCrdtKernel
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
-        services.AddScoped<MediaServerClient>();
         services.AddScoped<LcmMediaService>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());

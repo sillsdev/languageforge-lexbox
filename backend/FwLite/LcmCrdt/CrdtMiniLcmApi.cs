@@ -27,7 +27,7 @@ public class CrdtMiniLcmApi(
     MiniLcmRepositoryFactory repoFactory,
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
-    MediaServerClient mediaServerClient,
+    LcmMediaService lcmMediaService,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -695,7 +695,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Stream?> GetFileStream(MediaUri mediaUri)
     {
-        return await mediaServerClient.GetFileStream(mediaUri.FileId);
+        return await lcmMediaService.GetFileStream(mediaUri.FileId);
     }
 
     public void Dispose()
