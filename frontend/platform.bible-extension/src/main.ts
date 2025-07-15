@@ -1,25 +1,28 @@
 import papi, { logger } from '@papi/backend';
-import {
-  type ExecutionActivationContext,
-  type IWebViewProvider,
-  type OpenWebViewOptions,
-  type SavedWebViewDefinition,
-  type WebViewDefinition,
+import type {
+  ExecutionActivationContext,
+  IWebViewProvider,
+  OpenWebViewOptions,
+  SavedWebViewDefinition,
+  WebViewDefinition,
 } from '@papi/core';
 import type {
   FindEntryEvent,
   IProjectModel,
   LaunchServerEvent,
   LocalProjectsEvent,
+  OpenFwLiteEvent,
   OpenProjectEvent,
 } from 'fw-lite-extension';
-import fwLiteProjectSelect from './fw-lite-project-select.web-view?inline';
+import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 import { EntryService } from './entry-service';
 
 const reactWebViewType = 'fw-lite-extension.react';
-const projectSelectWebViewType = 'fw-lite-project-select.react';
+const dictionarySelectWebViewType = 'fw-dictionary-select.react';
+
+const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 
 /**
  * Simple web view provider that provides React web views when papi requests them
@@ -38,26 +41,26 @@ const reactWebViewProvider: IWebViewProvider = {
       title: 'FieldWorks Lite Extension React',
       content: fwLiteMainWindow,
       styles: extensionTemplateStyles,
-      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
+      iconUrl,
       allowedFrameSources: ['http://localhost:*'],
     };
   },
 };
 
-const projectSelectWebViewProvider: IWebViewProvider = {
+const dictionarySelectWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
     options: OpenWebViewOptions & { projectId?: string },
   ): Promise<WebViewDefinition | undefined> {
-    if (savedWebView.webViewType !== projectSelectWebViewType)
+    if (savedWebView.webViewType !== dictionarySelectWebViewType)
       throw new Error(
-        `${projectSelectWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
+        `${dictionarySelectWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
       );
     return {
       ...savedWebView,
-      title: 'Select a FieldWorks project',
-      content: fwLiteProjectSelect,
-      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
+      content: fwDictionarySelect,
+      iconUrl,
+      title: '%fwLiteExtension_selectDictionary_title%',
     };
   },
 };
@@ -70,12 +73,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     reactWebViewProvider,
   );
 
-  const projectSelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
-    projectSelectWebViewType,
-    projectSelectWebViewProvider,
+  const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    dictionarySelectWebViewType,
+    dictionarySelectWebViewProvider,
   );
 
   // Emitter to tell subscribers how many times we have done stuff
+  const onOpenFwLiteEmitter = papi.network.createNetworkEventEmitter<OpenFwLiteEvent>(
+    'fwLiteExtension.openFWLite',
+  );
   const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
     'fwLiteExtension.findEntry',
   );
@@ -89,10 +95,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.openProject',
   );
 
-  const baseUrlHolder = { baseUrl: '' };
+  const urlHolder = { baseUrl: '', dictionaryUrl: '' };
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
-  baseUrlHolder.baseUrl = baseUrl;
-  onLaunchServerEmitter.emit(baseUrlHolder);
+  urlHolder.baseUrl = baseUrl;
+  onLaunchServerEmitter.emit(urlHolder);
 
   const entryService = papi.networkObjects.set(
     'fwliteextension.entryService',
@@ -103,10 +109,48 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
     () => {
-      return baseUrlHolder;
+      return urlHolder;
     },
   );
 
+  const browseDictionaryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.browseDictionary',
+    async (webViewId: string) => {
+      if (!webViewId) {
+        logger.warn('fwLiteExtension.browseDictionary', 'No webViewId provided');
+        return { success: false };
+      }
+      const projectId = (await papi.webViews.getOpenWebViewDefinition(webViewId))?.projectId;
+      if (!projectId) {
+        logger.warn(
+          'fwLiteExtension.browseDictionary',
+          `No projectId found for web view '${webViewId}'`,
+        );
+        return { success: false };
+      }
+
+      logger.info(
+        `Opening FieldWorks dictionary for web view '${webViewId}' (Platform.Bible project '${projectId}')`,
+      );
+
+      const pdp = await papi.projectDataProviders.get('platform.base', projectId);
+      const name = (await pdp.getSetting('platform.name')) ?? projectId;
+      const dictionary = await pdp.getSetting('fw-lite-extension.fwProject');
+      if (dictionary) {
+        logger.info(`Project '${name}' is using FieldWorks dictionary '${dictionary}'`);
+        urlHolder.dictionaryUrl = `${urlHolder.baseUrl}/paratext/fwdata/${dictionary}`;
+        papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
+      } else {
+        logger.warn(`FieldWorks dictionary not selected for project '${name}'`);
+        await papi.webViews.openWebView(
+          dictionarySelectWebViewType,
+          { type: 'float' },
+          { existingId: '?' },
+        );
+      }
+      return { success: true };
+    },
+  );
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
     (entry: string) => {
@@ -116,13 +160,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
-    (webviewId: string) => {
-      if (webviewId) {
-        papi.webViews.getOpenWebViewDefinition(webviewId).then((webViewDef) => {
+    (webViewId: string) => {
+      if (webViewId) {
+        papi.webViews.getOpenWebViewDefinition(webViewId).then((webViewDef) => {
           const projectId = webViewDef?.projectId;
           if (projectId) {
             logger.info(
-              `Opening FieldWorks Lite from web view '${webviewId}' (Platform.Bible project '${projectId}')`,
+              `Opening FieldWorks Lite from web view '${webViewId}' (Platform.Bible project '${projectId}')`,
             );
             papi.projectDataProviders.get('platform.base', projectId).then((pdp) => {
               pdp.getSetting('fw-lite-extension.fwProject').then((setting) => {
@@ -147,12 +191,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const openFwProjectSelectorCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.openFWProjectSelector',
+  const openFwDictionarySelectorCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.openFwDictionarySelector',
     async () => {
-      logger.info('Opening FieldWorks project selector');
+      logger.info('Opening FieldWorks dictionary selector');
       await papi.webViews.openWebView(
-        projectSelectWebViewType,
+        dictionarySelectWebViewType,
         { type: 'float' },
         { existingId: '?' },
       );
@@ -188,20 +232,27 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   // Await the data provider promise at the end so we don't hold everything else up
   context.registrations.add(
+    // Web views
     await reactWebViewProviderPromise,
-    await projectSelectWebViewProviderPromise,
+    await dictionarySelectWebViewProviderPromise,
+    // Commands
+    await browseDictionaryCommandPromise,
     await findEntryCommandPromise,
     await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,
-    await openFwProjectSelectorCommandPromise,
+    await openFwDictionarySelectorCommandPromise,
     await localProjectsCommandPromise,
     await openProjectCommandPromise,
+    // Services
     await entryService,
+    // Event emitters
+    onOpenFwLiteEmitter,
     onFindEntryEmitter,
     onLaunchServerEmitter,
     onLocalProjectsEmitter,
     onOpenProjectEmitter,
+    // Other cleanup
     () => fwLiteProcess?.kill(),
   );
 

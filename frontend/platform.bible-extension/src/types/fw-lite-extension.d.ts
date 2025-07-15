@@ -4,12 +4,9 @@ declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
 
-  /** Network event that informs subscribers when the command `fwLiteExtension.doStuff` is run */
-  export type DoStuffEvent = {
-    /** How many times the extension template has run the command `fwLiteExtension.doStuff` */
-    count: number;
+  export type OpenFwLiteEvent = {
+    dictionaryCode: string;
   };
-
   export type FindEntryEvent = {
     /** The entry to find */
     entry: string;
@@ -43,18 +40,21 @@ declare module 'fw-lite-extension' {
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
+    'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<{
+      success: boolean;
+    }>;
     'fwLiteExtension.localProjects': () => Promise<void>;
-    'fwLiteExtension.openFWProjectSelector': () => Promise<{
+    'fwLiteExtension.openFwDictionarySelector': () => Promise<{
       success: boolean;
     }>;
     'fwLiteExtension.openProject': (projectCode: string) => Promise<{
       success: boolean;
     }>;
-    'fwLiteExtension.openFWLite': (webviewId: string) => {
+    'fwLiteExtension.openFWLite': (webViewId: string) => {
       success: boolean;
     };
     'fwLiteExtension.findEntry': (
-      webviewId: string,
+      webViewId: string,
       entry: string,
     ) => {
       success: boolean;

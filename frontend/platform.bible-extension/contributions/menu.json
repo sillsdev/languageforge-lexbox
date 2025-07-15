@@ -31,6 +31,12 @@
         },
         "items": [
           {
+            "label": "%fwLiteExtension_menu_browseDictionary%",
+            "group": "fw-lite-extension.editor",
+            "order": 1,
+            "command": "fwLiteExtension.browseDictionary"
+          },
+          {
             "label": "%fwLiteExtension_menu_label%",
             "group": "fw-lite-extension.editor",
             "order": 1006,
