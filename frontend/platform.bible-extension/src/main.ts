@@ -8,26 +8,26 @@ import type {
 } from '@papi/core';
 import type {
   FindEntryEvent,
+  FindWebViewOptions,
   IProjectModel,
   IWritingSystems,
   OpenFwLiteEvent,
   UrlHolder,
+  OpenWebViewOptionsWithProjectId,
 } from 'fw-lite-extension';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
+import fwFindWindow from './fwlite-find-word.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 import { EntryService } from './entry-service';
 
 const reactWebViewType = 'fw-lite-extension.react';
 const dictionarySelectWebViewType = 'fw-dictionary-select.react';
-
-interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
-  projectId?: string;
-}
+const findWordWebViewType = 'fwlite-find-word.react';
 
 const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 
-const reactWebViewProvider: IWebViewProvider = {
+const mainWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
     options: OpenWebViewOptionsWithProjectId,
@@ -67,17 +67,40 @@ const dictionarySelectWebViewProvider: IWebViewProvider = {
   },
 };
 
+const findWordWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: FindWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== findWordWebViewType)
+      throw new Error(
+        `${findWordWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwFindWindow,
+      iconUrl,
+      title: '%fwLiteExtension_findWord_title%',
+    };
+  },
+};
+
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
 
   const reactWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     reactWebViewType,
-    reactWebViewProvider,
+    mainWebViewProvider,
   );
 
   const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     dictionarySelectWebViewType,
     dictionarySelectWebViewProvider,
+  );
+  const findWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    findWordWebViewType,
+    findWordWebViewProvider,
   );
 
   const onOpenFwLiteEmitter = papi.network.createNetworkEventEmitter<OpenFwLiteEvent>(
@@ -127,6 +150,24 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     () => ({ ...urlHolder }),
   );
 
+  async function getProjectIdFromWebViewId(webViewId: string): Promise<string | undefined> {
+    const webViewDef = await papi.webViews.getOpenWebViewDefinition(webViewId);
+    if (!webViewDef?.projectId) {
+      logger.warn(`No projectId found for web view '${webViewId}'`);
+      return undefined;
+    }
+    return webViewDef.projectId;
+  }
+
+  async function getFwProjectSetting(webViewId: string): Promise<string | undefined> {
+    const projectId = await getProjectIdFromWebViewId(webViewId);
+    if (!projectId) {
+      return undefined;
+    }
+    const pdp = await papi.projectDataProviders.get('platform.base', projectId);
+    return pdp.getSetting('fw-lite-extension.fwProject');
+  }
+
   const browseDictionaryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.browseDictionary',
     async (webViewId: string) => {
@@ -164,11 +205,32 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
-    (entry: string) => {
-      onFindEntryEmitter.emit({ entry });
-      return { success: true };
+    (webviewId: string, word: string) => {
+      getProjectIdFromWebViewId(webviewId)
+        .then((projectId) => {
+          if (!projectId) {
+            logger.warn(
+              'fwLiteExtension.findEntry',
+              `No FieldWorks project found for web view '${webviewId}'`,
+            );
+          }
+          logger.info(
+            `Opening FieldWorks Lite find entry view for project '${projectId}' with word '${word}'`,
+          );
+          void papi.webViews.openWebView(findWordWebViewType, undefined, {
+            existingId: '?',
+            projectId: projectId,
+            word,
+          } as FindWebViewOptions);
+          return { success: true };
+        })
+        .catch((error) => {
+          logger.error('Error launching search view:', error);
+        });
+      return { success: false };
     },
   );
+
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
     async (webViewId: string) => {
@@ -219,6 +281,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // Web views
     await reactWebViewProviderPromise,
     await dictionarySelectWebViewProviderPromise,
+    await findWordWebViewProviderPromise,
     // Validators
     await validDictionaryCode,
     // Commands
