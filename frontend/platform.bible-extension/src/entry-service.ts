@@ -6,25 +6,20 @@ export class EntryService implements IEntryService {
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
-  async getEntries(webViewId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
-    let projectId: string | undefined;
-    let tabIdFromWebViewId: string | undefined;
-
+  async getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
     logger.debug('Opening find UI');
-
-    if (webViewId) {
-      const webViewDefinition = await papi.webViews.getOpenWebViewDefinition(webViewId);
-      projectId = webViewDefinition?.projectId;
-      tabIdFromWebViewId = webViewDefinition?.id;
-    }
 
     if (!projectId) {
       logger.debug('No project!');
       return undefined;
     }
+    const settings = await papi.projectDataProviders.get('platform.base', projectId);
+    const fieldWorksProject = await settings.getSetting('fw-lite-extension.fwProject');
+    const apiUrl = `${this.baseUrl}/api/mini-lcm/FwData/${fieldWorksProject}/entries/${query.surfaceForm}`;
+    console.log(`About to fetch entries: ${apiUrl}`);
     // Construct the query parameters from the IEntryQuery object
     // parse the json from the results and return the entries
-    const results = await papi.fetch(`${this.baseUrl}/api/mini-lcm/FwData/${projectId}/Entries`);
+    const results = await papi.fetch(apiUrl);
     if (!results.ok) {
       throw new Error(`Failed to fetch entries: ${results.statusText}`);
     }

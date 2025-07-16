@@ -1,3 +1,6 @@
+import { OpenWebViewOptions } from '@papi/core';
+import { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
+
 declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
@@ -23,7 +26,6 @@ declare module 'fw-lite-extension' {
   };
 
   export interface IEntryQuery {
-    readonly projectId: string;
     readonly surfaceForm?: string;
     readonly exactMatch?: boolean;
     readonly partOfSpeech?: string;
@@ -36,11 +38,16 @@ declare module 'fw-lite-extension' {
     updateEntry(projectId: string, reference: IEntry): Promise<void>;
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
+  interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
+    projectId?: string;
+  }
+
+  interface FindWebViewOptions extends OpenWebViewOptionsWithProjectId {
+    word?: string;
+  }
 }
 
 declare module 'papi-shared-types' {
-  import { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
-
   export interface CommandHandlers {
     'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
     'fwLiteExtension.selectDictionary': (
