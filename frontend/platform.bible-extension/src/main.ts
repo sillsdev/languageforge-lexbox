@@ -13,6 +13,7 @@ import type {
   LaunchServerEvent,
   OpenFwLiteEvent,
   OpenProjectEvent,
+  UrlHolder,
 } from 'fw-lite-extension';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
@@ -94,11 +95,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const onFwDictionariesEmitter = papi.network.createNetworkEventEmitter<FwDictionariesEvent>(
     'fwLiteExtension.fwDictionaries',
   );
-  const onOpenProjectEmitter = papi.network.createNetworkEventEmitter<OpenProjectEvent>(
-    'fwLiteExtension.openProject',
-  );
 
-  const urlHolder = { baseUrl: '', dictionaryUrl: '' };
+  const urlHolder: UrlHolder = { baseUrl: '', dictionaryUrl: '' };
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
   onLaunchServerEmitter.emit(urlHolder);
@@ -239,7 +237,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     onFindEntryEmitter,
     onLaunchServerEmitter,
     onFwDictionariesEmitter,
-    onOpenProjectEmitter,
     // Other cleanup
     () => fwLiteProcess?.kill(),
   );

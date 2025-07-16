@@ -4,6 +4,11 @@ declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
 
+  export interface UrlHolder {
+    baseUrl: string;
+    dictionaryUrl: string;
+  }
+
   export type OpenFwLiteEvent = {
     dictionaryCode: string;
   };
@@ -50,9 +55,6 @@ declare module 'papi-shared-types' {
       success: boolean;
     }>;
     'fwLiteExtension.fwDictionaries': () => Promise<void>;
-    'fwLiteExtension.openProject': (projectCode: string) => Promise<{
-      success: boolean;
-    }>;
     'fwLiteExtension.openFWLite': (webViewId: string) => {
       success: boolean;
     };
@@ -65,9 +67,7 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.simpleFind': () => {
       success: boolean;
     };
-    'fwLiteExtension.getBaseUrl': () => {
-      baseUrl: string;
-    };
+    'fwLiteExtension.getBaseUrl': () => UrlHolder;
   }
   export interface ProjectSettingTypes {
     'fw-lite-extension.fwProject': string;
