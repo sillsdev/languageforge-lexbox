@@ -1,5 +1,3 @@
-import { IEntryService } from 'fw-lite-extension';
-
 declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
@@ -16,18 +14,10 @@ declare module 'fw-lite-extension' {
     dictionaryCode: string;
   };
   export type FindEntryEvent = {
-    /** The entry to find */
     entry: string;
   };
-  export type LaunchServerEvent = {
-    baseUrl: string;
-  };
-
   export type FwDictionariesEvent = {
     dictionaries: IProjectModel[];
-  };
-  export type OpenProjectEvent = {
-    projectCode: string;
   };
 
   export interface IEntryQuery {
@@ -47,6 +37,8 @@ declare module 'fw-lite-extension' {
 }
 
 declare module 'papi-shared-types' {
+  import { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
+
   export interface CommandHandlers {
     'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
     'fwLiteExtension.selectDictionary': (
