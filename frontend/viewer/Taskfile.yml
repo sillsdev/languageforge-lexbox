@@ -58,3 +58,11 @@ tasks:
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
   playwright-test-report:
     cmd: pnpm run test:playwright-report
+
+  setup-e2e-test:
+    deps: [build-app]
+    cmds:
+      - dotnet publish ../../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --self-contained --output ./dist/fw-lite-server
+  e2e-test-helper-unit-tests:
+    desc: 'tests the fw lite launcher, run `setup-e2e-test` first'
+    cmd: pnpm test:unit --run fw-lite-launcher

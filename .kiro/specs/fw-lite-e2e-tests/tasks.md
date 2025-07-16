@@ -11,12 +11,29 @@
   - Set up test data constants and configuration interfaces
   - _Requirements: 3.4, 4.1_
 
-- [ ] 2. Implement FW Lite application launcher utility
+- [x] 2. Implement FW Lite application launcher utility
+
+
+
+
+
+
   - Create `fw-lite-launcher.ts` helper class to manage FW Lite application lifecycle
   - Implement launch method with timeout handling and port conflict resolution
   - Implement shutdown method with proper cleanup and process termination
   - Add health check methods to verify application is running and responsive
   - Write unit tests for the launcher utility functions
+  - _Requirements: 2.1, 2.2, 4.4_
+
+- [x] 2.1. Set up FW Lite server binary for launcher testing
+
+
+
+  - Add build script to publish FW Lite server binary for testing
+  - Configure dotnet publish command to create self-contained executable
+  - Set up output directory structure for test binaries
+  - Add integration test that actually launches the FW Lite server
+  - Verify launcher can successfully start and stop real FW Lite instance
   - _Requirements: 2.1, 2.2, 4.4_
 
 - [ ] 3. Create test data management system
