@@ -6,7 +6,7 @@
  */
 
 import type {TestProject, TestEntry} from '../types';
-import testProjectsData from '../fixtures/test-projects.json';
+import testProjectsData from '../fixtures/test-projects.json' assert {type: 'json'};
 
 // Test session identifier for unique test data
 const TEST_SESSION_ID = `test-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
