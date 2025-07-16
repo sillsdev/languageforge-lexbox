@@ -160,7 +160,7 @@ test.describe('FW Lite Integration Tests', () => {
       await pageObject.takeDebugScreenshot('test-cleanup');
 
       // Logout from server
-      await logoutFromServer(page);
+      await logoutFromServer(page, config.lexboxServer.hostname);
     } catch (error) {
       console.warn('Cleanup warning:', error);
     }
@@ -351,6 +351,7 @@ test.describe('FW Lite Integration Tests', () => {
    * Project download test: Isolated project download verification
    */
   test('Project download: Download and verify project structure', async ({ page }) => {
+    test.setTimeout(1 * 60 * 1000);
     const pageObject = new FwLitePageObject(page, config);
 
     console.log('Starting project download test');
@@ -360,7 +361,7 @@ test.describe('FW Lite Integration Tests', () => {
       await loginToServer(page, config.testData.testUser, config.testData.testPassword, config.lexboxServer);
 
       // Download project
-      await downloadProject(page, testProject.code);
+      await downloadProject(page, testProject.code, config.lexboxServer.hostname);
 
       await pageObject.takeDebugScreenshot('download-test-completed');
     });
