@@ -38,7 +38,7 @@ tasks:
   fw-lite-infr-internal:
     internal: true
     deps:
-      - task: viewer:run-app
+      - task: viewer:run
       - task: run-https-proxy
       - task: viewer:storybook
         vars: { CLI_ARGS: --no-open }
@@ -70,11 +70,12 @@ tasks:
     aliases: [ s ]
     cmd: pnpm {{.CLI_ARGS}}
 
-  build-viewer-app:
+  build-viewer:
+    aliases: [build-viewer-app]
     deps: [viewer:build]
     label: vite
-  watch-viewer-app:
-    deps: [viewer:watch-app]
+  watch-viewer:
+    deps: [viewer:watch]
     label: vite
   viewer-dev:
     deps: [viewer:app]

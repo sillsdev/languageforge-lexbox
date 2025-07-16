@@ -5,17 +5,12 @@ tasks:
     interactive: true
     deps: [ install ]
     cmd: pnpm run dev
-  run-app:
+  run:
     interactive: true
     cmd: pnpm run dev
   storybook:
     interactive: true
     cmd: pnpm storybook {{.CLI_ARGS}}
-  web-component:
-    aliases: [ wc ]
-    interactive: true
-    deps: [ install ]
-    cmd: pnpm run dev
   check:
     aliases: [ sc, svelte-check ]
     deps: [ install ]
