@@ -148,7 +148,8 @@ export class FwLiteLauncher implements FwLiteManager {
         '--urls', this.baseUrl,
         '--Auth:LexboxServers:0:Authority', config.serverUrl,
         '--Auth:LexboxServers:0:DisplayName', 'e2e test server',
-        '--FwLiteWeb:OpenBrowser', 'false'
+        '--FwLiteWeb:OpenBrowser', 'false',
+        '--environment', 'Development'//required to allow oauth to accept self signed certs
       ];
 
       this.process = spawn(config.binaryPath, args, {
