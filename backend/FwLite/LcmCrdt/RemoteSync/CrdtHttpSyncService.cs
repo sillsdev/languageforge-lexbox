@@ -7,7 +7,7 @@ using SIL.Harmony.Core;
 
 namespace LcmCrdt.RemoteSync;
 
-public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings, IMemoryCache cache)
+public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, IRefitHttpServiceFactory refitFactory, IMemoryCache cache)
 {
     private static readonly TimeSpan HealthyCacheTime = TimeSpan.FromMinutes(30);
     private bool? CachedIsHealthy(string authority)
@@ -61,7 +61,8 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
     /// <returns></returns>
     public ValueTask<ISyncable> CreateProjectSyncable(ProjectData project, HttpClient client)
     {
-        var crdtProjectSync = new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this, client.BaseAddress?.Authority ?? string.Empty);
+        var syncHttp = refitFactory.Service<ISyncHttp>(client);
+        var crdtProjectSync = new CrdtProjectSync(syncHttp, project.Id, project.ClientId, this, client.BaseAddress?.Authority ?? string.Empty);
         return ValueTask.FromResult<ISyncable>(crdtProjectSync);
     }
 

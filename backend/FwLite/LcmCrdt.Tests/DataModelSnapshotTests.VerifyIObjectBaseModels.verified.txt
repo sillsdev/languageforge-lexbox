@@ -3,6 +3,10 @@
     {
       DerivedType: MiniLcmCrdtAdapter,
       TypeDiscriminator: MiniLcmCrdtAdapter
+    },
+    {
+      DerivedType: RemoteResource,
+      TypeDiscriminator: RemoteResource
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,
