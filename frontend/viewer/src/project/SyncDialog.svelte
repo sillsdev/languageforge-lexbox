@@ -45,6 +45,7 @@
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges);
   const serverName = $derived(server?.displayName ?? projectContext.projectData?.serverId ?? 'unknown');
+  let syncErrorMessage = $state('');
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
@@ -91,9 +92,9 @@
           const crdtChangesText = $plural(result.crdtChanges, { one: '# change', other: '# changes' });
           return $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`;
         },
-        error: $t`Failed to synchronize.`,
+        error: $t`Failed to synchronize.` + '\n' + `Details: ${syncErrorMessage}`,
       });
-      await syncPromise;
+      syncErrorMessage = (await syncPromise)?.syncError ?? '';
     } finally {
       loadingSyncLexboxToFlex = false;
     }
@@ -244,6 +245,9 @@
               {$t`Last change: ${formatDate(lastFlexSyncDate, undefined,
                 remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
             </span>
+            {#if syncErrorMessage}
+            {syncErrorMessage}
+            {/if}
             {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
               {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
                 {$t`Not logged in`}

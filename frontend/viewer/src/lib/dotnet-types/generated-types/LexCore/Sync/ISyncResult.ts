@@ -7,5 +7,6 @@ export interface ISyncResult
 {
 	crdtChanges: number;
 	fwdataChanges: number;
+	syncError?: string;
 }
 /* eslint-enable */

@@ -12,8 +12,37 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 using SIL.Harmony.Core;
+using System.Text.Json.Serialization;
 
 namespace FwLiteShared.Projects;
+
+// Can't use ProblemDetails from Microsoft.AspNetCore.Mvc because if you reference Microsoft.AspNetCore.App.Ref,
+// then the FwLiteShared project (and four other projects) refuse to build with the error
+// "The package Microsoft.AspNetCore.App.Ref 9.0.0 has a package type DotnetPlatform that is incompatible with this project."
+// So we'll just copy the ProblemDetails definition over here
+public class ProblemDetails
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("type")]
+    [JsonPropertyOrder(-5)]
+    public string? Type { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("title")]
+    [JsonPropertyOrder(-4)]
+    public string? Title { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("status")]
+    [JsonPropertyOrder(-3)]
+    public int? Status { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("detail")]
+    [JsonPropertyOrder(-2)]
+    public string? Detail { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("instance")]
+    [JsonPropertyOrder(-1)]
+    public string? Instance { get; set; }
+}
 
 public class LexboxProjectService : IDisposable
 {
@@ -153,8 +182,15 @@ public class LexboxProjectService : IDisposable
                 var result = await httpClient.GetAsync(
                         $"api/fw-lite/sync/await-sync-finished/{projectId}",
                         new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
-                result.EnsureSuccessStatusCode();
-                return await result.Content.ReadFromJsonAsync<SyncResult?>();
+                if (result.IsSuccessStatusCode)
+                {
+                    return await result.Content.ReadFromJsonAsync<SyncResult?>();
+                }
+                else
+                {
+                    var problem = await result.Content.ReadFromJsonAsync<ProblemDetails>();
+                    return new SyncResult(0, 0, problem?.Detail);
+                }
             }
             catch (OperationCanceledException) { continue; }
             catch (Exception e)
