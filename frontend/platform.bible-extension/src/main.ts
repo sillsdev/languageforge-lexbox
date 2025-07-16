@@ -6,7 +6,13 @@ import type {
   SavedWebViewDefinition,
   WebViewDefinition,
 } from '@papi/core';
-import type { FindEntryEvent, IProjectModel, OpenFwLiteEvent, UrlHolder } from 'fw-lite-extension';
+import type {
+  FindEntryEvent,
+  IProjectModel,
+  IWritingSystems,
+  OpenFwLiteEvent,
+  UrlHolder,
+} from 'fw-lite-extension';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
@@ -85,10 +91,35 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
 
+  const miniLcmApiFetch = async (path: string): Promise<string | undefined> => {
+    const apiUrl = `${baseUrl}/api/${path}`;
+    try {
+      return await (await papi.fetch(apiUrl)).text();
+    } catch (e) {
+      logger.error(`Error fetching ${apiUrl} from MiniLCM API`, e);
+    }
+  };
+
   const entryService = papi.networkObjects.set(
     'fwliteextension.entryService',
     new EntryService(baseUrl),
     'fw-lite-extension.IEntryService',
+  );
+
+  const validDictionaryCode = papi.projectSettings.registerValidator(
+    'fw-lite-extension.fwProject',
+    async (dictionaryCode) => {
+      if (!dictionaryCode) {
+        logger.info('FieldWorks dictionary code cleared in project settings');
+        return true;
+      }
+
+      // TODO: Sanitize dictionaryCode
+
+      logger.info('Validating FieldWorks dictionary code:', dictionaryCode);
+      const jsonText = await miniLcmApiFetch(`mini-lcm/FwData/${dictionaryCode}/writingSystems`);
+      return jsonText ? !!(JSON.parse(jsonText) as IWritingSystems).analysis : false;
+    },
   );
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
@@ -172,13 +203,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.fwDictionaries',
     async () => {
       logger.info('Fetching local FieldWorks dictionaries');
-      const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
-      const jsonText = await (await response.blob()).text();
-      try {
-        return JSON.parse(jsonText) as IProjectModel[];
-      } catch (e) {
-        logger.error('Error parsing api response', e);
-      }
+      const jsonText = await miniLcmApiFetch('localProjects');
+      return jsonText ? (JSON.parse(jsonText) as IProjectModel[]) : [];
     },
   );
 
@@ -195,6 +221,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // Web views
     await reactWebViewProviderPromise,
     await dictionarySelectWebViewProviderPromise,
+    // Validators
+    await validDictionaryCode,
     // Commands
     await browseDictionaryCommandPromise,
     await findEntryCommandPromise,
