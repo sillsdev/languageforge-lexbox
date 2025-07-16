@@ -71,7 +71,7 @@ public class LcmMediaService(
         var httpClient = await httpClientProvider.GetHttpClient();
         var mediaClient = refitFactory.Service<IMediaServerClient>(httpClient);
         var response = await mediaClient.DownloadFile(fileId);
-        return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName);
+        return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
     }
 
     async Task<DownloadResult> IRemoteResourceService.DownloadResource(string remoteId, string localResourceCachePath)
