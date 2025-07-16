@@ -1,6 +1,8 @@
 declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
+  export type IWritingSystems =
+    import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
 
   export interface SuccessHolder {
     success: boolean;
