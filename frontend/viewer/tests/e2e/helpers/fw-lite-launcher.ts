@@ -146,7 +146,8 @@ export class FwLiteLauncher implements FwLiteManager {
     return new Promise((resolve, reject) => {
       const args = [
         '--urls', this.baseUrl,
-        '--server', config.serverUrl,
+        '--Auth:LexboxServers:0:Authority', config.serverUrl,
+        '--Auth:LexboxServers:0:DisplayName', 'e2e test server',
         '--FwLiteWeb:OpenBrowser', 'false'
       ];
 
