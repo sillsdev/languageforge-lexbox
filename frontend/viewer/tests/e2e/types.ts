@@ -3,7 +3,7 @@
  */
 
 export interface E2ETestConfig {
-  server: {
+  lexboxServer: {
     hostname: string;
     protocol: 'http' | 'https';
     port?: number;

@@ -137,7 +137,7 @@ test.describe('FW Lite Integration Tests', () => {
     // Launch FW Lite application
     await fwLiteLauncher.launch({
       binaryPath: config.fwLite.binaryPath,
-      serverUrl: `${config.server.protocol}://${config.server.hostname}`,
+      serverUrl: `${config.lexboxServer.protocol}://${config.lexboxServer.hostname}`,
       timeout: config.fwLite.launchTimeout
     });
 

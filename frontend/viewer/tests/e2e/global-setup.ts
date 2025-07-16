@@ -17,7 +17,7 @@ async function globalSetup() {
     // Validate test configuration
     console.log('📋 Validating test configuration...');
     console.log('Test Config:', {
-      server: config.server.hostname,
+      server: config.lexboxServer.hostname,
       project: config.testData.projectCode,
       user: config.testData.testUser,
       binaryPath: config.fwLite.binaryPath
@@ -41,7 +41,7 @@ async function globalSetup() {
 
     // Log test environment information
     console.log('🌍 Test Environment Information:');
-    console.log('   - Server:', `${config.server.protocol}://${config.server.hostname}`);
+    console.log('   - Lexbox Server:', `${config.lexboxServer.protocol}://${config.lexboxServer.hostname}`);
     console.log('   - Project:', config.testData.projectCode);
     console.log('   - Test User:', config.testData.testUser);
     console.log('   - Binary Path:', config.fwLite.binaryPath);

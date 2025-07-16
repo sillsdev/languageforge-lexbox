@@ -8,9 +8,9 @@ import type { E2ETestConfig, TestProject } from './types';
  * Default test configuration
  */
 export const DEFAULT_E2E_CONFIG: E2ETestConfig = {
-  server: {
-    hostname: process.env.TEST_SERVER_HOSTNAME || 'localhost:5137',
-    protocol: 'http',
+  lexboxServer: {
+    hostname: process.env.TEST_SERVER_HOSTNAME || 'localhost',
+    protocol: 'https',
     port: 5137,
   },
   fwLite: {
@@ -90,9 +90,9 @@ export function generateTestId(): string {
 export function getTestConfig(): E2ETestConfig {
   return {
     ...DEFAULT_E2E_CONFIG,
-    server: {
-      ...DEFAULT_E2E_CONFIG.server,
-      hostname: process.env.TEST_SERVER_HOSTNAME || DEFAULT_E2E_CONFIG.server.hostname,
+    lexboxServer: {
+      ...DEFAULT_E2E_CONFIG.lexboxServer,
+      hostname: process.env.TEST_SERVER_HOSTNAME || DEFAULT_E2E_CONFIG.lexboxServer.hostname,
     },
     fwLite: {
       ...DEFAULT_E2E_CONFIG.fwLite,
