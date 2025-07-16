@@ -80,6 +80,22 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         return addedToQueue;
     }
 
+    public bool CancelJob(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        //will only cancel job if it's already queued or running
+        var found = _projectsQueuedOrRunning.TryGetValue(projectId, out var job);
+        var success = false;
+        if (found)
+        {
+            success = job?.TrySetCanceled(cancellationToken) ?? false;
+            if (success)
+            {
+                _projectsQueuedOrRunning.TryRemove(projectId, out _);
+            }
+        }
+        return success;
+    }
+
     private void CacheRecentSyncResult(Guid projectId, SyncJobResult result)
     {
         memoryCache.Set($"SyncResult|{projectId}", result, TimeSpan.FromSeconds(30));

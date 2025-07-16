@@ -82,6 +82,7 @@ app.MapMediaFileRoutes();
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
+app.MapPost("/api/cancel-crdt-sync", CancelMergeRequest);
 
 // DELETE endpoint to remove a project if it exists
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
@@ -139,6 +140,32 @@ static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
         return TypedResults.Problem("Unable to authenticate with Lexbox");
     }
     syncHostedService.QueueJob(projectId);
+    return TypedResults.Ok();
+}
+
+static async Task<Results<Ok, NotFound, ProblemHttpResult>> CancelMergeRequest(
+    SyncHostedService syncHostedService,
+    ProjectLookupService projectLookupService,
+    ILogger<Program> logger,
+    CrdtHttpSyncService crdtHttpSyncService,
+    IHttpClientFactory httpClientFactory,
+    Guid projectId)
+{
+    var projectCode = await projectLookupService.GetProjectCode(projectId);
+    if (projectCode is null)
+    {
+        logger.LogError("Project ID {projectId} not found", projectId);
+        return TypedResults.NotFound();
+    }
+
+    logger.LogInformation("Project code is {projectCode}", projectCode);
+    //if we can't sync with lexbox fail fast
+    if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
+    {
+        logger.LogError("Unable to authenticate with Lexbox");
+        return TypedResults.Problem("Unable to authenticate with Lexbox");
+    }
+    syncHostedService.CancelJob(projectId);
     return TypedResults.Ok();
 }
 

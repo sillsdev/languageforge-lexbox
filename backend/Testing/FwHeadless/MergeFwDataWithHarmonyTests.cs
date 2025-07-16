@@ -91,4 +91,27 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         result.CrdtChanges.Should().Be(0);
         result.FwdataChanges.Should().BeGreaterThan(0);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    [InlineData(5)]
+    [InlineData(10)]
+    // Don't wait more than 10 seconds, otherwise the sync could complete before we can cancel it
+    public async Task TriggerSync_CanBeCancelled(int waitSeconds)
+    {
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
+        var result1 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        result1.Should().NotBeNull();
+
+        await AddTestCommit(_projectId);
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
+        Thread.Sleep(TimeSpan.FromSeconds(waitSeconds));
+        await FwHeadlessTestHelpers.CancelSync(HttpClient, _projectId);
+        var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        result.Should().NotBeNull();
+        // Depending on whether the second sync started before being canceled, we may be seeing the cached result from the first sync
+        result.CrdtChanges.Should().BeOneOf(0, result1.CrdtChanges);
+        result.FwdataChanges.Should().Be(0);
+    }
 }
