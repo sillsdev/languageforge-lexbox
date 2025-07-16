@@ -124,9 +124,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
-    () => {
-      return urlHolder;
-    },
+    () => ({ ...urlHolder }),
   );
 
   const browseDictionaryCommandPromise = papi.commands.registerCommand(
