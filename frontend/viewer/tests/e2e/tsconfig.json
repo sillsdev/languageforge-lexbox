@@ -2,36 +2,24 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "strict": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "types": [
-      "node",
-      "@playwright/test"
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "$lib": ["../../src/lib"],
-      "$lib/*": ["../../src/lib/*"],
-      "@e2e/*": ["./*"],
-      "@e2e/types": ["./types"],
-      "@e2e/config": ["./config"],
-      "@e2e/helpers/*": ["./helpers/*"],
-      "@e2e/fixtures/*": ["./fixtures/*"]
-    }
+    "types": ["node", "@playwright/test"]
   },
   "include": [
-    "./**/*.ts",
-    "./**/*.js",
-    "./fixtures/*.json"
+    "**/*.ts",
+    "**/*.js",
+    "fixtures/**/*.json"
   ],
   "exclude": [
     "node_modules",
-    "**/*.d.ts"
+    "test-results"
   ]
 }

@@ -1,23 +1,12 @@
 # Implementation Plan
 
 - [x] 1. Set up E2E test directory structure and configuration
-
-
-
-
-
   - Create the `frontend/viewer/tests/e2e/` directory structure with subdirectories for helpers and fixtures
   - Create TypeScript configuration files for E2E tests with proper type definitions
   - Set up test data constants and configuration interfaces
   - _Requirements: 3.4, 4.1_
 
 - [x] 2. Implement FW Lite application launcher utility
-
-
-
-
-
-
   - Create `fw-lite-launcher.ts` helper class to manage FW Lite application lifecycle
   - Implement launch method with timeout handling and port conflict resolution
   - Implement shutdown method with proper cleanup and process termination
@@ -26,9 +15,6 @@
   - _Requirements: 2.1, 2.2, 4.4_
 
 - [x] 2.1. Set up FW Lite server binary for launcher testing
-
-
-
   - Add build script to publish FW Lite server binary for testing
   - Configure dotnet publish command to create self-contained executable
   - Set up output directory structure for test binaries
@@ -37,10 +23,6 @@
   - _Requirements: 2.1, 2.2, 4.4_
 
 - [x] 3. Create test data management system
-
-
-
-
   - Implement `test-data.ts` with test project configurations and expected data structures
   - Create helper functions for generating unique test identifiers to avoid data conflicts
   - Implement test data cleanup utilities for removing test entries after execution
@@ -48,11 +30,6 @@
   - _Requirements: 4.1, 4.2, 4.3, 4.5_
 
 - [x] 4. Implement project operations helper module
-
-
-
-
-
   - Create `project-operations.ts` with functions for project download automation
   - Implement project deletion helpers for cleaning up local project copies
   - Add project verification functions to confirm successful downloads and data presence
@@ -61,6 +38,11 @@
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6_
 
 - [ ] 5. Create core integration test scenarios
+
+
+
+
+
   - Implement the main test case: download project, create entry, delete local copy, re-download, verify entry
   - Add test setup and teardown functions for proper test isolation
   - Implement Playwright page object patterns for FW Lite UI interactions
