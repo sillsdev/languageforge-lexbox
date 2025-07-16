@@ -8,11 +8,9 @@ import type {
 } from '@papi/core';
 import type {
   FindEntryEvent,
-  FwDictionariesEvent,
   IProjectModel,
   LaunchServerEvent,
   OpenFwLiteEvent,
-  OpenProjectEvent,
   UrlHolder,
 } from 'fw-lite-extension';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
@@ -91,9 +89,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
   const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
     'fwLiteExtension.launchServer',
-  );
-  const onFwDictionariesEmitter = papi.network.createNetworkEventEmitter<FwDictionariesEvent>(
-    'fwLiteExtension.fwDictionaries',
   );
 
   const urlHolder: UrlHolder = { baseUrl: '', dictionaryUrl: '' };
@@ -204,8 +199,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info('Fetching local FieldWorks dictionaries');
       const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
       const jsonText = await (await response.blob()).text();
-      const dictionaries = JSON.parse(jsonText) as IProjectModel[];
-      onFwDictionariesEmitter.emit({ dictionaries });
+      try {
+        return JSON.parse(jsonText) as IProjectModel[];
+      } catch (e) {
+        logger.error('Error parsing api response', e);
+      }
     },
   );
 
@@ -236,7 +234,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     onOpenFwLiteEmitter,
     onFindEntryEmitter,
     onLaunchServerEmitter,
-    onFwDictionariesEmitter,
     // Other cleanup
     () => fwLiteProcess?.kill(),
   );

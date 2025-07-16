@@ -1,21 +1,16 @@
 import type { WebViewProps } from '@papi/core';
 import papi from '@papi/frontend';
-import type { FwDictionariesEvent, IProjectModel } from 'fw-lite-extension';
-import { ComboBox, useEvent } from 'platform-bible-react';
+import type { IProjectModel } from 'fw-lite-extension';
+import { ComboBox } from 'platform-bible-react';
 import { useState, useEffect } from 'react';
 
 globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
   const [fwDictionaries, setFwDictionaries] = useState<IProjectModel[] | undefined>();
   const [selectedDictionaryCode, setSelectedDictionaryCode] = useState('');
 
-  useEvent<FwDictionariesEvent>(
-    papi.network.getNetworkEvent('fwLiteExtension.fwDictionaries'),
-    ({ dictionaries }) => setFwDictionaries(dictionaries),
-  );
-
   useEffect(() => {
     papi.logger.info(`This web view was opened for project '${props.projectId}'`);
-    papi.commands.sendCommand('fwLiteExtension.fwDictionaries');
+    papi.commands.sendCommand('fwLiteExtension.fwDictionaries').then(setFwDictionaries);
   }, []);
 
   return (
