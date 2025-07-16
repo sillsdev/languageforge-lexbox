@@ -28,9 +28,6 @@ interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
 
 const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 
-/**
- * Simple web view provider that provides React web views when papi requests them
- */
 const reactWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
@@ -42,11 +39,12 @@ const reactWebViewProvider: IWebViewProvider = {
       );
     return {
       ...savedWebView,
-      title: 'FieldWorks Lite Extension React',
-      content: fwLiteMainWindow,
-      styles: extensionTemplateStyles,
-      iconUrl,
       allowedFrameSources: ['http://localhost:*'],
+      iconUrl,
+      content: fwLiteMainWindow,
+      projectId: options.projectId || savedWebView.projectId || undefined,
+      styles: extensionTemplateStyles,
+      title: '%fwLiteExtension_browseDictionary_title%',
     };
   },
 };
@@ -64,6 +62,7 @@ const dictionarySelectWebViewProvider: IWebViewProvider = {
       ...savedWebView,
       content: fwDictionarySelect,
       iconUrl,
+      projectId: options.projectId || savedWebView.projectId || undefined,
       title: '%fwLiteExtension_selectDictionary_title%',
     };
   },
