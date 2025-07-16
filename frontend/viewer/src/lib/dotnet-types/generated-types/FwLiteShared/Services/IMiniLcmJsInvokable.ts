@@ -17,6 +17,7 @@ import type {WritingSystemType} from '../../MiniLcm/Models/WritingSystemType';
 import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormComponent';
 import type {ISense} from '../../MiniLcm/Models/ISense';
 import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
+import type {IReadFileResponseJs} from './IReadFileResponseJs';
 
 export interface IMiniLcmJsInvokable
 {
@@ -61,6 +62,6 @@ export interface IMiniLcmJsInvokable
 	createExampleSentence(entryId: string, senseId: string, exampleSentence: IExampleSentence) : Promise<IExampleSentence>;
 	updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence) : Promise<IExampleSentence>;
 	deleteExampleSentence(entryId: string, senseId: string, exampleSentenceId: string) : Promise<void>;
-	getFileStream(mediaUri: string) : Promise<{stream: () => Promise<ReadableStream>, arrayBuffer: () => Promise<ArrayBuffer>}>;
+	getFileStream(mediaUri: string) : Promise<IReadFileResponseJs>;
 }
 /* eslint-enable */

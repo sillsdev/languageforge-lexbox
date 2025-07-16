@@ -26,6 +26,7 @@ using Refit;
 using MiniLcm.Culture;
 using LcmCrdt.Culture;
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.MediaServer;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MiniLcm.Filtering;
 
@@ -57,11 +58,16 @@ public static class LcmCrdtKernel
         services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
             ConfigureCrdt
         );
+        services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
+        {
+            crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+        });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<LcmMediaService>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
@@ -75,6 +81,7 @@ public static class LcmCrdtKernel
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
+        services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
         return services;
     }
 
@@ -207,6 +214,8 @@ public static class LcmCrdtKernel
                     component.ComponentEntryId
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
+
+        config.AddRemoteResourceEntity();
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()

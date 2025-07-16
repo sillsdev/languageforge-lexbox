@@ -1533,10 +1533,11 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public Task<Stream?> GetFileStream(MediaUri mediaUri)
+    public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
-        if (mediaUri == MediaUri.NotFound) return Task.FromResult<Stream?>(null);
+        if (mediaUri == MediaUri.NotFound) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
-        return Task.FromResult<Stream?>(File.OpenRead(fullPath));
+        if (!File.Exists(fullPath)) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
+        return Task.FromResult(new ReadFileResponse(File.OpenRead(fullPath), Path.GetFileName(fullPath)));
     }
 }

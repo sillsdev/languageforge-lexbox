@@ -6,6 +6,7 @@ using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.MediaServer;
 using LcmCrdt.Objects;
 using LcmCrdt.Utils;
 using LinqToDB;
@@ -26,6 +27,7 @@ public class CrdtMiniLcmApi(
     MiniLcmRepositoryFactory repoFactory,
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
+    LcmMediaService lcmMediaService,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -689,6 +691,12 @@ public class CrdtMiniLcmApi(
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
+    }
+
+    public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
+    {
+        if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);
+        return await lcmMediaService.GetFileStream(mediaUri.FileId);
     }
 
     public void Dispose()
