@@ -1,5 +1,5 @@
 import papi, { logger } from '@papi/frontend';
-import type { FindEntryEvent, LaunchServerEvent, OpenProjectEvent } from 'fw-lite-extension';
+import type { FindEntryEvent } from 'fw-lite-extension';
 import { useEvent } from 'platform-bible-react';
 import { useState, useRef, useEffect } from 'react';
 
@@ -16,14 +16,6 @@ globalThis.webViewComponent = function fwLiteMainWindow() {
         { type: 'notification', message: `Hello from Paratext ${entry}` },
         new URL(baseUrl).origin,
       );
-    },
-  );
-
-  useEvent<LaunchServerEvent>(
-    papi.network.getNetworkEvent('fwLiteExtension.launchServer'),
-    ({ baseUrl }) => {
-      logger.info('fwLiteExtension.launchServer', baseUrl);
-      setBaseUrl(baseUrl);
     },
   );
 
