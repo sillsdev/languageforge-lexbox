@@ -20,7 +20,7 @@ export const DEFAULT_E2E_CONFIG: E2ETestConfig = {
   },
   testData: {
     projectCode: process.env.TEST_PROJECT_CODE || 'sena-3',
-    testUser: process.env.TEST_USER || 'admin',
+    testUser: process.env.TEST_USER || 'manager',
     testPassword: process.env.TEST_DEFAULT_PASSWORD || 'pass',
   },
   timeouts: {

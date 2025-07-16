@@ -32,11 +32,12 @@ const TIMEOUTS = {
  */
 export async function loginToServer(page: Page, username: string, password: string, server: E2ETestConfig['lexboxServer']): Promise<void> {
   console.log(`Attempting to login as user: ${username}`);
-
+  const serverElement = page.locator(`#${server.hostname}`);
+  await serverElement.waitFor({state: 'visible', timeout: TIMEOUTS.uiInteraction});
   try {
     // Check if already logged in by looking for user indicator
-    const userIndicator = page.locator(`#${server.hostname} .i-mdi-account-circle`).first();
-    const isLoggedIn = await userIndicator.isVisible().catch(() => false);
+    const userIndicator = serverElement.locator(`.i-mdi-account-circle`);
+    const isLoggedIn = await userIndicator.isVisible();
 
     if (isLoggedIn) {
       console.log('User already logged in, skipping login process');
@@ -44,7 +45,7 @@ export async function loginToServer(page: Page, username: string, password: stri
     }
 
     // Look for login button or link
-    const loginButton = page.locator(`#${server.hostname} a:has-text("Login")`).first();
+    const loginButton = serverElement.locator(`a:has-text("Login")`).first();
 
 
     await loginButton.waitFor({
@@ -63,15 +64,10 @@ export async function loginToServer(page: Page, username: string, password: stri
 
     // Wait for login to complete - look for user indicator or redirect
     try {
-      await Promise.race([
-        // Wait for user menu/avatar to appear
-        page.locator('[data-testid="user-menu"], [data-testid="user-avatar"], .user-info').first().waitFor({
+      await page.locator(`#${server.hostname} .i-mdi-account-circle`).waitFor({
           state: 'visible',
           timeout: TIMEOUTS.loginTimeout
-        }),
-        // Or wait for redirect to dashboard/projects page
-        page.waitForURL(/\/(dashboard|projects|home)/, {timeout: TIMEOUTS.loginTimeout})
-      ]);
+        });
     } catch {
       // Check if login failed by looking for error messages
       const errorMessage = page.locator('[data-testid="login-error"], .error-message, .alert-error').first();
@@ -107,12 +103,15 @@ export async function loginToServer(page: Page, username: string, password: stri
  *
  * @param page - Playwright page object
  */
-export async function logoutFromServer(page: Page): Promise<void> {
+export async function logoutFromServer(page: Page, serverHostname: string): Promise<void> {
   console.log('Attempting to logout');
+
+  const serverElement = page.locator(`#${serverHostname}`);
+  await serverElement.waitFor({state: 'visible', timeout: TIMEOUTS.uiInteraction});
 
   try {
     // Look for user menu or logout button
-    const userMenu = page.locator('[data-testid="user-menu"], [data-testid="user-avatar"], .user-info').first();
+    const userMenu = serverElement.locator(`.i-mdi-account-circle`).first();
 
     try {
       await userMenu.waitFor({
@@ -141,8 +140,10 @@ export async function logoutFromServer(page: Page): Promise<void> {
     }
 
     // Wait for logout to complete - user menu should disappear
-    await userMenu.waitFor({
-      state: 'detached',
+    const loginButton = serverElement.locator(`a:has-text("Login")`);
+
+    await loginButton.waitFor({
+      state: 'visible',
       timeout: TIMEOUTS.uiInteraction
     });
 
@@ -161,34 +162,24 @@ export async function logoutFromServer(page: Page): Promise<void> {
  * @param projectCode - Code of the project to download
  * @throws Error if download fails or times out
  */
-export async function downloadProject(page: Page, projectCode: string): Promise<void> {
+export async function downloadProject(page: Page, projectCode: string, serverHostname?: string): Promise<void> {
   console.log(`Starting download for project: ${projectCode}`);
 
   try {
-    // Navigate to projects page if not already there
-    await navigateToProjectsPage(page);
-
-    // Look for the project in the available projects list
-    const projectSelector = `[data-testid="project-${projectCode}"], [data-project-code="${projectCode}"]`;
-    const projectElement = page.locator(projectSelector).first();
-
-    // Wait for project to be visible
-    await projectElement.waitFor({
-      state: 'visible',
-      timeout: TIMEOUTS.uiInteraction
-    });
+    const serverElement = serverHostname ? page.locator(`#${serverHostname}`) : page;
+    const projectElement = serverElement.locator(`li:has-text("${projectCode}")`);
 
     // Click download button for the project
-    const downloadButton = projectElement.locator('[data-testid="download-button"], button:has-text("Download")').first();
+    const downloadButton = projectElement.locator(`button:has-text("Download")`);
     await downloadButton.waitFor({
       state: 'visible',
       timeout: TIMEOUTS.uiInteraction
     });
 
-    await downloadButton.click();
+    await projectElement.click();
 
     // Wait for download to start (look for progress indicator)
-    const progressIndicator = page.locator('[data-testid="download-progress"], .download-progress, .progress-bar').first();
+    const progressIndicator = page.locator('.i-mdi-loading').first();
     await progressIndicator.waitFor({
       state: 'visible',
       timeout: TIMEOUTS.uiInteraction
@@ -623,24 +614,6 @@ export async function getProjectStats(page: Page, projectCode: string): Promise<
 
 // Helper functions for navigation
 
-/**
- * Navigate to the projects page
- */
-async function navigateToProjectsPage(page: Page): Promise<void> {
-  const projectsLink = page.locator('[data-testid="projects-nav"], a:has-text("Projects")').first();
-
-  try {
-    await projectsLink.waitFor({
-      state: 'visible',
-      timeout: TIMEOUTS.uiInteraction
-    });
-    await projectsLink.click();
-  } catch {
-    // Might already be on projects page
-  }
-
-  await page.waitForLoadState('networkidle');
-}
 
 /**
  * Navigate to the local projects page
@@ -716,7 +689,7 @@ async function navigateToProjectOverview(page: Page): Promise<void> {
  */
 async function waitForDownloadCompletion(page: Page, projectCode: string): Promise<void> {
   // Wait for progress indicator to disappear
-  const progressIndicator = page.locator('[data-testid="download-progress"], .download-progress').first();
+  const progressIndicator = page.locator('.i-mdi-loading, :has-text("Downloading")').first();
 
   try {
     await progressIndicator.waitFor({
@@ -727,17 +700,8 @@ async function waitForDownloadCompletion(page: Page, projectCode: string): Promi
     // Progress indicator might not be detached, check for completion message
   }
 
-  // Look for completion message or project in local list
-  const completionMessage = page.locator(':has-text("Download complete"), :has-text("Download successful")').first();
-  const localProject = page.locator(`[data-testid="local-project-${projectCode}"]`).first();
-
-  try {
-    await Promise.race([
-      completionMessage.waitFor({state: 'visible', timeout: 5000}),
-      localProject.waitFor({state: 'visible', timeout: 5000})
-    ]);
-  } catch {
-    // Final fallback - wait a bit more for download to complete
-    await page.waitForTimeout(5000);
-  }
+  // Look for synced
+  const projectElement = page.locator(`li:has-text("${projectCode}")`);
+  await projectElement.locator(':has-text("Synced")').first()
+  .waitFor({state: 'visible', timeout: TIMEOUTS.uiInteraction});
 }
