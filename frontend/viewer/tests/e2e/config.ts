@@ -14,7 +14,7 @@ export const DEFAULT_E2E_CONFIG: E2ETestConfig = {
     port: 5137,
   },
   fwLite: {
-    binaryPath: process.env.FW_LITE_BINARY_PATH || './fw-lite-linux/linux-x64/FwLiteWeb',
+    binaryPath: process.env.FW_LITE_BINARY_PATH || './dist/fw-lite-server/FwLiteWeb.exe',
     launchTimeout: 30000, // 30 seconds
     shutdownTimeout: 10000, // 10 seconds
   },

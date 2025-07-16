@@ -37,6 +37,7 @@ async function globalSetup() {
       console.warn('⚠️  FW Lite binary not found at:', config.fwLite.binaryPath);
       console.warn('   Tests will fail if binary is not available during execution');
       console.warn('   Error:', error);
+      throw error;
     }
 
     // Log test environment information

@@ -6,9 +6,6 @@
  */
 
 import { defineConfig, devices } from '@playwright/test';
-import { getTestConfig } from './config';
-
-const testConfig = getTestConfig();
 
 export default defineConfig({
   testDir: '.',
@@ -44,7 +41,7 @@ export default defineConfig({
       ]
     : [
         ['list'],
-        ['html', { outputFolder: 'test-results/e2e-html-report', open: 'never' }]
+        ['html', { outputFolder: 'e2e-html-report', open: 'never' }]
       ],
 
   use: {
@@ -87,6 +84,6 @@ export default defineConfig({
   ],
 
   // Global setup and teardown
-  globalSetup: require.resolve('./global-setup.ts'),
-  globalTeardown: require.resolve('./global-teardown.ts'),
+  globalSetup: './global-setup',
+  globalTeardown: './global-teardown',
 });

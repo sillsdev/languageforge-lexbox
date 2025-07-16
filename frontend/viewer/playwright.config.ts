@@ -41,6 +41,7 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:' + serverPort,
+    ignoreHTTPSErrors: true,
     /* Local storage to be populated for every test */
     storageState: {
       cookies: [],

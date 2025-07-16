@@ -5,8 +5,9 @@
  * It handles UI interactions for downloading projects, creating entries, and verifying data.
  */
 
-import type {Page} from '@playwright/test';
-import type {TestProject, TestEntry} from '../types';
+import {expect, type Page} from '@playwright/test';
+import type {TestProject, TestEntry, E2ETestConfig} from '../types';
+import {LoginPage} from '../../../../tests/pages/loginPage'
 
 /**
  * Timeout constants for various operations
@@ -29,12 +30,12 @@ const TIMEOUTS = {
  * @param password - Password for authentication
  * @throws Error if login fails
  */
-export async function loginToServer(page: Page, username: string, password: string): Promise<void> {
+export async function loginToServer(page: Page, username: string, password: string, server: E2ETestConfig['lexboxServer']): Promise<void> {
   console.log(`Attempting to login as user: ${username}`);
 
   try {
     // Check if already logged in by looking for user indicator
-    const userIndicator = page.locator('[data-testid="user-menu"], [data-testid="user-avatar"], .user-info').first();
+    const userIndicator = page.locator(`#${server.hostname} .i-mdi-account-circle`).first();
     const isLoggedIn = await userIndicator.isVisible().catch(() => false);
 
     if (isLoggedIn) {
@@ -43,49 +44,22 @@ export async function loginToServer(page: Page, username: string, password: stri
     }
 
     // Look for login button or link
-    const loginButton = page.locator('[data-testid="login-button"], button:has-text("Login"), a:has-text("Login"), a:has-text("Sign In")').first();
+    const loginButton = page.locator(`#${server.hostname} a:has-text("Login")`).first();
 
-    try {
-      await loginButton.waitFor({
-        state: 'visible',
-        timeout: TIMEOUTS.uiInteraction
-      });
-      await loginButton.click();
-    } catch {
-      // Login button might not be visible, try navigating to login page directly
-      await page.goto('/login');
-    }
 
-    // Wait for login form to appear
-    const loginForm = page.locator('[data-testid="login-form"], form, .login-form').first();
-    await loginForm.waitFor({
+    await loginButton.waitFor({
       state: 'visible',
       timeout: TIMEOUTS.uiInteraction
     });
+    await loginButton.click();
 
-    // Fill in username field
-    const usernameField = loginForm.locator('[data-testid="username-field"], input[name="username"], input[name="email"], input[type="email"], input[placeholder*="username"], input[placeholder*="email"]').first();
-    await usernameField.waitFor({
-      state: 'visible',
-      timeout: TIMEOUTS.uiInteraction
-    });
-    await usernameField.fill(username);
+    await expect(page).toHaveURL(url => url.href.startsWith(`${server.protocol}://${server.hostname}/login`), {timeout: TIMEOUTS.loginTimeout});
 
-    // Fill in password field
-    const passwordField = loginForm.locator('[data-testid="password-field"], input[name="password"], input[type="password"]').first();
-    await passwordField.waitFor({
-      state: 'visible',
-      timeout: TIMEOUTS.uiInteraction
-    });
-    await passwordField.fill(password);
-
-    // Submit the login form
-    const submitButton = loginForm.locator('[data-testid="login-submit"], button[type="submit"], button:has-text("Login"), button:has-text("Sign In")').first();
-    await submitButton.waitFor({
-      state: 'visible',
-      timeout: TIMEOUTS.uiInteraction
-    });
-    await submitButton.click();
+    //todo reuse login page
+    const loginPage = new LoginPage(page);
+    await loginPage.waitFor();
+    await loginPage.fillForm(username, password);
+    await loginPage.submit();
 
     // Wait for login to complete - look for user indicator or redirect
     try {

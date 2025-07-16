@@ -27,7 +27,7 @@ import {
   validateTestDataConfiguration
 } from './helpers/test-data';
 import { getTestConfig } from './config';
-import type { TestEntry, TestProject } from './types';
+import type { E2ETestConfig, TestEntry, TestProject } from './types';
 
 // Test configuration
 const config = getTestConfig();
@@ -40,7 +40,7 @@ let testId: string;
  * Page Object Model for FW Lite UI interactions
  */
 class FwLitePageObject {
-  constructor(private page: Page) {}
+  constructor(private page: Page, private config: E2ETestConfig) {}
 
   /**
    * Navigate to the FW Lite application
@@ -90,7 +90,7 @@ class FwLitePageObject {
    * Check if user is logged in
    */
   async isUserLoggedIn(): Promise<boolean> {
-    const userIndicator = this.page.locator('[data-testid="user-menu"], [data-testid="user-avatar"], .user-info').first();
+    const userIndicator = this.page.locator(`#${this.config.lexboxServer.hostname} .i-mdi-account-circle`).first();
     return await userIndicator.isVisible().catch(() => false);
   }
 
@@ -144,7 +144,7 @@ test.describe('FW Lite Integration Tests', () => {
     console.log(`FW Lite launched at: ${fwLiteLauncher.getBaseUrl()}`);
 
     // Navigate to the application
-    const pageObject = new FwLitePageObject(page);
+    const pageObject = new FwLitePageObject(page, config);
     await page.goto(fwLiteLauncher.getBaseUrl());
     await pageObject.waitForAppReady();
 
@@ -156,7 +156,7 @@ test.describe('FW Lite Integration Tests', () => {
 
     try {
       // Take final screenshot for debugging if test failed
-      const pageObject = new FwLitePageObject(page);
+      const pageObject = new FwLitePageObject(page, config);
       await pageObject.takeDebugScreenshot('test-cleanup');
 
       // Logout from server
@@ -188,14 +188,14 @@ test.describe('FW Lite Integration Tests', () => {
    * Main integration test: Complete workflow from download to verification
    */
   test('Complete project workflow: download, modify, sync, verify', async ({ page }) => {
-    const pageObject = new FwLitePageObject(page);
+    const pageObject = new FwLitePageObject(page, config);
 
     console.log('Starting complete project workflow test');
 
     // Step 1: Login to server
     console.log('Step 1: Logging in to server');
     await test.step('Login to LexBox server', async () => {
-      await loginToServer(page, config.testData.testUser, config.testData.testPassword);
+      await loginToServer(page, config.testData.testUser, config.testData.testPassword, config.lexboxServer);
 
       // Verify login was successful
       const isLoggedIn = await pageObject.isUserLoggedIn();
@@ -317,7 +317,7 @@ test.describe('FW Lite Integration Tests', () => {
    * Smoke test: Basic application launch and connectivity
    */
   test('Smoke test: Application launch and server connectivity', async ({ page }) => {
-    const pageObject = new FwLitePageObject(page);
+    const pageObject = new FwLitePageObject(page, config);
 
     console.log('Starting smoke test');
 
@@ -335,7 +335,7 @@ test.describe('FW Lite Integration Tests', () => {
 
     await test.step('Verify server connectivity', async () => {
       // Attempt login to verify server connection
-      await loginToServer(page, config.testData.testUser, config.testData.testPassword);
+      await loginToServer(page, config.testData.testUser, config.testData.testPassword, config.lexboxServer);
 
       // Verify login was successful
       const isLoggedIn = await pageObject.isUserLoggedIn();
@@ -351,13 +351,13 @@ test.describe('FW Lite Integration Tests', () => {
    * Project download test: Isolated project download verification
    */
   test('Project download: Download and verify project structure', async ({ page }) => {
-    const pageObject = new FwLitePageObject(page);
+    const pageObject = new FwLitePageObject(page, config);
 
     console.log('Starting project download test');
 
     await test.step('Login and download project', async () => {
       // Login to server
-      await loginToServer(page, config.testData.testUser, config.testData.testPassword);
+      await loginToServer(page, config.testData.testUser, config.testData.testPassword, config.lexboxServer);
 
       // Download project
       await downloadProject(page, testProject.code);
@@ -383,7 +383,7 @@ test.describe('FW Lite Integration Tests', () => {
    * Entry management test: Create and search entries
    */
   test('Entry management: Create, search, and verify entries', async ({ page }) => {
-    const pageObject = new FwLitePageObject(page);
+    const pageObject = new FwLitePageObject(page, config);
 
     // Generate unique test entry for this test
     const entryTestId = generateUniqueIdentifier('entry-mgmt');
@@ -392,7 +392,7 @@ test.describe('FW Lite Integration Tests', () => {
     console.log('Starting entry management test');
 
     await test.step('Setup: Login and download project', async () => {
-      await loginToServer(page, config.testData.testUser, config.testData.testPassword);
+      await loginToServer(page, config.testData.testUser, config.testData.testPassword, config.lexboxServer);
       await downloadProject(page, testProject.code);
 
       const downloadVerified = await verifyProjectDownload(page, testProject);
