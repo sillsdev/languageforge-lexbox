@@ -4,6 +4,9 @@ declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
 
+  export interface SuccessHolder {
+    success: boolean;
+  }
   export interface UrlHolder {
     baseUrl: string;
     dictionaryUrl: string;
@@ -45,28 +48,15 @@ declare module 'fw-lite-extension' {
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
-    'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<{
-      success: boolean;
-    }>;
+    'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
     'fwLiteExtension.selectDictionary': (
       projectId: string,
       dictionaryCode: string,
-    ) => Promise<{
-      success: boolean;
-    }>;
+    ) => Promise<SuccessHolder>;
     'fwLiteExtension.fwDictionaries': () => Promise<void>;
-    'fwLiteExtension.openFWLite': (webViewId: string) => {
-      success: boolean;
-    };
-    'fwLiteExtension.findEntry': (
-      webViewId: string,
-      entry: string,
-    ) => {
-      success: boolean;
-    };
-    'fwLiteExtension.simpleFind': () => {
-      success: boolean;
-    };
+    'fwLiteExtension.openFWLite': (webViewId: string) => SuccessHolder;
+    'fwLiteExtension.findEntry': (webViewId: string, entry: string) => SuccessHolder;
+    'fwLiteExtension.simpleFind': () => SuccessHolder;
     'fwLiteExtension.getBaseUrl': () => UrlHolder;
   }
   export interface ProjectSettingTypes {

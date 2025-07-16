@@ -7,7 +7,7 @@
   "main": "fw-lite-extension.ts",
   "activationEvents": [],
   "elevatedPrivileges": ["createProcess"],
-  "menus": "contributions/menu.json",
   "localizedStrings": "contributions/localizedStrings.json",
+  "menus": "contributions/menus.json",
   "projectSettings": "contributions/projectSettings.json"
 }
