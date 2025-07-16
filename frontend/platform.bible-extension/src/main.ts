@@ -6,13 +6,7 @@ import type {
   SavedWebViewDefinition,
   WebViewDefinition,
 } from '@papi/core';
-import type {
-  FindEntryEvent,
-  IProjectModel,
-  LaunchServerEvent,
-  OpenFwLiteEvent,
-  UrlHolder,
-} from 'fw-lite-extension';
+import type { FindEntryEvent, IProjectModel, OpenFwLiteEvent, UrlHolder } from 'fw-lite-extension';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
@@ -80,21 +74,16 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     dictionarySelectWebViewProvider,
   );
 
-  // Emitter to tell subscribers how many times we have done stuff
   const onOpenFwLiteEmitter = papi.network.createNetworkEventEmitter<OpenFwLiteEvent>(
     'fwLiteExtension.openFWLite',
   );
   const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
     'fwLiteExtension.findEntry',
   );
-  const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
-    'fwLiteExtension.launchServer',
-  );
 
   const urlHolder: UrlHolder = { baseUrl: '', dictionaryUrl: '' };
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
-  onLaunchServerEmitter.emit(urlHolder);
 
   const entryService = papi.networkObjects.set(
     'fwliteextension.entryService',
@@ -201,7 +190,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   // `paranext-core's hello-someone`.
   void papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
 
-  // Await the data provider promise at the end so we don't hold everything else up
+  // Await the registration promises at the end so we don't hold everything else up
   context.registrations.add(
     // Web views
     await reactWebViewProviderPromise,
@@ -219,7 +208,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // Event emitters
     onOpenFwLiteEmitter,
     onFindEntryEmitter,
-    onLaunchServerEmitter,
     // Other cleanup
     () => fwLiteProcess?.kill(),
   );
