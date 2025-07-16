@@ -54,7 +54,7 @@ declare module 'papi-shared-types' {
       dictionaryCode: string,
     ) => Promise<SuccessHolder>;
     'fwLiteExtension.fwDictionaries': () => Promise<IProjectModel[] | undefined>;
-    'fwLiteExtension.openFWLite': (webViewId: string) => SuccessHolder;
+    'fwLiteExtension.openFWLite': (webViewId: string) => Promise<SuccessHolder>;
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => SuccessHolder;
     'fwLiteExtension.simpleFind': () => SuccessHolder;
     'fwLiteExtension.getBaseUrl': () => UrlHolder;

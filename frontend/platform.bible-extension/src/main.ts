@@ -153,26 +153,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
-    (webViewId: string) => {
-      if (webViewId) {
-        papi.webViews.getOpenWebViewDefinition(webViewId).then((webViewDef) => {
-          const projectId = webViewDef?.projectId;
-          if (projectId) {
-            logger.info(
-              `Opening FieldWorks Lite from web view '${webViewId}' (Platform.Bible project '${projectId}')`,
-            );
-            papi.projectDataProviders.get('platform.base', projectId).then((pdp) => {
-              pdp.getSetting('fw-lite-extension.fwProject').then((setting) => {
-                logger.info(
-                  `In Platform > Settings > Project Settings, the FieldWorks project is: ${setting}`,
-                );
-              });
-            });
-          }
-        });
-      }
-
-      void papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
+    async (webViewId: string) => {
+      const projectId = webViewId
+        ? (await papi.webViews.getOpenWebViewDefinition(webViewId))?.projectId
+        : undefined;
+      const options: OpenWebViewOptionsWithProjectId = { existingId: '?', projectId };
+      void papi.webViews.openWebView(reactWebViewType, undefined, options);
       return { success: true };
     },
   );
