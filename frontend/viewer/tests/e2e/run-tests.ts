@@ -47,7 +47,7 @@ export async function runTests(options: TestRunOptions = {}): Promise<void> {
       env: {
         ...process.env,
         // Pass configuration through environment variables
-        TEST_SERVER_HOSTNAME: config.server.hostname,
+        TEST_SERVER_HOSTNAME: config.lexboxServer.hostname,
         TEST_PROJECT_CODE: config.testData.projectCode,
         TEST_USER: config.testData.testUser,
         TEST_DEFAULT_PASSWORD: config.testData.testPassword,
