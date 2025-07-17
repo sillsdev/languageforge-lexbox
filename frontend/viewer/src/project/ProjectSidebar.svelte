@@ -21,6 +21,7 @@
   import {formatNumber} from '$lib/components/ui/format';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
+  import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
 
   const config = useFwLiteConfig();
   const features = useFeatures();
@@ -178,6 +179,9 @@
               </a>
             {/snippet}
           </Sidebar.MenuButton>
+        </Sidebar.MenuItem>
+        <Sidebar.MenuItem>
+          <LocalizationPicker/>
         </Sidebar.MenuItem>
       </Sidebar.Menu>
     </Sidebar.Group>
