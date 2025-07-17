@@ -1,8 +1,8 @@
-import { NetworkObject } from '@papi/core';
-import papi from '@papi/frontend';
+import type { NetworkObject } from '@papi/core';
+import papi, { logger } from '@papi/frontend';
 import type { FindWebViewOptions, IEntry, IEntryService } from 'fw-lite-extension';
-import { Card, CardHeader, SearchBar, CardContent } from 'platform-bible-react';
-import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, SearchBar } from 'platform-bible-react';
+import { useCallback, useEffect, useState } from 'react';
 
 globalThis.webViewComponent = function fwLiteProjectSelect({
   projectId,
@@ -11,37 +11,39 @@ globalThis.webViewComponent = function fwLiteProjectSelect({
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
-  >(undefined);
+  >();
   const [isFetching, setIsFetching] = useState(false);
   const [searchTerm, setSearchTerm] = useState(word ?? '');
 
   useEffect(() => {
     papi.networkObjects.get<IEntryService>('fwliteextension.entryService').then((networkObject) => {
-      console.log('Got network object:', networkObject);
+      logger.info('Got network object:', networkObject);
       setFwLiteNetworkObject(networkObject);
     });
   }, []);
 
-  async function fetchEntries(word: string) {
-    setSearchTerm(word);
-    if (!projectId || !fwLiteNetworkObject) {
-      console.warn(
-        `Missing required parameters: projectId=${projectId}, fwLiteNetworkObject=${fwLiteNetworkObject}`,
-      );
-      return;
-    }
-    if (!word) {
-      console.warn('No word provided for search');
-      return;
-    }
-    console.log(`Fetching entries for ${word}`);
-    setIsFetching(true);
-    const entries = await fwLiteNetworkObject?.getEntries(projectId, {
-      surfaceForm: word,
-    });
-    setIsFetching(false);
-    setMatchingEntries(entries ?? []);
-  }
+  const fetchEntries = useCallback(
+    async (word: string) => {
+      setSearchTerm(word);
+      if (!projectId || !fwLiteNetworkObject) {
+        logger.warn(
+          `Missing required parameters: projectId=${projectId}, fwLiteNetworkObject=${fwLiteNetworkObject}`,
+        );
+        return;
+      }
+      if (!word) {
+        logger.warn('No word provided for search');
+        return;
+      }
+
+      logger.info(`Fetching entries for ${word}`);
+      setIsFetching(true);
+      const entries = await fwLiteNetworkObject.getEntries(projectId, { surfaceForm: word });
+      setIsFetching(false);
+      setMatchingEntries(entries ?? []);
+    },
+    [fwLiteNetworkObject, projectId],
+  );
 
   return (
     <div>
@@ -52,7 +54,9 @@ globalThis.webViewComponent = function fwLiteProjectSelect({
         return (
           <Card>
             <CardHeader>
-              {JSON.stringify(entry.citationForm) ?? JSON.stringify(entry.lexemeForm)}
+              {Object.keys(entry.citationForm).length
+                ? JSON.stringify(entry.citationForm)
+                : JSON.stringify(entry.lexemeForm)}
             </CardHeader>
             <CardContent>
               {entry.senses.map((sense) => (
