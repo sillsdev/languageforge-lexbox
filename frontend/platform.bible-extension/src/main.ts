@@ -108,14 +108,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
 
-  const miniLcmApiFetch = async (path: string): Promise<string | undefined> => {
+  async function miniLcmApiFetch(path: string): Promise<string | undefined> {
     const apiUrl = `${baseUrl}/api/${path}`;
     try {
       return await (await papi.fetch(apiUrl)).text();
     } catch (e) {
       logger.error(`Error fetching ${apiUrl} from MiniLCM API`, e);
     }
-  };
+  }
 
   const entryService = papi.networkObjects.set(
     'fwliteextension.entryService',
@@ -183,7 +183,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       if (dictionary) {
         logger.info(`Project '${name}' is using FieldWorks dictionary '${dictionary}'`);
         urlHolder.dictionaryUrl = `${urlHolder.baseUrl}/paratext/fwdata/${dictionary}`;
-        papi.webViews.openWebView(mainWebViewType, undefined, options);
+        await papi.webViews.openWebView(mainWebViewType, undefined, options);
       } else {
         logger.warn(`FieldWorks dictionary not selected for project '${name}'`);
         await papi.webViews.openWebView(dictionarySelectWebViewType, { type: 'float' }, options);

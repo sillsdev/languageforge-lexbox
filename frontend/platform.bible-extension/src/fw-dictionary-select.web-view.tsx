@@ -43,10 +43,10 @@ globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
           !fwDictionaries
             ? 'Loading dictionaries...'
             : !fwDictionaries.length
-              ? 'No dictionaries found'
-              : !selectedDictionaryCode
-                ? 'Select a dictionary'
-                : `Selected: ${selectedDictionaryCode}`
+            ? 'No dictionaries found'
+            : !selectedDictionaryCode
+            ? 'Select a dictionary'
+            : `Selected: ${selectedDictionaryCode}`
         }
         commandEmptyMessage="No dictionaries found"
         isDisabled={!fwDictionaries?.length}
