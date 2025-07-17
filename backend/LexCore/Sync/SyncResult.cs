@@ -2,7 +2,7 @@
 
 namespace LexCore.Sync;
 
-public record SyncResult(int CrdtChanges, int FwdataChanges, string? SyncError = null);
+public record SyncResult(int CrdtChanges, int FwdataChanges);
 
 [JsonConverter(typeof(JsonStringEnumConverter<SyncStatus>))]
 public enum SyncStatus
