@@ -12,37 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 using SIL.Harmony.Core;
-using System.Text.Json.Serialization;
 
 namespace FwLiteShared.Projects;
-
-// Can't use ProblemDetails from Microsoft.AspNetCore.Mvc because if you reference Microsoft.AspNetCore.App.Ref,
-// then the FwLiteShared project (and four other projects) refuse to build with the error
-// "The package Microsoft.AspNetCore.App.Ref 9.0.0 has a package type DotnetPlatform that is incompatible with this project."
-// So we'll just copy the ProblemDetails definition over here
-public class ProblemDetails
-{
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("type")]
-    [JsonPropertyOrder(-5)]
-    public string? Type { get; set; }
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("title")]
-    [JsonPropertyOrder(-4)]
-    public string? Title { get; set; }
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("status")]
-    [JsonPropertyOrder(-3)]
-    public int? Status { get; set; }
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("detail")]
-    [JsonPropertyOrder(-2)]
-    public string? Detail { get; set; }
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("instance")]
-    [JsonPropertyOrder(-1)]
-    public string? Instance { get; set; }
-}
 
 public class LexboxProjectService : IDisposable
 {
@@ -169,10 +140,10 @@ public class LexboxProjectService : IDisposable
         }
     }
 
-    public async Task<SyncResult?> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
+    public async Task<SyncJobResult> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
     {
         var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return null;
+        if (httpClient is null) return new SyncJobResult(SyncJobResultEnum.UnknownError, "Unable to retrieve sync status", null);
         var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(timeoutSeconds);
         while (giveUpAt > DateTime.UtcNow)
         {
@@ -184,23 +155,24 @@ public class LexboxProjectService : IDisposable
                         new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
                 if (result.IsSuccessStatusCode)
                 {
-                    return await result.Content.ReadFromJsonAsync<SyncResult?>();
+                    var content = await result.Content.ReadFromJsonAsync<SyncJobResult?>();
+                    return content ?? new SyncJobResult(SyncJobResultEnum.UnknownError, "Unknown error retrieving sync status", null);
                 }
                 else
                 {
-                    var problem = await result.Content.ReadFromJsonAsync<ProblemDetails>();
-                    return new SyncResult(0, 0, problem?.Detail);
+                    var errorMessage = await result.Content.ReadAsStringAsync();
+                    return new SyncJobResult(SyncJobResultEnum.UnknownError, errorMessage, null);
                 }
             }
             catch (OperationCanceledException) { continue; }
             catch (Exception e)
             {
                 logger.LogError(e, "Error waiting for lexbox sync to finish");
-                return null;
+                return new SyncJobResult(SyncJobResultEnum.UnknownError, e.ToString(), null);
             }
         }
         logger.LogError("Timed out waiting for lexbox sync to finish");
-        return null;
+        return new SyncJobResult(SyncJobResultEnum.SyncJobTimedOut, "Timed out waiting for lexbox sync to finish", null);
     }
 
     public async Task<int?> CountPendingCrdtCommits(LexboxServer server, Guid projectId, SyncState localSyncState)

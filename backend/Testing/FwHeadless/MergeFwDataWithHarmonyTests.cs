@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
+using LexCore.Sync;
 using SIL.Harmony.Core;
 using Testing.ApiTests;
 using Testing.Services;
@@ -70,8 +71,10 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result.Should().NotBeNull();
-        result.CrdtChanges.Should().BeGreaterThan(100);
-        result.FwdataChanges.Should().Be(0);
+        result.Result.Should().Be(SyncJobResultEnum.Success);
+        result.SyncResult.Should().NotBeNull();
+        result.SyncResult.CrdtChanges.Should().BeGreaterThan(100);
+        result.SyncResult.FwdataChanges.Should().Be(0);
 
         // there should be a short grace period during which the result remains available
         var result2 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
@@ -88,8 +91,10 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result.Should().NotBeNull();
-        result.CrdtChanges.Should().Be(0);
-        result.FwdataChanges.Should().BeGreaterThan(0);
+        result.Result.Should().Be(SyncJobResultEnum.Success);
+        result.SyncResult.Should().NotBeNull();
+        result.SyncResult.CrdtChanges.Should().Be(0);
+        result.SyncResult.FwdataChanges.Should().BeGreaterThan(0);
     }
 
     [Theory]
@@ -103,6 +108,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result1 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result1.Should().NotBeNull();
+        result1.SyncResult.Should().NotBeNull();
 
         await AddTestCommit(_projectId);
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
@@ -111,13 +117,16 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         var result2 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result2.Should().NotBeNull();
         // Depending on whether the second sync started before being canceled, we may be seeing the cached result from the first sync
-        result2.CrdtChanges.Should().BeOneOf(0, result1.CrdtChanges);
-        result2.FwdataChanges.Should().Be(0);
+        result2.Result.Should().Be(SyncJobResultEnum.Success);
+        result2.SyncResult.Should().NotBeNull();
+        result2.SyncResult.CrdtChanges.Should().BeOneOf(0, result1.SyncResult.CrdtChanges);
+        result2.SyncResult.FwdataChanges.Should().Be(0);
         // Ensure that canceling a sync doesn't wedge the project and that future syncs can still succeed
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result3 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result3.Should().NotBeNull();
-        result3.CrdtChanges.Should().Be(0);
-        result3.FwdataChanges.Should().BeGreaterThan(0);
+        result3.SyncResult.Should().NotBeNull();
+        result3.SyncResult.CrdtChanges.Should().Be(0);
+        result3.SyncResult.FwdataChanges.Should().BeGreaterThan(0);
     }
 }

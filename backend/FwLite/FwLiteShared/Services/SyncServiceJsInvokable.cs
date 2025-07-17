@@ -15,7 +15,7 @@ public class SyncServiceJsInvokable(SyncService syncService)
     }
 
     [JSInvokable]
-    public async Task<SyncResult?> TriggerFwHeadlessSync()
+    public async Task<SyncJobResult> TriggerFwHeadlessSync()
     {
         await syncService.TriggerSync();
         return await syncService.AwaitSyncFinished();

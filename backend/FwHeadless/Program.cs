@@ -221,7 +221,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
-static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
+static async Task<SyncJobResult> AwaitSyncFinished(
     SyncHostedService syncHostedService,
     SyncJobStatusService syncJobStatusService,
     CancellationToken cancellationToken,
@@ -234,16 +234,16 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
         if (result is null)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
-            return TypedResults.NotFound();
+            return new(SyncJobResultEnum.SyncJobNotFound, "Sync job not found", null);
         }
 
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
-        return TypedResults.Ok(result);
+        return result;
     }
     catch (OperationCanceledException)
     {
         activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
-        return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+        return new SyncJobResult(SyncJobResultEnum.SyncJobTimedOut, "Sync job timed out", null);
     }
     catch (Exception e)
     {
@@ -251,6 +251,6 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
         var error = e.ToString();
         // TODO: Consider only returning exception error for certain users (admins, devs, managers)?
         // Note 200 OK returned here; SyncController will turn that into a 500 error with the exception details in it
-        return TypedResults.Ok(new SyncJobResult(SyncJobResultEnum.CrdtSyncFailed, error));
+        return new SyncJobResult(SyncJobResultEnum.CrdtSyncFailed, error, null);
     }
 }

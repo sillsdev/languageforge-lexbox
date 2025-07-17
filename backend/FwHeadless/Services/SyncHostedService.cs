@@ -36,7 +36,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             {
                 activity?.AddException(e);
                 logger.LogError(e, "Sync job failed");
-                result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.Message);
+                result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.ToString());
             }
             // Give clients a bit more time to poll the status
             CacheRecentSyncResult(projectId, result);

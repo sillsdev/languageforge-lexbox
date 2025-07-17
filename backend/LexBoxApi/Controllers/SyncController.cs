@@ -49,16 +49,9 @@ public class SyncController(
 
     [HttpGet("await-sync-finished/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
-    public async Task<ActionResult<SyncResult>> AwaitSyncFinished(Guid projectId)
+    public async Task<ActionResult<SyncJobResult>> AwaitSyncFinished(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        var result = await fwHeadlessClient.AwaitStatus(projectId, HttpContext.RequestAborted);
-        if (result is null) return Problem("Failed to get sync status");
-        if (result is { Result: SyncJobResultEnum.Success, SyncResult: not null })
-        {
-            return result.SyncResult;
-        }
-
-        return Problem(result.Error ?? "Unknown error");
+        return await fwHeadlessClient.AwaitStatus(projectId, HttpContext.RequestAborted);
     }
 }

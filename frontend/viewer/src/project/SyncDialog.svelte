@@ -45,7 +45,6 @@
   let lbToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
   let flexToLbCount = $derived(remoteStatus?.pendingMercurialChanges);
   const serverName = $derived(server?.displayName ?? projectContext.projectData?.serverId ?? 'unknown');
-  let syncErrorMessage = $state('');
 
   watch(() => openQueryParam.current, (newValue) => {
     if (newValue) void onOpen();
@@ -83,18 +82,25 @@
   let loadingSyncLexboxToFlex = $state(false);
   async function syncLexboxToFlex() {
     loadingSyncLexboxToFlex = true;
+    let safeToCloseDialog = false;
     try {
       const syncPromise = service.triggerFwHeadlessSync();
       AppNotification.promise(syncPromise, {
         loading: $t`Synchronizing FieldWorks Lite with FieldWorks...`,
         success: (result) => {
-          const fwdataChangesText = $plural(result.fwdataChanges, { one: '# change', other: '# changes' });
-          const crdtChangesText = $plural(result.crdtChanges, { one: '# change', other: '# changes' });
+          const fwdataChangesText = $plural(result.syncResult?.fwdataChanges ?? 0, { one: '# change', other: '# changes' });
+          const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, { one: '# change', other: '# changes' });
           return $t`${fwdataChangesText} synced to FieldWorks. ${crdtChangesText} synced to FieldWorks Lite.`;
         },
-        error: $t`Failed to synchronize.` + '\n' + `Details: ${syncErrorMessage}`,
+        error: (error) => $t`Failed to synchronize.` + '\n' + (error as Error).message,
+        // TODO: Custom component that can expand or collapse the stacktrace
       });
-      syncErrorMessage = (await syncPromise)?.syncError ?? '';
+      try {
+        await syncPromise;
+        safeToCloseDialog = true;
+      } catch {
+        safeToCloseDialog = false;
+      }
     } finally {
       loadingSyncLexboxToFlex = false;
     }
@@ -105,7 +111,7 @@
     const statusPromise = service.getStatus();
     // Auto-close dialog after successful FieldWorks sync
     [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
-    if (remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
+    if (safeToCloseDialog && remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
       openQueryParam.current = false;
     }
   }
@@ -245,9 +251,6 @@
               {$t`Last change: ${formatDate(lastFlexSyncDate, undefined,
                 remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
             </span>
-            {#if syncErrorMessage}
-            {syncErrorMessage}
-            {/if}
             {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
               {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
                 {$t`Not logged in`}
