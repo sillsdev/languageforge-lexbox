@@ -1,5 +1,5 @@
-import { OpenWebViewOptions } from '@papi/core';
-import { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
+import type { OpenWebViewOptions } from '@papi/core';
+import type { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
 
 declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
