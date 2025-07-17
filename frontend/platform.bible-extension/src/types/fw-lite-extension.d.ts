@@ -38,10 +38,10 @@ declare module 'fw-lite-extension' {
     updateEntry(projectId: string, reference: IEntry): Promise<void>;
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
+
   interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
     projectId?: string;
   }
-
   interface FindWebViewOptions extends OpenWebViewOptionsWithProjectId {
     word?: string;
   }
@@ -56,8 +56,7 @@ declare module 'papi-shared-types' {
     ) => Promise<SuccessHolder>;
     'fwLiteExtension.fwDictionaries': () => Promise<IProjectModel[] | undefined>;
     'fwLiteExtension.openFWLite': (webViewId: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.findEntry': (webViewId: string, entry: string) => SuccessHolder;
-    'fwLiteExtension.simpleFind': () => SuccessHolder;
+    'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.getBaseUrl': () => UrlHolder;
   }
   export interface ProjectSettingTypes {
