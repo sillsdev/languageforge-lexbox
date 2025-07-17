@@ -57,9 +57,10 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         }
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         var result = await HttpClient.SendAsync(request);
+        if (!result.IsSuccessStatusCode) return (null, result);
         var fileListing = await result.Content.ReadFromJsonAsync<FileListing>();
         //ensure the file listing is consistent with the os the tests are running on, keeps the tests simpler
-        if (fileListing is not null) fileListing = new ([..fileListing.Files.Select(f => f.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar))]);
+        if (fileListing is not null) fileListing = new ([..fileListing.Files.Select(f => f.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)) ?? []]);
         return (fileListing, result);
     }
 
