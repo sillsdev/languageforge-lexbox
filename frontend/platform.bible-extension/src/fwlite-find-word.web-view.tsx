@@ -50,25 +50,24 @@ globalThis.webViewComponent = function fwLiteProjectSelect({
       <SearchBar placeholder="Find in dictionary..." value={searchTerm} onSearch={fetchEntries} />
       {isFetching && <p>Loading...</p>}
       {!matchingEntries?.length && !isFetching && <p>No matching entries</p>}
-      {matchingEntries?.map((entry) => {
-        return (
-          <Card>
-            <CardHeader>
-              {Object.keys(entry.citationForm).length
-                ? JSON.stringify(entry.citationForm)
-                : JSON.stringify(entry.lexemeForm)}
-            </CardHeader>
-            <CardContent>
-              {entry.senses.map((sense) => (
-                <div key={sense.id}>
-                  <strong>{JSON.stringify(sense.gloss)}</strong>
-                  <p>{JSON.stringify(sense.definition)}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        );
-      })}
+      {matchingEntries?.map((entry) => (
+        <Card key={entry.id}>
+          <CardHeader>
+            {Object.keys(entry.citationForm).length
+              ? JSON.stringify(entry.citationForm)
+              : JSON.stringify(entry.lexemeForm)}
+          </CardHeader>
+          <CardContent>
+            <p>Senses:</p>
+            {entry.senses.map((sense) => (
+              <div key={sense.id}>
+                <strong>Gloss: {JSON.stringify(sense.gloss)}</strong>
+                <p>Definition: {JSON.stringify(sense.definition)}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
