@@ -1,5 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
+import type { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
 
 export class EntryService implements IEntryService {
   readonly baseUrl: string;
@@ -14,8 +14,8 @@ export class EntryService implements IEntryService {
       return undefined;
     }
     const settings = await papi.projectDataProviders.get('platform.base', projectId);
-    const fieldWorksProject = await settings.getSetting('fw-lite-extension.fwProject');
-    const apiUrl = `${this.baseUrl}/api/mini-lcm/FwData/${fieldWorksProject}/entries/${query.surfaceForm}`;
+    const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
+    const apiUrl = `${this.baseUrl}/api/mini-lcm/FwData/${dictionaryCode}/entries/${query.surfaceForm}`;
     console.log(`About to fetch entries: ${apiUrl}`);
     // Construct the query parameters from the IEntryQuery object
     // parse the json from the results and return the entries

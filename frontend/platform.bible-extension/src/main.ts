@@ -124,7 +124,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   const validDictionaryCode = papi.projectSettings.registerValidator(
-    'fw-lite-extension.fwProject',
+    'fw-lite-extension.fwDictionaryCode',
     async (dictionaryCode) => {
       if (!dictionaryCode) {
         logger.info('FieldWorks dictionary code cleared in project settings');
@@ -159,7 +159,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     const projectId = await getProjectIdFromWebViewId(webViewId);
     if (!projectId) return undefined;
     const pdp = await papi.projectDataProviders.get('platform.base', projectId);
-    return pdp.getSetting('fw-lite-extension.fwProject');
+    return pdp.getSetting('fw-lite-extension.fwDictionaryCode');
   }
 
   const browseDictionaryCommandPromise = papi.commands.registerCommand(
@@ -178,7 +178,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
       const pdp = await papi.projectDataProviders.get('platform.base', projectId);
       const name = (await pdp.getSetting('platform.name')) ?? projectId;
-      const dictionary = await pdp.getSetting('fw-lite-extension.fwProject');
+      const dictionary = await pdp.getSetting('fw-lite-extension.fwDictionaryCode');
       const options: OpenWebViewOptionsWithProjectId = { existingId: '?', projectId };
       if (dictionary) {
         logger.info(`Project '${name}' is using FieldWorks dictionary '${dictionary}'`);
@@ -220,7 +220,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (projectId: string, dictionaryCode: string) => {
       logger.info(`Selecting FieldWorks dictionary '${dictionaryCode}' for project '${projectId}'`);
       const pdp = await papi.projectDataProviders.get('platform.base', projectId);
-      await pdp.setSetting('fw-lite-extension.fwProject', dictionaryCode);
+      await pdp.setSetting('fw-lite-extension.fwDictionaryCode', dictionaryCode);
       return { success: true };
     },
   );
