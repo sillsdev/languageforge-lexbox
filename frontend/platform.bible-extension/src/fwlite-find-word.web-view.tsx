@@ -16,7 +16,7 @@ globalThis.webViewComponent = function fwLiteProjectSelect({
   const [searchTerm, setSearchTerm] = useState(word ?? '');
 
   useEffect(() => {
-    papi.networkObjects.get<IEntryService>('fwliteextension.entryService').then((networkObject) => {
+    void papi.networkObjects.get<IEntryService>('fwliteextension.entryService').then((networkObject) => {
       logger.info('Got network object:', networkObject);
       setFwLiteNetworkObject(networkObject);
     });
