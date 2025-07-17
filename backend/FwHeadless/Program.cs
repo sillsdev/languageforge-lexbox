@@ -250,7 +250,7 @@ static async Task<SyncJobResult> AwaitSyncFinished(
         activity?.AddException(e);
         var error = e.ToString();
         // TODO: Consider only returning exception error for certain users (admins, devs, managers)?
-        // Note 200 OK returned here; SyncController will turn that into a 500 error with the exception details in it
+        // Note 200 OK returned here; getting the status is a successful HTTP request even if the status is "the job failed and here's why"
         return new SyncJobResult(SyncJobResultEnum.CrdtSyncFailed, error, null);
     }
 }
