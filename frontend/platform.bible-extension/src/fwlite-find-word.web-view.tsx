@@ -2,7 +2,8 @@ import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import type { FindWebViewOptions, IEntry, IEntryService } from 'fw-lite-extension';
 import { Card, CardContent, CardHeader, SearchBar } from 'platform-bible-react';
-import { useCallback, useEffect, useState } from 'react';
+import { debounce } from 'platform-bible-utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 globalThis.webViewComponent = function fwLiteProjectSelect({
   projectId,
@@ -16,10 +17,12 @@ globalThis.webViewComponent = function fwLiteProjectSelect({
   const [searchTerm, setSearchTerm] = useState(word ?? '');
 
   useEffect(() => {
-    void papi.networkObjects.get<IEntryService>('fwliteextension.entryService').then((networkObject) => {
-      logger.info('Got network object:', networkObject);
-      setFwLiteNetworkObject(networkObject);
-    });
+    void papi.networkObjects
+      .get<IEntryService>('fwliteextension.entryService')
+      .then((networkObject) => {
+        logger.info('Got network object:', networkObject);
+        setFwLiteNetworkObject(networkObject);
+      });
   }, []);
 
   const fetchEntries = useCallback(
@@ -45,9 +48,19 @@ globalThis.webViewComponent = function fwLiteProjectSelect({
     [fwLiteNetworkObject, projectId],
   );
 
+  const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
+
+  const onSearch = useCallback(
+    (searchQuery: string) => {
+      setSearchTerm(searchQuery);
+      debouncedFetchEntries(searchQuery);
+    },
+    [debouncedFetchEntries],
+  );
+
   return (
     <div>
-      <SearchBar placeholder="Find in dictionary..." value={searchTerm} onSearch={fetchEntries} />
+      <SearchBar placeholder="Find in dictionary..." value={searchTerm} onSearch={onSearch} />
       {isFetching && <p>Loading...</p>}
       {!matchingEntries?.length && !isFetching && <p>No matching entries</p>}
       {matchingEntries?.map((entry) => (
