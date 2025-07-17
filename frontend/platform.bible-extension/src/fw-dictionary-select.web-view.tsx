@@ -15,9 +15,9 @@ globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
     setSettingSaving(true);
     papi.commands
       .sendCommand('fwLiteExtension.selectDictionary', props.projectId!, selectedDictionaryCode)
-      .then(() => setSettingSaved(true))
-      .catch((e) => papi.logger.error('Error saving FieldWorks dictionary selection:', e))
-      .finally(() => setSettingSaving(false));
+      .then(() => void setSettingSaved(true))
+      .catch((e) => void papi.logger.error('Error saving FieldWorks dictionary selection:', e))
+      .finally(() => void setSettingSaving(false));
   }, [selectedDictionaryCode, props.projectId]);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
     papi.commands
       .sendCommand('fwLiteExtension.fwDictionaries')
       .then(setFwDictionaries)
-      .catch((e) => papi.logger.error('Error fetching FieldWorks dictionaries:', e));
+      .catch((e) => void papi.logger.error('Error fetching FieldWorks dictionaries:', e));
   }, [props.projectId]);
 
   if (settingSaving) {
@@ -59,7 +59,7 @@ globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
           <button onClick={saveSetting} type="button">
             Confirm selection
           </button>
-          <button onClick={() => setSelectedDictionaryCode('')} type="button">
+          <button onClick={() => void setSelectedDictionaryCode('')} type="button">
             Clear selection
           </button>
         </>
