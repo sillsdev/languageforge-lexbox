@@ -2,7 +2,7 @@
   {
     "label": "%dictionary_project_settings_label%",
     "properties": {
-      "fw-lite-extension.fwProject": {
+      "fw-lite-extension.fwDictionaryCode": {
         "label": "%fieldworks_project_settings_label%",
         "description": "%fieldworks_project_settings_label_description%",
         "default": ""

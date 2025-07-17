@@ -15,14 +15,8 @@ declare module 'fw-lite-extension' {
     dictionaryUrl: string;
   }
 
-  export type OpenFwLiteEvent = {
-    dictionaryCode: string;
-  };
   export type FindEntryEvent = {
     entry: string;
-  };
-  export type FwDictionariesEvent = {
-    dictionaries: IProjectModel[];
   };
 
   export interface IEntryQuery {
@@ -60,7 +54,7 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.getBaseUrl': () => UrlHolder;
   }
   export interface ProjectSettingTypes {
-    'fw-lite-extension.fwProject': string;
+    'fw-lite-extension.fwDictionaryCode': string;
   }
   export interface NetworkableObject {
     'fwLiteExtension.entryService': IEntryService;
