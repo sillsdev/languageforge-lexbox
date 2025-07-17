@@ -103,8 +103,7 @@
               {#if features.sync}
                 <SyncDialog bind:this={syncDialog} {syncStatus} />
                 <Sidebar.MenuItem>
-                  <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between"
-                    tooltipContentProps={{hidden: syncStatus === SyncStatus.Success}}>
+                  <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                     {#snippet tooltipContent()}
                       {#if syncStatus === SyncStatus.Offline}
                         <span>{$t`Offline`}</span>
@@ -114,6 +113,8 @@
                         <span>{$t`No server configured`}</span>
                       {:else if syncStatus === SyncStatus.UnknownError}
                         <span>{$t`Unknown error`}</span>
+                      {:else if syncStatus === SyncStatus.Success}
+                        <span>{$t`Synced`}</span>
                       {:else}
                         <span>{$t`Error getting sync status`}</span>
                       {/if}
