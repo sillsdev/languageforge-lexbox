@@ -71,7 +71,6 @@ export async function load(event: PageLoadEvent) {
 						createdDate
 						retentionPolicy
 						isConfidential
-            isLanguageForgeProject
             hasHarmonyCommits
             organizations {
               id
