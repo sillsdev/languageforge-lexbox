@@ -64,24 +64,24 @@ public class LexboxProjectService : IDisposable
         return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
     }
 
-    public async Task<FieldWorksLiteProject[]> GetLexboxProjects(LexboxServer server)
+    public async Task<ListProjectsResult> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),
             async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
                 var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-                if (httpClient is null) return [];
+                if (httpClient is null) return new([], false);
                 try
                 {
-                    return await httpClient.GetFromJsonAsync<FieldWorksLiteProject[]>("api/crdt/listProjects") ?? [];
+                    return await httpClient.GetFromJsonAsync<ListProjectsResult>("api/crdt/listProjects") ?? new([], false);
                 }
                 catch (Exception e)
                 {
                     logger.LogError(e, "Error getting lexbox projects");
-                    return [];
+                    return new([], false);
                 }
-            }) ?? [];
+            }) ?? new([], false);
     }
 
     public async Task<LexboxUser?> GetLexboxUser(LexboxServer server)

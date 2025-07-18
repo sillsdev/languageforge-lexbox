@@ -13,6 +13,7 @@
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
+  import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
 
   const projectsService = useProjectsService();
 
@@ -23,6 +24,7 @@
   export let status: IServerStatus | undefined;
   $: server = status?.server;
   export let projects: Project[];
+  export let canDowloadByCode: boolean = false;
   export let localProjects: Project[];
   export let loading: boolean;
   let downloading = '';
@@ -54,7 +56,14 @@
     }
     return undefined;
   }
+
+  let getProjectByCodeDialog: GetProjectByCodeDialog|undefined;
+  function getProjectByCode()
+  {
+    getProjectByCodeDialog?.openDialog();
+  }
 </script>
+<GetProjectByCodeDialog bind:this={getProjectByCodeDialog}/>
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
@@ -98,6 +107,16 @@
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
       </p>
+      {#if status.loggedIn && canDowloadByCode}
+        <Button icon="i-mdi-download"
+                title={$t`Download project not listed`}
+                disabled={loading}
+                class="mr-2"
+                variant="ghost"
+                size="default"
+                onclick={getProjectByCode}
+                >{$t`Download project not listed`}</Button>
+      {/if}
     {:else}
       <div class="shadow rounded">
         {#each projects as project}
@@ -131,6 +150,16 @@
             </ButtonListItem>
           {/if}
         {/each}
+        {#if canDowloadByCode}
+        <Button icon="i-mdi-download"
+                title={$t`Download project not listed`}
+                disabled={loading}
+                class="mr-2"
+                variant="ghost"
+                size="default"
+                onclick={getProjectByCode}
+                >{$t`Download project not listed`}</Button>
+        {/if}
       </div>
       <div class="text-center pt-2">
         <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
