@@ -68,7 +68,6 @@ public class BackgroundSyncService(
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
         _running = true;
-        await SyncAllProjects(stoppingToken);
 
         try
         {
@@ -83,18 +82,6 @@ public class BackgroundSyncService(
         {
             // Expected during shutdown
         }
-    }
-
-    private async Task SyncAllProjects(CancellationToken stoppingToken)
-    {
-        var startTime = Stopwatch.GetTimestamp();
-        logger.LogInformation("Syncing all projects");
-        var crdtProjects = crdtProjectsService.ListProjects();
-        foreach (var crdtProject in crdtProjects)
-        {
-            await SyncProject(crdtProject, stoppingToken);
-        }
-        logger.LogInformation("Synced all projects in {Elapsed}", Stopwatch.GetElapsedTime(startTime).Humanize(2));
     }
 
     private async Task<SyncResults> SyncProject(CrdtProject crdtProject, CancellationToken cancellationToken = default)
