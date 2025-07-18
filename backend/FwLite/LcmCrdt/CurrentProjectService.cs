@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,7 @@ namespace LcmCrdt;
 
 public class CurrentProjectService(
     IServiceProvider services,
-    IMemoryCache memoryCache,
+    ProjectDataCache projectDataCache,
     CrdtProjectsService crdtProjectsService,
     ILogger<CrdtProjectsService> logger)
 {
@@ -17,21 +18,21 @@ public class CurrentProjectService(
     //creating a DbContext depends on the CurrentProjectService, so we can't create it in the constructor otherwise we'll create a circular dependency
     private IDbContextFactory<LcmCrdtDbContext> DbContextFactory => services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
     private EntrySearchServiceFactory? EntrySearchServiceFactory => services.GetService<EntrySearchServiceFactory>();
-    public CrdtProject Project => _project ?? throw new NullReferenceException("Not in the context of a project");
+    public CrdtProject Project => _project ?? throw new InvalidOperationException("Not in the context of a project");
     public CrdtProject? MaybeProject => _project;
 
     //only works because PopulateProjectDataCache is called first in the request pipeline
-    public ProjectData ProjectData => memoryCache.Get<ProjectData>(CacheKey(Project)) ?? throw new InvalidOperationException(
+    public ProjectData ProjectData => projectDataCache.CachedProjectData(Project) ?? throw new InvalidOperationException(
         $"Project data not found for project {MaybeProject?.Name}, call PopulateProjectDataCache first or use GetProjectData");
 
     public async ValueTask<ProjectData> GetProjectData(bool forceRefresh = false)
     {
-        var result = LookupProjectData(memoryCache, Project);
+        var result = projectDataCache.CachedProjectData(Project);
         if (result is null || forceRefresh)
         {
             await using var dbContext = await DbContextFactory.CreateDbContextAsync();
             result = await dbContext.ProjectData.AsNoTracking().FirstAsync();
-            memoryCache.Set(CacheKey(Project), result);
+            projectDataCache.SetProjectData(Project, result);
         }
         if (result is null) throw new InvalidOperationException($"Project data not found for project {MaybeProject?.Name}");
 
@@ -75,8 +76,8 @@ public class CurrentProjectService(
             throw new InvalidOperationException($"Can't setup project context for {project.Name} when already in context of project {_project.Name}");
         _project = project;
         //the first time this is called ProjectData will be null, after that it will be populated, so we can skip migration
-        if (LookupProjectData(memoryCache, project) is null) await MigrateDb();
-        return await RefreshProjectData();
+        if (projectDataCache.CachedProjectData(project) is null) await MigrateDb();
+        return project.Data = await RefreshProjectData();
     }
 
     public async ValueTask<ProjectData> SetupProjectContext(string projectName)
@@ -93,7 +94,7 @@ public class CurrentProjectService(
     private static readonly ConcurrentDictionary<string, Lazy<Task>> MigrationTasks = [];
     private Task MigrateDb()
     {
-        //ensure we only execute once, otherwise we'll have a conflict as Migrate is not thread safe.
+        //ensure we only execute migrations once, this avoids race conditions, as well as doing duplicate work on startup
         //design based on https://andrewlock.net/making-getoradd-on-concurrentdictionary-thread-safe-using-lazy/
 #pragma warning disable VSTHRD011
         return MigrationTasks.GetOrAdd(Project.DbPath, _ => new Lazy<Task>(Execute)).Value;

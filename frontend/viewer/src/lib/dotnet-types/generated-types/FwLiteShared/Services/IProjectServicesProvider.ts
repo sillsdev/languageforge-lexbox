@@ -5,13 +5,12 @@
 
 import type {IAsyncDisposable} from '../../System/IAsyncDisposable';
 import type {DotNet} from '@microsoft/dotnet-js-interop';
-import type {IProjectData} from '../../LcmCrdt/IProjectData';
 import type {IProjectScope} from './IProjectScope';
 
 export interface IProjectServicesProvider extends IAsyncDisposable
 {
 	disposeService(service: DotNet.DotNetObject) : Promise<void>;
-	getCrdtProjectData(code: string) : Promise<IProjectData>;
+	tryGetCrdtProjectName(code: string) : Promise<string>;
 	openCrdtProject(code: string) : Promise<IProjectScope>;
 	openFwDataProject(projectName: string) : Promise<IProjectScope>;
 }

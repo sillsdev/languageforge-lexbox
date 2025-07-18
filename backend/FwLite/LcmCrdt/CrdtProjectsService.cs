@@ -7,12 +7,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Project;
 
 namespace LcmCrdt;
 
-public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache): IProjectProvider
+public partial class CrdtProjectsService(
+    IServiceProvider provider,
+    ILogger<CrdtProjectsService> logger,
+    IOptions<LcmCrdtConfig> config,
+    IMemoryCache memoryCache,
+    ProjectDataCache projectDataCache
+) : IProjectProvider
 {
     private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
     public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
@@ -83,7 +90,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var code = Path.GetFileNameWithoutExtension(file);
-            return new CrdtProject(code, file, memoryCache);
+            return new CrdtProject(code, file, projectDataCache);
         });
     }
 
@@ -91,7 +98,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     {
         var file = Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite")
             .FirstOrDefault(file => Path.GetFileNameWithoutExtension(file) == code);
-        return file is null ? null : new CrdtProject(code, file, memoryCache);
+        return file is null ? null : new CrdtProject(code, file, projectDataCache);
     }
 
     public CrdtProject? GetProject(Guid id)
