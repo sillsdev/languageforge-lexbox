@@ -2,9 +2,12 @@ import papi, { logger } from '@papi/backend';
 import type { IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
 /** Returns text that can be used in JSON.parse() */
-async function fetchUrl(url: string) {
-  logger.info(`About to fetch: ${url}`);
-  const results = await papi.fetch(url);
+async function fetchUrl(input: RequestInfo | URL, init?: RequestInit) {
+  logger.info(`About to fetch: ${input}`);
+  if (init) {
+    logger.info(JSON.stringify(init));
+  }
+  const results = await papi.fetch(input, init);
   if (!results.ok) {
     throw new Error(`Failed to fetch: ${results.statusText}`);
   }
@@ -27,8 +30,11 @@ export class FwLiteApi {
     return `${this.baseUrl}/api/${path}`;
   }
 
-  private async fetchPath(path: string) {
-    return await fetchUrl(this.getUrl(path));
+  private async fetchPath(path: string, postBody?: any) {
+    return await fetchUrl(
+      this.getUrl(path),
+      postBody ? { body: JSON.stringify(postBody), method: 'POST' } : undefined,
+    );
   }
 
   private checkDictionaryCode(code?: string): string {
@@ -42,17 +48,22 @@ export class FwLiteApi {
     return code;
   }
 
-  async fetchEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
+  async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
     const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/entries/${search}`;
     return JSON.parse(await this.fetchPath(path));
   }
 
-  async fetchProjects(): Promise<IProjectModel[]> {
+  async getProjects(): Promise<IProjectModel[]> {
     return JSON.parse(await this.fetchPath('localProjects'));
   }
 
-  async fetchWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
+  async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
     const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/writingSystems`;
     return JSON.parse(await this.fetchPath(path));
+  }
+
+  async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
+    const path = `/api/test/${this.checkDictionaryCode(dictionaryCode)}/add-new-entry`;
+    this.fetchPath(path, entry);
   }
 }

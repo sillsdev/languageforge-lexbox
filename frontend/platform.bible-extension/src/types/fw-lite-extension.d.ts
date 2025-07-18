@@ -4,6 +4,7 @@ import type { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-
 declare module 'fw-lite-extension' {
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
+  export type ISense = import('../../../viewer/src/lib/dotnet-types/index.js').ISense;
   export type IWritingSystems =
     import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
 

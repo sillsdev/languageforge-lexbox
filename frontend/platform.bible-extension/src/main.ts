@@ -124,7 +124,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       }
       logger.info('Validating FieldWorks dictionary code:', dictionaryCode);
       try {
-        return !!(await fwLiteApi.fetchWritingSystems(dictionaryCode)).analysis;
+        return !!(await fwLiteApi.getWritingSystems(dictionaryCode)).analysis;
       } catch {
         return false;
       }
@@ -220,7 +220,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.fwDictionaries',
     async () => {
       logger.info('Fetching local FieldWorks dictionaries');
-      return await fwLiteApi.fetchProjects();
+      return await fwLiteApi.getProjects();
     },
   );
 
