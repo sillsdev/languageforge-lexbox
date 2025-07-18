@@ -73,7 +73,7 @@
               variant="ghost"
               size="icon"
               onclick={() => dispatch('refreshProjects')}/>
-      <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
+      <LoginButton {status} statusChange={() => dispatch('refreshAll')}/>
     {/if}
   </div>
   <div class={cn('rounded', !projects.length && 'border')}>
@@ -95,7 +95,7 @@
             <Icon icon="i-mdi-open-in-new" class="size-4" />
           </Button>
         {:else}
-          <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
+          <LoginButton {status} statusChange={() => dispatch('refreshAll')}/>
         {/if}
       </p>
     {:else}

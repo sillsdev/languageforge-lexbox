@@ -14,54 +14,65 @@
 </script>
 
 <script lang="ts">
-    import {mdiLogout} from '@mdi/js';
-    import {Menu, MenuItem, Toggle} from 'svelte-ux';
-    import type {ILexboxServer} from '$lib/dotnet-types';
-    import {useAuthService} from '$lib/services/service-provider';
-    import {createEventDispatcher} from 'svelte';
-    import {Button} from '$lib/components/ui/button';
+  import * as ResponsiveMenu from '$lib/components/responsive-menu';
+  import type {ILexboxServer} from '$lib/dotnet-types';
+  import {useAuthService} from '$lib/services/service-provider';
+  import {Button} from '$lib/components/ui/button';
 
-    const authService = useAuthService();
-    const shouldUseSystemWebView = useSystemWebView(authService);
-    const dispatch = createEventDispatcher<{
-        status: 'logged-in' | 'logged-out'
-    }>();
-    export let status: Omit<IServerStatus, 'displayName'>;
-    export let text: string | undefined = undefined;
-    $: server = status.server;
-    let loading = false;
+  const authService = useAuthService();
+  const shouldUseSystemWebView = useSystemWebView(authService);
+
+  interface Props {
+    status: Omit<IServerStatus, 'displayName'>;
+    text?: string | undefined;
+    statusChange?: (status: 'logged-in' | 'logged-out') => void;
+  }
+
+  let {
+    status,
+    text = undefined,
+    statusChange = () =>{    }
+  }: Props = $props();
+  let server = $derived(status.server);
+  let loading = $state(false);
 
 
-    async function login(server: ILexboxServer) {
-        loading = true;
-        try {
-            await authService.signInWebView(server);
-            dispatch('status', 'logged-in');
-        } finally {
-            loading = false;
-        }
+  async function login(server: ILexboxServer) {
+    loading = true;
+    try {
+      await authService.signInWebView(server);
+      statusChange('logged-in');
+    } finally {
+      loading = false;
     }
+  }
 
-    async function logout(server: ILexboxServer) {
-        loading = true;
-        try {
-            await authService.logout(server);
-            dispatch('status', 'logged-out');
-        } finally {
-            loading = false;
-        }
+  async function logout(server: ILexboxServer) {
+    loading = true;
+    try {
+      await authService.logout(server);
+      statusChange('logged-out');
+    } finally {
+      loading = false;
     }
+  }
 </script>
 
 {#if status.loggedIn}
-    <Toggle let:on={open} let:toggle let:toggleOff>
-      <Button onclick={toggle} {loading} icon="i-mdi-account-circle">
-        {status.loggedInAs}
-        <Menu {open} on:close={toggleOff} placement="bottom-end" classes={{root: 'bg-background'}}>
-          <MenuItem classes={{root: 'hover:bg-muted'}} icon={mdiLogout} on:click={() => logout(server)}>{$t`Logout`}</MenuItem>
-        </Menu>
-      </Button>
-    </Toggle>
+  <ResponsiveMenu.Root>
+    <ResponsiveMenu.Trigger>
+      {#snippet child({ props })}
+        <Button {...props} {loading} icon="i-mdi-account-circle">
+          {status.loggedInAs}
+        </Button>
+        {/snippet}
+    </ResponsiveMenu.Trigger>
+    <ResponsiveMenu.Content>
+      <ResponsiveMenu.Item icon="i-mdi-logout" onSelect={() => logout(server)}>
+        {$t`Logout`}
+      </ResponsiveMenu.Item>
+    </ResponsiveMenu.Content>
+  </ResponsiveMenu.Root>
 {:else}
     {#if $shouldUseSystemWebView}
         <Button {loading}
