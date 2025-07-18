@@ -28,7 +28,8 @@ public record ProjectModel(
         };
 }
 
-public record ServerProjects(LexboxServer Server, ProjectModel[] Projects);
+// TODO: Bikeshed the CanDownloadProjectsWithoutMembership name during code review, please. :-)
+public record ServerProjects(LexboxServer Server, ProjectModel[] Projects, bool CanDownloadProjectsWithoutMembership);
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
@@ -45,19 +46,20 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         for (var i = 0; i < lexboxServers.Length; i++)
         {
             var server = lexboxServers[i];
-            var projectModels = await ServerProjects(server);
-            serverProjects[i] = new ServerProjects(server, projectModels);
+            var (projectModels, canDownload) = await ServerProjects(server);
+            serverProjects[i] = new ServerProjects(server, projectModels, canDownload);
         }
 
         return serverProjects;
     }
 
-    private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh = false)
+    private async Task<(ProjectModel[], bool)> ServerProjects(LexboxServer server, bool forceRefresh = false)
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-        await UpdateProjectServerInfo(lexboxProjects, await lexboxProjectService.GetLexboxUser(server));
-        var projectModels = lexboxProjects.Select(p => new ProjectModel(
+        var user = await lexboxProjectService.GetLexboxUser(server);
+        await UpdateProjectServerInfo(lexboxProjects.Projects, user);
+        var projectModels = lexboxProjects.Projects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,
                 Crdt: p.IsCrdtProject,
@@ -67,7 +69,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 server,
                 p.Id))
             .ToArray();
-        return projectModels;
+        return (projectModels, lexboxProjects.CanDownloadProjectsWithoutMembership);
     }
 
     private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
@@ -82,10 +84,13 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
 
     [JSInvokable]
-    public async Task<ProjectModel[]> ServerProjects(string serverId, bool forceRefresh)
+    // TODO: This should return an object rather than a tuple
+    // Perhaps a ServerProjects object, even though the LexboxServer Server property would be redundant
+    // OR... perhaps the bool isn't needed and this can go back to being just a ProjectModel array. TODO: Check that once I look at frontend code.
+    public async Task<(ProjectModel[], bool)> ServerProjects(string serverId, bool forceRefresh)
     {
         var server = lexboxProjectService.Servers().FirstOrDefault(s => s.Id == serverId);
-        if (server is null) return [];
+        if (server is null) return new([], false);
         return await ServerProjects(server, forceRefresh);
     }
 
@@ -145,9 +150,17 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
     public async Task DownloadProject(string code, LexboxServer server)
     {
-        var serverProjects = await ServerProjects(server, false);
-        var project = serverProjects.FirstOrDefault(p => p.Code == code)
-            ?? throw new InvalidOperationException($"Project {code} not found on server {server.Authority}");
+        var (serverProjects, canDownloadProjectsWithoutMembership) = await ServerProjects(server, false);
+        var project = serverProjects.FirstOrDefault(p => p.Code == code);
+        if (project is null)
+        {
+            if (canDownloadProjectsWithoutMembership)
+            {
+                // TODO: Implement
+                Console.WriteLine("User should be able download with only a project code, not knowing project ID, but this isn't implemented yet");
+            }
+            throw new InvalidOperationException($"Project {code} not found on server {server.Authority}");
+        }
         await DownloadProject(project);
     }
 

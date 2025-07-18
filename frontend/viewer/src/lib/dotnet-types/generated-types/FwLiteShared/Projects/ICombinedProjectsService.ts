@@ -10,7 +10,7 @@ export interface ICombinedProjectsService
 {
 	supportsFwData() : Promise<boolean>;
 	remoteProjects() : Promise<IServerProjects[]>;
-	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IProjectModel[]>;
+	serverProjects(serverId: string, forceRefresh: boolean) : Promise<[IProjectModel[],boolean]>;
 	localProjects() : Promise<IProjectModel[]>;
 	downloadProject(project: IProjectModel) : Promise<void>;
 	createProject(name: string) : Promise<void>;

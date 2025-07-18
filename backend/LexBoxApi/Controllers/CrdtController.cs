@@ -75,7 +75,7 @@ public class CrdtController(
     }
 
     [HttpGet("listProjects")]
-    public async Task<ActionResult<FieldWorksLiteProject[]>> ListProjects()
+    public async Task<ActionResult<ListProjectsResult>> ListProjects()
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
@@ -90,7 +90,7 @@ public class CrdtController(
         {
             await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
         }
-        return myProjects;
+        return new ListProjectsResult(myProjects, loggedInContext.User.CanDownloadProjectsWithoutMembership());
     }
 
     [HttpGet("lookupProjectId")]
