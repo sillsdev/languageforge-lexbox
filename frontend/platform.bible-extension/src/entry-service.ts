@@ -7,23 +7,31 @@ export class EntryService implements IEntryService {
   constructor(baseUrl: string, dictionaryCode?: string) {
     this.fwLiteApi = new FwLiteApi(baseUrl, dictionaryCode);
   }
+
   async getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
     if (!projectId) {
       logger.debug('No project!');
-      return undefined;
+      return;
     }
     if (!query.surfaceForm) {
       logger.debug('No query!');
-      return undefined;
+      return;
     }
 
     const settings = await papi.projectDataProviders.get('platform.base', projectId);
     const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
     console.log(`About to fetch entries for '${query.surfaceForm}' in '${dictionaryCode}'`);
-    return this.fwLiteApi.fetchEntries(query.surfaceForm, dictionaryCode);
+    return this.fwLiteApi.getEntries(query.surfaceForm, dictionaryCode);
   }
-  addEntry(projectId: string, reference: IEntry): Promise<void> {
-    throw new Error('Method not implemented.');
+  async addEntry(projectId: string, entry: IEntry): Promise<void> {
+    if (!projectId) {
+      logger.debug('No project!');
+      return;
+    }
+
+    const settings = await papi.projectDataProviders.get('platform.base', projectId);
+    const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
+    await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
   }
   updateEntry(projectId: string, reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');
