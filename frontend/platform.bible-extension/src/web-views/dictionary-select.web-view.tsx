@@ -9,14 +9,14 @@ globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
 
   const selectDictionary = useCallback(
     async (code: string): Promise<void> => {
-      commands.sendCommand('fwLiteExtension.selectDictionary', props.projectId!, code);
+      await commands.sendCommand('fwLiteExtension.selectDictionary', props.projectId!, code);
     },
     [props.projectId],
   );
 
   useEffect(() => {
     logger.info(`This web view was opened for project '${props.projectId}'`);
-    commands
+    void commands
       .sendCommand('fwLiteExtension.fwDictionaries')
       .then(setFwDictionaries)
       .catch((e) => void logger.error('Error fetching FieldWorks dictionaries:', e));

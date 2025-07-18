@@ -2,7 +2,7 @@ import papi, { logger } from '@papi/backend';
 import type { IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
 /** Returns text that can be used in JSON.parse() */
-async function fetchUrl(input: RequestInfo | URL, init?: RequestInit) {
+async function fetchUrl(input: string, init?: RequestInit): Promise<string> {
   logger.info(`About to fetch: ${input}`);
   if (init) {
     logger.info(JSON.stringify(init));
@@ -22,15 +22,15 @@ export class FwLiteApi {
     this.setDictionaryCode(dictionaryCode);
   }
 
-  setDictionaryCode(dictionaryCode?: string) {
+  setDictionaryCode(dictionaryCode?: string): void {
     this.dictionaryCode = dictionaryCode;
   }
 
-  private getUrl(path: string) {
+  private getUrl(path: string): string {
     return `${this.baseUrl}/api/${path}`;
   }
 
-  private async fetchPath(path: string, postBody?: any) {
+  private async fetchPath(path: string, postBody?: any): Promise<string> {
     return await fetchUrl(
       this.getUrl(path),
       postBody
@@ -56,22 +56,22 @@ export class FwLiteApi {
 
   async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
     const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/entries/${search}`;
-    return JSON.parse(await this.fetchPath(path));
+    return JSON.parse(await this.fetchPath(path)) as IEntry[];
   }
 
   async getProjects(): Promise<IProjectModel[]> {
-    return JSON.parse(await this.fetchPath('localProjects'));
+    return JSON.parse(await this.fetchPath('localProjects')) as IProjectModel[];
   }
 
   async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
     const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/writingSystems`;
-    return JSON.parse(await this.fetchPath(path));
+    return JSON.parse(await this.fetchPath(path)) as IWritingSystems;
   }
 
   async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
     // TODO: This path is for CRDT projects. The API endpoint for adding an entry to a FLEx project
     // doesn't exist yet. Use that when it does.
     const path = `test/${this.checkDictionaryCode(dictionaryCode)}/add-new-entry`;
-    this.fetchPath(path, entry);
+    await this.fetchPath(path, entry);
   }
 }
