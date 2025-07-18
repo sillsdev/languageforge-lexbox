@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {AppBar} from 'svelte-ux';
+  import AppBar from './AppBar.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
@@ -100,40 +100,45 @@
 
 </script>
 
-<AppBar title={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
-  <div slot="title" class="text-lg flex gap-2 items-center">
-    <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
-    <h3>{$t`Dictionaries`}</h3>
-  </div>
-  <div slot="actions" class="flex">
-    {#if import.meta.env.DEV}
-      <Button href="http://localhost:6006/" target="_blank"
-              variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
-    {/if}
-    <DevContent>
-      <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube"/>
-    </DevContent>
-    <LocalizationPicker/>
-    <ThemePicker/>
-    <ResponsiveMenu.Root>
-      <ResponsiveMenu.Trigger/>
-      <ResponsiveMenu.Content>
-        <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
-          {$t`Feedback`}
-        </ResponsiveMenu.Item>
-        {#if supportsTroubleshooting}
-          <ResponsiveMenu.Item
-            icon="i-mdi-face-agent"
-            onSelect={() => troubleshootDialog?.open()}>
-            {$t`Troubleshoot`}
+<AppBar tabTitle={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
+  {#snippet title()}
+    <div class="text-lg flex gap-2 items-center">
+      <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <h3>{$t`Dictionaries`}</h3>
+    </div>
+  {/snippet}
+
+  {#snippet actions()}
+    <div class="flex">
+      {#if import.meta.env.DEV}
+        <Button href="http://localhost:6006/" target="_blank"
+                variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
+      {/if}
+      <DevContent>
+        <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube"/>
+      </DevContent>
+      <LocalizationPicker/>
+      <ThemePicker/>
+      <ResponsiveMenu.Root>
+        <ResponsiveMenu.Trigger/>
+        <ResponsiveMenu.Content>
+          <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
+            {$t`Feedback`}
           </ResponsiveMenu.Item>
-        {/if}
-      </ResponsiveMenu.Content>
-    </ResponsiveMenu.Root>
-    {#if supportsTroubleshooting}
-      <TroubleshootDialog bind:this={troubleshootDialog}/>
-    {/if}
-  </div>
+          {#if supportsTroubleshooting}
+            <ResponsiveMenu.Item
+              icon="i-mdi-face-agent"
+              onSelect={() => troubleshootDialog?.open()}>
+              {$t`Troubleshoot`}
+            </ResponsiveMenu.Item>
+          {/if}
+        </ResponsiveMenu.Content>
+      </ResponsiveMenu.Root>
+      {#if supportsTroubleshooting}
+        <TroubleshootDialog bind:this={troubleshootDialog}/>
+      {/if}
+    </div>
+    {/snippet}
 </AppBar>
 <div class="mx-auto md:w-full md:py-4 max-w-2xl">
   <div class="flex-grow hidden md:block"></div>
