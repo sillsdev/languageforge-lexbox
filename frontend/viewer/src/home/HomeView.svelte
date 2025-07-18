@@ -1,17 +1,9 @@
 <script lang="ts">
-  import {
-    mdiBookArrowLeftOutline,
-    mdiBookEditOutline,
-    mdiBookPlusOutline,
-    mdiChevronRight,
-    mdiDelete,
-    mdiTestTube,
-  } from '@mdi/js';
-  import {AppBar, Button as UxButton, ListItem, TextField} from 'svelte-ux';
+  import {AppBar} from 'svelte-ux';
   import flexLogo from '$lib/assets/flex-logo.png';
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
-  import storybookIcon from '../stories/assets/storybook-icon.svg'
+  import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {isDev} from '$lib/layout/DevContent.svelte';
   import {
     useFwLiteConfig,
@@ -24,13 +16,15 @@
   import ServersList from './ServersList.svelte';
   import {t} from 'svelte-i18n-lingui';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
-  import ProjectTitle from './ProjectTitle.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
   import ThemePicker from '$lib/ThemePicker.svelte';
   import {Button} from '$lib/components/ui/button';
   import {mode} from 'mode-watcher';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {Icon} from '$lib/components/ui/icon';
+  import ProjectListItem from './ProjectListItem.svelte';
+  import ListItem from '$lib/components/ListItem.svelte';
+  import {Input} from '$lib/components/ui/input';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -47,6 +41,7 @@
   let customExampleProjectName: string = '';
 
   let createProjectLoading = false;
+
   async function createExampleProject() {
     try {
       createProjectLoading = true;
@@ -66,6 +61,7 @@
   }
 
   let deletingProject: undefined | string = undefined;
+
   async function deleteProject(project: IProjectModel) {
     try {
       deletingProject = project.id;
@@ -106,21 +102,21 @@
 
 <AppBar title={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
   <div slot="title" class="text-lg flex gap-2 items-center">
-    <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`} />
+    <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
     <h3>{$t`Dictionaries`}</h3>
   </div>
   <div slot="actions" class="flex">
     {#if import.meta.env.DEV}
       <Button href="http://localhost:6006/" target="_blank"
-          variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}} />
+              variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
     {/if}
     <DevContent>
-      <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube" />
+      <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube"/>
     </DevContent>
     <LocalizationPicker/>
-    <ThemePicker />
+    <ThemePicker/>
     <ResponsiveMenu.Root>
-      <ResponsiveMenu.Trigger />
+      <ResponsiveMenu.Trigger/>
       <ResponsiveMenu.Content>
         <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
           {$t`Feedback`}
@@ -135,7 +131,7 @@
       </ResponsiveMenu.Content>
     </ResponsiveMenu.Root>
     {#if supportsTroubleshooting}
-      <TroubleshootDialog bind:this={troubleshootDialog} />
+      <TroubleshootDialog bind:this={troubleshootDialog}/>
     {/if}
   </div>
 </AppBar>
@@ -163,88 +159,88 @@
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <ButtonListItem href={`/project/${project.code}`}>
-                <ListItem
-                  icon={mdiBookEditOutline}
-                  subheading={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
-                  {loading}
-                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted', subheading: 'text-muted-foreground'}}
+                <ProjectListItem icon="i-mdi-book-edit-outline"
+                                 {project}
+                                 {loading}
+                                 subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                 >
-                  <ProjectTitle slot="title" {project}/>
-                  <div slot="actions" class="shrink-0">
-                    {#if $isDev}
-                      <UxButton
-                        icon={mdiDelete}
-                        title={$t`Delete`}
-                        class="p-2 hover:bg-primary/20"
-                        on:click={(e) => {
+                  {#snippet actions()}
+                    <div class="flex items-center">
+                      {#if $isDev}
+                        <Button
+                          icon="i-mdi-delete"
+                          variant="ghost"
+                          title={$t`Delete`}
+                          class="p-2 hover:bg-primary/20"
+                          onclick={(e) => {
                           e.preventDefault();
                           void deleteProject(project);
                         }}
-                      />
-                    {/if}
-                    <UxButton icon={mdiChevronRight} class="p-2 pointer-events-none" />
-                  </div>
-                </ListItem>
+                        />
+                      {/if}
+                      <Icon icon="i-mdi-chevron-right" class="p-2"/>
+                    </div>
+                  {/snippet}
+                </ProjectListItem>
               </ButtonListItem>
             {/each}
             <DevContent>
               <ButtonListItem href={`/testing/project-view`}>
-                <ListItem title={$t`Test Project`} icon={mdiTestTube}
-                          classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
-                  <div slot="actions" class="pointer-events-none shrink-0">
-                    <UxButton icon={mdiChevronRight} class="p-2" />
-                  </div>
-                </ListItem>
+                <ProjectListItem icon="i-mdi-test-tube" project={{ name: 'Test Project', code: 'Test Project' }}>
+                  {#snippet actions()}
+                    <Icon icon="i-mdi-chevron-right" class="p-2"/>
+                  {/snippet}
+                </ProjectListItem>
               </ButtonListItem>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
               <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
-                <ListItem
-                  title={$t`Create Example Project`}
-                  loading={createProjectLoading}
-                  classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}
-                >
-                  <div slot="actions" class="flex flex-nowrap gap-2">
-                    {#if $isDev}
-                      <TextField
-                        bind:value={customExampleProjectName}
-                        placeholder={$t`Project name...`}
-                        on:click={(e) => e.stopPropagation()}
-                      />
-                    {/if}
-                    <UxButton icon={mdiBookPlusOutline} class="pointer-events-none p-2"/>
-                  </div>
+                <ListItem loading={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+                  <span>{$t`Create Example Project`}</span>
+                  {#snippet actions()}
+                    <div class="flex flex-nowrap items-center gap-2">
+                      {#if $isDev}
+                        <Input
+                          bind:value={customExampleProjectName}
+                          placeholder={$t`Project name...`}
+                          onclick={(e) => e.stopPropagation()}
+                        />
+                      {/if}
+                      <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
+                    </div>
+                  {/snippet}
+
                 </ListItem>
               </ButtonListItem>
             {/if}
           </div>
         </div>
-        <ServersList localProjects={projects} {refreshProjects} />
+        <ServersList localProjects={projects} {refreshProjects}/>
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div class="shadow rounded">
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
                 <ButtonListItem href={`/fwdata/${project.code}`}>
-                  <ListItem classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted' }}>
-                    <ProjectTitle slot="title" {project}/>
-                    <Icon slot="avatar" src={flexLogo} alt={$t`FieldWorks logo`} />
-                    <div slot="actions" class="shrink-0">
+                  <ProjectListItem {project}>
+                    {#snippet icon()}
+                      <Icon src={flexLogo} alt={$t`FieldWorks logo`}/>
+                    {/snippet}
+                    {#snippet actions()}
                       <DevContent invisible>
-                        <UxButton
-                          loading={importing === project.name}
-                          icon={mdiBookArrowLeftOutline}
-                          title={$t`Import`}
-                          disabled={!!importing}
-                          on:click={async (e) => {
-                            e.preventDefault();
-                            await importFwDataProject(project.name);
-                          }}
-                          class="hover:bg-primary/20"
-                        ></UxButton>
+                        <Button loading={importing === project.name}
+                                icon="i-mdi-book-arrow-left-outline"
+                                size="icon"
+                                variant="ghost"
+                                title={$t`Import`}
+                                disabled={!!importing}
+                                onclick={async (e) => {
+                          e.preventDefault();
+                          await importFwDataProject(project.name);
+                        }} class="hover:bg-primary/20"></Button>
                       </DevContent>
-                    </div>
-                  </ListItem>
+                    {/snippet}
+                  </ProjectListItem>
                 </ButtonListItem>
               {/each}
             </div>
