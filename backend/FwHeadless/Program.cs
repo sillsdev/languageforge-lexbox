@@ -82,6 +82,7 @@ app.MapMediaFileRoutes();
 app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 app.MapGet("/api/crdt-sync-status", GetMergeStatus);
 app.MapGet("/api/await-sync-finished", AwaitSyncFinished);
+app.MapPost("/api/cancel-crdt-sync", CancelMergeRequest);
 
 // DELETE endpoint to remove a project if it exists
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId,
@@ -142,6 +143,32 @@ static async Task<Results<Ok, NotFound, ProblemHttpResult>> ExecuteMergeRequest(
     return TypedResults.Ok();
 }
 
+static async Task<Results<Ok, NotFound, ProblemHttpResult>> CancelMergeRequest(
+    SyncHostedService syncHostedService,
+    ProjectLookupService projectLookupService,
+    ILogger<Program> logger,
+    CrdtHttpSyncService crdtHttpSyncService,
+    IHttpClientFactory httpClientFactory,
+    Guid projectId)
+{
+    var projectCode = await projectLookupService.GetProjectCode(projectId);
+    if (projectCode is null)
+    {
+        logger.LogError("Project ID {projectId} not found", projectId);
+        return TypedResults.NotFound();
+    }
+
+    logger.LogInformation("Project code is {projectCode}", projectCode);
+    //if we can't sync with lexbox fail fast
+    if (!await crdtHttpSyncService.TestAuth(httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)))
+    {
+        logger.LogError("Unable to authenticate with Lexbox");
+        return TypedResults.Problem("Unable to authenticate with Lexbox");
+    }
+    syncHostedService.CancelJob(projectId);
+    return TypedResults.Ok();
+}
+
 static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     CurrentProjectService projectContext,
     ProjectLookupService projectLookupService,
@@ -194,7 +221,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
-static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
+static async Task<SyncJobResult> AwaitSyncFinished(
     SyncHostedService syncHostedService,
     SyncJobStatusService syncJobStatusService,
     CancellationToken cancellationToken,
@@ -207,20 +234,23 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
         if (result is null)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
-            return TypedResults.NotFound();
+            return new(SyncJobResultEnum.SyncJobNotFound, "Sync job not found", null);
         }
 
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
-        return TypedResults.Ok(result);
+        return result;
     }
     catch (OperationCanceledException)
     {
         activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
-        return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+        return new SyncJobResult(SyncJobResultEnum.SyncJobTimedOut, "Sync job timed out", null);
     }
     catch (Exception e)
     {
         activity?.AddException(e);
-        throw;
+        var error = e.ToString();
+        // TODO: Consider only returning exception error for certain users (admins, devs, managers)?
+        // Note 200 OK returned here; getting the status is a successful HTTP request even if the status is "the job failed and here's why"
+        return new SyncJobResult(SyncJobResultEnum.CrdtSyncFailed, error, null);
     }
 }

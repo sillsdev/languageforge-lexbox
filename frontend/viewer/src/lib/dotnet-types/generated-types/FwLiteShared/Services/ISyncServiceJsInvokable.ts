@@ -4,7 +4,7 @@
 //     the code is regenerated.
 
 import type {IProjectSyncStatus} from '../../LexCore/Sync/IProjectSyncStatus';
-import type {ISyncResult} from '../../LexCore/Sync/ISyncResult';
+import type {ISyncJobResult} from '../../LexCore/Sync/ISyncJobResult';
 import type {IPendingCommits} from '../Sync/IPendingCommits';
 import type {ISyncResults} from '../../SIL/Harmony/ISyncResults';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
@@ -12,7 +12,7 @@ import type {ILexboxServer} from '../Auth/ILexboxServer';
 export interface ISyncServiceJsInvokable
 {
 	getSyncStatus() : Promise<IProjectSyncStatus>;
-	triggerFwHeadlessSync() : Promise<ISyncResult>;
+	triggerFwHeadlessSync() : Promise<ISyncJobResult>;
 	countPendingCrdtCommits() : Promise<IPendingCommits>;
 	getLatestCommitDate() : Promise<string>;
 	executeSync(skipNotifications: boolean) : Promise<ISyncResults>;

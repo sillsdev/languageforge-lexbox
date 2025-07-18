@@ -37,7 +37,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             {
                 activity?.AddException(e);
                 logger.LogError(e, "Sync job failed");
-                result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.Message);
+                result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.ToString());
             }
             // Give clients a bit more time to poll the status
             CacheRecentSyncResult(projectId, result);
@@ -79,6 +79,22 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         }
 
         return addedToQueue;
+    }
+
+    public bool CancelJob(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        //will only cancel job if it's already queued or running
+        var found = _projectsQueuedOrRunning.TryGetValue(projectId, out var job);
+        var success = false;
+        if (found)
+        {
+            success = job?.TrySetCanceled(cancellationToken) ?? false;
+            if (success)
+            {
+                _projectsQueuedOrRunning.TryRemove(projectId, out _);
+            }
+        }
+        return success;
     }
 
     private void CacheRecentSyncResult(Guid projectId, SyncJobResult result)

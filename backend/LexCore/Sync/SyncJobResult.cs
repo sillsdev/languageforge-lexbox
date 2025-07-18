@@ -1,11 +1,16 @@
-﻿namespace LexCore.Sync;
+using System.Text.Json.Serialization;
 
-public record SyncJobResult(SyncJobResultEnum Result, string? Error, SyncResult? SyncResult = null);
+namespace LexCore.Sync;
 
+public record SyncJobResult([property: JsonConverter(typeof(JsonStringEnumConverter))] SyncJobResultEnum Result, string? Error, SyncResult? SyncResult = null);
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SyncJobResultEnum
 {
     Success,
     ProjectNotFound,
+    SyncJobNotFound,
+    SyncJobTimedOut,
     UnableToAuthenticate,
     UnableToSync,
     CrdtSyncFailed,

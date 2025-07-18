@@ -17,23 +17,38 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             projectId);
         return false;
     }
-    public async Task<SyncJobResult?> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
+
+    public async Task<bool> CancelCrdtSync(Guid projectId)
+    {
+        var response = await httpClient.PostAsync($"/api/cancel-crdt-sync?projectId={projectId}", null);
+        if (response.IsSuccessStatusCode)
+            return true;
+        logger.LogError("Failed to cancel CRDT sync: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId);
+        return false;
+    }
+
+    public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync($"/api/await-sync-finished?projectId={projectId}", cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            Console.WriteLine("Failed to get sync status: {0}", response.StatusCode);
             logger.LogError("Failed to get sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId,
-                await response.Content.ReadAsStringAsync(cancellationToken));
-            return null;
+                responseBody);
+            return new SyncJobResult(SyncJobResultEnum.UnknownError, responseBody, null);
         }
         var jobResult = await response.Content.ReadFromJsonAsync<SyncJobResult>(cancellationToken);
         if (jobResult is null)
         {
-            logger.LogError("Failed to get sync status");
-            return null;
+            logger.LogError("Sync status was not a valid SyncJobResult");
+            return new SyncJobResult(SyncJobResultEnum.UnknownError, "Sync status failed to return a result", null);
         }
 
         return jobResult;
