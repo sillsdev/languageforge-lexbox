@@ -33,7 +33,13 @@ export class FwLiteApi {
   private async fetchPath(path: string, postBody?: any) {
     return await fetchUrl(
       this.getUrl(path),
-      postBody ? { body: JSON.stringify(postBody), method: 'POST' } : undefined,
+      postBody
+        ? {
+            body: JSON.stringify(postBody),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+          }
+        : undefined,
     );
   }
 
@@ -63,7 +69,9 @@ export class FwLiteApi {
   }
 
   async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
-    const path = `/api/test/${this.checkDictionaryCode(dictionaryCode)}/add-new-entry`;
+    // TODO: This path is for CRDT projects. The API endpoint for adding an entry to a FLEx project
+    // doesn't exist yet. Use that when it does.
+    const path = `test/${this.checkDictionaryCode(dictionaryCode)}/add-new-entry`;
     this.fetchPath(path, entry);
   }
 }
