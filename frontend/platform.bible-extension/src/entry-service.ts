@@ -1,32 +1,26 @@
 import papi, { logger } from '@papi/backend';
 import type { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
+import { FwLiteApi } from './fw-lite-api-utils';
 
 export class EntryService implements IEntryService {
-  readonly baseUrl: string;
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  private fwLiteApi: FwLiteApi;
+  constructor(baseUrl: string, dictionaryCode?: string) {
+    this.fwLiteApi = new FwLiteApi(baseUrl, dictionaryCode);
   }
   async getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
-    logger.debug('Opening find UI');
-
     if (!projectId) {
       logger.debug('No project!');
       return undefined;
     }
+    if (!query.surfaceForm) {
+      logger.debug('No query!');
+      return undefined;
+    }
+
     const settings = await papi.projectDataProviders.get('platform.base', projectId);
     const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
-    const apiUrl = `${this.baseUrl}/api/mini-lcm/FwData/${dictionaryCode}/entries/${query.surfaceForm}`;
-    console.log(`About to fetch entries: ${apiUrl}`);
-    // Construct the query parameters from the IEntryQuery object
-    // parse the json from the results and return the entries
-    const results = await papi.fetch(apiUrl);
-    if (!results.ok) {
-      throw new Error(`Failed to fetch entries: ${results.statusText}`);
-    }
-    // parse the json from the results
-    const jsonText = await results.text();
-    const entries = JSON.parse(jsonText) as IEntry[];
-    return entries;
+    console.log(`About to fetch entries for '${query.surfaceForm}' in '${dictionaryCode}'`);
+    return this.fwLiteApi.fetchEntries(query.surfaceForm, dictionaryCode);
   }
   addEntry(projectId: string, reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');

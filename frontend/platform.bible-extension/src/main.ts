@@ -8,12 +8,11 @@ import type {
 import type {
   FindEntryEvent,
   FindWebViewOptions,
-  IProjectModel,
-  IWritingSystems,
   OpenWebViewOptionsWithProjectId,
   UrlHolder,
 } from 'fw-lite-extension';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
+import { FwLiteApi } from './fw-lite-api-utils';
 import fwFindWindow from './fwlite-find-word.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
@@ -108,14 +107,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
 
-  async function miniLcmApiFetch(path: string): Promise<string | undefined> {
-    const apiUrl = `${baseUrl}/api/${path}`;
-    try {
-      return await (await papi.fetch(apiUrl)).text();
-    } catch (e) {
-      logger.error(`Error fetching ${apiUrl} from MiniLCM API`, e);
-    }
-  }
+  const fwLiteApi = new FwLiteApi(baseUrl);
 
   const entryService = papi.networkObjects.set(
     'fwliteextension.entryService',
@@ -130,12 +122,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         logger.info('FieldWorks dictionary code cleared in project settings');
         return true;
       }
-
-      // TODO: Sanitize dictionaryCode
-
       logger.info('Validating FieldWorks dictionary code:', dictionaryCode);
-      const jsonText = await miniLcmApiFetch(`mini-lcm/FwData/${dictionaryCode}/writingSystems`);
-      return jsonText ? !!(JSON.parse(jsonText) as IWritingSystems).analysis : false;
+      try {
+        return !!(await fwLiteApi.fetchWritingSystems(dictionaryCode)).analysis;
+      } catch {
+        return false;
+      }
     },
   );
 
@@ -228,8 +220,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.fwDictionaries',
     async () => {
       logger.info('Fetching local FieldWorks dictionaries');
-      const jsonText = await miniLcmApiFetch('localProjects');
-      return jsonText ? (JSON.parse(jsonText) as IProjectModel[]) : [];
+      return await fwLiteApi.fetchProjects();
     },
   );
 

@@ -1,7 +1,17 @@
 import papi, { logger } from '@papi/backend';
-import type { IEntry, IProjectModel } from 'fw-lite-extension';
+import type { IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
-export class MiniLcmApi {
+/** Returns text that can be used in JSON.parse() */
+async function fetchUrl(url: string) {
+  logger.info(`About to fetch: ${url}`);
+  const results = await papi.fetch(url);
+  if (!results.ok) {
+    throw new Error(`Failed to fetch: ${results.statusText}`);
+  }
+  return await results.text();
+}
+
+export class FwLiteApi {
   private readonly baseUrl: string;
   private dictionaryCode?: string;
   constructor(baseUrl: string, dictionaryCode?: string) {
@@ -17,29 +27,32 @@ export class MiniLcmApi {
     return `${this.baseUrl}/api/${path}`;
   }
 
-  /** Returns text that can be used in JSON.parse() */
-  private async fetch(path: string) {
-    const apiUrl = this.getUrl(path);
-    logger.info(`About to fetch: ${apiUrl}`);
-    const results = await papi.fetch(apiUrl);
-    if (!results.ok) {
-      throw new Error(`Failed to fetch: ${results.statusText}`);
-    }
-    return await results.text();
+  private async fetchPath(path: string) {
+    return await fetchUrl(this.getUrl(path));
   }
 
-  async fetchEntries(search: string, dictionaryCode?: string) {
-    const code = dictionaryCode || this.dictionaryCode;
-    if (!code) {
-      throw new Error(`FW dictionary code not specified`);
+  private checkDictionaryCode(code?: string): string {
+    code = code || this.dictionaryCode;
+    if (!code?.trim()) {
+      throw new Error('FieldWorks dictionary code not specified');
     }
-    const path = `mini-lcm/FwData/${dictionaryCode || this.dictionaryCode}/entries/${search}`;
-    const jsonText = await this.fetch(path);
-    return JSON.parse(jsonText) as IEntry[];
+    if (code.includes('/')) {
+      throw new Error(`Invalid FieldWorks dictionary code: ${code}`);
+    }
+    return code;
   }
 
-  async fetchProjects() {
-    const jsonText = await this.fetch('localProjects');
-    return JSON.parse(jsonText) as IProjectModel[];
+  async fetchEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
+    const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/entries/${search}`;
+    return JSON.parse(await this.fetchPath(path));
+  }
+
+  async fetchProjects(): Promise<IProjectModel[]> {
+    return JSON.parse(await this.fetchPath('localProjects'));
+  }
+
+  async fetchWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
+    const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/writingSystems`;
+    return JSON.parse(await this.fetchPath(path));
   }
 }
