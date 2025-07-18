@@ -31,9 +31,15 @@
             "command": "fwLiteExtension.browseDictionary"
           },
           {
-            "label": "%fwLiteExtension_menu_label%",
+            "label": "%fwLiteExtension_menu_addEntry%",
             "group": "fw-lite-extension.editor",
-            "order": 1006,
+            "order": 2,
+            "command": "fwLiteExtension.addEntry"
+          },
+          {
+            "label": "%fwLiteExtension_menu_findEntry%",
+            "group": "fw-lite-extension.editor",
+            "order": 3,
             "command": "fwLiteExtension.findEntry"
           },
           {

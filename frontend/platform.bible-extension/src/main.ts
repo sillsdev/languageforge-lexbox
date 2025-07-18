@@ -7,20 +7,22 @@ import type {
 } from '@papi/core';
 import type {
   FindEntryEvent,
-  FindWebViewOptions,
   OpenWebViewOptionsWithProjectId,
   UrlHolder,
+  WordWebViewOptions,
 } from 'fw-lite-extension';
+import fwAddWordWindow from './fw-lite-add-word.web-view?inline';
 import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
 import { FwLiteApi } from './fw-lite-api-utils';
-import fwFindWindow from './fwlite-find-word.web-view?inline';
+import fwFindWordWindow from './fwlite-find-word.web-view?inline';
 import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 import { EntryService } from './entry-service';
 
 const mainWebViewType = 'fw-lite-extension.react';
-const dictionarySelectWebViewType = 'fw-dictionary-select.react';
-const findWordWebViewType = 'fwlite-find-word.react';
+const addWordWebViewType = 'fw-lite-add-word.react';
+const dictionarySelectWebViewType = 'fw-lite-dictionary-select.react';
+const findWordWebViewType = 'fw-lite-find-word.react';
 
 const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 
@@ -41,6 +43,25 @@ const mainWebViewProvider: IWebViewProvider = {
       projectId: options.projectId || savedWebView.projectId || undefined,
       styles: extensionTemplateStyles,
       title: '%fwLiteExtension_browseDictionary_title%',
+    };
+  },
+};
+
+const addWordWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: WordWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== addWordWebViewType)
+      throw new Error(
+        `${addWordWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwAddWordWindow,
+      iconUrl,
+      title: '%fwLiteExtension_addWord_title%',
     };
   },
 };
@@ -67,7 +88,7 @@ const dictionarySelectWebViewProvider: IWebViewProvider = {
 const findWordWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: FindWebViewOptions,
+    options: WordWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== findWordWebViewType)
       throw new Error(
@@ -76,7 +97,7 @@ const findWordWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       ...options,
-      content: fwFindWindow,
+      content: fwFindWordWindow,
       iconUrl,
       title: '%fwLiteExtension_findWord_title%',
     };
@@ -89,6 +110,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const mainWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     mainWebViewType,
     mainWebViewProvider,
+  );
+  const addWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    addWordWebViewType,
+    addWordWebViewProvider,
   );
   const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     dictionarySelectWebViewType,
@@ -154,6 +179,19 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     return pdp.getSetting('fw-lite-extension.fwDictionaryCode');
   }
 
+  const addEntryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.addEntry',
+    async (webViewId: string, word: string) => {
+      const projectId = await getProjectIdFromWebViewId(webViewId);
+      if (!projectId) return { success: false };
+      logger.info(
+        `Opening FieldWorks Lite add entry view for project '${projectId}' with word '${word}'`,
+      );
+      const options: WordWebViewOptions = { existingId: '?', projectId, word };
+      void papi.webViews.openWebView(addWordWebViewType, undefined, options);
+      return { success: true };
+    },
+  );
   const browseDictionaryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.browseDictionary',
     async (webViewId: string) => {
@@ -191,7 +229,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info(
         `Opening FieldWorks Lite find entry view for project '${projectId}' with word '${word}'`,
       );
-      const options: FindWebViewOptions = { existingId: '?', projectId, word };
+      const options: WordWebViewOptions = { existingId: '?', projectId, word };
       void papi.webViews.openWebView(findWordWebViewType, undefined, options);
       return { success: true };
     },
@@ -236,11 +274,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   context.registrations.add(
     // Web views
     await mainWebViewProviderPromise,
+    await addWordWebViewProviderPromise,
     await dictionarySelectWebViewProviderPromise,
     await findWordWebViewProviderPromise,
     // Validators
     await validDictionaryCode,
     // Commands
+    await addEntryCommandPromise,
     await browseDictionaryCommandPromise,
     await findEntryCommandPromise,
     await getBaseUrlCommandPromise,
