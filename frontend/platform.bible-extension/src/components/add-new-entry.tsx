@@ -25,8 +25,8 @@ export default function AddNewEntry(props: AddNewEntryProps) {
   }, [definition, gloss, headword]);
 
   async function addEntry(): Promise<void> {
-    const sense = CreateSense(props.analysisLang, gloss.trim(), definition.trim());
-    const entry = CreateEntry(props.vernacularLang, headword.trim(), sense);
+    const sense = createSense(props.analysisLang, gloss.trim(), definition.trim());
+    const entry = createEntry(props.vernacularLang, headword.trim(), sense);
     await props.addEntry(entry);
   }
 
@@ -74,7 +74,7 @@ export default function AddNewEntry(props: AddNewEntryProps) {
   );
 }
 
-function CreateSense(lang: string, gloss?: string, definition?: string): ISense {
+function createSense(lang: string, gloss?: string, definition?: string): ISense {
   return {
     definition: definition ? { [lang]: definition } : {},
     entryId: '',
@@ -85,7 +85,7 @@ function CreateSense(lang: string, gloss?: string, definition?: string): ISense 
   };
 }
 
-function CreateEntry(lang: string, headword: string, sense: ISense): IEntry {
+function createEntry(lang: string, headword: string, sense: ISense): IEntry {
   return {
     citationForm: { [lang]: headword },
     complexForms: [],

@@ -67,7 +67,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
-      debouncedFetchEntries(searchQuery);
+      void debouncedFetchEntries(searchQuery);
     },
     [debouncedFetchEntries],
   );
