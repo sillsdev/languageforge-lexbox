@@ -1,34 +1,64 @@
+import type { OpenWebViewOptions } from '@papi/core';
+import type { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
+
 declare module 'fw-lite-extension' {
-  /** Network event that informs subscribers when the command `fwLiteExtension.doStuff` is run */
-  export type DoStuffEvent = {
-    /** How many times the extension template has run the command `fwLiteExtension.doStuff` */
-    count: number;
-  };
+  export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
+  export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
+  export type ISense = import('../../../viewer/src/lib/dotnet-types/index.js').ISense;
+  export type IWritingSystems =
+    import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
+
+  export interface SuccessHolder {
+    success: boolean;
+  }
+  export interface UrlHolder {
+    baseUrl: string;
+    dictionaryUrl: string;
+  }
 
   export type FindEntryEvent = {
-    /** The entry to find */
     entry: string;
   };
-  export type LaunchServerEvent = {
-    baseUrl: string;
-  };
+
+  export interface IEntryQuery {
+    readonly surfaceForm?: string;
+    readonly exactMatch?: boolean;
+    readonly partOfSpeech?: string;
+    readonly semanticDomain?: string;
+  }
+
+  export interface IEntryService {
+    getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
+    addEntry(projectId: string, reference: IEntry): Promise<void>;
+    updateEntry(projectId: string, reference: IEntry): Promise<void>;
+    deleteEntry(projectId: string, id: string): Promise<void>;
+  }
+
+  interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
+    projectId?: string;
+  }
+  interface WordWebViewOptions extends OpenWebViewOptionsWithProjectId {
+    word?: string;
+  }
 }
 
 declare module 'papi-shared-types' {
-
   export interface CommandHandlers {
-    'fwLiteExtension.doStuff': (message: string) => {
-      response: string;
-      occurrence: number;
-    };
-    'fwLiteExtension.findEntry': (entry: string) => {
-      success: boolean;
-    };
-    'fwLiteExtension.simpleFind': () => {
-      success: boolean;
-    };
-    'fwLiteExtension.getBaseUrl': () => {
-      baseUrl: string;
-    };
+    'fwLiteExtension.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.selectDictionary': (
+      projectId: string,
+      dictionaryCode: string,
+    ) => Promise<SuccessHolder>;
+    'fwLiteExtension.fwDictionaries': () => Promise<IProjectModel[] | undefined>;
+    'fwLiteExtension.openFWLite': (webViewId: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.getBaseUrl': () => UrlHolder;
+  }
+  export interface ProjectSettingTypes {
+    'fw-lite-extension.fwDictionaryCode': string;
+  }
+  export interface NetworkableObject {
+    'fwLiteExtension.entryService': IEntryService;
   }
 }

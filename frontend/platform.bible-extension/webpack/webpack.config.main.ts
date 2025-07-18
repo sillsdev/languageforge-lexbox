@@ -10,7 +10,7 @@ import { outputFolder } from './webpack.util';
 const configMain: webpack.Configuration = merge(configBase, {
   // #region shared with https://github.com/paranext/paranext-core/blob/main/extensions/webpack/webpack.config.main.ts
 
-  // Build for node since Paranext loads this in node https://webpack.js.org/concepts/targets/
+  // Build for node since Platform.Bible loads this in node https://webpack.js.org/concepts/targets/
   target: 'node',
   // configuration name
   name: 'main',
@@ -55,7 +55,7 @@ const configMain: webpack.Configuration = merge(configBase, {
         { from: 'contributions', to: './contributions/', noErrorOnMissing: true },
         // Copy this extension's type declaration file into the output folder
         { from: 'src/types/fw-lite-extension.d.ts', to: './' },
-        // We need to distribute the package.json for Paranext to read the extension properly
+        // We need to distribute the package.json for Platform.Bible to read the extension properly
         { from: 'package.json', to: './' },
       ],
     }),
