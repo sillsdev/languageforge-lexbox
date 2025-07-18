@@ -4,7 +4,7 @@ import type { IEntry, IEntryService, WordWebViewOptions } from 'fw-lite-extensio
 import { Card, CardContent, CardHeader, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import AddNewEntry from './add-new-entry';
+import AddNewEntry from '../components/add-new-entry';
 
 globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordWebViewOptions) {
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();

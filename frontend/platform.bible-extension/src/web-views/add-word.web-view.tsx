@@ -2,7 +2,7 @@ import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import type { IEntry, IEntryService, WordWebViewOptions } from 'fw-lite-extension';
 import { useCallback, useEffect, useState } from 'react';
-import AddNewEntry from './add-new-entry';
+import AddNewEntry from '../components/add-new-entry';
 
 globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWebViewOptions) {
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
