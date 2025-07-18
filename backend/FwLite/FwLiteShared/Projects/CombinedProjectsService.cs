@@ -45,15 +45,13 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         ServerProjects[] serverProjects = new ServerProjects[lexboxServers.Length];
         for (var i = 0; i < lexboxServers.Length; i++)
         {
-            var server = lexboxServers[i];
-            var (projectModels, canDownload) = await ServerProjects(server);
-            serverProjects[i] = new ServerProjects(server, projectModels, canDownload);
+            serverProjects[i] = await ServerProjects(lexboxServers[i]);
         }
 
         return serverProjects;
     }
 
-    private async Task<(ProjectModel[], bool)> ServerProjects(LexboxServer server, bool forceRefresh = false)
+    private async Task<ServerProjects> ServerProjects(LexboxServer server, bool forceRefresh = false)
     {
         if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
@@ -69,7 +67,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 server,
                 p.Id))
             .ToArray();
-        return (projectModels, lexboxProjects.CanDownloadProjectsWithoutMembership);
+        return new(server, projectModels, lexboxProjects.CanDownloadProjectsWithoutMembership);
     }
 
     private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
@@ -87,10 +85,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     // TODO: This should return an object rather than a tuple
     // Perhaps a ServerProjects object, even though the LexboxServer Server property would be redundant
     // OR... perhaps the bool isn't needed and this can go back to being just a ProjectModel array. TODO: Check that once I look at frontend code.
-    public async Task<(ProjectModel[], bool)> ServerProjects(string serverId, bool forceRefresh)
+    public async Task<ServerProjects?> ServerProjects(string serverId, bool forceRefresh)
     {
         var server = lexboxProjectService.Servers().FirstOrDefault(s => s.Id == serverId);
-        if (server is null) return new([], false);
+        if (server is null) return null;
         return await ServerProjects(server, forceRefresh);
     }
 
@@ -150,11 +148,11 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
     public async Task DownloadProject(string code, LexboxServer server)
     {
-        var (serverProjects, canDownloadProjectsWithoutMembership) = await ServerProjects(server, false);
-        var project = serverProjects.FirstOrDefault(p => p.Code == code);
+        var serverProjects = await ServerProjects(server, false);
+        var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
         if (project is null)
         {
-            if (canDownloadProjectsWithoutMembership)
+            if (serverProjects.CanDownloadProjectsWithoutMembership)
             {
                 // TODO: Implement
                 Console.WriteLine("User should be able download with only a project code, not knowing project ID, but this isn't implemented yet");
