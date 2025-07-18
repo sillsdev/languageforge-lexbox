@@ -14,6 +14,7 @@ public static class LcmCrdtTestsKernel
         services.AddLogging(builder => builder.AddDebug());
         services.AddSingleton<IServerHttpClientProvider, FakeHttpClientProvider>();
         services.AddLcmCrdtClient();
+        services.Configure<LcmCrdtConfig>(config => config.EnableProjectDataFileCache = false);
         if (project is not null)
         {
             services.AddScoped<CurrentProjectService>(provider =>

@@ -54,7 +54,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
     private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh = false)
     {
-        if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
+        if (forceRefresh)
+            lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
         await UpdateProjectServerInfo(lexboxProjects, await lexboxProjectService.GetLexboxUser(server));
         var projectModels = lexboxProjects.Select(p => new ProjectModel(
