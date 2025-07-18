@@ -58,8 +58,10 @@
   {#each serversStatus as status}
     {@const server = status.server}
     {@const serverProjects = remoteProjects[server.id]?.projects.filter(p => p.crdt) ?? []}
+    {@const canDowloadByCode = remoteProjects[server.id]?.canDownloadProjectsWithoutMembership}
     <Server {status}
             projects={serverProjects}
+            {canDowloadByCode}
             {localProjects}
             loading={loadingServerProjects === server.id || loadingRemoteProjects}
             on:refreshProjects={() => refreshServerProjects(server, true)}

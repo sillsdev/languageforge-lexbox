@@ -23,6 +23,7 @@
   export let status: IServerStatus | undefined;
   $: server = status?.server;
   export let projects: Project[];
+  export let canDowloadByCode: boolean = false;
   export let localProjects: Project[];
   export let loading: boolean;
   let downloading = '';
@@ -98,6 +99,9 @@
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
       </p>
+      {#if status.loggedIn && canDowloadByCode}
+        <div>TODO: Project code input goes here</div>
+      {/if}
     {:else}
       <div class="shadow rounded">
         {#each projects as project}
@@ -131,6 +135,9 @@
             </ButtonListItem>
           {/if}
         {/each}
+        {#if canDowloadByCode}
+          <p>TODO: Project code input goes here</p>
+        {/if}
       </div>
       <div class="text-center pt-2">
         <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
