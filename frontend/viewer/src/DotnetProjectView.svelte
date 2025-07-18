@@ -17,9 +17,10 @@
   const projectServicesProvider = useProjectServicesProvider();
   const projectContext = initProjectContext();
 
-  const {code, type: projectType}: {
+  const {code, type: projectType, paratext = false}: {
     code: string; // Code for CRDTs, project-name for FWData
-    type: 'fwdata' | 'crdt'
+    type: 'fwdata' | 'crdt';
+    paratext?: boolean;
   } = $props();
 
 
@@ -27,6 +28,7 @@
   let projectName = $state<string>(code);
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
+  let loading = $state(true);
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
@@ -59,7 +61,8 @@
       projectCode: code,
       projectType,
       server: projectScope.server,
-      projectData: projectScope.projectData
+      projectData: projectScope.projectData,
+      paratext
     });
     serviceLoaded = true;
   });
@@ -78,6 +81,7 @@
   }
 </script>
 
-<ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
-  <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>
+<ProjectLoader readyToLoadProject={serviceLoaded} {loading} {projectName}>
+  <ProjectView onloaded={() => loading = false} data-paratext={paratext}></ProjectView>
 </ProjectLoader>
+
