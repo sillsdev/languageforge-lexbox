@@ -13,6 +13,7 @@
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
+  import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
 
   const projectsService = useProjectsService();
 
@@ -55,7 +56,14 @@
     }
     return undefined;
   }
+
+  let getProjectByCodeDialog: GetProjectByCodeDialog|undefined;
+  function getProjectByCode()
+  {
+    getProjectByCodeDialog?.openDialog();
+  }
 </script>
+<GetProjectByCodeDialog bind:this={getProjectByCodeDialog}/>
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
@@ -100,7 +108,14 @@
         {/if}
       </p>
       {#if status.loggedIn && canDowloadByCode}
-        <div>TODO: Project code input goes here</div>
+        <Button icon="i-mdi-download"
+                title={$t`Download project not listed`}
+                disabled={loading}
+                class="mr-2"
+                variant="ghost"
+                size="default"
+                onclick={getProjectByCode}
+                >{$t`Download project not listed`}</Button>
       {/if}
     {:else}
       <div class="shadow rounded">
@@ -136,7 +151,14 @@
           {/if}
         {/each}
         {#if canDowloadByCode}
-          <p>TODO: Project code input goes here</p>
+        <Button icon="i-mdi-download"
+                title={$t`Download project not listed`}
+                disabled={loading}
+                class="mr-2"
+                variant="ghost"
+                size="default"
+                onclick={getProjectByCode}
+                >{$t`Download project not listed`}</Button>
         {/if}
       </div>
       <div class="text-center pt-2">
