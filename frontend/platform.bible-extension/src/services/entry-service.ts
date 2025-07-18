@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
-import { FwLiteApi } from './fw-lite-api-utils';
+import { FwLiteApi } from '../utils/fw-lite-api';
 
 export class EntryService implements IEntryService {
   private fwLiteApi: FwLiteApi;

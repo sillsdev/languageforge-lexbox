@@ -11,13 +11,13 @@ import type {
   UrlHolder,
   WordWebViewOptions,
 } from 'fw-lite-extension';
-import fwAddWordWindow from './fw-lite-add-word.web-view?inline';
-import fwDictionarySelect from './fw-dictionary-select.web-view?inline';
-import { FwLiteApi } from './fw-lite-api-utils';
-import fwFindWordWindow from './fwlite-find-word.web-view?inline';
-import fwLiteMainWindow from './fwLiteMainWindow.web-view?inline';
+import { EntryService } from './services/entry-service';
 import extensionTemplateStyles from './styles.css?inline';
-import { EntryService } from './entry-service';
+import { FwLiteApi } from './utils/fw-lite-api';
+import fwAddWordWindow from './web-views/add-word.web-view?inline';
+import fwDictionarySelectWindow from './web-views/dictionary-select.web-view?inline';
+import fwFindWordWindow from './web-views/find-word.web-view?inline';
+import fwMainWindow from './web-views/main.web-view?inline';
 
 const mainWebViewType = 'fw-lite-extension.react';
 const addWordWebViewType = 'fw-lite-add-word.react';
@@ -39,7 +39,7 @@ const mainWebViewProvider: IWebViewProvider = {
       ...savedWebView,
       allowedFrameSources: ['http://localhost:*'],
       iconUrl,
-      content: fwLiteMainWindow,
+      content: fwMainWindow,
       projectId: options.projectId || savedWebView.projectId || undefined,
       styles: extensionTemplateStyles,
       title: '%fwLiteExtension_browseDictionary_title%',
@@ -77,7 +77,7 @@ const dictionarySelectWebViewProvider: IWebViewProvider = {
       );
     return {
       ...savedWebView,
-      content: fwDictionarySelect,
+      content: fwDictionarySelectWindow,
       iconUrl,
       projectId: options.projectId || savedWebView.projectId || undefined,
       title: '%fwLiteExtension_selectDictionary_title%',
