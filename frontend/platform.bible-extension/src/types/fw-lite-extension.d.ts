@@ -37,13 +37,14 @@ declare module 'fw-lite-extension' {
   interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
     projectId?: string;
   }
-  interface FindWebViewOptions extends OpenWebViewOptionsWithProjectId {
+  interface WordWebViewOptions extends OpenWebViewOptionsWithProjectId {
     word?: string;
   }
 }
 
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
+    'fwLiteExtension.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
     'fwLiteExtension.selectDictionary': (
       projectId: string,
