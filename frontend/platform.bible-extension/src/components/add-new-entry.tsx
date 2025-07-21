@@ -1,4 +1,4 @@
-import type { IEntry, ISense } from 'fw-lite-extension';
+import type { IEntry } from 'fw-lite-extension';
 import { Button, Card, CardContent, CardHeader, Input, Label } from 'platform-bible-react';
 import { useCallback, useEffect, useState } from 'react';
 import { v4 } from 'uuid';
