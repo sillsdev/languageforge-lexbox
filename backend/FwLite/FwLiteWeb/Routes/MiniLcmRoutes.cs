@@ -102,6 +102,7 @@ public static class MiniLcmRoutes
         api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
         api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
         api.MapGet("/publications", MiniLcm.GetPublications);
+        api.MapPost("/entry", MiniLcm.PostEntry);
         return api;
     }
 
@@ -152,6 +153,12 @@ public static class MiniLcmRoutes
         {
             var api = holder.MiniLcmApi;
             return api.GetPublications();
+        }
+
+        public static Task<Entry> PostEntry([FromBody] Entry entry, [FromServices] MiniLcmHolder holder)
+        {
+            var api = holder.MiniLcmApi;
+            return api.CreateEntry(entry);
         }
     }
 
