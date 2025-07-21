@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using SystemTextJsonPatch;
@@ -120,6 +121,17 @@ public interface IMiniLcmWriteApi
         {
             await this.CreateEntry(entry);
         }
+    }
+
+    /// <summary>
+    /// Saves a media file and processes the provided stream.
+    /// </summary>
+    /// <param name="stream">The data stream of the media file to be saved.</param>
+    /// <param name="mediaFile">The metadata and URI of the media file to save.</param>
+    /// <returns>Returns an <see cref="UploadFileResponse"/> indicating the result of the operation.</returns>
+    Task<UploadFileResponse> SaveFile(Stream stream, MediaFile mediaFile)
+    {
+        return Task.FromResult(new UploadFileResponse(UploadFileResult.NotSupported));
     }
 }
 
