@@ -23,7 +23,7 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
                 return Directory
                     .EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories)
                     .Select(file => Path.GetRelativePath(cache.LangProject.LinkedFilesRootDir, file))
-                    .ToDictionary(file => MediaUriFromPath(file, cache).FileId, file => file);
+                    .ToDictionary(file => PathToUri(file).FileId, file => file);
             }) ?? throw new Exception("Failed to get paths");
     }
 
@@ -31,6 +31,14 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
         if (!File.Exists(Path.Combine(cache.LangProject.LinkedFilesRootDir, path))) return MediaUri.NotFound;
+        var uri = PathToUri(path);
+        //this may be a new file, so we need to add it to the cache
+        Paths(cache)[uri.FileId] = path;
+        return uri;
+    }
+
+    private static MediaUri PathToUri(string path)
+    {
         return new MediaUri(NewGuidV5(path), LocalMediaAuthority);
     }
 
