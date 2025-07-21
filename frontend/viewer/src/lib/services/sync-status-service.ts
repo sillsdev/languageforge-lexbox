@@ -1,5 +1,5 @@
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {SyncJobResultEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncJobResultEnum';
+import {SyncJobStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncJobStatusEnum';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 
 export function useSyncStatusService() {
@@ -37,8 +37,8 @@ export class SyncStatusService {
 
   async triggerFwHeadlessSync() {
     const result = await this.syncStatusApi.triggerFwHeadlessSync();
-    if (result.result === SyncJobResultEnum.Success) return result;
-    else throw new Error(result.error as string ?? `Sync failed with status ${result.result} but no error message`, {cause: 'TODO: Exception should go here'});
+    if (result.status === SyncJobStatusEnum.Success) return result;
+    else throw new Error(result.error as string ?? `Sync failed with status ${result.status} but no error message`, {cause: 'TODO: Exception should go here'});
     // TODO: Tweak SyncJobResult to have an error *message* and error *details*, and put the details in the `cause` property of the JS Error that we throw
     // throw new Error(result.errorMessage, {cause: result.errorDetails});
 

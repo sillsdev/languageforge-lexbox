@@ -95,12 +95,7 @@
         error: (error) => $t`Failed to synchronize.` + '\n' + (error as Error).message,
         // TODO: Custom component that can expand or collapse the stacktrace
       });
-      try {
-        await syncPromise;
-        safeToCloseDialog = true;
-      } catch {
-        safeToCloseDialog = false;
-      }
+      safeToCloseDialog = await syncPromise.then(() => true).catch(() => false);
     } finally {
       loadingSyncLexboxToFlex = false;
     }
