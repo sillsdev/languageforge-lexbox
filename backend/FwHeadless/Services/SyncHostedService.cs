@@ -178,7 +178,7 @@ public class SyncWorker(
             logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
         }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
-        return new SyncJobResult(SyncJobStatusEnum.Success, null, result);
+        return new SyncJobResult(result);
     }
 
     private async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)

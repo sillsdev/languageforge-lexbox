@@ -143,7 +143,7 @@ public class LexboxProjectService : IDisposable
     public async Task<SyncJobResult> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
     {
         var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to retrieve sync status when logged out, try again after logging in to lexbox server", null);
+        if (httpClient is null) return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to retrieve sync status when logged out, try again after logging in to lexbox server");
         var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(timeoutSeconds);
         while (giveUpAt > DateTime.UtcNow)
         {
@@ -156,23 +156,23 @@ public class LexboxProjectService : IDisposable
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadFromJsonAsync<SyncJobResult?>();
-                    return content ?? new SyncJobResult(SyncJobStatusEnum.UnknownError, "Unknown error retrieving sync status", null);
+                    return content ?? new SyncJobResult(SyncJobStatusEnum.UnknownError, "Unknown error retrieving sync status");
                 }
                 else
                 {
                     var errorMessage = await result.Content.ReadAsStringAsync();
-                    return new SyncJobResult(SyncJobStatusEnum.UnknownError, errorMessage, null);
+                    return new SyncJobResult(SyncJobStatusEnum.UnknownError, errorMessage);
                 }
             }
             catch (OperationCanceledException) { continue; }
             catch (Exception e)
             {
                 logger.LogError(e, "Error waiting for lexbox sync to finish");
-                return new SyncJobResult(SyncJobStatusEnum.UnknownError, e.ToString(), null);
+                return new SyncJobResult(SyncJobStatusEnum.UnknownError, e.ToString());
             }
         }
         logger.LogError("Timed out waiting for lexbox sync to finish");
-        return new SyncJobResult(SyncJobStatusEnum.SyncJobTimedOut, "Timed out waiting for lexbox sync to finish", null);
+        return new SyncJobResult(SyncJobStatusEnum.SyncJobTimedOut, "Timed out waiting for lexbox sync to finish");
     }
 
     public async Task<int?> CountPendingCrdtCommits(LexboxServer server, Guid projectId, SyncState localSyncState)

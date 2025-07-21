@@ -29,13 +29,13 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-            return new SyncJobResult(SyncJobStatusEnum.UnknownError, responseBody, null);
+            return new SyncJobResult(SyncJobStatusEnum.UnknownError, responseBody);
         }
         var jobResult = await response.Content.ReadFromJsonAsync<SyncJobResult>(cancellationToken);
         if (jobResult is null)
         {
             logger.LogError("Sync status was not a valid SyncJobResult");
-            return new SyncJobResult(SyncJobStatusEnum.UnknownError, "Sync status failed to return a result", null);
+            return new SyncJobResult(SyncJobStatusEnum.UnknownError, "Sync status failed to return a result");
         }
 
         return jobResult;
