@@ -57,7 +57,7 @@ public static class ProjectRoutes
             ) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await combinedProjectsService.DownloadProject(code, server);
+                await combinedProjectsService.DownloadProjectByCode(code, server);
                 return TypedResults.Ok();
             });
         return group;

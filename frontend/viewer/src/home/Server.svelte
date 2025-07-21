@@ -14,6 +14,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
+  // import {ProjectRole} from '$lib/dotnet-types/generated-types/LexCore/Entities/ProjectRole';
 
   const projectsService = useProjectsService();
 
@@ -50,6 +51,13 @@
     }
   }
 
+  async function downloadCrdtProjectByCode(projectCode: string) {
+    // TODO: Pass in desired role as well
+    await projectsService.downloadProjectByCode(projectCode, server!);
+    dispatch('refreshAll');
+    // TODO: Push a Project instance to localProjects (won't have name yet, can substitute code until name is availabe)
+  }
+
   function matchesProject(projects: Project[], project: Project): Project | undefined {
     if (project.id) {
       return projects.find(p => p.id == project.id && p.server?.id == project.server?.id);
@@ -63,7 +71,7 @@
     getProjectByCodeDialog?.openDialog();
   }
 </script>
-<GetProjectByCodeDialog bind:this={getProjectByCodeDialog}/>
+<GetProjectByCodeDialog bind:this={getProjectByCodeDialog} onDowloadProject={downloadCrdtProjectByCode}/>
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">

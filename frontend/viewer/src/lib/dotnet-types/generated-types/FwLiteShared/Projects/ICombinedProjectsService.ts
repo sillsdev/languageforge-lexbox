@@ -5,6 +5,7 @@
 
 import type {IServerProjects} from './IServerProjects';
 import type {IProjectModel} from './IProjectModel';
+import type {ILexboxServer} from '../Auth/ILexboxServer';
 
 export interface ICombinedProjectsService
 {
@@ -12,6 +13,7 @@ export interface ICombinedProjectsService
 	remoteProjects() : Promise<IServerProjects[]>;
 	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IServerProjects>;
 	localProjects() : Promise<IProjectModel[]>;
+	downloadProjectByCode(code: string, server: ILexboxServer) : Promise<void>;
 	downloadProject(project: IProjectModel) : Promise<void>;
 	createProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;

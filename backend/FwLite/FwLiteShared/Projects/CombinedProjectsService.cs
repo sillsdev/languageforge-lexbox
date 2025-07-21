@@ -146,7 +146,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             _ => ProjectRole.Unknown
         };
 
-    public async Task DownloadProject(string code, LexboxServer server)
+    [JSInvokable]
+    public async Task DownloadProjectByCode(string code, LexboxServer server)
     {
         var serverProjects = await ServerProjects(server, false);
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
@@ -154,8 +155,22 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             if (serverProjects.CanDownloadProjectsWithoutMembership)
             {
-                // TODO: Implement
-                Console.WriteLine("User should be able download with only a project code, not knowing project ID, but this isn't implemented yet");
+                var projectId = await lexboxProjectService.GetLexboxProjectId(server, code);
+                if (projectId is not null)
+                {
+                    project = new ProjectModel(
+                        Name: code, // TODO: No GetLexboxProjectName. Do we need one?
+                        Code: code,
+                        Crdt: true,
+                        Fwdata: true,
+                        Lexbox: true,
+                        Role: ProjectRole.Observer, // TODO: Allow this to be chosen in dialog
+                        Server: server,
+                        Id: projectId
+                    );
+                    await DownloadProject(project);
+                    return;
+                }
             }
             throw new InvalidOperationException($"Project {code} not found on server {server.Authority}");
         }
