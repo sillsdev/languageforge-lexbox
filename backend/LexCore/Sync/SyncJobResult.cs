@@ -11,6 +11,7 @@ public enum SyncJobResultEnum
     ProjectNotFound,
     SyncJobNotFound,
     SyncJobTimedOut,
+    TimedOutAwaitingSyncStatus,
     UnableToAuthenticate,
     UnableToSync,
     CrdtSyncFailed,

@@ -213,10 +213,19 @@ static async Task<SyncJobResult> AwaitSyncFinished(
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
         return result;
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException e)
     {
-        activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
-        return new SyncJobResult(SyncJobResultEnum.SyncJobTimedOut, "Sync job timed out", null);
+        if (e.CancellationToken == cancellationToken)
+        {
+            // The AwaitSyncFinished call was canceled, but the sync job was not (necessarily) canceled
+            activity?.SetStatus(ActivityStatusCode.Error, "Timed out awaiting sync status");
+            return new SyncJobResult(SyncJobResultEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status", null);
+        }
+        else
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
+            return new SyncJobResult(SyncJobResultEnum.SyncJobTimedOut, "Sync job timed out", null);
+        }
     }
     catch (Exception e)
     {

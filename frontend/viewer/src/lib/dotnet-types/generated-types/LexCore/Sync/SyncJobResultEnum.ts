@@ -8,6 +8,7 @@ export enum SyncJobResultEnum {
 	ProjectNotFound = "ProjectNotFound",
 	SyncJobNotFound = "SyncJobNotFound",
 	SyncJobTimedOut = "SyncJobTimedOut",
+	TimedOutAwaitingSyncStatus = "TimedOutAwaitingSyncStatus",
 	UnableToAuthenticate = "UnableToAuthenticate",
 	UnableToSync = "UnableToSync",
 	CrdtSyncFailed = "CrdtSyncFailed",
