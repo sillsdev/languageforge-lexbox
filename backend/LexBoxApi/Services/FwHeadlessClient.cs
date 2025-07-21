@@ -24,7 +24,6 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-            Console.WriteLine("Failed to get sync status: {0}", response.StatusCode);
             logger.LogError("Failed to get sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
                 response.StatusCode,
                 response.ReasonPhrase,
