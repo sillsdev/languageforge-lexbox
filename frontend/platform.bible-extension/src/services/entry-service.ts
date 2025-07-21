@@ -23,6 +23,7 @@ export class EntryService implements IEntryService {
     console.log(`About to fetch entries for '${query.surfaceForm}' in '${dictionaryCode}'`);
     return this.fwLiteApi.getEntries(query.surfaceForm, dictionaryCode);
   }
+
   async addEntry(projectId: string, entry: IEntry): Promise<void> {
     if (!projectId) {
       logger.debug('No project!');
@@ -33,9 +34,13 @@ export class EntryService implements IEntryService {
     const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
     await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateEntry(projectId: string, reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   deleteEntry(projectId: string, id: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
