@@ -1,4 +1,6 @@
-﻿using System.Threading.Channels;
+﻿using System.Diagnostics;
+using System.Threading.Channels;
+using Humanizer;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,7 +68,6 @@ public class BackgroundSyncService(
         //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
         await StartedAsync();
         _running = true;
-        await SyncAllProjects(stoppingToken);
 
         try
         {
@@ -80,15 +81,6 @@ public class BackgroundSyncService(
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
             // Expected during shutdown
-        }
-    }
-
-    private async Task SyncAllProjects(CancellationToken stoppingToken)
-    {
-        var crdtProjects = crdtProjectsService.ListProjects();
-        foreach (var crdtProject in crdtProjects)
-        {
-            await SyncProject(crdtProject, stoppingToken);
         }
     }
 
