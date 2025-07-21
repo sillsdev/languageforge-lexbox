@@ -37,16 +37,6 @@ public class SyncController(
         return Ok();
     }
 
-    [HttpPost("cancel/{projectId}")]
-    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
-    public async Task<ActionResult> CancelSync(Guid projectId)
-    {
-        if (!await permissionService.CanSyncProject(projectId)) return Forbid();
-        var cancelled = await fwHeadlessClient.CancelCrdtSync(projectId);
-        if (!cancelled) return Problem("Failed to cancel CRDT sync");
-        return Ok();
-    }
-
     [HttpGet("await-sync-finished/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     public async Task<ActionResult<SyncJobResult>> AwaitSyncFinished(Guid projectId)
