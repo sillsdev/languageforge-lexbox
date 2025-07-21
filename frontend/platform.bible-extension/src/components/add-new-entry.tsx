@@ -87,12 +87,12 @@ function createSense(lang: string, gloss?: string, definition?: string): ISense 
 
 function createEntry(lang: string, headword: string, sense: ISense): IEntry {
   return {
-    citationForm: { [lang]: headword },
+    citationForm: {},
     complexForms: [],
     complexFormTypes: [],
     components: [],
     id: sense.entryId || '',
-    lexemeForm: {},
+    lexemeForm: { [lang]: headword },
     literalMeaning: {},
     note: {},
     publishIn: [],
