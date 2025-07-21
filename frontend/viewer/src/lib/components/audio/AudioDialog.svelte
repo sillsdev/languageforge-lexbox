@@ -99,7 +99,7 @@
   }
 </script>
 
-{#if open}
+
 <Dialog.Root bind:open>
   <Dialog.DialogContent class="grid-rows-[auto_1fr_auto]">
     <Dialog.DialogHeader>
@@ -123,4 +123,4 @@
     {/if}
   </Dialog.DialogContent>
 </Dialog.Root>
-{/if}
+
