@@ -24,7 +24,7 @@ export class EntryService implements IEntryService {
     return this.fwLiteApi.getEntries(query.surfaceForm, dictionaryCode);
   }
 
-  async addEntry(projectId: string, entry: IEntry): Promise<void> {
+  async addEntry(projectId: string, entry: IEntry): Promise<IEntry | undefined> {
     if (!projectId) {
       logger.debug('No project!');
       return;
@@ -32,7 +32,7 @@ export class EntryService implements IEntryService {
 
     const settings = await papi.projectDataProviders.get('platform.base', projectId);
     const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
-    await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
+    return await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

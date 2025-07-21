@@ -1,6 +1,7 @@
 import type { IEntry, ISense } from 'fw-lite-extension';
 import { Button, Card, CardContent, CardHeader, Input, Label } from 'platform-bible-react';
 import { useCallback, useEffect, useState } from 'react';
+import { v4 } from 'uuid';
 
 interface AddNewEntryProps {
   addEntry: (entry: IEntry) => Promise<void>;
@@ -25,9 +26,15 @@ export default function AddNewEntry(props: AddNewEntryProps) {
   }, [definition, gloss, headword]);
 
   async function addEntry(): Promise<void> {
-    const sense = createSense(props.analysisLang, gloss.trim(), definition.trim());
-    const entry = createEntry(props.vernacularLang, headword.trim(), sense);
+    const entry = createEntry(
+      props.vernacularLang,
+      headword.trim(),
+      props.analysisLang,
+      gloss.trim(),
+      definition.trim(),
+    );
     await props.addEntry(entry);
+    setIsAdding(props.isAdding);
   }
 
   const clearEntry = useCallback((): void => {
@@ -74,28 +81,33 @@ export default function AddNewEntry(props: AddNewEntryProps) {
   );
 }
 
-function createSense(lang: string, gloss?: string, definition?: string): ISense {
-  return {
-    definition: definition ? { [lang]: definition } : {},
-    entryId: '',
-    exampleSentences: [],
-    gloss: gloss ? { [lang]: gloss } : {},
-    id: '',
-    semanticDomains: [],
-  };
-}
-
-function createEntry(lang: string, headword: string, sense: ISense): IEntry {
+function createEntry(
+  vernacularLang: string,
+  headword: string,
+  analysisLang: string,
+  gloss?: string,
+  definition?: string,
+): IEntry {
+  const entryId = v4();
   return {
     citationForm: {},
     complexForms: [],
     complexFormTypes: [],
     components: [],
-    id: sense.entryId || '',
-    lexemeForm: { [lang]: headword },
+    id: entryId,
+    lexemeForm: { [vernacularLang]: headword },
     literalMeaning: {},
     note: {},
     publishIn: [],
-    senses: [sense],
+    senses: [
+      {
+        definition: definition ? { [analysisLang]: definition } : {},
+        entryId,
+        exampleSentences: [],
+        gloss: gloss ? { [analysisLang]: gloss } : {},
+        id: v4(),
+        semanticDomains: [],
+      },
+    ],
   };
 }

@@ -69,9 +69,9 @@ export class FwLiteApi {
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
-  async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
+  async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<IEntry> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entry`;
-    await this.fetchPath(path, entry);
+    return (await this.fetchPath(path, entry)) as IEntry;
   }
 }
