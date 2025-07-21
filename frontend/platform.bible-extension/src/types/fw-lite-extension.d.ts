@@ -2,11 +2,13 @@ import type { OpenWebViewOptions } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
 
 declare module 'fw-lite-extension' {
+  /* eslint-disable @typescript-eslint/consistent-type-imports */
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
   export type ISense = import('../../../viewer/src/lib/dotnet-types/index.js').ISense;
   export type IWritingSystems =
     import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
+  /* eslint-enable @typescript-eslint/consistent-type-imports */
 
   export interface DicionaryRef {
     code: string;

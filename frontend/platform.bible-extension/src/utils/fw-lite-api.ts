@@ -1,8 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import type { DicionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
-/** Returns text that can be used in JSON.parse() */
-async function fetchUrl(input: string, init?: RequestInit): Promise<string> {
+async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   logger.info(`About to fetch: ${input}`);
   if (init) {
     logger.info(JSON.stringify(init));
@@ -11,7 +10,7 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<string> {
   if (!results.ok) {
     throw new Error(`Failed to fetch: ${results.statusText}`);
   }
-  return await results.text();
+  return await results.json();
 }
 
 export class FwLiteApi {
@@ -30,7 +29,7 @@ export class FwLiteApi {
     return `${this.baseUrl}/api/${path}`;
   }
 
-  private async fetchPath(path: string, postBody?: any): Promise<string> {
+  private async fetchPath(path: string, postBody?: unknown): Promise<unknown> {
     return await fetchUrl(
       this.getUrl(path),
       postBody
@@ -57,17 +56,17 @@ export class FwLiteApi {
   async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entries/${search}`;
-    return JSON.parse(await this.fetchPath(path)) as IEntry[];
+    return (await this.fetchPath(path)) as IEntry[];
   }
 
   async getProjects(): Promise<IProjectModel[]> {
-    return JSON.parse(await this.fetchPath('localProjects')) as IProjectModel[];
+    return (await this.fetchPath('localProjects')) as IProjectModel[];
   }
 
   async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/writingSystems`;
-    return JSON.parse(await this.fetchPath(path)) as IWritingSystems;
+    return (await this.fetchPath(path)) as IWritingSystems;
   }
 
   async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
