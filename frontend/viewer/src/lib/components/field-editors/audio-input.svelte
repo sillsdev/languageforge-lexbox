@@ -19,7 +19,9 @@
 
     get duration() {
       this.#durationSub();
-      return this.audio.duration;
+      let duration = this.audio.duration;
+      if (duration === Infinity) duration = NaN;
+      return duration;
     }
   }
 
