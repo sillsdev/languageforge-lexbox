@@ -1,5 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import type { IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
+import type { DicionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
 /** Returns text that can be used in JSON.parse() */
 async function fetchUrl(input: string, init?: RequestInit): Promise<string> {
@@ -43,7 +43,7 @@ export class FwLiteApi {
     );
   }
 
-  private checkDictionaryCode(code?: string): string {
+  private checkDictionaryCode(code?: string): DicionaryRef {
     code = code || this.dictionaryCode;
     if (!code?.trim()) {
       throw new Error('FieldWorks dictionary code not specified');
@@ -51,11 +51,12 @@ export class FwLiteApi {
     if (code.includes('/')) {
       throw new Error(`Invalid FieldWorks dictionary code: ${code}`);
     }
-    return code;
+    return { code, type: 'FwData' };
   }
 
   async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
-    const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/entries/${search}`;
+    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+    const path = `mini-lcm/${type}/${code}/entries/${search}`;
     return JSON.parse(await this.fetchPath(path)) as IEntry[];
   }
 
@@ -64,12 +65,14 @@ export class FwLiteApi {
   }
 
   async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
-    const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/writingSystems`;
+    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+    const path = `mini-lcm/${type}/${code}/writingSystems`;
     return JSON.parse(await this.fetchPath(path)) as IWritingSystems;
   }
 
   async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
-    const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/entry`;
+    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+    const path = `mini-lcm/${type}/${code}/entry`;
     await this.fetchPath(path, entry);
   }
 }

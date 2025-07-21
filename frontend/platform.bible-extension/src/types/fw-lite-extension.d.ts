@@ -8,6 +8,11 @@ declare module 'fw-lite-extension' {
   export type IWritingSystems =
     import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
 
+  export interface DicionaryRef {
+    code: string;
+    type: 'FwData' | 'Harmony';
+  }
+
   export interface SuccessHolder {
     success: boolean;
   }
