@@ -71,7 +71,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result.Should().NotBeNull();
-        result.Result.Should().Be(SyncJobResultEnum.Success);
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
         result.SyncResult.Should().NotBeNull();
         result.SyncResult.CrdtChanges.Should().BeGreaterThan(100);
         result.SyncResult.FwdataChanges.Should().Be(0);
@@ -91,7 +91,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result.Should().NotBeNull();
-        result.Result.Should().Be(SyncJobResultEnum.Success);
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
         result.SyncResult.Should().NotBeNull();
         result.SyncResult.CrdtChanges.Should().Be(0);
         result.SyncResult.FwdataChanges.Should().BeGreaterThan(0);

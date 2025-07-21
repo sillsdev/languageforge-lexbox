@@ -207,7 +207,7 @@ static async Task<SyncJobResult> AwaitSyncFinished(
         if (result is null)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
-            return new(SyncJobResultEnum.SyncJobNotFound, "Sync job not found", null);
+            return new(SyncJobStatusEnum.SyncJobNotFound, "Sync job not found", null);
         }
 
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
@@ -219,12 +219,12 @@ static async Task<SyncJobResult> AwaitSyncFinished(
         {
             // The AwaitSyncFinished call was canceled, but the sync job was not (necessarily) canceled
             activity?.SetStatus(ActivityStatusCode.Error, "Timed out awaiting sync status");
-            return new SyncJobResult(SyncJobResultEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status", null);
+            return new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status", null);
         }
         else
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
-            return new SyncJobResult(SyncJobResultEnum.SyncJobTimedOut, "Sync job timed out", null);
+            return new SyncJobResult(SyncJobStatusEnum.SyncJobTimedOut, "Sync job timed out", null);
         }
     }
     catch (Exception e)
@@ -233,6 +233,6 @@ static async Task<SyncJobResult> AwaitSyncFinished(
         var error = e.ToString();
         // TODO: Consider only returning exception error for certain users (admins, devs, managers)?
         // Note 200 OK returned here; getting the status is a successful HTTP request even if the status is "the job failed and here's why"
-        return new SyncJobResult(SyncJobResultEnum.CrdtSyncFailed, error, null);
+        return new SyncJobResult(SyncJobStatusEnum.CrdtSyncFailed, error, null);
     }
 }

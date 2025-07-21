@@ -3,7 +3,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum SyncJobResultEnum {
+export enum SyncJobStatusEnum {
 	Success = "Success",
 	ProjectNotFound = "ProjectNotFound",
 	SyncJobNotFound = "SyncJobNotFound",

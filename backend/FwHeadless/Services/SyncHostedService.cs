@@ -36,7 +36,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             {
                 activity?.AddException(e);
                 logger.LogError(e, "Sync job failed");
-                result = new SyncJobResult(SyncJobResultEnum.UnknownError, e.ToString());
+                result = new SyncJobResult(SyncJobStatusEnum.UnknownError, e.ToString());
             }
             // Give clients a bit more time to poll the status
             CacheRecentSyncResult(projectId, result);
@@ -121,7 +121,7 @@ public class SyncWorker(
         {
             logger.LogError("Project ID {projectId} not found", projectId);
             activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
-            return new SyncJobResult(SyncJobResultEnum.ProjectNotFound, $"Project {projectId} not found");
+            return new SyncJobResult(SyncJobStatusEnum.ProjectNotFound, $"Project {projectId} not found");
         }
 
         activity?.SetTag("app.project_code", projectCode);
@@ -132,7 +132,7 @@ public class SyncWorker(
         {
             logger.LogError("Unable to authenticate with Lexbox");
             activity?.SetStatus(ActivityStatusCode.Error, "Unable to authenticate with Lexbox");
-            return new SyncJobResult(SyncJobResultEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
+            return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
         }
 
         var projectFolder = config.Value.GetProjectFolder(projectCode, projectId);
@@ -178,7 +178,7 @@ public class SyncWorker(
             logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
         }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
-        return new SyncJobResult(SyncJobResultEnum.Success, null, result);
+        return new SyncJobResult(SyncJobStatusEnum.Success, null, result);
     }
 
     private async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject, string projectCode)

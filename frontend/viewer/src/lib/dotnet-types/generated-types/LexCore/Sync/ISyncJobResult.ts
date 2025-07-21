@@ -3,12 +3,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {SyncJobResultEnum} from './SyncJobResultEnum';
+import type {SyncJobStatusEnum} from './SyncJobStatusEnum';
 import type {ISyncResult} from './ISyncResult';
 
 export interface ISyncJobResult
 {
-	result: SyncJobResultEnum;
+	status: SyncJobStatusEnum;
 	error?: string;
 	syncResult?: ISyncResult;
 }

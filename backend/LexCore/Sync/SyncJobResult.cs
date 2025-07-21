@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace LexCore.Sync;
 
-public record SyncJobResult([property: JsonConverter(typeof(JsonStringEnumConverter))] SyncJobResultEnum Result, string? Error, SyncResult? SyncResult = null);
+public record SyncJobResult([property: JsonConverter(typeof(JsonStringEnumConverter))] SyncJobStatusEnum Status, string? Error, SyncResult? SyncResult = null);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum SyncJobResultEnum
+public enum SyncJobStatusEnum
 {
     Success,
     ProjectNotFound,

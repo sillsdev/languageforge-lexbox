@@ -116,7 +116,7 @@ public class SyncService(
         var project = await currentProjectService.GetProjectData();
         if (!authOptions.Value.TryGetServer(project, out var server))
         {
-            return new SyncJobResult(SyncJobResultEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox", null);
+            return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox", null);
         }
         return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
     }
