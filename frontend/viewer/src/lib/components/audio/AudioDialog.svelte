@@ -72,8 +72,7 @@
 
   async function uploadAudio() {
     if (!audio || !selectedFile) throw new Error($t`No file selected`);
-    const name = selectedFile.name;
-    const response = await lexboxApi.saveFile(audio, {filename: name, mimeType: audio.type});
+    const response = await lexboxApi.saveFile(audio, {filename: selectedFile.name, mimeType: audio.type});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
         AppNotification.display($t`Audio saved locally`, 'success');
@@ -100,11 +99,36 @@
   }
 
   async function onRecordingComplete(blob: Blob) {
-    let fileExt = blob.type.split('/').pop();
-    let fileName = `recording-${Date.now()}.${fileExt ?? 'bin'}`;
-    selectedFile = new File([blob], fileName, {type: blob.type});
+    let fileExt = mimeTypeToFileExtension(blob.type);
+    selectedFile = new File([blob], `recording-${Date.now()}.${fileExt}`, {type: blob.type});
     if (!open) return;
     audio = await processAudio(blob);
+  }
+
+  function mimeTypeToFileExtension(mimeType: string) {
+    if (mimeType.startsWith('audio/')) {
+      const baseType = mimeType.split(';')[0];
+      switch (baseType) {
+        case 'audio/mpeg':
+        case 'audio/mp3':
+          return 'mp3';
+        case 'audio/wav':
+        case 'audio/wave':
+        case 'audio/x-wav':
+          return 'wav';
+        case 'audio/ogg':
+          return 'ogg';
+        case 'audio/webm':
+          return 'webm';
+        case 'audio/aac':
+          return 'aac';
+        case 'audio/m4a':
+          return 'm4a';
+        default:
+          return 'audio';
+      }
+    }
+    return 'bin';
   }
 
   function onDiscard() {
