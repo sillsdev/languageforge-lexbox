@@ -27,26 +27,22 @@
 
   let container = $state<HTMLElement>();
 
-  watch([() => container, () => audio], ([newContainer, newAudio], [oldContainer, oldAudio]) => {
-    let createdWavesurfer = false;
-    if (newContainer !== oldContainer) {
-      wavesurfer?.destroy();
-      wavesurfer = undefined;
+  watch(() => container, (newContainer) => {
 
-      if (newContainer) {
-        wavesurfer = useWaveSurfer({container: newContainer, autoplay, showTimeline});
-        wavesurfer.on('play', () => playing = true);
-        wavesurfer.on('pause', () => playing = false);
-        wavesurfer.on('finish', () => playing = false);
-        createdWavesurfer = true;
-      }
+    wavesurfer?.destroy();
+    wavesurfer = undefined;
+
+    if (newContainer) {
+      wavesurfer = useWaveSurfer({container: newContainer, autoplay, showTimeline});
+      wavesurfer.on('play', () => playing = true);
+      wavesurfer.on('pause', () => playing = false);
+      wavesurfer.on('finish', () => playing = false);
     }
+  });
 
-    if (!wavesurfer) return;
-
-    if (newAudio && (newAudio !== oldAudio || createdWavesurfer)) {
-      void loadAudio(newAudio);
-    }
+  $effect(() => {
+    if (audio && wavesurfer)
+      void loadAudio(audio);
   });
 
   async function loadAudio(audio: AudioUrl | Blob) {

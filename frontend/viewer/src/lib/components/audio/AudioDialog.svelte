@@ -112,7 +112,7 @@
         <AudioProvider {onFileSelected} {onRecordingComplete}/>
       {/if}
     {:else}
-      <AudioEditor {audio} onDiscard={onDiscard} />
+      <AudioEditor {audio} onDiscard={onDiscard}/>
 
       <Dialog.DialogFooter>
         <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
