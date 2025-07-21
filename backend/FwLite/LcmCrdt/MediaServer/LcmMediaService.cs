@@ -94,8 +94,28 @@ public class LcmMediaService(
     public string ProjectResourceCachePath =>
         Path.Combine(options.Value.LocalResourceCachePath, currentProjectService.Project.Name);
 
-    public Task<UploadResult> UploadResource(Guid resourceId, string localPath)
+
+    Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<HarmonyResource> SaveFile(Stream stream, LcmFileMetadata metadata)
+    {
+        var projectResourceCachePath = ProjectResourceCachePath;
+        Directory.CreateDirectory(projectResourceCachePath);
+        var localPath = Path.Combine(projectResourceCachePath, metadata.Filename);
+        await using var localFile = File.OpenWrite(localPath);
+        await stream.CopyToAsync(localFile);
+
+        IRemoteResourceService? remoteResourceService = null;
+        if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Online) remoteResourceService = this;
+        var resource = await resourceService.AddLocalResource(
+            localPath,
+            currentProjectService.ProjectData.ClientId,
+            resourceService: remoteResourceService
+        );
+
+        return resource;
     }
 }

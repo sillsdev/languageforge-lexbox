@@ -700,6 +700,20 @@ public class CrdtMiniLcmApi(
         return await lcmMediaService.GetFileStream(mediaUri.FileId);
     }
 
+    public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
+    {
+        try
+        {
+            var result = await lcmMediaService.SaveFile(stream, metadata);
+            return new UploadFileResponse(new MediaUri(result.Id, ProjectData.ServerId ?? "lexbox.org"), result.Remote);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to save file {Filename}", metadata.Filename);
+            return new UploadFileResponse(e.Message);
+        }
+    }
+
     public void Dispose()
     {
     }
