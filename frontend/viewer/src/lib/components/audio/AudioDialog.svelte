@@ -22,6 +22,7 @@
   let submitting = $state(false);
   let selectedFile = $state<File>();
   let audio = $state<Blob>();
+  const tooBig = $derived((audio?.size ?? 0) > 10 * 1034 * 1024);
 
   let requester: {
     resolve: (mediaUri: string | undefined) => void
@@ -159,10 +160,12 @@
       {/if}
     {:else}
       <AudioEditor {audio} name={selectedFile.name} onDiscard={onDiscard}/>
-
+      {#if tooBig}
+        <p class="text-destructive text-lg text-end">{$t`File too big`}</p>
+      {/if}
       <Dialog.DialogFooter>
         <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-        <Button onclick={() => submitAudio()} loading={submitting}>
+        <Button onclick={() => submitAudio()} disabled={tooBig} loading={submitting}>
           {$t`Save audio`}
         </Button>
       </Dialog.DialogFooter>
