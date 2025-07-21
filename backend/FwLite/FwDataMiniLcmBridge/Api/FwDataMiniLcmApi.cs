@@ -1541,4 +1541,49 @@ public class FwDataMiniLcmApi(
         if (!File.Exists(fullPath)) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         return Task.FromResult(new ReadFileResponse(File.OpenRead(fullPath), Path.GetFileName(fullPath)));
     }
+
+    public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
+    {
+        var pathRelativeToRoot = Path.Combine(TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
+        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathRelativeToRoot);
+        if (File.Exists(fullPath)) return new UploadFileResponse(UploadFileResult.AlreadyExists);
+        var directory = Path.GetDirectoryName(fullPath);
+        if (directory is not null)
+        {
+            try
+            {
+                Directory.CreateDirectory(directory);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to create directory {Directory} for file {Filename}", directory, metadata.Filename);
+                return new UploadFileResponse($"Failed to create directory: {ex.Message}");
+            }
+        }
+
+        try
+        {
+            await using var fileStream = File.OpenWrite(fullPath);
+            await stream.CopyToAsync(fileStream);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to save file {Filename} to {Path}", metadata.Filename, fullPath);
+            return new UploadFileResponse($"Failed to save file: {ex.Message}");
+        }
+
+        var mediaUri = mediaAdapter.MediaUriFromPath(pathRelativeToRoot, Cache);
+        return new UploadFileResponse(mediaUri, false);
+    }
+
+    private string TypeToLinkedFolder(string mimeType)
+    {
+        return mimeType switch
+        {
+            { } s when s.StartsWith("audio/") => AudioVisualFolder,
+            {} s when s.StartsWith("video/") => AudioVisualFolder,
+            { } s when s.StartsWith("image/") => "Pictures",
+            _ => "Others"
+        };
+    }
 }

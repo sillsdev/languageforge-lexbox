@@ -9,18 +9,22 @@
   import AudioProvider from './audio-provider.svelte';
   import AudioEditor from './audio-editor.svelte';
   import Loading from '$lib/components/Loading.svelte';
+  import {useLexboxApi} from '$lib/services/service-provider';
+  import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
   const dialogsService = useDialogsService();
   dialogsService.invokeAudioDialog = getAudio;
+  const lexboxApi = useLexboxApi();
 
   let submitting = $state(false);
   let selectedFile = $state<File>();
   let audio = $state<Blob>();
 
   let requester: {
-    resolve: (value: string | undefined) => void
+    resolve: (mediaUri: string | undefined) => void
   } | undefined;
 
 
@@ -67,11 +71,27 @@
   }
 
   async function uploadAudio() {
-    if (!audio) throw new Error('No file selected');
+    if (!audio) throw new Error($t`No file selected`);
     const name = (selectedFile?.name ?? audio.type);
-    const id = `audio-${name}-${Date.now()}`;
-    await delay(1000);
-    return id;
+    const response = await lexboxApi.saveFile(audio, {filename: name, mimeType: audio.type});
+    switch (response.result) {
+      case UploadFileResult.SavedLocally:
+        AppNotification.display($t`Audio saved locally`, 'success');
+        break;
+      case UploadFileResult.SavedToLexbox:
+        AppNotification.display($t`Audio saved and uploaded to Lexbox`, 'success');
+        break;
+      case UploadFileResult.TooBig:
+        throw new Error($t`File too big`);
+      case UploadFileResult.NotSupported:
+        throw new Error($t`File saving not supported`);
+      case UploadFileResult.AlreadyExists:
+        throw new Error($t`File already exists`);
+      case UploadFileResult.Error:
+        throw new Error(response.errorMessage ?? $t`Unknown error`);
+    }
+
+    return response.mediaUri;
   }
 
   async function onFileSelected(file: File) {

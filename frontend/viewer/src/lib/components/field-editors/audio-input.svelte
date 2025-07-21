@@ -46,7 +46,7 @@
   import {Slider} from '$lib/components/ui/slider';
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
-  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ReadFileResult';
+  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {isDev} from '$lib/layout/DevContent.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
@@ -55,9 +55,11 @@
   let {
     loader = defaultLoader,
     audioId = $bindable(),
+    onchange = () => {},
   }: {
     loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
     audioId: string | undefined,
+    onchange?: (audioId: string | undefined) => void;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -185,17 +187,19 @@
     const result = await dialogService.getAudio();
     if (result) {
       audioId = result;
-      await tick(); // let the audio element be created
-      // todo, the audio ID is fake
-      // await load();
+      onchange(audioId)
     }
   }
 
   function onRemoveAudio() {
-    audioId = undefined;
-    if (audio && audio.src) {
-      URL.revokeObjectURL(audio.src);
-      audio.src = '';
+    try {
+      audioId = undefined;
+      onchange(audioId);
+    } finally {
+      if (audio && audio.src) {
+        URL.revokeObjectURL(audio.src);
+        audio.src = '';
+      }
     }
   }
 </script>
