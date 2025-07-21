@@ -1,6 +1,7 @@
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Media;
 using FwDataMiniLcmBridge.Tests.Fixtures;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using SIL.LCModel.Infrastructure;
 

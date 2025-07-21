@@ -1,4 +1,5 @@
 using MiniLcm;
+using MiniLcm.Media;
 using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge.Media;

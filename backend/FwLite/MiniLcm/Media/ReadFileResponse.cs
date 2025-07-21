@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MiniLcm.Models;
+namespace MiniLcm.Media;
 
 public record ReadFileResponse
 {

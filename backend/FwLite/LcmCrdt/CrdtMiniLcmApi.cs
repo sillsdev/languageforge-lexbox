@@ -17,6 +17,7 @@ using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
+using MiniLcm.Media;
 using SystemTextJsonPatch;
 
 namespace LcmCrdt;

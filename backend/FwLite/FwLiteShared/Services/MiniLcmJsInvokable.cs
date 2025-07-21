@@ -2,6 +2,7 @@ using FwLiteShared.Sync;
 using LcmCrdt;
 using Microsoft.JSInterop;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.Validators;
 using Reinforced.Typings.Attributes;

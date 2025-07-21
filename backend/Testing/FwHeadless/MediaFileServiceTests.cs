@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Media;
 using SIL.LCModel;
 using Testing.Fixtures;
 

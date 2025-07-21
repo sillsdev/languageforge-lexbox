@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Exceptions;
+using MiniLcm.Media;
 using SIL.LCModel;
 using UUIDNext;
 

@@ -1,4 +1,4 @@
-namespace MiniLcm;
+namespace MiniLcm.Media;
 
 public record struct MediaUri
 {

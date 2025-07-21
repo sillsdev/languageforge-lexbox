@@ -4,6 +4,7 @@ using LexCore.Entities;
 using LexCore.Exceptions;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Media;
 using SIL.LCModel;
 
 namespace FwHeadless;

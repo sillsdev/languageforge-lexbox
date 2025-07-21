@@ -5,6 +5,7 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Resource;
 using LcmCrdt.RemoteSync;
+using MiniLcm.Media;
 
 namespace LcmCrdt.MediaServer;
 

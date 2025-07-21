@@ -24,6 +24,7 @@ using SIL.Harmony.Db;
 using System.Runtime.CompilerServices;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Sync;
+using MiniLcm.Media;
 
 namespace FwLiteShared.TypeGen;
 
