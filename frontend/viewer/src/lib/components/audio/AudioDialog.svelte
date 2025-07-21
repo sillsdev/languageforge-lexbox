@@ -71,8 +71,8 @@
   }
 
   async function uploadAudio() {
-    if (!audio) throw new Error($t`No file selected`);
-    const name = (selectedFile?.name ?? audio.type);
+    if (!audio || !selectedFile) throw new Error($t`No file selected`);
+    const name = selectedFile.name;
     const response = await lexboxApi.saveFile(audio, {filename: name, mimeType: audio.type});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
@@ -100,7 +100,9 @@
   }
 
   async function onRecordingComplete(blob: Blob) {
-    selectedFile = undefined;
+    let fileExt = blob.type.split('/').pop();
+    let fileName = `recording-${Date.now()}.${fileExt ?? 'bin'}`;
+    selectedFile = new File([blob], fileName, {type: blob.type});
     if (!open) return;
     audio = await processAudio(blob);
   }
@@ -125,14 +127,14 @@
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    {#if !audio}
+    {#if !audio || !selectedFile}
       {#if loading}
         <Loading class="self-center justify-self-center size-16"/>
       {:else}
         <AudioProvider {onFileSelected} {onRecordingComplete}/>
       {/if}
     {:else}
-      <AudioEditor {audio} onDiscard={onDiscard}/>
+      <AudioEditor {audio} name={selectedFile.name} onDiscard={onDiscard}/>
 
       <Dialog.DialogFooter>
         <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
