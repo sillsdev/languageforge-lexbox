@@ -69,10 +69,20 @@ public class LcmMediaService(
 
     private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)
     {
+        var mediaClient = await MediaServerClient();
+        var response = await mediaClient.DownloadFile(fileId);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to download file {fileId}: {response.StatusCode} {response.ReasonPhrase}");
+        }
+        return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
+    }
+
+    private async Task<IMediaServerClient> MediaServerClient()
+    {
         var httpClient = await httpClientProvider.GetHttpClient();
         var mediaClient = refitFactory.Service<IMediaServerClient>(httpClient);
-        var response = await mediaClient.DownloadFile(fileId);
-        return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
+        return mediaClient;
     }
 
     async Task<DownloadResult> IRemoteResourceService.DownloadResource(string remoteId, string localResourceCachePath)
@@ -95,9 +105,16 @@ public class LcmMediaService(
         Path.Combine(options.Value.LocalResourceCachePath, currentProjectService.Project.Name);
 
 
-    Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)
+    async Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)
     {
-        throw new NotImplementedException();
+        var mediaClient = await MediaServerClient();
+        var fileName = Path.GetFileName(localPath);
+        await mediaClient.UploadFile(
+            new FileInfoPart(new FileInfo(localPath), fileName),
+            projectId: currentProjectService.ProjectData.Id,
+            fileId: resourceId.ToString("D"),
+            filename: fileName);
+        return new UploadResult(resourceId.ToString("N"));
     }
 
     public async Task<HarmonyResource> SaveFile(Stream stream, LcmFileMetadata metadata)
@@ -105,8 +122,11 @@ public class LcmMediaService(
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
         var localPath = Path.Combine(projectResourceCachePath, metadata.Filename);
-        await using var localFile = File.OpenWrite(localPath);
-        await stream.CopyToAsync(localFile);
+        //must scope just to the copy, otherwise we can't upload the file to the server
+        await using (var localFile = File.OpenWrite(localPath))
+        {
+            await stream.CopyToAsync(localFile);
+        }
 
         IRemoteResourceService? remoteResourceService = null;
         if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Online) remoteResourceService = this;
