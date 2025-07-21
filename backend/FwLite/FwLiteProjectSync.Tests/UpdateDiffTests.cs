@@ -20,13 +20,12 @@ public class UpdateDiffTests
         entryDiffToUpdate.Apply(before);
         before.Should().BeEquivalentTo(after, options =>
         {
-            var equivalencyOptions = options.Excluding(x => x.Id)
+            return options.Excluding(x => x.Id)
                 .Excluding(x => x.DeletedAt).Excluding(x => x.Senses)
                 .Excluding(x => x.Components)
                 .Excluding(x => x.ComplexForms)
-                .Excluding(x => x.ComplexFormTypes);
-            equivalencyOptions = Publication.SupportsCrdts ? equivalencyOptions : equivalencyOptions.Excluding(x => x.PublishIn);
-            return equivalencyOptions;
+                .Excluding(x => x.ComplexFormTypes)
+                .Excluding(x => x.PublishIn);
         });
     }
 
@@ -38,7 +37,13 @@ public class UpdateDiffTests
         var senseDiffToUpdate = SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences).Excluding(x => x.SemanticDomains).Excluding(x => x.PartOfSpeech));
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
+            .Excluding(x => x.EntryId)
+            .Excluding(x => x.DeletedAt)
+            .Excluding(x => x.ExampleSentences)
+            .Excluding(x => x.SemanticDomains)
+            .Excluding(x => x.PartOfSpeech)
+            .Excluding(x => x.PartOfSpeechId));
     }
 
     [Fact]

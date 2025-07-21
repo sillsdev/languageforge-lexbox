@@ -63,6 +63,12 @@ public record UpdateEntryProxy : Entry
         set => throw new NotImplementedException();
     }
 
+    public override List<Publication> PublishIn
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
+
     public override RichMultiString Note
     {
         get => new UpdateRichMultiStringProxy(_lcmEntry.Comment, _lexboxLcmApi);

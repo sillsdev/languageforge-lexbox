@@ -9,7 +9,9 @@
   const languages: Record<string, string> = {
     'en': 'English',
     'fr': 'Français',
-    'es': 'Español'
+    'es': 'Español',
+    'id': 'Bahasa Indonesia',
+    'ko': '한국어'
   };
   const currentLanguage = $derived(languages[$locale] ?? 'Unknown: ' + $locale);
 </script>

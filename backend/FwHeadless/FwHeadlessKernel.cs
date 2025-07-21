@@ -6,6 +6,7 @@ using FwLiteProjectSync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using MiniLcm.Project;
 
 namespace FwHeadless;
 
@@ -32,6 +33,7 @@ public static class FwHeadlessKernel
         services.RemoveAll(typeof(IMediaAdapter));
         services.AddScoped<IMediaAdapter, LexboxFwDataMediaAdapter>();
         services.AddScoped<MediaFileService>();
+        services.AddScoped<IServerHttpClientProvider, LexboxServerHttpClientProvider>();
 
         services.AddSingleton<SyncHostedService>();
         services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());

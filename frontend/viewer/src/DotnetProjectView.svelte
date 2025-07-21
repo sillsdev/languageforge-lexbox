@@ -17,9 +17,10 @@
   const projectServicesProvider = useProjectServicesProvider();
   const projectContext = initProjectContext();
 
-  const {code, type: projectType}: {
+  const {code, type: projectType, paratext = false}: {
     code: string; // Code for CRDTs, project-name for FWData
-    type: 'fwdata' | 'crdt'
+    type: 'fwdata' | 'crdt';
+    paratext?: boolean;
   } = $props();
 
 
@@ -27,12 +28,13 @@
   let projectName = $state<string>(code);
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
+  let loading = $state(true);
   let destroyed = false;
   onMount(async () => {
     console.debug('ProjectView mounted');
     if (projectType === 'crdt') {
-      const projectData = await projectServicesProvider.getCrdtProjectData(code);
-      projectName = projectData.name;
+      const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
+      projectName = maybeProjectName ? maybeProjectName : code;
       projectScope = await projectServicesProvider.openCrdtProject(code);
     } else {
       projectName = code;
@@ -51,7 +53,17 @@
       syncService = wrapInProxy(projectScope.syncService, DotnetService.SyncService);
     }
     const api = wrapInProxy(projectScope.miniLcm, DotnetService.MiniLcmApi);
-    projectContext.setup({ api, historyService, syncService, projectName, projectCode: code, projectType, server: projectScope.server });
+    projectContext.setup({
+      api,
+      historyService,
+      syncService,
+      projectName,
+      projectCode: code,
+      projectType,
+      server: projectScope.server,
+      projectData: projectScope.projectData,
+      paratext
+    });
     serviceLoaded = true;
   });
   onDestroy(() => {
@@ -69,6 +81,7 @@
   }
 </script>
 
-<ProjectLoader readyToLoadProject={serviceLoaded} {projectName} let:onProjectLoaded>
-  <ProjectView isConnected onloaded={onProjectLoaded}></ProjectView>
+<ProjectLoader readyToLoadProject={serviceLoaded} {loading} {projectName}>
+  <ProjectView onloaded={() => loading = false} data-paratext={paratext}></ProjectView>
 </ProjectLoader>
+

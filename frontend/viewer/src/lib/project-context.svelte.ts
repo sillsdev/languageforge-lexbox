@@ -8,6 +8,7 @@ import type {
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceOptions, type ResourceReturn} from 'runed';
 import {SvelteMap} from 'svelte/reactivity';
+import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 
 const projectContextKey = 'current-project';
 
@@ -21,6 +22,8 @@ interface ProjectContextSetup {
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
   server?: ILexboxServer;
+  projectData?: IProjectData;
+  paratext?: boolean;
 }
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
@@ -37,8 +40,10 @@ export class ProjectContext {
   #projectCode: string | undefined = $state(undefined);
   #projectType: ProjectType = $state(undefined);
   #server = $state<ILexboxServer>();
+  #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
+  #paratext = $state(false);
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -64,6 +69,9 @@ export class ProjectContext {
   public get server(): ILexboxServer | undefined {
     return this.#server;
   }
+  public get projectData(): IProjectData | undefined {
+    return this.#projectData;
+  }
   public get features(): IMiniLcmFeatures {
     return this.#features.current;
   }
@@ -73,15 +81,12 @@ export class ProjectContext {
   public get syncService(): ISyncServiceJsInvokable | undefined {
     return this.#syncService;
   }
+  public get inParatext(): boolean {
+    return this.#paratext;
+  }
 
   constructor(args?: ProjectContextSetup) {
-    this.#api = args?.api;
-    this.#historyService = args?.historyService;
-    this.#syncService = args?.syncService;
-    this.#projectName = args?.projectName;
-    this.#projectCode = args?.projectCode;
-    this.#projectType = args?.projectType;
-    this.#server = args?.server;
+    if (args) this.setup(args);
   }
 
   public setup(args: ProjectContextSetup) {
@@ -92,6 +97,8 @@ export class ProjectContext {
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
     this.#server = args.server;
+    this.#projectData = args.projectData;
+    this.#paratext = args.paratext ?? false;
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {

@@ -1,18 +1,27 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
+using LcmCrdt.MediaServer;
 using SIL.Harmony;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LcmCrdt.Objects;
+using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Project;
 
 namespace LcmCrdt;
 
-public partial class CrdtProjectsService(IServiceProvider provider, ILogger<CrdtProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache): IProjectProvider
+public partial class CrdtProjectsService(
+    IServiceProvider provider,
+    ILogger<CrdtProjectsService> logger,
+    IOptions<LcmCrdtConfig> config,
+    IMemoryCache memoryCache,
+    ProjectDataCache projectDataCache
+) : IProjectProvider
 {
+    private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
     public ProjectDataFormat DataFormat { get; } = ProjectDataFormat.Harmony;
     IEnumerable<IProjectIdentifier> IProjectProvider.ListProjects()
     {
@@ -30,14 +39,29 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return await serviceProvider.OpenCrdtProject(crdtProject);
     }
 
-    private async Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
+    private Task<ProjectData> EnsureProjectDataCacheIsLoaded(CrdtProject project)
     {
-        if (project.Data is not null) return project.Data;
-        await using var scope = provider.CreateAsyncScope();
-        var scopedServices = scope.ServiceProvider;
-        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
-        return await currentProjectService.SetupProjectContext(project);
+        if (project.Data is not null) return Task.FromResult(project.Data);
+        lock (EnsureProjectDataCacheIsLoadedLock)
+        {
+            var task = memoryCache.GetOrCreate(
+                           project.DbPath + "|EnsureDataLoaded",
+                           _ => Exec(),
+                           new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }
+                       )
+                       ?? throw new InvalidOperationException("Unable to get ensure project data cache is loaded");
+            return task;
+        }
+
+        async Task<ProjectData> Exec()
+        {
+            await using var scope = provider.CreateAsyncScope();
+            var scopedServices = scope.ServiceProvider;
+            var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+            return await currentProjectService.SetupProjectContext(project);
+        }
     }
+
 
     public async ValueTask EnsureProjectDataCacheIsLoaded()
     {
@@ -66,7 +90,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var code = Path.GetFileNameWithoutExtension(file);
-            return new CrdtProject(code, file, memoryCache);
+            return new CrdtProject(code, file, projectDataCache);
         });
     }
 
@@ -74,7 +98,7 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
     {
         var file = Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite")
             .FirstOrDefault(file => Path.GetFileNameWithoutExtension(file) == code);
-        return file is null ? null : new CrdtProject(code, file, memoryCache);
+        return file is null ? null : new CrdtProject(code, file, projectDataCache);
     }
 
     public CrdtProject? GetProject(Guid id)
@@ -198,6 +222,8 @@ public partial class CrdtProjectsService(IServiceProvider provider, ILogger<Crdt
         await using var serviceScope = provider.CreateAsyncScope();
         var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
         currentProjectService.SetupProjectContextForNewDb(project);
+        var projectResourceCachePath = serviceScope.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
+        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await db.Database.EnsureDeletedAsync();
     }

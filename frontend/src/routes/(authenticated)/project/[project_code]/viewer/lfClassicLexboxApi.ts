@@ -20,6 +20,7 @@ import {
 } from 'viewer/mini-lcm-api';
 
 import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
+import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   for (const entry of entries) {
@@ -255,10 +256,7 @@ export class LfClassicLexboxApi implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  getFileStream(_mediaUri: string): Promise<{
-    stream: () => Promise<ReadableStream>;
-    arrayBuffer: () => Promise<ArrayBuffer>
-  }> {
+  getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
     throw new Error('Method not implemented.');
   }
 }

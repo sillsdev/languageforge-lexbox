@@ -44,23 +44,40 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task Sense_UpdatesPartOfSpeech()
+    public async Task UpdateSense_UpdatesPartOfSpeech()
     {
         var entry = await Api.GetEntries().FirstAsync(e => e.Senses.Any(s => s.PartOfSpeech is not null));
         var sense = entry.Senses.First(s => s.PartOfSpeech is not null);
         var newPartOfSpeech = await Api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);
 
-        var update = new UpdateObjectInput<Sense>()
-            //This is required for CRDTs, but not for FW
-            .Set(s => s.PartOfSpeech, newPartOfSpeech)
-            .Set(s => s.PartOfSpeechId, newPartOfSpeech.Id);
-        await Api.UpdateSense(entry.Id, sense.Id, update);
+        var updatedSense = sense.Copy();
+        updatedSense.PartOfSpeech = newPartOfSpeech;
+        updatedSense.PartOfSpeechId = newPartOfSpeech.Id;
+        await Api.UpdateSense(entry.Id, sense, updatedSense);
 
         entry = await Api.GetEntry(entry.Id);
         ArgumentNullException.ThrowIfNull(entry);
-        var updatedSense = entry.Senses.First(s => s.Id == sense.Id);
-        updatedSense.PartOfSpeechId.Should().Be(newPartOfSpeech.Id);
-        updatedSense.PartOfSpeech.Should()
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.PartOfSpeechId.Should().Be(newPartOfSpeech.Id);
+        actualSense.PartOfSpeech.Should()
+        //the part of speech here is whatever the default is for the project, not english.
+            .BeEquivalentTo(newPartOfSpeech);
+    }
+
+    [Fact]
+    public async Task SetSensePartOfSpeech_UpdatesPartOfSpeech()
+    {
+        var entry = await Api.GetEntries().FirstAsync(e => e.Senses.Any(s => s.PartOfSpeech is not null));
+        var sense = entry.Senses.First(s => s.PartOfSpeech is not null);
+        var newPartOfSpeech = await Api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);
+
+        await Api.SetSensePartOfSpeech(sense.Id, newPartOfSpeech.Id);
+
+        entry = await Api.GetEntry(entry.Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var actualSense = entry.Senses.First(s => s.Id == sense.Id);
+        actualSense.PartOfSpeechId.Should().Be(newPartOfSpeech.Id);
+        actualSense.PartOfSpeech.Should()
         //the part of speech here is whatever the default is for the project, not english.
             .BeEquivalentTo(newPartOfSpeech);
     }

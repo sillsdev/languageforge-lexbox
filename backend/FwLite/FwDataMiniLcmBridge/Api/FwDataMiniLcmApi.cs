@@ -26,7 +26,6 @@ public class FwDataMiniLcmApi(
     bool onCloseSave,
     ILogger<FwDataMiniLcmApi> logger,
     FwDataProject project,
-    MiniLcmValidators validators,
     IMediaAdapter mediaAdapter,
     IOptions<FwDataBridgeConfig> config) : IMiniLcmApi, IMiniLcmSaveApi
 {
@@ -309,12 +308,23 @@ public class FwDataMiniLcmApi(
 
     public Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        throw new NotImplementedException();
+        var lcmPublication = GetLcmPublication(id);
+        if (lcmPublication is null) throw new InvalidOperationException("Tried to update a non-existent publication");
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update publication",
+            "Revert publication",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdatePublicationProxy(lcmPublication, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmPossibility(lcmPublication));
     }
 
-    public Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        throw new NotImplementedException();
+        await PublicationSync.Sync(before, after, api ?? this);
+        return await GetPublication(after.Id) ?? throw new NullReferenceException($"Unable to find publication with id {after.Id}");
     }
 
     public Task DeletePublication(Guid id)
@@ -1366,6 +1376,35 @@ public class FwDataMiniLcmApi(
         return Task.CompletedTask;
     }
 
+    public Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Set Sense Part Of Speech",
+            "Revert Sense Part Of Speech",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexSense = SenseRepository.GetObject(senseId);
+                if (partOfSpeechId.HasValue)
+                {
+                    var partOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>()
+                        .GetObject(partOfSpeechId.Value);
+                    if (lexSense.MorphoSyntaxAnalysisRA == null)
+                    {
+                        lexSense.SandboxMSA = SandboxGenericMSA.Create(lexSense.GetDesiredMsaType(), partOfSpeech);
+                    }
+                    else
+                    {
+                        lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(partOfSpeech);
+                    }
+                }
+                else
+                {
+                    lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(null);
+                }
+            });
+        return Task.CompletedTask;
+    }
+
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
@@ -1494,10 +1533,11 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public Task<Stream?> GetFileStream(MediaUri mediaUri)
+    public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
-        if (mediaUri == MediaUri.NotFound) return Task.FromResult<Stream?>(null);
+        if (mediaUri == MediaUri.NotFound) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
-        return Task.FromResult<Stream?>(File.OpenRead(fullPath));
+        if (!File.Exists(fullPath)) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
+        return Task.FromResult(new ReadFileResponse(File.OpenRead(fullPath), Path.GetFileName(fullPath)));
     }
 }

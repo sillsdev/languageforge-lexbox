@@ -1,6 +1,7 @@
 ﻿using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using MiniLcm.Tests.AutoFakerHelpers;
+using SIL.Harmony.Resource;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -14,7 +15,9 @@ public class EntityCopyMethodTests
     {
         var crdtConfig = new CrdtConfig();
         LcmCrdtKernel.ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes.Select(t => new object[] { t });
+        return crdtConfig.ObjectTypes
+            .Except([typeof(RemoteResource)])//exclude remote resource as it's a harmony defined type, not miniLcm
+            .Select(t => new object[] { t });
     }
 
     private void AssertDeepCopy(object copy, object original)

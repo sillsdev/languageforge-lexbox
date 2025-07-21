@@ -1,6 +1,7 @@
 using FwDataMiniLcmBridge.Media;
 using FwHeadless.Media;
 using LexCore.Entities;
+using LexCore.Exceptions;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using SIL.LCModel;
@@ -19,7 +20,8 @@ public class LexboxFwDataMediaAdapter(IOptions<FwHeadlessConfig> config, MediaFi
 
     public string PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
     {
-        var mediaFile = mediaFileService.FindMediaFile(mediaUri.FileId);
+        var mediaFile = mediaFileService.FindMediaFile(mediaUri.FileId) ??
+                        throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
         var fullFilePath = Path.Join(cache.ProjectId.ProjectFolder, mediaFile.Filename);
         return Path.GetRelativePath(cache.LangProject.LinkedFilesRootDir, fullFilePath);
     }

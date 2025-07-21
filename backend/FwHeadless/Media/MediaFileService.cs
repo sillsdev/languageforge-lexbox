@@ -1,3 +1,5 @@
+using LcmCrdt;
+using LcmCrdt.MediaServer;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData;
@@ -86,9 +88,37 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                    nameof(MediaFile));
     }
 
-    public MediaFile FindMediaFile(Guid fileId)
+    public MediaFile? FindMediaFile(Guid fileId)
     {
-        return dbContext.Files.Find(fileId) ??
-               throw new NotFoundException($"Unable to find file {fileId}.", nameof(MediaFile));
+        return dbContext.Files.Find(fileId);
+    }
+
+    public async ValueTask<MediaFile?> FindMediaFileAsync(Guid fileId)
+    {
+        return await dbContext.Files.FindAsync(fileId);
+    }
+
+    public string FilePath(MediaFile mediaFile)
+    {
+        return Path.Join(config.Value.GetFwDataFolder(mediaFile.ProjectId), mediaFile.Filename);
+    }
+
+    public async Task SyncMediaFiles(Guid projectId, LcmMediaService lcmMediaService)
+    {
+        var lcmResources = (await lcmMediaService.AllResources()).ToDictionary(r => r.Id);
+        var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsAsyncEnumerable();
+        await foreach (var existingDbFile in existingDbFiles)
+        {
+            if (lcmResources.Remove(existingDbFile.Id))
+            {
+                //nothing to do, the file was already tracked in harmony
+                continue;
+            }
+            await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile));
+        }
+        foreach (var lcmResource in lcmResources.Values)
+        {
+            await lcmMediaService.DeleteResource(lcmResource.Id);
+        }
     }
 }
