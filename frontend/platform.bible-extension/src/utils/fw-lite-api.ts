@@ -69,9 +69,7 @@ export class FwLiteApi {
   }
 
   async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<void> {
-    // TODO: This path is for CRDT projects. The API endpoint for adding an entry to a FLEx project
-    // doesn't exist yet. Use that when it does.
-    const path = `test/${this.checkDictionaryCode(dictionaryCode)}/add-new-entry`;
+    const path = `mini-lcm/FwData/${this.checkDictionaryCode(dictionaryCode)}/entry`;
     await this.fetchPath(path, entry);
   }
 }
