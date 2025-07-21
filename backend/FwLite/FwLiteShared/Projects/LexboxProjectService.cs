@@ -143,7 +143,7 @@ public class LexboxProjectService : IDisposable
     public async Task<SyncJobResult> AwaitLexboxSyncFinished(LexboxServer server, Guid projectId, int timeoutSeconds = 15 * 60)
     {
         var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return new SyncJobResult(SyncJobResultEnum.UnknownError, "Unable to retrieve sync status", null);
+        if (httpClient is null) return new SyncJobResult(SyncJobResultEnum.UnableToAuthenticate, "Unable to retrieve sync status when logged out, try again after logging in to lexbox server", null);
         var giveUpAt = DateTime.UtcNow + TimeSpan.FromSeconds(timeoutSeconds);
         while (giveUpAt > DateTime.UtcNow)
         {
