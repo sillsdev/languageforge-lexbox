@@ -27,5 +27,6 @@ public enum UploadFileResult
     SavedToLexbox,
     TooBig,
     NotSupported,
+    AlreadyExists,
     Error
 }
