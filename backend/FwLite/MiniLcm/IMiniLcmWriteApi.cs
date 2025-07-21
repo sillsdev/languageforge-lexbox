@@ -124,12 +124,12 @@ public interface IMiniLcmWriteApi
     }
 
     /// <summary>
-    /// Saves a media file and processes the provided stream.
+    /// Saves a media file using the provided data stream and metadata.
     /// </summary>
-    /// <param name="stream">The data stream of the media file to be saved.</param>
-    /// <param name="mediaFile">The metadata and URI of the media file to save.</param>
-    /// <returns>Returns an <see cref="UploadFileResponse"/> indicating the result of the operation.</returns>
-    Task<UploadFileResponse> SaveFile(Stream stream, MediaFile mediaFile)
+    /// <param name="stream">The stream containing the media file data to be saved.</param>
+    /// <param name="metadata">Metadata associated with the media file, including details like filename and upload information.</param>
+    /// <returns>An <see cref="UploadFileResponse"/> indicating the outcome of the save operation.</returns>
+    Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         return Task.FromResult(new UploadFileResponse(UploadFileResult.NotSupported));
     }

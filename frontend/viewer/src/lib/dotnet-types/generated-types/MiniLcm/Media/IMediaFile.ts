@@ -4,12 +4,10 @@
 //     the code is regenerated.
 
 import type {ILcmFileMetadata} from './ILcmFileMetadata';
-import type {MediaFileType} from './MediaFileType';
 
 export interface IMediaFile
 {
 	uri: string;
 	metadata: ILcmFileMetadata;
-	type: MediaFileType;
 }
 /* eslint-enable */

@@ -2,6 +2,6 @@ namespace MiniLcm.Media;
 
 public record LcmFileMetadata(
     string Filename,
-    string? MimeType = null,
+    string MimeType,
     string? Author = null,
     DateTimeOffset? UploadDate = null);

@@ -6,7 +6,7 @@
 export interface ILcmFileMetadata
 {
 	filename: string;
-	mimeType?: string;
+	mimeType: string;
 	author?: string;
 	uploadDate?: string;
 }

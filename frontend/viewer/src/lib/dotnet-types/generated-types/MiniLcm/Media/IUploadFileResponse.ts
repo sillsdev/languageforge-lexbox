@@ -9,5 +9,6 @@ export interface IUploadFileResponse
 {
 	result: UploadFileResult;
 	errorMessage?: string;
+	mediaUri?: string;
 }
 /* eslint-enable */

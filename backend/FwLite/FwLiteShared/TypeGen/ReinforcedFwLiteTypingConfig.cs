@@ -55,6 +55,7 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithName("DotNet.DotNetObject").Imports([
                 new() { From = "@microsoft/dotnet-js-interop", Target = "type {DotNet}" }
             ]));
+        builder.Substitute(typeof(IJSStreamReference), new RtSimpleTypeName("Blob | ArrayBuffer | Uint8Array"));
         builder.Substitute(typeof(DotNetStreamReference), new RtSimpleTypeName("{stream: () => Promise<ReadableStream>, arrayBuffer: () => Promise<ArrayBuffer>}"));
         builder.ExportAsInterface<IAsyncDisposable>();
 
@@ -107,7 +108,6 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsEnum<ReadFileResult>().UseString();
         builder.ExportAsEnum<UploadFileResult>().UseString();
-        builder.ExportAsEnum<MediaFileType>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()
