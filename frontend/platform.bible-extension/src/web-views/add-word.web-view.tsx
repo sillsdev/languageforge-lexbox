@@ -43,7 +43,7 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
         analysisLang="en"
         headword={word}
         isAdding
-        vernacularLang="qaa"
+        vernacularLang="en"
       />
       {isSubmitting && <p>Adding entry to FieldWorks...</p>}
     </div>

@@ -58,6 +58,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       await fwLiteNetworkObject.addEntry(projectId, entry);
+      onSearch(Object.values(entry.lexemeForm).pop() as string);
     },
     [fwLiteNetworkObject, projectId],
   );
@@ -101,7 +102,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
         addEntry={addEntry}
         analysisLang="en"
         headword={searchTerm}
-        vernacularLang="qaa"
+        vernacularLang="en"
       />
     </div>
   );

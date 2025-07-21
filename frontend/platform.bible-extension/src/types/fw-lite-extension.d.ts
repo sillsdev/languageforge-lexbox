@@ -36,7 +36,7 @@ declare module 'fw-lite-extension' {
 
   export interface IEntryService {
     getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
-    addEntry(projectId: string, reference: IEntry): Promise<void>;
+    addEntry(projectId: string, reference: IEntry): Promise<IEntry | undefined>;
     updateEntry(projectId: string, reference: IEntry): Promise<void>;
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
