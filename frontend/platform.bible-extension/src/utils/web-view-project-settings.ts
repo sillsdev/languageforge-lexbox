@@ -30,9 +30,7 @@ export class WebViewProjectSettings {
 
   static async createFromWebViewId(webViewId: string): Promise<WebViewProjectSettings | undefined> {
     const projectId = await WebViewProjectSettings.getProjectIdFromWebViewId(webViewId);
-    if (!projectId) return;
-    const pdp = await papi.projectDataProviders.get('platform.base', projectId);
-    return new WebViewProjectSettings(pdp, projectId);
+    return await WebViewProjectSettings.createFromProjectId(projectId ?? '');
   }
 
   async getFwDictionaryCode(): Promise<string> {
