@@ -168,23 +168,20 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 if (projectId is null) return DownloadProjectByCodeResult.ProjectNotFound;
                 var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
                 if (!isCrdtProject) return DownloadProjectByCodeResult.NotCrdtProject;
-                if (projectId is not null)
-                {
-                    var role = ProjectRole.Editor;
-                    if (userRole is not null) Enum.TryParse(userRole, out role);
-                    project = new ProjectModel(
-                        Name: code,
-                        Code: code,
-                        Crdt: isCrdtProject,
-                        Fwdata: false,
-                        Lexbox: true,
-                        Role: role,
-                        Server: server,
-                        Id: projectId
-                    );
-                    await DownloadProject(project);
-                    return DownloadProjectByCodeResult.Success;
-                }
+                var role = ProjectRole.Editor;
+                if (userRole is not null) Enum.TryParse(userRole, out role);
+                project = new ProjectModel(
+                    Name: code,
+                    Code: code,
+                    Crdt: isCrdtProject,
+                    Fwdata: false,
+                    Lexbox: true,
+                    Role: role,
+                    Server: server,
+                    Id: projectId
+                );
+                await DownloadProject(project);
+                return DownloadProjectByCodeResult.Success;
             }
             return DownloadProjectByCodeResult.ProjectNotFound;
         }
