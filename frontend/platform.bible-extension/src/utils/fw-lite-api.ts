@@ -53,6 +53,12 @@ export class FwLiteApi {
     return { code, type: 'FwData' };
   }
 
+  async deleteEntry(id: string, dictionaryCode?: string): Promise<void> {
+    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    await this.fetchPath(path);
+  }
+
   async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entries/${search}`;

@@ -52,19 +52,19 @@ export default function AddNewEntry(props: AddNewEntryProps) {
           <Label htmlFor="newEntryHeadword">Headword:</Label>
           <Input
             id="newEntryHeadword"
-            onChange={(e) => setHeadword(e.target.value)}
+            onChange={(e) => void setHeadword(e.target.value)}
             value={headword}
           />
         </div>
         <div>
           <Label htmlFor="newEntryGloss">Gloss:</Label>
-          <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
+          <Input id="newEntryGloss" onChange={(e) => void setGloss(e.target.value)} value={gloss} />
         </div>
         <div>
           <Label htmlFor="newEntryDefinition">Definition:</Label>
           <Input
             id="newEntryDefinition"
-            onChange={(e) => setDefinition(e.target.value)}
+            onChange={(e) => void setDefinition(e.target.value)}
             value={definition}
           />
         </div>

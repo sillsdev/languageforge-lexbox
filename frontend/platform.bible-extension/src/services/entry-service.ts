@@ -1,6 +1,7 @@
-import papi, { logger } from '@papi/backend';
+import { logger } from '@papi/backend';
 import type { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
 import { FwLiteApi } from '../utils/fw-lite-api';
+import { WebViewProjectSettings } from '../utils/web-view-project-settings';
 
 export class EntryService implements IEntryService {
   private fwLiteApi: FwLiteApi;
@@ -9,29 +10,21 @@ export class EntryService implements IEntryService {
   }
 
   async getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
-    if (!projectId) {
-      logger.debug('No project!');
-      return;
-    }
     if (!query.surfaceForm) {
       logger.debug('No query!');
       return;
     }
-
-    const settings = await papi.projectDataProviders.get('platform.base', projectId);
-    const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
+    const projectSettings = await WebViewProjectSettings.createFromProjectId(projectId);
+    const dictionaryCode = await projectSettings?.getFwDictionaryCode();
+    if (!dictionaryCode) return;
     console.log(`About to fetch entries for '${query.surfaceForm}' in '${dictionaryCode}'`);
     return this.fwLiteApi.getEntries(query.surfaceForm, dictionaryCode);
   }
 
   async addEntry(projectId: string, entry: IEntry): Promise<IEntry | undefined> {
-    if (!projectId) {
-      logger.debug('No project!');
-      return;
-    }
-
-    const settings = await papi.projectDataProviders.get('platform.base', projectId);
-    const dictionaryCode = await settings.getSetting('fw-lite-extension.fwDictionaryCode');
+    const projectSettings = await WebViewProjectSettings.createFromProjectId(projectId);
+    const dictionaryCode = await projectSettings?.getFwDictionaryCode();
+    if (!dictionaryCode) return;
     return await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
   }
 
@@ -40,8 +33,10 @@ export class EntryService implements IEntryService {
     throw new Error('Method not implemented.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  deleteEntry(projectId: string, id: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  async deleteEntry(projectId: string, id: string): Promise<undefined> {
+    const projectSettings = await WebViewProjectSettings.createFromProjectId(projectId);
+    const dictionaryCode = await projectSettings?.getFwDictionaryCode();
+    if (!dictionaryCode) return;
+    await this.fwLiteApi.deleteEntry(id, dictionaryCode);
   }
 }
