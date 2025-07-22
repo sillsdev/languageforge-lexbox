@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Media;
 using SIL.LCModel;
+using MediaFile = LexCore.Entities.MediaFile;
 
 namespace FwHeadless;
 
