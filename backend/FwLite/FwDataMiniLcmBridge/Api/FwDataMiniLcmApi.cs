@@ -818,7 +818,7 @@ public class FwDataMiniLcmApi(
     {
         if (string.IsNullOrEmpty(query)) return null;
         return entry => entry.CitationForm.SearchValue(query) ||
-                        entry.LexemeFormOA.Form.SearchValue(query) ||
+                        entry.LexemeFormOA?.Form.SearchValue(query) == true ||
                         entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
     }
 
