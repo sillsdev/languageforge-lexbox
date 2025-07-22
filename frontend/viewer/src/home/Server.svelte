@@ -26,7 +26,7 @@
   export let status: IServerStatus | undefined;
   $: server = status?.server;
   export let projects: Project[];
-  export let canDowloadByCode: boolean = false;
+  export let canDownloadByCode: boolean = false;
   export let localProjects: Project[];
   export let loading: boolean;
   let downloading = '';
@@ -129,7 +129,7 @@
             {$t`Where are my projects?`}
             <Icon icon="i-mdi-open-in-new" class="size-4" />
           </Button>
-          {#if canDowloadByCode}
+          {#if canDownloadByCode}
             <br/>
             <Button icon="i-mdi-download"
                   title={$t`Download project not listed`}
@@ -177,7 +177,7 @@
             </ButtonListItem>
           {/if}
         {/each}
-        {#if canDowloadByCode}
+        {#if canDownloadByCode}
         <Button icon="i-mdi-download"
                 title={$t`Download project not listed`}
                 disabled={loading}
