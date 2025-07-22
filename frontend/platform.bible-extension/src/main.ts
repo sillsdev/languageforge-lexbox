@@ -112,38 +112,50 @@ const findWordWebViewProvider: IWebViewProvider = {
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
 
+  /* Register web views */
+
   const mainWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     mainWebViewType,
     mainWebViewProvider,
   );
+
   const addWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     addWordWebViewType,
     addWordWebViewProvider,
   );
+
   const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     dictionarySelectWebViewType,
     dictionarySelectWebViewProvider,
   );
+
   const findWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     findWordWebViewType,
     findWordWebViewProvider,
   );
 
+  /* Create event emitters */
+
   const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
     'fwLiteExtension.findEntryEvent',
   );
 
+  /* Launch FieldWorks Lite and manage the api */
+
   const urlHolder: UrlHolder = { baseUrl: '', dictionaryUrl: '' };
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
-
   const fwLiteApi = new FwLiteApi(baseUrl);
+
+  /* Set network services */
 
   const entryService = papi.networkObjects.set(
     'fwliteextension.entryService',
     new EntryService(baseUrl),
     'fw-lite-extension.IEntryService',
   );
+
+  /* Register settings validators */
 
   const validDictionaryCode = papi.projectSettings.registerValidator(
     'fw-lite-extension.fwDictionaryCode',
@@ -160,6 +172,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       }
     },
   );
+
+  /* Register commands */
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
@@ -190,6 +204,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { success: true };
     },
   );
+
   const browseDictionaryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.browseDictionary',
     async (webViewId: string) => {
@@ -219,6 +234,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { success: true };
     },
   );
+
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
     async (webViewId: string, word: string) => {
@@ -232,6 +248,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { success: true };
     },
   );
+
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
     async (webViewId: string) => {
@@ -243,6 +260,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { success: true };
     },
   );
+
   const selectFwDictionaryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.selectDictionary',
     async (projectId: string, dictionaryCode: string) => {
@@ -253,6 +271,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { success: true };
     },
   );
+
   const fwDictionariesCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.fwDictionaries',
     async () => {
@@ -261,15 +280,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  // Create WebViews or get an existing WebView if one already exists for this type
-  // Note: here, we are using `existingId: '?'` to indicate we do not want to create a new WebView
-  // if one already exists. The WebView that already exists could have been created by anyone
-  // anywhere; it just has to match `webViewType`. See `paranext-core's hello-someone.ts` for an
-  // example of keeping an existing WebView that was specifically created by
-  // `paranext-core's hello-someone`.
+  // Open the main webview while we're still in early development.
+  // Remove this line before publishing.
   void papi.webViews.openWebView(mainWebViewType, undefined, { existingId: '?' });
 
-  // Await the registration promises at the end so we don't hold everything else up
+  /* Register awaited unsubscribers (do this last, to not hold up anything else) */
+
   context.registrations.add(
     // Web views
     await mainWebViewProviderPromise,
