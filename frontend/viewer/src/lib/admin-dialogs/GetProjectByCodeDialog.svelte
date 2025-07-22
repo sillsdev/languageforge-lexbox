@@ -13,8 +13,9 @@
   let error: string|undefined = $state();
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'get-project-by-code-dialog'});
 
-  let { onDownloadProject }: {
-    onDownloadProject: (code: string, userRole: ProjectRole) => Promise<string | undefined>
+  let { onDownloadProject, validateCode }: {
+    onDownloadProject: (code: string, userRole: ProjectRole) => Promise<string | undefined>,
+    validateCode: (code: string) => string | undefined,
   } = $props();
 
   async function downloadProject(e: Event, projectCode: string, userRole: ProjectRole) {
@@ -27,6 +28,7 @@
   }
 
   let projectCode = $state('');
+  let codeValidationError = $derived(validateCode(projectCode));
   let userRole: ProjectRole = $state(ProjectRole.Observer);
   const validRoles = Object.keys(ProjectRole).filter((role) => (role as keyof typeof ProjectRole) !== 'Unknown');
 
@@ -63,10 +65,13 @@
       {#if error}
         <p class="text-destructive">{error}</p>
       {/if}
+      {#if codeValidationError}
+        <p class="text-destructive">{codeValidationError}</p>
+      {/if}
     </div>
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => downloadProject(e, projectCode, userRole)} disabled={loading} {loading}>
+      <Button onclick={e => downloadProject(e, projectCode, userRole)} disabled={loading || !!codeValidationError} {loading}>
         {$t`Download ${projectCode}`}
       </Button>
     </Dialog.DialogFooter>

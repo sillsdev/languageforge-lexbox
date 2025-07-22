@@ -66,6 +66,12 @@
     }
   }
 
+  function validateCodeForDownload(projectCode: string): string | undefined {
+    if (localProjects.some(p => p.code === projectCode)) {
+      return $t`You have already download the ${projectCode} project`;
+    }
+  }
+
   function matchesProject(projects: Project[], project: Project): Project | undefined {
     if (project.id) {
       return projects.find(p => p.id == project.id && p.server?.id == project.server?.id);
@@ -79,7 +85,11 @@
     getProjectByCodeDialog?.openDialog();
   }
 </script>
-<GetProjectByCodeDialog bind:this={getProjectByCodeDialog} onDownloadProject={downloadCrdtProjectByCode}/>
+<GetProjectByCodeDialog
+  bind:this={getProjectByCodeDialog}
+  onDownloadProject={downloadCrdtProjectByCode}
+  validateCode={validateCodeForDownload}
+  />
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
