@@ -10,6 +10,7 @@ interface AddNewEntryProps {
   vernacularLang: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export default function AddNewEntry(props: AddNewEntryProps) {
   const [isAdding, setIsAdding] = useState(props.isAdding);
   const [isReady, setIsReady] = useState(false);

@@ -27,6 +27,8 @@ const findWordWebViewType = 'fw-lite-find-word.react';
 
 const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 const mainWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
@@ -104,6 +106,8 @@ const findWordWebViewProvider: IWebViewProvider = {
     };
   },
 };
+
+/* eslint-enable @typescript-eslint/require-await */
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
