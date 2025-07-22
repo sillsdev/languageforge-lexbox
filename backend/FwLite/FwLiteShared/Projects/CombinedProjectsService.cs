@@ -155,14 +155,16 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             if (serverProjects.CanDownloadProjectsWithoutMembership)
             {
+                var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
+                if (!isCrdtProject) throw new InvalidOperationException($"Project {code} on server {server.Authority} is not yet set up for FieldWorks Lite");
                 var projectId = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (projectId is not null)
                 {
                     project = new ProjectModel(
                         Name: code, // TODO: No GetLexboxProjectName. Do we need one?
                         Code: code,
-                        Crdt: true,
-                        Fwdata: true,
+                        Crdt: isCrdtProject,
+                        Fwdata: false,
                         Lexbox: true,
                         Role: ProjectRole.Observer, // TODO: Allow this to be chosen in dialog
                         Server: server,
