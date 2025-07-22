@@ -52,7 +52,13 @@ public static class FwLiteWebServer
         builder.Services.AddRazorComponents().AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true);
         if (builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
         {
-            builder.Logging.AddFile(logFileName);
+            builder.Logging.AddFile(logFileName,
+                fileLoggerOptions =>
+                {
+                    fileLoggerOptions.RollingFilesConvention = FileLoggerOptions.FileRollingConvention.Descending;
+                    fileLoggerOptions.FileSizeLimitBytes = 10 * 1024 * 1024;
+                    fileLoggerOptions.MaxRollingFiles = 3;
+                });
         }
         builder.Services.AddCors();
         builder.Services.AddFwLiteWebServices(builder.Environment);
