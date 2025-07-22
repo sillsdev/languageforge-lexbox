@@ -83,7 +83,7 @@ public class LexboxProjectService : IDisposable
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, $"Error checking if lexbox project {projectCode} is a CRDT project");
+                    logger.LogError(e, $"Error checking if lexbox project {projectCode.ReplaceLineEndings("")} is a CRDT project");
                     return false;
                 }
             });
