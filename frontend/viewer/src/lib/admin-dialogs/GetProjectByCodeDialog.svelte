@@ -35,6 +35,7 @@
     error = undefined;
     projectCode = '';
     userRole = ProjectRole.Observer;
+    loading = false;
     open = true;
   }
 </script>

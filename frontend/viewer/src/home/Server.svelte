@@ -119,21 +119,22 @@
             {$t`Where are my projects?`}
             <Icon icon="i-mdi-open-in-new" class="size-4" />
           </Button>
+          {#if canDowloadByCode}
+            <br/>
+            <Button icon="i-mdi-download"
+                  title={$t`Download project not listed`}
+                  disabled={loading}
+                  class="mr-2"
+                  variant="ghost"
+                  size="default"
+                  onclick={getProjectByCode}
+                  >{$t`Download project not listed`}</Button>
+          {/if}
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
       </p>
-      {#if status.loggedIn && canDowloadByCode}
-        <Button icon="i-mdi-download"
-                title={$t`Download project not listed`}
-                disabled={loading}
-                class="mr-2"
-                variant="ghost"
-                size="default"
-                onclick={getProjectByCode}
-                >{$t`Download project not listed`}</Button>
-      {/if}
-    {:else}
+      {:else}
       <div class="shadow rounded">
         {#each projects as project}
           {@const localProject = matchesProject(localProjects, project)}
