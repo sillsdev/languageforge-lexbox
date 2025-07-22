@@ -138,4 +138,11 @@ public class LcmMediaService(
 
         return resource;
     }
+
+    public async Task<bool> UploadPendingResources()
+    {
+        if (await httpClientProvider.ConnectionStatus() != ConnectionStatus.Online) return false;
+        await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this);
+        return true;
+    }
 }

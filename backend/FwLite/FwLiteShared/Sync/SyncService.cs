@@ -4,6 +4,7 @@ using FwLiteShared.Events;
 using FwLiteShared.Projects;
 using LexCore.Sync;
 using LcmCrdt;
+using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
 using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ public class SyncService(
     ProjectEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
     IMiniLcmApi lexboxApi,
+    LcmMediaService lcmMediaService,
     IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
     IDbContextFactory<LcmCrdtDbContext> dbContextFactory)
@@ -80,6 +82,8 @@ public class SyncService(
             UpdateSyncStatus(SyncStatus.Offline);
             return new SyncResults([], [], false);
         }
+
+        await UploadPendingMedia();
         var syncDate = DateTimeOffset.UtcNow;//create sync date first to ensure it's consistent and not based on how long it takes to sync
         var syncResults = await dataModel.SyncWith(remoteModel);
         if (!syncResults.IsSynced)
@@ -137,6 +141,18 @@ public class SyncService(
         var remoteChanges = await remoteChangesPending;
         if (localChanges is null) return null;
         return new PendingCommits(localChanges.Value, remoteChanges);
+    }
+
+    public async Task UploadPendingMedia()
+    {
+        try
+        {
+            await lcmMediaService.UploadPendingResources();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to upload pending media");
+        }
     }
 
     private void UpdateSyncStatus(SyncStatus status)
