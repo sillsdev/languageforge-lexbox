@@ -1,5 +1,6 @@
-import type { OpenWebViewOptions } from '@papi/core';
+import type { MandatoryProjectDataTypes, OpenWebViewOptions } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
+import type { IBaseProjectDataProvider } from 'papi-shared-types';
 
 declare module 'fw-lite-extension' {
   /* eslint-disable @typescript-eslint/consistent-type-imports */
@@ -15,6 +16,31 @@ declare module 'fw-lite-extension' {
     code: string;
     type: 'FwData' | 'Harmony';
   }
+
+  export interface ProjectInfo {
+    dataProvider?: IBaseProjectDataProvider<MandatoryProjectDataTypes>;
+    fwDictionaryCode?: string;
+    language?: string;
+    name?: string;
+    webViewIds?: WebViewIds;
+  }
+
+  export enum WebViewKey {
+    AddEntry = 'addEntry',
+    BrowseDictionary = 'browseDictionary',
+    FindEntry = 'findEntry',
+    SelectDictionary = 'selectDictionary',
+  }
+
+  export enum ProjectSettingKey {
+    FwDictionaryCode = 'fw-lite-extension.fwDictionaryCode',
+    ProjectLanguage = 'platform.language',
+    ProjectName = 'platform.name',
+  }
+
+  export type WebViewIds = {
+    [webViewKey in WebViewKey]?: string;
+  };
 
   export interface SuccessHolder {
     success: boolean;

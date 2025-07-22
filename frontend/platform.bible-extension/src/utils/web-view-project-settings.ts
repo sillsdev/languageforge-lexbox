@@ -1,5 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
+import { ProjectSettingKey } from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 
 export class WebViewProjectSettings {
@@ -34,11 +35,15 @@ export class WebViewProjectSettings {
   }
 
   async getFwDictionaryCode(): Promise<string> {
-    return await this.pdp.getSetting('fw-lite-extension.fwDictionaryCode');
+    return await this.pdp.getSetting(ProjectSettingKey.FwDictionaryCode);
+  }
+
+  async getProjectLanguage(): Promise<string> {
+    return await this.pdp.getSetting(ProjectSettingKey.ProjectLanguage);
   }
 
   async getProjectName(): Promise<string> {
-    return await this.pdp.getSetting('platform.name');
+    return await this.pdp.getSetting(ProjectSettingKey.ProjectName);
   }
 
   async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
