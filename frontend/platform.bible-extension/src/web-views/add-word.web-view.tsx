@@ -23,9 +23,8 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
   const addEntry = useCallback(
     async (entry: Partial<IEntry>) => {
       if (!projectId || !fwLiteNetworkObject) {
-        logger.warn(
-          `Missing required parameters: projectId=${projectId}, fwLiteNetworkObject=${fwLiteNetworkObject}`,
-        );
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
         return;
       }
 

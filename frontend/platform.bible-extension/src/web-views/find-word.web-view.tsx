@@ -1,6 +1,6 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
-import type { IEntry, IEntryService, WordWebViewOptions } from 'fw-lite-extension';
+import type { IEntry, IEntryService, IMultiString, WordWebViewOptions } from 'fw-lite-extension';
 import { Card, CardContent, CardHeader, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -26,9 +26,8 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
   const fetchEntries = useCallback(
     async (word: string) => {
       if (!projectId || !fwLiteNetworkObject) {
-        logger.warn(
-          `Missing required parameters: projectId=${projectId}, fwLiteNetworkObject=${fwLiteNetworkObject}`,
-        );
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
         return;
       }
 
@@ -48,17 +47,16 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
   );
 
   const addEntry = useCallback(
-    async (entry: IEntry) => {
+    async (entry: Partial<IEntry>) => {
       if (!projectId || !fwLiteNetworkObject) {
-        logger.warn(
-          `Missing required parameters: projectId=${projectId}, fwLiteNetworkObject=${fwLiteNetworkObject}`,
-        );
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
         return;
       }
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       await fwLiteNetworkObject.addEntry(projectId, entry);
-      onSearch(Object.values(entry.lexemeForm).pop() as string);
+      onSearch(Object.values(entry.lexemeForm as IMultiString).pop() ?? '');
     },
     [fwLiteNetworkObject, projectId],
   );
@@ -82,7 +80,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
       {matchingEntries?.map((entry) => (
         <Card key={entry.id}>
           <CardHeader>
-            {Object.keys(entry.citationForm).length
+            {Object.keys(entry.citationForm as IMultiString).length
               ? JSON.stringify(entry.citationForm)
               : JSON.stringify(entry.lexemeForm)}
           </CardHeader>
