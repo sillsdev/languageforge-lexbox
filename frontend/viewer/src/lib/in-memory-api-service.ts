@@ -27,6 +27,7 @@ import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
 import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
+import {DownloadProjectByCodeResult} from './dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -88,11 +89,19 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
       remoteProjects: function (): Promise<IServerProjects[]> {
         return Promise.resolve([]);
       },
-      serverProjects: function (_serverId: string, _forceRefresh: boolean): Promise<IProjectModel[]> {
-        return Promise.resolve([]);
+      serverProjects: function (serverId: string, _forceRefresh: boolean): Promise<IServerProjects> {
+        const server = {
+          authority: '',
+          displayName: '',
+          id: serverId,
+        }
+        return Promise.resolve({server, projects: [], canDownloadProjectsWithoutMembership: false});
       },
       downloadProject: function (_project: IProjectModel): Promise<void> {
         return Promise.resolve();
+      },
+      downloadProjectByCode: function (_code, _server, _userRole): Promise<DownloadProjectByCodeResult> {
+        return Promise.resolve(DownloadProjectByCodeResult.Success);
       },
       createProject: function (_name: string): Promise<void> {
         return Promise.resolve();
