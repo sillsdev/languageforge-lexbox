@@ -15,7 +15,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
-  // import {ProjectRole} from '$lib/dotnet-types/generated-types/LexCore/Entities/ProjectRole';
+  import type {ProjectRole} from '$lib/dotnet-types/generated-types/LexCore/Entities/ProjectRole';
 
   const projectsService = useProjectsService();
 
@@ -52,9 +52,8 @@
     }
   }
 
-  async function downloadCrdtProjectByCode(projectCode: string): Promise<string | undefined> {
-    // TODO: Pass in desired role as well
-    const downloadResult = await projectsService.downloadProjectByCode(projectCode, server!);
+  async function downloadCrdtProjectByCode(projectCode: string, userRole: ProjectRole): Promise<string | undefined> {
+    const downloadResult = await projectsService.downloadProjectByCode(projectCode, server!, userRole);
     switch(downloadResult)
     {
       case DownloadProjectByCodeResult.Success:

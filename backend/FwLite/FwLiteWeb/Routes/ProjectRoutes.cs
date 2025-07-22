@@ -53,11 +53,12 @@ public static class ProjectRoutes
             async (IOptions<AuthConfig> options,
                 CombinedProjectsService combinedProjectsService,
                 string code,
-                string serverAuthority
+                string serverAuthority,
+                [FromQuery] string? role
             ) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await combinedProjectsService.DownloadProjectByCode(code, server);
+                await combinedProjectsService.DownloadProjectByCode(code, server, role);
                 return TypedResults.Ok();
             });
         return group;

@@ -156,7 +156,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         };
 
     [JSInvokable]
-    public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server)
+    public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server, string? userRole = null)
     {
         var serverProjects = await ServerProjects(server, false);
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
@@ -170,13 +170,15 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 if (!isCrdtProject) return DownloadProjectByCodeResult.NotCrdtProject;
                 if (projectId is not null)
                 {
+                    var role = ProjectRole.Editor;
+                    if (userRole is not null) Enum.TryParse(userRole, out role);
                     project = new ProjectModel(
-                        Name: code, // TODO: No GetLexboxProjectName. Do we need one?
+                        Name: code,
                         Code: code,
                         Crdt: isCrdtProject,
                         Fwdata: false,
                         Lexbox: true,
-                        Role: ProjectRole.Observer, // TODO: Allow this to be chosen in dialog
+                        Role: role,
                         Server: server,
                         Id: projectId
                     );

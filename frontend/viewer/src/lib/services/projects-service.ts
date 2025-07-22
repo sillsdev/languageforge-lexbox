@@ -1,4 +1,5 @@
 ﻿import type {ICombinedProjectsService, ILexboxServer, IProjectModel, IServerProjects, IServerStatus} from '$lib/dotnet-types';
+import type {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 
 import {AppNotification} from '../notifications/notifications';
 
@@ -18,7 +19,7 @@ export class ProjectService implements ICombinedProjectsService {
   downloadProject(_project: IProjectModel): Promise<void> {
       throw new Error('Method not implemented.');
   }
-  downloadProjectByCode(_code: string, _server: ILexboxServer): Promise<void> {
+  downloadProjectByCode(_code: string, _server: ILexboxServer, _userRole: string): Promise<DownloadProjectByCodeResult> {
       throw new Error('Method not implemented.');
   }
   deleteProject(_code: string): Promise<void> {

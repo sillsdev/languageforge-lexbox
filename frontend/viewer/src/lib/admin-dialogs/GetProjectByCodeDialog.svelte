@@ -14,14 +14,14 @@
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'get-project-by-code-dialog'});
 
   let { onDownloadProject }: {
-    onDownloadProject: (code: string) => Promise<string | undefined>
+    onDownloadProject: (code: string, userRole: ProjectRole) => Promise<string | undefined>
   } = $props();
 
-  async function downloadProject(e: Event, projectCode: string) {
+  async function downloadProject(e: Event, projectCode: string, userRole: ProjectRole) {
     e.preventDefault();
     e.stopPropagation();
     loading = true;
-    error = await onDownloadProject(projectCode);
+    error = await onDownloadProject(projectCode, userRole);
     loading = false;
     open = !!error;
   }
@@ -65,7 +65,7 @@
     </div>
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => downloadProject(e, projectCode)} disabled={loading} {loading}>
+      <Button onclick={e => downloadProject(e, projectCode, userRole)} disabled={loading} {loading}>
         {$t`Download ${projectCode}`}
       </Button>
     </Dialog.DialogFooter>

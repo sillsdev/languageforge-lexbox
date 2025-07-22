@@ -14,7 +14,7 @@ export interface ICombinedProjectsService
 	remoteProjects() : Promise<IServerProjects[]>;
 	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IServerProjects>;
 	localProjects() : Promise<IProjectModel[]>;
-	downloadProjectByCode(code: string, server: ILexboxServer) : Promise<DownloadProjectByCodeResult>;
+	downloadProjectByCode(code: string, server: ILexboxServer, userRole?: string) : Promise<DownloadProjectByCodeResult>;
 	downloadProject(project: IProjectModel) : Promise<void>;
 	createProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;
