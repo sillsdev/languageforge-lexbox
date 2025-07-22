@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -103,6 +102,7 @@ public static class MiniLcmRoutes
         api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
         api.MapGet("/publications", MiniLcm.GetPublications);
         api.MapPost("/entry", MiniLcm.PostEntry);
+        api.MapDelete("/entry/{id:Guid}", MiniLcm.DeleteEntry);
         return api;
     }
 
@@ -130,10 +130,9 @@ public static class MiniLcmRoutes
             return api.SearchEntries(search, options.ToQueryOptions());
         }
 
-        public static Task<Entry?> GetEntry(Guid id,
-            [FromServices] MiniLcmHolder provider)
+        public static Task<Entry?> GetEntry(Guid id, [FromServices] MiniLcmHolder holder)
         {
-            var api = provider.MiniLcmApi;
+            var api = holder.MiniLcmApi;
             return api.GetEntry(id);
         }
 
@@ -159,6 +158,12 @@ public static class MiniLcmRoutes
         {
             var api = holder.MiniLcmApi;
             return api.CreateEntry(entry);
+        }
+
+        public static Task DeleteEntry(Guid id, [FromServices] MiniLcmHolder holder)
+        {
+            var api = holder.MiniLcmApi;
+            return api.DeleteEntry(id);
         }
     }
 
