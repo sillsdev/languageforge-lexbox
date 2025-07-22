@@ -9,6 +9,7 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
     NetworkObject<IEntryService> | undefined
   >();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     void papi.networkObjects
@@ -20,7 +21,7 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
   }, []);
 
   const addEntry = useCallback(
-    async (entry: IEntry) => {
+    async (entry: Partial<IEntry>) => {
       if (!projectId || !fwLiteNetworkObject) {
         logger.warn(
           `Missing required parameters: projectId=${projectId}, fwLiteNetworkObject=${fwLiteNetworkObject}`,
@@ -28,10 +29,12 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
         return;
       }
 
+      setIsSubmitted(false);
       setIsSubmitting(true);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       await fwLiteNetworkObject.addEntry(projectId, entry);
       setIsSubmitting(false);
+      setIsSubmitted(true);
     },
     [fwLiteNetworkObject, projectId],
   );
@@ -46,6 +49,7 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
         vernacularLang="en"
       />
       {isSubmitting && <p>Adding entry to FieldWorks...</p>}
+      {isSubmitted && <p>Entry added!</p>}
     </div>
   );
 };

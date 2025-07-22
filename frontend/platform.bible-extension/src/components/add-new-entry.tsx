@@ -1,10 +1,9 @@
-import type { IEntry } from 'fw-lite-extension';
+import type { IEntry, ISense } from 'fw-lite-extension';
 import { Button, Card, CardContent, CardHeader, Input, Label } from 'platform-bible-react';
 import { useCallback, useEffect, useState } from 'react';
-import { v4 } from 'uuid';
 
 interface AddNewEntryProps {
-  addEntry: (entry: IEntry) => Promise<void>;
+  addEntry: (entry: Partial<IEntry>) => Promise<void>;
   analysisLang: string;
   headword?: string;
   isAdding?: boolean;
@@ -87,27 +86,14 @@ function createEntry(
   analysisLang: string,
   gloss?: string,
   definition?: string,
-): IEntry {
-  const entryId = v4();
+): Partial<IEntry> {
   return {
-    citationForm: {},
-    complexForms: [],
-    complexFormTypes: [],
-    components: [],
-    id: entryId,
     lexemeForm: { [vernacularLang]: headword },
-    literalMeaning: {},
-    note: {},
-    publishIn: [],
     senses: [
       {
         definition: definition ? { [analysisLang]: definition } : {},
-        entryId,
-        exampleSentences: [],
         gloss: gloss ? { [analysisLang]: gloss } : {},
-        id: v4(),
-        semanticDomains: [],
-      },
+      } as Partial<ISense> as ISense,
     ],
   };
 }
