@@ -14,6 +14,7 @@ import type {
 import { EntryService } from './services/entry-service';
 import extensionTemplateStyles from './styles.css?inline';
 import { FwLiteApi } from './utils/fw-lite-api';
+//import { ProjectInfoManager } from './utils/project-info-manager';
 import { WebViewProjectSettings } from './utils/web-view-project-settings';
 import fwAddWordWindow from './web-views/add-word.web-view?inline';
 import fwDictionarySelectWindow from './web-views/dictionary-select.web-view?inline';
@@ -146,6 +147,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
   const fwLiteApi = new FwLiteApi(baseUrl);
+
+  /* Manage project info */
+
+  //const projectInfoManager = new ProjectInfoManager();
 
   /* Set network services */
 
