@@ -5,35 +5,38 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import {ProjectRole} from '$lib/dotnet-types/generated-types/LexCore/Entities/ProjectRole';
+  import Select from '$lib/components/field-editors/select.svelte';
 
   let open = $state(false);
   let loading = $state(false);
+  let error: string|undefined = $state();
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'get-project-by-code-dialog'});
 
-  let { onDowloadProject }: {
-    onDowloadProject: (code: string) => void
+  let { onDownloadProject }: {
+    onDownloadProject: (code: string) => Promise<string | undefined>
   } = $props();
 
-  // let errors: string[] = $state([]);
-  // function notAuthorized(projectCode: string) {
-  //   errors.push(`Not authorized for project ${projectCode}`);
-  // }
-  function downloadProject(e: Event, projectCode: string) {
+  async function downloadProject(e: Event, projectCode: string) {
     e.preventDefault();
     e.stopPropagation();
     loading = true;
-    console.debug('Downloading project', projectCode);
-    onDowloadProject(projectCode);
+    error = await onDownloadProject(projectCode);
     loading = false;
-    open = false;
+    open = !!error;
   }
+
+  let projectCode = $state('');
+  let userRole: ProjectRole = $state(ProjectRole.Observer);
+  const validRoles = Object.keys(ProjectRole).filter((role) => (role as keyof typeof ProjectRole) !== 'Unknown');
 
   export function openDialog()
   {
+    error = undefined;
+    projectCode = '';
+    userRole = ProjectRole.Observer;
     open = true;
   }
-
-  let inputValue = $state('');
 </script>
 
 {#if open}
@@ -42,21 +45,28 @@
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Download project by project code`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <!-- {#if errors.length}
-      <div class="text-end space-y-2">
-        {#each errors as error}
-          <p class="text-destructive">{error}</p>
-        {/each}
-      </div>
-    {/if} -->
     <Label class="cursor-pointer flex items-center gap-2">
       Code:
-      <Input bind:value={inputValue} />
+      <Input bind:value={projectCode} />
     </Label>
+    <Label class="cursor-pointer flex items-center gap-2">
+      Role:
+      <Select
+          bind:value={userRole}
+          options={validRoles}
+          labelSelector={(role: ProjectRole) => $t(role)}
+          idSelector={(role: ProjectRole) => role}
+          />
+    </Label>
+    <div class="text-end space-y-2">
+      {#if error}
+        <p class="text-destructive">{error}</p>
+      {/if}
+    </div>
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => downloadProject(e, inputValue)} disabled={loading} {loading}>
-        {$t`Download ${inputValue}`}
+      <Button onclick={e => downloadProject(e, projectCode)} disabled={loading} {loading}>
+        {$t`Download ${projectCode}`}
       </Button>
     </Dialog.DialogFooter>
   </Dialog.DialogContent>

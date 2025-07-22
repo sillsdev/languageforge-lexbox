@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+  import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import {createEventDispatcher} from 'svelte';
@@ -51,11 +52,19 @@
     }
   }
 
-  async function downloadCrdtProjectByCode(projectCode: string) {
+  async function downloadCrdtProjectByCode(projectCode: string): Promise<string | undefined> {
     // TODO: Pass in desired role as well
-    await projectsService.downloadProjectByCode(projectCode, server!);
-    dispatch('refreshAll');
-    // TODO: Push a Project instance to localProjects (won't have name yet, can substitute code until name is availabe)
+    const downloadResult = await projectsService.downloadProjectByCode(projectCode, server!);
+    switch(downloadResult)
+    {
+      case DownloadProjectByCodeResult.Success:
+        dispatch('refreshAll');
+        return;
+      case DownloadProjectByCodeResult.NotCrdtProject:
+        return $t`Project ${projectCode} on server ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
+      case DownloadProjectByCodeResult.ProjectNotFound:
+        return $t`Project ${projectCode} not found on server ${server?.displayName ?? ''}`;
+    }
   }
 
   function matchesProject(projects: Project[], project: Project): Project | undefined {
@@ -71,7 +80,7 @@
     getProjectByCodeDialog?.openDialog();
   }
 </script>
-<GetProjectByCodeDialog bind:this={getProjectByCodeDialog} onDowloadProject={downloadCrdtProjectByCode}/>
+<GetProjectByCodeDialog bind:this={getProjectByCodeDialog} onDownloadProject={downloadCrdtProjectByCode}/>
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">

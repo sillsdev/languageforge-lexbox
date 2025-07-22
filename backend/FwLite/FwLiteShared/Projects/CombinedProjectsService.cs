@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -8,6 +9,14 @@ using MiniLcm.Models;
 using MiniLcm.Project;
 
 namespace FwLiteShared.Projects;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum DownloadProjectByCodeResult
+{
+    Success,
+    NotCrdtProject,
+    ProjectNotFound,
+}
 
 public record ProjectModel(
     string Name,
@@ -147,7 +156,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         };
 
     [JSInvokable]
-    public async Task DownloadProjectByCode(string code, LexboxServer server)
+    public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server)
     {
         var serverProjects = await ServerProjects(server, false);
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
@@ -155,9 +164,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             if (serverProjects.CanDownloadProjectsWithoutMembership)
             {
-                var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
-                if (!isCrdtProject) throw new InvalidOperationException($"Project {code} on server {server.Authority} is not yet set up for FieldWorks Lite");
                 var projectId = await lexboxProjectService.GetLexboxProjectId(server, code);
+                if (projectId is null) return DownloadProjectByCodeResult.ProjectNotFound;
+                var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
+                if (!isCrdtProject) return DownloadProjectByCodeResult.NotCrdtProject;
                 if (projectId is not null)
                 {
                     project = new ProjectModel(
@@ -171,12 +181,13 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                         Id: projectId
                     );
                     await DownloadProject(project);
-                    return;
+                    return DownloadProjectByCodeResult.Success;
                 }
             }
-            throw new InvalidOperationException($"Project {code} not found on server {server.Authority}");
+            return DownloadProjectByCodeResult.ProjectNotFound;
         }
         await DownloadProject(project);
+        return DownloadProjectByCodeResult.Success;
     }
 
     [JSInvokable]
