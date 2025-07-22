@@ -21,7 +21,7 @@ export class EntryService implements IEntryService {
     return this.fwLiteApi.getEntries(query.surfaceForm, dictionaryCode);
   }
 
-  async addEntry(projectId: string, entry: IEntry): Promise<IEntry | undefined> {
+  async addEntry(projectId: string, entry: Partial<IEntry>): Promise<IEntry | undefined> {
     const projectSettings = await WebViewProjectSettings.createFromProjectId(projectId);
     const dictionaryCode = await projectSettings?.getFwDictionaryCode();
     if (!dictionaryCode) return;

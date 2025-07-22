@@ -29,15 +29,17 @@ export class FwLiteApi {
     return `${this.baseUrl}/api/${path}`;
   }
 
-  private async fetchPath(path: string, postBody?: unknown): Promise<unknown> {
+  private async fetchPath(path: string, method?: string, postBody?: unknown): Promise<unknown> {
     return await fetchUrl(
       this.getUrl(path),
       postBody
         ? {
             body: JSON.stringify(postBody),
             headers: { 'Content-Type': 'application/json' },
-            method: 'POST',
+            method: method || 'POST',
           }
+        : method
+        ? { method }
         : undefined,
     );
   }
@@ -56,7 +58,7 @@ export class FwLiteApi {
   async deleteEntry(id: string, dictionaryCode?: string): Promise<void> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
-    await this.fetchPath(path);
+    await this.fetchPath(path, 'DELETE');
   }
 
   async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
@@ -75,9 +77,9 @@ export class FwLiteApi {
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
-  async postNewEntry(entry: IEntry, dictionaryCode?: string): Promise<IEntry> {
+  async postNewEntry(entry: Partial<IEntry>, dictionaryCode?: string): Promise<IEntry> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entry`;
-    return (await this.fetchPath(path, entry)) as IEntry;
+    return (await this.fetchPath(path, 'POST', entry)) as IEntry;
   }
 }
