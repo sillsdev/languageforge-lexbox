@@ -1,11 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
-import type {
-  FindEntryEvent,
-  OpenWebViewOptionsWithProjectId,
-  UrlHolder,
-  WordWebViewOptions,
-} from 'fw-lite-extension';
+import type { FindEntryEvent, UrlHolder, WordWebViewOptions } from 'fw-lite-extension';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi } from './utils/fw-lite-api';
@@ -151,7 +146,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
     async () => {
-      void papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
+      await papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
       return { success: true };
     },
   );
@@ -160,7 +155,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.selectDictionary',
     async (projectId: string, dictionaryCode: string) => {
       logger.info(`Selecting FieldWorks dictionary '${dictionaryCode}' for project '${projectId}'`);
-      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
       await projectManager.setFwDictionaryCode(dictionaryCode);
       return { success: true };
