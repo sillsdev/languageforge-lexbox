@@ -23,7 +23,6 @@
     e.stopPropagation();
     loading = true;
     try {
-      throw new Error("Oops, download skipped...");
       error = await onDownloadProject(projectCode, userRole);
     } catch (e) {
       // Set error message to prevent auto-closing dialog
