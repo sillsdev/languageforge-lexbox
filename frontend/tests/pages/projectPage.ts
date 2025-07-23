@@ -4,7 +4,6 @@ import {AddMemberModal} from '../components/addMemberModal';
 import {AuthenticatedBasePage} from './authenticatedBasePage';
 import {DeleteProjectModal} from '../components/deleteProjectModal';
 import {ResetProjectModal} from '../components/resetProjectModal';
-import {ViewerPage} from './viewerPage';
 
 export class ProjectPage extends AuthenticatedBasePage {
   get moreSettingsDiv(): Locator { return this.main.locator('.collapse').filter({ hasText: 'More settings' }); }
@@ -44,12 +43,5 @@ export class ProjectPage extends AuthenticatedBasePage {
   async clickVerifyRepo(): Promise<void> {
     await this.openMoreSettings();
     await this.verifyRepoButton.click();
-  }
-
-  async clickBrowseInViewer(): Promise<ViewerPage> {
-    const viewerTabPromise = this.page.context().waitForEvent('page')
-    await this.browseButton.click();
-    const viewerTab = await viewerTabPromise;
-    return new ViewerPage(viewerTab, this.name, this.code).waitFor();
   }
 }
