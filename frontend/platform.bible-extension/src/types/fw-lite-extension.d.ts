@@ -12,7 +12,7 @@ declare module 'fw-lite-extension' {
     import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
 
   export type ProjectSettingKey = import('./enums.ts').ProjectSettingKey;
-  export type WebViewKey = import('./enums.ts').WebViewKey;
+  export type WebViewType = import('./enums.ts').WebViewType;
   /* eslint-enable @typescript-eslint/consistent-type-imports */
 
   export interface DictionaryRef {
@@ -25,11 +25,12 @@ declare module 'fw-lite-extension' {
     fwDictionaryCode?: string;
     language?: string;
     name?: string;
+    projectId: string;
     webViewIds?: WebViewIds;
   }
 
   export type WebViewIds = {
-    [webViewKey in WebViewKey]?: string;
+    [webViewKey in WebViewType]?: string;
   };
 
   export interface SuccessHolder {
@@ -77,7 +78,7 @@ declare module 'papi-shared-types' {
       dictionaryCode: string,
     ) => Promise<SuccessHolder>;
     'fwLiteExtension.fwDictionaries': () => Promise<IProjectModel[] | undefined>;
-    'fwLiteExtension.openFWLite': (webViewId: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.openFWLite': () => Promise<SuccessHolder>; // Remove before publishing.
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.getBaseUrl': () => UrlHolder;
   }
