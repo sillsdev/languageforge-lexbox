@@ -1552,10 +1552,9 @@ public class FwDataMiniLcmApi(
     {
         if (stream.CanSeek && stream.Length > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
         var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
-        var mediaUri = mediaAdapter.MediaUriFromPath(fullPath, Cache);
 
         if (File.Exists(fullPath))
-            return new UploadFileResponse(mediaUri, savedToLexbox: false, newResource: false);
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: false);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
         {
@@ -1572,9 +1571,9 @@ public class FwDataMiniLcmApi(
 
         try
         {
-            await using var fileStream = File.OpenWrite(fullPath);
+            await using var fileStream = File.Create(fullPath);
             await stream.CopyToAsync(fileStream);
-            return new UploadFileResponse(mediaUri, savedToLexbox: false, newResource: true);
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: true);
         }
         catch (Exception ex)
         {

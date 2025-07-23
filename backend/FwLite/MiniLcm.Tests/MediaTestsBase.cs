@@ -27,7 +27,7 @@ public abstract class MediaTestsBase : MiniLcmTestBase
 
         saveResponse.Result.Should().BeOneOf(UploadFileResult.SavedLocally, UploadFileResult.SavedToLexbox);
         saveResponse.ErrorMessage.Should().BeNullOrEmpty();
-        saveResponse.MediaUri.Should().NotBeNull();
+        saveResponse.MediaUri.Should().NotBeNull().And.NotBe(MediaUri.NotFound);
 
         // Act - Retrieve the file
         var retrieveResponse = await Api.GetFileStream(saveResponse.MediaUri.Value);
@@ -80,7 +80,7 @@ public abstract class MediaTestsBase : MiniLcmTestBase
 
         saveResponse.Result.Should().BeOneOf(UploadFileResult.SavedLocally, UploadFileResult.SavedToLexbox);
         saveResponse.ErrorMessage.Should().BeNullOrEmpty();
-        saveResponse.MediaUri.Should().NotBeNull();
+        saveResponse.MediaUri.Should().NotBeNull().And.NotBe(MediaUri.NotFound);
 
         // Act - Retrieve the binary file
         var retrieveResponse = await Api.GetFileStream(saveResponse.MediaUri.Value);
@@ -128,6 +128,7 @@ public abstract class MediaTestsBase : MiniLcmTestBase
 
         var saveResponse = await SaveTestFile(fileName);
         var firstMediaUri = saveResponse.MediaUri;
+        firstMediaUri.Should().NotBe(MediaUri.NotFound);
         saveResponse.Result.Should().Be(UploadFileResult.SavedLocally);
 
         // Act - Save a different file with the same name
