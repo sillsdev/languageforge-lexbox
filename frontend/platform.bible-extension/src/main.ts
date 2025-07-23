@@ -146,7 +146,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
     async () => {
-      await papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
+      await papi.webViews.openWebView(WebViewType.Main);
       return { success: true };
     },
   );
@@ -171,7 +171,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   // For development. Remove before publishing.
-  void papi.webViews.openWebView(WebViewType.Main);
+  void papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
 
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
 
