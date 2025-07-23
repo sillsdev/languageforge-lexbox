@@ -1548,9 +1548,13 @@ public class FwDataMiniLcmApi(
 
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
+        if (stream.CanSeek && stream.Length > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
         var pathRelativeToRoot = Path.Combine(TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
         var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathRelativeToRoot);
-        if (File.Exists(fullPath)) return new UploadFileResponse(UploadFileResult.AlreadyExists);
+        if (File.Exists(fullPath))
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(pathRelativeToRoot, Cache),
+                savedToLexbox: false,
+                newResource: false);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
         {
@@ -1569,15 +1573,15 @@ public class FwDataMiniLcmApi(
         {
             await using var fileStream = File.OpenWrite(fullPath);
             await stream.CopyToAsync(fileStream);
+
+            var mediaUri = mediaAdapter.MediaUriFromPath(pathRelativeToRoot, Cache);
+            return new UploadFileResponse(mediaUri, savedToLexbox: false, newResource: true);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save file {Filename} to {Path}", metadata.Filename, fullPath);
             return new UploadFileResponse($"Failed to save file: {ex.Message}");
         }
-
-        var mediaUri = mediaAdapter.MediaUriFromPath(pathRelativeToRoot, Cache);
-        return new UploadFileResponse(mediaUri, false);
     }
 
     private string TypeToLinkedFolder(string mimeType)

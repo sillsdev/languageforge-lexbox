@@ -97,7 +97,8 @@ public class LcmMediaService(
         {
             filename = Path.GetFileName(filename);
             var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
-            await using var localFile = File.OpenWrite(localPath);
+            localPath = EnsureUnique(localPath);
+            await using var localFile = File.Create(localPath);
             await stream.CopyToAsync(localFile);
             return new DownloadResult(localPath);
         }
@@ -119,12 +120,12 @@ public class LcmMediaService(
         return new UploadResult(resourceId.ToString("N"));
     }
 
-    public async Task<HarmonyResource> SaveFile(Stream stream, LcmFileMetadata metadata)
+    public async Task<(HarmonyResource resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
         var localPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
-        localPath = EnsureUnique(localPath);
+        if (File.Exists(localPath)) return ((await resourceService.AllResources()).First(r => r.LocalPath == localPath), newResource: false);
         //must scope just to the copy, otherwise we can't upload the file to the server
         await using (var localFile = File.Create(localPath))
         {
@@ -135,11 +136,11 @@ public class LcmMediaService(
         {
             IRemoteResourceService? remoteResourceService = null;
             if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Online) remoteResourceService = this;
-            return await resourceService.AddLocalResource(
+            return (await resourceService.AddLocalResource(
                 localPath,
                 currentProjectService.ProjectData.ClientId,
                 resourceService: remoteResourceService
-            );
+            ), newResource: true);
         }
         catch (Exception e)
         {

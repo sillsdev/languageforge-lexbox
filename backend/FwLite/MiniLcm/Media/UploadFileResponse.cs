@@ -4,10 +4,15 @@ namespace MiniLcm.Media;
 
 public record UploadFileResponse
 {
-    public UploadFileResponse(MediaUri mediaUri, bool savedToLexbox)
+    public UploadFileResponse(MediaUri mediaUri, bool savedToLexbox, bool newResource)
     {
         MediaUri = mediaUri;
-        Result = savedToLexbox ? UploadFileResult.SavedToLexbox : UploadFileResult.SavedLocally;
+        Result = (savedToLexbox, newResource) switch
+        {
+            (_, false) => UploadFileResult.AlreadyExists,
+            (true, true) => UploadFileResult.SavedToLexbox,
+            (false, true) => UploadFileResult.SavedLocally,
+        };
     }
 
     public UploadFileResponse(UploadFileResult result)

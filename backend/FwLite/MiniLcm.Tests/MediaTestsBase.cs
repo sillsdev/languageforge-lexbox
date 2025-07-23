@@ -125,7 +125,6 @@ public abstract class MediaTestsBase : MiniLcmTestBase
         var saveResponse = await SaveTestFile("test-binary-file.dat", originalBytes);
 
         saveResponse.Result.Should().Be(UploadFileResult.TooBig);
-        saveResponse.ErrorMessage.Should().NotBeNullOrEmpty();
         saveResponse.MediaUri.Should().BeNull();
     }
 
@@ -141,11 +140,8 @@ public abstract class MediaTestsBase : MiniLcmTestBase
 
         // Act - Save a different file with the same name
         saveResponse = await SaveTestFile(fileName);
-        saveResponse.Result.Should().Be(UploadFileResult.SavedLocally);
-        saveResponse.MediaUri.Should().NotBe(firstMediaUri);
-        var retrieveResponse = await Api.GetFileStream(saveResponse.MediaUri.Value);
-        retrieveResponse.FileName.Should().Be("test-binary-file-1.dat");
-        retrieveResponse.Stream?.Dispose();
+        saveResponse.Result.Should().Be(UploadFileResult.AlreadyExists);
+        saveResponse.MediaUri.Should().Be(firstMediaUri);
     }
 
     private async Task<UploadFileResponse> SaveTestFile(string fileName, byte[]? originalBytes = null, string mimeType = "application/octet-stream")
