@@ -22,7 +22,7 @@
   let submitting = $state(false);
   let selectedFile = $state<File>();
   let audio = $state<Blob>();
-  const tooBig = $derived((audio?.size ?? 0) > 10 * 1034 * 1024);
+  const tooBig = $derived((audio?.size ?? 0) > 10 * 1024 * 1024);
 
   let requester: {
     resolve: (mediaUri: string | undefined) => void
