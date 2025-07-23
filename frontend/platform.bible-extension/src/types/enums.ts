@@ -1,8 +1,8 @@
-export enum WebViewKey {
-  AddEntry = 'addEntry',
-  BrowseDictionary = 'browseDictionary',
-  FindEntry = 'findEntry',
-  SelectDictionary = 'selectDictionary',
+export enum WebViewType {
+  AddWord = 'fw-lite-add-word.react',
+  DictionarySelect = 'fw-lite-dictionary-select.react',
+  FindWord = 'fw-lite-find-word.react',
+  Main = 'fw-lite-extension.react',
 }
 
 export enum ProjectSettingKey {
