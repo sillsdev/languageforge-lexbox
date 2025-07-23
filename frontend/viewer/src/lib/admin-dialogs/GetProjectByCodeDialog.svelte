@@ -3,14 +3,20 @@
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import Select from '$lib/components/field-editors/select.svelte';
-  import {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
+  import RadioGroup from '$lib/components/ui/radio-group/radio-group.svelte';
+  import RadioGroupItem from '$lib/components/ui/radio-group/radio-group-item.svelte';
 
   let open = $state(false);
   let loading = $state(false);
   let error: string|undefined = $state();
+  const validRoles: {role: UserProjectRole, label: string}[] = [
+    { role: UserProjectRole.Manager, label: $t`Manager` },
+    { role: UserProjectRole.Editor, label: $t`Editor` },
+    { role: UserProjectRole.Observer, label: $t`Observer` },
+  ];
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'get-project-by-code-dialog'});
 
   let { onDownloadProject, validateCode }: {
@@ -30,7 +36,6 @@
   let projectCode = $state('');
   let codeValidationError = $derived(validateCode(projectCode));
   let userRole: UserProjectRole = $state(UserProjectRole.Observer);
-  const validRoles = Object.keys(UserProjectRole).filter((role) => (role as keyof typeof UserProjectRole) !== 'Unknown');
 
   export function openDialog()
   {
@@ -54,12 +59,11 @@
     </Label>
     <Label class="cursor-pointer flex items-center gap-2">
       Role:
-      <Select
-          bind:value={userRole}
-          options={validRoles}
-          labelSelector={(role: UserProjectRole) => $t(role)}
-          idSelector={(role: UserProjectRole) => role}
-          />
+      <RadioGroup bind:value={userRole}>
+        {#each validRoles as role (role.role)}
+          <RadioGroupItem label={role.label} value={role.role} />
+        {/each}
+      </RadioGroup>
     </Label>
     <div class="text-end space-y-2">
       {#if error}
