@@ -22,9 +22,17 @@
     e.preventDefault();
     e.stopPropagation();
     loading = true;
-    error = await onDownloadProject(projectCode, userRole);
-    loading = false;
-    open = !!error;
+    try {
+      throw new Error("Oops, download skipped...");
+      error = await onDownloadProject(projectCode, userRole);
+    } catch (e) {
+      // Set error message to prevent auto-closing dialog
+      error = $t`Unknown error downloading ${projectCode}`;
+      throw e; // Allow notification to catch it and display the exception
+    } finally {
+      loading = false;
+      open = !!error;
+    }
   }
 
   let projectCode = $state('');
