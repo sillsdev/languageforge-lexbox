@@ -819,9 +819,10 @@ public class FwDataMiniLcmApi(
 
     private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null)
     {
+        string v = "";
         if (string.IsNullOrEmpty(query)) return null;
         return entry => entry.CitationForm.SearchValue(query) ||
-                        entry.LexemeFormOA?.Form.SearchValue(query) == true ||
+                        entry.LexemeFormOA?.Form.SearchValue(query) is true ||
                         entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
     }
 
