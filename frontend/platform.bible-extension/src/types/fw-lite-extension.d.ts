@@ -32,10 +32,6 @@ declare module 'fw-lite-extension' {
     dictionaryUrl: string;
   }
 
-  export type FindEntryEvent = {
-    entry: string;
-  };
-
   export interface IEntryQuery {
     readonly surfaceForm?: string;
     readonly exactMatch?: boolean;
