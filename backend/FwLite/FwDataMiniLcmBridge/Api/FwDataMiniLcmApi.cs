@@ -722,10 +722,12 @@ public class FwDataMiniLcmApi(
         return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
     }
 
-    internal string FromMediaUri(string mediaUri)
+    internal string FromMediaUri(string mediaUriString)
     {
         //path includes `AudioVisual` currently
-        var path = mediaAdapter.PathFromMediaUri(new MediaUri(mediaUri), Cache);
+        MediaUri mediaUri = new MediaUri(mediaUriString);
+        var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
+        if (path is null) throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
         return Path.GetRelativePath(AudioVisualFolder, path);
     }
 
@@ -1537,7 +1539,9 @@ public class FwDataMiniLcmApi(
     public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
         if (mediaUri == MediaUri.NotFound) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
-        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
+        var pathFromMediaUri = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
+        if (pathFromMediaUri is not {Length: > 0}) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
+        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathFromMediaUri);
         if (!File.Exists(fullPath)) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         return Task.FromResult(new ReadFileResponse(File.OpenRead(fullPath), Path.GetFileName(fullPath)));
     }

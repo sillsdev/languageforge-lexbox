@@ -20,10 +20,10 @@ public class LexboxFwDataMediaAdapter(IOptions<FwHeadlessConfig> config, MediaFi
         return MediaUriForMediaFile(mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), fullPath));
     }
 
-    public string PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
+    public string? PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
     {
-        var mediaFile = mediaFileService.FindMediaFile(mediaUri.FileId) ??
-                        throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
+        var mediaFile = mediaFileService.FindMediaFile(mediaUri.FileId);
+        if (mediaFile is null) return null;
         var fullFilePath = Path.Join(cache.ProjectId.ProjectFolder, mediaFile.Filename);
         return Path.GetRelativePath(cache.LangProject.LinkedFilesRootDir, fullFilePath);
     }

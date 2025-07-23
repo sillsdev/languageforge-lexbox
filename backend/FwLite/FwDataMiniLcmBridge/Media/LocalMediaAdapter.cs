@@ -42,7 +42,7 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
         return new MediaUri(NewGuidV5(path), LocalMediaAuthority);
     }
 
-    public string PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
+    public string? PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
     {
         var paths = Paths(cache);
         if (mediaUri.Authority != LocalMediaAuthority) throw new ArgumentException("MediaUri must be local", nameof(mediaUri));
@@ -51,7 +51,7 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
             return path;
         }
 
-        throw new NotFoundException("Media not found: " + mediaUri.FileId, "MedaiUri");
+        return null;
     }
 
     // produces the same Guid for the same input name

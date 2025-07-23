@@ -18,6 +18,6 @@ public interface IMediaAdapter
     /// </summary>
     /// <param name="mediaUri"></param>
     /// <param name="cache"></param>
-    /// <returns>the path to the file represented by the mediaUri, relative to the LinkedFiles directory in the given project</returns>
-    string PathFromMediaUri(MediaUri mediaUri, LcmCache cache);
+    /// <returns>the path to the file represented by the mediaUri, relative to the LinkedFiles directory in the given project, will return null when it can't find the file</returns>
+    string? PathFromMediaUri(MediaUri mediaUri, LcmCache cache);
 }
