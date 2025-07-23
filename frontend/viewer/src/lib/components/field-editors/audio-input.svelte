@@ -41,7 +41,7 @@
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
 </script>
 <script lang="ts">
-  import {onDestroy, tick} from 'svelte';
+  import {onDestroy} from 'svelte';
   import {useEventListener, watch} from 'runed';
   import {useProjectContext} from '$lib/project-context.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
