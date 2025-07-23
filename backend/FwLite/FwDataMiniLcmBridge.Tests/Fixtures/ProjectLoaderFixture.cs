@@ -15,7 +15,9 @@ public class ProjectLoaderFixture : IDisposable
     public ProjectLoaderFixture()
     {
         //todo make mock of IProjectLoader so we can load from test projects
-        var provider = new ServiceCollection().AddTestFwDataBridge().BuildServiceProvider();
+        var provider = new ServiceCollection()
+            .AddTestFwDataBridge()
+            .BuildServiceProvider();
         _serviceProvider = provider;
         _fwDataFactory = provider.GetRequiredService<FwDataFactory>();
         MockFwProjectLoader = provider.GetRequiredService<MockFwProjectLoader>();
