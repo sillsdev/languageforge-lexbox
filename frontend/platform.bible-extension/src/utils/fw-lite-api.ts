@@ -1,5 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import type { DicionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
+import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
 async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   logger.info(`About to fetch: ${input}`);
@@ -44,7 +44,7 @@ export class FwLiteApi {
     );
   }
 
-  private checkDictionaryCode(code?: string): DicionaryRef {
+  private checkDictionaryCode(code?: string): DictionaryRef {
     code = code || this.dictionaryCode;
     if (!code?.trim()) {
       throw new Error('FieldWorks dictionary code not specified');

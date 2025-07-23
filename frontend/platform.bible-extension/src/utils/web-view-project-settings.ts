@@ -1,7 +1,7 @@
 import papi, { logger } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
-import { ProjectSettingKey } from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
+import { ProjectSettingKey } from '../types/enums';
 
 export class WebViewProjectSettings {
   private readonly pdp: IBaseProjectDataProvider<MandatoryProjectDataTypes>;

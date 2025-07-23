@@ -10,9 +10,12 @@ declare module 'fw-lite-extension' {
   export type ISense = import('../../../viewer/src/lib/dotnet-types/index.js').ISense;
   export type IWritingSystems =
     import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
+
+  export type ProjectSettingKey = import('./enums.ts').ProjectSettingKey;
+  export type WebViewKey = import('./enums.ts').WebViewKey;
   /* eslint-enable @typescript-eslint/consistent-type-imports */
 
-  export interface DicionaryRef {
+  export interface DictionaryRef {
     code: string;
     type: 'FwData' | 'Harmony';
   }
@@ -25,19 +28,6 @@ declare module 'fw-lite-extension' {
     webViewIds?: WebViewIds;
   }
 
-  export enum WebViewKey {
-    AddEntry = 'addEntry',
-    BrowseDictionary = 'browseDictionary',
-    FindEntry = 'findEntry',
-    SelectDictionary = 'selectDictionary',
-  }
-
-  export enum ProjectSettingKey {
-    FwDictionaryCode = 'fw-lite-extension.fwDictionaryCode',
-    ProjectLanguage = 'platform.language',
-    ProjectName = 'platform.name',
-  }
-
   export type WebViewIds = {
     [webViewKey in WebViewKey]?: string;
   };
@@ -45,6 +35,7 @@ declare module 'fw-lite-extension' {
   export interface SuccessHolder {
     success: boolean;
   }
+
   export interface UrlHolder {
     baseUrl: string;
     dictionaryUrl: string;
@@ -71,6 +62,7 @@ declare module 'fw-lite-extension' {
   interface OpenWebViewOptionsWithProjectId extends OpenWebViewOptions {
     projectId?: string;
   }
+
   interface WordWebViewOptions extends OpenWebViewOptionsWithProjectId {
     word?: string;
   }
@@ -89,9 +81,11 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.getBaseUrl': () => UrlHolder;
   }
+
   export interface ProjectSettingTypes {
     'fw-lite-extension.fwDictionaryCode': string;
   }
+
   export interface NetworkableObject {
     'fwLiteExtension.entryService': IEntryService;
   }

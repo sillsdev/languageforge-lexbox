@@ -1,5 +1,6 @@
 import papi, { logger } from '@papi/backend';
-import { type ProjectInfo, ProjectSettingKey, type WebViewKey } from 'fw-lite-extension';
+import type { ProjectInfo, WebViewKey } from 'fw-lite-extension';
+import { ProjectSettingKey } from '../types/enums';
 
 export class ProjectInfoManager {
   readonly projectInfo: { [projectId: string]: ProjectInfo } = {};
