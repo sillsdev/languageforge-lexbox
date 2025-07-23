@@ -125,6 +125,12 @@ public class CrdtController(
         return Ok(projectService.IsCrdtProject(projectId.Value));
     }
 
+    [HttpGet("{projectId}/canDownload")]
+    public async Task<ActionResult<bool>> CanDownloadProject(Guid projectId)
+    {
+        return await permissionService.CanDownloadProject(projectId);
+    }
+
     [HttpGet("lookupProjectId")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -59,6 +59,8 @@
       case DownloadProjectByCodeResult.Success:
         dispatch('refreshAll');
         return;
+      case DownloadProjectByCodeResult.Forbidden:
+        return $t`You don't have permission to download project ${projectCode} from server ${server?.displayName ?? ''}`;
       case DownloadProjectByCodeResult.NotCrdtProject:
         return $t`Project ${projectCode} on server ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
       case DownloadProjectByCodeResult.ProjectNotFound:

@@ -79,6 +79,21 @@ public class LexboxProjectService : IDisposable
         }
     }
 
+    public async Task<bool> CanDownloadProject(LexboxServer server, Guid projectId)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return false;
+        try
+        {
+            return await httpClient.GetFromJsonAsync<bool>($"api/crdt/{projectId}/canDownload");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, $"Error checking if user may download lexbox project {projectId}");
+            return false;
+        }
+    }
+
     public async Task<ListProjectsResult> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),

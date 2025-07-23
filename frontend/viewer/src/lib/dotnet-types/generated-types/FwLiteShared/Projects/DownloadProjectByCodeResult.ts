@@ -5,6 +5,7 @@
 
 export enum DownloadProjectByCodeResult {
 	Success = "Success",
+	Forbidden = "Forbidden",
 	NotCrdtProject = "NotCrdtProject",
 	ProjectNotFound = "ProjectNotFound",
 	ProjectAlreadyDownloaded = "ProjectAlreadyDownloaded"

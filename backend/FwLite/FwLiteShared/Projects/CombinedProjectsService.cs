@@ -14,6 +14,7 @@ namespace FwLiteShared.Projects;
 public enum DownloadProjectByCodeResult
 {
     Success,
+    Forbidden,
     NotCrdtProject,
     ProjectNotFound,
     ProjectAlreadyDownloaded,
@@ -163,6 +164,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 var projectId = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (projectId is null) return DownloadProjectByCodeResult.ProjectNotFound;
+                var allowed = await lexboxProjectService.CanDownloadProject(server, projectId.Value);
+                if (!allowed) return DownloadProjectByCodeResult.Forbidden;
                 var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
                 if (!isCrdtProject) return DownloadProjectByCodeResult.NotCrdtProject;
                 if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
