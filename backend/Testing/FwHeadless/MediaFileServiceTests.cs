@@ -156,7 +156,7 @@ public class MediaFileServiceTests : IDisposable
     {
         var mediaFile = await AddFile("Adapter_MediaUriToPath.txt");
         var path = _adapter.PathFromMediaUri(new MediaUri(mediaFile.Id, "test"), _cache);
-        path.Should().Be("Adapter_MediaUriToPath.txt");
+        path.Should().Be(FullFilePath(mediaFile));
         Directory.EnumerateFiles(_cache.LangProject.LinkedFilesRootDir).Should().Contain(path);
     }
 }
