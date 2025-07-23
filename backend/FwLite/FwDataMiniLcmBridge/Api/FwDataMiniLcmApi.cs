@@ -1581,7 +1581,7 @@ public class FwDataMiniLcmApi(
         return mimeType switch
         {
             { } s when s.StartsWith("audio/") => AudioVisualFolder,
-            {} s when s.StartsWith("video/") => AudioVisualFolder,
+            { } s when s.StartsWith("video/") => AudioVisualFolder,
             { } s when s.StartsWith("image/") => "Pictures",
             _ => "Others"
         };
