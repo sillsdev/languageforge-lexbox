@@ -64,29 +64,19 @@ public class LexboxProjectService : IDisposable
         return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
     }
 
-    private static string CacheKeyForIsCrdtProject(LexboxServer server)
-    {
-        return $"IsCrdtProject|{server.Authority.Authority}";
-    }
-
     public async Task<bool> IsCrdtProject(LexboxServer server, string projectCode)
     {
-        return await cache.GetOrCreateAsync(CacheKeyForIsCrdtProject(server),
-            async entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-                if (httpClient is null) return false;
-                try
-                {
-                    return await httpClient.GetFromJsonAsync<bool>($"api/crdt/isCrdtProject/{projectCode}");
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, $"Error checking if lexbox project {projectCode.ReplaceLineEndings("")} is a CRDT project");
-                    return false;
-                }
-            });
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return false;
+        try
+        {
+            return await httpClient.GetFromJsonAsync<bool>($"api/crdt/isCrdtProject/{projectCode}");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, $"Error checking if lexbox project {projectCode.ReplaceLineEndings("")} is a CRDT project");
+            return false;
+        }
     }
 
     public async Task<ListProjectsResult> GetLexboxProjects(LexboxServer server)
