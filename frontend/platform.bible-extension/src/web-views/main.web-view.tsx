@@ -1,6 +1,4 @@
-import papi, { logger } from '@papi/frontend';
-import type { FindEntryEvent } from 'fw-lite-extension';
-import { useEvent } from 'platform-bible-react';
+import papi from '@papi/frontend';
 import { useEffect, useRef, useState } from 'react';
 
 globalThis.webViewComponent = function fwLiteMainWindow() {
@@ -8,16 +6,6 @@ globalThis.webViewComponent = function fwLiteMainWindow() {
   const [dictionaryUrl, setDictionaryUrl] = useState('');
 
   const iframe = useRef<HTMLIFrameElement | null>(null);
-  useEvent<FindEntryEvent>(
-    papi.network.getNetworkEvent('fwLiteExtension.findEntryEvent'),
-    ({ entry }) => {
-      logger.info('fwLiteExtension.findEntryEvent', entry);
-      iframe.current?.contentWindow?.postMessage(
-        { type: 'notification', message: `Hello from Paratext ${entry}` },
-        new URL(baseUrl).origin,
-      );
-    },
-  );
 
   useEffect(() => void updateUrl(), []);
 

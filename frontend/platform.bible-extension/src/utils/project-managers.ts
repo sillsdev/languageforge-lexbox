@@ -55,23 +55,32 @@ export class ProjectManager {
     return this.name;
   }
 
+  async getNameOrId(): Promise<string | undefined> {
+    return (await this.getName()) || this.projectId;
+  }
+
   async openWebView(
     webViewType: WebViewType,
     layout?: Layout,
     options?: OpenWebViewOptionsWithProjectId,
   ): Promise<boolean> {
     options = { ...options, existingId: this.webViewIds[webViewType], projectId: this.projectId };
+    logger.info(`Opening ${webViewType} web view for project ${this.projectId}`);
+    if (options) {
+      logger.info(`Web view options: ${JSON.stringify(options)}`);
+    }
     const newId = await papi.webViews.openWebView(webViewType, layout, options);
     if (newId) {
       this.webViewIds[webViewType] = newId;
       return true;
     }
+    logger.warn(`Failed to open ${webViewType} web view for project ${this.projectId}`);
     return false;
   }
 }
 
 export class ProjectManagers {
-  private readonly projectInfo: { [projectId: string]: ProjectManager } = {};
+  private readonly projectManagers: { [projectId: string]: ProjectManager } = {};
 
   static async getProjectIdFromWebViewId(webViewId: string): Promise<string | undefined> {
     if (!webViewId) return;
@@ -87,10 +96,10 @@ export class ProjectManagers {
 
   getProjectManagerFromProjectId(projectId: string): ProjectManager | undefined {
     if (!projectId) return;
-    if (!(projectId in this.projectInfo)) {
-      this.projectInfo[projectId] = new ProjectManager(projectId);
+    if (!(projectId in this.projectManagers)) {
+      this.projectManagers[projectId] = new ProjectManager(projectId);
     }
-    return this.projectInfo[projectId];
+    return this.projectManagers[projectId];
   }
 
   async getProjectManagerFromWebViewId(webViewId: string): Promise<ProjectManager | undefined> {

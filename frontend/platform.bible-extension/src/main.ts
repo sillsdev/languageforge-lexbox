@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
-import type { FindEntryEvent, UrlHolder, WordWebViewOptions } from 'fw-lite-extension';
+import type { UrlHolder, WordWebViewOptions } from 'fw-lite-extension';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi } from './utils/fw-lite-api';
@@ -30,12 +30,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const findWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     WebViewType.FindWord,
     webViewProviders.findWordWebViewProvider,
-  );
-
-  /* Create event emitters */
-
-  const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
-    'fwLiteExtension.findEntryEvent',
   );
 
   /* Launch FieldWorks Lite and manage the api */
@@ -88,10 +82,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       let success = false;
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
-      const projectId = projectManager.projectId;
-      logger.info(
-        `Opening FieldWorks Lite add entry view for project '${projectId}' with word '${word}'`,
-      );
       const options: WordWebViewOptions = { word };
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
@@ -102,24 +92,16 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.browseDictionary',
     async (webViewId: string) => {
       let success = false;
-      if (!webViewId) {
-        logger.warn('fwLiteExtension.browseDictionary', 'No webViewId provided');
-        return { success };
-      }
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
-      const projectId = projectManager.projectId;
-      logger.info(
-        `Opening FieldWorks dictionary for web view '${webViewId}' (Platform.Bible project '${projectId}')`,
-      );
-      const nameOrId = (await projectManager.getName()) || projectId;
+      const nameOrId = await projectManager.getNameOrId();
       const dictionaryCode = await projectManager.getFwDictionaryCode();
       if (dictionaryCode) {
         logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
         urlHolder.dictionaryUrl = `${urlHolder.baseUrl}/paratext/fwdata/${dictionaryCode}`;
         success = await projectManager.openWebView(WebViewType.Main);
       } else {
-        logger.warn(`FieldWorks dictionary not selected for project '${nameOrId}'`);
+        logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
         success = await projectManager.openWebView(WebViewType.DictionarySelect, { type: 'float' });
       }
       return { success };
@@ -132,10 +114,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       let success = false;
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
-      const projectId = projectManager.projectId;
-      logger.info(
-        `Opening FieldWorks Lite find entry view for project '${projectId}' with word '${word}'`,
-      );
       const options: WordWebViewOptions = { word };
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success: true };
@@ -193,8 +171,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await fwDictionariesCommandPromise,
     // Services
     await entryService,
-    // Event emitters
-    onFindEntryEmitter,
     // Other cleanup
     () => fwLiteProcess?.kill(),
   );
