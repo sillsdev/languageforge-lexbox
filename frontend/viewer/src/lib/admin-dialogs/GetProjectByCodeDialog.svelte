@@ -37,8 +37,7 @@
   const observerSelection = roleSelections[2];
   let selectedRole: {role: UserProjectRole, label: string} = $state(observerSelection);
 
-  export function openDialog()
-  {
+  export function openDialog() {
     error = undefined;
     projectCode = '';
     selectedRole = observerSelection;
@@ -49,7 +48,7 @@
 
 {#if open}
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent>
+  <Dialog.DialogContent hideClose={loading}>
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Download project by project code`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
@@ -75,7 +74,7 @@
       {/if}
     </div>
     <Dialog.DialogFooter>
-      <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
+      <Button onclick={() => open = false} variant="secondary" disabled={loading}>{$t`Cancel`}</Button>
       <Button onclick={e => downloadProject(e, projectCode, selectedRole.role)} disabled={loading || !!codeValidationError} {loading}>
         {$t`Download ${projectCode}`}
       </Button>
