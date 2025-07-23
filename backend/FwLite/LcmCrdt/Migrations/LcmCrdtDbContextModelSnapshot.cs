@@ -16,7 +16,41 @@ namespace LcmCrdt.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
+
+            modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CitationForm")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gloss")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Headword")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LexemeForm")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EntrySearchRecord", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
 
             modelBuilder.Entity("LcmCrdt.ProjectData", b =>
                 {
@@ -472,7 +506,7 @@ namespace LcmCrdt.Migrations
                     b.Property<bool>("IsRoot")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("References")
+                    b.PrimitiveCollection<string>("References")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -488,6 +522,44 @@ namespace LcmCrdt.Migrations
                         .IsUnique();
 
                     b.ToTable("Snapshots", (string)null);
+                });
+
+            modelBuilder.Entity("SIL.Harmony.Resource.LocalResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocalPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LocalResource");
+                });
+
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RemoteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.ToTable("RemoteResource");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.ComplexFormComponent", b =>
@@ -615,6 +687,14 @@ namespace LcmCrdt.Migrations
                         .IsRequired();
 
                     b.Navigation("Commit");
+                });
+
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+                {
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Entry", b =>

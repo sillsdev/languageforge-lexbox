@@ -135,6 +135,12 @@
       loadingSyncLexboxToLocal = false;
     }
   }
+
+  function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
+    if (status === 'logged-in') {
+      void syncLexboxToLocal();
+    }
+  }
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
@@ -180,7 +186,7 @@
           {:else if syncStatus === SyncStatus.Offline}
             <div><Icon icon="i-mdi-cloud-off-outline" /> {$t`Offline`}</div>
           {:else if syncStatus === SyncStatus.NotLoggedIn && projectContext.server}
-            <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} />
+            <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} on:status={e => onLoginStatusChange(e.detail)} />
           {:else if syncStatus === SyncStatus.NoServer && projectContext.projectData?.serverId}
             <div>{$t`Unknown server: ${projectContext.projectData?.serverId}`}</div>
           {:else if syncStatus === SyncStatus.NoServer}
@@ -206,7 +212,7 @@
             {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
           </span>
         </div>
-        {#if server}
+        {#if server && syncStatus === SyncStatus.Success}
           <div class="text-center content-center">
             {flexToLbCount}
             <PingingIcon

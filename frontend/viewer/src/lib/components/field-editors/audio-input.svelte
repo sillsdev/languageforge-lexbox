@@ -38,7 +38,7 @@
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
 </script>
 <script lang="ts">
-  import {onDestroy} from 'svelte';
+  import {onDestroy, tick} from 'svelte';
   import {useEventListener, watch} from 'runed';
   import {useProjectContext} from '$lib/project-context.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -46,42 +46,68 @@
   import {Slider} from '$lib/components/ui/slider';
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
+  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ReadFileResult';
+  import {useDialogsService} from '$lib/services/dialogs-service';
+  import {isDev} from '$lib/layout/DevContent.svelte';
+  import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
+  const handled = Symbol();
   let {
     loader = defaultLoader,
-    audioId,
+    audioId = $bindable(),
   }: {
-    loader?: (audioId: string) => Promise<ReadableStream | undefined>,
+    loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
     audioId: string | undefined,
   } = $props();
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
   const supportsAudio = $derived(projectContext?.features.audio);
+  const dialogService = useDialogsService();
 
   async function defaultLoader(audioId: string) {
     if (!api) throw new Error('No api, unable to load audio');
-    const dotnetStream = await api.getFileStream(audioId);
-    if (!dotnetStream) return;
-    return await dotnetStream.stream();
+    const file = await api.getFileStream(audioId);
+    if (!file.stream) {
+      switch (file.result){
+        case ReadFileResult.NotFound:
+          AppNotification.display($t`File not found`, 'warning');
+          break;
+        case ReadFileResult.Offline:
+          AppNotification.display($t`Offline, unable to download`, 'warning');
+          break;
+        default:
+          AppNotification.error($t`Unknown error ${file.errorMessage ?? file.result}`);
+          break;
+      }
+
+      return handled;
+    }
+    return await file.stream.stream();
   }
 
   async function load() {
-    if (!audio || loadedAudioId === audioId || !audioId) return;
+    if (!audio || loadedAudioId === audioId || !audioId) return !!audioId;
     playerState = 'loading';
-    const stream = await loader(audioId);
-    if (!stream) {
-      AppNotification.error(`Failed to load audio ${audioId}`);
-      return;
+    try {
+      const stream = await loader(audioId);
+      if (stream === handled) return false;
+      if (!stream) {
+        AppNotification.error(`Failed to load audio ${audioId}`);
+        return;
+      }
+      let blob = await new Response(stream).blob();
+      if (audio.src) URL.revokeObjectURL(audio.src);
+      audio.src = URL.createObjectURL(blob);
+      loadedAudioId = audioId;
+      return true;
+    } finally {
+      playerState = 'paused';
     }
-    let blob = await new Response(stream).blob();
-    if (audio.src) URL.revokeObjectURL(audio.src);
-    audio.src = URL.createObjectURL(blob);
-    loadedAudioId = audioId;
   }
 
   async function play() {
-    await load();
+    if (!await load()) return;
     void audio?.play();
     playerState = 'playing';
   }
@@ -154,12 +180,36 @@
     fractionalDigits: 2,
   });
   let smallestUnit = $derived(totalLength.minutes > 0 ? 'seconds' as const : 'milliseconds' as const);
+
+  async function onGetAudioClick() {
+    const result = await dialogService.getAudio();
+    if (result) {
+      audioId = result;
+      await tick(); // let the audio element be created
+      // todo, the audio ID is fake
+      // await load();
+    }
+  }
+
+  function onRemoveAudio() {
+    audioId = undefined;
+    if (audio && audio.src) {
+      URL.revokeObjectURL(audio.src);
+      audio.src = '';
+    }
+  }
 </script>
 {#if supportsAudio}
   {#if !audioId}
-    <div class="text-muted-foreground p-1">
-      {$t`No audio`}
-    </div>
+    {#if $isDev}
+      <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
+        {$t`Add audio`}
+      </Button>
+    {:else}
+      <div class="text-muted-foreground p-1">
+        {$t`No audio`}
+      </div>
+    {/if}
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">
       {$t`Audio file not included in Send & Receive`}
@@ -190,16 +240,31 @@
                 {onDraggingChange}
                 max={audioRuned?.duration}
                 step={0.01}/>
-        <span class="break-keep text-nowrap pr-2 flex flex-nowrap gap-1">
-              {#if !isNaN(audioRuned.duration)}
-                <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
-              {:else}
-                <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
-              {/if}
-          </span>
+        <span class="break-keep text-nowrap flex flex-nowrap gap-1">
+          {#if !isNaN(audioRuned.duration)}
+            <time>{formatDuration({seconds: sliderValue}, smallestUnit, formatOpts)}</time> / <time>{formatDuration(totalLength, smallestUnit, formatOpts)}</time>
+          {:else}
+            <time>{zeroDuration}</time> / <time class="text-muted-foreground">{missingDuration}</time>
+          {/if}
+        </span>
+        <ResponsiveMenu.Root>
+          <ResponsiveMenu.Trigger>
+            {#snippet child({props})}
+              <Button variant="secondary" icon="i-mdi-dots-vertical" size="sm-icon" {...props} />
+            {/snippet}
+          </ResponsiveMenu.Trigger>
+          <ResponsiveMenu.Content>
+            <ResponsiveMenu.Item icon="i-mdi-microphone-plus" onSelect={onGetAudioClick}>
+              {$t`Replace audio`}
+            </ResponsiveMenu.Item>
+            <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onRemoveAudio}>
+              {$t`Remove audio`}
+            </ResponsiveMenu.Item>
+          </ResponsiveMenu.Content>
+        </ResponsiveMenu.Root>
       {/if}
       {#key audioId}
-        <audio bind:this={audio} onplay={load}>
+        <audio bind:this={audio}>
         </audio>
       {/key}
     </div>

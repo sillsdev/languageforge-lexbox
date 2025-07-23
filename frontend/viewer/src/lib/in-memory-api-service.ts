@@ -26,6 +26,7 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
 import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
+import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -346,10 +347,7 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  getFileStream(_mediaUri: string): Promise<{
-    stream: () => Promise<ReadableStream>;
-    arrayBuffer: () => Promise<ArrayBuffer>
-  }> {
+  getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
     throw new Error('Method not implemented.');
   }
 

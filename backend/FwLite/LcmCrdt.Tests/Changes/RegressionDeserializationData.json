@@ -342,5 +342,23 @@
       "spans": []
     },
     "translation": {}
+  },
+  {
+    "$type": "uploaded:RemoteResource",
+    "RemoteId": "withdrawal",
+    "EntityId": "9c8b252c-d342-dfe8-c1dd-5899471ecbd1"
+  },
+  {
+    "$type": "create:remote-resource",
+    "RemoteId": "Buckinghamshire",
+    "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
+  },
+  {
+    "$type": "create:pendingUpload",
+    "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+  },
+  {
+    "$type": "delete:RemoteResource",
+    "EntityId": "e14de071-3ed0-b12a-7865-da43fbfe8f84"
   }
 ]

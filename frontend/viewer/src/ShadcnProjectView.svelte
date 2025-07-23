@@ -22,18 +22,14 @@
   import {navigate, Route, useRouter} from 'svelte-routing';
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
+  import type {HTMLAttributes} from 'svelte/elements';
 
   const {
     onloaded,
-    // isConnected,
-    // showHomeButton = true,
-    // about = undefined,
+    ...rest
   }: {
     onloaded: (loaded: boolean) => void;
-    about?: string | undefined;
-    isConnected: boolean;
-    showHomeButton?: boolean;
-  } = $props();
+  } & HTMLAttributes<HTMLDivElement> = $props();
 
   initView();
   initViewSettings();
@@ -60,7 +56,7 @@
 </script>
 <svelte:window on:message={onMessage}/>
 <DialogsProvider/>
-<div class="h-screen flex PortalTarget overflow-hidden shadcn-root">
+<div class="h-screen flex PortalTarget overflow-hidden shadcn-root" {...rest}>
   <Sidebar.Provider bind:open>
     <ProjectSidebar/>
     <Sidebar.Inset class="flex-1 relative">

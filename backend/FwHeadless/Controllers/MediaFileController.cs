@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
+using FwHeadless.Media;
 using MimeMapping;
 
 namespace FwHeadless.Controllers;
@@ -42,16 +43,13 @@ public static class MediaFileController
     public static async Task<Results<PhysicalFileHttpResult, NotFound>> GetFile(
         Guid fileId,
         IOptions<FwHeadlessConfig> config,
-        LexBoxDbContext lexBoxDb)
+        LexBoxDbContext lexBoxDb,
+        MediaFileService mediaFileService)
     {
         var madeChanges = false;
         var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
         if (mediaFile is null) return TypedResults.NotFound();
-        var projectId = mediaFile.ProjectId;
-        var project = await lexBoxDb.Projects.FindAsync(projectId);
-        if (project is null) return TypedResults.NotFound();
-        var projectFolder = config.Value.GetFwDataProject(project.Code, projectId).ProjectFolder;
-        var filePath = Path.Join(projectFolder, mediaFile.Filename);
+        var filePath = mediaFileService.FilePath(mediaFile);
         if (!File.Exists(filePath)) return TypedResults.NotFound();
         mediaFile.InitializeMetadataIfNeeded(filePath);
         var contentType = mediaFile.Metadata.MimeType;

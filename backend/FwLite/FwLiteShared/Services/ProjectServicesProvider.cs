@@ -39,11 +39,10 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public Task<ProjectData> GetCrdtProjectData(string code)
+    public Task<string?> TryGetCrdtProjectName(string code)
     {
-        var crdtProject = crdtProjectsService.GetProject(code)
-            ?? throw new InvalidOperationException($"Crdt Project {code} not found");
-        return Task.FromResult(crdtProject.Data ?? throw new InvalidOperationException($"Project data for {crdtProject.Name} not found"));
+        var crdtProject = crdtProjectsService.GetProject(code);
+        return Task.FromResult(crdtProject?.Data?.Name);
     }
 
     [JSInvokable]

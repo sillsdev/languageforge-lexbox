@@ -1,6 +1,22 @@
 ﻿{
   DerivedTypes: [
     {
+      DerivedType: RemoteResourceUploadedChange,
+      TypeDiscriminator: uploaded:RemoteResource
+    },
+    {
+      DerivedType: CreateRemoteResourceChange,
+      TypeDiscriminator: create:remote-resource
+    },
+    {
+      DerivedType: CreateRemoteResourcePendingUploadChange,
+      TypeDiscriminator: create:pendingUpload
+    },
+    {
+      DerivedType: DeleteChange<RemoteResource>,
+      TypeDiscriminator: delete:RemoteResource
+    },
+    {
       DerivedType: JsonPatchChange<Entry>,
       TypeDiscriminator: jsonPatch:Entry
     },
