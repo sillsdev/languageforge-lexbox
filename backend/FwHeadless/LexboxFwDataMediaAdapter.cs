@@ -15,9 +15,9 @@ public class LexboxFwDataMediaAdapter(IOptions<FwHeadlessConfig> config, MediaFi
 {
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
-        var fullPath = Path.Join(cache.LangProject.LinkedFilesRootDir, path);
-        if (!File.Exists(fullPath)) return MediaUri.NotFound;
-        return MediaUriForMediaFile(mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), fullPath));
+        if (!Path.IsPathRooted(path)) throw new ArgumentException("Path must be absolute, " + path, nameof(path));
+        if (!File.Exists(path)) return MediaUri.NotFound;
+        return MediaUriForMediaFile(mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), path));
     }
 
     public string? PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
@@ -25,7 +25,7 @@ public class LexboxFwDataMediaAdapter(IOptions<FwHeadlessConfig> config, MediaFi
         var mediaFile = mediaFileService.FindMediaFile(mediaUri.FileId);
         if (mediaFile is null) return null;
         var fullFilePath = Path.Join(cache.ProjectId.ProjectFolder, mediaFile.Filename);
-        return Path.GetRelativePath(cache.LangProject.LinkedFilesRootDir, fullFilePath);
+        return fullFilePath;
     }
 
     private MediaUri MediaUriForMediaFile(MediaFile mediaFile)

@@ -11,6 +11,7 @@ using MiniLcm;
 using MiniLcm.Media;
 using SIL.LCModel;
 using Testing.Fixtures;
+using MediaFile = LexCore.Entities.MediaFile;
 
 namespace Testing.FwHeadless;
 
@@ -52,13 +53,6 @@ public class MediaFileServiceTests : IDisposable
         _lexBoxDbContext.Files.ExecuteDelete();
     }
 
-    private string RelativeToLinkedFiles(string path)
-    {
-        if (Path.IsPathRooted(path)) return Path.GetRelativePath(_cache.LangProject.LinkedFilesRootDir, path);
-        path.Should().StartWith("LinkedFiles");
-        return Path.GetRelativePath("LinkedFiles", path);
-    }
-
     private async Task<MediaFile> AddFile(string fileName)
     {
         AddFwFile(fileName);
@@ -83,6 +77,11 @@ public class MediaFileServiceTests : IDisposable
         _lexBoxDbContext.Files.Add(mediaFile);
         await _lexBoxDbContext.SaveChangesAsync();
         return mediaFile;
+    }
+
+    private string FullFilePath(MediaFile mediaFile)
+    {
+        return Path.Join(_cache.ProjectId.ProjectFolder, mediaFile.Filename);
     }
 
     private async Task AssertDbFileExists(string fileName)
@@ -148,7 +147,7 @@ public class MediaFileServiceTests : IDisposable
     public async Task Adapter_ToMediaUri()
     {
         var mediaFile = await AddFile("Adapter_ToMediaUri.txt");
-        var mediaUri = _adapter.MediaUriFromPath(RelativeToLinkedFiles(mediaFile.Filename), _cache);
+        var mediaUri = _adapter.MediaUriFromPath(FullFilePath(mediaFile), _cache);
         mediaUri.FileId.Should().Be(mediaFile.Id);
     }
 
@@ -158,6 +157,6 @@ public class MediaFileServiceTests : IDisposable
         var mediaFile = await AddFile("Adapter_MediaUriToPath.txt");
         var path = _adapter.PathFromMediaUri(new MediaUri(mediaFile.Id, "test"), _cache);
         path.Should().Be("Adapter_MediaUriToPath.txt");
-        Directory.EnumerateFiles(_cache.LangProject.LinkedFilesRootDir).Select(RelativeToLinkedFiles).Should().Contain(path);
+        Directory.EnumerateFiles(_cache.LangProject.LinkedFilesRootDir).Should().Contain(path);
     }
 }

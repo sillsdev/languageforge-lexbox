@@ -22,7 +22,6 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
                 entry.SlidingExpiration = TimeSpan.FromMinutes(10);
                 return Directory
                     .EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories)
-                    .Select(file => Path.GetRelativePath(cache.LangProject.LinkedFilesRootDir, file))
                     .ToDictionary(file => PathToUri(file).FileId, file => file);
             }) ?? throw new Exception("Failed to get paths");
     }
@@ -30,11 +29,23 @@ public class LocalMediaAdapter(IMemoryCache memoryCache) : IMediaAdapter
     //path is expected to be relative to the LinkedFilesRootDir
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
-        if (!File.Exists(Path.Combine(cache.LangProject.LinkedFilesRootDir, path))) return MediaUri.NotFound;
+        EnsureCorrectRootFolder(path, cache);
+        if (!File.Exists(path)) return MediaUri.NotFound;
         var uri = PathToUri(path);
         //this may be a new file, so we need to add it to the cache
         Paths(cache)[uri.FileId] = path;
         return uri;
+    }
+
+    private void EnsureCorrectRootFolder(string path, LcmCache cache)
+    {
+        if (Path.IsPathRooted(path))
+        {
+            if (path.StartsWith(cache.LangProject.LinkedFilesRootDir)) return;
+            throw new ArgumentException("Path must be in the LinkedFilesRootDir", nameof(path));
+        }
+
+        throw new ArgumentException("Path must be absolute, " + path, nameof(path));
     }
 
     private static MediaUri PathToUri(string path)

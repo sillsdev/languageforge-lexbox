@@ -719,7 +719,8 @@ public class FwDataMiniLcmApi(
         //rooted media paths aren't supported
         if (Path.IsPathRooted(tsString))
             throw new ArgumentException("Media path must be relative", nameof(tsString));
-        return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
+        var fullFilePath = Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder, tsString);
+        return mediaAdapter.MediaUriFromPath(fullFilePath, Cache).ToString();
     }
 
     internal string FromMediaUri(string mediaUriString)
@@ -728,7 +729,7 @@ public class FwDataMiniLcmApi(
         MediaUri mediaUri = new MediaUri(mediaUriString);
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
         if (path is null) throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
-        return Path.GetRelativePath(AudioVisualFolder, path);
+        return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
     }
 
     internal RichString? ToRichString(ITsString? tsString)
@@ -1549,12 +1550,11 @@ public class FwDataMiniLcmApi(
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         if (stream.CanSeek && stream.Length > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
-        var pathRelativeToRoot = Path.Combine(TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
-        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathRelativeToRoot);
+        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
+        var mediaUri = mediaAdapter.MediaUriFromPath(fullPath, Cache);
+
         if (File.Exists(fullPath))
-            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(pathRelativeToRoot, Cache),
-                savedToLexbox: false,
-                newResource: false);
+            return new UploadFileResponse(mediaUri, savedToLexbox: false, newResource: false);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
         {
@@ -1573,8 +1573,6 @@ public class FwDataMiniLcmApi(
         {
             await using var fileStream = File.OpenWrite(fullPath);
             await stream.CopyToAsync(fileStream);
-
-            var mediaUri = mediaAdapter.MediaUriFromPath(pathRelativeToRoot, Cache);
             return new UploadFileResponse(mediaUri, savedToLexbox: false, newResource: true);
         }
         catch (Exception ex)
