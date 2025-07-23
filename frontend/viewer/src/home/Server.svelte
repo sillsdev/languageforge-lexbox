@@ -63,6 +63,8 @@
         return $t`Project ${projectCode} on server ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
       case DownloadProjectByCodeResult.ProjectNotFound:
         return $t`Project ${projectCode} not found on server ${server?.displayName ?? ''}`;
+      case DownloadProjectByCodeResult.ProjectAlreadyDownloaded:
+        return $t`You have already downloaded the ${projectCode} project`;
     }
   }
 

@@ -6,6 +6,7 @@
 export enum DownloadProjectByCodeResult {
 	Success = "Success",
 	NotCrdtProject = "NotCrdtProject",
-	ProjectNotFound = "ProjectNotFound"
+	ProjectNotFound = "ProjectNotFound",
+	ProjectAlreadyDownloaded = "ProjectAlreadyDownloaded"
 }
 /* eslint-enable */

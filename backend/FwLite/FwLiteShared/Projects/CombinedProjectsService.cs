@@ -16,6 +16,7 @@ public enum DownloadProjectByCodeResult
     Success,
     NotCrdtProject,
     ProjectNotFound,
+    ProjectAlreadyDownloaded,
 }
 
 public record ProjectModel(
@@ -168,6 +169,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 if (projectId is null) return DownloadProjectByCodeResult.ProjectNotFound;
                 var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
                 if (!isCrdtProject) return DownloadProjectByCodeResult.NotCrdtProject;
+                if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
                 var role = ProjectRole.Editor;
                 if (userRole is not null) Enum.TryParse(userRole, out role);
                 project = new ProjectModel(
