@@ -17,6 +17,10 @@ export class ProjectManager {
     this.projectId = projectId;
   }
 
+  static async getFwDictionaryCode(projectId: string): Promise<string | undefined> {
+    return await new ProjectManager(projectId).getFwDictionaryCode();
+  }
+
   async getDataProvider(): Promise<
     IBaseProjectDataProvider<MandatoryProjectDataTypes> | undefined
   > {
@@ -33,9 +37,8 @@ export class ProjectManager {
 
   async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
     if ((await this.getFwDictionaryCode()) === dictionaryCode) return;
-    if (
-      (await this.getDataProvider())?.setSetting(ProjectSettingKey.FwDictionaryCode, dictionaryCode)
-    ) {
+    const dataProvider = await this.getDataProvider();
+    if (dataProvider?.setSetting(ProjectSettingKey.FwDictionaryCode, dictionaryCode)) {
       this.fwDictionaryCode = dictionaryCode;
     }
   }
@@ -52,24 +55,15 @@ export class ProjectManager {
     return this.name;
   }
 
-  private async getWebViewId(webViewType: WebViewType): Promise<string | undefined> {
-    return this.webViewIds[webViewType];
-  }
-
-  private async setWebViewId(webViewType: WebViewType, webViewId: string): Promise<void> {
-    this.webViewIds[webViewType] = webViewId;
-  }
-
   async openWebView(
     webViewType: WebViewType,
     layout?: Layout,
     options?: OpenWebViewOptionsWithProjectId,
   ): Promise<boolean> {
-    const existingId = await this.getWebViewId(webViewType);
-    options = { ...options, existingId, projectId: this.projectId };
+    options = { ...options, existingId: this.webViewIds[webViewType], projectId: this.projectId };
     const newId = await papi.webViews.openWebView(webViewType, layout, options);
     if (newId) {
-      await this.setWebViewId(webViewType, newId);
+      this.webViewIds[webViewType] = newId;
       return true;
     }
     return false;
@@ -91,7 +85,7 @@ export class ProjectManagers {
     return webViewDef.projectId;
   }
 
-  async getProjectManagerFromProjectId(projectId: string): Promise<ProjectManager | undefined> {
+  getProjectManagerFromProjectId(projectId: string): ProjectManager | undefined {
     if (!projectId) return;
     if (!(projectId in this.projectInfo)) {
       this.projectInfo[projectId] = new ProjectManager(projectId);
@@ -101,6 +95,6 @@ export class ProjectManagers {
 
   async getProjectManagerFromWebViewId(webViewId: string): Promise<ProjectManager | undefined> {
     const projectId = (await ProjectManagers.getProjectIdFromWebViewId(webViewId)) ?? '';
-    return await this.getProjectManagerFromProjectId(projectId);
+    return this.getProjectManagerFromProjectId(projectId);
   }
 }
