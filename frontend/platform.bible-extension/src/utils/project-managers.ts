@@ -2,8 +2,8 @@ import papi, { logger } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
 import type { OpenWebViewOptionsWithProjectId, WebViewIds, WebViewType } from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
+import type { Layout } from 'shared/models/docking-framework.model';
 import { ProjectSettingKey } from '../types/enums';
-import { Layout } from 'shared/models/docking-framework.model';
 
 export class ProjectManager {
   private dataProvider?: IBaseProjectDataProvider<MandatoryProjectDataTypes>;
@@ -65,9 +65,9 @@ export class ProjectManager {
     layout?: Layout,
     options?: OpenWebViewOptionsWithProjectId,
   ): Promise<boolean> {
-    const existingId = (await this.getWebViewId(webViewType)) || '?';
+    const existingId = await this.getWebViewId(webViewType);
     options = { ...options, existingId, projectId: this.projectId };
-    const newId = await papi.webViews.openWebView(webViewType, undefined, options);
+    const newId = await papi.webViews.openWebView(webViewType, layout, options);
     if (newId) {
       await this.setWebViewId(webViewType, newId);
       return true;
