@@ -704,7 +704,7 @@ public class CrdtMiniLcmApi(
     {
         try
         {
-            if (stream.CanSeek && stream.Length > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
+            if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
             var (result, newResource) = await lcmMediaService.SaveFile(stream, metadata);
             var mediaUri = new MediaUri(result.Id, ProjectData.ServerId ?? "lexbox.org");
             return new UploadFileResponse(mediaUri, savedToLexbox: result.Remote, newResource);

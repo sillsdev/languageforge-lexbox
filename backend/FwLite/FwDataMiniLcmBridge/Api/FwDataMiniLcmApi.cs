@@ -1550,7 +1550,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
-        if (stream.CanSeek && stream.Length > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
+        if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
         var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
 
         if (File.Exists(fullPath))
