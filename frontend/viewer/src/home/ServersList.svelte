@@ -58,7 +58,7 @@
   {#each serversStatus as status}
     {@const server = status.server}
     {@const serverProjects = remoteProjects[server.id]?.projects.filter(p => p.crdt) ?? []}
-    {@const canDownloadByCode = remoteProjects[server.id]?.canDownloadProjectsWithoutMembership}
+    {@const canDownloadByCode = remoteProjects[server.id]?.canDownloadByCode}
     <Server {status}
             projects={serverProjects}
             {canDownloadByCode}

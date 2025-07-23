@@ -10,6 +10,6 @@ export interface IServerProjects
 {
 	server: ILexboxServer;
 	projects: IProjectModel[];
-	canDownloadProjectsWithoutMembership: boolean;
+	canDownloadByCode: boolean;
 }
 /* eslint-enable */

@@ -4,4 +4,4 @@ namespace LexCore.Entities;
 
 public record ListProjectsResult(
     FieldWorksLiteProject[] Projects,
-    bool CanDownloadProjectsWithoutMembership);
+    bool CanDownloadByCode);

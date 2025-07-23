@@ -38,8 +38,7 @@ public record ProjectModel(
         };
 }
 
-// TODO: Bikeshed the CanDownloadProjectsWithoutMembership name during code review, please. :-)
-public record ServerProjects(LexboxServer Server, ProjectModel[] Projects, bool CanDownloadProjectsWithoutMembership);
+public record ServerProjects(LexboxServer Server, ProjectModel[] Projects, bool CanDownloadByCode);
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
@@ -77,7 +76,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 server,
                 p.Id))
             .ToArray();
-        return new(server, projectModels, lexboxProjects.CanDownloadProjectsWithoutMembership);
+        return new(server, projectModels, lexboxProjects.CanDownloadByCode);
     }
 
     private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
@@ -92,9 +91,6 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
 
     [JSInvokable]
-    // TODO: This should return an object rather than a tuple
-    // Perhaps a ServerProjects object, even though the LexboxServer Server property would be redundant
-    // OR... perhaps the bool isn't needed and this can go back to being just a ProjectModel array. TODO: Check that once I look at frontend code.
     public async Task<ServerProjects?> ServerProjects(string serverId, bool forceRefresh)
     {
         var server = lexboxProjectService.Servers().FirstOrDefault(s => s.Id == serverId);
@@ -163,7 +159,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
         if (project is null)
         {
-            if (serverProjects.CanDownloadProjectsWithoutMembership)
+            if (serverProjects.CanDownloadByCode)
             {
                 var projectId = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (projectId is null) return DownloadProjectByCodeResult.ProjectNotFound;
