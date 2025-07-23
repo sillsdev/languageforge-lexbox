@@ -1,6 +1,5 @@
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
-using Xunit.Abstractions;
 
 namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
@@ -9,7 +8,7 @@ public class MediaTests : MediaTestsBase
 {
     private readonly ProjectLoaderFixture _fixture;
 
-    public MediaTests(ProjectLoaderFixture fixture, ITestOutputHelper output) : base(output)
+    public MediaTests(ProjectLoaderFixture fixture)
     {
         _fixture = fixture;
     }

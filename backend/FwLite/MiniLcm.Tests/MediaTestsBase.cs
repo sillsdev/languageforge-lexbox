@@ -1,18 +1,10 @@
 using System.Text;
 using MiniLcm.Media;
-using Xunit.Abstractions;
 
 namespace MiniLcm.Tests;
 
 public abstract class MediaTestsBase : MiniLcmTestBase
 {
-    protected readonly ITestOutputHelper Output;
-
-    protected MediaTestsBase(ITestOutputHelper output)
-    {
-        Output = output;
-    }
-
     [Fact]
     public async Task FileOperations_TextFile_RoundTripSuccess()
     {

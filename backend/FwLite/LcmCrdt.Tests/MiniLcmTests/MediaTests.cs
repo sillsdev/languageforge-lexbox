@@ -1,8 +1,6 @@
-using Xunit.Abstractions;
-
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-public class MediaTests(ITestOutputHelper output) : MediaTestsBase(output)
+public class MediaTests : MediaTestsBase
 {
     private readonly MiniLcmApiFixture _fixture = new();
 
