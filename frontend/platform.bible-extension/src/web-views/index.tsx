@@ -29,10 +29,10 @@ export const mainWebViewProvider: IWebViewProvider = {
       );
     return {
       ...savedWebView,
+      ...options,
       allowedFrameSources: ['http://localhost:*'],
-      iconUrl,
       content: fwMainWindow,
-      projectId: options.projectId || savedWebView.projectId || undefined,
+      iconUrl,
       styles: mainStyles,
       title: '%fwLiteExtension_browseDictionary_title%',
     };
@@ -69,9 +69,9 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
       );
     return {
       ...savedWebView,
+      ...options,
       content: fwDictionarySelectWindow,
       iconUrl,
-      projectId: options.projectId || savedWebView.projectId || undefined,
       title: '%fwLiteExtension_selectDictionary_title%',
     };
   },
