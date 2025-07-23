@@ -89,7 +89,7 @@ public class LexboxProjectService : IDisposable
                 if (httpClient is null) return new([], false);
                 try
                 {
-                    return await httpClient.GetFromJsonAsync<ListProjectsResult>("api/crdt/listProjects") ?? new([], false);
+                    return await httpClient.GetFromJsonAsync<ListProjectsResult>("api/crdt/listProjectsV2") ?? new([], false);
                 }
                 catch (Exception e)
                 {

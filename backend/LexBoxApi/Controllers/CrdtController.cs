@@ -75,7 +75,28 @@ public class CrdtController(
     }
 
     [HttpGet("listProjects")]
-    public async Task<ActionResult<ListProjectsResult>> ListProjects()
+    public async Task<ActionResult<FieldWorksLiteProject[]>> ListProjects()
+    {
+        var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
+            .Where(p => p.Type == ProjectType.FLEx)
+            .Select(p => new FieldWorksLiteProject(p.Id,
+                p.Code,
+                p.Name,
+                p.LastCommit != null,
+                dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id),
+                p.Users.Where(u => u.UserId == loggedInContext.User.Id).Select(m => m.Role).FirstOrDefault()))
+            .ToArrayAsync();
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
+        {
+            await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
+        }
+        return myProjects;
+    }
+
+    [HttpGet("listProjectsV2")]
+    // Will eventually become `listProjects`, once current clients have been updated, at which point we'll
+    // retire the V2 endpoint
+    public async Task<ActionResult<ListProjectsResult>> ListProjectsWithDownloadRights()
     {
         var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
             .Where(p => p.Type == ProjectType.FLEx)
