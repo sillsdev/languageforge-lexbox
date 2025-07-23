@@ -1,5 +1,5 @@
 import type { OpenWebViewOptions } from '@papi/core';
-import type { IEntryService, IProjectModel, SuccessHolder, UrlHolder } from 'fw-lite-extension';
+import type { IEntryService, IProjectModel, SuccessHolder } from 'fw-lite-extension';
 
 declare module 'fw-lite-extension' {
   /* eslint-disable @typescript-eslint/consistent-type-imports */
@@ -27,11 +27,6 @@ declare module 'fw-lite-extension' {
     success: boolean;
   }
 
-  export interface UrlHolder {
-    baseUrl: string;
-    dictionaryUrl: string;
-  }
-
   export interface IEntryQuery {
     readonly surfaceForm?: string;
     readonly exactMatch?: boolean;
@@ -50,6 +45,10 @@ declare module 'fw-lite-extension' {
     projectId?: string;
   }
 
+  interface BrowseWebViewOptions extends OpenWebViewOptionsWithProjectId {
+    url?: string;
+  }
+
   interface WordWebViewOptions extends OpenWebViewOptionsWithProjectId {
     word?: string;
   }
@@ -66,7 +65,7 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.fwDictionaries': () => Promise<IProjectModel[] | undefined>;
     'fwLiteExtension.openFWLite': () => Promise<SuccessHolder>; // Remove before publishing.
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'fwLiteExtension.getBaseUrl': () => UrlHolder;
+    'fwLiteExtension.getBaseUrl': () => string;
   }
 
   export interface ProjectSettingTypes {

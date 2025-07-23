@@ -4,6 +4,7 @@ import type {
   WebViewDefinition,
 } from '@papi/core';
 import type {
+  BrowseWebViewOptions,
   OpenWebViewOptionsWithProjectId,
   WordWebViewOptions,
 } from 'fw-lite-extension';
@@ -21,7 +22,7 @@ const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
 export const mainWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: OpenWebViewOptionsWithProjectId,
+    options: BrowseWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.Main))
       throw new Error(
