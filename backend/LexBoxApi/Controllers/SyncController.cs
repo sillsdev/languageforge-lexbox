@@ -42,6 +42,13 @@ public class SyncController(
     public async Task<ActionResult<SyncJobResult>> AwaitSyncFinished(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        return await fwHeadlessClient.AwaitStatus(projectId, HttpContext.RequestAborted);
+        try
+        {
+            return await fwHeadlessClient.AwaitStatus(projectId, HttpContext.RequestAborted);
+        }
+        catch (OperationCanceledException e)
+        {
+            return Ok(new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status"));
+        }
     }
 }

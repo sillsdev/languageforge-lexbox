@@ -218,7 +218,7 @@ static async Task<SyncJobResult> AwaitSyncFinished(
         if (e.CancellationToken == cancellationToken)
         {
             // The AwaitSyncFinished call was canceled, but the sync job was not (necessarily) canceled
-            activity?.SetStatus(ActivityStatusCode.Error, "Timed out awaiting sync status");
+            activity?.SetStatus(ActivityStatusCode.Unset, "Timed out awaiting sync status");
             return new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status");
         }
         else
