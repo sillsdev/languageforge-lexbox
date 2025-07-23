@@ -156,6 +156,7 @@ public class LexboxProjectService : IDisposable
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadFromJsonAsync<SyncJobResult?>();
+                    if (content is { Status: SyncJobStatusEnum.TimedOutAwaitingSyncStatus }) continue;
                     return content ?? new SyncJobResult(SyncJobStatusEnum.UnknownError, "Unknown error retrieving sync status");
                 }
                 else
