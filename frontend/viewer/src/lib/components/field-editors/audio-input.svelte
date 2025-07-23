@@ -20,6 +20,7 @@
     get duration() {
       this.#durationSub();
       let duration = this.audio.duration;
+      //avoids bug: https://github.com/huntabyte/bits-ui/issues/1663
       if (duration === Infinity) duration = NaN;
       return duration;
     }
