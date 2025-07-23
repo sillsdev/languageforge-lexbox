@@ -161,9 +161,6 @@ importers:
       tus-js-client:
         specifier: ^4.3.1
         version: 4.3.1
-      viewer:
-        specifier: workspace:*
-        version: link:viewer
     devDependencies:
       '@dotenvx/dotenvx':
         specifier: ^0.37.1
@@ -405,6 +402,9 @@ importers:
       virtua:
         specifier: ^0.41.2
         version: 0.41.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(svelte@5.33.19)
+      wavesurfer.js:
+        specifier: ^7.9.9
+        version: 7.10.0
     devDependencies:
       '@argos-ci/playwright':
         specifier: ^5.0.4
@@ -6675,6 +6675,9 @@ packages:
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
+
+  wavesurfer.js@7.10.0:
+    resolution: {integrity: sha512-GiyAHdorqGtUYG5fe4BfTf5lmtSLhrXoHeNlMsR80JOiOZxOrIOv9QaIR8RnqlleJ6D8R9cqvZKR9lfJcWcapg==}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -14203,6 +14206,8 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
+
+  wavesurfer.js@7.10.0: {}
 
   wcwidth@1.0.1:
     dependencies:

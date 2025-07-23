@@ -33,8 +33,8 @@
   onMount(async () => {
     console.debug('ProjectView mounted');
     if (projectType === 'crdt') {
-      const projectData = await projectServicesProvider.getCrdtProjectData(code);
-      projectName = projectData.name;
+      const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
+      projectName = maybeProjectName ? maybeProjectName : code;
       projectScope = await projectServicesProvider.openCrdtProject(code);
     } else {
       projectName = code;
