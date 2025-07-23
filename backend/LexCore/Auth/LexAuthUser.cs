@@ -315,6 +315,13 @@ public record LexAuthUser
         return false;
     }
 
+    public bool CanDownloadProjectsWithoutMembership()
+    {
+        if (IsAdmin) return true;
+        if (Orgs.Any(o => o.Role == OrgRole.Admin)) return true;
+        return false;
+    }
+
     public bool HasFeature(FeatureFlag feature)
     {
         if (FeatureFlags is null) return false;
