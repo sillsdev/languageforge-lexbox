@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
-import type { UrlHolder, WordWebViewOptions } from 'fw-lite-extension';
+import type { BrowseWebViewOptions, WordWebViewOptions } from 'fw-lite-extension';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi } from './utils/fw-lite-api';
@@ -34,7 +34,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Launch FieldWorks Lite and manage the api */
 
-  const urlHolder: UrlHolder = { baseUrl: '', dictionaryUrl: '' };
+  const urlHolder = { baseUrl: '' };
   const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   urlHolder.baseUrl = baseUrl;
   const fwLiteApi = new FwLiteApi(baseUrl);
@@ -73,7 +73,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
-    () => ({ ...urlHolder }),
+    () => urlHolder.baseUrl,
   );
 
   const addEntryCommandPromise = papi.commands.registerCommand(
@@ -98,8 +98,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const dictionaryCode = await projectManager.getFwDictionaryCode();
       if (dictionaryCode) {
         logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
-        urlHolder.dictionaryUrl = `${urlHolder.baseUrl}/paratext/fwdata/${dictionaryCode}`;
-        success = await projectManager.openWebView(WebViewType.Main);
+        const url = `${urlHolder.baseUrl}/paratext/fwdata/${dictionaryCode}`;
+        const options: BrowseWebViewOptions = { url };
+        success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       } else {
         logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
         success = await projectManager.openWebView(WebViewType.DictionarySelect, { type: 'float' });

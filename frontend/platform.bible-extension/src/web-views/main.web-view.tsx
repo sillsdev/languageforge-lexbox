@@ -1,26 +1,24 @@
 import papi from '@papi/frontend';
+import type { BrowseWebViewOptions } from 'fw-lite-extension';
 import { useEffect, useRef, useState } from 'react';
 
-globalThis.webViewComponent = function fwLiteMainWindow() {
+globalThis.webViewComponent = function fwLiteMainWindow({ url }: BrowseWebViewOptions) {
   const [baseUrl, setBaseUrl] = useState('');
-  const [dictionaryUrl, setDictionaryUrl] = useState('');
 
   const iframe = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => void updateUrl(), []);
 
   async function updateUrl(): Promise<void> {
-    const result = await papi.commands.sendCommand('fwLiteExtension.getBaseUrl');
-    setBaseUrl(result.baseUrl);
-    setDictionaryUrl(result.dictionaryUrl);
+    setBaseUrl(await papi.commands.sendCommand('fwLiteExtension.getBaseUrl'));
   }
 
-  if (!baseUrl) {
+  if (!baseUrl && !url) {
     return <button onClick={() => void updateUrl()}>Loading</button>;
   }
   return (
     <>
-      <iframe ref={iframe} src={dictionaryUrl || baseUrl} title="FieldWorks Lite" />
+      <iframe ref={iframe} src={url || baseUrl} title="FieldWorks Lite" />
     </>
   );
 };
