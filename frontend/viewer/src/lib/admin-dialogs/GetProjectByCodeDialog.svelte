@@ -6,17 +6,11 @@
   import {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import RadioGroup from '$lib/components/ui/radio-group/radio-group.svelte';
-  import RadioGroupItem from '$lib/components/ui/radio-group/radio-group-item.svelte';
+  import Select from '$lib/components/field-editors/select.svelte';
 
   let open = $state(false);
   let loading = $state(false);
   let error: string|undefined = $state();
-  const validRoles: {role: UserProjectRole, label: string}[] = [
-    { role: UserProjectRole.Manager, label: $t`Manager` },
-    { role: UserProjectRole.Editor, label: $t`Editor` },
-    { role: UserProjectRole.Observer, label: $t`Observer` },
-  ];
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'get-project-by-code-dialog'});
 
   let { onDownloadProject, validateCode }: {
@@ -35,13 +29,19 @@
 
   let projectCode = $state('');
   let codeValidationError = $derived(validateCode(projectCode));
-  let userRole: UserProjectRole = $state(UserProjectRole.Observer);
+  const roleSelections: {role: UserProjectRole, label: string}[] = [
+    { role: UserProjectRole.Manager, label: $t`Manager` },
+    { role: UserProjectRole.Editor, label: $t`Editor` },
+    { role: UserProjectRole.Observer, label: $t`Observer` },
+  ];
+  const observerSelection = roleSelections[2];
+  let selectedRole: {role: UserProjectRole, label: string} = $state(observerSelection);
 
   export function openDialog()
   {
     error = undefined;
     projectCode = '';
-    userRole = UserProjectRole.Observer;
+    selectedRole = observerSelection;
     loading = false;
     open = true;
   }
@@ -59,11 +59,12 @@
     </Label>
     <Label class="cursor-pointer flex items-center gap-2">
       Role:
-      <RadioGroup bind:value={userRole}>
-        {#each validRoles as role (role.role)}
-          <RadioGroupItem label={role.label} value={role.role} />
-        {/each}
-      </RadioGroup>
+      <Select
+        options={roleSelections}
+        bind:value={selectedRole}
+        idSelector="role"
+        labelSelector="label"
+        />
     </Label>
     <div class="text-end space-y-2">
       {#if error}
@@ -75,7 +76,7 @@
     </div>
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => downloadProject(e, projectCode, userRole)} disabled={loading || !!codeValidationError} {loading}>
+      <Button onclick={e => downloadProject(e, projectCode, selectedRole.role)} disabled={loading || !!codeValidationError} {loading}>
         {$t`Download ${projectCode}`}
       </Button>
     </Dialog.DialogFooter>
