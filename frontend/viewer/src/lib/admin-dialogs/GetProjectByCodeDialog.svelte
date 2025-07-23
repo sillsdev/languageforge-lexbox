@@ -5,8 +5,8 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import {ProjectRole} from '$lib/dotnet-types/generated-types/LexCore/Entities/ProjectRole';
   import Select from '$lib/components/field-editors/select.svelte';
+  import {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 
   let open = $state(false);
   let loading = $state(false);
@@ -14,11 +14,11 @@
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'get-project-by-code-dialog'});
 
   let { onDownloadProject, validateCode }: {
-    onDownloadProject: (code: string, userRole: ProjectRole) => Promise<string | undefined>,
+    onDownloadProject: (code: string, userRole: UserProjectRole) => Promise<string | undefined>,
     validateCode: (code: string) => string | undefined,
   } = $props();
 
-  async function downloadProject(e: Event, projectCode: string, userRole: ProjectRole) {
+  async function downloadProject(e: Event, projectCode: string, userRole: UserProjectRole) {
     e.preventDefault();
     e.stopPropagation();
     loading = true;
@@ -29,14 +29,14 @@
 
   let projectCode = $state('');
   let codeValidationError = $derived(validateCode(projectCode));
-  let userRole: ProjectRole = $state(ProjectRole.Observer);
-  const validRoles = Object.keys(ProjectRole).filter((role) => (role as keyof typeof ProjectRole) !== 'Unknown');
+  let userRole: UserProjectRole = $state(UserProjectRole.Observer);
+  const validRoles = Object.keys(UserProjectRole).filter((role) => (role as keyof typeof UserProjectRole) !== 'Unknown');
 
   export function openDialog()
   {
     error = undefined;
     projectCode = '';
-    userRole = ProjectRole.Observer;
+    userRole = UserProjectRole.Observer;
     loading = false;
     open = true;
   }
@@ -57,8 +57,8 @@
       <Select
           bind:value={userRole}
           options={validRoles}
-          labelSelector={(role: ProjectRole) => $t(role)}
-          idSelector={(role: ProjectRole) => role}
+          labelSelector={(role: UserProjectRole) => $t(role)}
+          idSelector={(role: UserProjectRole) => role}
           />
     </Label>
     <div class="text-end space-y-2">

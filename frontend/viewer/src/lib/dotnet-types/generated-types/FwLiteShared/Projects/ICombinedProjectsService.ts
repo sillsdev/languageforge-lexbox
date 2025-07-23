@@ -7,6 +7,7 @@ import type {IServerProjects} from './IServerProjects';
 import type {IProjectModel} from './IProjectModel';
 import type {DownloadProjectByCodeResult} from './DownloadProjectByCodeResult';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
+import type {UserProjectRole} from '../../LcmCrdt/UserProjectRole';
 
 export interface ICombinedProjectsService
 {
@@ -14,7 +15,7 @@ export interface ICombinedProjectsService
 	remoteProjects() : Promise<IServerProjects[]>;
 	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IServerProjects>;
 	localProjects() : Promise<IProjectModel[]>;
-	downloadProjectByCode(code: string, server: ILexboxServer, userRole?: string) : Promise<DownloadProjectByCodeResult>;
+	downloadProjectByCode(code: string, server: ILexboxServer, userRole?: UserProjectRole) : Promise<DownloadProjectByCodeResult>;
 	downloadProject(project: IProjectModel) : Promise<void>;
 	createProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;

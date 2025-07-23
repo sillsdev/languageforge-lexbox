@@ -54,7 +54,7 @@ public static class ProjectRoutes
                 CombinedProjectsService combinedProjectsService,
                 string code,
                 string serverAuthority,
-                [FromQuery] string? role
+                [FromQuery] UserProjectRole? role
             ) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
