@@ -145,7 +145,7 @@
       <div>
         Feature flags:
         <ul>
-          {#each allPossibleFlags as flag}
+          {#each allPossibleFlags as flag (flag)}
             <li>
               <label
                 ><input type="checkbox" name="featureFlags" value={flag} bind:group={$form!.featureFlags} />

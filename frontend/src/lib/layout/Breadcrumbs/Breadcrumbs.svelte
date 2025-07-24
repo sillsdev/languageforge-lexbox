@@ -9,7 +9,7 @@
 
 <div class="text-sm breadcrumbs p-0 max-xs:invisible">
   <ul>
-    {#each $crumbs as crumb}
+    {#each $crumbs as crumb (crumb)}
       <RenderElement tag="li" el={crumb}/>
     {/each}
   </ul>

@@ -58,7 +58,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each shownUsers as member}
+      {#each shownUsers as member (member.id)}
         {@const memberUser = member.user}
         {@const isOrgAdmin = member.role === OrgRole.Admin}
         <tr>
