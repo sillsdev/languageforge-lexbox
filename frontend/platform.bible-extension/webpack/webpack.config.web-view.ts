@@ -5,16 +5,16 @@ import merge from 'webpack-merge';
 import configBase, { rootDir } from './webpack.config.base';
 import { getWebViewEntries } from './webpack.util';
 
-/** webpack configuration for building webViews */
+/** webpack configuration for building WebViews */
 const configWebView: webpack.Configuration = merge(configBase, {
   // Build for web since Platform.Bible loads WebViews in browser https://webpack.js.org/concepts/targets/
   target: 'web',
   // configuration name so we can depend on it in main
   name: 'webView',
-  // instructions to build each extension webview source file
+  // instructions to build each extension WebView source file
   entry: getWebViewEntries,
   output: {
-    // Build all the web views in the folders where they are with the temp dir appended
+    // Build all the WebViews in the folders where they are with the temp dir appended
     path: rootDir,
   },
 });

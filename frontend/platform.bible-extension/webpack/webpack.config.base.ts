@@ -20,15 +20,15 @@ export const rootDir = path.resolve(__dirname, '..');
 // well in cjs or esm https://webpack.js.org/configuration/output/#type-commonjs-static
 export const LIBRARY_TYPE: NonNullable<webpack.Configuration['externalsType']> = 'commonjs-static';
 
-// Note: we do not want to do any chunking because neither webViews nor main can import dependencies
-// other than those listed in configBase.externals. Each webView must contain all its dependency
+// Note: we do not want to do any chunking because neither WebViews nor main can import dependencies
+// other than those listed in configBase.externals. Each WebView must contain all its dependency
 // code, and main must contain all its dependency code.
-/** webpack configuration shared by webView building and main building */
+/** webpack configuration shared by WebView building and main building */
 const configBase: webpack.Configuration = {
   // The operating directory for webpack instead of current working directory
   context: rootDir,
   mode: isDev ? 'development' : 'production',
-  // Bundle the sourcemap into the file since webviews are injected as strings into the main file
+  // Bundle the sourcemap into the file since WebViews are injected as strings into the main file
   devtool: shouldGenerateSourceMaps ? 'inline-source-map' : false,
   watchOptions: {
     ignored: ['**/node_modules'],

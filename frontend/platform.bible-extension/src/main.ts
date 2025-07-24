@@ -10,7 +10,7 @@ import * as webViewProviders from './web-views';
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
 
-  /* Register web views */
+  /* Register WebViews */
 
   const mainWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     WebViewType.Main,
@@ -65,7 +65,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  /* Manage project info and web views */
+  /* Manage project info and WebViews */
 
   const projectManagers = new ProjectManagers();
 
@@ -155,7 +155,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
 
   context.registrations.add(
-    // Web views
+    // WebViews
     await mainWebViewProviderPromise,
     await addWordWebViewProviderPromise,
     await dictionarySelectWebViewProviderPromise,
