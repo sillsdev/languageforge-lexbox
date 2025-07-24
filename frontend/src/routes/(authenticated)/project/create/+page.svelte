@@ -238,7 +238,7 @@
       <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
 
       <Select id="org" label={$t('project.create.org')} bind:value={$form.orgId} error={$errors.orgId}>
-        <option value={''}>{$t('project_page.organization.placeholder')}</option>
+        <option value="">{$t('project_page.organization.placeholder')}</option>
         {#each myOrgs as org}
           <option value={org.id}>{org.name}</option>
         {/each}
