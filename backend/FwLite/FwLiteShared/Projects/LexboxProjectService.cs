@@ -64,36 +64,6 @@ public class LexboxProjectService : IDisposable
         return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
     }
 
-    public async Task<bool> IsCrdtProject(LexboxServer server, string projectCode)
-    {
-        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return false;
-        try
-        {
-            return await httpClient.GetFromJsonAsync<bool>($"api/crdt/isCrdtProject/{projectCode}");
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, $"Error checking if lexbox project {projectCode.ReplaceLineEndings("")} is a CRDT project");
-            return false;
-        }
-    }
-
-    public async Task<bool> CanDownloadProject(LexboxServer server, Guid projectId)
-    {
-        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return false;
-        try
-        {
-            return await httpClient.GetFromJsonAsync<bool>($"api/crdt/{projectId}/canDownload");
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, $"Error checking if user may download lexbox project {projectId}");
-            return false;
-        }
-    }
-
     public async Task<ListProjectsResult> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(CacheKey(server),
@@ -113,6 +83,9 @@ public class LexboxProjectService : IDisposable
                 }
             }) ?? new([], false);
     }
+
+    // GetProjectByCode - return project ID, whether it's CRDT project, and throw Forbidden if don't have access rights. And project role, using Unknown rather than null so that it's non-nullable.
+    // Then the CanDownload and IsCrdtProject can be a single API call, also the getProjectId as well can be coalesced.
 
     public async Task<LexboxUser?> GetLexboxUser(LexboxServer server)
     {
@@ -136,6 +109,35 @@ public class LexboxProjectService : IDisposable
         {
             logger.LogError(e, "Error getting lexbox project id");
             return null;
+        }
+    }
+
+    public async Task<(DownloadProjectByCodeResult, Guid?)> GetLexboxProjectIdForDownload(LexboxServer server, string code)
+    {
+        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
+        if (httpClient is null) return (DownloadProjectByCodeResult.Forbidden, null);
+        try
+        {
+            var result = await httpClient.GetAsync($"api/crdt/lookupProjectIdForDownload?code={code}");
+            if (result.StatusCode == System.Net.HttpStatusCode.Forbidden) // 403
+            {
+                return (DownloadProjectByCodeResult.Forbidden, null);
+            }
+            if (result.StatusCode == System.Net.HttpStatusCode.NotFound) // 404
+            {
+                return (DownloadProjectByCodeResult.ProjectNotFound, null);
+            }
+            if (result.StatusCode == System.Net.HttpStatusCode.NotAcceptable) // 406
+            {
+                return (DownloadProjectByCodeResult.NotCrdtProject, null);
+            }
+            var guid = await result.Content.ReadFromJsonAsync<Guid?>();
+            return (DownloadProjectByCodeResult.Success, guid);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error getting lexbox project id");
+            return (DownloadProjectByCodeResult.Forbidden, null);
         }
     }
 

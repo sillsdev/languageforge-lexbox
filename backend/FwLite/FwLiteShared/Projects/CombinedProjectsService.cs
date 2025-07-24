@@ -162,18 +162,14 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             if (serverProjects.CanDownloadByCode)
             {
-                var projectId = await lexboxProjectService.GetLexboxProjectId(server, code);
-                if (projectId is null) return DownloadProjectByCodeResult.ProjectNotFound;
-                var allowed = await lexboxProjectService.CanDownloadProject(server, projectId.Value);
-                if (!allowed) return DownloadProjectByCodeResult.Forbidden;
-                var isCrdtProject = await lexboxProjectService.IsCrdtProject(server, code);
-                if (!isCrdtProject) return DownloadProjectByCodeResult.NotCrdtProject;
+                var (status, projectId) = await lexboxProjectService.GetLexboxProjectIdForDownload(server, code);
+                if (status != DownloadProjectByCodeResult.Success) return status;
                 if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
                 var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;
                 project = new ProjectModel(
                     Name: code,
                     Code: code,
-                    Crdt: isCrdtProject,
+                    Crdt: true,
                     Fwdata: false,
                     Lexbox: true,
                     Role: role,
