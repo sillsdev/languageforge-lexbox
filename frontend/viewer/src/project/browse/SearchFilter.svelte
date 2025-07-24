@@ -13,12 +13,12 @@
   import {useCurrentView} from '$lib/views/view-service';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
-  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
   import Select from '$lib/components/field-editors/select.svelte';
   import { Input } from '$lib/components/ui/input';
-  import {WritingSystemType} from '$lib/dotnet-types';
   import {watch} from 'runed';
-  import OpFilter, {type Op} from './OpFilter.svelte';
+  import OpFilter, {type Op} from './filter/OpFilter.svelte';
+  import WsSelect from './filter/WsSelect.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
@@ -43,13 +43,7 @@
   ]);
   // svelte-ignore state_referenced_locally
   let selectedField = $state(fields[0]);
-  let selectedWs = $state(wsService.defaultVernacular);
-  $effect(() => {
-    let wsType = selectedWs?.type === WritingSystemType.Vernacular ? 'vernacular-no-audio' : 'analysis-no-audio'
-    if (selectedField.ws !== wsType) {
-      selectedWs = wsService.pickWritingSystems(selectedField.ws)[0];
-    }
-  });
+  let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsI));
   watch(() => fields, fields => {
     //updates selected field when selected view changes
     selectedField = fields.find(f => f.id === selectedField.id) ?? fields[0];
@@ -71,7 +65,7 @@
     if (missingSemanticDomains) {
       newFilter.push('Senses.SemanticDomains=null')
     }
-    if (fieldFilterValue) {
+    if (fieldFilterValue && selectedWs?.length > 0) {
       let op: string;
       switch (filterOp) {
         case 'starts-with': op = '^'; break;
@@ -80,12 +74,17 @@
         case 'equals': op = '='; break;
         case 'not-equals': op = '!='; break;
       }
-      newFilter.push(`${selectedField.id}[${selectedWs?.wsId}]${op}${fieldFilterValue}`)
+      let fieldFilter = [];
+      for (let ws of selectedWs) {
+        fieldFilter.push(`${selectedField.id}[${ws}]${op}${fieldFilterValue}`);
+      }
+      //construct a filter like LexemeForm[en]=value|LexemeForm[fr]=value
+      newFilter.push('(' + fieldFilter.join('|') + ')')
     }
     gridifyFilter = newFilter.join(', ');
   });
 
-  let filtersExpanded = $state(true);
+  let filtersExpanded = $state(false);
 </script>
 
 {#snippet placeholder()}
@@ -130,21 +129,14 @@
           class="flex-1"
         />
         <!-- Writing System Picker -->
-        <Select
-          bind:value={selectedWs}
-          options={wsService.pickWritingSystems(selectedField.ws)}
-          idSelector="wsId"
-          labelSelector={ws => `${ws.abbreviation} (${ws.wsId})`}
-          placeholder={$t`Writing System`}
-          class="flex-1"
-        />
+        <WsSelect bind:value={selectedWs} wsType={selectedField.ws} />
       </div>
       <!-- Text Box: on mobile, wraps to new line -->
       <div class="flex flex-row gap-2 flex-1">
         <OpFilter bind:value={filterOp}/>
         <Input
           bind:value={fieldFilterValue}
-          placeholder={$t`Enter value`}
+          placeholder={$t`Filter for`}
           class="flex-1"
         />
       </div>
