@@ -18,6 +18,7 @@
   import { Input } from '$lib/components/ui/input';
   import {WritingSystemType} from '$lib/dotnet-types';
   import {watch} from 'runed';
+  import OpFilter, {type Op} from './OpFilter.svelte';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
@@ -54,6 +55,7 @@
     selectedField = fields.find(f => f.id === selectedField.id) ?? fields[0];
   });
   let fieldFilterValue = $state('');
+  let filterOp = $state<Op>('contains')
 
   $effect(() => {
     let newFilter: string[] = [];
@@ -70,12 +72,20 @@
       newFilter.push('Senses.SemanticDomains=null')
     }
     if (fieldFilterValue) {
-      newFilter.push(`${selectedField.id}[${selectedWs?.wsId}]=*${fieldFilterValue}`)
+      let op: string;
+      switch (filterOp) {
+        case 'starts-with': op = '^'; break;
+        case 'contains': op = '=*'; break;
+        case 'ends-with': op = '$'; break;
+        case 'equals': op = '='; break;
+        case 'not-equals': op = '!='; break;
+      }
+      newFilter.push(`${selectedField.id}[${selectedWs?.wsId}]${op}${fieldFilterValue}`)
     }
     gridifyFilter = newFilter.join(', ');
   });
 
-  let filtersExpanded = $state(false);
+  let filtersExpanded = $state(true);
 </script>
 
 {#snippet placeholder()}
@@ -108,7 +118,6 @@
     </ComposableInput>
   </div>
   <Collapsible.Content class="p-2 mb-2 space-y-2">
-    <!-- insert new filter here -->
     <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
       <div class="flex flex-row gap-2 flex-1">
         <!-- Field Picker -->
@@ -131,11 +140,12 @@
         />
       </div>
       <!-- Text Box: on mobile, wraps to new line -->
-      <div class="flex-1">
+      <div class="flex flex-row gap-2 flex-1">
+        <OpFilter bind:value={filterOp}/>
         <Input
           bind:value={fieldFilterValue}
           placeholder={$t`Enter value`}
-          class="w-full"
+          class="flex-1"
         />
       </div>
     </div>
