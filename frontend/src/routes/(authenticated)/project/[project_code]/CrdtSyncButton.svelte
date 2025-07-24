@@ -18,6 +18,7 @@
 
   const { project, isEmpty }: Props = $props();
   type SyncResult = { crdtChanges: number; fwdataChanges: number };
+  type SyncJobResult = { status: string; error?: string; syncResult?: SyncResult };
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -39,13 +40,17 @@
           return syncResults;
         }
         await _refreshProjectRepoInfo(project.code);
-        notifySuccess(
-          $t('project.crdt.sync_result', {
-            fwdataChanges: syncResults.fwdataChanges,
-            crdtChanges: syncResults.crdtChanges,
-          }),
-          Duration.Persistent,
-        );
+        if (syncResults.syncResult) {
+          notifySuccess(
+            $t('project.crdt.sync_result', {
+              fwdataChanges: syncResults.syncResult.fwdataChanges,
+              crdtChanges: syncResults.syncResult.crdtChanges,
+            }),
+            Duration.Persistent,
+          );
+        } else if (syncResults.error) {
+          notifyWarning(syncResults.error, Duration.Persistent);
+        }
         done = true;
         return;
       }
@@ -63,7 +68,7 @@
     }
   }
 
-  async function awaitSyncFinished(): Promise<SyncResult | string> {
+  async function awaitSyncFinished(): Promise<SyncJobResult | string> {
     while (true) {
       try {
         const response = await fetch(`/api/fw-lite/sync/await-sync-finished/${project.id}`, {
@@ -73,7 +78,7 @@
           return $t('project.crdt.sync_failed');
         }
         if (response.status === 200) {
-          const result = (await response.json()) as SyncResult;
+          const result = (await response.json()) as SyncJobResult;
           return result;
         }
       } catch (error) {
