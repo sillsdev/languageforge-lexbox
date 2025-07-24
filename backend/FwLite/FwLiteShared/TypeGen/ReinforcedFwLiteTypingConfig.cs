@@ -132,6 +132,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<ProjectRole>().UseString();
         builder.ExportAsEnum<SyncStatus>().UseString();
         builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
+        builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
             .Where(s => s is not (DotnetService.MiniLcmApi or DotnetService.FwLiteConfig or DotnetService.TroubleshootingService))
@@ -144,6 +145,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ServerStatus),
             typeof(ProjectModel),
             typeof(ServerProjects),
+            typeof(SyncJobResult),
             typeof(SyncResult),
             typeof(SyncResults),
             typeof(PendingCommits),
