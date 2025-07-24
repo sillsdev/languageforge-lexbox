@@ -76,13 +76,20 @@
       }
       let fieldFilter = [];
       for (let ws of selectedWs) {
-        fieldFilter.push(`${selectedField.id}[${ws}]${op}${fieldFilterValue}`);
+        let escapedValue = escapeGridifyValue(fieldFilterValue);
+        fieldFilter.push(`${selectedField.id}[${ws}]${op}${escapedValue}`);
       }
       //construct a filter like LexemeForm[en]=value|LexemeForm[fr]=value
       newFilter.push('(' + fieldFilter.join('|') + ')')
     }
     gridifyFilter = newFilter.join(', ');
   });
+
+
+  function escapeGridifyValue(v: string) {
+    //from https://alirezanet.github.io/Gridify/guide/filtering#escaping
+    return v.replace(/([(),|\\]|\/i)/g, '\\$1');
+  }
 
   let filtersExpanded = $state(false);
 </script>
