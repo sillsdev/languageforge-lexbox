@@ -75,8 +75,8 @@
         case 'not-equals': op = '!='; break;
       }
       let fieldFilter = [];
+      let escapedValue = escapeGridifyValue(fieldFilterValue);
       for (let ws of selectedWs) {
-        let escapedValue = escapeGridifyValue(fieldFilterValue);
         fieldFilter.push(`${selectedField.id}[${ws}]${op}${escapedValue}`);
       }
       //construct a filter like LexemeForm[en]=value|LexemeForm[fr]=value

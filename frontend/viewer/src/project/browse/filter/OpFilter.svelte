@@ -8,13 +8,13 @@
   import {t} from 'svelte-i18n-lingui';
   import type {IconClass} from '$lib/icon-class';
   let {value = $bindable()}: {value: string} = $props();
-  const ops: {label: string, value: Op, icon: IconClass}[] = [
+  const ops: {label: string, value: Op, icon: IconClass}[] = $derived([
     {label: $t`Starts with`, value: 'starts-with', icon: 'i-mdi-contain-start'},
     {label: $t`Contains`, value: 'contains', icon: 'i-mdi-contain'},
     {label: $t`Ends with`, value: 'ends-with', icon: 'i-mdi-contain-end'},
     {label: $t`Equals`, value: 'equals', icon: 'i-mdi-equal'},
     {label: $t`Not equal`, value: 'not-equals', icon: 'i-mdi-not-equal-variant'},
-  ] ;
+  ]);
 </script>
 
 <Select.Root type="single" bind:value>

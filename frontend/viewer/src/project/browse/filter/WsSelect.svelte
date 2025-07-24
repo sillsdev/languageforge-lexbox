@@ -5,7 +5,7 @@
 
   const wsService = useWritingSystemService();
 
-  let {value = $bindable(), wsType}: { value: string[] | undefined, wsType: WritingSystemSelection } = $props();
+  let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection } = $props();
   let writingSystems = $derived(wsService.pickWritingSystems(wsType));
 </script>
 <Select.Root type="multiple" bind:value>
