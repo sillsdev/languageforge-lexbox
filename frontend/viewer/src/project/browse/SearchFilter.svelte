@@ -13,9 +13,15 @@
   import {useCurrentView} from '$lib/views/view-service';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
+  import Select from '$lib/components/field-editors/select.svelte';
+  import { Input } from '$lib/components/ui/input';
+  import {WritingSystemType} from '$lib/dotnet-types';
+  import {watch} from 'runed';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
+  const wsService = useWritingSystemService();
 
   let {
     search = $bindable(),
@@ -28,6 +34,27 @@
   let missingSenses = $state(false);
   let missingPartOfSpeech = $state(false);
   let missingSemanticDomains = $state(false);
+
+  let fields: Array<{id: string, label: string, ws: 'vernacular-no-audio' | 'analysis-no-audio'}> = $derived([
+    { id: 'lexemeForm', label: pt($t`Lexeme Form`, $t`Word`, $currentView), ws: 'vernacular-no-audio' },
+    { id: 'citationForm', label: pt($t`Citation Form`, $t`Display as`, $currentView), ws: 'vernacular-no-audio' },
+    { id: 'senses.gloss', label: $t`Gloss`, ws: 'analysis-no-audio' },
+  ]);
+  // svelte-ignore state_referenced_locally
+  let selectedField = $state(fields[0]);
+  let selectedWs = $state(wsService.defaultVernacular);
+  $effect(() => {
+    let wsType = selectedWs?.type === WritingSystemType.Vernacular ? 'vernacular-no-audio' : 'analysis-no-audio'
+    if (selectedField.ws !== wsType) {
+      selectedWs = wsService.pickWritingSystems(selectedField.ws)[0];
+    }
+  });
+  watch(() => fields, fields => {
+    //updates selected field when selected view changes
+    selectedField = fields.find(f => f.id === selectedField.id) ?? fields[0];
+  });
+  let fieldFilterValue = $state('');
+
   $effect(() => {
     let newFilter: string[] = [];
     if (missingExamples) {
@@ -41,6 +68,9 @@
     }
     if (missingSemanticDomains) {
       newFilter.push('Senses.SemanticDomains=null')
+    }
+    if (fieldFilterValue) {
+      newFilter.push(`${selectedField.id}[${selectedWs?.wsId}]=*${fieldFilterValue}`)
     }
     gridifyFilter = newFilter.join(', ');
   });
@@ -78,6 +108,37 @@
     </ComposableInput>
   </div>
   <Collapsible.Content class="p-2 mb-2 space-y-2">
+    <!-- insert new filter here -->
+    <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
+      <div class="flex flex-row gap-2 flex-1">
+        <!-- Field Picker -->
+        <Select
+          bind:value={selectedField}
+          options={fields}
+          idSelector="id"
+          labelSelector="label"
+          placeholder={$t`Field`}
+          class="flex-1"
+        />
+        <!-- Writing System Picker -->
+        <Select
+          bind:value={selectedWs}
+          options={wsService.pickWritingSystems(selectedField.ws)}
+          idSelector="wsId"
+          labelSelector={ws => `${ws.abbreviation} (${ws.wsId})`}
+          placeholder={$t`Writing System`}
+          class="flex-1"
+        />
+      </div>
+      <!-- Text Box: on mobile, wraps to new line -->
+      <div class="flex-1">
+        <Input
+          bind:value={fieldFilterValue}
+          placeholder={$t`Enter value`}
+          class="w-full"
+        />
+      </div>
+    </div>
     <Switch bind:checked={missingExamples} label={$t`Missing Examples`} />
     <Switch bind:checked={missingSenses} label={$t`Missing Senses`} />
     <Switch bind:checked={missingPartOfSpeech} label={$t`Missing Part of Speech`} />
