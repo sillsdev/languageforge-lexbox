@@ -1,8 +1,4 @@
-import type {
-  IWebViewProvider,
-  SavedWebViewDefinition,
-  WebViewDefinition,
-} from '@papi/core';
+import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
 import type {
   BrowseWebViewOptions,
   OpenWebViewOptionsWithProjectId,
