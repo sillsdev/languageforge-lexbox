@@ -73,7 +73,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each projects as proj}
+        {#each projects as proj (proj.id)}
           {@const isManager = proj.memberRole === ProjectRole.Manager}
           <tr>
             <td class="p-0 w-4">

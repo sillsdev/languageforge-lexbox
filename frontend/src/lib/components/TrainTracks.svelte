@@ -113,10 +113,10 @@
 {#if circles?.length > 0}
   <svg width={maxWidth} height="0" style="height: 100%">
     {#if rowHeights?.length > 0}
-      {#each curves as curve}
+      {#each curves as curve (curve)}
         <path fill="none" stroke={curve.color} stroke-width="1.5" d={curve.d} />
       {/each}
-      {#each svgDots as c}
+      {#each svgDots as c (c)}
         <circle cx={c.x} cy={c.y} r={circleSize} fill={c.color} stroke="none" style="" />
       {/each}
     {/if}

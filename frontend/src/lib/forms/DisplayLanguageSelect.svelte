@@ -25,7 +25,7 @@
     <!-- Make sure we don't overwrite persisted locales that we don't support yet -->
     <option {value}>{value} ({$t('account_settings.language.not_supported')})</option>
   {/if}
-  {#each availableLocales as locale}
+  {#each availableLocales as locale (locale)}
     <option value={locale}>{localNames[locale] ?? locale}</option>
   {/each}
 </Select>
