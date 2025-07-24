@@ -5,7 +5,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
   compilerOptions: {
     warningFilter: (warning) => warning.code != 'element_invalid_self_closing_tag',
-    enableSourcemap: true
+    // enableSourcemap: true // Sourcemaps are always on in Svelte 5, no need to enable them explicitly
   },
   onwarn: (warning, handler) => {
     // eslint-plugin-svelte needs its own warning filter, duplicating the one from compilerOptions
