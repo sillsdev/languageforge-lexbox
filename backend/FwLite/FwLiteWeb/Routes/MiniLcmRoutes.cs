@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using MiniLcm;
+using MiniLcm.Filtering;
 using MiniLcm.Models;
 using MiniLcm.Project;
 using MiniLcm.Validators;
@@ -168,7 +169,8 @@ public static class MiniLcmRoutes
                     Ascending ?? SortOptions.Default.Ascending),
                 exemplarOptions,
                 Count ?? QueryOptions.Default.Count,
-                Offset ?? QueryOptions.Default.Offset);
+                Offset ?? QueryOptions.Default.Offset,
+                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter {GridifyFilter = GridifyFilter});
         }
 
         public SortField? SortField { get; set; } = SortOptions.Default.Field;
@@ -191,5 +193,7 @@ public static class MiniLcmRoutes
 
         [FromQuery]
         public int? Offset { get; set; }
+        [FromQuery]
+        public string? GridifyFilter { get; set; }
     }
 }
