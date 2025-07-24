@@ -48,10 +48,10 @@
             }),
             Duration.Persistent,
           );
+          done = true;
         } else if (syncResults.error) {
           notifyWarning(syncResults.error, Duration.Persistent);
         }
-        done = true;
         return;
       }
       const error = $t('project.crdt.sync_trigger_failed', {
