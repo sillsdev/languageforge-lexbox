@@ -65,16 +65,16 @@ export class ProjectManager {
     options?: OpenWebViewOptionsWithProjectId,
   ): Promise<boolean> {
     options = { ...options, existingId: this.webViewIds[webViewType], projectId: this.projectId };
-    logger.info(`Opening ${webViewType} web view for project ${this.projectId}`);
+    logger.info(`Opening ${webViewType} WebView for project ${this.projectId}`);
     if (options) {
-      logger.info(`Web view options: ${JSON.stringify(options)}`);
+      logger.info(`WebView options: ${JSON.stringify(options)}`);
     }
     const newId = await papi.webViews.openWebView(webViewType, layout, options);
     if (newId) {
       this.webViewIds[webViewType] = newId;
       return true;
     }
-    logger.warn(`Failed to open ${webViewType} web view for project ${this.projectId}`);
+    logger.warn(`Failed to open ${webViewType} WebView for project ${this.projectId}`);
     return false;
   }
 }
@@ -86,9 +86,9 @@ export class ProjectManagers {
     if (!webViewId) return;
     const webViewDef = await papi.webViews
       .getOpenWebViewDefinition(webViewId)
-      .catch((e) => void logger.error('Error getting web view definition:', e));
+      .catch((e) => void logger.error('Error getting WebView definition:', e));
     if (!webViewDef?.projectId) {
-      logger.warn(`No projectId found for web view '${webViewId}'`);
+      logger.warn(`No projectId found for WebView '${webViewId}'`);
       return;
     }
     return webViewDef.projectId;

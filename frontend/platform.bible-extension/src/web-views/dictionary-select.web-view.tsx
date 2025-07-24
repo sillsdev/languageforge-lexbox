@@ -15,7 +15,7 @@ globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
   );
 
   useEffect(() => {
-    logger.info(`This web view was opened for project '${props.projectId}'`);
+    logger.info(`This WebView was opened for project '${props.projectId}'`);
     void commands
       .sendCommand('fwLiteExtension.fwDictionaries')
       .then(setFwDictionaries)

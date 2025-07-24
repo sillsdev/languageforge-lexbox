@@ -26,7 +26,7 @@ export const mainWebViewProvider: IWebViewProvider = {
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.Main))
       throw new Error(
-        `${WebViewType.Main} provider received request to provide a ${savedWebView.webViewType} web view`,
+        `${WebViewType.Main} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     return {
       ...savedWebView,
@@ -47,7 +47,7 @@ export const addWordWebViewProvider: IWebViewProvider = {
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.AddWord))
       throw new Error(
-        `${WebViewType.AddWord} provider received request to provide a ${savedWebView.webViewType} web view`,
+        `${WebViewType.AddWord} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     return {
       ...savedWebView,
@@ -66,7 +66,7 @@ export const dictionarySelectWebViewProvider: IWebViewProvider = {
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.DictionarySelect))
       throw new Error(
-        `${WebViewType.DictionarySelect} provider received request to provide a ${savedWebView.webViewType} web view`,
+        `${WebViewType.DictionarySelect} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     return {
       ...savedWebView,
@@ -85,7 +85,7 @@ export const findWordWebViewProvider: IWebViewProvider = {
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.FindWord))
       throw new Error(
-        `${WebViewType.FindWord} provider received request to provide a ${savedWebView.webViewType} web view`,
+        `${WebViewType.FindWord} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     return {
       ...savedWebView,

@@ -14,7 +14,7 @@ const configMain: webpack.Configuration = merge(configBase, {
   target: 'node',
   // configuration name
   name: 'main',
-  // wait until webView bundling finishes - webpack.config.web-view.ts
+  // wait until WebView bundling finishes - webpack.config.web-view.ts
   dependencies: ['webView'],
   // Instructions on what output to create
   output: {
@@ -29,7 +29,7 @@ const configMain: webpack.Configuration = merge(configBase, {
   },
   resolve: {
     plugins: [
-      // Get web view files from the temp dir where they are built
+      // Get WebView files from the temp dir where they are built
       new WebViewResolveWebpackPlugin(),
     ],
   },
