@@ -58,6 +58,7 @@ declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'fwLiteExtension.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.browseDictionary': (webViewId: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'fwLiteExtension.selectDictionary': (
       projectId: string,
       dictionaryCode: string,

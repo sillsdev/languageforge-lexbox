@@ -34,7 +34,7 @@ export default function AddNewEntry(props: AddNewEntryProps) {
       definition.trim(),
     );
     await props.addEntry(entry);
-    setIsAdding(props.isAdding);
+    clearEntry();
   }
 
   const clearEntry = useCallback((): void => {

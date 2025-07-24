@@ -3,7 +3,7 @@ import type { ExecutionActivationContext } from '@papi/core';
 import type { BrowseWebViewOptions, WordWebViewOptions } from 'fw-lite-extension';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi } from './utils/fw-lite-api';
+import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
@@ -80,8 +80,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.addEntry',
     async (webViewId: string, word: string) => {
       let success = false;
+
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
+
       const options: WordWebViewOptions = { word };
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
@@ -92,13 +94,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'fwLiteExtension.browseDictionary',
     async (webViewId: string) => {
       let success = false;
+
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
+
       const nameOrId = await projectManager.getNameOrId();
       const dictionaryCode = await projectManager.getFwDictionaryCode();
       if (dictionaryCode) {
         logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
-        const url = `${urlHolder.baseUrl}/paratext/fwdata/${dictionaryCode}`;
+        const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode);
         const options: BrowseWebViewOptions = { url };
         success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       } else {
@@ -109,12 +113,33 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const displayEntryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.displayEntry',
+    async (projectId: string, entryId: string) => {
+      let success = false;
+
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { success };
+
+      const dictionaryCode = await projectManager.getFwDictionaryCode();
+      if (!dictionaryCode) return { success };
+
+      logger.info(`Displaying entry '${entryId}' in FieldWorks dictionary '${dictionaryCode}'`);
+      const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode, entryId);
+      const options: BrowseWebViewOptions = { url };
+      success = await projectManager.openWebView(WebViewType.Main, undefined, options);
+      return { success };
+    },
+  );
+
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
     async (webViewId: string, word: string) => {
       let success = false;
+
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
+
       const options: WordWebViewOptions = { word };
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success: true };
@@ -136,6 +161,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info(`Selecting FieldWorks dictionary '${dictionaryCode}' for project '${projectId}'`);
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
+
       await projectManager.setFwDictionaryCode(dictionaryCode);
       return { success: true };
     },
@@ -165,6 +191,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     // Commands
     await addEntryCommandPromise,
     await browseDictionaryCommandPromise,
+    await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,

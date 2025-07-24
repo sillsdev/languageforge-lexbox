@@ -1,6 +1,12 @@
 import papi, { logger } from '@papi/backend';
 import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
 
+/** Throws if urlPart is empty or has a / in it; returns otherwise. */
+function validateUrlPart(urlPart?: string): string {
+  if (!urlPart?.trim() || urlPart.includes('/')) throw new Error(`Invalid url part: '${urlPart}'`);
+  return urlPart;
+}
+
 async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   logger.info(`About to fetch: ${input}`);
   if (init) {
@@ -11,6 +17,12 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
     throw new Error(`Failed to fetch: ${results.statusText}`);
   }
   return await results.json();
+}
+
+export function getBrowseUrl(baseUrl: string, dictionaryCode: string, entryId?: string): string {
+  let url = `${baseUrl}/paratext/fwdata/${validateUrlPart(dictionaryCode)}`;
+  if (entryId) url += `/browse?entryId=${validateUrlPart(entryId)}`;
+  return url;
 }
 
 export class FwLiteApi {
@@ -45,13 +57,7 @@ export class FwLiteApi {
   }
 
   private checkDictionaryCode(code?: string): DictionaryRef {
-    code = code || this.dictionaryCode;
-    if (!code?.trim()) {
-      throw new Error('FieldWorks dictionary code not specified');
-    }
-    if (code.includes('/')) {
-      throw new Error(`Invalid FieldWorks dictionary code: ${code}`);
-    }
+    code = validateUrlPart(code || this.dictionaryCode);
     return { code, type: 'FwData' };
   }
 

@@ -31,9 +31,14 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
       setIsSubmitted(false);
       setIsSubmitting(true);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      await fwLiteNetworkObject.addEntry(projectId, entry);
+      const entryId = (await fwLiteNetworkObject.addEntry(projectId, entry))?.id;
       setIsSubmitting(false);
-      setIsSubmitted(true);
+      if (entryId) {
+        setIsSubmitted(true);
+        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, entryId);
+      } else {
+        logger.error('Failed to add entry!');
+      }
     },
     [fwLiteNetworkObject, projectId],
   );

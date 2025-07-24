@@ -55,8 +55,13 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
       }
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      await fwLiteNetworkObject.addEntry(projectId, entry);
-      onSearch(Object.values(entry.lexemeForm as IMultiString).pop() ?? '');
+      const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
+      if (addedEntry) {
+        onSearch(Object.values(addedEntry.lexemeForm as IMultiString).pop() ?? '');
+        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
+      } else {
+        logger.error('Failed to add entry!');
+      }
     },
     [fwLiteNetworkObject, projectId],
   );
