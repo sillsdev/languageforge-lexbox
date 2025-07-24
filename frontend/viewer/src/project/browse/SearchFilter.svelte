@@ -41,9 +41,10 @@
     { id: 'citationForm', label: pt($t`Citation Form`, $t`Display as`, $currentView), ws: 'vernacular-no-audio' },
     { id: 'senses.gloss', label: $t`Gloss`, ws: 'analysis-no-audio' },
   ]);
+
   // svelte-ignore state_referenced_locally
   let selectedField = $state(fields[0]);
-  let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsI));
+  let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
   watch(() => fields, fields => {
     //updates selected field when selected view changes
     selectedField = fields.find(f => f.id === selectedField.id) ?? fields[0];

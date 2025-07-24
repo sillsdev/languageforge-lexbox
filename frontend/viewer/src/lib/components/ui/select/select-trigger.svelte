@@ -11,7 +11,7 @@
     children,
     ...restProps
   }: WithoutChild<SelectPrimitive.TriggerProps> & {
-    downIcon: IconClass | null;
+    downIcon?: IconClass | null;
   } = $props();
 </script>
 
