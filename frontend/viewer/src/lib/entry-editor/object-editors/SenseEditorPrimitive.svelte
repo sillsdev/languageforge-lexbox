@@ -16,14 +16,12 @@
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     sense: ISense;
     readonly?: boolean;
-    userIsIdle: boolean;
     onchange?: (sense: ISense, field: FieldId) => void;
   };
 
   const {
     sense = $bindable(),
     readonly = false,
-    userIsIdle,
     onchange,
     ...rest
   }: Props = $props();
@@ -46,7 +44,6 @@
           onchange={() => onFieldChanged('gloss')}
           bind:value={sense.gloss}
           {readonly}
-          {userIsIdle}
           writingSystems={writingSystemService.analysis} />
     </Editor.Field.Body>
   </Editor.Field.Root>
@@ -58,7 +55,6 @@
           onchange={() => onFieldChanged('definition')}
           bind:value={sense.definition}
           {readonly}
-          {userIsIdle}
           writingSystems={writingSystemService.analysis} />
     </Editor.Field.Body>
   </Editor.Field.Root>

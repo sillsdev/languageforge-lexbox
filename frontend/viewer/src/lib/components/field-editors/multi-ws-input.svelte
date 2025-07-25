@@ -14,12 +14,10 @@
 
   let {
     value = $bindable(),
-    userIsIdle,
     ...constProps
   }: {
     value: IMultiString;
     readonly?: boolean;
-    userIsIdle: boolean;
     writingSystems: ReadonlyArray<ReadonlyDeep<IWritingSystem>>;
     onchange?: (wsId: string, value: string, values: IMultiString) => void;
     autofocus?: boolean;
@@ -49,7 +47,6 @@
           aria-labelledby="{labeledBy ?? ''} {labelId}"
           {readonly}
           autofocus={autofocus && (i === 0)}
-          {userIsIdle}
           autocapitalize="off"
           onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)} />
       {:else}

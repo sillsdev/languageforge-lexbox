@@ -10,12 +10,10 @@
   let {
     value = $bindable(),
     autofocus,
-    userIsIdle,
     ...constProps
   }: {
     value: string | undefined;
     readonly?: boolean;
-    userIsIdle: boolean;
     writingSystem: ReadonlyDeep<IWritingSystem>;
     onchange?: (value: string | undefined) => void;
     autofocus?: boolean;
@@ -30,7 +28,6 @@
   title={`${ws.name} (${ws.wsId})`}
   placeholder={ws.abbreviation}
   {autofocus}
-  {userIsIdle}
   autocapitalize="off"
   aria-labelledby={labelledBy}
   onchange={() => onchange?.(value)} />

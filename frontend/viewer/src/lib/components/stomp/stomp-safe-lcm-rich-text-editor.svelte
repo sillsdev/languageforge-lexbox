@@ -3,16 +3,18 @@
   import {StompGuard} from './stomp-guard.svelte';
   import {mergeProps} from 'bits-ui';
   import LcmRichTextEditor from '../lcm-rich-text-editor/lcm-rich-text-editor.svelte';
+  import {useIdleService} from '$lib/services/idle-service';
 
-  type Props = ComponentProps<typeof LcmRichTextEditor> & { userIsIdle: boolean, onchange: () => void };
+  type Props = ComponentProps<typeof LcmRichTextEditor> & { onchange: () => void };
 
-  let { value = $bindable(), userIsIdle, onchange, ...rest}: Props = $props();
+  let { value = $bindable(), onchange, ...rest}: Props = $props();
 
   const guard = new StompGuard(
     () => value,
     (newValue) => value = newValue
   );
 
+  let idleService = useIdleService();
   function onIdle() {
     if (guard.isDirty) {
       onchange();
@@ -20,7 +22,7 @@
   }
 
   $effect(() => {
-    if (userIsIdle) untrack(onIdle);
+    if (idleService.isIdle) untrack(onIdle);
   });
 </script>
 

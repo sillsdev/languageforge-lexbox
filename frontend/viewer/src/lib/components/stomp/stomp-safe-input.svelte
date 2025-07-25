@@ -3,10 +3,13 @@
   import {Input} from '../ui/input';
   import {StompGuard} from './stomp-guard.svelte';
   import {mergeProps} from 'bits-ui';
+  import {useIdleService} from '$lib/services/idle-service';
 
-  type Props = ComponentProps<typeof Input> & { userIsIdle: boolean, onchange: () => void };
+  type Props = ComponentProps<typeof Input> & { onchange: () => void };
 
-  let { value = $bindable(), userIsIdle = false, onchange, ...rest}: Props = $props();
+  let { value = $bindable(), onchange, ...rest}: Props = $props();
+
+  let idleService = useIdleService();
 
   const guard = new StompGuard(
     () => value,
@@ -20,7 +23,7 @@
   }
 
   $effect(() => {
-    if (userIsIdle) untrack(onIdle);
+    if (idleService.isIdle) untrack(onIdle);
   });
 </script>
 

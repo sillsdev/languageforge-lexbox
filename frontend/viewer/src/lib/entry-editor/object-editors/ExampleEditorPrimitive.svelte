@@ -14,14 +14,12 @@
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     example: IExampleSentence;
     readonly?: boolean;
-    userIsIdle: boolean;
     onchange?: (sense: IExampleSentence, field: FieldId) => void;
   }
 
   const {
     example = $bindable(),
     readonly = false,
-    userIsIdle,
     onchange,
     ...rest
   }: Props = $props();
@@ -42,7 +40,6 @@
           onchange={() => onFieldChanged('sentence')}
           bind:value={example.sentence}
           {readonly}
-          {userIsIdle}
           writingSystems={writingSystemService.vernacular} />
     </Editor.Field.Body>
   </Editor.Field.Root>
@@ -54,7 +51,6 @@
           onchange={() => onFieldChanged('translation')}
           bind:value={example.translation}
           {readonly}
-          {userIsIdle}
           writingSystems={writingSystemService.analysis} />
     </Editor.Field.Body>
   </Editor.Field.Root>
@@ -67,7 +63,6 @@
             onchange={() => onFieldChanged('reference')}
             bind:value={example.reference}
             {readonly}
-            {userIsIdle}
             writingSystem={writingSystemService.defaultAnalysis} />
       </Editor.Field.Body>
     </Editor.Field.Root>
