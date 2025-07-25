@@ -41,7 +41,7 @@
 </script>
 
 <DropdownMenu.Group {...mergedProps}>
-  {#each displayItems as item, i}
+  {#each displayItems as item, i (item)}
     {@const reorderName = getDisplayName(item) || '–'}
     <DropdownMenu.Item class="grid grid-cols-subgrid col-span-full justify-items-start items-center"
       onmouseover={() => displayIndex = i}

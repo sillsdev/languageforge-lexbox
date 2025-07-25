@@ -43,7 +43,7 @@
   </div>
 
   <div>
-    {#each selectedEntryHistory as selected}
+    {#each selectedEntryHistory as selected (selected.entry.id)}
       <p>
         Entry: {writingSystemService?.headword(selected.entry)}
         {#if selected.sense}

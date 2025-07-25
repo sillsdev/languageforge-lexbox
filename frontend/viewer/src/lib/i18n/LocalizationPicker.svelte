@@ -28,7 +28,7 @@
   </DropdownMenu.Trigger>
   <DropdownMenu.Content>
     <DropdownMenu.RadioGroup bind:value={() => $locale, l => setLanguage(l)}>
-      {#each Object.entries(languages) as [lang, label]}
+      {#each Object.entries(languages) as [lang, label] (lang)}
         <DropdownMenu.RadioItem class="cursor-pointer" value={lang}>{label}</DropdownMenu.RadioItem>
       {/each}
     </DropdownMenu.RadioGroup>
