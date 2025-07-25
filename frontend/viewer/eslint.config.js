@@ -154,14 +154,4 @@ export default [
     },
   },
   ...storybook.configs["flat/recommended"],
-  {
-    // TEMPORARY IGNORES, to be gotten rid of as soon as possible - 2025-07-24 RM
-    files: ['**/*.svelte', '**/*.svelte.ts'],
-    rules: {
-      'svelte/require-each-key': 'off',
-      'svelte/no-useless-mustaches': 'off',
-      'svelte/prefer-svelte-reactivity': 'off',
-      'svelte/no-unused-props': 'off',
-    },
-  },
 ];

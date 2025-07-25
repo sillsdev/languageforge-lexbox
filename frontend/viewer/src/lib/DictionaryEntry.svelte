@@ -93,6 +93,7 @@
   {:else}
     <span class="font-bold">{index + 1}</span>
   {/if}
+  <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
   {' · '}
 {/snippet}
 
@@ -102,6 +103,7 @@
   </div>
   <strong class="mr-1">
     {#each headwords as headword, i (headword.wsId)}
+      <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
       {#if i > 0}{' / '}{/if}
       <span class={headword.color}>{headword.value}</span>
     {/each}
@@ -123,11 +125,12 @@
         {#if glossAndDef.definition}
           <span class={glossAndDef.color}>{glossAndDef.definition}</span>
         {/if}
+        <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it is deliberately an empty string with no whitespace -->
         {''}
       {/each}
     </span>
     {#each sense.exampleSentences as example (example.id)}
-      {#each example.sentences as sentence, j}
+      {#each example.sentences as sentence, j (sentence)}
         {@const first = j === 0}
         {@const last = j === example.sentences.length - 1}
         {#if j > 0};{/if}
