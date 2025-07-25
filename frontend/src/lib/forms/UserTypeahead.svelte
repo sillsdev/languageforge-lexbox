@@ -133,7 +133,7 @@
     />
     <div class="overlay-content">
       <ul class="menu p-0">
-      {#each filteredResults as user, idx}
+      {#each filteredResults as user, idx (user.id)}
         <li class={(highlightIdx == idx) ? 'p-0 bg-primary text-white' : 'p-0'}><button class="whitespace-nowrap" onclick={() => {
           setTimeout(() => selectUser(user));
         }}>{formatResult(user)}</button></li>

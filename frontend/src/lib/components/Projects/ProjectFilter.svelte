@@ -98,7 +98,7 @@
   {loading}
 >
   {#snippet activeFilterSlot({ activeFilters })}
-    {#each activeFilters as filter}
+    {#each activeFilters as filter (filter.key)}
       {#if filter.key === 'projectType'}
         <ActiveFilter {filter}>
           <ProjectTypeIcon type={filter.value} />

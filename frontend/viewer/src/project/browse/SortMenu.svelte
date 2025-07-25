@@ -42,6 +42,9 @@
   let {
     value = $bindable(),
     autoSelector,
+    // TODO: Either use `autoDirection` or remove it as a prop
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    autoDirection,
   }: Props = $props();
 
   let selectedSortField = $state<SortField>();
@@ -75,7 +78,7 @@
           ({$t(sortLabels[autoSort])})
         </span>
     </ResponsiveMenu.Item>
-    {#each sortOptions as option}
+    {#each sortOptions as option (option)}
       {@const icon = sortIcons[option.field]?.[option.dir]}
       <ResponsiveMenu.Item
         onSelect={() => {

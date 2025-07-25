@@ -109,7 +109,7 @@
         <div
           class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full">
           <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
-            {#each visibleItems as change}
+            {#each visibleItems as change (change)}
               <div class="change whitespace-pre-wrap font-mono text-sm">
                 {formatJsonForUi(change)}
               </div>

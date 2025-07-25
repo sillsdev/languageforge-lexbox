@@ -68,6 +68,6 @@
     </Select>
   {/snippet}
   {#snippet submitText()}
-    <span>{'Add Purpose'}</span>
+    <span>{$t('project_page.add_purpose.add_button')}</span>
   {/snippet}
 </FormModal>

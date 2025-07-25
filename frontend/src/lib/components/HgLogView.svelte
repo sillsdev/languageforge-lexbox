@@ -136,7 +136,7 @@
   </thead>
   <tbody>
     {#if logEntries?.length}
-      {#each expandedLog as log, idx}
+      {#each expandedLog as log, idx (log.node)}
         <tr>
           {#if idx === 0}
             <td class="py-0 w-0" rowspan="1000000">

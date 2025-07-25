@@ -25,7 +25,7 @@
     {#if undefinedOptionLabel}
       <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}
-    {#each types as type}
+    {#each types as type (type)}
       <option value={type}><FormatProjectType {type} /></option>
     {/each}
     {#if includeUnknown}

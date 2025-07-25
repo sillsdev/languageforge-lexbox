@@ -1,4 +1,4 @@
-import {createSubscriber} from 'svelte/reactivity';
+import {createSubscriber, SvelteURL} from 'svelte/reactivity';
 import {queueHistoryChange} from './history';
 import {useLocation} from 'svelte-routing';
 
@@ -39,7 +39,7 @@ export class QueryParamState {
     this.#waitingForHistoryChange = true;
     await queueHistoryChange(() => {
       try {
-        const currentUrl = new URL(document.location.href);
+        const currentUrl = new SvelteURL(document.location.href);
         if (isDefault) {
           currentUrl.searchParams.delete(this.config.key);
         } else {
@@ -95,7 +95,7 @@ export class QueryParamState {
   }
 
   private readUrlValue(): string {
-    return new URL(document.location.href).searchParams.get(this.config.key) ?? this.defaultValue;
+    return new SvelteURL(document.location.href).searchParams.get(this.config.key) ?? this.defaultValue;
   }
 }
 

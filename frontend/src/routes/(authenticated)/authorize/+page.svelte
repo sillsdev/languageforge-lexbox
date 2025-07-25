@@ -30,7 +30,7 @@
       </div>
       <div class="bg-base-200/50 py-5 px-8">
         <div class="grid gap-x-3 gap-y-5" style="grid-template-columns: auto 1fr">
-          {#each data.scope?.split(' ') ?? [] as scope}
+          {#each data.scope?.split(' ') ?? [] as scope (scope)}
             {#if scope === 'profile'}
               <div class="grid grid-cols-subgrid col-span-full items-center">
                 <AuthenticatedUserIcon size="text-4xl" />
@@ -53,7 +53,7 @@
         </div>
       </div>
       <div>
-        {#each Object.entries(data.postback) as [key, value]}
+        {#each Object.entries(data.postback) as [key, value] (key)}
           <!--parameters required to resume the auth process-->
           <input type="hidden" name={key} {value} />
         {/each}

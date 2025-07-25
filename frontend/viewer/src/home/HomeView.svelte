@@ -188,7 +188,7 @@
               </ButtonListItem>
             {/each}
             <DevContent>
-              <ButtonListItem href={`/testing/project-view`}>
+              <ButtonListItem href="/testing/project-view">
                 <ListItem title={$t`Test Project`} icon={mdiTestTube}
                           classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
                   <div slot="actions" class="pointer-events-none shrink-0">
