@@ -15,9 +15,6 @@ catalogs:
     '@sveltejs/vite-plugin-svelte':
       specifier: ^5.1.1
       version: 5.0.3
-    '@typescript-eslint/eslint-plugin':
-      specifier: ^8.38.0
-      version: 8.38.0
     '@typescript-eslint/parser':
       specifier: ^8.38.0
       version: 8.24.0
@@ -219,9 +216,6 @@ importers:
       '@types/zxcvbn':
         specifier: ^4.4.5
         version: 4.4.5
-      '@typescript-eslint/eslint-plugin':
-        specifier: 'catalog:'
-        version: 8.38.0(@typescript-eslint/parser@8.38.0(eslint@9.31.0(jiti@2.5.0))(typescript@5.8.3))(eslint@9.31.0(jiti@2.5.0))(typescript@5.8.3)
       '@typescript-eslint/parser':
         specifier: 'catalog:'
         version: 8.38.0(eslint@9.31.0(jiti@2.5.0))(typescript@5.8.3)
