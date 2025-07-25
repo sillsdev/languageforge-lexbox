@@ -21,7 +21,7 @@ export class ProjectManager {
     return await new ProjectManager(projectId).getFwDictionaryCode();
   }
 
-  async getDataProvider(): Promise<
+  private async getDataProvider(): Promise<
     IBaseProjectDataProvider<MandatoryProjectDataTypes> | undefined
   > {
     this.dataProvider ||= await papi.projectDataProviders.get('platform.base', this.projectId);
