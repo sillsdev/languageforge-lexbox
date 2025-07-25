@@ -10,10 +10,12 @@
 
   let {
     value = $bindable(),
+    userIsIdle,
     ...constProps
   }: {
     value: IRichString | undefined;
     readonly?: boolean;
+    userIsIdle: boolean;
     writingSystem: ReadonlyDeep<IWritingSystem>;
     onchange?: (value: IRichString | undefined) => void;
     autofocus?: boolean;
@@ -34,6 +36,7 @@
   {readonly}
   title={`${ws.name} (${ws.wsId})`}
   {autofocus}
+  {userIsIdle}
   autocapitalize="off"
   placeholder={ws.abbreviation}
   aria-label={ws.abbreviation}

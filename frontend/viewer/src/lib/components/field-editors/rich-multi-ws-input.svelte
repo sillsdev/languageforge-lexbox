@@ -15,10 +15,12 @@
 
   let {
     value = $bindable(),
+    userIsIdle,
     ...constProps
   }: {
     value: IRichMultiString;
     readonly?: boolean;
+    userIsIdle: boolean;
     writingSystems: ReadonlyArray<ReadonlyDeep<IWritingSystem>>;
     onchange?: (wsId: string, value: IRichString, values: IRichMultiString) => void;
     autofocus?: boolean;
@@ -60,6 +62,7 @@
           aria-labelledby="{labelledBy ?? ''} {labelId}"
           {readonly}
           autofocus={autofocus && (i === 0)}
+          {userIsIdle}
           autocapitalize="off"
           onchange={() => onRichTextChange(ws.wsId)}
           aria-label={ws.abbreviation}

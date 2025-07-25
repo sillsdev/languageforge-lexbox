@@ -25,7 +25,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
   import {Button} from '$lib/components/ui/button';
-  import {watch} from 'runed';
+  import {IsIdle, watch} from 'runed';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
@@ -153,11 +153,14 @@
   }
 
   const currentView = useCurrentView();
+
+  const idle = new IsIdle({ timeout: 5 * 60 * 1000 }); // 5 minutes
+  let userIsIdle = $derived(idle.current);
 </script>
 
 <Editor.Root bind:ref>
   <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {modalMode} onchange={(entry) => onchange?.({entry})} />
+    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {userIsIdle} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#each entry.senses as sense, i (sense.id)}
       <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
@@ -173,7 +176,7 @@
               ondelete={() => deleteSense(sense)} id={sense.id} />
         </div>
 
-        <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
+        <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} {userIsIdle} onchange={() => onSenseChange(sense)}/>
 
         {#if sense.exampleSentences.length}
           <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
@@ -200,6 +203,7 @@
                   class={ENTITY_FIELD_CONTAINER_CLASS}
                   bind:example={sense.exampleSentences[j]}
                   {readonly}
+                  {userIsIdle}
                   onchange={() => onExampleChange(sense, example)}
                   />
               </Editor.SubGrid>
