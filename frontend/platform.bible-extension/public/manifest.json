@@ -1,12 +1,13 @@
 {
   "name": "fw-lite-extension",
   "version": "0.0.1",
-  "description": "FW Lite for Paranext. Powered by webpack",
-  "author": "Lexical tools team",
+  "description": "FieldWorks Lite for Platform.Bible, powered by webpack",
+  "publisher": "SIL",
   "license": "MIT",
   "main": "fw-lite-extension.ts",
   "activationEvents": [],
   "elevatedPrivileges": ["createProcess"],
-  "menus": "contributions/menu.json",
-  "localizedStrings": "contributions/localizedStrings.json"
+  "localizedStrings": "contributions/localizedStrings.json",
+  "menus": "contributions/menus.json",
+  "projectSettings": "contributions/projectSettings.json"
 }

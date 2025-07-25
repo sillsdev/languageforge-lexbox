@@ -1,131 +1,250 @@
-import papi, {logger} from '@papi/backend';
-import {
-  type ExecutionActivationContext,
-  type IWebViewProvider,
-  type SavedWebViewDefinition,
-  type WebViewDefinition,
-} from '@papi/core';
-import type {FindEntryEvent, LaunchServerEvent} from 'fw-lite-extension';
-import extensionTemplateReact from './extension-template.web-view?inline';
-import extensionTemplatestyles from './styles.css?inline';
-import type {GetWebViewOptions} from 'shared/models/web-view.model';
+import papi, { logger } from '@papi/backend';
+import type { ExecutionActivationContext } from '@papi/core';
+import type { BrowseWebViewOptions, WordWebViewOptions } from 'fw-lite-extension';
+import { EntryService } from './services/entry-service';
+import { WebViewType } from './types/enums';
+import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
+import { ProjectManagers } from './utils/project-managers';
+import * as webViewProviders from './web-views';
 
-const reactWebViewType = 'fw-lite-extension.react';
+export async function activate(context: ExecutionActivationContext): Promise<void> {
+  logger.info('FieldWorks Lite is activating!');
 
-/**
- * Simple web view provider that provides React web views when papi requests them
- */
-const reactWebViewProvider: IWebViewProvider = {
-  async getWebView(savedWebView: SavedWebViewDefinition, options: GetWebViewOptions): Promise<WebViewDefinition | undefined> {
-    if (savedWebView.webViewType !== reactWebViewType)
-      throw new Error(
-        `${reactWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
-      );
-    return {
-      ...savedWebView,
-      title: 'FW Lite Extension React',
-      content: extensionTemplateReact,
-      styles: extensionTemplatestyles,
-      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
-      allowedFrameSources: ['http://localhost:*']
-    };
-  },
-};
+  /* Register WebViews */
 
-export async function activate(context: ExecutionActivationContext) {
-  logger.info('FwLite is activating!');
-
-  const reactWebViewProviderPromise = papi.webViewProviders.register(
-    reactWebViewType,
-    reactWebViewProvider,
+  const mainWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.Main,
+    webViewProviders.mainWebViewProvider,
   );
 
-  // Emitter to tell subscribers how many times we have done stuff
-  const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
-    'fwLiteExtension.findEntry',
+  const addWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.AddWord,
+    webViewProviders.addWordWebViewProvider,
   );
-  const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
-    'fwLiteExtension.launchServer',
+
+  const dictionarySelectWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.DictionarySelect,
+    webViewProviders.dictionarySelectWebViewProvider,
   );
-  let baseUrlHolder = {baseUrl: ''};
-  let {fwLiteProcess, baseUrl} = launchFwLiteFwLiteWeb(context);
-  baseUrlHolder.baseUrl = baseUrl;
-  onLaunchServerEmitter.emit(baseUrlHolder);
+
+  const findWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.FindWord,
+    webViewProviders.findWordWebViewProvider,
+  );
+
+  /* Launch FieldWorks Lite and manage the api */
+
+  const urlHolder = { baseUrl: '' };
+  const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
+  urlHolder.baseUrl = baseUrl;
+  const fwLiteApi = new FwLiteApi(baseUrl);
+
+  /* Set network services */
+
+  const entryService = papi.networkObjects.set(
+    'fwliteextension.entryService',
+    new EntryService(baseUrl),
+    'fw-lite-extension.IEntryService',
+  );
+
+  /* Register settings validators */
+
+  const validDictionaryCode = papi.projectSettings.registerValidator(
+    'fw-lite-extension.fwDictionaryCode',
+    async (dictionaryCode) => {
+      if (!dictionaryCode) {
+        logger.info('FieldWorks dictionary code cleared in project settings');
+        return true;
+      }
+      logger.info('Validating FieldWorks dictionary code:', dictionaryCode);
+      try {
+        return !!(await fwLiteApi.getWritingSystems(dictionaryCode)).analysis;
+      } catch {
+        return false;
+      }
+    },
+  );
+
+  /* Manage project info and WebViews */
+
+  const projectManagers = new ProjectManagers();
+
+  /* Register commands */
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.getBaseUrl',
-    () => {
-      return baseUrlHolder;
+    () => urlHolder.baseUrl,
+  );
+
+  const addEntryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.addEntry',
+    async (webViewId: string, word: string) => {
+      let success = false;
+
+      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      if (!projectManager) return { success };
+
+      const options: WordWebViewOptions = { word };
+      success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
+      return { success };
+    },
+  );
+
+  const browseDictionaryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.browseDictionary',
+    async (webViewId: string) => {
+      let success = false;
+
+      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      if (!projectManager) return { success };
+
+      const nameOrId = await projectManager.getNameOrId();
+      const dictionaryCode = await projectManager.getFwDictionaryCode();
+      if (dictionaryCode) {
+        logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
+        const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode);
+        const options: BrowseWebViewOptions = { url };
+        success = await projectManager.openWebView(WebViewType.Main, undefined, options);
+      } else {
+        logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
+        success = await projectManager.openWebView(WebViewType.DictionarySelect, { type: 'float' });
+      }
+      return { success };
+    },
+  );
+
+  const displayEntryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.displayEntry',
+    async (projectId: string, entryId: string) => {
+      let success = false;
+
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { success };
+
+      const dictionaryCode = await projectManager.getFwDictionaryCode();
+      if (!dictionaryCode) return { success };
+
+      logger.info(`Displaying entry '${entryId}' in FieldWorks dictionary '${dictionaryCode}'`);
+      const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode, entryId);
+      const options: BrowseWebViewOptions = { url };
+      success = await projectManager.openWebView(WebViewType.Main, undefined, options);
+      return { success };
     },
   );
 
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
-    (entry: string) => {
-      onFindEntryEmitter.emit({entry});
-      return {
-        success: true,
-      };
-    },
-  );
-  const simpleFindEntryCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.simpleFind',
-    () => {
-      onFindEntryEmitter.emit({entry: 'apple'});
-      return {
-        success: true,
-      };
+    async (webViewId: string, word: string) => {
+      let success = false;
+
+      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      if (!projectManager) return { success };
+
+      const options: WordWebViewOptions = { word };
+      success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
+      return { success: true };
     },
   );
 
-  // Create WebViews or get an existing WebView if one already exists for this type
-  // Note: here, we are using `existingId: '?'` to indicate we do not want to create a new WebView
-  // if one already exists. The WebView that already exists could have been created by anyone
-  // anywhere; it just has to match `webViewType`. See `paranext-core's hello-someone.ts` for an
-  // example of keeping an existing WebView that was specifically created by
-  // `paranext-core's hello-someone`.
-  void papi.webViews.openWebView(reactWebViewType, undefined, {existingId: '?'});
+  // For development. Remove before publishing.
+  const openFwLiteCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.openFWLite',
+    async () => {
+      await papi.webViews.openWebView(WebViewType.Main);
+      return { success: true };
+    },
+  );
 
-  // Await the data provider promise at the end so we don't hold everything else up
+  const selectFwDictionaryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.selectDictionary',
+    async (projectId: string, dictionaryCode: string) => {
+      logger.info(`Selecting FieldWorks dictionary '${dictionaryCode}' for project '${projectId}'`);
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { success: false };
+
+      await projectManager.setFwDictionaryCode(dictionaryCode);
+      return { success: true };
+    },
+  );
+
+  const fwDictionariesCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.fwDictionaries',
+    async (projectId?: string) => {
+      logger.info('Fetching local FieldWorks dictionaries');
+      if (!projectId) return await fwLiteApi.getProjects();
+
+      //projectManagers.getProjectManagerFromProjectId(projectId)?.clearSettingsCache();
+      const lang = await projectManagers.getProjectManagerFromProjectId(projectId)?.getLanguage();
+      return await fwLiteApi.getProjectsMatchingLanguage(lang);
+    },
+  );
+
+  // For development. Remove before publishing.
+  void papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
+
+  /* Register awaited unsubscribers (do this last, to not hold up anything else) */
+
   context.registrations.add(
-    await reactWebViewProviderPromise,
+    // WebViews
+    await mainWebViewProviderPromise,
+    await addWordWebViewProviderPromise,
+    await dictionarySelectWebViewProviderPromise,
+    await findWordWebViewProviderPromise,
+    // Validators
+    await validDictionaryCode,
+    // Commands
+    await addEntryCommandPromise,
+    await browseDictionaryCommandPromise,
+    await displayEntryCommandPromise,
     await findEntryCommandPromise,
-    await simpleFindEntryCommandPromise,
     await getBaseUrlCommandPromise,
-    onFindEntryEmitter,
-    onLaunchServerEmitter,
-    () => fwLiteProcess.kill()
+    await openFwLiteCommandPromise,
+    await selectFwDictionaryCommandPromise,
+    await fwDictionariesCommandPromise,
+    // Services
+    await entryService,
+    // Other cleanup
+    () => fwLiteProcess?.kill(),
   );
 
-  logger.info('FwLite is finished activating!');
+  logger.info('FieldWorks Lite is finished activating!');
 }
 
-export async function deactivate() {
-  logger.info('FwLite is deactivating!');
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function deactivate(): Promise<boolean> {
+  logger.info('FieldWorks Lite is deactivating!');
   return true;
 }
 
 function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
-  let binaryPath = 'fw-lite/FwLiteWeb.exe';
+  const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
-    throw new Error('FwLite requires createProcess elevated privileges');
+    throw new Error('FieldWorks Lite requires createProcess elevated privileges');
   }
   if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
-    throw new Error('FwLite only supports launching on windows for now');
+    throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
   //todo instead of hardcoding the url and port we should run it and find the url in the output
-  let baseUrl = 'http://localhost:29348';
+  const baseUrl = 'http://localhost:29348';
 
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
-    [
-      '--urls', baseUrl,
-      '--FwLiteWeb:OpenBrowser=false',
-      '--FwLiteWeb:CorsAllowAny=true',
-      '--FwLiteWeb:LogFileName=./../../fw-lite-web.log',//required at dev time otherwise the log file will trigger a restart of the extension by PT
-    ],
-    {stdio: [null, null, null]}
+    ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
+    { stdio: [null, 'pipe', 'pipe'] },
   );
-  return {baseUrl, fwLiteProcess};
+  fwLiteProcess.once('exit', (code, signal) => {
+    logger.info(`[FwLiteWeb]: exited with code '${code}', signal '${signal}'`);
+  });
+  if (fwLiteProcess.stdout) {
+    fwLiteProcess.stdout.on('data', (data: Buffer) => {
+      logger.info(`[FwLiteWeb]: ${data.toString().trim()}`);
+    });
+  }
+  if (fwLiteProcess.stderr) {
+    fwLiteProcess.stderr.on('data', (data: Buffer) => {
+      logger.error(`[FwLiteWeb]: ${data.toString().trim()}`);
+    });
+  }
+  return { baseUrl, fwLiteProcess };
 }

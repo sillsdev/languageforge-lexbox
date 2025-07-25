@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "main": "fw-lite-extension.js",
   "types": "fw-lite-extension.d.ts",
-  "author": "Paranext",
+  "author": "SIL Global",
   "license": "MIT",
   "scripts": {
     "build:web-view": "webpack --config ./webpack/webpack.config.web-view.ts",
@@ -13,28 +13,31 @@
     "watch": "npm run build -- --watch",
     "build:production": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=false webpack",
     "watch:production": "npm run build:production -- --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "zip": "zip-build dist release --template '%NAME%_%VERSION%.%EXT%' --override",
     "package": "npm run build:production && npm run zip",
     "package:debug": "cross-env DEBUG_PROD=true npm run package",
     "start:core": "cd ../../../paranext-core && npm run start",
     "start": "cross-env MAIN_ARGS=\"--extensions $INIT_CWD/dist\" concurrently \"npm:watch\" \"npm:start:core\"",
     "start:production": "cross-env MAIN_ARGS=\"--extensions $INIT_CWD/dist\" concurrently \"npm:watch:production\" \"npm:start:core\"",
+    "stop": "cd ../../../paranext-core && npm run stop",
     "lint": "npm run lint:scripts && npm run lint:styles",
-    "lint:scripts": "eslint --ext .cjs,.js,.jsx,.ts,.tsx --cache .",
+    "lint:scripts": "cross-env NODE_ENV=development node ../node_modules/eslint/bin/eslint.js .",
     "lint:styles": "stylelint **/*.{css,scss}",
     "lint-fix": "npm run lint-fix:scripts && npm run lint:styles -- --fix",
-    "lint-fix:scripts": "prettier --write \"**/*.{ts,tsx,js,jsx}\" && npm run lint:scripts"
+    "lint-fix:scripts": "npm run format && npm run lint:scripts"
   },
   "browserslist": [],
   "peerDependencies": {
     "@sillsdev/scripture": "^2.0.1",
-    "react": ">=18.2.0",
-    "react-dom": ">=18.2.0"
+    "react": ">=18.3.1",
+    "react-dom": ">=18.3.1"
   },
   "devDependencies": {
     "@types/node": "^18.17.12",
-    "@types/react": "^18.2.21",
-    "@types/react-dom": "^18.2.7",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "@types/webpack": "^5.28.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
