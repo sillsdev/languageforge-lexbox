@@ -33,8 +33,8 @@
   disabled={disabled || skeleton}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 aria-selected:ring-2 ring-primary ring-offset-background',
-    'disabled:pointer-events-none disabled:bg-destructive/5 last:rounded-b',
+    'dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 aria-selected:ring-2 ring-primary ring-offset-background rounded',
+    'disabled:pointer-events-none disabled:bg-destructive/5',
     skeleton && 'cursor-default hover:bg-transparent',
     className)}
   role="row"

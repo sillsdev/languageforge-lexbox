@@ -1,11 +1,13 @@
 ﻿<script lang="ts">
   import type { ICommitMetadata } from '$lib/dotnet-types/generated-types/SIL/Harmony/Core/ICommitMetadata';
   import { useHistoryService } from '$lib/services/history-service';
-  import { cls, Duration, DurationUnits, InfiniteScroll, ListItem } from 'svelte-ux';
   import { t } from 'svelte-i18n-lingui';
   import { useProjectContext } from '$lib/project-context.svelte';
   import { resource } from 'runed';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
+  import ListItem from '$lib/components/ListItem.svelte';
+  import {VList} from 'virtua/svelte';
+  import {FormatDuration, formatDuration} from '$lib/components/ui/format';
 
   const historyService = useHistoryService();
   const projectContext = useProjectContext();
@@ -20,12 +22,12 @@
   };
 
   const activity = resource(() => projectContext.projectCode, async (projectCode) => {
-    if (!projectCode) return [];
+    if (!projectCode) return [] as Activity[];
     const data = (await historyService.activity(projectContext.projectCode)) as Activity[];
     console.debug('Activity data', data);
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
-      return [];
+      return [] as Activity[];
     }
     data.reverse();
     for (let i = 0; i < data.length; i++) {
@@ -36,7 +38,7 @@
     return data.toReversed();
   },
   {
-    initialValue: [],
+    initialValue: [] as Activity[],
   });
 
   let selectedRow = $derived(activity.current[0]);
@@ -48,41 +50,45 @@
       .map(line => line.slice(2)) // Remove one level of indentation
       .join('\n'); // Join the lines back together;
   }
+  const zeroS = formatDuration({seconds: 1}, 'seconds', {style: 'narrow'}).replace('1', '0');
 </script>
 
 {#if !activity.loading}
-  <div class="m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-       style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr)">
+  <div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
+       style="grid-template-rows: auto minmax(0,100%); minmax(min-content, 1fr) minmax(min-content, 2fr); grid-template-columns: 1fr 2fr">
 
     <SidebarTrigger icon="i-mdi-menu" iconProps={{ class: 'size-5' }} class="aspect-square p-0" size="xs"/>
-    <div class="flex flex-col gap-4 overflow-hidden row-start-2">
-      <div class="border rounded-md overflow-y-auto">
-        {#if activity.current.length === 0}
-          <div class="p-4 text-center opacity-75">{$t`No activity found`}</div>
-        {:else}
-          <InfiniteScroll perPage={50} items={activity.current} let:visibleItems>
-            {#each visibleItems as row (row.timestamp)}
-              <ListItem
-                title={row.changeName}
-                noShadow
-                on:click={() => selectedRow = row}
-                class={cls(selectedRow?.commitId === row.commitId ? 'bg-primary/20 dark:bg-primary/20 selected-entry' : 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted')}>
-                <div slot="subheading" class="text-sm">
-                  {#if row.previousTimestamp}
-                    <Duration totalUnits={2} start={new Date(row.timestamp)}
-                              end={new Date(row.previousTimestamp)}
-                              minUnits={DurationUnits.Second}/>
-                    {$t`before`}
-                  {:else}
-                    <Duration totalUnits={2} start={new Date(row.timestamp)} minUnits={DurationUnits.Second}/>
-                    {$t`ago`}
-                  {/if}
-                </div>
-              </ListItem>
-            {/each}
-          </InfiniteScroll>
-        {/if}
-      </div>
+    <div class="gap-4 overflow-hidden row-start-2">
+
+      <VList data={activity.current ?? []}
+             class="h-full p-0.5 md:pr-3 after:h-12 after:block"
+             getKey={row => row.timestamp} overscan={10}>
+        {#snippet children(row)}
+          <ListItem
+            onclick={() => selectedRow = row}
+            selected={selectedRow?.commitId === row.commitId}
+            class="mb-2">
+            <span>{row.changeName}</span>
+            <div class="text-sm text-muted-foreground">
+              {#if row.previousTimestamp}
+                <FormatDuration start={new Date(row.timestamp)}
+                                end={new Date(row.previousTimestamp)}
+                                smallestUnit="seconds"
+                                options={{style: 'narrow'}}/>
+                {$t`before`}
+              {:else}
+                <FormatDuration start={new Date(row.timestamp)}
+                                smallestUnit="seconds"
+                                options={{style: 'narrow'}}/>
+                {$t`ago`}
+              {/if}
+            </div>
+          </ListItem>
+        {/snippet}
+      </VList>
+      {#if activity.current.length === 0}
+        <div class="p-4 text-center opacity-75">{$t`No activity found`}</div>
+      {/if}
     </div>
 
     <div class="grid grid-cols-subgrid grid-rows-subgrid col-start-2 row-span-2">
@@ -101,20 +107,20 @@
           {#if selectedRow.metadata.extraMetadata['SyncDate']}
             <span class="float-right">
               {$t`Synced`}
-              <Duration totalUnits={2} minUnits={DurationUnits.Second}
-                        start={new Date(selectedRow.metadata.extraMetadata['SyncDate'])}/> {$t`ago`}
+              {formatDuration({seconds: (new Date().getTime() - new Date(selectedRow.metadata.extraMetadata['SyncDate']).getTime()) / 1000}, 'seconds', {style: 'narrow'})}
+              {$t`ago`}
             </span>
           {/if}
         </div>
         <div
-          class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded h-max max-h-full">
-          <InfiniteScroll perPage={100} items={selectedRow.changes} let:visibleItems>
-            {#each visibleItems as change}
+          class="change-list col-start-2 row-start-2 flex flex-col gap-4 overflow-auto p-1 border rounded">
+          <VList data={selectedRow.changes}>
+            {#snippet children(change)}
               <div class="change whitespace-pre-wrap font-mono text-sm">
                 {formatJsonForUi(change)}
               </div>
-            {/each}
-          </InfiniteScroll>
+            {/snippet}
+          </VList>
         </div>
       {/if}
     </div>

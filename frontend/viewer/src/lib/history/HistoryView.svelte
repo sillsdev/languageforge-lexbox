@@ -1,6 +1,5 @@
 ﻿<script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
-  import {cls, Duration, DurationUnits, InfiniteScroll, ListItem} from 'svelte-ux';
   import {t} from 'svelte-i18n-lingui';
   import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import ExampleEditorPrimitive from '../entry-editor/object-editors/ExampleEditorPrimitive.svelte';
@@ -8,6 +7,9 @@
   import {type HistoryItem, useHistoryService} from '../services/history-service';
   import {EditorGrid} from '$lib/components/editor';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import ListItem from '$lib/components/ListItem.svelte';
+  import {VList} from 'virtua/svelte';
+  import {FormatDuration, formatDuration} from '$lib/components/ui/format';
 
   export let id: string;
   export let open: boolean;
@@ -51,6 +53,8 @@
     record = undefined;
     history = [];
   }
+
+  const zeroS = formatDuration({seconds: 1}, 'seconds', {style: 'narrow'}).replace('1', '0');
 </script>
 
 <Dialog.Root bind:open>
@@ -59,33 +63,40 @@
       <Dialog.DialogTitle>{$t`History`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
     {#if !loading}
-      <div class="grid gap-x-6 gap-y-1 overflow-hidden" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
-        <div class="flex flex-col gap-4 overflow-hidden row-start-2">
-          <div class="border rounded-md overflow-y-auto">
+      <div class="grid gap-x-6 gap-y-1" style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);">
+        <div class="flex flex-col gap-4 row-start-2">
+          <div class="h-full rounded-md">
             {#if !history || history.length === 0}
               <div class="p-4 text-center opacity-75">{$t`No history found`}</div>
             {:else}
-              <InfiniteScroll perPage={50} items={history} let:visibleItems>
-                {#each visibleItems as row (`${row.commitId}_${row.changeIndex}`)}
+              <VList data={history}
+                     getKey={row => `${row.commitId}_${row.changeIndex}`}
+                     class="h-full p-0.5 md:pr-3 after:h-12 after:block">
+                {#snippet children(row)}
                   <ListItem
-                    title={row.changeName ?? $t`No change name`}
-                    on:click={() => showEntry(row)}
-                    noShadow
-                    class={cls(record?.commitId === row.commitId ? 'bg-primary/20 dark:bg-primary/20 selected-entry' : 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted')}>
-                    <div slot="subheading" class="text-sm">
+                    onclick={() => showEntry(row)}
+                    class="mb-2"
+                    selected={record?.commitId === row.commitId}>
+                    <span>{row.changeName ?? $t`No change name`}</span>
+                    <div class="text-sm text-muted-foreground">
                       {#if row.previousTimestamp}
-                        <Duration totalUnits={2} start={new Date(row.timestamp)}
-                                  end={new Date(row.previousTimestamp)}
-                                  minUnits={DurationUnits.Second}/>
+                        <FormatDuration
+                          start={new Date(row.timestamp)}
+                          end={new Date(row.previousTimestamp)}
+                          smallestUnit="seconds"
+                          options={{style: 'narrow'}}/>
                         {$t`before`}
                       {:else}
-                        <Duration totalUnits={2} start={new Date(row.timestamp)} minUnits={DurationUnits.Second}/>
+                        <FormatDuration
+                          start={new Date(row.timestamp)}
+                          smallestUnit="seconds"
+                          options={{style: 'narrow'}}/>
                         {$t`ago`}
                       {/if}
                     </div>
                   </ListItem>
-                {/each}
-              </InfiniteScroll>
+                  {/snippet}
+              </VList>
             {/if}
           </div>
         </div>
