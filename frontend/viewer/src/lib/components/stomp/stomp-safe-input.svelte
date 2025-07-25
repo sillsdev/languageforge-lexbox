@@ -28,4 +28,4 @@
   onchange: () => {
     guard.commitAndUnlock();
   }
-}, rest)} />
+}, { onchange }, rest)} />
