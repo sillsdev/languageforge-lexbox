@@ -29,9 +29,6 @@ export default defineConfig(({ mode, command }) => {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
           assetFileNames: '[name][extname]',
-          manualChunks: webComponent ? {} : {
-            'svelte-ux': ['svelte-ux'],
-          },
         },
         onwarn: (warning, handler) => {
           // we don't have control over these warnings
@@ -44,13 +41,7 @@ export default defineConfig(({ mode, command }) => {
       alias: [{find: "$lib", replacement: "/src/lib"}]
     },
     plugins: [
-      svelte({
-        onwarn: (warning, handler) => {
-          // we don't have control over these warnings and there are lots
-          if (warning.filename?.includes('node_modules/svelte-ux')) return;
-          handler(warning);
-        },
-      }),
+      svelte(),
       lingui(),
       webfontDownload([],
     {
