@@ -9,7 +9,7 @@
         99
       ]
     ],
-    "translation": "– ({0} 변경)"
+    "translation": "– ({0} changes)"
   },
   "mpbC3j": {
     "message": "{0} - FieldWorks",
@@ -69,7 +69,7 @@
         54
       ]
     ],
-    "translation": "{0} 서버"
+    "translation": "{0} Server"
   },
   "tgUNp+": {
     "message": "{0} synced to FieldWorks. {1} synced to FieldWorks Lite.",
@@ -81,7 +81,7 @@
         95
       ]
     ],
-    "translation": "{0}가 FieldWorks와 동기화되었습니다. {1}가 FieldWorks Lite와 동기화되었습니다."
+    "translation": "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
   },
   "ubuwKa": {
     "message": "{num, plural, one {# change} other {# changes}}",
@@ -97,7 +97,7 @@
         93
       ]
     ],
-    "translation": "{num, plural, one {# 변경} other {# 변경}}"
+    "translation": "{num, plural, one {# change} other {# changes}}"
   },
   "UuldxO": {
     "message": "A new version of FieldWorks lite is available.",
@@ -109,7 +109,7 @@
         24
       ]
     ],
-    "translation": "FieldWorks lite의 새 버전을 사용할 수 있습니다."
+    "translation": "A new version of FieldWorks lite is available."
   },
   "fhKYsI": {
     "message": "a word",
@@ -121,7 +121,7 @@
         102
       ]
     ],
-    "translation": "단어"
+    "translation": "a word"
   },
   "uyJsf6": {
     "message": "About",
@@ -133,7 +133,7 @@
         22
       ]
     ],
-    "translation": "정보"
+    "translation": "About"
   },
   "AeXO77": {
     "message": "Account",
@@ -145,7 +145,7 @@
         136
       ]
     ],
-    "translation": "계정"
+    "translation": "Account"
   },
   "XJOV1Y": {
     "message": "Activity",
@@ -157,7 +157,7 @@
         93
       ]
     ],
-    "translation": "활동"
+    "translation": "Activity"
   },
   "KdJj3U": {
     "message": "Add component",
@@ -173,7 +173,7 @@
         57
       ]
     ],
-    "translation": "구성 요소 추가"
+    "translation": "Add component"
   },
   "nI3A8B": {
     "message": "Add Example",
@@ -185,7 +185,7 @@
         211
       ]
     ],
-    "translation": "예제 추가"
+    "translation": "Add Example"
   },
   "dt7w9L": {
     "message": "Add Meaning",
@@ -201,7 +201,7 @@
         226
       ]
     ],
-    "translation": "의미 추가"
+    "translation": "Add Meaning"
   },
   "uvBQSU": {
     "message": "Add part of",
@@ -213,7 +213,7 @@
         51
       ]
     ],
-    "translation": "의 일부 추가"
+    "translation": "Add part of"
   },
   "0YSbah": {
     "message": "Add Sense",
@@ -229,7 +229,7 @@
         226
       ]
     ],
-    "translation": "의미 추가"
+    "translation": "Add Sense"
   },
   "XeIoU/": {
     "message": "ago",
@@ -249,7 +249,7 @@
         105
       ]
     ],
-    "translation": "전"
+    "translation": "ago"
   },
   "iPthvs": {
     "message": "an entry",
@@ -261,7 +261,7 @@
         102
       ]
     ],
-    "translation": "항목"
+    "translation": "an entry"
   },
   "ZYimak": {
     "message": "Application version",
@@ -273,7 +273,7 @@
         33
       ]
     ],
-    "translation": "애플리케이션 버전"
+    "translation": "Application version"
   },
   "GKJXpX": {
     "message": "Are you sure you want to delete {0}?",
@@ -285,7 +285,7 @@
         55
       ]
     ],
-    "translation": "{0}을(를) 삭제하시겠습니까?"
+    "translation": "Are you sure you want to delete {0}?"
   },
   "6QeoeO": {
     "message": "Author:",
@@ -301,7 +301,7 @@
         91
       ]
     ],
-    "translation": "작성자:"
+    "translation": "Author:"
   },
   "R9Khdg": {
     "message": "Auto",
@@ -313,7 +313,7 @@
         73
       ]
     ],
-    "translation": "자동"
+    "translation": "Auto"
   },
   "VmDOAV": {
     "message": "Auto synchronizing",
@@ -325,7 +325,7 @@
         176
       ]
     ],
-    "translation": "자동 동기화 중"
+    "translation": "Auto synchronizing"
   },
   "CI9Ae4": {
     "message": "before",
@@ -341,7 +341,7 @@
         75
       ]
     ],
-    "translation": "이전"
+    "translation": "before"
   },
   "3qtIhN": {
     "message": "Best match",
@@ -353,7 +353,7 @@
         9
       ]
     ],
-    "translation": "가장 일치하는 항목"
+    "translation": "Best match"
   },
   "O2UpM1": {
     "message": "Browse",
@@ -365,7 +365,7 @@
         88
       ]
     ],
-    "translation": "찾아보기"
+    "translation": "Browse"
   },
   "dEgA5A": {
     "message": "Cancel",
@@ -389,7 +389,7 @@
         280
       ]
     ],
-    "translation": "취소"
+    "translation": "Cancel"
   },
   "7Esn9Y": {
     "message": "Citation form",
@@ -401,7 +401,7 @@
         55
       ]
     ],
-    "translation": "인용 형식"
+    "translation": "Citation form"
   },
   "Q01cKL": {
     "message": "Classic FieldWorks Projects",
@@ -413,7 +413,7 @@
         225
       ]
     ],
-    "translation": "클래식 FieldWorks 프로젝트"
+    "translation": "Classic FieldWorks Projects"
   },
   "K0PCkZ": {
     "message": "clear",
@@ -429,7 +429,7 @@
         205
       ]
     ],
-    "translation": "지우기"
+    "translation": "clear"
   },
   "yz7wBu": {
     "message": "Close",
@@ -449,7 +449,7 @@
         28
       ]
     ],
-    "translation": "닫기"
+    "translation": "Close"
   },
   "Iy+nsd": {
     "message": "Close Dictionary",
@@ -461,7 +461,7 @@
         155
       ]
     ],
-    "translation": "사전 닫기"
+    "translation": "Close Dictionary"
   },
   "jZlrte": {
     "message": "Color",
@@ -473,7 +473,7 @@
         32
       ]
     ],
-    "translation": "색상"
+    "translation": "Color"
   },
   "PkH7DZ": {
     "message": "Complex Form",
@@ -493,7 +493,7 @@
         45
       ]
     ],
-    "translation": "복합 형식"
+    "translation": "Complex Form"
   },
   "W+5v9T": {
     "message": "Complex form types",
@@ -505,7 +505,7 @@
         88
       ]
     ],
-    "translation": "복합 형식 유형"
+    "translation": "Complex form types"
   },
   "j6HACU": {
     "message": "Complex forms",
@@ -517,7 +517,7 @@
         67
       ]
     ],
-    "translation": "복합 형식"
+    "translation": "Complex forms"
   },
   "dK3Z9j": {
     "message": "Component",
@@ -541,7 +541,7 @@
         50
       ]
     ],
-    "translation": "구성 요소"
+    "translation": "Component"
   },
   "RRa/CR": {
     "message": "Components",
@@ -553,7 +553,7 @@
         77
       ]
     ],
-    "translation": "구성 요소"
+    "translation": "Components"
   },
   "b9XOHo": {
     "message": "Create {0}",
@@ -565,7 +565,7 @@
         112
       ]
     ],
-    "translation": "{0} 만들기"
+    "translation": "Create {0}"
   },
   "sYP6Ef": {
     "message": "Create entry",
@@ -577,7 +577,7 @@
         12
       ]
     ],
-    "translation": "항목 만들기"
+    "translation": "Create entry"
   },
   "0widty": {
     "message": "Create Example Project",
@@ -589,7 +589,7 @@
         203
       ]
     ],
-    "translation": "예제 프로젝트 만들기"
+    "translation": "Create Example Project"
   },
   "OVriW/": {
     "message": "Create word",
@@ -601,7 +601,7 @@
         12
       ]
     ],
-    "translation": "단어 만들기"
+    "translation": "Create word"
   },
   "Jxxmun": {
     "message": "Current Entry",
@@ -617,7 +617,7 @@
         43
       ]
     ],
-    "translation": "현재 항목"
+    "translation": "Current Entry"
   },
   "e2n436": {
     "message": "Current Word",
@@ -633,7 +633,7 @@
         43
       ]
     ],
-    "translation": "현재 단어"
+    "translation": "Current Word"
   },
   "7p5kLi": {
     "message": "Dashboard",
@@ -645,7 +645,7 @@
         86
       ]
     ],
-    "translation": "대시보드"
+    "translation": "Dashboard"
   },
   "yX4qgn": {
     "message": "Data Directory",
@@ -657,7 +657,7 @@
         35
       ]
     ],
-    "translation": "데이터 디렉터리"
+    "translation": "Data Directory"
   },
   "MbRyzp": {
     "message": "Definition",
@@ -669,7 +669,7 @@
         52
       ]
     ],
-    "translation": "정의"
+    "translation": "Definition"
   },
   "cnGeoo": {
     "message": "Delete",
@@ -681,7 +681,7 @@
         177
       ]
     ],
-    "translation": "삭제"
+    "translation": "Delete"
   },
   "Y2tU6I": {
     "message": "Delete {0}",
@@ -697,7 +697,7 @@
         59
       ]
     ],
-    "translation": "{0} 삭제"
+    "translation": "Delete {0}"
   },
   "P0mjNu": {
     "message": "Delete Entry",
@@ -709,7 +709,7 @@
         55
       ]
     ],
-    "translation": "항목 삭제"
+    "translation": "Delete Entry"
   },
   "i/7SVG": {
     "message": "Delete Word",
@@ -721,7 +721,7 @@
         55
       ]
     ],
-    "translation": "단어 삭제"
+    "translation": "Delete Word"
   },
   "RY27RL": {
     "message": "Dictionaries",
@@ -737,7 +737,7 @@
         110
       ]
     ],
-    "translation": "사전"
+    "translation": "Dictionaries"
   },
   "VrH1k+": {
     "message": "Dictionary",
@@ -749,7 +749,7 @@
         82
       ]
     ],
-    "translation": "사전"
+    "translation": "Dictionary"
   },
   "OVGpil": {
     "message": "Dictionary Preview",
@@ -761,7 +761,7 @@
         38
       ]
     ],
-    "translation": "사전 미리보기"
+    "translation": "Dictionary Preview"
   },
   "NagCcF": {
     "message": "Display as",
@@ -773,7 +773,7 @@
         55
       ]
     ],
-    "translation": "표시 형식"
+    "translation": "Display as"
   },
   "z9VIKz": {
     "message": "Don't delete",
@@ -785,7 +785,7 @@
         58
       ]
     ],
-    "translation": "삭제 안 함"
+    "translation": "Don't delete"
   },
   "mzI/c+": {
     "message": "Download",
@@ -801,7 +801,7 @@
         119
       ]
     ],
-    "translation": "다운로드"
+    "translation": "Download"
   },
   "VIwCaD": {
     "message": "Entry",
@@ -821,7 +821,7 @@
         250
       ]
     ],
-    "translation": "항목"
+    "translation": "Entry"
   },
   "byQjNm": {
     "message": "Entry Only",
@@ -833,7 +833,7 @@
         211
       ]
     ],
-    "translation": "항목만"
+    "translation": "Entry Only"
   },
   "bQ8ysI": {
     "message": "Entry or sense:",
@@ -845,7 +845,7 @@
         204
       ]
     ],
-    "translation": "항목 또는 의미:"
+    "translation": "Entry or sense:"
   },
   "yeYJfy": {
     "message": "Error getting sync status",
@@ -857,7 +857,7 @@
         117
       ]
     ],
-    "translation": "동기화 상태를 가져오는 중 오류 발생"
+    "translation": "Error getting sync status"
   },
   "ggzvfk": {
     "message": "Error getting sync status.",
@@ -869,7 +869,7 @@
         186
       ]
     ],
-    "translation": "동기화 상태를 가져오는 중 오류가 발생했습니다."
+    "translation": "Error getting sync status."
   },
   "TpqeIh": {
     "message": "Error: {0}",
@@ -881,7 +881,7 @@
         250
       ]
     ],
-    "translation": "오류: {0}"
+    "translation": "Error: {0}"
   },
   "HmI5oK": {
     "message": "Example",
@@ -893,7 +893,7 @@
         183
       ]
     ],
-    "translation": "예제"
+    "translation": "Example"
   },
   "BGP/S1": {
     "message": "Example sentence",
@@ -905,7 +905,7 @@
         90
       ]
     ],
-    "translation": "예문"
+    "translation": "Example sentence"
   },
   "9QXzjh": {
     "message": "Failed to load entries",
@@ -917,7 +917,7 @@
         134
       ]
     ],
-    "translation": "항목을 로드하지 못했습니다"
+    "translation": "Failed to load entries"
   },
   "MS0/dh": {
     "message": "Failed to open data directory, use the path in the text field instead",
@@ -929,7 +929,7 @@
         22
       ]
     ],
-    "translation": "데이터 디렉터리를 열지 못했습니다. 대신 텍스트 필드의 경로를 사용하세요."
+    "translation": "Failed to open data directory, use the path in the text field instead"
   },
   "yPkUF+": {
     "message": "Failed to synchronize",
@@ -945,7 +945,7 @@
         119
       ]
     ],
-    "translation": "동기화하지 못했습니다"
+    "translation": "Failed to synchronize"
   },
   "YirHq7": {
     "message": "Feedback",
@@ -961,7 +961,7 @@
         126
       ]
     ],
-    "translation": "피드백"
+    "translation": "Feedback"
   },
   "jI2ZOA": {
     "message": "Field Labels",
@@ -973,7 +973,7 @@
         32
       ]
     ],
-    "translation": "필드 레이블"
+    "translation": "Field Labels"
   },
   "uKNYWn": {
     "message": "FieldWorks logo",
@@ -993,7 +993,7 @@
         231
       ]
     ],
-    "translation": "FieldWorks 로고"
+    "translation": "FieldWorks logo"
   },
   "LwjKwe": {
     "message": "Filter # entries",
@@ -1005,7 +1005,7 @@
         53
       ]
     ],
-    "translation": "#개 항목 필터링"
+    "translation": "Filter # entries"
   },
   "zGI/cf": {
     "message": "Filter # words",
@@ -1017,7 +1017,7 @@
         53
       ]
     ],
-    "translation": "#개 단어 필터링"
+    "translation": "Filter # words"
   },
   "ctQd0R": {
     "message": "Filter entries",
@@ -1029,7 +1029,7 @@
         59
       ]
     ],
-    "translation": "항목 필터링"
+    "translation": "Filter entries"
   },
   "IrEBhq": {
     "message": "Filter words",
@@ -1041,7 +1041,7 @@
         59
       ]
     ],
-    "translation": "단어 필터링"
+    "translation": "Filter words"
   },
   "6HLTEb": {
     "message": "Filter...",
@@ -1057,7 +1057,7 @@
         201
       ]
     ],
-    "translation": "필터..."
+    "translation": "Filter..."
   },
   "0KYzFS": {
     "message": "Find entry...",
@@ -1069,7 +1069,7 @@
         140
       ]
     ],
-    "translation": "항목 찾기..."
+    "translation": "Find entry..."
   },
   "gotGzB": {
     "message": "Find word...",
@@ -1081,7 +1081,7 @@
         140
       ]
     ],
-    "translation": "단어 찾기..."
+    "translation": "Find word..."
   },
   "F7GHkf": {
     "message": "Gloss",
@@ -1093,7 +1093,7 @@
         41
       ]
     ],
-    "translation": "주석"
+    "translation": "Gloss"
   },
   "u8+PAt": {
     "message": "Go to {0}",
@@ -1105,7 +1105,7 @@
         26
       ]
     ],
-    "translation": "{0}(으)로 이동"
+    "translation": "Go to {0}"
   },
   "Ks+qfd": {
     "message": "Grammatical info.",
@@ -1117,7 +1117,7 @@
         63
       ]
     ],
-    "translation": "문법 정보."
+    "translation": "Grammatical info."
   },
   "X5C2hm": {
     "message": "Headword",
@@ -1129,7 +1129,7 @@
         10
       ]
     ],
-    "translation": "표제어"
+    "translation": "Headword"
   },
   "vLyv1R": {
     "message": "Hide",
@@ -1141,7 +1141,7 @@
         40
       ]
     ],
-    "translation": "숨기기"
+    "translation": "Hide"
   },
   "0caMy7": {
     "message": "History",
@@ -1157,7 +1157,7 @@
         59
       ]
     ],
-    "translation": "기록"
+    "translation": "History"
   },
   "E8KyPm": {
     "message": "I don't see my project",
@@ -1169,7 +1169,7 @@
         129
       ]
     ],
-    "translation": "내 프로젝트가 보이지 않습니다"
+    "translation": "I don't see my project"
   },
   "l3s5ri": {
     "message": "Import",
@@ -1181,7 +1181,7 @@
         237
       ]
     ],
-    "translation": "가져오기"
+    "translation": "Import"
   },
   "rZkl7/": {
     "message": "Last change: {0}",
@@ -1197,7 +1197,7 @@
         242
       ]
     ],
-    "translation": "마지막 변경: {0}"
+    "translation": "Last change: {0}"
   },
   "Cb8zzH": {
     "message": "Lexbox logo",
@@ -1209,7 +1209,7 @@
         109
       ]
     ],
-    "translation": "Lexbox 로고"
+    "translation": "Lexbox logo"
   },
   "vSL95+": {
     "message": "Lexeme form",
@@ -1221,7 +1221,7 @@
         43
       ]
     ],
-    "translation": "어휘소 형식"
+    "translation": "Lexeme form"
   },
   "8oegWV": {
     "message": "List mode",
@@ -1233,7 +1233,7 @@
         63
       ]
     ],
-    "translation": "목록 모드"
+    "translation": "List mode"
   },
   "2kUuXE": {
     "message": "Literal meaning",
@@ -1245,7 +1245,7 @@
         103
       ]
     ],
-    "translation": "글자 그대로의 의미"
+    "translation": "Literal meaning"
   },
   "4PN67S": {
     "message": "Loading Dictionaries...",
@@ -1257,7 +1257,7 @@
         104
       ]
     ],
-    "translation": "사전 로드 중..."
+    "translation": "Loading Dictionaries..."
   },
   "+yD+Wu": {
     "message": "loading...",
@@ -1269,7 +1269,7 @@
         146
       ]
     ],
-    "translation": "로드 중..."
+    "translation": "loading..."
   },
   "d5zxa4": {
     "message": "Local",
@@ -1281,7 +1281,7 @@
         151
       ]
     ],
-    "translation": "로컬"
+    "translation": "Local"
   },
   "OgyJSr": {
     "message": "Local only",
@@ -1293,7 +1293,7 @@
         168
       ]
     ],
-    "translation": "로컬만"
+    "translation": "Local only"
   },
   "z0t9bb": {
     "message": "Login",
@@ -1305,7 +1305,7 @@
         182
       ]
     ],
-    "translation": "로그인"
+    "translation": "Login"
   },
   "z7IcPF": {
     "message": "Login to see projects",
@@ -1321,7 +1321,7 @@
         79
       ]
     ],
-    "translation": "프로젝트를 보려면 로그인하세요"
+    "translation": "Login to see projects"
   },
   "nOhz3x": {
     "message": "Logout",
@@ -1333,7 +1333,7 @@
         61
       ]
     ],
-    "translation": "로그아웃"
+    "translation": "Logout"
   },
   "nK30Fy": {
     "message": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸",
@@ -1345,7 +1345,7 @@
         188
       ]
     ],
-    "translation": "🇦🇹 🇹🇭 🇺🇸에서 ❤️로 만들었습니다"
+    "translation": "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
   },
   "6URaYg": {
     "message": "Meaning",
@@ -1369,7 +1369,7 @@
         15
       ]
     ],
-    "translation": "의미"
+    "translation": "Meaning"
   },
   "oPBJ/O": {
     "message": "Missing Examples",
@@ -1381,7 +1381,7 @@
         81
       ]
     ],
-    "translation": "예제 없음"
+    "translation": "Missing Examples"
   },
   "sb65UQ": {
     "message": "Missing Part of Speech",
@@ -1393,7 +1393,7 @@
         83
       ]
     ],
-    "translation": "품사 없음"
+    "translation": "Missing Part of Speech"
   },
   "XOUmTu": {
     "message": "Missing Semantic Domains",
@@ -1405,7 +1405,7 @@
         84
       ]
     ],
-    "translation": "의미 영역 없음"
+    "translation": "Missing Semantic Domains"
   },
   "1H/nm7": {
     "message": "Missing Senses",
@@ -1417,7 +1417,7 @@
         82
       ]
     ],
-    "translation": "의미 없음"
+    "translation": "Missing Senses"
   },
   "QWdKwH": {
     "message": "Move",
@@ -1429,7 +1429,7 @@
         61
       ]
     ],
-    "translation": "이동"
+    "translation": "Move"
   },
   "qqeAJM": {
     "message": "Never",
@@ -1441,7 +1441,7 @@
         243
       ]
     ],
-    "translation": "안 함"
+    "translation": "Never"
   },
   "isRobC": {
     "message": "New",
@@ -1453,7 +1453,7 @@
         48
       ]
     ],
-    "translation": "새로 만들기"
+    "translation": "New"
   },
   "6WSYbN": {
     "message": "New {0}",
@@ -1465,7 +1465,7 @@
         97
       ]
     ],
-    "translation": "새 {0}"
+    "translation": "New {0}"
   },
   "eL8osE": {
     "message": "New Entry",
@@ -1477,7 +1477,7 @@
         50
       ]
     ],
-    "translation": "새 항목"
+    "translation": "New Entry"
   },
   "QUaH5J": {
     "message": "No activity found",
@@ -1489,7 +1489,7 @@
         61
       ]
     ],
-    "translation": "활동을 찾을 수 없음"
+    "translation": "No activity found"
   },
   "cJKxGt": {
     "message": "No change name",
@@ -1501,7 +1501,7 @@
         71
       ]
     ],
-    "translation": "변경 이름 없음"
+    "translation": "No change name"
   },
   "hcFut8": {
     "message": "No Dictionaries found",
@@ -1513,7 +1513,7 @@
         108
       ]
     ],
-    "translation": "사전을 찾을 수 없음"
+    "translation": "No Dictionaries found"
   },
   "bakDdy": {
     "message": "No entries found",
@@ -1529,7 +1529,7 @@
         174
       ]
     ],
-    "translation": "항목을 찾을 수 없음"
+    "translation": "No entries found"
   },
   "7elymg": {
     "message": "No history found",
@@ -1541,7 +1541,7 @@
         66
       ]
     ],
-    "translation": "기록을 찾을 수 없음"
+    "translation": "No history found"
   },
   "V9PAEu": {
     "message": "No items found",
@@ -1557,7 +1557,7 @@
         220
       ]
     ],
-    "translation": "항목을 찾을 수 없음"
+    "translation": "No items found"
   },
   "ylgAlG": {
     "message": "No server configured",
@@ -1573,7 +1573,7 @@
         113
       ]
     ],
-    "translation": "서버가 구성되지 않음"
+    "translation": "No server configured"
   },
   "qdJypF": {
     "message": "No words found",
@@ -1585,7 +1585,7 @@
         174
       ]
     ],
-    "translation": "단어를 찾을 수 없음"
+    "translation": "No words found"
   },
   "EdQY6l": {
     "message": "None",
@@ -1601,7 +1601,7 @@
         176
       ]
     ],
-    "translation": "없음"
+    "translation": "None"
   },
   "wMP6DT": {
     "message": "Not logged in",
@@ -1617,7 +1617,7 @@
         111
       ]
     ],
-    "translation": "로그인하지 않음"
+    "translation": "Not logged in"
   },
   "KiJn9B": {
     "message": "Note",
@@ -1629,7 +1629,7 @@
         114
       ]
     ],
-    "translation": "참고"
+    "translation": "Note"
   },
   "6Aih4U": {
     "message": "Offline",
@@ -1645,7 +1645,7 @@
         109
       ]
     ],
-    "translation": "오프라인"
+    "translation": "Offline"
   },
   "LqMYkh": {
     "message": "Open Data Directory",
@@ -1657,7 +1657,7 @@
         40
       ]
     ],
-    "translation": "데이터 디렉터리 열기"
+    "translation": "Open Data Directory"
   },
   "Y4BKCd": {
     "message": "Open in FieldWorks",
@@ -1669,7 +1669,7 @@
         57
       ]
     ],
-    "translation": "FieldWorks에서 열기"
+    "translation": "Open in FieldWorks"
   },
   "OsAKOS": {
     "message": "Open in new Window",
@@ -1681,7 +1681,7 @@
         65
       ]
     ],
-    "translation": "새 창에서 열기"
+    "translation": "Open in new Window"
   },
   "sccXTS": {
     "message": "Open Log file",
@@ -1693,7 +1693,7 @@
         46
       ]
     ],
-    "translation": "로그 파일 열기"
+    "translation": "Open Log file"
   },
   "vgP+9p": {
     "message": "Part",
@@ -1709,7 +1709,7 @@
         44
       ]
     ],
-    "translation": "부분"
+    "translation": "Part"
   },
   "qW3eh2": {
     "message": "Part of",
@@ -1737,7 +1737,7 @@
         50
       ]
     ],
-    "translation": "~의 일부"
+    "translation": "Part of"
   },
   "h6kyNd": {
     "message": "Part of speech",
@@ -1749,7 +1749,7 @@
         63
       ]
     ],
-    "translation": "품사"
+    "translation": "Part of speech"
   },
   "kNiQp6": {
     "message": "Pinned",
@@ -1761,7 +1761,7 @@
         41
       ]
     ],
-    "translation": "고정됨"
+    "translation": "Pinned"
   },
   "rdUucN": {
     "message": "Preview",
@@ -1773,7 +1773,7 @@
         76
       ]
     ],
-    "translation": "미리보기"
+    "translation": "Preview"
   },
   "Xp1CO/": {
     "message": "Project name...",
@@ -1785,7 +1785,7 @@
         211
       ]
     ],
-    "translation": "프로젝트 이름..."
+    "translation": "Project name..."
   },
   "N2C89m": {
     "message": "Reference",
@@ -1797,7 +1797,7 @@
         60
       ]
     ],
-    "translation": "참조"
+    "translation": "Reference"
   },
   "4mRsmF": {
     "message": "Refine your filter to see more...",
@@ -1813,7 +1813,7 @@
         256
       ]
     ],
-    "translation": "더 보려면 필터를 구체화하세요..."
+    "translation": "Refine your filter to see more..."
   },
   "TG4hr2": {
     "message": "Refresh Projects",
@@ -1829,7 +1829,7 @@
         155
       ]
     ],
-    "translation": "프로젝트 새로고침"
+    "translation": "Refresh Projects"
   },
   "t/YqKh": {
     "message": "Remove",
@@ -1841,7 +1841,7 @@
         73
       ]
     ],
-    "translation": "제거"
+    "translation": "Remove"
   },
   "M7SqjM": {
     "message": "Reopen",
@@ -1853,7 +1853,7 @@
         41
       ]
     ],
-    "translation": "다시 열기"
+    "translation": "Reopen"
   },
   "aKuPxK": {
     "message": "Search # or #",
@@ -1865,7 +1865,7 @@
         null
       ]
     ],
-    "translation": "# 또는 # 검색"
+    "translation": "Search # or #"
   },
   "3NdSH7": {
     "message": "Search Dictionaries",
@@ -1877,7 +1877,7 @@
         98
       ]
     ],
-    "translation": "사전 검색"
+    "translation": "Search Dictionaries"
   },
   "02ePaq": {
     "message": "Select {0}",
@@ -1889,7 +1889,7 @@
         250
       ]
     ],
-    "translation": "{0} 선택"
+    "translation": "Select {0}"
   },
   "bbTYV2": {
     "message": "Select {0} to view details",
@@ -1901,7 +1901,7 @@
         102
       ]
     ],
-    "translation": "자세히 보려면 {0}을(를) 선택하세요"
+    "translation": "Select {0} to view details"
   },
   "mEtszZ": {
     "message": "Semantic domains",
@@ -1913,7 +1913,7 @@
         79
       ]
     ],
-    "translation": "의미 영역"
+    "translation": "Semantic domains"
   },
   "Ivc0e8": {
     "message": "Sense",
@@ -1937,7 +1937,7 @@
         15
       ]
     ],
-    "translation": "의미"
+    "translation": "Sense"
   },
   "FDpH/H": {
     "message": "Sentence",
@@ -1949,7 +1949,7 @@
         37
       ]
     ],
-    "translation": "문장"
+    "translation": "Sentence"
   },
   "Tz0i8g": {
     "message": "Settings",
@@ -1961,7 +1961,7 @@
         142
       ]
     ],
-    "translation": "설정"
+    "translation": "Settings"
   },
   "+drua4": {
     "message": "Shadcn Sandbox # #",
@@ -1973,7 +1973,7 @@
         null
       ]
     ],
-    "translation": "Shadcn 샌드박스 # #"
+    "translation": "Shadcn Sandbox # #"
   },
   "mFKqBL": {
     "message": "Share Log file",
@@ -1985,7 +1985,7 @@
         50
       ]
     ],
-    "translation": "로그 파일 공유"
+    "translation": "Share Log file"
   },
   "8vETh9": {
     "message": "Show",
@@ -1997,7 +1997,7 @@
         39
       ]
     ],
-    "translation": "표시"
+    "translation": "Show"
   },
   "0IaUwR": {
     "message": "Show {0} more...",
@@ -2009,7 +2009,7 @@
         191
       ]
     ],
-    "translation": "{0}개 더 보기..."
+    "translation": "Show {0} more..."
   },
   "AQK14J": {
     "message": "Simple",
@@ -2021,7 +2021,7 @@
         72
       ]
     ],
-    "translation": "단순"
+    "translation": "Simple"
   },
   "hQRttt": {
     "message": "Submit",
@@ -2041,7 +2041,7 @@
         283
       ]
     ],
-    "translation": "제출"
+    "translation": "Submit"
   },
   "N2FcBE": {
     "message": "Synced",
@@ -2057,7 +2057,7 @@
         105
       ]
     ],
-    "translation": "동기화됨"
+    "translation": "Synced"
   },
   "JXRN33": {
     "message": "Synced with {0}",
@@ -2069,7 +2069,7 @@
         168
       ]
     ],
-    "translation": "{0}와 동기화됨"
+    "translation": "Synced with {0}"
   },
   "UNnBU9": {
     "message": "Synchronize",
@@ -2089,7 +2089,7 @@
         122
       ]
     ],
-    "translation": "동기화"
+    "translation": "Synchronize"
   },
   "ivpwMF": {
     "message": "Synchronizing...",
@@ -2105,7 +2105,7 @@
         222
       ]
     ],
-    "translation": "동기화 중..."
+    "translation": "Synchronizing..."
   },
   "GtycJ/": {
     "message": "Tasks",
@@ -2117,7 +2117,7 @@
         90
       ]
     ],
-    "translation": "작업"
+    "translation": "Tasks"
   },
   "/OCqal": {
     "message": "Test Project",
@@ -2129,7 +2129,7 @@
         192
       ]
     ],
-    "translation": "테스트 프로젝트"
+    "translation": "Test Project"
   },
   "qYgnDa": {
     "message": "This date # and this emoji # are snippets",
@@ -2141,7 +2141,7 @@
         null
       ]
     ],
-    "translation": "이 날짜 #과 이 이모지 #은 스니펫입니다"
+    "translation": "This date # and this emoji # are snippets"
   },
   "f233G3": {
     "message": "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen.",
@@ -2153,7 +2153,7 @@
         40
       ]
     ],
-    "translation": "이 프로젝트는 이제 FieldWorks에서 열려 있습니다. FieldWorks Lite에서 계속 작업하려면 FieldWorks에서 프로젝트를 닫고 다시 열기를 클릭하십시오."
+    "translation": "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
   },
   "L2twOB": {
     "message": "Toggle filters",
@@ -2165,7 +2165,7 @@
         72
       ]
     ],
-    "translation": "필터 전환"
+    "translation": "Toggle filters"
   },
   "2N0C4b": {
     "message": "Toggle theme",
@@ -2177,7 +2177,7 @@
         24
       ]
     ],
-    "translation": "테마 전환"
+    "translation": "Toggle theme"
   },
   "wFcvZJ": {
     "message": "Translation",
@@ -2189,7 +2189,7 @@
         48
       ]
     ],
-    "translation": "번역"
+    "translation": "Translation"
   },
   "et+mIi": {
     "message": "Troubleshoot",
@@ -2209,7 +2209,7 @@
         132
       ]
     ],
-    "translation": "문제 해결"
+    "translation": "Troubleshoot"
   },
   "amlaqM": {
     "message": "Unable to open in FieldWorks",
@@ -2221,7 +2221,7 @@
         45
       ]
     ],
-    "translation": "FieldWorks에서 열 수 없음"
+    "translation": "Unable to open in FieldWorks"
   },
   "Ef7StM": {
     "message": "Unknown",
@@ -2245,7 +2245,7 @@
         95
       ]
     ],
-    "translation": "알 수 없음"
+    "translation": "Unknown"
   },
   "29VNqC": {
     "message": "Unknown error",
@@ -2257,7 +2257,7 @@
         115
       ]
     ],
-    "translation": "알 수 없는 오류"
+    "translation": "Unknown error"
   },
   "wja8aL": {
     "message": "Untitled",
@@ -2277,7 +2277,7 @@
         32
       ]
     ],
-    "translation": "무제"
+    "translation": "Untitled"
   },
   "S/J67B": {
     "message": "Uses components as",
@@ -2289,7 +2289,7 @@
         88
       ]
     ],
-    "translation": "다음을 구성 요소로 사용합니다"
+    "translation": "Uses components as"
   },
   "YYdC3A": {
     "message": "Version {0}",
@@ -2301,7 +2301,7 @@
         187
       ]
     ],
-    "translation": "버전 {0}"
+    "translation": "Version {0}"
   },
   "yK+3LL": {
     "message": "View Configuration",
@@ -2313,7 +2313,7 @@
         26
       ]
     ],
-    "translation": "구성 보기"
+    "translation": "View Configuration"
   },
   "LhKBuY": {
     "message": "Where are my projects?",
@@ -2325,7 +2325,7 @@
         86
       ]
     ],
-    "translation": "내 프로젝트는 어디에 있습니까?"
+    "translation": "Where are my projects?"
   },
   "dZiBrj": {
     "message": "Word",
@@ -2349,7 +2349,7 @@
         43
       ]
     ],
-    "translation": "단어"
+    "translation": "Word"
   },
   "yRdLNW": {
     "message": "Word only",
@@ -2361,7 +2361,7 @@
         211
       ]
     ],
-    "translation": "단어만"
+    "translation": "Word only"
   },
   "o0GO4i": {
     "message": "Word or meaning:",
@@ -2373,7 +2373,7 @@
         204
       ]
     ],
-    "translation": "단어 또는 의미:"
+    "translation": "Word or meaning:"
   },
   "cDHTt1": {
     "message": "Writing system: {0}",
@@ -2385,6 +2385,6 @@
         20
       ]
     ],
-    "translation": "쓰기 시스템: {0}"
+    "translation": "Writing system: {0}"
   }
 }
