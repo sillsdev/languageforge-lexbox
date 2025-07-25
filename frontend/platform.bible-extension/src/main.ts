@@ -212,8 +212,6 @@ export async function deactivate(): Promise<boolean> {
   return true;
 }
 
-// ts gets picky because this function can throw errors. Ignoring this because we aren't catching them at the moment
-// eslint-disable-next-line  @typescript-eslint/explicit-function-return-type
 function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
@@ -231,6 +229,9 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
     ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
     { stdio: [null, 'pipe', 'pipe'] },
   );
+  fwLiteProcess.once('exit', (code, signal) => {
+    logger.info(`[FwLiteWeb]: exited with code '${code}', signal '${signal}'`);
+  });
   if (fwLiteProcess.stdout) {
     fwLiteProcess.stdout.on('data', (data: Buffer) => {
       logger.info(`[FwLiteWeb]: ${data.toString().trim()}`);
