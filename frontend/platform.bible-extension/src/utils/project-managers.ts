@@ -17,6 +17,12 @@ export class ProjectManager {
     this.projectId = projectId;
   }
 
+  clearSettingsCache(): void {
+    this.fwDictionaryCode = undefined;
+    this.language = undefined;
+    this.name = undefined;
+  }
+
   static async getFwDictionaryCode(projectId: string): Promise<string | undefined> {
     return await new ProjectManager(projectId).getFwDictionaryCode();
   }

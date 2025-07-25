@@ -67,6 +67,13 @@ export class FwLiteApi {
     await this.fetchPath(path, 'DELETE');
   }
 
+  async doesProjectMatchLanguage(code: string, language: string): Promise<boolean> {
+    language = language.trim().toLocaleLowerCase();
+    if (!code || !language) return false;
+    const writingSystems = await this.getWritingSystems(code);
+    return JSON.stringify(writingSystems.vernacular).toLocaleLowerCase().includes(language);
+  }
+
   async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entries/${search}`;
@@ -75,6 +82,20 @@ export class FwLiteApi {
 
   async getProjects(): Promise<IProjectModel[]> {
     return (await this.fetchPath('localProjects')) as IProjectModel[];
+  }
+
+  async getProjectsMatchingLanguage(language?: string): Promise<IProjectModel[]> {
+    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
+    if (!language?.trim()) return projects;
+
+    const matches = (
+      await Promise.all(
+        projects.map(async (p) =>
+          (await this.doesProjectMatchLanguage(p.code, language)) ? p : null,
+        ),
+      )
+    ).filter((p) => p) as IProjectModel[];
+    return matches.length ? matches : projects;
   }
 
   async getWritingSystems(dictionaryCode?: string): Promise<IWritingSystems> {
