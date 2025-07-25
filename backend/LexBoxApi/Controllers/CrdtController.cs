@@ -93,6 +93,44 @@ public class CrdtController(
         return myProjects;
     }
 
+    [HttpGet("listProjectsV2")]
+    // Will eventually become `listProjects`, once current clients have been updated, at which point we'll
+    // retire the V2 endpoint
+    public async Task<ActionResult<ListProjectsResult>> ListProjectsWithDownloadRights()
+    {
+        var myProjects = await projectService.UserProjects(loggedInContext.User.Id)
+            .Where(p => p.Type == ProjectType.FLEx)
+            .Select(p => new FieldWorksLiteProject(p.Id,
+                p.Code,
+                p.Name,
+                p.LastCommit != null,
+                dbContext.Set<ServerCommit>().Any(c => c.ProjectId == p.Id),
+                p.Users.Where(u => u.UserId == loggedInContext.User.Id).Select(m => m.Role).FirstOrDefault()))
+            .ToArrayAsync();
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
+        {
+            await lexAuthService.RefreshUser(LexAuthConstants.ProjectsClaimType);
+        }
+        return new ListProjectsResult(myProjects, loggedInContext.User.CanDownloadProjectsWithoutMembership());
+    }
+
+    [HttpGet("isCrdtProject/{projectCode}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<bool>> IsCrdtProject(string projectCode)
+    {
+        await permissionService.AssertCanViewProject(projectCode);
+        var projectId = await projectService.LookupProjectId(projectCode);
+        if (projectId is null) return NotFound();
+        return Ok(projectService.IsCrdtProject(projectId.Value));
+    }
+
+    [HttpGet("{projectId}/canDownload")]
+    public async Task<ActionResult<bool>> CanDownloadProject(Guid projectId)
+    {
+        return await permissionService.CanDownloadProject(projectId);
+    }
+
     [HttpGet("lookupProjectId")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -106,6 +144,26 @@ public class CrdtController(
             return NotFound();
         }
 
+        return Ok(projectId.Value);
+    }
+
+    [HttpGet("lookupProjectIdForDownload")] // TODO: Bikeshed this endpoint name in code review
+    // Actually, can we just make this the lookupProjectId endpoint? Or is that used by something else?
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status406NotAcceptable)] // Closest HTTP code that fits the semantics for "not a CRDT project"
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<Guid>> GetProjectIdForDownload(string code)
+    {
+        var allowed = await permissionService.CanViewProject(code);
+        if (!allowed) return Forbid();
+        var projectId = await projectService.LookupProjectId(code);
+        if (projectId is null) return NotFound();
+        allowed = await permissionService.CanDownloadProject(projectId.Value);
+        if (!allowed) return Forbid();
+        var isCrdt = projectService.IsCrdtProject(projectId.Value);
+        if (!isCrdt) return StatusCode(406);
         return Ok(projectId.Value);
     }
 

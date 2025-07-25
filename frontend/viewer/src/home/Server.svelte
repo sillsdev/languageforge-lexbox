@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+  import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import {createEventDispatcher} from 'svelte';
@@ -13,6 +14,8 @@
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
+  import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
+  import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 
   const projectsService = useProjectsService();
 
@@ -23,6 +26,7 @@
   export let status: IServerStatus | undefined;
   $: server = status?.server;
   export let projects: Project[];
+  export let canDownloadByCode: boolean = false;
   export let localProjects: Project[];
   export let loading: boolean;
   let downloading = '';
@@ -48,13 +52,48 @@
     }
   }
 
+  async function downloadCrdtProjectByCode(projectCode: string, userRole: UserProjectRole): Promise<string | undefined> {
+    const downloadResult = await projectsService.downloadProjectByCode(projectCode, server!, userRole);
+    switch(downloadResult)
+    {
+      case DownloadProjectByCodeResult.Success:
+        dispatch('refreshAll');
+        return;
+      case DownloadProjectByCodeResult.Forbidden:
+        return $t`You don't have permission to download project ${projectCode} from server ${server?.displayName ?? ''}`;
+      case DownloadProjectByCodeResult.NotCrdtProject:
+        return $t`Project ${projectCode} on server ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
+      case DownloadProjectByCodeResult.ProjectNotFound:
+        return $t`Project ${projectCode} not found on server ${server?.displayName ?? ''}`;
+      case DownloadProjectByCodeResult.ProjectAlreadyDownloaded:
+        return $t`You have already downloaded the ${projectCode} project`;
+    }
+  }
+
+  function validateCodeForDownload(projectCode: string): string | undefined {
+    if (localProjects.some(p => p.code === projectCode)) {
+      return $t`You have already downloaded the ${projectCode} project`;
+    }
+  }
+
   function matchesProject(projects: Project[], project: Project): Project | undefined {
     if (project.id) {
       return projects.find(p => p.id == project.id && p.server?.id == project.server?.id);
     }
     return undefined;
   }
+
+  let getProjectByCodeDialog: GetProjectByCodeDialog|undefined;
+  function getProjectByCode()
+  {
+    getProjectByCodeDialog?.openDialog();
+  }
 </script>
+<GetProjectByCodeDialog
+  bind:this={getProjectByCodeDialog}
+  onDownloadProject={downloadCrdtProjectByCode}
+  validateCode={validateCodeForDownload}
+  />
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
@@ -94,11 +133,22 @@
             {$t`Where are my projects?`}
             <Icon icon="i-mdi-open-in-new" class="size-4" />
           </Button>
+          {#if canDownloadByCode}
+            <br/>
+            <Button icon="i-mdi-download"
+                  title={$t`Download project not listed`}
+                  disabled={loading}
+                  class="mr-2"
+                  variant="ghost"
+                  size="default"
+                  onclick={getProjectByCode}
+                  >{$t`Download project not listed`}</Button>
+          {/if}
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
       </p>
-    {:else}
+      {:else}
       <div class="shadow rounded">
         {#each projects as project}
           {@const localProject = matchesProject(localProjects, project)}
@@ -131,6 +181,16 @@
             </ButtonListItem>
           {/if}
         {/each}
+        {#if canDownloadByCode}
+        <Button icon="i-mdi-download"
+                title={$t`Download project not listed`}
+                disabled={loading}
+                class="mr-2"
+                variant="ghost"
+                size="default"
+                onclick={getProjectByCode}
+                >{$t`Download project not listed`}</Button>
+        {/if}
       </div>
       <div class="text-center pt-2">
         <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">

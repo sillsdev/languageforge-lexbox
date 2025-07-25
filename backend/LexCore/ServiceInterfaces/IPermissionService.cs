@@ -10,6 +10,7 @@ public interface IPermissionService
     ValueTask<bool> CanSyncProject(Guid projectId);
     ValueTask AssertCanSyncProject(string projectCode);
     ValueTask AssertCanSyncProject(Guid projectId);
+    ValueTask<bool> CanDownloadProject(Guid projectId);
     ValueTask AssertCanDownloadProject(Guid projectId);
     ValueTask<bool> CanViewProject(Guid projectId, LexAuthUser? overrideUser = null);
     ValueTask AssertCanViewProject(Guid projectId, LexAuthUser? overrideUser = null);

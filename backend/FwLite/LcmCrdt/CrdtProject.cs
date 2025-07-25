@@ -1,4 +1,5 @@
-﻿using LcmCrdt.Project;
+using System.Text.Json.Serialization;
+using LcmCrdt.Project;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LcmCrdt;
@@ -40,6 +41,7 @@ public record ProjectData(string Name, string Code, Guid Id, string? OriginDomai
     public bool IsReadonly => Role is not UserProjectRole.Editor and not UserProjectRole.Manager;
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserProjectRole
 {
     Unknown,

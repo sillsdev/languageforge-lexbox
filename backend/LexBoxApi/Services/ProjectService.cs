@@ -364,4 +364,9 @@ public class ProjectService(
     {
         return dbContext.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
     }
+
+    public bool IsCrdtProject(Guid projectId)
+    {
+        return dbContext.CrdtCommits(projectId).Any();
+    }
 }
