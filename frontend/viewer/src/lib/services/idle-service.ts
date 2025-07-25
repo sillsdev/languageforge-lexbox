@@ -4,17 +4,17 @@ import {getContext, hasContext, setContext} from 'svelte';
 const symbol = Symbol.for('fw-lite-idle-service');
 const DEFAULT_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
-export function useIdleService(): IdleService {
+export function useIdleService(timeout?: number): IdleService {
   if (hasContext(symbol)) return getContext(symbol);
-  const idleService = new IdleService();
-  setContext(symbol, idleService);
-  return idleService;
+  // Note that only the first call to useIdleService() can set the timeout.
+  const service = new IdleService(timeout);
+  setContext(symbol, service);
+  return service;
 }
 
 export class IdleService {
   constructor(timeoutMs?: number) {
-    timeoutMs ??= DEFAULT_IDLE_TIMEOUT_MS;
-    this.#isIdle = new IsIdle({ timeout: timeoutMs });
+    this.#isIdle = new IsIdle({ timeout: timeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS });
   }
 
   #isIdle: IsIdle;
