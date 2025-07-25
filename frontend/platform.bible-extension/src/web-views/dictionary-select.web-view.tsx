@@ -4,23 +4,23 @@ import type { IProjectModel } from 'fw-lite-extension';
 import { useCallback, useEffect, useState } from 'react';
 import DictionaryComboBox from '../components/dictionary-combo-box';
 
-globalThis.webViewComponent = function fwDictionarySelect(props: WebViewProps) {
+globalThis.webViewComponent = function fwDictionarySelect({ projectId }: WebViewProps) {
   const [fwDictionaries, setFwDictionaries] = useState<IProjectModel[] | undefined>();
 
   const selectDictionary = useCallback(
     async (code: string): Promise<void> => {
-      await commands.sendCommand('fwLiteExtension.selectDictionary', props.projectId!, code);
+      await commands.sendCommand('fwLiteExtension.selectDictionary', projectId!, code);
     },
-    [props.projectId],
+    [projectId],
   );
 
   useEffect(() => {
-    logger.info(`This WebView was opened for project '${props.projectId}'`);
+    logger.info(`This WebView was opened for project '${projectId}'`);
     void commands
-      .sendCommand('fwLiteExtension.fwDictionaries')
+      .sendCommand('fwLiteExtension.fwDictionaries', projectId)
       .then(setFwDictionaries)
       .catch((e) => void logger.error('Error fetching FieldWorks dictionaries:', e));
-  }, [props.projectId]);
+  }, [projectId]);
 
   return <DictionaryComboBox dictionaries={fwDictionaries} selectDictionary={selectDictionary} />;
 };

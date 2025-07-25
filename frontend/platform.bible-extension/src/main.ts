@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
-import type { BrowseWebViewOptions, WordWebViewOptions } from 'fw-lite-extension';
+import type { BrowseWebViewOptions, IProjectModel, WordWebViewOptions } from 'fw-lite-extension';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
@@ -169,9 +169,25 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const fwDictionariesCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.fwDictionaries',
-    async () => {
+    async (projectId?: string) => {
       logger.info('Fetching local FieldWorks dictionaries');
-      return await fwLiteApi.getProjects();
+      const dictionaries = await fwLiteApi.getProjects();
+      if (!dictionaries.length || !projectId) return dictionaries;
+
+      const lang = await projectManagers.getProjectManagerFromProjectId(projectId)?.getLanguage();
+      if (!lang) return dictionaries;
+
+      const matches = (
+        await Promise.all(
+          dictionaries.map(async (d) => {
+            const writingSystems = await fwLiteApi.getWritingSystems(d.code);
+            const isMatch = JSON.stringify(writingSystems.vernacular).includes(lang);
+            return isMatch ? d : null;
+          }),
+        )
+      ).filter((d) => d) as IProjectModel[];
+
+      return matches.length ? matches : dictionaries;
     },
   );
 
