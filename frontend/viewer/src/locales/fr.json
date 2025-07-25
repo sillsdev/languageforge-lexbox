@@ -11,6 +11,26 @@
     ],
     "translation": ""
   },
+  "J/hVSQ": {
+    "message": "{0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        28
+      ],
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        33
+      ],
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        37
+      ]
+    ],
+    "translation": ""
+  },
   "mpbC3j": {
     "message": "{0} - FieldWorks",
     "placeholders": {},
@@ -18,7 +38,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        239
+        249
       ]
     ],
     "translation": ""
@@ -30,7 +50,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        200
+        209
       ]
     ],
     "translation": ""
@@ -59,6 +79,18 @@
     ],
     "translation": ""
   },
+  "ZTysYT": {
+    "message": "{0} MB",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        30
+      ]
+    ],
+    "translation": ""
+  },
   "dhBPPx": {
     "message": "{0} Server",
     "placeholders": {},
@@ -66,7 +98,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        54
+        62
       ]
     ],
     "translation": "{0} Serveur"
@@ -78,7 +110,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        95
+        93
       ]
     ],
     "translation": ""
@@ -90,11 +122,11 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        92
+        91
       ],
       [
         "src/project/SyncDialog.svelte",
-        93
+        92
       ]
     ],
     "translation": ""
@@ -106,7 +138,7 @@
     "origin": [
       [
         "src/lib/notifications/NotificationOutlet.svelte",
-        24
+        20
       ]
     ],
     "translation": ""
@@ -142,7 +174,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        136
+        138
       ]
     ],
     "translation": "Compte"
@@ -154,10 +186,26 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        93
+        94
       ]
     ],
     "translation": "Activité"
+  },
+  "iXH2vL": {
+    "message": "Add audio",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        206
+      ],
+      [
+        "src/lib/components/audio/AudioDialog.svelte",
+        106
+      ]
+    ],
+    "translation": ""
   },
   "KdJj3U": {
     "message": "Add component",
@@ -182,7 +230,7 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        211
+        212
       ]
     ],
     "translation": ""
@@ -194,11 +242,11 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        226
+        227
       ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        226
+        227
       ]
     ],
     "translation": ""
@@ -222,11 +270,11 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        226
+        227
       ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        226
+        227
       ]
     ],
     "translation": ""
@@ -263,6 +311,18 @@
     ],
     "translation": ""
   },
+  "n4rsR8": {
+    "message": "Any Ws",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/WsSelect.svelte",
+        21
+      ]
+    ],
+    "translation": ""
+  },
   "ZYimak": {
     "message": "Application version",
     "placeholders": {},
@@ -283,6 +343,18 @@
       [
         "src/lib/entry-editor/DeleteDialog.svelte",
         55
+      ]
+    ],
+    "translation": ""
+  },
+  "C6dLUV": {
+    "message": "Audio file not included in Send & Receive",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        215
       ]
     ],
     "translation": ""
@@ -322,7 +394,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        176
+        183
       ]
     ],
     "translation": ""
@@ -362,7 +434,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        88
+        89
       ]
     ],
     "translation": "Parcourir"
@@ -382,11 +454,15 @@
       ],
       [
         "src/lib/components/field-editors/select.svelte",
-        164
+        166
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
         280
+      ],
+      [
+        "src/lib/components/audio/AudioDialog.svelte",
+        118
       ]
     ],
     "translation": ""
@@ -399,6 +475,18 @@
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         55
+      ]
+    ],
+    "translation": ""
+  },
+  "3I5qIF": {
+    "message": "Citation Form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        41
       ]
     ],
     "translation": ""
@@ -422,7 +510,7 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        116
+        118
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
@@ -458,7 +546,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        155
+        157
       ]
     ],
     "translation": "Fermer le Dictionnaire"
@@ -555,6 +643,18 @@
     ],
     "translation": ""
   },
+  "/5mghO": {
+    "message": "Contains",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/OpFilter.svelte",
+        13
+      ]
+    ],
+    "translation": ""
+  },
   "b9XOHo": {
     "message": "Create {0}",
     "placeholders": {},
@@ -642,7 +742,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        86
+        87
       ]
     ],
     "translation": "Tableau de Bord"
@@ -746,7 +846,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        82
+        83
       ]
     ],
     "translation": "Dictionnaire"
@@ -763,11 +863,27 @@
     ],
     "translation": ""
   },
+  "bzSI52": {
+    "message": "Discard",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        46
+      ]
+    ],
+    "translation": ""
+  },
   "NagCcF": {
     "message": "Display as",
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        41
+      ],
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         55
@@ -794,14 +910,50 @@
     "origin": [
       [
         "src/lib/notifications/NotificationOutlet.svelte",
-        30
+        26
       ],
       [
         "src/home/Server.svelte",
-        119
+        127
       ]
     ],
     "translation": "Télécharger"
+  },
+  "r5WJNT": {
+    "message": "Downloaded {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        38
+      ]
+    ],
+    "translation": ""
+  },
+  "f6QX+N": {
+    "message": "Downloading {0}...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        37
+      ]
+    ],
+    "translation": ""
+  },
+  "VCfLFG": {
+    "message": "Ends with",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/OpFilter.svelte",
+        14
+      ]
+    ],
+    "translation": ""
   },
   "VIwCaD": {
     "message": "Entry",
@@ -847,6 +999,18 @@
     ],
     "translation": ""
   },
+  "f9yJNM": {
+    "message": "Equals",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/OpFilter.svelte",
+        15
+      ]
+    ],
+    "translation": ""
+  },
   "yeYJfy": {
     "message": "Error getting sync status",
     "placeholders": {},
@@ -854,7 +1018,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        117
+        119
       ]
     ],
     "translation": ""
@@ -866,7 +1030,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        186
+        195
       ]
     ],
     "translation": ""
@@ -878,7 +1042,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        250
+        260
       ]
     ],
     "translation": ""
@@ -890,7 +1054,7 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        183
+        184
       ]
     ],
     "translation": ""
@@ -902,7 +1066,19 @@
     "origin": [
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        90
+        91
+      ]
+    ],
+    "translation": ""
+  },
+  "k+2jCl": {
+    "message": "Failed to download {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/home/Server.svelte",
+        39
       ]
     ],
     "translation": ""
@@ -938,11 +1114,19 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        89
-      ],
+        120
+      ]
+    ],
+    "translation": ""
+  },
+  "PuFGfT": {
+    "message": "Failed to synchronize.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
       [
         "src/project/SyncDialog.svelte",
-        119
+        95
       ]
     ],
     "translation": ""
@@ -954,7 +1138,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        177
+        179
       ],
       [
         "src/home/HomeView.svelte",
@@ -962,6 +1146,18 @@
       ]
     ],
     "translation": "Retour d'information"
+  },
+  "AXjA78": {
+    "message": "Field",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        136
+      ]
+    ],
+    "translation": ""
   },
   "jI2ZOA": {
     "message": "Field Labels",
@@ -995,6 +1191,30 @@
     ],
     "translation": "Logo FieldWorks"
   },
+  "E4G48M": {
+    "message": "File name:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        32
+      ]
+    ],
+    "translation": ""
+  },
+  "v41fCm": {
+    "message": "File not found",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        74
+      ]
+    ],
+    "translation": ""
+  },
   "LwjKwe": {
     "message": "Filter # entries",
     "placeholders": {},
@@ -1002,7 +1222,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        53
+        100
       ]
     ],
     "translation": ""
@@ -1014,7 +1234,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        53
+        100
       ]
     ],
     "translation": ""
@@ -1026,7 +1246,19 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        59
+        106
+      ]
+    ],
+    "translation": ""
+  },
+  "BkugWJ": {
+    "message": "Filter for",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        147
       ]
     ],
     "translation": ""
@@ -1038,7 +1270,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        59
+        106
       ]
     ],
     "translation": ""
@@ -1050,7 +1282,7 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        112
+        114
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
@@ -1088,6 +1320,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        42
+      ],
       [
         "src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte",
         41
@@ -1159,6 +1395,18 @@
     ],
     "translation": ""
   },
+  "f4JJ66": {
+    "message": "Hold to record or\\npress and release to start recording.",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-provider.svelte",
+        85
+      ]
+    ],
+    "translation": ""
+  },
   "E8KyPm": {
     "message": "I don't see my project",
     "placeholders": {},
@@ -1166,7 +1414,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        129
+        137
       ]
     ],
     "translation": ""
@@ -1190,11 +1438,23 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        203
+        212
       ],
       [
         "src/project/SyncDialog.svelte",
-        242
+        252
+      ]
+    ],
+    "translation": ""
+  },
+  "ok2GuG": {
+    "message": "Length:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        28
       ]
     ],
     "translation": ""
@@ -1219,6 +1479,18 @@
       [
         "src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte",
         43
+      ]
+    ],
+    "translation": ""
+  },
+  "efjzjh": {
+    "message": "Lexeme Form",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        40
       ]
     ],
     "translation": ""
@@ -1254,7 +1526,7 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        104
+        105
       ]
     ],
     "translation": ""
@@ -1302,7 +1574,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        182
+        189
       ]
     ],
     "translation": ""
@@ -1342,7 +1614,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        188
+        193
       ]
     ],
     "translation": "Fait avec ❤️ depuis 🇦🇹 🇹🇭 🇺🇸"
@@ -1358,11 +1630,11 @@
       ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        165
+        166
       ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        72
+        73
       ],
       [
         "src/lib/entry-editor/object-editors/AddSenseFab.svelte",
@@ -1378,7 +1650,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        81
+        152
       ]
     ],
     "translation": ""
@@ -1390,7 +1662,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        83
+        154
       ]
     ],
     "translation": ""
@@ -1402,7 +1674,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        84
+        155
       ]
     ],
     "translation": ""
@@ -1414,7 +1686,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        82
+        153
       ]
     ],
     "translation": ""
@@ -1438,7 +1710,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        243
+        253
       ]
     ],
     "translation": ""
@@ -1491,6 +1763,18 @@
     ],
     "translation": ""
   },
+  "p6Fxed": {
+    "message": "No audio",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        210
+      ]
+    ],
+    "translation": ""
+  },
   "cJKxGt": {
     "message": "No change name",
     "placeholders": {},
@@ -1510,7 +1794,7 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        108
+        109
       ]
     ],
     "translation": ""
@@ -1550,7 +1834,7 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        124
+        126
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
@@ -1566,7 +1850,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        184
+        193
       ],
       [
         "src/project/ProjectSidebar.svelte",
@@ -1594,11 +1878,23 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        99
+        101
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
         176
+      ]
+    ],
+    "translation": ""
+  },
+  "OPax5a": {
+    "message": "Not equal",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/OpFilter.svelte",
+        16
       ]
     ],
     "translation": ""
@@ -1610,7 +1906,7 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        247
+        257
       ],
       [
         "src/project/ProjectSidebar.svelte",
@@ -1638,11 +1934,23 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        180
+        187
       ],
       [
         "src/project/ProjectSidebar.svelte",
         109
+      ]
+    ],
+    "translation": ""
+  },
+  "WPtIFT": {
+    "message": "Offline, unable to download",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        77
       ]
     ],
     "translation": ""
@@ -1806,7 +2114,7 @@
     "origin": [
       [
         "src/lib/components/field-editors/select.svelte",
-        144
+        146
       ],
       [
         "src/lib/components/field-editors/multi-select.svelte",
@@ -1822,7 +2130,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        62
+        70
       ],
       [
         "src/home/HomeView.svelte",
@@ -1843,6 +2151,18 @@
     ],
     "translation": ""
   },
+  "Fem29f": {
+    "message": "Remove audio",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        261
+      ]
+    ],
+    "translation": ""
+  },
   "M7SqjM": {
     "message": "Reopen",
     "placeholders": {},
@@ -1851,6 +2171,30 @@
       [
         "src/lib/OpenInFieldWorksButton.svelte",
         41
+      ]
+    ],
+    "translation": ""
+  },
+  "pwMRBz": {
+    "message": "Replace audio",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        258
+      ]
+    ],
+    "translation": ""
+  },
+  "kGv7vG": {
+    "message": "Save audio",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/AudioDialog.svelte",
+        120
       ]
     ],
     "translation": ""
@@ -1874,7 +2218,7 @@
     "origin": [
       [
         "src/project/ProjectDropdown.svelte",
-        98
+        99
       ]
     ],
     "translation": ""
@@ -1903,6 +2247,22 @@
     ],
     "translation": ""
   },
+  "J6WI1B": {
+    "message": "Select file",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-provider.svelte",
+        66
+      ],
+      [
+        "src/lib/components/audio/audio-provider.svelte",
+        70
+      ]
+    ],
+    "translation": ""
+  },
   "mEtszZ": {
     "message": "Semantic domains",
     "placeholders": {},
@@ -1926,11 +2286,11 @@
       ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        165
+        166
       ],
       [
         "src/lib/entry-editor/object-editors/EntryEditor.svelte",
-        72
+        73
       ],
       [
         "src/lib/entry-editor/object-editors/AddSenseFab.svelte",
@@ -1958,7 +2318,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        142
+        144
       ]
     ],
     "translation": "Paramètres"
@@ -2023,6 +2383,30 @@
     ],
     "translation": ""
   },
+  "QdGvPV": {
+    "message": "Size:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        30
+      ]
+    ],
+    "translation": ""
+  },
+  "Ju9xEa": {
+    "message": "Starts with",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/OpFilter.svelte",
+        12
+      ]
+    ],
+    "translation": ""
+  },
   "hQRttt": {
     "message": "Submit",
     "placeholders": {},
@@ -2049,12 +2433,16 @@
     "comments": [],
     "origin": [
       [
+        "src/project/ProjectSidebar.svelte",
+        117
+      ],
+      [
         "src/lib/activity/ActivityView.svelte",
         103
       ],
       [
         "src/home/Server.svelte",
-        105
+        113
       ]
     ],
     "translation": "Synchronisé"
@@ -2078,18 +2466,30 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        142
+        149
       ],
       [
         "src/project/SyncDialog.svelte",
-        224
+        234
       ],
       [
         "src/project/ProjectSidebar.svelte",
-        122
+        124
       ]
     ],
     "translation": "Synchroniser"
+  },
+  "d5Q6AD": {
+    "message": "Synchronizing FieldWorks Lite with FieldWorks...",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        89
+      ]
+    ],
+    "translation": ""
   },
   "ivpwMF": {
     "message": "Synchronizing...",
@@ -2098,11 +2498,11 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        174
+        181
       ],
       [
         "src/project/SyncDialog.svelte",
-        222
+        232
       ]
     ],
     "translation": ""
@@ -2114,7 +2514,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        90
+        91
       ]
     ],
     "translation": "Tâches"
@@ -2162,7 +2562,7 @@
     "origin": [
       [
         "src/project/browse/SearchFilter.svelte",
-        72
+        119
       ]
     ],
     "translation": ""
@@ -2198,7 +2598,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        168
+        170
       ],
       [
         "src/lib/troubleshoot/TroubleshootDialog.svelte",
@@ -2210,6 +2610,18 @@
       ]
     ],
     "translation": "Résoudre les problèmes"
+  },
+  "lMdXuD": {
+    "message": "Type:",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/audio/audio-editor.svelte",
+        36
+      ]
+    ],
+    "translation": ""
   },
   "amlaqM": {
     "message": "Unable to open in FieldWorks",
@@ -2230,11 +2642,11 @@
     "origin": [
       [
         "src/project/SyncDialog.svelte",
-        243
+        253
       ],
       [
         "src/project/SyncDialog.svelte",
-        250
+        260
       ],
       [
         "src/lib/history/HistoryView.svelte",
@@ -2255,6 +2667,30 @@
       [
         "src/project/ProjectSidebar.svelte",
         115
+      ]
+    ],
+    "translation": ""
+  },
+  "jsLAXp": {
+    "message": "Unknown error {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/lib/components/field-editors/audio-input.svelte",
+        80
+      ]
+    ],
+    "translation": ""
+  },
+  "VTzzIW": {
+    "message": "Unknown server: {0}",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/SyncDialog.svelte",
+        191
       ]
     ],
     "translation": ""
@@ -2298,7 +2734,7 @@
     "origin": [
       [
         "src/project/ProjectSidebar.svelte",
-        187
+        192
       ]
     ],
     "translation": "Version {0}"
@@ -2322,7 +2758,7 @@
     "origin": [
       [
         "src/home/Server.svelte",
-        86
+        94
       ]
     ],
     "translation": ""
@@ -2332,6 +2768,10 @@
     "placeholders": {},
     "comments": [],
     "origin": [
+      [
+        "src/project/browse/SearchFilter.svelte",
+        40
+      ],
       [
         "src/project/browse/EntryMenu.svelte",
         37
@@ -2375,6 +2815,18 @@
     ],
     "translation": ""
   },
+  "I/hLND": {
+    "message": "Writing System",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/WsSelect.svelte",
+        18
+      ]
+    ],
+    "translation": ""
+  },
   "cDHTt1": {
     "message": "Writing system: {0}",
     "placeholders": {},
@@ -2382,7 +2834,19 @@
     "origin": [
       [
         "src/lib/components/lcm-rich-text-editor/editor-schema.ts",
-        20
+        27
+      ]
+    ],
+    "translation": ""
+  },
+  "5Pbs2Z": {
+    "message": "Writing Systems",
+    "placeholders": {},
+    "comments": [],
+    "origin": [
+      [
+        "src/project/browse/filter/WsSelect.svelte",
+        29
       ]
     ],
     "translation": ""
