@@ -47,7 +47,6 @@
     "@types/mjml": "^4.7.4",
     "@types/node": "^20.19.9",
     "@types/zxcvbn": "^4.4.5",
-    "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
     "@urql/core": "^5.2.0",
     "@urql/devtools": "^2.0.3",
