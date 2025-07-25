@@ -118,7 +118,7 @@
         <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube"/>
       </DevContent>
       <LocalizationPicker/>
-      <ThemePicker/>
+      <ThemePicker buttonProps={{variant: 'outline'}}/>
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
