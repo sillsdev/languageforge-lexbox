@@ -9,14 +9,14 @@
 
   type Props = {
     audio: Blob;
+    name: string
     onDiscard: () => void;
   };
 
-  let { audio, onDiscard }: Props = $props();
+  let { audio, name, onDiscard }: Props = $props();
 
   let audioApi = $state<WaveSurfer>();
   let playing = $state(false);
-  const name = $derived(audio instanceof File ? audio.name : undefined);
   let duration = $state<number | null>(null);
   const mb = $derived((audio.size / 1024 / 1024).toFixed(2));
   const formatedDuration = $derived(duration ? formatDigitalDuration({ seconds: duration }) : 'unknown');

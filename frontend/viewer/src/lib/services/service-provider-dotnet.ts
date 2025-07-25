@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import './service-declaration';
-import  { DotNet } from '@microsoft/dotnet-js-interop';
+//do not import as a value, we need to use the object defined on window
+import type {DotNet} from '@microsoft/dotnet-js-interop';
 import {type LexboxServiceRegistry, SERVICE_KEYS, type ServiceKey} from './service-provider';
+
+declare global {
+  interface Window {
+    DotNet: typeof DotNet;
+  }
+}
+
 export class DotNetServiceProvider {
   private services: LexboxServiceRegistry;
 
@@ -31,7 +39,7 @@ export class DotNetServiceProvider {
   }
 
   private isDotnetObject(service: object): service is DotNet.DotNetObject {
-    return service instanceof DotNet.DotNetObject || 'invokeMethodAsync' in service;
+    return service instanceof window.DotNet.DotNetObject || 'invokeMethodAsync' in service;
   }
 
   private validateAllServices() {
@@ -54,6 +62,7 @@ export function wrapInProxy<K extends ServiceKey>(dotnetObject: DotNet.DotNetObj
       const dotnetMethodName = uppercaseFirstLetter(prop);
       return async function proxyHandler(...args: unknown[]) {
         console.debug(`[Dotnet Proxy] Calling ${serviceName} method ${dotnetMethodName}`, args);
+        args = transformArgs(args);
         const result = await target.invokeMethodAsync(dotnetMethodName, ...args);
         console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, result);
         return result;
@@ -64,6 +73,18 @@ export function wrapInProxy<K extends ServiceKey>(dotnetObject: DotNet.DotNetObj
 
 function uppercaseFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function transformArgs(args: unknown[]): unknown[] {
+  return args.map(arg => {
+    return transformBlob(arg);
+  });
+}
+
+function transformBlob(result: unknown): unknown {
+  if (result instanceof Blob) return window.DotNet.createJSStreamReference(result);
+  if (result instanceof ArrayBuffer) return window.DotNet.createJSStreamReference(result);
+  return result;
 }
 
 export function setupDotnetServiceProvider() {

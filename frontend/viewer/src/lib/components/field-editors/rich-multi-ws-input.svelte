@@ -20,7 +20,7 @@
     value: IRichMultiString;
     readonly?: boolean;
     writingSystems: ReadonlyArray<ReadonlyDeep<IWritingSystem>>;
-    onchange?: (wsId: string, value: IRichString, values: IRichMultiString) => void;
+    onchange?: (wsId: string, value: IRichString | undefined, values: IRichMultiString) => void;
     autofocus?: boolean;
   } = $props();
 
@@ -40,6 +40,16 @@
 
   function getAudioId(richString: IRichString | undefined): string | undefined {
     return richString?.spans[0].text;
+  }
+
+  function setAudioId(audioId: string | undefined, wsId: string) {
+    let richString = audioId === undefined ? undefined : {spans: [{text: audioId ?? '', ws: wsId}]};
+    if (richString) {
+      value[wsId] = richString;
+    } else {
+      delete value[wsId];
+    }
+    onchange?.(wsId, richString, value);
   }
 
   const rootId = $props.id();
@@ -65,7 +75,7 @@
           aria-label={ws.abbreviation}
         />
       {:else}
-        <AudioInput audioId={getAudioId(value[ws.wsId])}/>
+        <AudioInput bind:audioId={() => getAudioId(value[ws.wsId]), audioId => setAudioId(audioId, ws.wsId)}/>
       {/if}
     </div>
   {/each}

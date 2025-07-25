@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using LcmCrdt.MediaServer;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +42,11 @@ public class MiniLcmApiFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        await InitializeAsync("sena-3");
+    }
+
+    public async Task InitializeAsync(string projectName)
+    {
         var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared" ;
         if (Debugger.IsAttached)
         {
@@ -51,7 +57,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
             }
         }
 
-        var crdtProject = new CrdtProject("sena-3", db);
+        var crdtProject = new CrdtProject(projectName, db);
         var services = new ServiceCollection()
             .AddTestLcmCrdtClient(crdtProject)
             .AddLogging(builder => builder.AddDebug()
@@ -64,7 +70,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
         await _crdtDbContext.Database.OpenConnectionAsync();
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
         await CrdtProjectsService.InitProjectDb(_crdtDbContext,
-            new ProjectData("Sena 3", "sena-3", Guid.NewGuid(), null, Guid.NewGuid()));
+            new ProjectData("Sena 3", projectName, Guid.NewGuid(), null, Guid.NewGuid()));
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().RefreshProjectData();
         if (_seedWs)
         {
@@ -122,6 +128,8 @@ public class MiniLcmApiFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
+        var projectResourceCachePath = _services.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
+        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
     }

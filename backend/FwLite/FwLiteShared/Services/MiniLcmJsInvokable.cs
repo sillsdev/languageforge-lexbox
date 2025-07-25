@@ -1,7 +1,9 @@
 using FwLiteShared.Sync;
 using LcmCrdt;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.Validators;
 using Reinforced.Typings.Attributes;
@@ -12,6 +14,7 @@ public class MiniLcmJsInvokable(
     IMiniLcmApi api,
     BackgroundSyncService backgroundSyncService,
     IProjectIdentifier project,
+    ILogger<MiniLcmJsInvokable> logger,
     MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory) : IDisposable
 {
@@ -343,6 +346,24 @@ public class MiniLcmJsInvokable(
         string? FileName,
         ReadFileResult Result,
         string? ErrorMessage);
+    public const int TenMbFileLimit = 10 * 1024 * 1024;
+
+    [JSInvokable]
+    public async Task<UploadFileResponse> SaveFile(IJSStreamReference streamReference, LcmFileMetadata metadata)
+    {
+        if (streamReference.Length > TenMbFileLimit) return new(UploadFileResult.TooBig);
+        await using var stream = await streamReference.OpenReadStreamAsync(TenMbFileLimit);
+        var result =  await _wrappedApi.SaveFile(stream, metadata);
+        try
+        {
+            await streamReference.DisposeAsync();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error disposing stream reference");
+        }
+        return result;
+    }
 
     public void Dispose()
     {

@@ -18,6 +18,8 @@ import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormCompo
 import type {ISense} from '../../MiniLcm/Models/ISense';
 import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
 import type {IReadFileResponseJs} from './IReadFileResponseJs';
+import type {IUploadFileResponse} from '../../MiniLcm/Media/IUploadFileResponse';
+import type {ILcmFileMetadata} from '../../MiniLcm/Media/ILcmFileMetadata';
 
 export interface IMiniLcmJsInvokable
 {
@@ -63,5 +65,6 @@ export interface IMiniLcmJsInvokable
 	updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence) : Promise<IExampleSentence>;
 	deleteExampleSentence(entryId: string, senseId: string, exampleSentenceId: string) : Promise<void>;
 	getFileStream(mediaUri: string) : Promise<IReadFileResponseJs>;
+	saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata) : Promise<IUploadFileResponse>;
 }
 /* eslint-enable */
