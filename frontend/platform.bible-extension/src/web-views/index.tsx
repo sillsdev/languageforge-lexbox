@@ -8,6 +8,7 @@ import mainStyles from '../styles.css?inline';
 import { WebViewType } from '../types/enums';
 import fwAddWordWindow from './add-word.web-view?inline';
 import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
+import fwFindRelatedWordsWindow from './find-related-words.web-view?inline';
 import fwFindWordWindow from './find-word.web-view?inline';
 import fwMainWindow from './main.web-view?inline';
 
@@ -89,6 +90,25 @@ export const findWordWebViewProvider: IWebViewProvider = {
       content: fwFindWordWindow,
       iconUrl,
       title: '%fwLiteExtension_findWord_title%',
+    };
+  },
+};
+
+export const findRelatedWordsWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: WordWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== String(WebViewType.FindRelatedWords))
+      throw new Error(
+        `${WebViewType.FindRelatedWords} provider received request to provide a ${savedWebView.webViewType} WebView`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwFindRelatedWordsWindow,
+      iconUrl,
+      title: '%fwLiteExtension_findRelatedWords_title%',
     };
   },
 };

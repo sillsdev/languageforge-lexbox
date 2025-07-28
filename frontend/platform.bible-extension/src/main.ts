@@ -27,6 +27,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     webViewProviders.dictionarySelectWebViewProvider,
   );
 
+  const findRelatedWordsWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
+    WebViewType.FindRelatedWords,
+    webViewProviders.findRelatedWordsWebViewProvider,
+  );
+
   const findWordWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
     WebViewType.FindWord,
     webViewProviders.findWordWebViewProvider,
@@ -146,6 +151,20 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const findRelatedEntriesCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.findRelatedEntries',
+    async (webViewId: string, word: string) => {
+      let success = false;
+
+      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      if (!projectManager) return { success };
+
+      const options: WordWebViewOptions = { word };
+      success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
+      return { success: true };
+    },
+  );
+
   // For development. Remove before publishing.
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
@@ -189,6 +208,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await mainWebViewProviderPromise,
     await addWordWebViewProviderPromise,
     await dictionarySelectWebViewProviderPromise,
+    await findRelatedWordsWebViewProviderPromise,
     await findWordWebViewProviderPromise,
     // Validators
     await validDictionaryCode,
@@ -197,6 +217,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await browseDictionaryCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
+    await findRelatedEntriesCommandPromise,
     await getBaseUrlCommandPromise,
     await openFwLiteCommandPromise,
     await selectFwDictionaryCommandPromise,

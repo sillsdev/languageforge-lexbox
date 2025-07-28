@@ -43,6 +43,12 @@
             "command": "fwLiteExtension.findEntry"
           },
           {
+            "label": "%fwLiteExtension_menu_findRelatedEntries%",
+            "group": "fw-lite-extension.editor",
+            "order": 4,
+            "command": "fwLiteExtension.findRelatedEntries"
+          },
+          {
             "label": "%fwLiteExtension_open_label%",
             "group": "fw-lite-extension.editor",
             "order": 1007,

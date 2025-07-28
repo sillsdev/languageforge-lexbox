@@ -1,10 +1,11 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
 import type { IEntry, IEntryService, IMultiString, WordWebViewOptions } from 'fw-lite-extension';
-import { Card, CardContent, CardHeader, SearchBar } from 'platform-bible-react';
+import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
+import EntryCard from '../components/entry-card';
 
 globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordWebViewOptions) {
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
@@ -83,22 +84,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
       {isFetching && <p>Loading...</p>}
       {!matchingEntries?.length && !isFetching && <p>No matching entries</p>}
       {matchingEntries?.map((entry) => (
-        <Card key={entry.id}>
-          <CardHeader>
-            {Object.keys(entry.citationForm as IMultiString).length
-              ? JSON.stringify(entry.citationForm)
-              : JSON.stringify(entry.lexemeForm)}
-          </CardHeader>
-          <CardContent>
-            <p>Senses:</p>
-            {entry.senses.map((sense) => (
-              <div key={sense.id}>
-                <strong>Gloss: {JSON.stringify(sense.gloss)}</strong>
-                <p>Definition: {JSON.stringify(sense.definition)}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <EntryCard entry={entry} />
       ))}
 
       <AddNewEntry

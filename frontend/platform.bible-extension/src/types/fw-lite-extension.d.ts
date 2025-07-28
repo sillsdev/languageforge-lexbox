@@ -7,6 +7,8 @@ declare module 'fw-lite-extension' {
   export type IMultiString = import('../../../viewer/src/lib/dotnet-types/index.js').IMultiString;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
   export type ISense = import('../../../viewer/src/lib/dotnet-types/index.js').ISense;
+  export type ISemanticDomain =
+    import('../../../viewer/src/lib/dotnet-types/index.js').ISemanticDomain;
   export type IWritingSystems =
     import('../../../viewer/src/lib/dotnet-types/index.js').IWritingSystems;
 
@@ -66,6 +68,10 @@ declare module 'papi-shared-types' {
     'fwLiteExtension.fwDictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
     'fwLiteExtension.openFWLite': () => Promise<SuccessHolder>; // Remove before publishing.
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'fwLiteExtension.findRelatedEntries': (
+      webViewId: string,
+      entry: string,
+    ) => Promise<SuccessHolder>;
     'fwLiteExtension.getBaseUrl': () => string;
   }
 

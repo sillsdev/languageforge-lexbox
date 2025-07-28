@@ -80,6 +80,13 @@ export class FwLiteApi {
     return (await this.fetchPath(path)) as IEntry[];
   }
 
+  async getEntriesInSemanticDomain(domainId: string, dictionaryCode?: string): Promise<IEntry[]> {
+    const { code, type } = this.checkDictionaryCode(dictionaryCode);
+    const path = `mini-lcm/${type}/${code}/entries-in-domain/${domainId}`;
+    logger.error(`Not yet implemented: ${path}`);
+    return [];
+  }
+
   async getProjects(): Promise<IProjectModel[]> {
     return (await this.fetchPath('localProjects')) as IProjectModel[];
   }
