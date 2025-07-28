@@ -1,5 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
+import { GridifyConditionalOperatorForUrl } from '../types/enums';
 
 /** Throws if urlPart is empty or has a / in it; returns otherwise. */
 function validateUrlPart(urlPart?: string): string {
@@ -74,17 +75,17 @@ export class FwLiteApi {
     return JSON.stringify(writingSystems.vernacular).toLocaleLowerCase().includes(language);
   }
 
-  async getEntries(search: string, dictionaryCode?: string): Promise<IEntry[]> {
+  async getEntries(
+    search?: string,
+    semanticDomain?: string,
+    dictionaryCode?: string,
+  ): Promise<IEntry[]> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
-    const path = `mini-lcm/${type}/${code}/entries/${search}`;
+    let path = `mini-lcm/${type}/${code}/entries`;
+    if (search) path += `/${search}`;
+    if (semanticDomain)
+      path += `?GridifyFilter=senses.semanticDomains.code${GridifyConditionalOperatorForUrl.Equal}${semanticDomain}`;
     return (await this.fetchPath(path)) as IEntry[];
-  }
-
-  async getEntriesInSemanticDomain(domainId: string, dictionaryCode?: string): Promise<IEntry[]> {
-    const { code, type } = this.checkDictionaryCode(dictionaryCode);
-    const path = `mini-lcm/${type}/${code}/entries-in-domain/${domainId}`;
-    logger.error(`Not yet implemented: ${path}`);
-    return [];
   }
 
   async getProjects(): Promise<IProjectModel[]> {

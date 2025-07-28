@@ -10,14 +10,17 @@ export class EntryService implements IEntryService {
   }
 
   async getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined> {
-    if (!query.surfaceForm) {
+    const { semanticDomain, surfaceForm } = query;
+    if (!semanticDomain && !surfaceForm) {
       logger.debug('No query!');
       return;
     }
     const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
     if (!dictionaryCode) return;
-    console.log(`About to fetch entries for '${query.surfaceForm}' in '${dictionaryCode}'`);
-    return this.fwLiteApi.getEntries(query.surfaceForm, dictionaryCode);
+    console.log(
+      `Fetching entries for '${surfaceForm}' (semantic domain '${semanticDomain}') in '${dictionaryCode}'`,
+    );
+    return this.fwLiteApi.getEntries(surfaceForm, semanticDomain, dictionaryCode);
   }
 
   async addEntry(projectId: string, entry: Partial<IEntry>): Promise<IEntry | undefined> {

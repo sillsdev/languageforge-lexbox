@@ -54,7 +54,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   }, [semanticDomains]);
 
   useEffect(() => {
-    if (selectedDomain) fetchRelatedEntries(selectedDomain.code);
+    if (selectedDomain) void fetchRelatedEntries(selectedDomain.code);
   }, [selectedDomain]);
 
   const addEntryInDomain = useCallback(
@@ -143,6 +143,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
       {semanticDomains && !semanticDomains.length && (
         <p>No matching entries with a semantic domain.</p>
       )}
+
       {matchingEntries && semanticDomains && semanticDomains.length > 1 && !selectedDomain && (
         <SelectSemanticDomain
           entries={matchingEntries}
@@ -150,6 +151,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
           semanticDomains={semanticDomains}
         />
       )}
+
       {selectedDomain && relatedEntries && (
         <EntriesInSemanticDomain entries={relatedEntries} semanticDomain={selectedDomain} />
       )}
@@ -175,7 +177,7 @@ interface EntriesInSemanticDomainProps {
 function EntriesInSemanticDomain({ entries, semanticDomain }: EntriesInSemanticDomainProps) {
   return (
     <>
-      <Card>{`${semanticDomain.code}: ${semanticDomain.name}`}</Card>
+      <Card>{`${semanticDomain.code}: ${JSON.stringify(semanticDomain.name)}`}</Card>
       {entries.length ? (
         entries.map((entry) => <EntryCard entry={entry} />)
       ) : (
