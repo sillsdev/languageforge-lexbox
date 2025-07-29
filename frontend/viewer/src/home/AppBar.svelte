@@ -9,7 +9,9 @@
 
   let {title, actions, tabTitle}: Props = $props();
   $effect(() => {
-    document.title = tabTitle;
+    if (tabTitle) {
+      document.title = tabTitle;
+    }
   })
 </script>
 <header class="flex items-center relative z-50 gap-2 justify-between px-4 max-md:px-1 min-h-12 bg-primary/50 dark:bg-primary/70 shadow-md">
