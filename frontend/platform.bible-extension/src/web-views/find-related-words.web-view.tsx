@@ -25,7 +25,6 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   const [relatedEntries, setRelatedEntries] = useState<IEntry[] | undefined>();
   const [searchTerm, setSearchTerm] = useState(word ?? '');
   const [selectedDomain, setSelectedDomain] = useState<ISemanticDomain | undefined>();
-  const [semanticDomains, setSemanticDomains] = useState<ISemanticDomain[] | undefined>();
 
   useEffect(() => {
     void papi.networkObjects
@@ -37,21 +36,11 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   }, []);
 
   useEffect(() => {
-    if (!matchingEntries) {
-      setSemanticDomains(undefined);
-      return;
-    }
-
-    const domains = matchingEntries.flatMap((entry) =>
-      entry.senses.flatMap((s) => s.semanticDomains),
-    );
-    const codes = [...new Set(domains.map((dom) => dom.code).filter((c) => c))].sort();
-    setSemanticDomains(codes.map((code) => domains.find((dom) => dom.code == code)!));
+    setSelectedDomain(undefined);
+    const domains = matchingEntries?.flatMap((e) => e.senses.flatMap((s) => s.semanticDomains));
+    if (!domains?.length) return;
+    if (domains.every((d) => d.code === domains[0].code)) setSelectedDomain(domains[0]);
   }, [matchingEntries]);
-
-  useEffect(() => {
-    setSelectedDomain(semanticDomains?.length === 1 ? semanticDomains[0] : undefined);
-  }, [semanticDomains]);
 
   useEffect(() => {
     if (selectedDomain) void fetchRelatedEntries(selectedDomain.code);
@@ -96,9 +85,13 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
 
       logger.info(`Fetching entries for ${word}`);
       setIsFetching(true);
-      const entries = await fwLiteNetworkObject.getEntries(projectId, { surfaceForm: word });
+      let entries = (await fwLiteNetworkObject.getEntries(projectId, { surfaceForm: word })) ?? [];
+      // Only consider entries and senses with at least one semantic domain.
+      entries = entries
+        .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
+        .filter((e) => e.senses.length);
       setIsFetching(false);
-      setMatchingEntries(entries ?? []);
+      setMatchingEntries(entries);
     },
     [fwLiteNetworkObject, projectId],
   );
@@ -139,17 +132,17 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
       />
 
       {isFetching && <p>Loading...</p>}
-      {!isFetching && !matchingEntries?.length && <p>No matching entries.</p>}
-      {semanticDomains && !semanticDomains.length && (
+      {!isFetching && !matchingEntries?.length && (
         <p>No matching entries with a semantic domain.</p>
       )}
 
-      {matchingEntries && semanticDomains && semanticDomains.length > 1 && !selectedDomain && (
-        <SelectSemanticDomain
-          entries={matchingEntries}
-          selectDomain={setSelectedDomain}
-          semanticDomains={semanticDomains}
-        />
+      {matchingEntries && !selectedDomain && (
+        <>
+          <p>Select a semantic domain for related words in that domain</p>
+          {matchingEntries.map((e) => (
+            <EntryCard entry={e} onClickSemanticDomain={setSelectedDomain} />
+          ))}
+        </>
       )}
 
       {selectedDomain && relatedEntries && (
@@ -183,52 +176,6 @@ function EntriesInSemanticDomain({ entries, semanticDomain }: EntriesInSemanticD
       ) : (
         <p>No entries in this semantic domain.</p>
       )}
-    </>
-  );
-}
-
-function filterEntriesToSensesInDomain(entries: IEntry[], domainCode: string): IEntry[] {
-  return entries
-    .map((entry) => ({
-      ...entry,
-      senses: entry.senses.filter((s) => s.semanticDomains.findIndex((d) => d.code === domainCode)),
-    }))
-    .filter((entry) => entry.senses.length);
-}
-
-interface SelectSemanticDomainProps {
-  entries: IEntry[];
-  selectDomain: (domain: ISemanticDomain) => void;
-  semanticDomains: ISemanticDomain[];
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-function SelectSemanticDomain({
-  entries,
-  selectDomain,
-  semanticDomains,
-}: SelectSemanticDomainProps) {
-  if (!semanticDomains.length || !entries.length) {
-    return <p>No semantic domains to choose from.</p>;
-  }
-
-  return (
-    <>
-      {semanticDomains.map((dom) => {
-        const entriesInDomain = filterEntriesToSensesInDomain(entries, dom.code);
-        if (!entriesInDomain.length) return;
-        return (
-          <>
-            <hr />
-            <button onClick={() => void selectDomain(dom)}>{`Select domain ${
-              dom.code
-            }: ${JSON.stringify(dom.name)}`}</button>
-            {entriesInDomain.map((entry) => (
-              <EntryCard entry={entry} />
-            ))}
-          </>
-        );
-      })}
     </>
   );
 }
