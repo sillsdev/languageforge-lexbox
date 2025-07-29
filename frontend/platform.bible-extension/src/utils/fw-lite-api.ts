@@ -1,11 +1,12 @@
 import papi, { logger } from '@papi/backend';
 import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
-import { GridifyConditionalOperatorForUrl } from '../types/enums';
+import { GridifyConditionalOperator } from '../types/enums';
 
-/** Throws if urlPart is empty or has a / in it; returns otherwise. */
-function validateUrlPart(urlPart?: string): string {
-  if (!urlPart?.trim() || urlPart.includes('/')) throw new Error(`Invalid url part: '${urlPart}'`);
-  return urlPart;
+/** Throws if urlComponent is empty or has any special URL characters it; otherwise, returns it. */
+function validateUrlComponent(urlComponent?: string): string {
+  if (!urlComponent || urlComponent !== encodeURIComponent(urlComponent))
+    throw new Error(`Invalid URL component: '${urlComponent}'`);
+  return urlComponent;
 }
 
 async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
@@ -21,8 +22,8 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
 }
 
 export function getBrowseUrl(baseUrl: string, dictionaryCode: string, entryId?: string): string {
-  let url = `${baseUrl}/paratext/fwdata/${validateUrlPart(dictionaryCode)}`;
-  if (entryId) url += `/browse?entryId=${validateUrlPart(entryId)}`;
+  let url = `${baseUrl}/paratext/fwdata/${validateUrlComponent(dictionaryCode)}`;
+  if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}`;
   return url;
 }
 
@@ -58,7 +59,7 @@ export class FwLiteApi {
   }
 
   private checkDictionaryCode(code?: string): DictionaryRef {
-    code = validateUrlPart(code || this.dictionaryCode);
+    code = validateUrlComponent(code || this.dictionaryCode);
     return { code, type: 'FwData' };
   }
 
@@ -83,8 +84,10 @@ export class FwLiteApi {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     let path = `mini-lcm/${type}/${code}/entries`;
     if (search) path += `/${search}`;
-    if (semanticDomain)
-      path += `?GridifyFilter=senses.semanticDomains.code${GridifyConditionalOperatorForUrl.Equal}${semanticDomain}`;
+    if (semanticDomain) {
+      const filterValue = `senses.semanticDomains.code${GridifyConditionalOperator.Equal}${semanticDomain}`;
+      path += `?GridifyFilter=${encodeURIComponent(filterValue)}`;
+    }
     return (await this.fetchPath(path)) as IEntry[];
   }
 
