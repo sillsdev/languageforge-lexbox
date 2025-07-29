@@ -28,7 +28,6 @@
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
     canInvite: z.boolean().default(false),
   });
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 

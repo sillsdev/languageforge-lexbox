@@ -58,12 +58,12 @@
   let done = $state(false);
 
   export async function open(
-    value: Partial<FormType> | undefined, //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+    value: Partial<FormType> | undefined,
     onSubmit: SubmitCallback,
   ): Promise<FormModalResult<Schema>>;
   export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;
   export async function open(
-    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined, //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined,
     _onSubmit?: SubmitCallback,
   ): Promise<FormModalResult<Schema>> {
     done = false;

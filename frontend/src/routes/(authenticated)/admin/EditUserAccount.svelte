@@ -39,7 +39,6 @@
 
   type Schema = typeof schema;
   type RefinedSchema = typeof refinedSchema;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<RefinedSchema> | undefined = $state();
 
   export function close(): void {

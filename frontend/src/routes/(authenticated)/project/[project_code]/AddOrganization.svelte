@@ -21,7 +21,6 @@
   });
 
   type Schema = typeof schema;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
