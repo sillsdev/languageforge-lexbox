@@ -20,7 +20,7 @@ public partial class MainPage : ContentPage
         set => blazorWebView.StartPath = value;
     }
 
-#if ANDROID
+#if ANDROID || WINDOWS
     private partial void BlazorWebViewInitializing(object? sender, BlazorWebViewInitializingEventArgs e);
     private partial void BlazorWebViewInitialized(object? sender, BlazorWebViewInitializedEventArgs e);
 #else
