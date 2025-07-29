@@ -50,7 +50,6 @@
       .map(line => line.slice(2)) // Remove one level of indentation
       .join('\n'); // Join the lines back together;
   }
-  const zeroS = formatDuration({seconds: 1}, 'seconds', {style: 'narrow'}).replace('1', '0');
 </script>
 
 {#if !activity.loading}

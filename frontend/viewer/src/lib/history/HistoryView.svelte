@@ -53,8 +53,6 @@
     record = undefined;
     history = [];
   }
-
-  const zeroS = formatDuration({seconds: 1}, 'seconds', {style: 'narrow'}).replace('1', '0');
 </script>
 
 <Dialog.Root bind:open>
