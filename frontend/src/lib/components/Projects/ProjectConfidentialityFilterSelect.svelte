@@ -6,7 +6,6 @@
   import type { Confidentiality } from './ProjectFilter.svelte';
 
   interface Props extends Omit<SelectProps, 'label'> {
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
     value: Confidentiality | undefined;
   }
 
