@@ -52,7 +52,7 @@
     "@urql/devtools": "^2.0.3",
     "@urql/exchange-graphcache": "^7.2.4",
     "@urql/svelte": "^4.2.3",
-    "autoprefixer": "^10.4.21",
+    "autoprefixer": "catalog:",
     "daisyui": "^4.12.24",
     "eslint": "catalog:",
     "eslint-plugin-svelte": "catalog:",

@@ -54,7 +54,7 @@
     "@typescript-eslint/parser": "catalog:",
     "@vitest/browser": "catalog:",
     "@vitest/ui": "catalog:",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "catalog:",
     "bits-ui": "2.8.13",
     "clsx": "^2.1.1",
     "eslint": "catalog:",
