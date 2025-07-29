@@ -11,11 +11,14 @@ public class ProjectLoaderFixture : IDisposable
     private readonly ServiceProvider _serviceProvider;
     private readonly IOptions<FwDataBridgeConfig> _config;
     public MockFwProjectLoader MockFwProjectLoader { get; }
+    public IServiceProvider Services => _serviceProvider;
 
     public ProjectLoaderFixture()
     {
         //todo make mock of IProjectLoader so we can load from test projects
-        var provider = new ServiceCollection().AddTestFwDataBridge().BuildServiceProvider();
+        var provider = new ServiceCollection()
+            .AddTestFwDataBridge()
+            .BuildServiceProvider();
         _serviceProvider = provider;
         _fwDataFactory = provider.GetRequiredService<FwDataFactory>();
         MockFwProjectLoader = provider.GetRequiredService<MockFwProjectLoader>();

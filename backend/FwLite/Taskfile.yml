@@ -14,7 +14,7 @@ tasks:
     dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
   web-prod:
-    deps: [ ui:build-viewer-app ]
+    deps: [ ui:build-viewer ]
     dir: ./FwLiteWeb
     cmd: dotnet run -- --FwLite:UseDevAssets=false
   web-chaos:
