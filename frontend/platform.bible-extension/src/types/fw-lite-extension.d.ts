@@ -5,6 +5,7 @@ declare module 'fw-lite-extension' {
   /* eslint-disable @typescript-eslint/consistent-type-imports */
   export type IEntry = import('../../../viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IMultiString = import('../../../viewer/src/lib/dotnet-types/index.js').IMultiString;
+  export type IPartOfSpeech = import('../../../viewer/src/lib/dotnet-types/index.js').IPartOfSpeech;
   export type IProjectModel = import('../../../viewer/src/lib/dotnet-types/index.js').IProjectModel;
   export type ISense = import('../../../viewer/src/lib/dotnet-types/index.js').ISense;
   export type ISemanticDomain =

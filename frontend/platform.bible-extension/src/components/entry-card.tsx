@@ -1,9 +1,14 @@
-import type { IEntry, IMultiString, ISemanticDomain } from 'fw-lite-extension';
+import type { IEntry, IMultiString, IPartOfSpeech, ISemanticDomain } from 'fw-lite-extension';
 import { Button, Card, CardContent, CardHeader } from 'platform-bible-react';
 
 function domainText(domain: ISemanticDomain, lang = 'en'): string {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   return `${domain.code}: ${domain.name[lang] || domain.name['en']}`;
+}
+
+function partOfSpeechText(partOfSpeech: IPartOfSpeech, lang = 'en'): string {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  return partOfSpeech.name[lang] || partOfSpeech.name['en'];
 }
 
 interface EntryCardProps {
@@ -26,7 +31,7 @@ export default function EntryCard({ entry, onClickSemanticDomain }: EntryCardPro
           <div key={sense.id}>
             <strong>Gloss: {JSON.stringify(sense.gloss)}</strong>
             <p>Definition: {JSON.stringify(sense.definition)}</p>
-            <p>Part of speech: {JSON.stringify(sense.partOfSpeech)}</p>
+            {sense.partOfSpeech && <p>Part of speech: {partOfSpeechText(sense.partOfSpeech)}</p>}
             <p>
               Semantic Domains:
               {sense.semanticDomains.map((dom) =>
