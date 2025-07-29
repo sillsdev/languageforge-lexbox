@@ -533,6 +533,7 @@ public class FwDataMiniLcmApi(
                 LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
+                MorphType = LcmHelpers.FromLcmMorphTypeId(entry.PrimaryMorphType.Id.Guid), // TODO: Decide what to do about entries with *mixed* morph types
                 Senses = entry.AllSenses.Select(FromLexSense).ToList(),
                 ComplexFormTypes = ToComplexFormTypes(entry),
                 Components = ToComplexFormComponents(entry).ToList(),
@@ -836,7 +837,7 @@ public class FwDataMiniLcmApi(
                 Cache.ServiceLocator.ActionHandler,
                 () =>
                 {
-                    var lexEntry = Cache.CreateEntry(entry.Id);
+                    var lexEntry = Cache.CreateEntry(entry.Id, entry.MorphType);
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);

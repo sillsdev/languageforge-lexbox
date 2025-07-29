@@ -206,18 +206,49 @@ internal static class LcmHelpers
         return multiString.get_String(wsHandle)?.Text ?? null;
     }
 
-    internal static IMoStemAllomorph CreateLexemeForm(this LcmCache cache)
+    internal static IMoForm CreateLexemeForm(this LcmCache cache, MorphType morphType)
     {
-        return cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+        return morphType switch
+        {
+            // Stems, roots, particles, clitics, and phrases use the Stem allomorph factory
+            MorphType.Stem => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.Root => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.BoundStem => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.BoundRoot => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.Particle => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.Clitic => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.Enclitic => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.Proclitic => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+
+            MorphType.Phrase => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.DiscontiguousPhrase => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+
+            // Affixes (of all kinds) use the Affix allomorph factory
+            MorphType.Circumfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.Infix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.Prefix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.Simulfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.Suffix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.Suprafix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.InfixingInterfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.PrefixingInterfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+            MorphType.SuffixingInterfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
+
+            // Default will be stem if we don't know what else to do
+            MorphType.Unknown => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            MorphType.Other => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            _ => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+        };
     }
 
-    internal static ILexEntry CreateEntry(this LcmCache cache, Guid id)
+    internal static ILexEntry CreateEntry(this LcmCache cache, Guid id, MorphType morphType)
     {
         var lexEntry = cache.ServiceLocator.GetInstance<ILexEntryFactory>().Create(id,
             cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
-        lexEntry.LexemeFormOA = cache.CreateLexemeForm();
+        lexEntry.LexemeFormOA = cache.CreateLexemeForm(morphType);
         //must be done after the IMoForm is set on the LexemeForm property
-        lexEntry.LexemeFormOA.MorphTypeRA = cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>().GetObject(MoMorphTypeTags.kguidMorphStem);
+        var lcmMorphType = ToLcmMorphTypeId(morphType) ?? ToLcmMorphTypeId(MorphType.Stem);
+        lexEntry.LexemeFormOA.MorphTypeRA = cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>().GetObject(lcmMorphType!.Value);
         return lexEntry;
     }
 

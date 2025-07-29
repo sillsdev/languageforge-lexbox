@@ -1,5 +1,8 @@
-﻿namespace MiniLcm.Models;
+using System.Text.Json.Serialization;
 
+namespace MiniLcm.Models;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum MorphType
 {
     Unknown,
