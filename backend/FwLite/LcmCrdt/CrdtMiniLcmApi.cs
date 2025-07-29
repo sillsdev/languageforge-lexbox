@@ -337,6 +337,16 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
+    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();

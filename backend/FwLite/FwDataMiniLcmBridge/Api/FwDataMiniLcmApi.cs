@@ -488,6 +488,39 @@ public class FwDataMiniLcmApi(
             });
     }
 
+    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    {
+        return
+            MorphTypeRepository
+            .AllInstances()
+            .ToAsyncEnumerable()
+            .Select(FromLcmMorphType);
+
+    }
+
+    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    {
+        MorphTypeRepository.TryGetObject(id, out var lcmMorphType);
+        if (lcmMorphType is null) return Task.FromResult<MorphTypeData?>(null);
+        return Task.FromResult<MorphTypeData?>(FromLcmMorphType(lcmMorphType));
+    }
+
+    internal MorphTypeData FromLcmMorphType(IMoMorphType morphType)
+    {
+        return new MorphTypeData
+        {
+            Id = morphType.Guid,
+            MorphType = LcmHelpers.FromLcmMorphTypeId(morphType.Guid),
+            Name = FromLcmMultiString(morphType.Name),
+            Abbreviation = FromLcmMultiString(morphType.Abbreviation),
+            Description = FromLcmMultiString(morphType.Description),
+            LeadingToken = morphType.Prefix,
+            TrailingToken = morphType.Postfix,
+            SecondaryOrder = morphType.SecondaryOrder,
+        };
+    }
+
+
     public IAsyncEnumerable<VariantType> GetVariantTypes()
     {
         return VariantTypes.PossibilitiesOS
