@@ -29,3 +29,6 @@ temp-build
 
 # generated files
 package-lock.json
+
+# fw lite build output
+public/fw-lite

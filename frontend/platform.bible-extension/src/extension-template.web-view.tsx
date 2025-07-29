@@ -1,4 +1,4 @@
-import papi, { logger } from '@papi/frontend';
+import papi from '@papi/frontend';
 import type {
   FindEntryEvent,
   FwProject,
@@ -6,11 +6,9 @@ import type {
   LocalProjectsEvent,
 } from 'fw-lite-extension';
 import { useEvent } from 'platform-bible-react';
-import {useState, useRef, useEffect} from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-
-
-globalThis.webViewComponent = function ExtensionTemplate() {
+globalThis.webViewComponent = function fwLiteMainWindow() {
   const [baseUrl, setBaseUrl] = useState('');
   const [localProjects, setLocalProjects] = useState<FwProject[] | undefined>();
 
@@ -18,7 +16,10 @@ globalThis.webViewComponent = function ExtensionTemplate() {
   useEvent<FindEntryEvent>(
     papi.network.getNetworkEvent('fwLiteExtension.findEntry'),
     ({ entry }) => {
-      iframe.current?.contentWindow.postMessage({type: 'notification', message: 'hello from Paratext'}, new URL(baseUrl).origin);
+      iframe.current?.contentWindow?.postMessage(
+        { type: 'notification', message: `Hello from Paratext ${entry}` },
+        new URL(baseUrl).origin,
+      );
     },
   );
 
@@ -37,13 +38,13 @@ globalThis.webViewComponent = function ExtensionTemplate() {
 
   useEffect(() => void updateUrl(), []);
 
-  async function updateUrl() {
+  async function updateUrl(): Promise<void> {
     const result = await papi.commands.sendCommand('fwLiteExtension.getBaseUrl');
     setBaseUrl(result.baseUrl);
   }
 
   if (!baseUrl) {
-    return <button onClick={updateUrl}>Loading</button>;
+    return <button onClick={() => void updateUrl()}>Loading</button>;
   }
   return (
     <>

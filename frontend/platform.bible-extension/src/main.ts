@@ -1,4 +1,4 @@
-import papi, {logger} from '@papi/backend';
+import papi, { logger } from '@papi/backend';
 import {
   type ExecutionActivationContext,
   type IWebViewProvider,
@@ -6,7 +6,12 @@ import {
   type SavedWebViewDefinition,
   type WebViewDefinition,
 } from '@papi/core';
-import type { FindEntryEvent, LaunchServerEvent, LocalProjectsEvent } from 'fw-lite-extension';
+import type {
+  FindEntryEvent,
+  FwProject,
+  LaunchServerEvent,
+  LocalProjectsEvent,
+} from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
 import extensionTemplateStyles from './styles.css?inline';
 
@@ -16,7 +21,11 @@ const reactWebViewType = 'fw-lite-extension.react';
  * Simple web view provider that provides React web views when papi requests them
  */
 const reactWebViewProvider: IWebViewProvider = {
-  async getWebView(savedWebView: SavedWebViewDefinition, options: OpenWebViewOptions): Promise<WebViewDefinition | undefined> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    _: OpenWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== reactWebViewType)
       throw new Error(
         `${reactWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
@@ -27,12 +36,12 @@ const reactWebViewProvider: IWebViewProvider = {
       content: extensionTemplateReact,
       styles: extensionTemplateStyles,
       iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png',
-      allowedFrameSources: ['http://localhost:*']
+      allowedFrameSources: ['http://localhost:*'],
     };
   },
 };
 
-export async function activate(context: ExecutionActivationContext) {
+export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('FieldWorks Lite is activating!');
 
   const reactWebViewProviderPromise = papi.webViewProviders.registerWebViewProvider(
@@ -51,8 +60,8 @@ export async function activate(context: ExecutionActivationContext) {
     'fwLiteExtension.localProjects',
   );
 
-  let baseUrlHolder = {baseUrl: ''};
-  let {fwLiteProcess, baseUrl} = launchFwLiteFwLiteWeb(context);
+  const baseUrlHolder = { baseUrl: '' };
+  const { fwLiteProcess, baseUrl } = launchFwLiteFwLiteWeb(context);
   baseUrlHolder.baseUrl = baseUrl;
   onLaunchServerEmitter.emit(baseUrlHolder);
 
@@ -66,7 +75,7 @@ export async function activate(context: ExecutionActivationContext) {
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
     (entry: string) => {
-      onFindEntryEmitter.emit({entry});
+      onFindEntryEmitter.emit({ entry });
       return {
         success: true,
       };
@@ -75,14 +84,14 @@ export async function activate(context: ExecutionActivationContext) {
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
     () => {
-      papi.webViews.openWebView(reactWebViewType, undefined, {existingId: '?'})
-      return { success: true}
+      void papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
+      return { success: true };
     },
   );
   const simpleFindEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.simpleFind',
     () => {
-      onFindEntryEmitter.emit({entry: 'apple'});
+      onFindEntryEmitter.emit({ entry: 'apple' });
       return {
         success: true,
       };
@@ -95,7 +104,7 @@ export async function activate(context: ExecutionActivationContext) {
       logger.info('Fetching local FieldWorks projects');
       const response = await papi.fetch(`${baseUrl}${'/api/localProjects'}`);
       const jsonText = await (await response.blob()).text();
-      const projects = JSON.parse(jsonText);
+      const projects = JSON.parse(jsonText) as FwProject[];
       onLocalProjectsEmitter.emit({ projects });
     },
   );
@@ -106,7 +115,7 @@ export async function activate(context: ExecutionActivationContext) {
   // anywhere; it just has to match `webViewType`. See `paranext-core's hello-someone.ts` for an
   // example of keeping an existing WebView that was specifically created by
   // `paranext-core's hello-someone`.
-  void papi.webViews.openWebView(reactWebViewType, undefined, {existingId: '?'});
+  void papi.webViews.openWebView(reactWebViewType, undefined, { existingId: '?' });
 
   // Await the data provider promise at the end so we don't hold everything else up
   context.registrations.add(
@@ -118,19 +127,22 @@ export async function activate(context: ExecutionActivationContext) {
     await localProjectsCommandPromise,
     onFindEntryEmitter,
     onLaunchServerEmitter,
-    () => fwLiteProcess.kill()
+    () => fwLiteProcess?.kill(),
   );
 
   logger.info('FieldWorks Lite is finished activating!');
 }
 
-export async function deactivate() {
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function deactivate(): Promise<boolean> {
   logger.info('FieldWorks Lite is deactivating!');
   return true;
 }
 
+// ts gets picky because this function can throw errors. Ignoring this because we aren't catching them at the moment
+// eslint-disable-next-line  @typescript-eslint/explicit-function-return-type
 function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
-  let binaryPath = 'fw-lite/FwLiteWeb.exe';
+  const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('FieldWorks Lite requires createProcess elevated privileges');
   }
@@ -138,18 +150,19 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
     throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
   //todo instead of hardcoding the url and port we should run it and find the url in the output
-  let baseUrl = 'http://localhost:29348';
+  const baseUrl = 'http://localhost:29348';
 
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
     [
-      '--urls', baseUrl,
+      '--urls',
+      baseUrl,
       '--FwLiteWeb:OpenBrowser=false',
       '--FwLiteWeb:CorsAllowAny=true',
-      '--FwLiteWeb:LogFileName=./../../fw-lite-web.log',//required at dev time otherwise the log file will trigger a restart of the extension by PT
+      '--FwLiteWeb:LogFileName=./../../fw-lite-web.log', //required at dev time otherwise the log file will trigger a restart of the extension by PT
     ],
-    {stdio: [null, null, null]}
+    { stdio: [null, null, null] },
   );
-  return {baseUrl, fwLiteProcess};
+  return { baseUrl, fwLiteProcess };
 }
