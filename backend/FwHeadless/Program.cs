@@ -194,7 +194,7 @@ static async Task<Results<Ok<ProjectSyncStatus>, NotFound>> GetMergeStatus(
     return TypedResults.Ok(ProjectSyncStatus.ReadyToSync(pendingCrdtCommits, await pendingHgCommits, lastCrdtCommitDate, lastHgCommitDate));
 }
 
-static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> AwaitSyncFinished(
+static async Task<SyncJobResult> AwaitSyncFinished(
     SyncHostedService syncHostedService,
     SyncJobStatusService syncJobStatusService,
     CancellationToken cancellationToken,
@@ -207,20 +207,32 @@ static async Task<Results<Ok<SyncJobResult>, NotFound, StatusCodeHttpResult>> Aw
         if (result is null)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Sync job not found");
-            return TypedResults.NotFound();
+            return new(SyncJobStatusEnum.SyncJobNotFound, "Sync job not found");
         }
 
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync finished");
-        return TypedResults.Ok(result);
+        return result;
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException e)
     {
-        activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
-        return TypedResults.StatusCode(StatusCodes.Status408RequestTimeout);
+        if (e.CancellationToken == cancellationToken)
+        {
+            // The AwaitSyncFinished call was canceled, but the sync job was not (necessarily) canceled
+            activity?.SetStatus(ActivityStatusCode.Unset, "Timed out awaiting sync status");
+            return new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status");
+        }
+        else
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Sync job timed out");
+            return new SyncJobResult(SyncJobStatusEnum.SyncJobTimedOut, "Sync job timed out");
+        }
     }
     catch (Exception e)
     {
         activity?.AddException(e);
-        throw;
+        var error = e.ToString();
+        // TODO: Consider only returning exception error for certain users (admins, devs, managers)?
+        // Note 200 OK returned here; getting the status is a successful HTTP request even if the status is "the job failed and here's why"
+        return new SyncJobResult(SyncJobStatusEnum.CrdtSyncFailed, error);
     }
 }

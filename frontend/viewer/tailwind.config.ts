@@ -22,6 +22,11 @@ export default {
     extend: {},
   },
   plugins: [
+    {
+      handler: (api) => {
+        api.addVariant('paratext', '[data-paratext="true"] &');
+      }
+    },
     iconsPlugin({
       // Root source: https://github.com/Templarian/MaterialDesign
       // Our source (that pulls from ☝️): https://www.npmjs.com/package/@iconify-json/mdi

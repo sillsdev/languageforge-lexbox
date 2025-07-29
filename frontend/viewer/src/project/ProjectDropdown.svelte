@@ -77,7 +77,8 @@
         variant="ghost"
         role="combobox"
         aria-expanded={open}
-        class="w-full justify-between overflow-hidden gap-0"
+        class="w-full justify-between overflow-hidden gap-0 paratext:!opacity-100"
+        disabled={projectContext.inParatext}
         {...props}
       >
         <div class="flex items-center gap-2 overflow-hidden">
@@ -88,7 +89,7 @@
         </div>
         <Icon
           icon="i-mdi-chevron-down"
-          class={cn('ml-2 size-4 shrink-0 opacity-50', open && 'rotate-180')}
+          class={cn('ml-2 size-4 shrink-0 opacity-50 paratext:hidden', open && 'rotate-180')}
         />
       </Button>
     {/snippet}

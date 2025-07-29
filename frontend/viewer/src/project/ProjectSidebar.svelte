@@ -149,7 +149,7 @@
         </Sidebar.GroupContent>
       </Sidebar.Group>
 
-    <Sidebar.Group>
+    <Sidebar.Group class="paratext:hidden">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onclick={() => navigate('/')}>

@@ -5,6 +5,24 @@ import '@formatjs/intl-durationformat/polyfill';
 const currentLocale = fromStore(locale);
 type Duration = Pick<Intl.DurationLike, 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'>;
 
+export function formatDigitalDuration(value: Duration) {
+  const normalized = {
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0,
+    ...normalizeDuration(value),
+  };
+  const smallestUnit = normalized.minutes > 0 ? 'seconds' as const : 'milliseconds' as const;
+  return formatDuration(normalized, smallestUnit, {
+    style: 'digital',
+    hoursDisplay: normalized.hours > 0 ? 'always' : 'auto',
+    minutesDisplay: normalized.minutes > 0 ? 'always' : 'auto',
+    secondsDisplay: 'always',
+    fractionalDigits: 2,
+  });
+}
+
 export function formatDuration(value: Duration, smallestUnit?: 'hours' | 'minutes' | 'seconds' | 'milliseconds', options?: Intl.DurationFormatOptions) {
   const formatter = new Intl.DurationFormat(currentLocale.current, options);//has been polyfilled in main.ts
   return formatter.format(normalizeDuration(value, smallestUnit));

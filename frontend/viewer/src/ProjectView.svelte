@@ -1,17 +1,13 @@
 <script lang="ts">
   import ShadcnProjectView from './ShadcnProjectView.svelte';
+  import type {HTMLAttributes} from 'svelte/elements';
 
   const {
     onloaded,
-    isConnected,
-    showHomeButton = true,
-    about = undefined,
+    ...rest
   }: {
     onloaded: (loaded: boolean) => void;
-    about?: string | undefined;
-    isConnected: boolean;
-    showHomeButton?: boolean;
-  } = $props();
+  } & HTMLAttributes<HTMLDivElement> = $props();
 </script>
 
-<ShadcnProjectView {onloaded} {about} {isConnected} {showHomeButton}/>
+<ShadcnProjectView {onloaded} {...rest}/>

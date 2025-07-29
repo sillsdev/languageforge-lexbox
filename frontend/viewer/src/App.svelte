@@ -21,21 +21,35 @@
   <div class="app">
     <Router {url}>
       <Route path="/project/:code/*" let:params>
-        <Router {url} basepath="/project/{params.code}">
+        <Router {url}>
           {#key params.code}
             <DotnetProjectView code={params.code} type="crdt" />
           {/key}
         </Router>
       </Route>
       <Route path="/fwdata/:name/*" let:params>
-        <Router {url} basepath="/fwdata/{params.name}">
+        <Router {url}>
           {#key params.name}
             <DotnetProjectView code={params.name} type="fwdata" />
           {/key}
         </Router>
       </Route>
+      <Route path="/paratext/project/:code/*" let:params>
+        <Router {url}>
+          {#key params.code}
+            <DotnetProjectView code={params.code} type="crdt" paratext />
+          {/key}
+        </Router>
+      </Route>
+      <Route path="/paratext/fwdata/:name/*" let:params>
+        <Router {url}>
+          {#key params.name}
+            <DotnetProjectView code={params.name} type="fwdata" paratext />
+          {/key}
+        </Router>
+      </Route>
       <Route path="/testing/project-view/*">
-        <Router {url} basepath="/testing/project-view">
+        <Router {url}>
           <TestProjectView />
         </Router>
       </Route>
