@@ -17,6 +17,7 @@ using WebView = Android.Webkit.WebView;
 
 namespace FwLiteMaui.Platforms.Android;
 
+//copied from https://github.com/MackinnonBuck/MauiBlazorPermissionsExample/
 internal class PermissionManagingBlazorWebChromeClient : WebChromeClient, IActivityResultCallback
 {
     // This class implements a permission requesting workflow that matches workflow recommended
