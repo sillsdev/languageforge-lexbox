@@ -208,36 +208,29 @@ internal static class LcmHelpers
 
     internal static IMoForm CreateLexemeForm(this LcmCache cache, MorphType morphType)
     {
+        return
+            IsAffixMorphType(morphType)
+            ? cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create()
+            : cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+    }
+
+    internal static bool IsAffixMorphType(MorphType morphType)
+    {
         return morphType switch
         {
-            // Stems, roots, particles, clitics, and phrases use the Stem allomorph factory
-            MorphType.Stem => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.Root => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.BoundStem => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.BoundRoot => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.Particle => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.Clitic => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.Enclitic => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.Proclitic => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            // Affixes of all types should use the Affix morph type factory
+            MorphType.Circumfix => true,
+            MorphType.Infix => true,
+            MorphType.Prefix => true,
+            MorphType.Simulfix => true,
+            MorphType.Suffix => true,
+            MorphType.Suprafix => true,
+            MorphType.InfixingInterfix => true,
+            MorphType.PrefixingInterfix => true,
+            MorphType.SuffixingInterfix => true,
 
-            MorphType.Phrase => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.DiscontiguousPhrase => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-
-            // Affixes (of all kinds) use the Affix allomorph factory
-            MorphType.Circumfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.Infix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.Prefix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.Simulfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.Suffix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.Suprafix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.InfixingInterfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.PrefixingInterfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-            MorphType.SuffixingInterfix => cache.ServiceLocator.GetInstance<IMoAffixAllomorphFactory>().Create(),
-
-            // Default will be stem if we don't know what else to do
-            MorphType.Unknown => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            MorphType.Other => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
-            _ => cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create(),
+            // Everything else should use the Stem morph type factory
+            _ => false,
         };
     }
 

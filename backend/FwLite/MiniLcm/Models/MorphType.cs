@@ -30,14 +30,14 @@ public enum MorphType
 
 public class MorphTypeData : IObjectWithId<MorphTypeData>
 {
-    public Guid Id { get; set; }
-    public MorphType MorphType { get; set; }
-    public MultiString Name { get; set; } = [];
-    public MultiString Abbreviation { get; set; } = [];
-    public RichMultiString Description { get; set; } = [];
-    public string LeadingToken { get; set; } = "";
-    public string TrailingToken { get; set; } = "";
-    public int SecondaryOrder { get; set; }
+    public virtual Guid Id { get; set; }
+    public virtual MorphType MorphType { get; set; }
+    public virtual MultiString Name { get; set; } = [];
+    public virtual MultiString Abbreviation { get; set; } = [];
+    public virtual RichMultiString Description { get; set; } = [];
+    public virtual string LeadingToken { get; set; } = "";
+    public virtual string TrailingToken { get; set; } = "";
+    public virtual int SecondaryOrder { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
 
