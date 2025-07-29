@@ -13,9 +13,16 @@
   import {useCurrentView} from '$lib/views/view-service';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
+  import Select from '$lib/components/field-editors/select.svelte';
+  import { Input } from '$lib/components/ui/input';
+  import {watch} from 'runed';
+  import OpFilter, {type Op} from './filter/OpFilter.svelte';
+  import WsSelect from './filter/WsSelect.svelte';
+  import {useWritingSystemService} from '$lib/writing-system-service.svelte';
 
   const stats = useProjectStats();
   const currentView = useCurrentView();
+  const wsService = useWritingSystemService();
 
   let {
     search = $bindable(),
@@ -28,6 +35,23 @@
   let missingSenses = $state(false);
   let missingPartOfSpeech = $state(false);
   let missingSemanticDomains = $state(false);
+
+  let fields: Array<{id: string, label: string, ws: 'vernacular-no-audio' | 'analysis-no-audio'}> = $derived([
+    { id: 'lexemeForm', label: pt($t`Lexeme Form`, $t`Word`, $currentView), ws: 'vernacular-no-audio' },
+    { id: 'citationForm', label: pt($t`Citation Form`, $t`Display as`, $currentView), ws: 'vernacular-no-audio' },
+    { id: 'senses.gloss', label: $t`Gloss`, ws: 'analysis-no-audio' },
+  ]);
+
+  // svelte-ignore state_referenced_locally
+  let selectedField = $state(fields[0]);
+  let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
+  watch(() => fields, fields => {
+    //updates selected field when selected view changes
+    selectedField = fields.find(f => f.id === selectedField.id) ?? fields[0];
+  });
+  let fieldFilterValue = $state('');
+  let filterOp = $state<Op>('contains')
+
   $effect(() => {
     let newFilter: string[] = [];
     if (missingExamples) {
@@ -42,8 +66,31 @@
     if (missingSemanticDomains) {
       newFilter.push('Senses.SemanticDomains=null')
     }
+    if (fieldFilterValue && selectedWs?.length > 0) {
+      let op: string;
+      switch (filterOp) {
+        case 'starts-with': op = '^'; break;
+        case 'contains': op = '=*'; break;
+        case 'ends-with': op = '$'; break;
+        case 'equals': op = '='; break;
+        case 'not-equals': op = '!='; break;
+      }
+      let fieldFilter = [];
+      let escapedValue = escapeGridifyValue(fieldFilterValue);
+      for (let ws of selectedWs) {
+        fieldFilter.push(`${selectedField.id}[${ws}]${op}${escapedValue}`);
+      }
+      //construct a filter like LexemeForm[en]=value|LexemeForm[fr]=value
+      newFilter.push('(' + fieldFilter.join('|') + ')')
+    }
     gridifyFilter = newFilter.join(', ');
   });
+
+
+  function escapeGridifyValue(v: string) {
+    //from https://alirezanet.github.io/Gridify/guide/filtering#escaping
+    return v.replace(/([(),|\\]|\/i)/g, '\\$1');
+  }
 
   let filtersExpanded = $state(false);
 </script>
@@ -78,6 +125,30 @@
     </ComposableInput>
   </div>
   <Collapsible.Content class="p-2 mb-2 space-y-2">
+    <div class="flex flex-col @md/list:flex-row gap-2 items-stretch">
+      <div class="flex flex-row gap-2 flex-1">
+        <!-- Field Picker -->
+        <Select
+          bind:value={selectedField}
+          options={fields}
+          idSelector="id"
+          labelSelector="label"
+          placeholder={$t`Field`}
+          class="flex-1"
+        />
+        <!-- Writing System Picker -->
+        <WsSelect bind:value={selectedWs} wsType={selectedField.ws} />
+      </div>
+      <!-- Text Box: on mobile, wraps to new line -->
+      <div class="flex flex-row gap-2 flex-1">
+        <OpFilter bind:value={filterOp}/>
+        <Input
+          bind:value={fieldFilterValue}
+          placeholder={$t`Filter for`}
+          class="flex-1"
+        />
+      </div>
+    </div>
     <Switch bind:checked={missingExamples} label={$t`Missing Examples`} />
     <Switch bind:checked={missingSenses} label={$t`Missing Senses`} />
     <Switch bind:checked={missingPartOfSpeech} label={$t`Missing Part of Speech`} />

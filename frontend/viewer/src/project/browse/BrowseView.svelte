@@ -52,7 +52,7 @@
         collapsible
         collapsedSize={0}
         minSize={15}
-        class="min-h-0 flex flex-col relative"
+        class="min-h-0 flex flex-col relative @container/list"
       >
         <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
           <div class="md:mr-3">

@@ -15,6 +15,8 @@ import {type ResourceReturn} from 'runed';
 export type WritingSystemSelection =
   | 'vernacular'
   | 'analysis'
+  | 'vernacular-no-audio'
+  | 'analysis-no-audio'
   | 'first-vernacular'
   | 'first-analysis'
   | 'vernacular-analysis'
@@ -88,6 +90,10 @@ export class WritingSystemService {
         return this.writingSystems.vernacular;
       case 'analysis':
         return this.writingSystems.analysis;
+      case 'vernacular-no-audio':
+        return this.vernacularNoAudio;
+      case 'analysis-no-audio':
+        return this.analysisNoAudio;
     }
     console.error(`Unknown writing system selection: ${ws as string}`);
     return [];

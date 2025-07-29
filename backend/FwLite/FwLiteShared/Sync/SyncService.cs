@@ -115,10 +115,13 @@ public class SyncService(
         return await lexboxProjectService.TriggerLexboxSync(server, project.Id);
     }
 
-    public async Task<SyncResult?> AwaitSyncFinished()
+    public async Task<SyncJobResult> AwaitSyncFinished()
     {
         var project = await currentProjectService.GetProjectData();
-        if (!authOptions.Value.TryGetServer(project, out var server)) return null;
+        if (!authOptions.Value.TryGetServer(project, out var server))
+        {
+            return new SyncJobResult(SyncJobStatusEnum.UnableToAuthenticate, "Unable to authenticate with Lexbox");
+        }
         return await lexboxProjectService.AwaitLexboxSyncFinished(server, project.Id);
     }
 
