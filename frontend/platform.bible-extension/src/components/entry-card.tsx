@@ -7,7 +7,7 @@ function domainText(domain: ISemanticDomain, lang = 'en'): string {
 }
 
 function partOfSpeechText(partOfSpeech: IPartOfSpeech, lang = 'en'): string {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
   return partOfSpeech.name[lang] || partOfSpeech.name['en'];
 }
 
