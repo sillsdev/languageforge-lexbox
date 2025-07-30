@@ -9,7 +9,7 @@
 
 {#if page.data.user}
   <HomeBreadcrumb />
-  {#each page.url.pathname.split('/').slice(1) as path (path)}
+  {#each page.url.pathname.split('/').slice(1) as path, i (i)}
     <PageBreadcrumb>{path}</PageBreadcrumb>
   {/each}
 {/if}
