@@ -29,6 +29,7 @@
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
     onchange?: (value: Value) => void;
+    class?: string;
   } = $props();
 
   const {
@@ -41,6 +42,7 @@
     emptyResultsPlaceholder,
     drawerTitle,
     onchange,
+    class: className
   } = $derived(constProps);
 
   function getId(value: Value): Primitive {
@@ -89,7 +91,7 @@
 
 {#snippet trigger({ props }: { props: Record<string, unknown> })}
   <Button disabled={readonly} bind:ref={triggerRef} variant="outline" {...props} role="combobox" aria-expanded={open}
-    class="w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent">
+    class={cn('w-full h-auto px-2 justify-between disabled:opacity-100 disabled:border-transparent', className)}>
     {#if value}
       <span>
         {getLabel(value)}

@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using FwLiteWeb.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using MiniLcm;
+using MiniLcm.Filtering;
 using MiniLcm.Models;
 using MiniLcm.Project;
 using MiniLcm.Validators;
@@ -102,6 +102,8 @@ public static class MiniLcmRoutes
         api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
         api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
         api.MapGet("/publications", MiniLcm.GetPublications);
+        api.MapPost("/entry", MiniLcm.PostEntry);
+        api.MapDelete("/entry/{id:Guid}", MiniLcm.DeleteEntry);
         return api;
     }
 
@@ -129,10 +131,9 @@ public static class MiniLcmRoutes
             return api.SearchEntries(search, options.ToQueryOptions());
         }
 
-        public static Task<Entry?> GetEntry(Guid id,
-            [FromServices] MiniLcmHolder provider)
+        public static Task<Entry?> GetEntry(Guid id, [FromServices] MiniLcmHolder holder)
         {
-            var api = provider.MiniLcmApi;
+            var api = holder.MiniLcmApi;
             return api.GetEntry(id);
         }
 
@@ -153,6 +154,18 @@ public static class MiniLcmRoutes
             var api = holder.MiniLcmApi;
             return api.GetPublications();
         }
+
+        public static Task<Entry> PostEntry([FromBody] Entry entry, [FromServices] MiniLcmHolder holder)
+        {
+            var api = holder.MiniLcmApi;
+            return api.CreateEntry(entry);
+        }
+
+        public static Task DeleteEntry(Guid id, [FromServices] MiniLcmHolder holder)
+        {
+            var api = holder.MiniLcmApi;
+            return api.DeleteEntry(id);
+        }
     }
 
     private class MiniLcmQueryOptions
@@ -168,7 +181,8 @@ public static class MiniLcmRoutes
                     Ascending ?? SortOptions.Default.Ascending),
                 exemplarOptions,
                 Count ?? QueryOptions.Default.Count,
-                Offset ?? QueryOptions.Default.Offset);
+                Offset ?? QueryOptions.Default.Offset,
+                string.IsNullOrEmpty(GridifyFilter) ? null : new EntryFilter {GridifyFilter = GridifyFilter});
         }
 
         public SortField? SortField { get; set; } = SortOptions.Default.Field;
@@ -191,5 +205,7 @@ public static class MiniLcmRoutes
 
         [FromQuery]
         public int? Offset { get; set; }
+        [FromQuery]
+        public string? GridifyFilter { get; set; }
     }
 }

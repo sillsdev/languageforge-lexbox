@@ -344,16 +344,6 @@
 {#if project}
   <DetailsPage wide titleText={project.name}>
     {#snippet actions()}
-      {#if project.isLanguageForgeProject}
-        <a
-          href="./{project.code}/viewer"
-          target="_blank"
-          class="btn btn-neutral text-[#DCA54C] flex items-center gap-2"
-        >
-          {$t('project_page.open_with_viewer')}
-          <span class="i-mdi-dictionary text-2xl"></span>
-        </a>
-      {/if}
       {#if project.type === ProjectType.FlEx}
         <FeatureFlagContent flag="FwLiteBeta">
           <CrdtSyncButton {project} {isEmpty} />

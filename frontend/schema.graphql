@@ -179,6 +179,17 @@ type FLExWsId {
   isDefault: Boolean!
 }
 
+type FileMetadata {
+  sha256Hash: String
+  sizeInBytes: Int
+  fileFormat: String
+  mimeType: String
+  author: String
+  uploadDate: DateTime
+  license: MediaFileLicense
+  extraFields: [KeyValuePairOfStringAndObject!]!
+}
+
 type FlexProjectMetadata {
   projectId: UUID!
   lexEntryCount: Int
@@ -198,6 +209,10 @@ type InvalidOperationError implements Error {
 
 type IsAdminResponse {
   value: Boolean!
+}
+
+type KeyValuePairOfStringAndObject {
+  key: String!
 }
 
 type LastMemberCantLeaveError implements Error {
@@ -243,6 +258,24 @@ type MeDto {
   name: String!
   email: String
   locale: String!
+}
+
+type MediaFile {
+  filename: String!
+  projectId: UUID!
+  metadata: FileMetadata
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+"A segment of a collection."
+type MediaFilesCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [MediaFile!]
+  totalCount: Int! @cost(weight: "10")
 }
 
 type Mutation {
@@ -472,6 +505,7 @@ type Query {
   myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
   usersICanSee(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersICanSeeCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   orgById(orgId: UUID!): OrgById @cost(weight: "10")
+  mediaFiles(skip: Int take: Int where: MediaFileFilterInput @cost(weight: "10") orderBy: [MediaFileSortInput!] @cost(weight: "10")): MediaFilesCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
   me: MeDto @cost(weight: "10")
   orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto @cost(weight: "10")
@@ -857,6 +891,29 @@ input FeatureFlagOperationFilterInput {
   nin: [FeatureFlag!] @cost(weight: "10")
 }
 
+input FileMetadataFilterInput {
+  and: [FileMetadataFilterInput!]
+  or: [FileMetadataFilterInput!]
+  sha256Hash: StringOperationFilterInput
+  sizeInBytes: IntOperationFilterInput
+  fileFormat: StringOperationFilterInput
+  mimeType: StringOperationFilterInput
+  author: StringOperationFilterInput
+  uploadDate: DateTimeOperationFilterInput
+  license: NullableOfMediaFileLicenseOperationFilterInput
+  extraFields: ListFilterInputTypeOfKeyValuePairOfStringAndObjectFilterInput
+}
+
+input FileMetadataSortInput {
+  sha256Hash: SortEnumType @cost(weight: "10")
+  sizeInBytes: SortEnumType @cost(weight: "10")
+  fileFormat: SortEnumType @cost(weight: "10")
+  mimeType: SortEnumType @cost(weight: "10")
+  author: SortEnumType @cost(weight: "10")
+  uploadDate: SortEnumType @cost(weight: "10")
+  license: SortEnumType @cost(weight: "10")
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
@@ -889,6 +946,12 @@ input IntOperationFilterInput {
   nlte: Int @cost(weight: "10")
 }
 
+input KeyValuePairOfStringAndObjectFilterInput {
+  and: [KeyValuePairOfStringAndObjectFilterInput!]
+  or: [KeyValuePairOfStringAndObjectFilterInput!]
+  key: StringOperationFilterInput
+}
+
 input LeaveOrgInput {
   orgId: UUID!
 }
@@ -908,6 +971,13 @@ input ListFilterInputTypeOfFLExWsIdFilterInput {
   all: FLExWsIdFilterInput @cost(weight: "10")
   none: FLExWsIdFilterInput @cost(weight: "10")
   some: FLExWsIdFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfKeyValuePairOfStringAndObjectFilterInput {
+  all: KeyValuePairOfStringAndObjectFilterInput @cost(weight: "10")
+  none: KeyValuePairOfStringAndObjectFilterInput @cost(weight: "10")
+  some: KeyValuePairOfStringAndObjectFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
 }
 
@@ -937,6 +1007,33 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   none: ProjectUsersFilterInput @cost(weight: "10")
   some: ProjectUsersFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
+}
+
+input MediaFileFilterInput {
+  and: [MediaFileFilterInput!]
+  or: [MediaFileFilterInput!]
+  filename: StringOperationFilterInput
+  projectId: UuidOperationFilterInput
+  metadata: FileMetadataFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+}
+
+input MediaFileSortInput {
+  filename: SortEnumType @cost(weight: "10")
+  projectId: SortEnumType @cost(weight: "10")
+  metadata: FileMetadataSortInput @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  createdDate: SortEnumType @cost(weight: "10")
+  updatedDate: SortEnumType @cost(weight: "10")
+}
+
+input NullableOfMediaFileLicenseOperationFilterInput {
+  eq: MediaFileLicense @cost(weight: "10")
+  neq: MediaFileLicense @cost(weight: "10")
+  in: [MediaFileLicense] @cost(weight: "10")
+  nin: [MediaFileLicense] @cost(weight: "10")
 }
 
 input OrgMemberFilterInput {
@@ -1250,6 +1347,12 @@ enum LexboxAuthScope {
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
+}
+
+enum MediaFileLicense {
+  CREATIVE_COMMONS
+  CREATIVE_COMMONS_SHARE_ALIKE
+  OTHER
 }
 
 enum OrgRole {

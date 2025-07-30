@@ -1,6 +1,8 @@
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Media;
 using FwDataMiniLcmBridge.Tests.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using SIL.LCModel.Infrastructure;
 
@@ -11,9 +13,11 @@ public class MediaFileTests : IAsyncLifetime
 {
     private readonly FwDataMiniLcmApi _api;
     private readonly WritingSystemId _audioWs = "en-Zxxx-x-audio";
+    private IMediaAdapter _mediaAdapter;
 
     public MediaFileTests(ProjectLoaderFixture fixture)
     {
+        _mediaAdapter = fixture.Services.GetRequiredService<IMediaAdapter>();
         _api = fixture.NewProjectApi("media-file-test", "en", "en");
     }
 
@@ -60,10 +64,10 @@ public class MediaFileTests : IAsyncLifetime
 
     private async Task<Guid> StoreFileContentsAsync(string fileName, string? contents)
     {
-        var fwFilePath = Path.Combine(FwDataMiniLcmApi.AudioVisualFolder, fileName);
-        var filePath = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir, fwFilePath);
+        var filePath = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir, FwDataMiniLcmApi.AudioVisualFolder, fileName);
         await File.WriteAllTextAsync(filePath, contents);
-        return LocalMediaAdapter.NewGuidV5(fwFilePath);
+        //using media adapter to ensure it's cache is updated with the new file
+        return _mediaAdapter.MediaUriFromPath(filePath, _api.Cache).FileId;
     }
 
     private string GetFwAudioValue(Guid id)
@@ -78,7 +82,7 @@ public class MediaFileTests : IAsyncLifetime
     public async Task GetEntry_MapsFilePathsFromAudioWs()
     {
         var fileName = "MapsAFileReferenceIntoAMediaUri.txt";
-        var fileGuid = LocalMediaAdapter.NewGuidV5(Path.Combine(FwDataMiniLcmApi.AudioVisualFolder, fileName));
+        var fileGuid = LocalMediaAdapter.NewGuidV5(Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir, FwDataMiniLcmApi.AudioVisualFolder, fileName));
         var entryId = await AddFileDirectly(fileName, "test");
 
         var entry = await _api.GetEntry(entryId);
