@@ -17,6 +17,7 @@
   let idleService = useIdleService();
   function onIdle() {
     if (guard.isDirty) {
+      guard.commitAndUnlock();
       onchange();
     }
   }
