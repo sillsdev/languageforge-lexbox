@@ -1,8 +1,8 @@
-# paranext-extension-template
+# fw-lite-extension
 
-Basic extension template for Platform.Bible
+FieldWorks Lite packaged as an extension for Platform.Bible.
 
-<!-- <!-- Opening comment tag for Template Info Section. Ignore this for now. More info in [Hide Template Info](#hide-template-info). -->
+<!--
 
 ## Template Info
 
@@ -92,7 +92,7 @@ The general file structure is as follows:
 - `manifest.json` is the manifest file that defines the extension and important properties for Platform.Bible. It is copied into the build folder
 - `src/` contains the source code for the extension
   - `src/main.ts` is the main entry file for the extension
-  - `src/types/paranext-extension-template.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
+  - `src/types/fw-lite-extension.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
   - `*.web-view.tsx` files will be treated as React WebViews
   - `*.web-view.html` files are a conventional way to provide HTML WebViews (no special functionality)
 - `assets/` contains asset files the extension and its WebViews can retrieve using the `papi-extension:` protocol, as well as textual descriptions in various languages. It is copied into the build folder
@@ -101,26 +101,33 @@ The general file structure is as follows:
     - `assets/descriptions/description-<locale>.md` contains a brief description of the extension in the language specified by `<locale>`
 - `contributions/` contains JSON files the platform uses to extend data structures for things like menus and settings. The JSON files are referenced from the manifest
 - `public/` contains other static files that are copied into the build folder
-- `.github/` contains files to facilitate integration with GitHub
-  - `.github/workflows` contains [GitHub Actions](https://github.com/features/actions) workflows for automating various processes in this repo
-  - `.github/assets/release-body.md` combined with a generated changelog becomes the body of [releases published using GitHub Actions](#publishing)
 - `dist/` is a generated folder containing the built extension files
 - `release/` is a generated folder containing a zip of the built extension files
 
 ## To install
 
-### Install dependencies:
-
-1. Follow the instructions to install [`paranext-core`](https://github.com/paranext/paranext-core#developer-install). We recommend you clone `paranext-core` in the same parent directory in which you cloned this repository so you do not have to [reconfigure paths](#configure-paths-to-paranext-core-repo) to `paranext-core`.
-2. In this repo, run `npm install` to install local and published dependencies
-
 ### Configure paths to `paranext-core` repo
 
-If you cloned `paranext-core` anywhere other than in the same parent directory in which you cloned this repository, update the paths to `paranext-core` in this repository's `package.json` to point to the correct `paranext-core` directory.
+In order to interact with `paranext-core`, you must clone `paranext-core` in the same parent directory in which you cloned this repository so you do not have to reconfigure paths to `paranext-core`. For example, if you cloned this repository in `C:\dev\LexBox\`, you would clone `paranext-core` in `C:\dev\paranext-core\`.
+
+### Install dependencies:
+
+1. In the `paranext-core` repository, run `npm install`
+2. In this folder, run `npm install` to install local and published dependencies
 
 ## To run
 
+First, you must build FieldWorks Lite using the task defined in this folder:
+
+```bash
+task build-fw-lite-web
+```
+
+This is a normal production build, so changes to FwLite files will not be rebuilt automatically. If you want to do FwLite development, look at [README.md](../../backend/FwLite/README.md)
+
 ### Running Platform.Bible with this extension
+
+#### Warning: you must not use `pnpm`, only `npm`.
 
 To run Platform.Bible with this extension:
 
