@@ -1,3 +1,5 @@
+# #region shared with https://github.com/paranext/paranext-multi-extension-template/blob/main/.gitignore
+
 # Logs
 logs
 *.log
@@ -27,4 +29,5 @@ dist-ssr
 
 # Temporary intermediate build files
 temp-build
-public/fw-lite
+
+# #endregion

@@ -2,23 +2,19 @@ import webpack from 'webpack';
 import path from 'path';
 import { glob } from 'glob';
 
-// #region shared with https://github.com/paranext/paranext-core/blob/main/extensions/webpack/webpack.util.ts
+// #region shared with https://github.com/paranext/paranext-multi-extension-template/blob/main/webpack/webpack.util.ts
 
 /**
- * String of what a web view needs to have in its name before the file extension to be considered a
- * web-view
+ * String of what a WebView needs to have in its name before the file extension to be considered a
+ * WebView
  *
- * Web Views should be named <name>.web-view.<extension>
+ * WebViews should be named <name>.web-view.<extension>
  */
 const webViewTag = '.web-view';
-/**
- * Glob filename matcher for React web views.
- * React Web Views should be named <name>.web-view.tsx
- */
+/** Glob filename matcher for React WebViews. React WebViews should be named <name>.web-view.tsx */
 const webViewTsxGlob = '**/*.web-view.tsx';
 /**
- * Regex file name matcher for React web views.
- * React Web Views should be named <name>.web-view.tsx
+ * Regex file name matcher for React WebViews. React WebViews should be named <name>.web-view.tsx
  *
  * Note: this regex allows the extension to be optional.
  */
@@ -30,17 +26,25 @@ export const webViewTempDir = 'temp-build';
 export const outputFolder = 'dist';
 
 /**
- * Get a list of TypeScript WebView files to bundle.
- * Path relative to project root
+ * The module format of library we want webpack to use for externals and create for our extensions
+ *
+ * @see webpack.Configuration['externalsType'] for info about external import format
+ * @see webpack.LibraryOptions['type'] for info about library format
  */
+// commonjs-static formats the code to export everything on module.exports.<export_name> so it works
+// well in cjs or esm https://webpack.js.org/configuration/output/#type-commonjs-static
+export const LIBRARY_TYPE: NonNullable<webpack.Configuration['externalsType']> = 'commonjs-static';
+
+/** Get a list of TypeScript WebView files to bundle. Path relative to project root */
 function getWebViewTsxPaths() {
   return glob(webViewTsxGlob, { ignore: 'node_modules/**' });
 }
 
 /**
  * Gets the bundled WebView path for a WebView file path
- * @param webViewPath relative path to webView e.g. './src/fw-lite-extension.web-view.tsx'
- * @param join function to use to join the paths together
+ *
+ * @param webViewPath Relative path to WebView e.g. './src/extension-template.web-view.tsx'
+ * @param join Function to use to join the paths together
  * @returns WebView path with temporary WebView directory inserted into the module path
  */
 export function getWebViewTempPath(
@@ -49,7 +53,7 @@ export function getWebViewTempPath(
 ) {
   const webViewInfo = path.parse(webViewPath);
 
-  // If the web view doesn't have a file extension, parsing makes it think the extension is
+  // If the WebView doesn't have a file extension, parsing makes it think the extension is
   // '.web-view', so we need to add it back
   const webViewName = webViewInfo.ext === webViewTag ? webViewInfo.base : webViewInfo.name;
   // Put transpiled WebViews in a temp folder in the same directory as the original WebView
@@ -61,19 +65,20 @@ export function getWebViewTempPath(
 }
 
 /**
- * Get webpack entry configuration to build each web-view source file and put it in a temporary
+ * Get webpack entry configuration to build each WebView source file and put it in a temporary
  * folder in the same directory
- * @returns promise that resolves to the webView entry config
+ *
+ * @returns Promise that resolves to the WebView entry config
  */
 export async function getWebViewEntries(): Promise<webpack.EntryObject> {
   const tsxWebViews = await getWebViewTsxPaths();
   const webViewEntries = Object.fromEntries(
-    tsxWebViews.map((webViewPath) => [
+    tsxWebViews.map((webViewPath): [string, webpack.EntryObject[string]] => [
       webViewPath,
       {
         import: webViewPath,
         filename: getWebViewTempPath(webViewPath),
-      } as webpack.EntryObject[string],
+      },
     ]),
   );
   return webViewEntries;
