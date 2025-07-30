@@ -100,7 +100,7 @@
 
 </script>
 
-<AppBar tabTitle={$t`Dictionaries`} class="bg-primary/15 min-h-12 shadow-md justify-between" menuIcon={null}>
+<AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
       <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
@@ -200,7 +200,7 @@
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
               <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
-                <ListItem loading={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+                <ListItem class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
                   <span>{$t`Create Example Project`}</span>
                   {#snippet actions()}
                     <div class="flex flex-nowrap items-center gap-2">
