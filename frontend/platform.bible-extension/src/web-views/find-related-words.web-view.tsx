@@ -167,7 +167,10 @@ interface EntriesInSemanticDomainProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function EntriesInSemanticDomain({ entries, semanticDomain }: EntriesInSemanticDomainProps): ReactElement {
+function EntriesInSemanticDomain({
+  entries,
+  semanticDomain,
+}: EntriesInSemanticDomainProps): ReactElement {
   return (
     <>
       <Card>{`${semanticDomain.code}: ${JSON.stringify(semanticDomain.name)}`}</Card>

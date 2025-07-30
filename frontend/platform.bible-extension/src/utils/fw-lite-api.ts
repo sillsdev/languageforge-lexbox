@@ -53,8 +53,8 @@ export class FwLiteApi {
             method: method || 'POST',
           }
         : method
-        ? { method }
-        : undefined,
+          ? { method }
+          : undefined,
     );
   }
 

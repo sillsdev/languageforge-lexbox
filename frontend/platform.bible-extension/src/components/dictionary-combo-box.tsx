@@ -44,10 +44,10 @@ export default function DictionaryComboBox({
           !dictionaries
             ? 'Loading dictionaries...'
             : !dictionaries.length
-            ? 'No dictionaries found'
-            : !selectedDictionaryCode
-            ? 'Select a dictionary'
-            : `Selected: ${selectedDictionaryCode}`
+              ? 'No dictionaries found'
+              : !selectedDictionaryCode
+                ? 'Select a dictionary'
+                : `Selected: ${selectedDictionaryCode}`
         }
         commandEmptyMessage="No dictionaries found"
         isDisabled={!dictionaries?.length}
