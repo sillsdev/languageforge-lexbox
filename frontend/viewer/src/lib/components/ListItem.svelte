@@ -3,11 +3,12 @@
   import type {WithElementRef} from 'bits-ui';
   import type {HTMLButtonAttributes} from 'svelte/elements';
   import type {Snippet} from 'svelte';
+  import type {IconClass} from '$lib/icon-class';
 
   export type ListItemProps = WithElementRef<HTMLButtonAttributes> & {
     selected?: boolean;
     skeleton?: boolean;
-    icon?: Snippet | string;
+    icon?: Snippet | IconClass;
     actions?: Snippet;
   };
 </script>

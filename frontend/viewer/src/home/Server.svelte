@@ -2,11 +2,9 @@
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import ListItem from '$lib/components/ListItem.svelte';
   import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
-  import ProjectTitle from './ProjectTitle.svelte';
   import {cn} from '$lib/utils';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
