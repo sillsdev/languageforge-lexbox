@@ -9,6 +9,7 @@
   import {FFmpegApi, type FFmpegFile} from './ffmpeg';
   import Loading from '$lib/components/Loading.svelte';
   import {resource, watch} from 'runed';
+  import {onDestroy} from 'svelte';
 
   type Props = {
     audio: File;
@@ -31,23 +32,28 @@
 
   let ffmpegFile = resource(() => audio, async (audio) => {
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.toFFmpegFile(audio);
+    return await ffmpegApi.toFFmpegFile(audio, abortController.signal);
   });
 
   let flacFile = resource(() => ffmpegFile.current, async (file) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.convertToFlac(file);
+    return await ffmpegApi.convertToFlac(file, abortController.signal);
   });
 
   watch(() => [flacFile.current], async ([file]) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
     finalAudio = undefined;
-    finalAudio = await ffmpegApi.readFile(file);
+    finalAudio = await ffmpegApi.readFile(file, abortController.signal);
   });
 
   const loading = $derived(ffmpegFile.loading || flacFile.loading);
+
+  const abortController = new AbortController();
+  onDestroy(() => {
+    abortController.abort();
+  });
 </script>
 
 <div class="flex flex-col gap-4 items-center justify-center">

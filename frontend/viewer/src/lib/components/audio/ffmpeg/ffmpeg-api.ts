@@ -26,7 +26,6 @@ async function loadFFmpegInternal(): Promise<FFmpeg> {
   ffmpeg.on('log', (msg) => {
     console.log('FFmpeg log:', msg);
   });
-
   await ffmpeg.load({
     coreURL: coreURL,
     wasmURL: wasmUrl,
@@ -34,28 +33,6 @@ async function loadFFmpegInternal(): Promise<FFmpeg> {
   });
 
   return ffmpeg;
-}
-
-export async function convertToWav(ffmpeg: FFmpeg, blob: Blob): Promise<Blob> {
-  // Load input into ffmpeg FS
-  const inputName = 'input.mp3';
-  const outputName = 'output.wav';
-
-  await ffmpeg.writeFile(inputName, await fetchFile(blob));
-
-  // Normalize volume and convert to WAV
-  await ffmpeg.exec([
-    '-i', inputName,
-    '-af', 'loudnorm',
-    '-ar', '44100',
-    '-ac', '2',
-    '-c:a', 'pcm_s16le',
-    outputName
-  ]);
-
-  // Read output file
-  const data = await ffmpeg.readFile(outputName) as Uint8Array;;
-  return new Blob([data], {type: 'audio/wav'});
 }
 
 export class FFmpegFile {
@@ -92,39 +69,40 @@ export class FFmpegApi {
   private constructor(private ffmpeg: FFmpeg) {
   }
 
-  private async createDir(path: string) {
+
+  private async createDir(path: string, signal: AbortSignal) {
     console.log('Creating dir:', path);
     const paths = path.split('/').filter(v => !!v);
     let newDir = '';
     for (const dir of paths) {
       console.log('Checking dir:', newDir, dir);
-      const dirExists = (await this.ffmpeg.listDir(newDir || '/')).some(f => f.name === dir);
+      const dirExists = (await this.ffmpeg.listDir(newDir || '/', {signal})).some(f => f.name === dir);
       newDir += `/${dir}`;
       if (dirExists) {
         continue;
       }
       console.log('Creating dir:', newDir);
       //create dir never returns if the dir already exists or if you're trying to create a sub directory of a directory which doesn't exist
-      await this.ffmpeg.createDir(newDir);
+      await this.ffmpeg.createDir(newDir, {signal});
     }
   }
-  async toFFmpegFile(file: File): Promise<FFmpegFile> {
+  async toFFmpegFile(file: File, signal: AbortSignal): Promise<FFmpegFile> {
     console.log('Writing file to ffmpeg FS:', file.name);
     const ffmpegFile = new FFmpegFile(file.type, file.name, 'input');
-    await this.createDir(ffmpegFile.internalFileDir);
-    await this.ffmpeg.writeFile(ffmpegFile.internalFilePath, await fetchFile(file));
+    await this.createDir(ffmpegFile.internalFileDir, signal);
+    await this.ffmpeg.writeFile(ffmpegFile.internalFilePath, await fetchFile(file), {signal});
     return ffmpegFile;
   }
 
-  async readFile(file: FFmpegFile): Promise<File> {
+  async readFile(file: FFmpegFile, signal: AbortSignal): Promise<File> {
     console.log('Reading file from ffmpeg FS:', file.filename);
-    const data = await this.ffmpeg.readFile(file.internalFilePath) as Uint8Array;
+    const data = await this.ffmpeg.readFile(file.internalFilePath, undefined, {signal}) as Uint8Array;
     return new File([data], file.filename, {type: file.mimeType});
   }
 
-  async convertToWav(file: FFmpegFile): Promise<FFmpegFile> {
+  async convertToWav(file: FFmpegFile, signal: AbortSignal): Promise<FFmpegFile> {
     const convertedFile = file.changeExtension('wav', 'audio/wav', 'convert');
-    await this.createDir(convertedFile.internalFileDir);
+    await this.createDir(convertedFile.internalFileDir, signal);
     await this.ffmpeg.exec(
       [
         '-i', file.internalFilePath,
@@ -133,15 +111,17 @@ export class FFmpegApi {
         '-ac', '2',
         '-codec:a', 'pcm_s16le',
         convertedFile.internalFilePath
-      ]
+      ],
+      undefined,
+      {signal}
     );
     return convertedFile;
   }
 
-  async convertToFlac(file: FFmpegFile): Promise<FFmpegFile> {
+  async convertToFlac(file: FFmpegFile, signal: AbortSignal): Promise<FFmpegFile> {
     console.log('Converting to FLAC:', file.filename);
     const convertedFile = file.changeExtension('flac', 'audio/flac', 'convert');
-    await this.createDir(convertedFile.internalFileDir);
+    await this.createDir(convertedFile.internalFileDir, signal);
     await this.ffmpeg.exec(
       [
         '-i', file.internalFilePath,
@@ -149,7 +129,9 @@ export class FFmpegApi {
         '-ar', '44100',
         '-codec:a', 'flac',
         convertedFile.internalFilePath
-      ]
+      ],
+      undefined,
+      {signal}
     );
     return convertedFile;
   }
