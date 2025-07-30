@@ -118,7 +118,7 @@ export class FFmpegApi {
     return convertedFile;
   }
 
-  async convertToFlac(file: FFmpegFile, signal: AbortSignal): Promise<FFmpegFile> {
+  async convertToFlac(file: FFmpegFile,  signal: AbortSignal): Promise<FFmpegFile> {
     console.log('Converting to FLAC:', file.filename);
     const convertedFile = file.changeExtension('flac', 'audio/flac', 'convert');
     await this.createDir(convertedFile.internalFileDir, signal);

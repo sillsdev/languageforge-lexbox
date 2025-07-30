@@ -35,7 +35,7 @@
     return await ffmpegApi.toFFmpegFile(audio, abortController.signal);
   });
 
-  let flacFile = resource(() => ffmpegFile.current, async (file) => {
+  let flacFile = resource(() => [ffmpegFile.current], async ([file]) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
     return await ffmpegApi.convertToFlac(file, abortController.signal);
@@ -57,7 +57,6 @@
 </script>
 
 <div class="flex flex-col gap-4 items-center justify-center">
-  {@debug finalAudio}
   {#if loading || !finalAudio}
     <Loading class="self-center justify-self-center size-16"/>
   {:else}

@@ -11,7 +11,7 @@
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
 
-  let open = $state(true);
+  let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
   const dialogsService = useDialogsService();
   dialogsService.invokeAudioDialog = getAudio;
