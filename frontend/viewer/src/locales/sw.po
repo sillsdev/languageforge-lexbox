@@ -1,0 +1,945 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-07-29 14:49+0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: sw\n"
+"Project-Id-Version: language-depot\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2025-07-30 09:24\n"
+"Last-Translator: \n"
+"Language-Team: Swahili\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: language-depot\n"
+"X-Crowdin-Project-ID: 575977\n"
+"X-Crowdin-Language: sw\n"
+"X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
+"X-Crowdin-File-ID: 21219\n"
+
+#: src/lib/activity/ActivityView.svelte:99
+msgid "– ({0} changes)"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:28
+#: src/lib/components/audio/audio-editor.svelte:33
+#: src/lib/components/audio/audio-editor.svelte:37
+msgid "{0}"
+msgstr "{0}"
+
+#: src/project/SyncDialog.svelte:249
+msgid "{0} - FieldWorks"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:209
+msgid "{0} - FieldWorks Lite"
+msgstr ""
+
+#: src/lib/components/editor/field/field-title.svelte:22
+msgid "{0} (FieldWorks Lite)"
+msgstr ""
+
+#: src/lib/components/editor/field/field-title.svelte:23
+msgid "{0} (FieldWorks)"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:30
+msgid "{0} MB"
+msgstr ""
+
+#: src/home/Server.svelte:62
+msgid "{0} Server"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:93
+msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
+msgstr ""
+
+#: src/project/SyncDialog.svelte:91
+#: src/project/SyncDialog.svelte:92
+msgid "{num, plural, one {# change} other {# changes}}"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte:20
+msgid "A new version of FieldWorks lite is available."
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte:102
+msgid "a word"
+msgstr ""
+
+#: src/lib/about/AboutDialog.svelte:22
+msgid "About"
+msgstr "Kuhusu"
+
+#: src/project/ProjectSidebar.svelte:138
+msgid "Account"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:94
+msgid "Activity"
+msgstr "Shughuli"
+
+#: src/lib/components/field-editors/audio-input.svelte:206
+#: src/lib/components/audio/AudioDialog.svelte:106
+msgid "Add audio"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
+msgid "Add component"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:212
+msgid "Add Example"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
+msgid "Add Meaning"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add part of"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
+msgid "Add Sense"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte:83
+#: src/lib/activity/ActivityView.svelte:78
+#: src/lib/activity/ActivityView.svelte:105
+msgid "ago"
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte:102
+msgid "an entry"
+msgstr ""
+
+#: src/project/browse/filter/WsSelect.svelte:21
+msgid "Any Ws"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:33
+msgid "Application version"
+msgstr ""
+
+#: src/lib/entry-editor/DeleteDialog.svelte:55
+msgid "Are you sure you want to delete {0}?"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte:215
+msgid "Audio file not included in Send & Receive"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte:95
+#: src/lib/activity/ActivityView.svelte:91
+msgid "Author:"
+msgstr "Mwandishi:"
+
+#: src/project/browse/SortMenu.svelte:73
+msgid "Auto"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:183
+msgid "Auto synchronizing"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte:80
+#: src/lib/activity/ActivityView.svelte:75
+msgid "before"
+msgstr "kabla"
+
+#: src/project/browse/SortMenu.svelte:9
+msgid "Best match"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:89
+msgid "Browse"
+msgstr "Angalia"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte:110
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:245
+#: src/lib/components/field-editors/select.svelte:166
+#: src/lib/components/field-editors/multi-select.svelte:280
+#: src/lib/components/audio/AudioDialog.svelte:118
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:55
+msgid "Citation form"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:41
+msgid "Citation Form"
+msgstr "Fomu ya Manukuu"
+
+#: src/home/HomeView.svelte:225
+msgid "Classic FieldWorks Projects"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte:118
+#: src/lib/components/field-editors/multi-select.svelte:205
+msgid "clear"
+msgstr "futa"
+
+#: src/lib/components/ui/button/x-button.svelte:14
+#: src/lib/components/field-editors/multi-select.svelte:215
+#: src/lib/about/AboutDialog.svelte:28
+msgid "Close"
+msgstr "Funga"
+
+#: src/project/ProjectSidebar.svelte:157
+msgid "Close Dictionary"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte:32
+msgid "Color"
+msgstr "Rangi"
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:55
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:44
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:45
+msgid "Complex Form"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:88
+msgid "Complex form types"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:67
+msgid "Complex forms"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:43
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:61
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:44
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:50
+msgid "Component"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:77
+msgid "Components"
+msgstr ""
+
+#: src/project/browse/filter/OpFilter.svelte:13
+msgid "Contains"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte:112
+msgid "Create {0}"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryButton.svelte:12
+msgid "Create entry"
+msgstr ""
+
+#: src/home/HomeView.svelte:203
+msgid "Create Example Project"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryButton.svelte:12
+msgid "Create word"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:42
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:43
+msgid "Current Entry"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:42
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:43
+msgid "Current Word"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:87
+msgid "Dashboard"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:35
+msgid "Data Directory"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:52
+msgid "Definition"
+msgstr "Maana"
+
+#: src/home/HomeView.svelte:177
+msgid "Delete"
+msgstr "Futa"
+
+#: src/lib/entry-editor/DeleteDialog.svelte:52
+#: src/lib/entry-editor/DeleteDialog.svelte:59
+msgid "Delete {0}"
+msgstr ""
+
+#: src/project/browse/EntryMenu.svelte:55
+msgid "Delete Entry"
+msgstr "Futa ingizo"
+
+#: src/project/browse/EntryMenu.svelte:55
+msgid "Delete Word"
+msgstr ""
+
+#: src/home/HomeView.svelte:107
+#: src/home/HomeView.svelte:110
+msgid "Dictionaries"
+msgstr "Kamusi"
+
+#: src/project/ProjectSidebar.svelte:83
+msgid "Dictionary"
+msgstr "Kamusi"
+
+#: src/project/browse/ViewPicker.svelte:38
+msgid "Dictionary Preview"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:46
+msgid "Discard"
+msgstr "Kataa mabadiliko"
+
+#: src/project/browse/SearchFilter.svelte:41
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:55
+msgid "Display as"
+msgstr ""
+
+#: src/lib/entry-editor/DeleteDialog.svelte:58
+msgid "Don't delete"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte:26
+#: src/home/Server.svelte:127
+msgid "Download"
+msgstr "Pakua"
+
+#: src/home/Server.svelte:38
+msgid "Downloaded {0}"
+msgstr ""
+
+#: src/home/Server.svelte:37
+msgid "Downloading {0}..."
+msgstr "Inapakua {0}..."
+
+#: src/project/browse/filter/OpFilter.svelte:14
+msgid "Ends with"
+msgstr ""
+
+#: src/project/browse/EntryMenu.svelte:37
+#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+msgid "Entry"
+msgstr "Ingizo"
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:211
+msgid "Entry Only"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:204
+msgid "Entry or sense:"
+msgstr ""
+
+#: src/project/browse/filter/OpFilter.svelte:15
+msgid "Equals"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:119
+msgid "Error getting sync status"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:195
+msgid "Error getting sync status."
+msgstr ""
+
+#: src/project/SyncDialog.svelte:260
+msgid "Error: {0}"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:184
+msgid "Example"
+msgstr "Mfano"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:91
+msgid "Example sentence"
+msgstr ""
+
+#: src/home/Server.svelte:39
+msgid "Failed to download {0}"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte:134
+msgid "Failed to load entries"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:22
+msgid "Failed to open data directory, use the path in the text field instead"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:120
+msgid "Failed to synchronize"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:95
+msgid "Failed to synchronize."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:179
+#: src/home/HomeView.svelte:126
+msgid "Feedback"
+msgstr "Maoni"
+
+#: src/project/browse/SearchFilter.svelte:136
+msgid "Field"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte:32
+msgid "Field Labels"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte:69
+#: src/lib/OpenInFieldWorksButton.svelte:56
+#: src/home/HomeView.svelte:231
+msgid "FieldWorks logo"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:32
+msgid "File name:"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte:74
+msgid "File not found"
+msgstr "Faili haijapatikana"
+
+#: src/project/browse/SearchFilter.svelte:100
+msgid "Filter # entries"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:100
+msgid "Filter # words"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:106
+msgid "Filter entries"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:147
+msgid "Filter for"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:106
+msgid "Filter words"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte:114
+#: src/lib/components/field-editors/multi-select.svelte:201
+msgid "Filter..."
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:140
+msgid "Find entry..."
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:140
+msgid "Find word..."
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:42
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:41
+msgid "Gloss"
+msgstr "Glosi"
+
+#: src/lib/entry-editor/EntryOrSenseItemList.svelte:26
+msgid "Go to {0}"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:63
+msgid "Grammatical info."
+msgstr ""
+
+#: src/project/browse/SortMenu.svelte:10
+msgid "Headword"
+msgstr "Neno la kichwa"
+
+#: src/project/browse/ViewPicker.svelte:40
+msgid "Hide"
+msgstr "Ficha"
+
+#: src/project/browse/EntryMenu.svelte:60
+#: src/lib/history/HistoryView.svelte:59
+msgid "History"
+msgstr "Historia"
+
+#: src/lib/components/audio/audio-provider.svelte:85
+msgid "Hold to record or\\npress and release to start recording."
+msgstr ""
+
+#: src/home/Server.svelte:137
+msgid "I don't see my project"
+msgstr ""
+
+#: src/home/HomeView.svelte:237
+msgid "Import"
+msgstr "Agiza"
+
+#: src/project/SyncDialog.svelte:212
+#: src/project/SyncDialog.svelte:252
+msgid "Last change: {0}"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:28
+msgid "Length:"
+msgstr ""
+
+#: src/home/HomeView.svelte:109
+msgid "Lexbox logo"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
+msgid "Lexeme form"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:40
+msgid "Lexeme Form"
+msgstr "Fomu ya Lexeme"
+
+#: src/project/browse/BrowseView.svelte:63
+msgid "List mode"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:103
+msgid "Literal meaning"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte:105
+msgid "Loading Dictionaries..."
+msgstr ""
+
+#: src/home/HomeView.svelte:146
+msgid "loading..."
+msgstr "inashughulikia..."
+
+#: src/home/HomeView.svelte:151
+msgid "Local"
+msgstr "Mitaa"
+
+#: src/home/HomeView.svelte:168
+msgid "Local only"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:189
+msgid "Login"
+msgstr ""
+
+#: src/lib/auth/LoginButton.svelte:71
+#: src/lib/auth/LoginButton.svelte:79
+msgid "Login to see projects"
+msgstr ""
+
+#: src/lib/auth/LoginButton.svelte:61
+msgid "Logout"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:193
+msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:73
+#: src/lib/entry-editor/object-editors/AddSenseFab.svelte:15
+msgid "Meaning"
+msgstr "Maana"
+
+#: src/project/browse/SearchFilter.svelte:152
+msgid "Missing Examples"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:154
+msgid "Missing Part of Speech"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:155
+msgid "Missing Semantic Domains"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:153
+msgid "Missing Senses"
+msgstr ""
+
+#: src/lib/entry-editor/ItemListItem.svelte:61
+msgid "Move"
+msgstr "Sogeza"
+
+#: src/project/SyncDialog.svelte:253
+msgid "Never"
+msgstr "Kamwe"
+
+#: src/project/NewEntryButton.svelte:48
+msgid "New"
+msgstr "Mpya"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte:97
+msgid "New {0}"
+msgstr ""
+
+#: src/project/NewEntryButton.svelte:50
+msgid "New Entry"
+msgstr "Ingizo Mpya"
+
+#: src/lib/activity/ActivityView.svelte:61
+msgid "No activity found"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte:210
+msgid "No audio"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte:71
+msgid "No change name"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte:109
+msgid "No Dictionaries found"
+msgstr ""
+
+#: src/project/browse/EntriesList.svelte:160
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:174
+msgid "No entries found"
+msgstr ""
+
+#: src/lib/history/HistoryView.svelte:66
+msgid "No history found"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte:126
+#: src/lib/components/field-editors/multi-select.svelte:220
+msgid "No items found"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:193
+#: src/project/ProjectSidebar.svelte:113
+msgid "No server configured"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:174
+msgid "No words found"
+msgstr ""
+
+#: src/lib/components/field-editors/select.svelte:101
+#: src/lib/components/field-editors/multi-select.svelte:176
+msgid "None"
+msgstr "Hamna"
+
+#: src/project/browse/filter/OpFilter.svelte:16
+msgid "Not equal"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:257
+#: src/project/ProjectSidebar.svelte:111
+msgid "Not logged in"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:114
+msgid "Note"
+msgstr "Tanbihi"
+
+#: src/project/SyncDialog.svelte:187
+#: src/project/ProjectSidebar.svelte:109
+msgid "Offline"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte:77
+msgid "Offline, unable to download"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:40
+msgid "Open Data Directory"
+msgstr ""
+
+#: src/lib/OpenInFieldWorksButton.svelte:57
+msgid "Open in FieldWorks"
+msgstr ""
+
+#: src/project/browse/EntryMenu.svelte:65
+msgid "Open in new Window"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:46
+msgid "Open Log file"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:43
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:44
+msgid "Part"
+msgstr "Sehemu"
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:67
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:55
+#: src/lib/entry-editor/field-editors/ComplexForms.svelte:44
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:45
+#: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:50
+msgid "Part of"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:63
+msgid "Part of speech"
+msgstr "Sehemu za mazungumzo"
+
+#: src/project/browse/ViewPicker.svelte:41
+msgid "Pinned"
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte:76
+msgid "Preview"
+msgstr "Hakiki"
+
+#: src/home/HomeView.svelte:211
+msgid "Project name..."
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:60
+msgid "Reference"
+msgstr "Rejeleo"
+
+#: src/lib/components/field-editors/select.svelte:146
+#: src/lib/components/field-editors/multi-select.svelte:256
+msgid "Refine your filter to see more..."
+msgstr ""
+
+#: src/home/Server.svelte:70
+#: src/home/HomeView.svelte:155
+msgid "Refresh Projects"
+msgstr ""
+
+#: src/lib/entry-editor/ItemListItem.svelte:73
+msgid "Remove"
+msgstr "Ondoa"
+
+#: src/lib/components/field-editors/audio-input.svelte:261
+msgid "Remove audio"
+msgstr ""
+
+#: src/lib/OpenInFieldWorksButton.svelte:41
+msgid "Reopen"
+msgstr ""
+
+#: src/lib/components/field-editors/audio-input.svelte:258
+msgid "Replace audio"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte:120
+msgid "Save audio"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:
+msgid "Search # or #"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte:99
+msgid "Search Dictionaries"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+msgid "Select {0}"
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte:102
+msgid "Select {0} to view details"
+msgstr ""
+
+#: src/lib/components/audio/audio-provider.svelte:66
+#: src/lib/components/audio/audio-provider.svelte:70
+msgid "Select file"
+msgstr "Chagua Folda"
+
+#: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:79
+msgid "Semantic domains"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte:73
+#: src/lib/entry-editor/object-editors/AddSenseFab.svelte:15
+msgid "Sense"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:37
+msgid "Sentence"
+msgstr "Sentensi"
+
+#: src/project/ProjectSidebar.svelte:144
+msgid "Settings"
+msgstr "Mipangilio"
+
+#: src/lib/sandbox/Sandbox.svelte:
+msgid "Shadcn Sandbox # #"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+msgid "Share Log file"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte:39
+msgid "Show"
+msgstr "Onyesha"
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:191
+msgid "Show {0} more..."
+msgstr ""
+
+#: src/project/browse/BrowseView.svelte:72
+msgid "Simple"
+msgstr "Rahisi"
+
+#: src/lib/components/audio/audio-editor.svelte:30
+msgid "Size:"
+msgstr "Ukubwa:"
+
+#: src/project/browse/filter/OpFilter.svelte:12
+msgid "Starts with"
+msgstr ""
+
+#: src/lib/components/field-editors/multi-select.svelte:210
+#: src/lib/components/field-editors/multi-select.svelte:211
+#: src/lib/components/field-editors/multi-select.svelte:283
+msgid "Submit"
+msgstr "Wasilisha"
+
+#: src/project/ProjectSidebar.svelte:117
+#: src/lib/activity/ActivityView.svelte:103
+#: src/home/Server.svelte:113
+msgid "Synced"
+msgstr ""
+
+#: src/home/HomeView.svelte:168
+msgid "Synced with {0}"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:149
+#: src/project/SyncDialog.svelte:234
+#: src/project/ProjectSidebar.svelte:124
+msgid "Synchronize"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:89
+msgid "Synchronizing FieldWorks Lite with FieldWorks..."
+msgstr ""
+
+#: src/project/SyncDialog.svelte:181
+#: src/project/SyncDialog.svelte:232
+msgid "Synchronizing..."
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:91
+msgid "Tasks"
+msgstr "Jukumu"
+
+#: src/home/HomeView.svelte:192
+msgid "Test Project"
+msgstr ""
+
+#: src/stories/i18n/i18n.stories.svelte:
+msgid "This date # and this emoji # are snippets"
+msgstr ""
+
+#: src/lib/OpenInFieldWorksButton.svelte:40
+msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:119
+msgid "Toggle filters"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte:24
+msgid "Toggle theme"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:48
+msgid "Translation"
+msgstr "Tafsiri"
+
+#: src/project/ProjectSidebar.svelte:170
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:30
+#: src/home/HomeView.svelte:132
+msgid "Troubleshoot"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:36
+msgid "Type:"
+msgstr "Aina:"
+
+#: src/lib/OpenInFieldWorksButton.svelte:45
+msgid "Unable to open in FieldWorks"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:253
+#: src/project/SyncDialog.svelte:260
+#: src/lib/history/HistoryView.svelte:99
+#: src/lib/activity/ActivityView.svelte:95
+msgid "Unknown"
+msgstr "Haijulikani"
+
+#: src/project/ProjectSidebar.svelte:115
+msgid "Unknown error"
+msgstr "Hitilafu isiyojulikana"
+
+#: src/lib/components/field-editors/audio-input.svelte:80
+msgid "Unknown error {0}"
+msgstr ""
+
+#: src/project/SyncDialog.svelte:191
+msgid "Unknown server: {0}"
+msgstr ""
+
+#: src/project/browse/EntryView.svelte:49
+#: src/project/browse/EntryRow.svelte:57
+#: src/project/browse/EntryMenu.svelte:32
+msgid "Untitled"
+msgstr ""
+
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:88
+msgid "Uses components as"
+msgstr ""
+
+#: src/project/ProjectSidebar.svelte:192
+msgid "Version {0}"
+msgstr ""
+
+#: src/project/browse/ViewPicker.svelte:26
+msgid "View Configuration"
+msgstr ""
+
+#: src/home/Server.svelte:94
+msgid "Where are my projects?"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte:40
+#: src/project/browse/EntryMenu.svelte:37
+#: src/lib/entry-editor/NewEntryDialog.svelte:84
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:250
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
+msgid "Word"
+msgstr "Neno"
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:211
+msgid "Word only"
+msgstr ""
+
+#: src/lib/entry-editor/EntryOrSensePicker.svelte:204
+msgid "Word or meaning:"
+msgstr ""
+
+#: src/project/browse/filter/WsSelect.svelte:18
+msgid "Writing System"
+msgstr ""
+
+#: src/lib/components/lcm-rich-text-editor/editor-schema.ts:27
+msgid "Writing system: {0}"
+msgstr ""
+
+#: src/project/browse/filter/WsSelect.svelte:29
+msgid "Writing Systems"
+msgstr ""
+
