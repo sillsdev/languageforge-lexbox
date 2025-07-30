@@ -162,7 +162,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             if (serverProjects.CanDownloadByCode)
             {
-                var (status, projectId) = await lexboxProjectService.GetLexboxProjectIdForDownload(server, code);
+                var (status, projectId) = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (status != DownloadProjectByCodeResult.Success) return status;
                 if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
                 var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;

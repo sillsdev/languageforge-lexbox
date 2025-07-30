@@ -133,28 +133,11 @@ public class CrdtController(
 
     [HttpGet("lookupProjectId")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult<Guid>> GetProjectId(string code)
-    {
-        await permissionService.AssertCanViewProject(code);
-        var projectId = await projectService.LookupProjectId(code);
-        if (projectId is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(projectId.Value);
-    }
-
-    [HttpGet("lookupProjectIdForDownload")] // TODO: Bikeshed this endpoint name in code review
-    // Actually, can we just make this the lookupProjectId endpoint? Or is that used by something else?
-    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status406NotAcceptable)] // Closest HTTP code that fits the semantics for "not a CRDT project"
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<Guid>> GetProjectIdForDownload(string code)
+    public async Task<ActionResult<Guid>> GetProjectId(string code)
     {
         var allowed = await permissionService.CanViewProject(code);
         if (!allowed) return Forbid();

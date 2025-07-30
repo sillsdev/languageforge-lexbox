@@ -97,28 +97,13 @@ public class LexboxProjectService : IDisposable
         return $"Projects|{server.Authority.Authority}";
     }
 
-    public async Task<Guid?> GetLexboxProjectId(LexboxServer server, string code)
-    {
-        var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
-        if (httpClient is null) return null;
-        try
-        {
-            return await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}");
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Error getting lexbox project id");
-            return null;
-        }
-    }
-
-    public async Task<(DownloadProjectByCodeResult, Guid?)> GetLexboxProjectIdForDownload(LexboxServer server, string code)
+    public async Task<(DownloadProjectByCodeResult, Guid?)> GetLexboxProjectId(LexboxServer server, string code)
     {
         var httpClient = await clientFactory.GetClient(server).CreateHttpClient();
         if (httpClient is null) return (DownloadProjectByCodeResult.Forbidden, null);
         try
         {
-            var result = await httpClient.GetAsync($"api/crdt/lookupProjectIdForDownload?code={code}");
+            var result = await httpClient.GetAsync($"api/crdt/lookupProjectId?code={code}");
             if (result.StatusCode == System.Net.HttpStatusCode.Forbidden) // 403
             {
                 return (DownloadProjectByCodeResult.Forbidden, null);
