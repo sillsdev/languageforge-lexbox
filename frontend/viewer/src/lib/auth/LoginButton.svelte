@@ -1,4 +1,4 @@
-﻿<script context="module" lang="ts">
+﻿<script lang="ts" module>
     import type {IAuthService, IServerStatus} from '$lib/dotnet-types';
     import {type Readable, writable, type Writable} from 'svelte/store';
     import {t} from 'svelte-i18n-lingui';
