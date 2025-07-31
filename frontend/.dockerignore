@@ -8,5 +8,4 @@ build
 **/node_modules
 tests
 test-results
-platform.bible-extension
 viewer

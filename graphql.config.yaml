@@ -7,6 +7,7 @@ include:
 exclude:
   - ./frontend/node_modules/**
   - ./frontend/.svelte-kit/**
+  - ./platform.bible-extension/**
 extensions:
   endpoints:
     Default GraphQL Endpoint:

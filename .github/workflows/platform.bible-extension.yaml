@@ -1,10 +1,19 @@
-name: Lint
-
+name: Platform.Bible extension CI/CD
 on:
   push:
-    branches: ['main', 'release-prep', 'hotfix-*']
+    paths:
+      - "platform.bible-extension/**"
+      - ".github/workflows/platform.bible-extension.yaml"
+    branches:
+      - develop
   pull_request:
-    branches: ['main', 'release-prep', 'hotfix-*']
+    paths:
+      - "platform.bible-extension/**"
+      - ".github/workflows/platform.bible-extension.yaml"
+    branches:
+      - develop
+
+# Copied from platform.bible-extension/.github/workflows/lint.yml
 
 permissions:
   contents: read
@@ -30,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
             lexbox/platform.bible-extension/package-lock.json
             paranext-core/package-lock.json

@@ -9,10 +9,11 @@ Looking for [FieldWorks Lite](backend/FwLite/README.md)?
 
 * [backend](backend/README.md) - dotnet API
 * [backend/FwLite](backend/FwLite/README.md) - FieldWorks Lite application
+* [deployment](deployment/README.md) - k8s config for production, staging, develop and local development environments
 * [frontend](frontend/README.md) - SvelteKit app
 * hgweb - hgweb Dockerfile and config
 * otel - Open Telemetry collector config
-* deployment - k8s config for production, staging, develop and local development environments
+* [platform.bible-extension]([platform.bible-extension/README.md) - Platform.Bible extension
 
 files related to a specific service should be in a folder named after the service.
 There are some exceptions:
@@ -140,9 +141,15 @@ flowchart TD
     lexbox-api ---> db[(postgres)]
 ```
 
-More info on the frontend and backend can be found in their respective READMEs:
-* [frontend](frontend/README.md)
+More info on the following subfolders can be found in their respective READMEs:
 * [backend](backend/README.md)
+* [backend/FwLite](backend/FwLite/README.md)
+* [backend/harmony](backend/harmony/README.md)
+* [deployment](deployment/README.md)
+* [deployment/restore-scripts](deployment/restore-scripts/README.md)
+* [frontend](frontend/README.md)
+* [frontend/viewer](frontend/viewer/README.md)
+* [platform.bible-extension]([platform.bible-extension/README.md)
 
 ## Operational environment
 
