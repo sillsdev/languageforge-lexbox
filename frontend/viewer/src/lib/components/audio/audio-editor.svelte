@@ -55,8 +55,8 @@
     }
   });
 
-  const loading = $derived(ffmpegFile.loading || flacFile.loading);
-  const error = $derived((ffmpegFile.error || flacFile.error)?.toString());
+  const loading = $derived(ffmpegFile.loading || flacFile.loading || readFile.loading);
+  const error   = $derived((ffmpegFile.error || flacFile.error || readFile.error)?.toString());
 
   const abortController = new AbortController();
   onDestroy(() => {
