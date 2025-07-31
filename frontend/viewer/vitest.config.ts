@@ -7,7 +7,7 @@ import {svelte} from '@sveltejs/vite-plugin-svelte';
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
-const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
+const browserTestPattern = './tests/integration/*.{test,spec}.?(c|m)[jt]s?(x)';
 const e2eTestPatterns = ['./tests/**'];
 
 export default defineConfig({
@@ -27,27 +27,6 @@ export default defineConfig({
             ...e2eTestPatterns,
             ...configDefaults.exclude
           ]
-        },
-        resolve: {
-          alias: [{find: '$lib', replacement: '/src/lib'}]
-        },
-      },
-      {
-        plugins: [
-          svelte(),
-        ],
-        test: {
-          name: 'browser',
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: 'playwright',
-            instances: [
-              {browser: 'chromium'},
-              {browser: 'firefox'},
-            ],
-          },
-          include: [browserTestPattern],
         },
         resolve: {
           alias: [{find: '$lib', replacement: '/src/lib'}]
