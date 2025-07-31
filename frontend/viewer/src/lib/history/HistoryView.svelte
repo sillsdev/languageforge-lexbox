@@ -9,7 +9,7 @@
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
-  import {FormatDuration, formatDuration} from '$lib/components/ui/format';
+  import {FormatDuration} from '$lib/components/ui/format';
 
   export let id: string;
   export let open: boolean;
