@@ -19,7 +19,6 @@
 
   export let projectName: string;
   export let api: IMiniLcmJsInvokable;
-  export let about: string | undefined;
   initProjectContext({api, projectName, projectCode: projectName});
 
   onMount(() => {

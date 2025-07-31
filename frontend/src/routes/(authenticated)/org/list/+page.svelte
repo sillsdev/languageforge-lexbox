@@ -149,7 +149,7 @@ TODO:
               </tr>
             {/if}
           {/if}
-          {#each [...myOrgs, ...otherOrgs] as org, i}
+          {#each [...myOrgs, ...otherOrgs] as org, i (org.id)}
             {@const isFirstOtherOrg = i === myOrgs.length}
             {#if showingMyOrgsHeader && isFirstOtherOrg}
               <tr>

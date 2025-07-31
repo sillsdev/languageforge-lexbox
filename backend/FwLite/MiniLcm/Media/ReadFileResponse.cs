@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace MiniLcm.Models;
+namespace MiniLcm.Media;
 
-public record ReadFileResponse
+public record ReadFileResponse : IAsyncDisposable, IDisposable
 {
     public ReadFileResponse(Stream stream, string fileName)
     {
@@ -24,6 +24,15 @@ public record ReadFileResponse
 
     public ReadFileResult Result { get; }
     public string? ErrorMessage { get; }
+    public ValueTask DisposeAsync()
+    {
+        return Stream?.DisposeAsync() ?? ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        Stream?.Dispose();
+    }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

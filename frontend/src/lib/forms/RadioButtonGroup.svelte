@@ -39,7 +39,7 @@
   <div class="legend" id={`label-${id}`}>
     {label}
   </div>
-  {#each buttons as button}
+  {#each buttons as button (button.value)}
     <div class="form-control w-full">
       <label class="label cursor-pointer justify-normal pb-0">
         <input {id} type="radio" bind:group={value} value={button.value} class="radio mr-2 {variant ?? ''}" />
