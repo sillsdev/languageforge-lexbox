@@ -28,7 +28,8 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, string, object?>> EntrySensesGloss => (entry, ws) => entry.AllSenses.Select(s => s.PickText(s.Gloss, ws));
     public override Expression<Func<ILexEntry, string, object?>> EntrySensesDefinition => (entry, ws) => entry.AllSenses.Select(s => s.PickText(s.Definition, ws));
     public override Expression<Func<ILexEntry, string, object?>> EntryNote => (entry, ws) => entry.PickText(entry.Comment, ws);
-    public override Expression<Func<ILexEntry, string, object?>> EntryLexemeForm => (entry, ws) => entry.PickText(entry.LexemeFormOA.Form, ws);
+    public override Expression<Func<ILexEntry, string, object?>> EntryLexemeForm => (entry, ws) =>
+        entry.LexemeFormOA == null ? null : entry.PickText(entry.LexemeFormOA.Form, ws);
     public override Expression<Func<ILexEntry, string, object?>> EntryCitationForm => (entry, ws) => entry.PickText(entry.CitationForm, ws);
     public override Expression<Func<ILexEntry, string, object?>> EntryLiteralMeaning => (entry, ws) => entry.PickText(entry.LiteralMeaning, ws);
     public override Expression<Func<ILexEntry, object?>> EntryComplexFormTypes => e => EmptyToNull(e.ComplexFormEntryRefs.SelectMany(r => r.ComplexEntryTypesRS));
