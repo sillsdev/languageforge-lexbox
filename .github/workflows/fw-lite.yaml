@@ -93,7 +93,9 @@ jobs:
         run: task playwright-test-standalone
       - name: Ensure all i18n strings have been extracted
         working-directory: frontend/viewer
+        shell: bash
         run: |
+          set -e
           rm -f src/locales/en.po.old
           cp src/locales/en.po src/locales/en.po.old
           pnpm i18n:extract
