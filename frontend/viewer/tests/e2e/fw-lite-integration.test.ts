@@ -10,10 +10,7 @@ import {expect, test} from '@playwright/test';
 import {FwLiteLauncher} from './helpers/fw-lite-launcher';
 import {
   deleteProject,
-  downloadProject,
-  loginToServer,
   logoutFromServer,
-  verifyProjectDownload
 } from './helpers/project-operations';
 import {
   cleanupTestData,
@@ -24,10 +21,8 @@ import {
 } from './helpers/test-data';
 import {getTestConfig} from './config';
 import type {TestEntry, TestProject} from './types';
-import {FwLitePageObject} from './helpers/fw-lite-page.object';
 import {HomePage} from './helpers/home-page';
 import { ProjectPage } from './helpers/project-page';
-import {page} from '@vitest/browser/context';
 
 // Test configuration
 const config = getTestConfig();
@@ -77,10 +72,8 @@ test.describe('FW Lite Integration Tests', () => {
 
     console.log(`FW Lite launched at: ${fwLiteLauncher.getBaseUrl()}`);
 
-    // Navigate to the application
-    const pageObject = new FwLitePageObject(page, config);
     await page.goto(fwLiteLauncher.getBaseUrl());
-    await pageObject.waitForAppReady();
+    await page.waitForLoadState('networkidle');
 
     console.log('FW Lite application is ready for testing');
   });
