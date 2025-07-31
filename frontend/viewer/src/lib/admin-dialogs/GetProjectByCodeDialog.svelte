@@ -53,32 +53,34 @@
   }
 </script>
 
-{#if open}
+
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent hideClose={loading}>
+  <Dialog.DialogContent hideClose={loading} class="!max-h-none !min-h-0">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Download project by project code`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <Label class="cursor-pointer flex items-center gap-2">
-      Code:
-      <Input bind:value={projectCode} />
-    </Label>
-    <Label class="cursor-pointer flex items-center gap-2">
-      Role:
-      <Select
-        options={roleSelections}
-        bind:value={selectedRole}
-        idSelector="role"
-        labelSelector="label"
-        />
-    </Label>
-    <div class="text-end space-y-2">
-      {#if error}
-        <p class="text-destructive">{error}</p>
-      {/if}
-      {#if codeValidationError}
-        <p class="text-destructive">{codeValidationError}</p>
-      {/if}
+    <div class="flex flex-col gap-2">
+      <Label class="cursor-pointer flex items-center gap-2">
+        Code:
+        <Input bind:value={projectCode} />
+      </Label>
+      <Label class="cursor-pointer flex items-center gap-2">
+        Role:
+        <Select
+          options={roleSelections}
+          bind:value={selectedRole}
+          idSelector="role"
+          labelSelector="label"
+          />
+      </Label>
+      <div class="text-end space-y-2">
+        {#if error}
+          <p class="text-destructive">{error}</p>
+        {/if}
+        {#if codeValidationError}
+          <p class="text-destructive">{codeValidationError}</p>
+        {/if}
+      </div>
     </div>
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary" disabled={loading}>{$t`Cancel`}</Button>
@@ -88,4 +90,3 @@
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>
-{/if}
