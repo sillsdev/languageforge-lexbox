@@ -27,7 +27,7 @@
   let playing = $state(false);
   let duration = $state<number | null>(null);
   const mb = $derived(!finalAudio ? '0' : (finalAudio.size / 1024 / 1024).toFixed(2));
-  const formatedDuration = $derived(duration ? formatDigitalDuration({seconds: duration}) : 'unknown');
+  const formattedDuration = $derived(duration ? formatDigitalDuration({seconds: duration}) : 'unknown');
   let ffmpegApi: FFmpegApi | undefined;
 
   let ffmpegFile = resource(() => audio, async (audio, _, {signal}) => {
@@ -63,6 +63,19 @@
     abortController.abort();
     ffmpegApi?.terminate();
   });
+
+  function downloadAudio() {
+    if (!finalAudio) throw new Error('No audio to download');
+    const url = URL.createObjectURL(finalAudio);
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${finalAudio.name}`;
+      a.click();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
 </script>
 
 <div class="flex flex-col gap-4 items-center justify-center">
@@ -70,7 +83,7 @@
     <Loading class="self-center justify-self-center size-16"/>
   {:else}
   <span class="inline-grid grid-cols-[auto_auto_1rem_auto_auto] gap-2 items-baseline">
-    <Label class="justify-self-end">{$t`Length:`}</Label> <span>{$t`${formatedDuration}`}</span>
+    <Label class="justify-self-end">{$t`Length:`}</Label> <span>{$t`${formattedDuration}`}</span>
     <span></span>
     <Label class="justify-self-end">{$t`Size:`}</Label> <span>{$t`${mb} MB`}</span>
     {#if finalAudio.name}
@@ -90,6 +103,7 @@
       <Waveform audio={finalAudio} bind:playing bind:audioApi bind:duration showTimeline autoplay class="size-full"/>
     </div>
     <div class="flex gap-2">
+      <Button onclick={() => downloadAudio()} disabled={!finalAudio} variant="secondary" icon="i-mdi-download">{$t`Download`}</Button>
       <Button variant="secondary" icon="i-mdi-close" onclick={onDiscard} disabled={!audio}>{$t`Discard`}</Button>
       <Button
         icon={playing ? 'i-mdi-pause' : 'i-mdi-play'}
