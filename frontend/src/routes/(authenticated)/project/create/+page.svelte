@@ -238,8 +238,8 @@
       <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
 
       <Select id="org" label={$t('project.create.org')} bind:value={$form.orgId} error={$errors.orgId}>
-        <option value={''}>{$t('project_page.organization.placeholder')}</option>
-        {#each myOrgs as org}
+        <option value="">{$t('project_page.organization.placeholder')}</option>
+        {#each myOrgs as org (org.id)}
           <option value={org.id}>{org.name}</option>
         {/each}
       </Select>
@@ -300,7 +300,7 @@
             <div class="legend" id="label-extra-projects">
               {$t('project.create.maybe_related')}
             </div>
-            {#each relatedProjects.current as proj}
+            {#each relatedProjects.current as proj (proj.id)}
               <div class="form-control w-full">
                 <label class="label cursor-pointer justify-normal pb-0">
                   <input

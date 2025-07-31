@@ -132,7 +132,7 @@
 <label class="label cursor-pointer inline-flex gap-4 m-4">
   <span class="label-text">Email template:</span>
   <select class="select select-info" bind:value={currEmail}>
-    {#each emails as email}
+    {#each emails as email, i (i)}
       <option value={email}>{email.label ?? email.template.replaceAll(/([a-z])([A-Z])/g, '$1 $2')}</option>
     {/each}
   </select>

@@ -55,7 +55,7 @@
 {#await serversPromise}
   <Server status={undefined} projects={[]} localProjects={[]} loading={true}/>
 {:then serversStatus}
-  {#each serversStatus as status}
+  {#each serversStatus as status (status.server.id)}
     {@const server = status.server}
     {@const serverProjects = remoteProjects[server.id]?.filter(p => p.crdt) ?? []}
     <Server {status}

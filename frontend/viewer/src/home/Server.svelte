@@ -104,7 +104,7 @@
       </p>
     {:else}
       <div class="shadow rounded">
-        {#each projects as project}
+        {#each projects as project (project.id)}
           {@const localProject = matchesProject(localProjects, project)}
           {#if localProject?.crdt}
             <ButtonListItem href={`/project/${project.code}`}>

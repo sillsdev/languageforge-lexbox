@@ -54,8 +54,8 @@
   {loading}
 >
   {#snippet activeFilterSlot({ activeFilters })}
-  
-      {#each activeFilters as filter}
+
+      {#each activeFilters as filter (filter.key)}
         {#if filter.key === 'userType' && filter.value}
           <ActiveFilter {filter}>
             {#if filter.value === 'admin'}
@@ -76,10 +76,10 @@
           </ActiveFilter>
         {/if}
       {/each}
-    
+
   {/snippet}
   {#snippet filterSlot()}
-  
+
       <h2 class="card-title">{$t('admin_dashboard.user_filter.title')}</h2>
       {#if filterEnabled('userType')}
         <div class="form-control">
@@ -97,6 +97,6 @@
           </label>
         </div>
       {/if}
-    
+
   {/snippet}
 </FilterBar>
