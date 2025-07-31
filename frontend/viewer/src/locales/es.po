@@ -81,8 +81,8 @@ msgstr "Cuenta"
 msgid "Activity"
 msgstr "Actividad"
 
-#: src/lib/components/field-editors/audio-input.svelte:206
-#: src/lib/components/audio/AudioDialog.svelte:106
+#: src/lib/components/field-editors/audio-input.svelte:213
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Add audio"
 msgstr "Añadir audio"
 
@@ -131,9 +131,17 @@ msgstr "Versión de la aplicación"
 msgid "Are you sure you want to delete {0}?"
 msgstr "¿Estás seguro de que quieres borrar {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:222
 msgid "Audio file not included in Send & Receive"
 msgstr "Archivo de audio no incluido en Enviar y Recibir"
+
+#: src/lib/components/audio/AudioDialog.svelte:82
+msgid "Audio saved and uploaded to Lexbox"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte:79
+msgid "Audio saved locally"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:95
 #: src/lib/activity/ActivityView.svelte:91
@@ -165,7 +173,7 @@ msgstr "Visite"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:118
+#: src/lib/components/audio/AudioDialog.svelte:167
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -404,13 +412,26 @@ msgstr "Etiquetas de campo"
 msgid "FieldWorks logo"
 msgstr "Logotipo de FieldWorks"
 
+#: src/lib/components/audio/AudioDialog.svelte:89
+msgid "File already exists"
+msgstr ""
+
 #: src/lib/components/audio/audio-editor.svelte:32
 msgid "File name:"
 msgstr "Nombre del fichero:"
 
-#: src/lib/components/field-editors/audio-input.svelte:74
+#: src/lib/components/field-editors/audio-input.svelte:79
 msgid "File not found"
 msgstr "Archivo no encontrado"
+
+#: src/lib/components/audio/AudioDialog.svelte:87
+msgid "File saving not supported"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte:164
+#: src/lib/components/audio/AudioDialog.svelte:85
+msgid "File too big"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -592,7 +613,7 @@ msgstr "Nueva entrada"
 msgid "No activity found"
 msgstr "No se ha encontrado actividad"
 
-#: src/lib/components/field-editors/audio-input.svelte:210
+#: src/lib/components/field-editors/audio-input.svelte:217
 msgid "No audio"
 msgstr "Sin audio"
 
@@ -608,6 +629,10 @@ msgstr "No se han encontrado diccionarios"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "No se han encontrado entradas"
+
+#: src/lib/components/audio/AudioDialog.svelte:75
+msgid "No file selected"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:66
 msgid "No history found"
@@ -650,7 +675,7 @@ msgstr "Nota"
 msgid "Offline"
 msgstr "Fuera de línea"
 
-#: src/lib/components/field-editors/audio-input.svelte:77
+#: src/lib/components/field-editors/audio-input.svelte:82
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
 
@@ -717,7 +742,7 @@ msgstr "Actualizar proyectos"
 msgid "Remove"
 msgstr "Eliminar"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:268
 msgid "Remove audio"
 msgstr "Eliminar audio"
 
@@ -725,11 +750,11 @@ msgstr "Eliminar audio"
 msgid "Reopen"
 msgstr "Vuelva a abrir"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:265
 msgid "Replace audio"
 msgstr "Sustituir audio"
 
-#: src/lib/components/audio/AudioDialog.svelte:120
+#: src/lib/components/audio/AudioDialog.svelte:169
 msgid "Save audio"
 msgstr "Guardar audio"
 
@@ -882,10 +907,11 @@ msgid "Unknown"
 msgstr "Desconocido"
 
 #: src/project/ProjectSidebar.svelte:115
+#: src/lib/components/audio/AudioDialog.svelte:91
 msgid "Unknown error"
 msgstr "Error desconocido"
 
-#: src/lib/components/field-editors/audio-input.svelte:80
+#: src/lib/components/field-editors/audio-input.svelte:85
 msgid "Unknown error {0}"
 msgstr "Error desconocido {0}"
 
@@ -942,4 +968,3 @@ msgstr "Sistema de escritura: {0}"
 #: src/project/browse/filter/WsSelect.svelte:29
 msgid "Writing Systems"
 msgstr "Sistemas de escritura"
-
