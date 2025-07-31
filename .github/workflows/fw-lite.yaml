@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          # GHA sets -o pipefail when "shell: bash" but we want to turn it off
+          # GHA sets -o pipefail when shell is bash but we want to turn it off
           set +o pipefail
           rm -f src/locales/en.po.old
           cp src/locales/en.po src/locales/en.po.old
@@ -103,6 +103,10 @@ jobs:
             echo '***'
             diff -u src/locales/en.po{.old,} | grep '+msgid' | cut -c2-
             echo '***'
+            echo Please run pnpm i18n:extract
+            exit 1
+          fi
+          rm -f src/locales/en.po.old
       - name: Set up Playwright dependencies
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
