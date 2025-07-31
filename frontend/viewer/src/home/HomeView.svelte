@@ -190,7 +190,7 @@
               </ButtonListItem>
             {/each}
             <DevContent>
-              <ButtonListItem href={`/testing/project-view`}>
+              <ButtonListItem href="/testing/project-view">
                 <ProjectListItem icon="i-mdi-test-tube" project={{ name: 'Test Project', code: 'Test Project' }}>
                   {#snippet actions()}
                     <Icon icon="i-mdi-chevron-right" class="p-2"/>

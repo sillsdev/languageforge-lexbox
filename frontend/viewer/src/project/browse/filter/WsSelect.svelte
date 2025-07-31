@@ -27,7 +27,7 @@
   <Select.Content>
     <Select.Group>
       <Select.GroupHeading>{$t`Writing Systems`}</Select.GroupHeading>
-      {#each writingSystems as ws}
+      {#each writingSystems as ws (ws.id)}
         <Select.Item value={ws.wsId}>
           {ws.abbreviation} ({ws.wsId})
         </Select.Item>

@@ -21,7 +21,7 @@
 <div class="relative">
   <Select {...rest} label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value>
     <option value={undefined}>{$t('common.any')}</option>
-    {#each Object.entries(options) as [value, label]}
+    {#each Object.entries(options) as [value, label] (value)}
       <option {value}>{$t(label)}</option>
     {/each}
   </Select>
