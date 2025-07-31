@@ -8,7 +8,6 @@ interface DictionaryComboBoxProps {
   selectDictionary: (dictionaryCode: string) => Promise<void>;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export default function DictionaryComboBox({
   dictionaries,
   selectDictionary,
@@ -21,10 +20,11 @@ export default function DictionaryComboBox({
     (code: string): void => {
       if (!code) return;
       setSettingSaving(true);
+      // eslint-disable-next-line promise/catch-or-return
       selectDictionary(code)
-        .then(() => void setSettingSaved(true))
-        .catch((e) => void logger.error('Error saving dictionary selection:', e))
-        .finally(() => void setSettingSaving(false));
+        .then(() => setSettingSaved(true))
+        .catch((e) => logger.error('Error saving dictionary selection:', e))
+        .finally(() => setSettingSaving(false));
     },
     [selectDictionary],
   );
@@ -41,6 +41,7 @@ export default function DictionaryComboBox({
     <div>
       <ComboBox
         buttonPlaceholder={
+          /* eslint-disable no-nested-ternary */
           !dictionaries
             ? 'Loading dictionaries...'
             : !dictionaries.length
@@ -48,6 +49,7 @@ export default function DictionaryComboBox({
               : !selectedDictionaryCode
                 ? 'Select a dictionary'
                 : `Selected: ${selectedDictionaryCode}`
+          /* eslint-enable no-nested-ternary */
         }
         commandEmptyMessage="No dictionaries found"
         isDisabled={!dictionaries?.length}
@@ -57,10 +59,10 @@ export default function DictionaryComboBox({
       />
       {!!selectedDictionaryCode && (
         <>
-          <button onClick={() => void saveSetting(selectedDictionaryCode)} type="button">
+          <button onClick={() => saveSetting(selectedDictionaryCode)} type="button">
             Confirm selection
           </button>
-          <button onClick={() => void setSelectedDictionaryCode('')} type="button">
+          <button onClick={() => setSelectedDictionaryCode('')} type="button">
             Clear selection
           </button>
         </>

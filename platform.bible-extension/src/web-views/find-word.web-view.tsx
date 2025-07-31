@@ -7,6 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 import EntryCard from '../components/entry-card';
 
+/* eslint-disable react-hooks/rules-of-hooks */
+
 globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordWebViewOptions) {
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
@@ -16,35 +18,47 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
   const [searchTerm, setSearchTerm] = useState(word ?? '');
 
   useEffect(() => {
-    void papi.networkObjects
+    papi.networkObjects
       .get<IEntryService>('fwliteextension.entryService')
+      // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
-      });
+      })
+      .catch((err) => logger.error(err));
   }, []);
 
   const fetchEntries = useCallback(
-    async (word: string) => {
+    async (untrimmedSurfaceForm: string) => {
       if (!projectId || !fwLiteNetworkObject) {
         if (!projectId) logger.warn('Missing required parameter: projectId');
         if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
         return;
       }
 
-      word = word.trim();
-      if (!word) {
+      const surfaceForm = untrimmedSurfaceForm.trim();
+      if (!surfaceForm) {
         logger.warn('No word provided for search');
         return;
       }
 
-      logger.info(`Fetching entries for ${word}`);
+      logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      const entries = await fwLiteNetworkObject.getEntries(projectId, { surfaceForm: word });
+      const entries = await fwLiteNetworkObject.getEntries(projectId, { surfaceForm });
       setIsFetching(false);
       setMatchingEntries(entries ?? []);
     },
     [fwLiteNetworkObject, projectId],
+  );
+
+  const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
+
+  const onSearch = useCallback(
+    (searchQuery: string) => {
+      setSearchTerm(searchQuery);
+      debouncedFetchEntries(searchQuery);
+    },
+    [debouncedFetchEntries],
   );
 
   const addEntry = useCallback(
@@ -58,23 +72,14 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
       if (addedEntry) {
+        // eslint-disable-next-line no-type-assertion/no-type-assertion
         onSearch(Object.values(addedEntry.lexemeForm as IMultiString).pop() ?? '');
         await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
       } else {
         logger.error('Failed to add entry!');
       }
     },
-    [fwLiteNetworkObject, projectId],
-  );
-
-  const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
-
-  const onSearch = useCallback(
-    (searchQuery: string) => {
-      setSearchTerm(searchQuery);
-      void debouncedFetchEntries(searchQuery);
-    },
-    [debouncedFetchEntries],
+    [fwLiteNetworkObject, onSearch, projectId],
   );
 
   return (

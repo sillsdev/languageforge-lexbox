@@ -10,41 +10,47 @@ interface AddNewEntryProps {
   vernacularLang: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export default function AddNewEntry(props: AddNewEntryProps): ReactElement {
-  const [isAdding, setIsAdding] = useState(props.isAdding);
-  const [isReady, setIsReady] = useState(false);
-
-  const [headword, setHeadword] = useState('');
-  const [gloss, setGloss] = useState('');
+export default function AddNewEntry({
+  addEntry,
+  analysisLang,
+  headword,
+  isAdding,
+  vernacularLang,
+}: AddNewEntryProps): ReactElement {
+  const [adding, setAdding] = useState(isAdding);
   const [definition, setDefinition] = useState('');
+  const [gloss, setGloss] = useState('');
+  const [ready, setReady] = useState(false);
+  const [tempHeadword, setTempHeadword] = useState('');
 
-  useEffect(() => setHeadword(props.headword || ''), [props.headword]);
+  useEffect(() => setAdding(isAdding), [isAdding]);
+
+  useEffect(() => setTempHeadword(headword || ''), [headword]);
 
   useEffect(() => {
-    setIsReady(!!(headword.trim() && (gloss.trim() || definition.trim())));
-  }, [definition, gloss, headword]);
+    setReady(!!(tempHeadword.trim() && (gloss.trim() || definition.trim())));
+  }, [definition, gloss, tempHeadword]);
 
-  async function addEntry(): Promise<void> {
+  const clearEntry = useCallback((): void => {
+    setAdding(isAdding);
+    setDefinition('');
+    setGloss('');
+    setTempHeadword(headword || '');
+  }, [headword, isAdding]);
+
+  async function onSubmit(): Promise<void> {
     const entry = createEntry(
-      props.vernacularLang,
-      headword.trim(),
-      props.analysisLang,
+      vernacularLang,
+      tempHeadword.trim(),
+      analysisLang,
       gloss.trim(),
       definition.trim(),
     );
-    await props.addEntry(entry);
+    await addEntry(entry);
     clearEntry();
   }
 
-  const clearEntry = useCallback((): void => {
-    setIsAdding(props.isAdding);
-    setHeadword(props.headword || '');
-    setGloss('');
-    setDefinition('');
-  }, [props.headword, props.isAdding]);
-
-  return isAdding ? (
+  return adding ? (
     <Card>
       <CardHeader>Adding new entry</CardHeader>
       <CardContent>
@@ -52,24 +58,24 @@ export default function AddNewEntry(props: AddNewEntryProps): ReactElement {
           <Label htmlFor="newEntryHeadword">Headword:</Label>
           <Input
             id="newEntryHeadword"
-            onChange={(e) => void setHeadword(e.target.value)}
-            value={headword}
+            onChange={(e) => setTempHeadword(e.target.value)}
+            value={tempHeadword}
           />
         </div>
         <div>
           <Label htmlFor="newEntryGloss">Gloss:</Label>
-          <Input id="newEntryGloss" onChange={(e) => void setGloss(e.target.value)} value={gloss} />
+          <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
         <div>
           <Label htmlFor="newEntryDefinition">Definition:</Label>
           <Input
             id="newEntryDefinition"
-            onChange={(e) => void setDefinition(e.target.value)}
+            onChange={(e) => setDefinition(e.target.value)}
             value={definition}
           />
         </div>
         <div>
-          <Button disabled={!isReady} onClick={() => void addEntry()}>
+          <Button disabled={!ready} onClick={() => onSubmit()}>
             Submit new entry
           </Button>
           <Button onClick={clearEntry}>Cancel</Button>
@@ -77,7 +83,7 @@ export default function AddNewEntry(props: AddNewEntryProps): ReactElement {
       </CardContent>
     </Card>
   ) : (
-    <Button onClick={() => void setIsAdding(true)}>Add new entry</Button>
+    <Button onClick={() => setAdding(true)}>Add new entry</Button>
   );
 }
 
@@ -91,6 +97,7 @@ function createEntry(
   return {
     lexemeForm: { [vernacularLang]: headword },
     senses: [
+      // eslint-disable-next-line no-type-assertion/no-type-assertion
       {
         definition: definition ? { [analysisLang]: definition } : {},
         gloss: gloss ? { [analysisLang]: gloss } : {},

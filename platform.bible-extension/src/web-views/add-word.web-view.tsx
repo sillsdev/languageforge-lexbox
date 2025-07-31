@@ -4,6 +4,8 @@ import type { IEntry, IEntryService, WordWebViewOptions } from 'fw-lite-extensio
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 
+/* eslint-disable react-hooks/rules-of-hooks */
+
 globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWebViewOptions) {
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
@@ -12,12 +14,14 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
-    void papi.networkObjects
+    papi.networkObjects
       .get<IEntryService>('fwliteextension.entryService')
+      // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
-      });
+      })
+      .catch((err) => logger.error(err));
   }, []);
 
   const addEntry = useCallback(

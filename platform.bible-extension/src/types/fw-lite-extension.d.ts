@@ -2,7 +2,8 @@ import type { OpenWebViewOptions } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'fw-lite-extension';
 
 declare module 'fw-lite-extension' {
-  /* eslint-disable @typescript-eslint/consistent-type-imports */
+  /* eslint-disable @typescript-eslint/no-shadow */
+
   export type IEntry = import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IEntry;
   export type IMultiString =
     import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IMultiString;
@@ -18,7 +19,6 @@ declare module 'fw-lite-extension' {
 
   export type ProjectSettingKey = import('./enums.ts').ProjectSettingKey;
   export type WebViewType = import('./enums.ts').WebViewType;
-  /* eslint-enable @typescript-eslint/consistent-type-imports */
 
   export interface DictionaryRef {
     code: string;
@@ -58,6 +58,8 @@ declare module 'fw-lite-extension' {
   interface WordWebViewOptions extends OpenWebViewOptionsWithProjectId {
     word?: string;
   }
+
+  /* eslint-enable @typescript-eslint/no-shadow */
 }
 
 declare module 'papi-shared-types' {

@@ -4,6 +4,8 @@ import type { IProjectModel } from 'fw-lite-extension';
 import { useCallback, useEffect, useState } from 'react';
 import DictionaryComboBox from '../components/dictionary-combo-box';
 
+/* eslint-disable react-hooks/rules-of-hooks */
+
 globalThis.webViewComponent = function fwDictionarySelect({ projectId }: WebViewProps) {
   const [fwDictionaries, setFwDictionaries] = useState<IProjectModel[] | undefined>();
 
@@ -16,10 +18,10 @@ globalThis.webViewComponent = function fwDictionarySelect({ projectId }: WebView
 
   useEffect(() => {
     logger.info(`This WebView was opened for project '${projectId}'`);
-    void commands
+    commands
       .sendCommand('fwLiteExtension.fwDictionaries', projectId)
       .then(setFwDictionaries)
-      .catch((e) => void logger.error('Error fetching FieldWorks dictionaries:', e));
+      .catch((e) => logger.error('Error fetching FieldWorks dictionaries:', e));
   }, [projectId]);
 
   return <DictionaryComboBox dictionaries={fwDictionaries} selectDictionary={selectDictionary} />;
