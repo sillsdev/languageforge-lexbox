@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-29 08:39\n"
+"PO-Revision-Date: 2025-07-31 09:24\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte:99
+#: src/lib/activity/ActivityView.svelte:104
 msgid "– ({0} changes)"
 msgstr "- ({0} 변경)"
 
@@ -48,7 +48,7 @@ msgstr "{0} (필드웍스)"
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:62
+#: src/home/Server.svelte:71
 msgid "{0} Server"
 msgstr "{0} 서버"
 
@@ -81,8 +81,8 @@ msgstr "계정"
 msgid "Activity"
 msgstr "활동"
 
-#: src/lib/components/field-editors/audio-input.svelte:206
-#: src/lib/components/audio/AudioDialog.svelte:106
+#: src/lib/components/field-editors/audio-input.svelte:213
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Add audio"
 msgstr "오디오 추가"
 
@@ -109,9 +109,9 @@ msgstr "의 일부를 추가합니다."
 msgid "Add Sense"
 msgstr "센스 추가"
 
-#: src/lib/history/HistoryView.svelte:83
-#: src/lib/activity/ActivityView.svelte:78
-#: src/lib/activity/ActivityView.svelte:105
+#: src/lib/history/HistoryView.svelte:92
+#: src/lib/activity/ActivityView.svelte:82
+#: src/lib/activity/ActivityView.svelte:110
 msgid "ago"
 msgstr "전"
 
@@ -131,16 +131,24 @@ msgstr "애플리케이션 버전"
 msgid "Are you sure you want to delete {0}?"
 msgstr "{0}을 삭제하시겠습니까?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:222
 msgid "Audio file not included in Send & Receive"
 msgstr "보내기 및 받기에 포함되지 않은 오디오 파일"
 
-#: src/lib/history/HistoryView.svelte:95
-#: src/lib/activity/ActivityView.svelte:91
+#: src/lib/components/audio/AudioDialog.svelte:82
+msgid "Audio saved and uploaded to Lexbox"
+msgstr "렉스박스에 오디오 저장 및 업로드"
+
+#: src/lib/components/audio/AudioDialog.svelte:79
+msgid "Audio saved locally"
+msgstr "로컬에 저장된 오디오"
+
+#: src/lib/history/HistoryView.svelte:104
+#: src/lib/activity/ActivityView.svelte:96
 msgid "Author:"
 msgstr "작성자:"
 
-#: src/project/browse/SortMenu.svelte:73
+#: src/project/browse/SortMenu.svelte:76
 msgid "Auto"
 msgstr "자동"
 
@@ -148,8 +156,8 @@ msgstr "자동"
 msgid "Auto synchronizing"
 msgstr "자동 동기화"
 
-#: src/lib/history/HistoryView.svelte:80
-#: src/lib/activity/ActivityView.svelte:75
+#: src/lib/history/HistoryView.svelte:86
+#: src/lib/activity/ActivityView.svelte:77
 msgid "before"
 msgstr "전에"
 
@@ -165,7 +173,7 @@ msgstr "찾아보기"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:118
+#: src/lib/components/audio/AudioDialog.svelte:167
 msgid "Cancel"
 msgstr "취소"
 
@@ -177,7 +185,7 @@ msgstr "인용 양식"
 msgid "Citation Form"
 msgstr "인용 양식"
 
-#: src/home/HomeView.svelte:225
+#: src/home/HomeView.svelte:226
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
@@ -196,7 +204,7 @@ msgstr "닫기"
 msgid "Close Dictionary"
 msgstr "사전 닫기"
 
-#: src/lib/ThemePicker.svelte:32
+#: src/lib/ThemePicker.svelte:38
 msgid "Color"
 msgstr "색상"
 
@@ -237,7 +245,7 @@ msgstr "{0}만들기"
 msgid "Create entry"
 msgstr "항목 만들기"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:204
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
@@ -267,7 +275,7 @@ msgstr "데이터 디렉토리"
 msgid "Definition"
 msgstr "정의"
 
-#: src/home/HomeView.svelte:177
+#: src/home/HomeView.svelte:178
 msgid "Delete"
 msgstr "삭제"
 
@@ -284,8 +292,8 @@ msgstr "항목 삭제"
 msgid "Delete Word"
 msgstr "단어 삭제"
 
+#: src/home/HomeView.svelte:103
 #: src/home/HomeView.svelte:107
-#: src/home/HomeView.svelte:110
 msgid "Dictionaries"
 msgstr "사전"
 
@@ -311,15 +319,15 @@ msgid "Don't delete"
 msgstr "삭제하지 마세요."
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
-#: src/home/Server.svelte:127
+#: src/home/Server.svelte:128
 msgid "Download"
 msgstr "다운로드"
 
-#: src/home/Server.svelte:38
+#: src/home/Server.svelte:45
 msgid "Downloaded {0}"
 msgstr "다운로드 {0}"
 
-#: src/home/Server.svelte:37
+#: src/home/Server.svelte:44
 msgid "Downloading {0}..."
 msgstr "다운로드 {0}..."
 
@@ -365,7 +373,7 @@ msgstr "예"
 msgid "Example sentence"
 msgstr "문장 예시"
 
-#: src/home/Server.svelte:39
+#: src/home/Server.svelte:46
 msgid "Failed to download {0}"
 msgstr "다운로드에 실패했습니다 {0}"
 
@@ -400,17 +408,30 @@ msgstr "필드 레이블"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:231
+#: src/home/HomeView.svelte:232
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
+
+#: src/lib/components/audio/AudioDialog.svelte:89
+msgid "File already exists"
+msgstr "파일이 이미 존재합니다."
 
 #: src/lib/components/audio/audio-editor.svelte:32
 msgid "File name:"
 msgstr "파일 이름:"
 
-#: src/lib/components/field-editors/audio-input.svelte:74
+#: src/lib/components/field-editors/audio-input.svelte:79
 msgid "File not found"
 msgstr "파일을 찾을 수 없음"
+
+#: src/lib/components/audio/AudioDialog.svelte:87
+msgid "File saving not supported"
+msgstr "파일 저장이 지원되지 않음"
+
+#: src/lib/components/audio/AudioDialog.svelte:164
+#: src/lib/components/audio/AudioDialog.svelte:85
+msgid "File too big"
+msgstr "파일이 너무 큼"
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -467,7 +488,7 @@ msgid "Hide"
 msgstr "숨기기"
 
 #: src/project/browse/EntryMenu.svelte:60
-#: src/lib/history/HistoryView.svelte:59
+#: src/lib/history/HistoryView.svelte:61
 msgid "History"
 msgstr "역사"
 
@@ -475,11 +496,11 @@ msgstr "역사"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다."
 
-#: src/home/Server.svelte:137
+#: src/home/Server.svelte:139
 msgid "I don't see my project"
 msgstr "내 프로젝트가 보이지 않습니다."
 
-#: src/home/HomeView.svelte:237
+#: src/home/HomeView.svelte:240
 msgid "Import"
 msgstr "가져오기"
 
@@ -492,7 +513,7 @@ msgstr "마지막 변경 사항: {0}"
 msgid "Length:"
 msgstr "길이:"
 
-#: src/home/HomeView.svelte:109
+#: src/home/HomeView.svelte:106
 msgid "Lexbox logo"
 msgstr "렉스박스 로고"
 
@@ -516,15 +537,15 @@ msgstr "문자 그대로의 의미"
 msgid "Loading Dictionaries..."
 msgstr "사전 로드 중..."
 
-#: src/home/HomeView.svelte:146
+#: src/home/HomeView.svelte:147
 msgid "loading..."
 msgstr "로딩 중..."
 
-#: src/home/HomeView.svelte:151
+#: src/home/HomeView.svelte:152
 msgid "Local"
 msgstr "로컬"
 
-#: src/home/HomeView.svelte:168
+#: src/home/HomeView.svelte:170
 msgid "Local only"
 msgstr "로컬 전용"
 
@@ -532,12 +553,12 @@ msgstr "로컬 전용"
 msgid "Login"
 msgstr "로그인"
 
-#: src/lib/auth/LoginButton.svelte:71
-#: src/lib/auth/LoginButton.svelte:79
+#: src/lib/auth/LoginButton.svelte:82
+#: src/lib/auth/LoginButton.svelte:90
 msgid "Login to see projects"
 msgstr "로그인하여 프로젝트 보기"
 
-#: src/lib/auth/LoginButton.svelte:61
+#: src/lib/auth/LoginButton.svelte:72
 msgid "Logout"
 msgstr "로그아웃"
 
@@ -568,7 +589,7 @@ msgstr "누락된 시맨틱 도메인"
 msgid "Missing Senses"
 msgstr "미싱 센스"
 
-#: src/lib/entry-editor/ItemListItem.svelte:61
+#: src/lib/entry-editor/ItemListItem.svelte:67
 msgid "Move"
 msgstr "이동"
 
@@ -588,15 +609,15 @@ msgstr "신규 {0}"
 msgid "New Entry"
 msgstr "새 항목"
 
-#: src/lib/activity/ActivityView.svelte:61
+#: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
 msgstr "활동을 찾을 수 없습니다."
 
-#: src/lib/components/field-editors/audio-input.svelte:210
+#: src/lib/components/field-editors/audio-input.svelte:217
 msgid "No audio"
 msgstr "오디오 없음"
 
-#: src/lib/history/HistoryView.svelte:71
+#: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "이름 변경 안 함"
 
@@ -609,7 +630,11 @@ msgstr "사전을 찾을 수 없습니다."
 msgid "No entries found"
 msgstr "항목을 찾을 수 없습니다."
 
-#: src/lib/history/HistoryView.svelte:66
+#: src/lib/components/audio/AudioDialog.svelte:75
+msgid "No file selected"
+msgstr "선택한 파일 없음"
+
+#: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
 msgstr "기록을 찾을 수 없습니다."
 
@@ -650,7 +675,7 @@ msgstr "참고"
 msgid "Offline"
 msgstr "오프라인"
 
-#: src/lib/components/field-editors/audio-input.svelte:77
+#: src/lib/components/field-editors/audio-input.svelte:82
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
 
@@ -695,7 +720,7 @@ msgstr "고정됨"
 msgid "Preview"
 msgstr "미리 보기"
 
-#: src/home/HomeView.svelte:211
+#: src/home/HomeView.svelte:210
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
@@ -708,16 +733,16 @@ msgstr "참조"
 msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
-#: src/home/Server.svelte:70
-#: src/home/HomeView.svelte:155
+#: src/home/Server.svelte:79
+#: src/home/HomeView.svelte:156
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
 
-#: src/lib/entry-editor/ItemListItem.svelte:73
+#: src/lib/entry-editor/ItemListItem.svelte:79
 msgid "Remove"
 msgstr "제거"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:268
 msgid "Remove audio"
 msgstr "오디오 제거"
 
@@ -725,11 +750,11 @@ msgstr "오디오 제거"
 msgid "Reopen"
 msgstr "다시 열기"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:265
 msgid "Replace audio"
 msgstr "오디오 교체"
 
-#: src/lib/components/audio/AudioDialog.svelte:120
+#: src/lib/components/audio/AudioDialog.svelte:169
 msgid "Save audio"
 msgstr "오디오 저장"
 
@@ -808,12 +833,12 @@ msgid "Submit"
 msgstr "제출하기"
 
 #: src/project/ProjectSidebar.svelte:117
-#: src/lib/activity/ActivityView.svelte:103
-#: src/home/Server.svelte:113
+#: src/lib/activity/ActivityView.svelte:108
+#: src/home/Server.svelte:115
 msgid "Synced"
 msgstr "동기화"
 
-#: src/home/HomeView.svelte:168
+#: src/home/HomeView.svelte:170
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
@@ -836,10 +861,6 @@ msgstr "동기화 중..."
 msgid "Tasks"
 msgstr "작업"
 
-#: src/home/HomeView.svelte:192
-msgid "Test Project"
-msgstr "테스트 프로젝트"
-
 #: src/stories/i18n/i18n.stories.svelte:
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
@@ -852,7 +873,11 @@ msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks 
 msgid "Toggle filters"
 msgstr "필터 토글"
 
-#: src/lib/ThemePicker.svelte:24
+#: src/project/browse/EntryView.svelte:71
+msgid "Toggle pinned"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
 msgstr "테마 토글"
 
@@ -876,16 +901,17 @@ msgstr "FieldWorks에서 열 수 없음"
 
 #: src/project/SyncDialog.svelte:253
 #: src/project/SyncDialog.svelte:260
-#: src/lib/history/HistoryView.svelte:99
-#: src/lib/activity/ActivityView.svelte:95
+#: src/lib/history/HistoryView.svelte:108
+#: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
 msgstr "알 수 없음"
 
 #: src/project/ProjectSidebar.svelte:115
+#: src/lib/components/audio/AudioDialog.svelte:91
 msgid "Unknown error"
 msgstr "알 수 없는 오류"
 
-#: src/lib/components/field-editors/audio-input.svelte:80
+#: src/lib/components/field-editors/audio-input.svelte:85
 msgid "Unknown error {0}"
 msgstr "알 수 없는 오류 {0}"
 
@@ -911,7 +937,7 @@ msgstr "버전 {0}"
 msgid "View Configuration"
 msgstr "구성 보기"
 
-#: src/home/Server.svelte:94
+#: src/home/Server.svelte:98
 msgid "Where are my projects?"
 msgstr "내 프로젝트는 어디에 있나요?"
 
