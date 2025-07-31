@@ -91,6 +91,26 @@ jobs:
       - name: Run snapshot tests
         working-directory: frontend/viewer
         run: task playwright-test-standalone
+      - name: Ensure all i18n strings have been extracted
+        working-directory: frontend/viewer
+        run: |
+          rm -f src/locales/en.po.old
+          cp src/locales/en.po src/locales/en.po.old
+          pnpm i18n:extract
+          DIFFCOUNT=$(diff -u src/locales/en.po{.old,} | grep '+msgid' | wc -l)
+          if [ $DIFFCOUNT -gt 0 ]; then
+            # Unextracted strings found, fail the build
+            echo
+            echo $DIFFCOUNT unextracted strings found:
+            echo
+            diff -u src/locales/en.po{.old,} | grep '+msgid' | cut -c2-
+            echo
+            echo Please run `pnpm i18n:extract` and commit the new src/locales/en.po file
+            exit 1
+          fi
+
+          rm -f src/locales/en.po.old
+          exit 0
 
       - name: Build viewer
         working-directory: frontend/viewer
