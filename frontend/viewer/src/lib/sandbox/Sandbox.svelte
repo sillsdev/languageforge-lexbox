@@ -33,7 +33,7 @@
   import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
-  import {loadFFmpeg} from '$lib/components/audio/ffmpeg';
+  import {FFmpegApi} from '$lib/components/audio/ffmpeg';
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -128,7 +128,7 @@
 
   async function preloadFFmpeg() {
     console.log('Loading FFmpeg...');
-    let ffmpeg = await loadFFmpeg();
+    let ffmpeg = await FFmpegApi.create();
     console.log('FFmpeg loaded:', ffmpeg);
   }
 </script>

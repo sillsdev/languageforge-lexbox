@@ -49,10 +49,12 @@
   });
 
   const loading = $derived(ffmpegFile.loading || flacFile.loading);
+  const error = $derived((ffmpegFile.error || flacFile.error)?.toString());
 
   const abortController = new AbortController();
   onDestroy(() => {
     abortController.abort();
+    ffmpegApi?.terminate();
   });
 </script>
 
@@ -89,5 +91,8 @@
         size="icon"
       />
     </div>
+  {/if}
+  {#if error}
+    <p class="text-destructive">{error}</p>
   {/if}
 </div>

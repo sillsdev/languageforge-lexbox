@@ -4,21 +4,16 @@ import {fetchFile} from '@ffmpeg/util';
 import inlineDataUrlWorker from './bundled-ffmpeg-worker.js?url&inline';
 import wasmUrl from '@ffmpeg/core/wasm?url';
 import {randomId} from '$lib/utils';
+import {onDestroy} from 'svelte';
 
-let loadingPromise: Promise<FFmpeg> | null = null;
 
-export async function loadFFmpeg(): Promise<FFmpeg> {
-  if (loadingPromise) {
-    return await loadingPromise;
-  }
-
-  try {
-    loadingPromise = loadFFmpegInternal();
-    return await loadingPromise;
-  } catch (error) {
-    loadingPromise = null;
-    throw error;
-  }
+async function ensureLoaded(ffmpeg: FFmpeg) {
+  if (ffmpeg.loaded) return;
+  await ffmpeg.load({
+    coreURL: coreURL,
+    wasmURL: wasmUrl,
+    classWorkerURL: import.meta.env.DEV ? inlineDataUrlWorker : undefined,
+  });
 }
 
 async function loadFFmpegInternal(): Promise<FFmpeg> {
@@ -26,11 +21,7 @@ async function loadFFmpegInternal(): Promise<FFmpeg> {
   ffmpeg.on('log', (msg) => {
     console.log('FFmpeg log:', msg);
   });
-  await ffmpeg.load({
-    coreURL: coreURL,
-    wasmURL: wasmUrl,
-    classWorkerURL: import.meta.env.DEV ? inlineDataUrlWorker : undefined,
-  });
+  await ensureLoaded(ffmpeg);
 
   return ffmpeg;
 }
@@ -60,15 +51,23 @@ export class FFmpegFile {
 }
 
 export class FFmpegApi {
+  private static loadingPromise: Promise<FFmpeg> | null = null;
+
   public static async create(): Promise<FFmpegApi> {
     console.log('Loading FFmpeg...');
-    const ffmpeg = await loadFFmpeg();
+    FFmpegApi.loadingPromise ??= loadFFmpegInternal();
+    const ffmpeg = await FFmpegApi.loadingPromise;
+    await ensureLoaded(ffmpeg);
     console.log('FFmpeg loaded:', ffmpeg);
     return new FFmpegApi(ffmpeg);
   }
+
   private constructor(private ffmpeg: FFmpeg) {
   }
 
+  public terminate() {
+    this.ffmpeg.terminate();
+  }
 
   private async createDir(path: string, signal: AbortSignal) {
     console.log('Creating dir:', path);
