@@ -34,6 +34,10 @@ export class StompGuard<T> {
     this.parentSetter(this._value);
   }
 
+  get isDirty(): boolean {
+    return this._dirty;
+  }
+
   commitAndUnlock(): void {
     this.assertMatchesParent();
     this._dirty = false;
