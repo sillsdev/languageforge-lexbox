@@ -60,11 +60,11 @@
         dispatch('refreshAll');
         return;
       case DownloadProjectByCodeResult.Forbidden:
-        return $t`You don't have permission to download project ${projectCode} from server ${server?.displayName ?? ''}`;
+        return $t`You don't have permission to download project ${projectCode} from ${server?.displayName ?? ''}`;
       case DownloadProjectByCodeResult.NotCrdtProject:
-        return $t`Project ${projectCode} on server ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
+        return $t`Project ${projectCode} on ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
       case DownloadProjectByCodeResult.ProjectNotFound:
-        return $t`Project ${projectCode} not found on server ${server?.displayName ?? ''}`;
+        return $t`Project ${projectCode} not found on ${server?.displayName ?? ''}`;
       case DownloadProjectByCodeResult.ProjectAlreadyDownloaded:
         return $t`You have already downloaded the ${projectCode} project`;
     }
@@ -84,8 +84,7 @@
   }
 
   let getProjectByCodeDialog: GetProjectByCodeDialog|undefined;
-  function getProjectByCode()
-  {
+  function getProjectByCode() {
     getProjectByCodeDialog?.openDialog();
   }
 </script>
@@ -134,15 +133,16 @@
             <Icon icon="i-mdi-open-in-new" class="size-4" />
           </Button>
           {#if canDownloadByCode}
-            <br/>
-            <Button icon="i-mdi-download"
-                  title={$t`Download project not listed`}
-                  disabled={loading}
-                  class="mr-2"
-                  variant="ghost"
-                  size="default"
-                  onclick={getProjectByCode}
-                  >{$t`Download project not listed`}</Button>
+            <div>
+              <Button icon="i-mdi-download"
+                    title={$t`Download project not listed`}
+                    disabled={loading}
+                    class="mr-2"
+                    variant="ghost"
+                    size="default"
+                    onclick={getProjectByCode}
+                    >{$t`Download project not listed`}</Button>
+            </div>
           {/if}
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>

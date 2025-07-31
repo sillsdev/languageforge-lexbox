@@ -114,23 +114,6 @@ public class CrdtController(
         return new ListProjectsResult(myProjects, loggedInContext.User.CanDownloadProjectsWithoutMembership());
     }
 
-    [HttpGet("isCrdtProject/{projectCode}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<bool>> IsCrdtProject(string projectCode)
-    {
-        await permissionService.AssertCanViewProject(projectCode);
-        var projectId = await projectService.LookupProjectId(projectCode);
-        if (projectId is null) return NotFound();
-        return Ok(projectService.IsCrdtProject(projectId.Value));
-    }
-
-    [HttpGet("{projectId}/canDownload")]
-    public async Task<ActionResult<bool>> CanDownloadProject(Guid projectId)
-    {
-        return await permissionService.CanDownloadProject(projectId);
-    }
-
     [HttpGet("lookupProjectId")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -146,7 +129,7 @@ public class CrdtController(
         allowed = await permissionService.CanDownloadProject(projectId.Value);
         if (!allowed) return Forbid();
         var isCrdt = projectService.IsCrdtProject(projectId.Value);
-        if (!isCrdt) return StatusCode(406);
+        if (!isCrdt) return StatusCode(StatusCodes.Status406NotAcceptable);
         return Ok(projectId.Value);
     }
 

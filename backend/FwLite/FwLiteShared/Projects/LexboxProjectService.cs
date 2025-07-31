@@ -84,9 +84,6 @@ public class LexboxProjectService : IDisposable
             }) ?? new([], false);
     }
 
-    // GetProjectByCode - return project ID, whether it's CRDT project, and throw Forbidden if don't have access rights. And project role, using Unknown rather than null so that it's non-nullable.
-    // Then the CanDownload and IsCrdtProject can be a single API call, also the getProjectId as well can be coalesced.
-
     public async Task<LexboxUser?> GetLexboxUser(LexboxServer server)
     {
         return await clientFactory.GetClient(server).GetCurrentUser();
