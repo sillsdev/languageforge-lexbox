@@ -30,15 +30,15 @@
   const formatedDuration = $derived(duration ? formatDigitalDuration({seconds: duration}) : 'unknown');
   let ffmpegApi: FFmpegApi | undefined;
 
-  let ffmpegFile = resource(() => audio, async (audio) => {
+  let ffmpegFile = resource(() => audio, async (audio, _, {signal}) => {
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.toFFmpegFile(audio, abortController.signal);
+    return await ffmpegApi.toFFmpegFile(audio, signal);
   });
 
-  let flacFile = resource(() => [ffmpegFile.current], async ([file]) => {
+  let flacFile = resource(() => [ffmpegFile.current], async ([file], _, {signal}) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.convertToFlac(file, abortController.signal);
+    return await ffmpegApi.convertToFlac(file, signal);
   });
 
   watch(() => [flacFile.current], async ([file]) => {
