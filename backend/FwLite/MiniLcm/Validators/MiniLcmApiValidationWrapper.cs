@@ -1,12 +1,13 @@
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Wrappers;
 
 namespace MiniLcm.Validators;
 
-public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators)
+public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators) : IMiniLcmWrapperFactory
 {
-    public IMiniLcmApi Create(IMiniLcmApi api)
+    public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused)
     {
         return new MiniLcmApiValidationWrapper(api, validators);
     }
