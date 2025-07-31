@@ -171,8 +171,6 @@ export function getExpectedProjectStructure(projectCode: string): {
 export function cleanupTestData(projectCode: string, testIds: string[]): void {
   console.log(`Cleaning up test data for project '${projectCode}' with IDs:`, testIds);
 
-  // Remove IDs from active tracking
-  testIds.forEach(id => activeTestIds.delete(id));
 
   // In a real implementation, this would make API calls to delete test entries
   // For now, we'll simulate the cleanup process
@@ -182,6 +180,7 @@ export function cleanupTestData(projectCode: string, testIds: string[]): void {
       console.log(`Cleaning up test entry with ID: ${testId}`);
       // TODO: Implement actual API calls to delete entries when API is available
       // await deleteTestEntry(projectCode, testId);
+      activeTestIds.delete(testId);
     }
 
     console.log(`Successfully cleaned up ${testIds.length} test entries from project '${projectCode}'`);
