@@ -23,7 +23,7 @@
     "test:unit": "vitest --project=unit",
     "test:browser": "vitest --project=browser",
     "check": "svelte-check",
-    "lint": "eslint .",
+    "lint": "eslint",
     "lint:report": "eslint . --output-file eslint_report.json --format json",
     "i18n:extract": "lingui extract --clean && lingui extract",
     "generate-icon-types": "node ./generate-icon-types.js",
