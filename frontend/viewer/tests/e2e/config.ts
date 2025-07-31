@@ -11,7 +11,7 @@ export const DEFAULT_E2E_CONFIG: E2ETestConfig = {
   lexboxServer: {
     hostname: process.env.TEST_SERVER_HOSTNAME || 'localhost',
     protocol: 'https',
-    port: 5137,
+    port: process.env.TEST_SERVER_PORT ? parseInt(process.env.TEST_SERVER_PORT) : 6579,
   },
   fwLite: {
     binaryPath: process.env.FW_LITE_BINARY_PATH || './dist/fw-lite-server/FwLiteWeb.exe',
