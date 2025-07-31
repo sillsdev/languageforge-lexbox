@@ -76,8 +76,8 @@ msgstr "Account"
 msgid "Activity"
 msgstr "Activity"
 
-#: src/lib/components/field-editors/audio-input.svelte:206
-#: src/lib/components/audio/AudioDialog.svelte:106
+#: src/lib/components/field-editors/audio-input.svelte:213
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Add audio"
 msgstr "Add audio"
 
@@ -126,9 +126,17 @@ msgstr "Application version"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:222
 msgid "Audio file not included in Send & Receive"
 msgstr "Audio file not included in Send & Receive"
+
+#: src/lib/components/audio/AudioDialog.svelte:82
+msgid "Audio saved and uploaded to Lexbox"
+msgstr "Audio saved and uploaded to Lexbox"
+
+#: src/lib/components/audio/AudioDialog.svelte:79
+msgid "Audio saved locally"
+msgstr "Audio saved locally"
 
 #: src/lib/history/HistoryView.svelte:95
 #: src/lib/activity/ActivityView.svelte:91
@@ -160,7 +168,7 @@ msgstr "Browse"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:118
+#: src/lib/components/audio/AudioDialog.svelte:167
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -399,13 +407,26 @@ msgstr "Field Labels"
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
 
+#: src/lib/components/audio/AudioDialog.svelte:89
+msgid "File already exists"
+msgstr "File already exists"
+
 #: src/lib/components/audio/audio-editor.svelte:32
 msgid "File name:"
 msgstr "File name:"
 
-#: src/lib/components/field-editors/audio-input.svelte:74
+#: src/lib/components/field-editors/audio-input.svelte:79
 msgid "File not found"
 msgstr "File not found"
+
+#: src/lib/components/audio/AudioDialog.svelte:87
+msgid "File saving not supported"
+msgstr "File saving not supported"
+
+#: src/lib/components/audio/AudioDialog.svelte:164
+#: src/lib/components/audio/AudioDialog.svelte:85
+msgid "File too big"
+msgstr "File too big"
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -587,7 +608,7 @@ msgstr "New Entry"
 msgid "No activity found"
 msgstr "No activity found"
 
-#: src/lib/components/field-editors/audio-input.svelte:210
+#: src/lib/components/field-editors/audio-input.svelte:217
 msgid "No audio"
 msgstr "No audio"
 
@@ -603,6 +624,10 @@ msgstr "No Dictionaries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "No entries found"
+
+#: src/lib/components/audio/AudioDialog.svelte:75
+msgid "No file selected"
+msgstr "No file selected"
 
 #: src/lib/history/HistoryView.svelte:66
 msgid "No history found"
@@ -645,7 +670,7 @@ msgstr "Note"
 msgid "Offline"
 msgstr "Offline"
 
-#: src/lib/components/field-editors/audio-input.svelte:77
+#: src/lib/components/field-editors/audio-input.svelte:82
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
 
@@ -712,7 +737,7 @@ msgstr "Refresh Projects"
 msgid "Remove"
 msgstr "Remove"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:268
 msgid "Remove audio"
 msgstr "Remove audio"
 
@@ -720,11 +745,11 @@ msgstr "Remove audio"
 msgid "Reopen"
 msgstr "Reopen"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:265
 msgid "Replace audio"
 msgstr "Replace audio"
 
-#: src/lib/components/audio/AudioDialog.svelte:120
+#: src/lib/components/audio/AudioDialog.svelte:169
 msgid "Save audio"
 msgstr "Save audio"
 
@@ -877,10 +902,11 @@ msgid "Unknown"
 msgstr "Unknown"
 
 #: src/project/ProjectSidebar.svelte:115
+#: src/lib/components/audio/AudioDialog.svelte:91
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/lib/components/field-editors/audio-input.svelte:80
+#: src/lib/components/field-editors/audio-input.svelte:85
 msgid "Unknown error {0}"
 msgstr "Unknown error {0}"
 
