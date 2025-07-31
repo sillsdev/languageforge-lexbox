@@ -18,6 +18,7 @@
     skeleton = false,
     subtitle = undefined,
     ...rest
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   }: Props & ListItemProps = $props();
 </script>
 
