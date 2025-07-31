@@ -4,7 +4,6 @@ import {fetchFile} from '@ffmpeg/util';
 import inlineDataUrlWorker from './bundled-ffmpeg-worker.js?url&inline';
 import wasmUrl from '@ffmpeg/core/wasm?url';
 import {randomId} from '$lib/utils';
-import {onDestroy} from 'svelte';
 
 
 async function ensureLoaded(ffmpeg: FFmpeg) {

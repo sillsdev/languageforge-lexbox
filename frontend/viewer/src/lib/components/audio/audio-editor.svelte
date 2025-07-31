@@ -6,7 +6,7 @@
   import {formatDigitalDuration} from '../ui/format/format-duration';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {Label} from '../ui/label';
-  import {FFmpegApi, type FFmpegFile} from './ffmpeg';
+  import {FFmpegApi} from './ffmpeg';
   import Loading from '$lib/components/Loading.svelte';
   import {resource, watch} from 'runed';
   import {onDestroy} from 'svelte';
