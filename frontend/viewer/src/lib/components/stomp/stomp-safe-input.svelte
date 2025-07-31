@@ -18,6 +18,7 @@
 
   function onIdle() {
     if (guard.isDirty) {
+      guard.commitAndUnlock();
       onchange();
     }
   }

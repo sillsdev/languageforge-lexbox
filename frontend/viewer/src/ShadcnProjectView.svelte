@@ -36,6 +36,7 @@
   initViewSettings();
 
   // Load idle service into component context for inputs to use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _idleService = useIdleService();
 
   onMount(() => {
