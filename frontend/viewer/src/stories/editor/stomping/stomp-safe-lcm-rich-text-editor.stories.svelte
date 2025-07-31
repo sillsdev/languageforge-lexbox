@@ -52,6 +52,7 @@
     await expect(input).toBeInTheDocument();
     focusAtEnd(input);
     await userEvent.type(input, ' new text'); // dirty => locked
+    await tick();
     await expect(input.textContent).toMatch(/new text$/);
     value = { spans: [span('A different value')] }; // parent change while locked
     await tick();
