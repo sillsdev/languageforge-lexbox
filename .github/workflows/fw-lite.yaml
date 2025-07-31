@@ -100,11 +100,11 @@ jobs:
           DIFFCOUNT=$(diff -u src/locales/en.po{.old,} | grep '+msgid' | wc -l)
           if [ $DIFFCOUNT -gt 0 ]; then
             # Unextracted strings found, fail the build
-            echo
+            echo '***'
             echo $DIFFCOUNT unextracted strings found:
-            echo
+            echo '***'
             diff -u src/locales/en.po{.old,} | grep '+msgid' | cut -c2-
-            echo
+            echo '***'
             echo Please run "'"pnpm i18n:extract"'" and commit the new src/locales/en.po file
             exit 1
           fi
