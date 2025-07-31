@@ -13,6 +13,7 @@ describe('normalizeDuration', () => {
       });
 
       expect(result).toEqual({
+        days: 0,
         hours: 2,
         minutes: 30,
         seconds: 45,
@@ -27,6 +28,7 @@ describe('normalizeDuration', () => {
       });
 
       expect(result).toEqual({
+        days: 0,
         hours: 1,
         minutes: 0,
         seconds: 30,
@@ -42,6 +44,7 @@ describe('normalizeDuration', () => {
       });
 
       expect(result).toEqual({
+        days: 0,
         hours: 1,
         minutes: 32,
         seconds: 2,
@@ -55,6 +58,7 @@ describe('normalizeDuration', () => {
       });
 
       expect(result).toEqual({
+        days: 0,
         hours: 2,
         minutes: 1,
         seconds: 5,
@@ -66,6 +70,7 @@ describe('normalizeDuration', () => {
       const result = normalizeDuration({});
 
       expect(result).toEqual({
+        days: 0,
         hours: 0,
         minutes: 0,
         seconds: 0,
@@ -80,10 +85,24 @@ describe('normalizeDuration', () => {
       milliseconds: 500.23
     });
     expect(result).toEqual({
+      days: 0,
       hours: 0,
       minutes: 0,
       seconds: 0,
       milliseconds: 500
+    });
+  });
+
+  describe('normalization with smallestUnit = "hours"', () => {
+    it('should return only hours', () => {
+      const result = normalizeDuration({
+        hours: 2,
+        minutes: 30,
+        seconds: 45,
+        milliseconds: 500
+      }, 'hours');
+
+      expect(result.hours).toEqual(2)
     });
   });
 
@@ -110,6 +129,7 @@ describe('normalizeDuration', () => {
       }, 'minutes');
 
       expect(result).toEqual({
+        days: 0,
         hours: 1,
         minutes: 30
       });
@@ -126,6 +146,7 @@ describe('normalizeDuration', () => {
       }, 'seconds');
 
       expect(result).toEqual({
+        days: 0,
         hours: 1,
         minutes: 30,
         seconds: 45
@@ -143,6 +164,7 @@ describe('normalizeDuration', () => {
       }, 'milliseconds');
 
       expect(result).toEqual({
+        days: 0,
         hours: 1,
         minutes: 30,
         seconds: 45,
@@ -154,10 +176,11 @@ describe('normalizeDuration', () => {
 
 describe('formatDuration', () => {
   it('formats durations', () => {
-    expect(formatDuration({hours: 1, minutes: 30, seconds: 45, milliseconds: 500})).toEqual('1 hr, 30 min, 45 sec, 500 ms');
-    expect(formatDuration({hours: 1, minutes: 30, seconds: 45})).toEqual('1 hr, 30 min, 45 sec');
-    expect(formatDuration({hours: 1, minutes: 30})).toEqual('1 hr, 30 min');
-    expect(formatDuration({hours: 1})).toEqual('1 hr');
+    expect(formatDuration({days: 1, hours: 1, minutes: 30, seconds: 45, milliseconds: 500})).toEqual('1 day, 1 hr, 30 min, 45 sec, 500 ms');
+    expect(formatDuration({days: 1, hours: 1, minutes: 30, seconds: 45})).toEqual('1 day, 1 hr, 30 min, 45 sec');
+    expect(formatDuration({days: 1, hours: 1, minutes: 30})).toEqual('1 day, 1 hr, 30 min');
+    expect(formatDuration({days: 1, hours: 1})).toEqual('1 day, 1 hr');
+    expect(formatDuration({days: 1})).toEqual('1 day');
   });
 
   it('formats fractional durations', () => {
