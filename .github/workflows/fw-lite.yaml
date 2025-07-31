@@ -421,3 +421,52 @@ jobs:
           sleep 10
           curl -X POST https://lexbox.org/api/fwlite-release/new-release
 
+
+  e2e-test:
+    name: E2E Tests
+    needs: [publish-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-k8s
+        with:
+          lexbox-api-tag: develop
+          ingress-controller-port: '6579' # todo, figure out if we can use https as it's required for the tests
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/download-artifact@v4
+        id: download-artifact
+        with:
+          name: fw-lite-web-linux
+          path: fw-lite-web-linux
+      - name: set execute permissions
+        run: chmod +x fw-lite-web-linux/*/FwLiteWeb
+      - name: Install Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Prepare frontend
+        working-directory: frontend
+        run: |
+          pnpm install
+      - name: Set up Playwright dependencies
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install --with-deps
+      - name: Run E2E tests
+        working-directory: frontend/viewer
+        env:
+          FW_LITE_BINARY_PATH: ${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb
+          TEST_SERVER_PORT: 6579
+        run: task test:e2e
