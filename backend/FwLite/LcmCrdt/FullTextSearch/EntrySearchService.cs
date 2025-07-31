@@ -141,7 +141,12 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     {
         var writingSystems = await dbContext.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
         var record = ToEntrySearchRecord(entry, writingSystems);
-        await EntrySearchRecordsTable.InsertOrUpdateAsync(() => new EntrySearchRecord()
+        await InsertOrUpdateEntrySearchRecord(record, EntrySearchRecordsTable);
+    }
+
+    private static async Task InsertOrUpdateEntrySearchRecord(EntrySearchRecord record, ITable<EntrySearchRecord> table)
+    {
+        await table.InsertOrUpdateAsync(() => new EntrySearchRecord()
             {
                 Id = record.Id,
                 Headword = record.Headword,
@@ -177,9 +182,15 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             ..newWritingSystems
         ];
         Array.Sort(writingSystems, (ws1, ws2) => ws1.Order.CompareTo(ws2.Order));
-        await dbContext.GetTable<EntrySearchRecord>()
-            .BulkCopyAsync(entries.Select(entry => ToEntrySearchRecord(entry, writingSystems)));
-        await dbContext.GetTable<EntrySearchRecord>()
+        var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
+        var searchRecords = entries.Select(entry => ToEntrySearchRecord(entry, writingSystems));
+        foreach (var entrySearchRecord in searchRecords)
+        {
+            //can't use bulk copy here because that creates duplicate rows
+            await InsertOrUpdateEntrySearchRecord(entrySearchRecord, entrySearchRecordsTable);
+        }
+
+        await entrySearchRecordsTable
             .Where(e => removed.Contains(e.Id))
             .DeleteAsync();
     }

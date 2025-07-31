@@ -14,10 +14,9 @@ tasks:
     dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
   web-prod:
+    deps: [ ui:build-viewer ]
     dir: ./FwLiteWeb
-    cmds:
-      - dotnet publish --artifacts-path ../artifacts
-      - cd ../artifacts/publish/FwLiteWeb/release && dotnet FwLiteWeb.dll
+    cmd: dotnet run -- --FwLite:UseDevAssets=false
   web-chaos:
     label: Run FwLiteWeb with some Chaos injected to http requests to lexbox, requests will have chaos 30% of the time, this includes some latency of 5 seconds
     dir: ./FwLiteWeb
@@ -60,7 +59,7 @@ tasks:
       - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts
 
   build-maui-android:
-    deps: [ ui:build-viewer-app ]
+    deps: [ ui:build-viewer ]
     label: Build Maui Android
     dir: ./FwLiteMaui
     cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
@@ -69,7 +68,7 @@ tasks:
     label: Build MiniLcm SDK
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
     dir: ./FwLiteWeb
-    deps: [ ui:build-viewer-app ]
+    deps: [ ui:build-viewer ]
     cmds:
       - dotnet publish -r win-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
       - pwsh -Command "mv ../artifacts/publish/FwLiteWeb/release_win-x64/appsettings.sdk.json ../artifacts/publish/FwLiteWeb/release_win-x64/appsettings.Production.json"
@@ -86,7 +85,7 @@ tasks:
       - task: publish-web-osx-arm
   publish-web-win:
     dir: ./FwLiteWeb
-    deps: [ ui:build-viewer-app ]
+    deps: [ ui:build-viewer ]
     cmd: dotnet publish -r win-x64
   publish-web-win-arm:
     dir: ./FwLiteWeb

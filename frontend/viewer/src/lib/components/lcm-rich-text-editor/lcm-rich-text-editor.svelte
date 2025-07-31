@@ -278,8 +278,8 @@
 
 <style lang="postcss" global>
   .ProseMirror {
-    display: block;
-    place-content: center;
+    display: block !important; /*prevent display from being overridden by .flex in the inputVariant class */
+    align-content: center;
     flex-grow: 1;
     outline: none;
     cursor: text;

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Net.Http.Headers;
+using FluentAssertions;
 using LexBoxApi;
 using LexBoxApi.Config;
 using LexBoxApi.Services.FwLiteReleases;
@@ -18,7 +19,16 @@ public class FwLiteReleaseServiceTests
 #pragma warning disable EXTEXP0018
         var services = new ServiceCollection()
             .AddSingleton<FwLiteReleaseService>()
-            .AddHttpClient()
+            .AddHttpClient(FwLiteReleaseService.HttpClientName,
+                client =>
+                {
+                    var githubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+                    if (githubToken is not null)
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+                    }
+                })
+            .Services
             .AddOptions<FwLiteReleaseConfig>().Configure(config =>
             {
                 config.Editions.Add(FwLiteEdition.Windows, new FwLiteEditionConfig() { FileNameRegex = "(?i)\\.msixbundle$" });

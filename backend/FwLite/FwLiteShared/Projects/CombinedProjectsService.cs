@@ -54,7 +54,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
     private async Task<ProjectModel[]> ServerProjects(LexboxServer server, bool forceRefresh = false)
     {
-        if (forceRefresh) lexboxProjectService.InvalidateProjectsCache(server);
+        if (forceRefresh)
+            lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
         await UpdateProjectServerInfo(lexboxProjects, await lexboxProjectService.GetLexboxUser(server));
         var projectModels = lexboxProjects.Select(p => new ProjectModel(
@@ -90,14 +91,13 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     }
 
     [JSInvokable]
-    public async ValueTask<IReadOnlyCollection<ProjectModel>> LocalProjects()
+    public IReadOnlyCollection<ProjectModel> LocalProjects()
     {
-        await crdtProjectsService.EnsureProjectDataCacheIsLoaded();
         var crdtProjects = crdtProjectsService.ListProjects();
         //todo get project Id and use that to specify the Id in the model. Also pull out server
         var projects = crdtProjects.ToDictionary(p => p.Name, // actually the code
             p => new ProjectModel(
-                p.Data?.Name ?? throw new NullReferenceException($"Project Data/Name is null for project {p.Name}"),
+                p.Data?.Name ?? p.Name,
                 p.Name,
                 true,
                 false,

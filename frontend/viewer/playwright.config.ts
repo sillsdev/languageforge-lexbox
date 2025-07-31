@@ -69,7 +69,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'pnpm run dev-app',
+      command: 'pnpm run dev',
       url: 'http://localhost:5173',
       reuseExistingServer: true
     }

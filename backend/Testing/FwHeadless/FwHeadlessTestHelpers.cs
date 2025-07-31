@@ -24,7 +24,15 @@ public static class FwHeadlessTestHelpers
         Assert.Fail($"trigger failed with error {result.ReasonPhrase}, body: {responseString}");
     }
 
-    public static async Task<SyncResult?> AwaitSyncFinished(HttpClient httpClient, Guid projectId)
+    public static async Task CancelSync(HttpClient httpClient, Guid projectId)
+    {
+        var result = await httpClient.PostAsync($"api/fw-lite/sync/cancel/{projectId}", null);
+        if (result.IsSuccessStatusCode) return;
+        var responseString = await result.Content.ReadAsStringAsync();
+        Assert.Fail($"cancel failed with error {result.ReasonPhrase}, body: {responseString}");
+    }
+
+    public static async Task<SyncJobResult?> AwaitSyncFinished(HttpClient httpClient, Guid projectId)
     {
         var giveUpAt = DateTime.UtcNow + TimeSpan.FromMinutes(4);
         while (giveUpAt > DateTime.UtcNow)
@@ -33,7 +41,7 @@ public static class FwHeadlessTestHelpers
             {
                 var result = await httpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}", new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
                 result.EnsureSuccessStatusCode();
-                return await result.Content.ReadFromJsonAsync<SyncResult>();
+                return await result.Content.ReadFromJsonAsync<SyncJobResult>();
             }
             catch (OperationCanceledException)
             {

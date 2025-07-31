@@ -29,4 +29,4 @@ tasks:
     cmds:
       - dotnet publish ../../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc --output ./public/fw-lite
   build-viewer:
-    deps: [viewer:build-app]
+    deps: [viewer:build]

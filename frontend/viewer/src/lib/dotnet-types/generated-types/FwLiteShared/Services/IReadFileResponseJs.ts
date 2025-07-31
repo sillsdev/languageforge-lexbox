@@ -3,7 +3,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {ReadFileResult} from '../../MiniLcm/Models/ReadFileResult';
+import type {ReadFileResult} from '../../MiniLcm/Media/ReadFileResult';
 
 export interface IReadFileResponseJs
 {

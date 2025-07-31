@@ -22,12 +22,13 @@
         xs: 'h-8 rounded-md px-2',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
-        'badge-icon': 'h-5 w-5 min-h-5 min-w-5',
-        'xs-icon': 'h-8 w-8 min-h-8 min-w-8',
-        'sm-icon': 'h-9 w-9 min-h-9 min-w-9',
-        icon: 'h-10 w-10 min-h-10 min-w-10',
+        'badge-icon': 'h-5 w-5 min-h-5 min-w-5 max-h-5 max-w-5',
+        'xs-icon': 'h-8 w-8 min-h-8 min-w-8 max-h-8 max-w-8',
+        'sm-icon': 'h-9 w-9 min-h-9 min-w-9 max-h-9 max-w-9',
+        icon: 'h-10 w-10 min-h-10 min-w-10 max-h-10 max-w-10',
         'extended-fab': 'h-14 pl-4 pr-5',
-        'fab': 'h-14 px-4'
+        'fab': 'h-14 px-4',
+        'xl-icon': 'h-16 w-16 min-h-16 min-w-16 max-h-16 max-w-16',
       },
     },
     defaultVariants: {
@@ -78,9 +79,9 @@
   {#if loading || iconProps}
     <span transition:slide={{axis: 'x',}}>
     {#if loading}
-      <Icon {...mergeProps({ class:'animate-spin'}, iconProps ?? {})} icon="i-mdi-loading" />
+      <Icon {...mergeProps({ class:'animate-spin align-middle'}, iconProps ?? {})} icon="i-mdi-loading" />
     {:else if iconProps}
-      <Icon {...iconProps} />
+      <Icon {...iconProps} class={cn('align-middle', iconProps.class)} />
     {/if}
     </span>
   {/if}

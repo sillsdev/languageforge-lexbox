@@ -15,7 +15,10 @@
       - all-globs-to-any-file:
         - 'backend/**'
         - '!backend/FwLite/**'
+        - '!backend/Directory.Packages.props'
       - all-globs-to-any-file:
         - 'frontend/**'
         - '!frontend/viewer/**'
         - '!frontend/platform.bible-extension/**'
+        - '!frontend/pnpm-lock.yaml'
+        - '!frontend/pnpm-workspace.yaml'

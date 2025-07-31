@@ -68,7 +68,20 @@ public class EntrySearchServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SearchTableIsUpdatedAutomatically()
+    public async Task UpdateEntrySearchTableEnumerable_DoesNotCreateDuplicates()
+    {
+        var entry = new Entry() { Id = Guid.NewGuid(), LexemeForm = { ["en"] = "initial" } };
+        await _service.UpdateEntrySearchTable(entry);
+        var updated = entry.Copy();
+        updated.LexemeForm["en"] = "updated";
+        await _service.UpdateEntrySearchTable([updated]);
+        var result = await _service.EntrySearchRecords.SingleOrDefaultAsync(e => e.Id == entry.Id);
+        result.Should().NotBeNull();
+        result.LexemeForm.Should().Be("updated");
+    }
+
+    [Fact]
+    public async Task SearchTableIsUpdatedAutomaticallyOnInsert()
     {
         var id = Guid.NewGuid();
         _context.Set<Entry>().Add(new Entry()
@@ -99,8 +112,30 @@ public class EntrySearchServiceTests : IAsyncLifetime
             ]
         });
         await _context.SaveChangesAsync();
-        var entry = await _service.EntrySearchRecords.FirstOrDefaultAsync(e => e.Id == id);
+        var entry = await _service.EntrySearchRecords.SingleOrDefaultAsync(e => e.Id == id);
         await Verify(entry);
+    }
+
+    [Fact]
+    public async Task SearchTableIsUpdatedAutomaticallyOnUpdate()
+    {
+        var id = Guid.NewGuid();
+        _context.Set<Entry>().Add(new Entry()
+        {
+            Id = id,
+            LexemeForm = { ["en"] = "lexemeform1", ["fr"] = "fr_lexemeform1" },
+            CitationForm = { ["en"] = "citation1", ["fr"] = "fr_citation1" }
+        });
+        await _context.SaveChangesAsync();
+        var entry = await _context.FindAsync<Entry>(id);
+        entry.Should().NotBeNull();
+        entry.LexemeForm["en"] = "lexemeform2";
+        _context.Update(entry);
+        await _context.SaveChangesAsync();
+
+        //intentionally using a list to ensure there's only 1 as expected
+        var entries = _service.EntrySearchRecords.Where(e => e.Id == id);
+        await Verify(entries);
     }
 
     [Fact]

@@ -1,13 +1,16 @@
 <script lang="ts">
-  import {writable} from 'svelte/store';
   import {fade} from 'svelte/transition';
   import Loading from '$lib/components/Loading.svelte';
+  import type {Snippet} from 'svelte';
 
-  export let readyToLoadProject = true;
-  export let projectName: string;
+  interface Props {
+    readyToLoadProject?: boolean;
+    projectName: string;
+    loading: boolean;
+    children: Snippet;
+  }
 
-  let projectLoaded = writable(false);
-  $: loading = !readyToLoadProject || !$projectLoaded;
+  let {readyToLoadProject = true, projectName, children, loading}: Props = $props();
 </script>
 
 {#if loading}
@@ -20,7 +23,7 @@
 {/if}
 
 {#if readyToLoadProject}
-  <div class:hidden={!$projectLoaded} class:contents={$projectLoaded}>
-    <slot onProjectLoaded={projectLoaded.set} />
+  <div class:hidden={loading} class:contents={!loading}>
+    {@render children()}
   </div>
 {/if}

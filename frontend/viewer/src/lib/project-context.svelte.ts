@@ -23,6 +23,7 @@ interface ProjectContextSetup {
   projectType?: 'crdt' | 'fwdata';
   server?: ILexboxServer;
   projectData?: IProjectData;
+  paratext?: boolean;
 }
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
@@ -42,6 +43,7 @@ export class ProjectContext {
   #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
+  #paratext = $state(false);
   #features = resource(() => this.#api, (api) => {
     if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
     return api.supportedFeatures();
@@ -79,16 +81,12 @@ export class ProjectContext {
   public get syncService(): ISyncServiceJsInvokable | undefined {
     return this.#syncService;
   }
+  public get inParatext(): boolean {
+    return this.#paratext;
+  }
 
   constructor(args?: ProjectContextSetup) {
-    this.#api = args?.api;
-    this.#historyService = args?.historyService;
-    this.#syncService = args?.syncService;
-    this.#projectName = args?.projectName;
-    this.#projectCode = args?.projectCode;
-    this.#projectType = args?.projectType;
-    this.#server = args?.server;
-    this.#projectData = args?.projectData;
+    if (args) this.setup(args);
   }
 
   public setup(args: ProjectContextSetup) {
@@ -100,6 +98,7 @@ export class ProjectContext {
     this.#projectType = args.projectType;
     this.#server = args.server;
     this.#projectData = args.projectData;
+    this.#paratext = args.paratext ?? false;
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {

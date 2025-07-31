@@ -273,6 +273,16 @@ public class LexQueries
     [UseFiltering]
     [UseSorting]
     [AdminRequired]
+    public IQueryable<MediaFile> MediaFiles(LexBoxDbContext context)
+    {
+        return context.Files;
+    }
+
+    [UseOffsetPaging]
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    [AdminRequired]
     public IQueryable<User> Users(LexBoxDbContext context)
     {
         //default order by, can be overwritten by the gql query

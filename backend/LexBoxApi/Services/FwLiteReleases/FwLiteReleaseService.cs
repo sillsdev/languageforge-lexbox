@@ -9,6 +9,7 @@ namespace LexBoxApi.Services.FwLiteReleases;
 
 public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache, IOptions<FwLiteReleaseConfig> config)
 {
+    public const string HttpClientName = "Github";
     private const string GithubLatestRelease = "GithubLatestRelease";
     public const string FwLiteClientVersionTag = "app.fw-lite.client.version";
     public const string FwLiteEditionTag = "app.fw-lite.edition";
@@ -55,7 +56,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         }
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag(FwLiteEditionTag, edition.ToString());
-        var response = await factory.CreateClient("Github")
+        var response = await factory.CreateClient(HttpClientName)
             .SendAsync(new HttpRequestMessage(HttpMethod.Get,
                     "https://api.github.com/repos/sillsdev/languageforge-lexbox/releases")
                 {

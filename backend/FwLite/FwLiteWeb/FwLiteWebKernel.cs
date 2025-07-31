@@ -23,10 +23,6 @@ public static class FwLiteWebKernel
         services.AddFwLiteProjectSync();
         services.AddMiniLcmRouteServices();
         services.AddFwLiteShared(environment);
-        if (environment.IsDevelopment())
-        {
-            services.Configure<FwLiteConfig>(config => config.UseDevAssets = true);
-        }
 
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 

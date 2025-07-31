@@ -8,7 +8,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function randomId(): string {
-  return crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 export function firstTruthy<T, U>(items: T[], mapper: (item: T) => U): U | undefined {
@@ -21,7 +28,7 @@ export function firstTruthy<T, U>(items: T[], mapper: (item: T) => U): U | undef
 
 export function defaultEntry(): IEntry {
   return {
-    id: crypto.randomUUID(),
+    id: randomId(),
     citationForm: {},
     lexemeForm: {},
     note: {},

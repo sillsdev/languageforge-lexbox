@@ -17,23 +17,25 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             projectId);
         return false;
     }
-    public async Task<SyncJobResult?> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
+
+    public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync($"/api/await-sync-finished?projectId={projectId}", cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
             logger.LogError("Failed to get sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId,
-                await response.Content.ReadAsStringAsync(cancellationToken));
-            return null;
+                responseBody);
+            return new SyncJobResult(SyncJobStatusEnum.UnknownError, responseBody);
         }
         var jobResult = await response.Content.ReadFromJsonAsync<SyncJobResult>(cancellationToken);
         if (jobResult is null)
         {
-            logger.LogError("Failed to get sync status");
-            return null;
+            logger.LogError("Sync status was not a valid SyncJobResult");
+            return new SyncJobResult(SyncJobStatusEnum.UnknownError, "Sync status failed to return a result");
         }
 
         return jobResult;

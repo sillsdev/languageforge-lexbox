@@ -11,6 +11,8 @@ public static class FwDataTestsKernel
     {
         services.AddFwDataBridge();
         services.TryAddSingleton<IConfiguration>(_ => new ConfigurationRoot([]));
+        //this path is typically not used for projects (they're in memory) but it is used for media
+        services.Configure<FwDataBridgeConfig>(config => config.ProjectsFolder = Path.GetFullPath(Path.Combine(".", "fw-test-projects")));
         if (mockProjectLoader)
         {
             services.AddSingleton<MockFwProjectLoader>();

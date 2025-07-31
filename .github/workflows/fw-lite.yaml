@@ -94,7 +94,7 @@ jobs:
 
       - name: Build viewer
         working-directory: frontend/viewer
-        run: pnpm run build-app
+        run: pnpm run build
 
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@v4

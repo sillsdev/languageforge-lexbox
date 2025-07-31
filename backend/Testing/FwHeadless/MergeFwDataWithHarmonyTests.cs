@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
+using LexCore.Sync;
 using SIL.Harmony.Core;
 using Testing.ApiTests;
 using Testing.Services;
@@ -70,8 +71,10 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result.Should().NotBeNull();
-        result.CrdtChanges.Should().BeGreaterThan(100);
-        result.FwdataChanges.Should().Be(0);
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        result.SyncResult.Should().NotBeNull();
+        result.SyncResult.CrdtChanges.Should().BeGreaterThan(100);
+        result.SyncResult.FwdataChanges.Should().Be(0);
 
         // there should be a short grace period during which the result remains available
         var result2 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
@@ -88,7 +91,9 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
         result.Should().NotBeNull();
-        result.CrdtChanges.Should().Be(0);
-        result.FwdataChanges.Should().BeGreaterThan(0);
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        result.SyncResult.Should().NotBeNull();
+        result.SyncResult.CrdtChanges.Should().Be(0);
+        result.SyncResult.FwdataChanges.Should().BeGreaterThan(0);
     }
 }
