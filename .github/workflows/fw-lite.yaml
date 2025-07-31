@@ -112,7 +112,8 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: Run snapshot tests
         working-directory: frontend/viewer
-        run: task playwright-test-standalone
+        run: task test:snapshot-standalone
+
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build
