@@ -26,4 +26,5 @@ html-test-results
 
 *storybook.log
 storybook-static
-"screenshots/" 
+screenshots/*
+**/*-html-report
