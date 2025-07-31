@@ -432,12 +432,6 @@ jobs:
         with:
           submodules: true
 
-      - uses: ./.github/actions/setup-k8s
-        with:
-          lexbox-api-tag: develop
-          ingress-controller-port: '6579' # todo, figure out if we can use https as it's required for the tests
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/download-artifact@v4
         id: download-artifact
         with:
@@ -461,9 +455,21 @@ jobs:
         working-directory: frontend
         run: |
           pnpm install
+      - name: Test fw lite launcher
+        working-directory: frontend/viewer
+        env:
+          FW_LITE_BINARY_PATH: ${{ steps.download-artifact.outputs.download-path }}/release_linux-x64/FwLiteWeb
+        run: task e2e-test-helper-unit-tests
+
+      - uses: ./.github/actions/setup-k8s
+        with:
+          lexbox-api-tag: develop
+          ingress-controller-port: '6579' # todo, figure out if we can use https as it's required for the tests
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Playwright dependencies
         working-directory: frontend/viewer
         run: pnpm exec playwright install --with-deps
+
       - name: Run E2E tests
         working-directory: frontend/viewer
         env:
