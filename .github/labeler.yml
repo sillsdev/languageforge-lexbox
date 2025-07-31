@@ -19,6 +19,10 @@
       - all-globs-to-any-file:
         - 'frontend/**'
         - '!frontend/viewer/**'
-        - '!frontend/platform.bible-extension/**'
         - '!frontend/pnpm-lock.yaml'
         - '!frontend/pnpm-workspace.yaml'
+
+"📖 Platform.Bible extension":
+  - changed-files:
+      - any-glob-to-any-file:
+        - 'platform.bible-extension/**'
