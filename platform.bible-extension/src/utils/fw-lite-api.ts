@@ -39,30 +39,6 @@ export class FwLiteApi {
     this.dictionaryCode = dictionaryCode;
   }
 
-  private getUrl(path: string): string {
-    return `${this.baseUrl}/api/${path}`;
-  }
-
-  private async fetchPath(path: string, method?: string, postBody?: unknown): Promise<unknown> {
-    return await fetchUrl(
-      this.getUrl(path),
-      postBody
-        ? {
-            body: JSON.stringify(postBody),
-            headers: { 'Content-Type': 'application/json' },
-            method: method || 'POST',
-          }
-        : method
-          ? { method }
-          : undefined,
-    );
-  }
-
-  private checkDictionaryCode(code?: string): DictionaryRef {
-    code = validateUrlComponent(code || this.dictionaryCode);
-    return { code, type: 'FwData' };
-  }
-
   async deleteEntry(id: string, dictionaryCode?: string): Promise<void> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
@@ -70,11 +46,13 @@ export class FwLiteApi {
   }
 
   async doesProjectMatchLanguage(code: string, language: string): Promise<boolean> {
-    language = language.trim().toLocaleLowerCase();
-    if (!code || !language) return false;
+    const lang = language.trim().toLocaleLowerCase();
+    if (!code || !lang) return false;
     const writingSystems = await this.getWritingSystems(code);
-    return JSON.stringify(writingSystems.vernacular).toLocaleLowerCase().includes(language);
+    return JSON.stringify(writingSystems.vernacular).toLocaleLowerCase().includes(lang);
   }
+
+  /* eslint-disable no-type-assertion/no-type-assertion */
 
   async getEntries(
     search?: string,
@@ -102,7 +80,7 @@ export class FwLiteApi {
     const matches = (
       await Promise.all(
         projects.map(async (p) =>
-          (await this.doesProjectMatchLanguage(p.code, language)) ? p : null,
+          (await this.doesProjectMatchLanguage(p.code, language)) ? p : undefined,
         ),
       )
     ).filter((p) => p) as IProjectModel[];
@@ -119,5 +97,32 @@ export class FwLiteApi {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
+  }
+
+  /* eslint-enable no-type-assertion/no-type-assertion */
+
+  private checkDictionaryCode(dictionaryCode?: string): DictionaryRef {
+    const code = validateUrlComponent(dictionaryCode || this.dictionaryCode);
+    return { code, type: 'FwData' };
+  }
+
+  private getUrl(path: string): string {
+    return `${this.baseUrl}/api/${path}`;
+  }
+
+  private async fetchPath(path: string, method?: string, postBody?: unknown): Promise<unknown> {
+    return await fetchUrl(
+      this.getUrl(path),
+      // eslint-disable-next-line no-nested-ternary
+      postBody
+        ? {
+            body: JSON.stringify(postBody),
+            headers: { 'Content-Type': 'application/json' },
+            method: method || 'POST',
+          }
+        : method
+          ? { method }
+          : undefined,
+    );
   }
 }

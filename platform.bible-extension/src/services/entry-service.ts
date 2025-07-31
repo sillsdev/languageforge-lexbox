@@ -1,7 +1,7 @@
 import { logger } from '@papi/backend';
 import type { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
 import { FwLiteApi } from '../utils/fw-lite-api';
-import { ProjectManager } from '../utils/project-managers';
+import { ProjectManager } from '../utils/project-manager';
 
 export class EntryService implements IEntryService {
   private fwLiteApi: FwLiteApi;
@@ -17,7 +17,7 @@ export class EntryService implements IEntryService {
     }
     const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
     if (!dictionaryCode) return;
-    console.log(
+    logger.info(
       `Fetching entries for '${surfaceForm}' (semantic domain '${semanticDomain}') in '${dictionaryCode}'`,
     );
     return this.fwLiteApi.getEntries(surfaceForm, semanticDomain, dictionaryCode);
@@ -29,7 +29,7 @@ export class EntryService implements IEntryService {
     return await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this, @typescript-eslint/no-unused-vars
   updateEntry(projectId: string, reference: IEntry): Promise<void> {
     throw new Error('Method not implemented.');
   }

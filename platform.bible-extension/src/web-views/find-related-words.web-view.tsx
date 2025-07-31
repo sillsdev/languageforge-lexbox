@@ -13,6 +13,8 @@ import { type ReactElement, useCallback, useEffect, useMemo, useState } from 're
 import AddNewEntry from '../components/add-new-entry';
 import EntryCard from '../components/entry-card';
 
+/* eslint-disable react-hooks/rules-of-hooks */
+
 globalThis.webViewComponent = function fwLiteFindRelatedWords({
   projectId,
   word,
@@ -27,12 +29,14 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   const [selectedDomain, setSelectedDomain] = useState<ISemanticDomain | undefined>();
 
   useEffect(() => {
-    void papi.networkObjects
+    papi.networkObjects
       .get<IEntryService>('fwliteextension.entryService')
+      // eslint-disable-next-line promise/always-return
       .then((networkObject) => {
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
-      });
+      })
+      .catch((err) => logger.error(err));
   }, []);
 
   useEffect(() => {
@@ -42,51 +46,23 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
     if (domains.every((d) => d.code === domains[0].code)) setSelectedDomain(domains[0]);
   }, [matchingEntries]);
 
-  useEffect(() => {
-    if (selectedDomain) void fetchRelatedEntries(selectedDomain.code);
-  }, [selectedDomain]);
-
-  const addEntryInDomain = useCallback(
-    async (entry: Partial<IEntry>) => {
-      if (!fwLiteNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
-        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
-        if (!projectId) logger.warn('Missing required parameter: projectId');
-        if (!selectedDomain) logger.warn('Missing required parameter: selectedDomain');
-        if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
-        return;
-      }
-
-      if (!entry.senses[0].semanticDomains) entry.senses[0].semanticDomains = [];
-      entry.senses[0].semanticDomains.push(selectedDomain);
-      logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
-      if (addedEntry) {
-        onSearch(Object.values(addedEntry.lexemeForm as IMultiString).pop() ?? '');
-        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
-      } else {
-        logger.error('Failed to add entry!');
-      }
-    },
-    [fwLiteNetworkObject, projectId, selectedDomain],
-  );
-
   const fetchEntries = useCallback(
-    async (word: string) => {
+    async (untrimmedSurfaceForm: string) => {
       if (!projectId || !fwLiteNetworkObject) {
         if (!projectId) logger.warn('Missing required parameter: projectId');
         if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
         return;
       }
 
-      word = word.trim();
-      if (!word) {
+      const surfaceForm = untrimmedSurfaceForm.trim();
+      if (!surfaceForm) {
         logger.warn('No word provided for search');
         return;
       }
 
-      logger.info(`Fetching entries for ${word}`);
+      logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      let entries = (await fwLiteNetworkObject.getEntries(projectId, { surfaceForm: word })) ?? [];
+      let entries = (await fwLiteNetworkObject.getEntries(projectId, { surfaceForm })) ?? [];
       // Only consider entries and senses with at least one semantic domain.
       entries = entries
         .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
@@ -114,14 +90,43 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
     [fwLiteNetworkObject, projectId],
   );
 
+  useEffect(() => {
+    if (selectedDomain) fetchRelatedEntries(selectedDomain.code);
+  }, [fetchRelatedEntries, selectedDomain]);
+
   const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
 
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
-      void debouncedFetchEntries(searchQuery);
+      debouncedFetchEntries(searchQuery);
     },
     [debouncedFetchEntries],
+  );
+
+  const addEntryInDomain = useCallback(
+    async (entry: Partial<IEntry>) => {
+      if (!fwLiteNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
+        if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!selectedDomain) logger.warn('Missing required parameter: selectedDomain');
+        if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
+        return;
+      }
+
+      if (!entry.senses[0].semanticDomains) entry.senses[0].semanticDomains = [];
+      entry.senses[0].semanticDomains.push(selectedDomain);
+      logger.info(`Adding entry: ${JSON.stringify(entry)}`);
+      const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
+      if (addedEntry) {
+        // eslint-disable-next-line no-type-assertion/no-type-assertion
+        onSearch(Object.values(addedEntry.lexemeForm as IMultiString).pop() ?? '');
+        await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
+      } else {
+        logger.error('Failed to add entry!');
+      }
+    },
+    [fwLiteNetworkObject, onSearch, projectId, selectedDomain],
   );
 
   return (
@@ -167,7 +172,6 @@ interface EntriesInSemanticDomainProps {
   semanticDomain: ISemanticDomain;
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 function EntriesInSemanticDomain({
   entries,
   semanticDomain,

@@ -21,12 +21,10 @@ export enum GridifyConditionalOperator {
   GreaterThanOrEqual = '>=',
   LessThan = '<',
   LessThanOrEqual = '<=',
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   Like = '=*', // same as Contains
   NotContains = '!*',
   NotEndsWith = '!$',
   NotEqual = '!=',
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   NotLike = '!*', // same as NotContains
   NotStartsWith = '!^',
   StartsWith = '^',

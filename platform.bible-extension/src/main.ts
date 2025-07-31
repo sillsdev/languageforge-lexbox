@@ -192,14 +192,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info('Fetching local FieldWorks dictionaries');
       if (!projectId) return await fwLiteApi.getProjects();
 
-      //projectManagers.getProjectManagerFromProjectId(projectId)?.clearSettingsCache();
+      // projectManagers.getProjectManagerFromProjectId(projectId)?.clearSettingsCache();
       const lang = await projectManagers.getProjectManagerFromProjectId(projectId)?.getLanguage();
       return await fwLiteApi.getProjectsMatchingLanguage(lang);
     },
   );
 
   // For development. Remove before publishing.
-  void papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
+  papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
 
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
 
@@ -231,7 +231,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   logger.info('FieldWorks Lite is finished activating!');
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function deactivate(): Promise<boolean> {
   logger.info('FieldWorks Lite is deactivating!');
   return true;
@@ -245,13 +244,14 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
     throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
-  //todo instead of hardcoding the url and port we should run it and find the url in the output
+  // TODO: instead of hardcoding the url and port we should run it and find the url in the output
   const baseUrl = 'http://localhost:29348';
 
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
     ['--urls', baseUrl, '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:CorsAllowAny=true'],
+    // eslint-disable-next-line no-null/no-null
     { stdio: [null, 'pipe', 'pipe'] },
   );
   fwLiteProcess.once('exit', (code, signal) => {
