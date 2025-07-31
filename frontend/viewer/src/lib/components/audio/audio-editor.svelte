@@ -41,11 +41,18 @@
     return await ffmpegApi.convertToFlac(file, signal);
   });
 
-  watch(() => [flacFile.current], async ([file]) => {
+  let readFile = resource(() => [flacFile.current], async ([file], _, {signal}) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
-    finalAudio = undefined;
-    finalAudio = await ffmpegApi.readFile(file, abortController.signal);
+    return await ffmpegApi.readFile(file, signal);
+  });
+
+  watch(() => [readFile.current, readFile.loading] as const, ([file, loading]) => {
+    if (loading || !file) {
+      finalAudio = undefined;
+    } else {
+      finalAudio = file;
+    }
   });
 
   const loading = $derived(ffmpegFile.loading || flacFile.loading);

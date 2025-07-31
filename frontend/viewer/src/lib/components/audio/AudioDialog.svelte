@@ -145,7 +145,7 @@
     {#if !selectedFile}
       <AudioProvider {onFileSelected} {onRecordingComplete}/>
     {:else}
-      <AudioEditor audio={selectedFile} bind:finalAudio name={selectedFile.name} onDiscard={onDiscard}/>
+      <AudioEditor audio={selectedFile} bind:finalAudio onDiscard={onDiscard}/>
       {#if tooBig}
         <p class="text-destructive text-lg text-end">{$t`File too big`}</p>
       {/if}
