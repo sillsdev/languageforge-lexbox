@@ -58,8 +58,17 @@ public static class ProjectRoutes
             ) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                await combinedProjectsService.DownloadProjectByCode(code, server, role);
-                return TypedResults.Ok();
+                var result = await combinedProjectsService.DownloadProjectByCode(code, server, role);
+                return result switch
+                {
+                    DownloadProjectByCodeResult.Success => Results.Ok(),
+                    DownloadProjectByCodeResult.Forbidden => Results.Forbid(),
+                    DownloadProjectByCodeResult.NotCrdtProject => Results.InternalServerError("Not a CRDT project"),
+                    DownloadProjectByCodeResult.ProjectNotFound => Results.NotFound("Project not found"),
+                    DownloadProjectByCodeResult.ProjectAlreadyDownloaded => Results.NoContent(),
+                    // If we reach this point then we updated DownloadProjectByCodeResult and forgot to update this switch
+                    _ => Results.InternalServerError("DownloadProjectByCodeResult enum value not handled, please inform FW Lite devs")
+                };
             });
         return group;
     }
