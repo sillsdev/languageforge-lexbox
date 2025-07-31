@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 /* eslint-disable react-hooks/rules-of-hooks */
 
 globalThis.webViewComponent = function fwLiteMainWindow({ url }: BrowseWebViewOptions) {
+  // TODO: Use of baseUrl for development; remove before publishing.
   const [baseUrl, setBaseUrl] = useState('');
   const [src, setSrc] = useState('');
 

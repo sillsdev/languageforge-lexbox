@@ -25,7 +25,8 @@ export class ProjectManagers {
   }
 
   async getProjectManagerFromWebViewId(webViewId: string): Promise<ProjectManager | undefined> {
-    const projectId = (await ProjectManagers.getProjectIdFromWebViewId(webViewId)) ?? '';
+    const projectId = await ProjectManagers.getProjectIdFromWebViewId(webViewId);
+    if (!projectId) return;
     return this.getProjectManagerFromProjectId(projectId);
   }
 }

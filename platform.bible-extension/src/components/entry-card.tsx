@@ -34,9 +34,11 @@ export default function EntryCard({ entry, onClickSemanticDomain }: EntryCardPro
               Semantic Domains:
               {sense.semanticDomains.map((dom) =>
                 onClickSemanticDomain ? (
-                  <Button onClick={() => onClickSemanticDomain(dom)}>{domainText(dom)}</Button>
+                  <Button key={dom.code} onClick={() => onClickSemanticDomain(dom)}>
+                    {domainText(dom)}
+                  </Button>
                 ) : (
-                  ` ${domainText(dom)}`
+                  <span key={dom.code}>` ${domainText(dom)}`</span>
                 ),
               )}
             </p>

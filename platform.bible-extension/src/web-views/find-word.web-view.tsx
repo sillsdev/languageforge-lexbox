@@ -1,6 +1,6 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
-import type { IEntry, IEntryService, IMultiString, WordWebViewOptions } from 'fw-lite-extension';
+import type { IEntry, IEntryService, PartialEntry, WordWebViewOptions } from 'fw-lite-extension';
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -62,7 +62,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
   );
 
   const addEntry = useCallback(
-    async (entry: Partial<IEntry>) => {
+    async (entry: PartialEntry) => {
       if (!projectId || !fwLiteNetworkObject) {
         if (!projectId) logger.warn('Missing required parameter: projectId');
         if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
@@ -72,8 +72,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
       if (addedEntry) {
-        // eslint-disable-next-line no-type-assertion/no-type-assertion
-        onSearch(Object.values(addedEntry.lexemeForm as IMultiString).pop() ?? '');
+        onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
         await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
       } else {
         logger.error('Failed to add entry!');
@@ -89,7 +88,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
       {isFetching && <p>Loading...</p>}
       {!matchingEntries?.length && !isFetching && <p>No matching entries</p>}
       {matchingEntries?.map((entry) => (
-        <EntryCard entry={entry} />
+        <EntryCard entry={entry} key={entry.id} />
       ))}
 
       <AddNewEntry

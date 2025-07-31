@@ -13,7 +13,7 @@ Looking for [FieldWorks Lite](backend/FwLite/README.md)?
 * [frontend](frontend/README.md) - SvelteKit app
 * hgweb - hgweb Dockerfile and config
 * otel - Open Telemetry collector config
-* [platform.bible-extension]([platform.bible-extension/README.md) - Platform.Bible extension
+* [platform.bible-extension](platform.bible-extension/README.md) - Platform.Bible extension
 
 files related to a specific service should be in a folder named after the service.
 There are some exceptions:
@@ -149,7 +149,7 @@ More info on the following subfolders can be found in their respective READMEs:
 * [deployment/restore-scripts](deployment/restore-scripts/README.md)
 * [frontend](frontend/README.md)
 * [frontend/viewer](frontend/viewer/README.md)
-* [platform.bible-extension]([platform.bible-extension/README.md)
+* [platform.bible-extension](platform.bible-extension/README.md)
 
 ## Operational environment
 

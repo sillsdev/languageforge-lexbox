@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "paths": { "@dotnet-types": ["../frontend/viewer/src/lib/dotnet-types"] },
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],

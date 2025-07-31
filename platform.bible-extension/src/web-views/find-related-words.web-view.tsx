@@ -3,8 +3,8 @@ import papi, { logger } from '@papi/frontend';
 import type {
   IEntry,
   IEntryService,
-  IMultiString,
   ISemanticDomain,
+  PartialEntry,
   WordWebViewOptions,
 } from 'fw-lite-extension';
 import { Card, SearchBar } from 'platform-bible-react';
@@ -105,7 +105,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
   );
 
   const addEntryInDomain = useCallback(
-    async (entry: Partial<IEntry>) => {
+    async (entry: PartialEntry) => {
       if (!fwLiteNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
         if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');
         if (!projectId) logger.warn('Missing required parameter: projectId');
@@ -119,8 +119,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       const addedEntry = await fwLiteNetworkObject.addEntry(projectId, entry);
       if (addedEntry) {
-        // eslint-disable-next-line no-type-assertion/no-type-assertion
-        onSearch(Object.values(addedEntry.lexemeForm as IMultiString).pop() ?? '');
+        onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
         await papi.commands.sendCommand('fwLiteExtension.displayEntry', projectId, addedEntry.id);
       } else {
         logger.error('Failed to add entry!');
@@ -146,7 +145,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
         <>
           <p>Select a semantic domain for related words in that domain</p>
           {matchingEntries.map((e) => (
-            <EntryCard entry={e} onClickSemanticDomain={setSelectedDomain} />
+            <EntryCard entry={e} key={e.id} onClickSemanticDomain={setSelectedDomain} />
           ))}
         </>
       )}
@@ -180,7 +179,7 @@ function EntriesInSemanticDomain({
     <>
       <Card>{`${semanticDomain.code}: ${JSON.stringify(semanticDomain.name)}`}</Card>
       {entries.length ? (
-        entries.map((entry) => <EntryCard entry={entry} />)
+        entries.map((entry) => <EntryCard entry={entry} key={entry.id} />)
       ) : (
         <p>No entries in this semantic domain.</p>
       )}

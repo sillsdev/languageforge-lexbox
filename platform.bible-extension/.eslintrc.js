@@ -110,6 +110,11 @@ module.exports = {
     // #region Overrides to rules from paranext-core
 
     'import/no-unresolved': ['error', { ignore: ['@papi'] }],
+
+    // #endregion
+
+    // #region Non-template override
+
     'no-return-await': 'off',
 
     // #endregion

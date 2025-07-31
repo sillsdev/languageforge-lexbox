@@ -1,10 +1,17 @@
 import papi, { logger } from '@papi/backend';
-import type { DictionaryRef, IEntry, IProjectModel, IWritingSystems } from 'fw-lite-extension';
+import type {
+  DictionaryRef,
+  IEntry,
+  IProjectModel,
+  IWritingSystems,
+  PartialEntry,
+} from 'fw-lite-extension';
 import { GridifyConditionalOperator } from '../types/enums';
 
 /** Throws if urlComponent is empty or has any special URL characters it; otherwise, returns it. */
 function validateUrlComponent(urlComponent?: string): string {
   if (!urlComponent || urlComponent !== encodeURIComponent(urlComponent))
+    // TODO: Sanitize error to avoid "log injection attacks or unintended information disclosure".
     throw new Error(`Invalid URL component: '${urlComponent}'`);
   return urlComponent;
 }
@@ -93,7 +100,7 @@ export class FwLiteApi {
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
-  async postNewEntry(entry: Partial<IEntry>, dictionaryCode?: string): Promise<IEntry> {
+  async postNewEntry(entry: PartialEntry, dictionaryCode?: string): Promise<IEntry> {
     const { code, type } = this.checkDictionaryCode(dictionaryCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
