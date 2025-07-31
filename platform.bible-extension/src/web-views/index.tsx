@@ -1,0 +1,114 @@
+import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
+import type {
+  BrowseWebViewOptions,
+  OpenWebViewOptionsWithProjectId,
+  WordWebViewOptions,
+} from 'fw-lite-extension';
+import mainStyles from '../styles.css?inline';
+import { WebViewType } from '../types/enums';
+import fwAddWordWindow from './add-word.web-view?inline';
+import fwDictionarySelectWindow from './dictionary-select.web-view?inline';
+import fwFindRelatedWordsWindow from './find-related-words.web-view?inline';
+import fwFindWordWindow from './find-word.web-view?inline';
+import fwMainWindow from './main.web-view?inline';
+
+const iconUrl = 'papi-extension://fw-lite-extension/assets/logo-dark.png';
+
+/* eslint-disable @typescript-eslint/require-await */
+
+export const mainWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: BrowseWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== String(WebViewType.Main))
+      throw new Error(
+        `${WebViewType.Main} provider received request to provide a ${savedWebView.webViewType} WebView`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      allowedFrameSources: ['http://localhost:*'],
+      content: fwMainWindow,
+      iconUrl,
+      styles: mainStyles,
+      title: '%fwLiteExtension_browseDictionary_title%',
+    };
+  },
+};
+
+export const addWordWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: WordWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== String(WebViewType.AddWord))
+      throw new Error(
+        `${WebViewType.AddWord} provider received request to provide a ${savedWebView.webViewType} WebView`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwAddWordWindow,
+      iconUrl,
+      title: '%fwLiteExtension_addWord_title%',
+    };
+  },
+};
+
+export const dictionarySelectWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: OpenWebViewOptionsWithProjectId,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== String(WebViewType.DictionarySelect))
+      throw new Error(
+        `${WebViewType.DictionarySelect} provider received request to provide a ${savedWebView.webViewType} WebView`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwDictionarySelectWindow,
+      iconUrl,
+      title: '%fwLiteExtension_selectDictionary_title%',
+    };
+  },
+};
+
+export const findWordWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: WordWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== String(WebViewType.FindWord))
+      throw new Error(
+        `${WebViewType.FindWord} provider received request to provide a ${savedWebView.webViewType} WebView`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwFindWordWindow,
+      iconUrl,
+      title: '%fwLiteExtension_findWord_title%',
+    };
+  },
+};
+
+export const findRelatedWordsWebViewProvider: IWebViewProvider = {
+  async getWebView(
+    savedWebView: SavedWebViewDefinition,
+    options: WordWebViewOptions,
+  ): Promise<WebViewDefinition | undefined> {
+    if (savedWebView.webViewType !== String(WebViewType.FindRelatedWords))
+      throw new Error(
+        `${WebViewType.FindRelatedWords} provider received request to provide a ${savedWebView.webViewType} WebView`,
+      );
+    return {
+      ...savedWebView,
+      ...options,
+      content: fwFindRelatedWordsWindow,
+      iconUrl,
+      title: '%fwLiteExtension_findRelatedWords_title%',
+    };
+  },
+};
