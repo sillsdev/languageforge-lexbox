@@ -42,10 +42,10 @@ tasks:
   test-unit:
     cmd: pnpm test --project unit
 
-  playwright-test:
+  test:snapshot:
     desc: 'runs playwright tests against already running server'
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
-  playwright-test-standalone:
+  test:snapshot-standalone:
     desc: 'runs playwright tests and runs dev automatically, run ui mode by calling with -- --ui or use --update-snapshots'
     env:
       AUTO_START_SERVER: true
@@ -56,13 +56,13 @@ tasks:
       AUTO_START_SERVER: true
       MARKETING_SCREENSHOTS: true
     cmd: pnpm run test:playwright {{.CLI_ARGS}}
-  playwright-test-report:
-    cmd: pnpm run test:playwright-report
 
-  setup-e2e-test:
-    deps: [build-app]
+  test:e2e-setup:
+    deps: [build]
     cmds:
       - dotnet publish ../../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --self-contained --output ./dist/fw-lite-server
+  test:e2e:
+    cmd: pnpm run test:e2e {{.CLI_ARGS}}
   e2e-test-helper-unit-tests:
     desc: 'tests the fw lite launcher, run `setup-e2e-test` first'
     cmd: pnpm test:unit --run fw-lite-launcher
