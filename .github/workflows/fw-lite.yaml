@@ -85,17 +85,17 @@ jobs:
         working-directory: frontend
         run: |
           pnpm install
+      - name: Ensure all i18n strings have been extracted
+        working-directory: frontend/viewer
+        run: pnpm i18n:extract
+        # The i18n:extract step will fail with exit code 1 if any unextracted strings found, which is what we want
+
       - name: Set up Playwright dependencies
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
       - name: Run snapshot tests
         working-directory: frontend/viewer
         run: task playwright-test-standalone
-      - name: Ensure all i18n strings have been extracted
-        working-directory: frontend/viewer
-        run: pnpm i18n:extract
-        # Will fail with exit code 1 if any unextracted strings found, which is what we want
-
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build
