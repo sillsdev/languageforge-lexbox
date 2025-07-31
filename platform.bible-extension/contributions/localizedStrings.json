@@ -1,6 +1,37 @@
 {
   "metadata": {},
   "localizedStrings": {
-    "en": {}
+    "en": {
+      "%dictionary_project_settings_label%": "FieldWorks Lite Settings",
+      "%fieldworks_project_settings_label%": "FieldWorks Project",
+      "%fieldworks_project_settings_label_description%": "The FieldWorks project to use with this project",
+      "%fwLiteExtension_addWord_title%": "Add to FieldWorks",
+      "%fwLiteExtension_browseDictionary_title%": "FieldWorks Lite",
+      "%fwLiteExtension_selectDictionary_title%": "Select FieldWorks dictionary",
+      "%fwLiteExtension_findRelatedWords_title%": "Find related words in FieldWorks",
+      "%fwLiteExtension_findWord_title%": "Search in FieldWorks",
+      "%fwLiteExtension_find_in_dictionary%": "Find in FieldWorks Lite",
+      "%fwLiteExtension_list_projects_label%": "List all local FieldWorks projects",
+      "%fwLiteExtension_menu_addEntry%": "Add to FieldWorks...",
+      "%fwLiteExtension_menu_browseDictionary%": "Browse FieldWorks dictionary",
+      "%fwLiteExtension_menu_findEntry%": "Search in FieldWorks...",
+      "%fwLiteExtension_menu_findRelatedEntries%": "Search for related words...",
+      "%fwLiteExtension_open_label%": "Open FieldWorks Lite",
+      "%fwlite_choose_new_entry_button%": "Choose New Entry",
+      "%fwlite_clear_entry_button%": "Clear Entry",
+      "%fwlite_clear_selection_button%": "Clear Selection",
+      "%fwlite_clear_word_selection_button%": "Clear Word Selection",
+      "%fwlite_definition_label%": "Definition: ",
+      "%fwlite_form_label%": "Form: ",
+      "%fwlite_lexical_entries_for_word%": "Lexical Entries for ",
+      "%fwlite_lexical_information_header%": "Lexical Information for ",
+      "%fwlite_loading%": "Loading...",
+      "%fwlite_more_details_placeholder%": "(More details about this lexical entry would go here.)",
+      "%fwlite_no_entries_found_header%": "No Lexical Entries Found for ",
+      "%fwlite_no_entries_found_prompt%": "Consider manually adding a link or searching for synonyms.",
+      "%fwlite_select_entry_button%": "Select Entry",
+      "%fwlite_select_word_prompt%": "Select a word from the left to view its lexical information or search for entries.",
+      "%fwlite_words_in_verse_header%": "Words in "
+    }
   }
 }

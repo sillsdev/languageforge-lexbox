@@ -13,5 +13,49 @@
     "groups": {},
     "items": []
   },
-  "webViewMenus": {}
+  "webViewMenus": {
+    "platformScriptureEditor.react": {
+      "topMenu": {
+        "columns": {},
+        "groups": {
+          "fw-lite-extension.editor": {
+            "column": "platformScriptureEditor.edit",
+            "order": 11
+          }
+        },
+        "items": [
+          {
+            "label": "%fwLiteExtension_menu_browseDictionary%",
+            "group": "fw-lite-extension.editor",
+            "order": 1,
+            "command": "fwLiteExtension.browseDictionary"
+          },
+          {
+            "label": "%fwLiteExtension_menu_addEntry%",
+            "group": "fw-lite-extension.editor",
+            "order": 2,
+            "command": "fwLiteExtension.addEntry"
+          },
+          {
+            "label": "%fwLiteExtension_menu_findEntry%",
+            "group": "fw-lite-extension.editor",
+            "order": 3,
+            "command": "fwLiteExtension.findEntry"
+          },
+          {
+            "label": "%fwLiteExtension_menu_findRelatedEntries%",
+            "group": "fw-lite-extension.editor",
+            "order": 4,
+            "command": "fwLiteExtension.findRelatedEntries"
+          },
+          {
+            "label": "%fwLiteExtension_open_label%",
+            "group": "fw-lite-extension.editor",
+            "order": 1007,
+            "command": "fwLiteExtension.openFWLite"
+          }
+        ]
+      }
+    }
+  }
 }

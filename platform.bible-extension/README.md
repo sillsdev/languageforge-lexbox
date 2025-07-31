@@ -1,8 +1,8 @@
-# paranext-extension-template
+# fw-lite-extension
 
-Basic extension template for Platform.Bible
+FieldWorks Lite packaged as an extension for Platform.Bible.
 
-<!-- <!-- Opening comment tag for Template Info Section. Ignore this for now. More info in [Hide Template Info](#hide-template-info). -->
+<!--
 
 ## Template Info
 
@@ -92,7 +92,7 @@ The general file structure is as follows:
 - `manifest.json` is the manifest file that defines the extension and important properties for Platform.Bible. It is copied into the build folder
 - `src/` contains the source code for the extension
   - `src/main.ts` is the main entry file for the extension
-  - `src/types/paranext-extension-template.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
+  - `src/types/fw-lite-extension.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
   - `*.web-view.tsx` files will be treated as React WebViews
   - `*.web-view.html` files are a conventional way to provide HTML WebViews (no special functionality)
 - `assets/` contains asset files the extension and its WebViews can retrieve using the `papi-extension:` protocol, as well as textual descriptions in various languages. It is copied into the build folder
@@ -109,18 +109,28 @@ The general file structure is as follows:
 
 ## To install
 
-### Install dependencies:
-
-1. Follow the instructions to install [`paranext-core`](https://github.com/paranext/paranext-core#developer-install). We recommend you clone `paranext-core` in the same parent directory in which you cloned this repository so you do not have to [reconfigure paths](#configure-paths-to-paranext-core-repo) to `paranext-core`.
-2. In this repo, run `npm install` to install local and published dependencies
-
 ### Configure paths to `paranext-core` repo
 
-If you cloned `paranext-core` anywhere other than in the same parent directory in which you cloned this repository, update the paths to `paranext-core` in this repository's `package.json` to point to the correct `paranext-core` directory.
+In order to interact with `paranext-core`, you must clone `paranext-core` in the same parent directory in which you cloned this repository so you do not have to reconfigure paths to `paranext-core`. For example, if you cloned this repository in `C:\dev\LexBox\`, you would clone `paranext-core` in `C:\dev\paranext-core\`.
+
+### Install dependencies:
+
+1. In the `paranext-core` repository, run `npm install`
+2. In this folder, run `npm install` to install local and published dependencies
 
 ## To run
 
+First, you must build FieldWorks Lite using the task defined in this folder:
+
+```bash
+task build-fw-lite-web
+```
+
+This is a normal production build, so changes to FwLite files will not be rebuilt automatically. If you want to do FwLite development, look at [README.md](../backend/FwLite/README.md)
+
 ### Running Platform.Bible with this extension
+
+#### Warning: you must not use `pnpm`, only `npm`.
 
 To run Platform.Bible with this extension:
 
@@ -158,7 +168,6 @@ These steps will walk you through releasing a version on GitHub and bumping the 
    Then create a PR and merge the `bump-versions-0.2.0` branch into `my-branch`. `my-branch` is now ready for release.
 
 2. Manually dispatch the Publish workflow in GitHub Actions targeting the branch you want to release from (in the previous example, this would be `my-branch`). This workflow creates a new pre-release for the version you intend to release and creates a new `bump-versions-<next_version>` branch to bump the version after the release so future changes apply to a new in-progress version instead of to the already released version. This workflow has the following inputs:
-
    - `version`: enter the version you intend to publish (e.g. 0.2.0). This is simply for verification to make sure you release the code that you intend to release. It is compared to the version in the code, and the workflow will fail if they do not match.
    - `newVersionAfterPublishing`: enter the version you want to bump to after releasing (e.g. 0.3.0-alpha.0). Future changes will apply to this new version instead of to the version that was already released. Leave blank if you don't want to bump
    - `bumpRef`: enter the Git ref you want to create the bump versions branch from, e.g. `main`. Leave blank if you want to use the branch selected for the workflow run. For example, if you release from a stable branch named `release-prep`, you may want to bump the version on `main` so future development work happens on the new version, then you can rebase `release-prep` onto `main` when you are ready to start preparing the next stable release.
