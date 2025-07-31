@@ -32,19 +32,19 @@
 
   let ffmpegFile = resource(() => audio, async (audio, _, {signal}) => {
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.toFFmpegFile(audio, signal);
+    return await ffmpegApi.toFFmpegFile(audio, AbortSignal.any([signal, abortController.signal]));
   });
 
   let flacFile = resource(() => [ffmpegFile.current], async ([file], _, {signal}) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.convertToFlac(file, signal);
+    return await ffmpegApi.convertToFlac(file, AbortSignal.any([signal, abortController.signal]));
   });
 
   let readFile = resource(() => [flacFile.current], async ([file], _, {signal}) => {
     if (!file) return;
     ffmpegApi ??= await FFmpegApi.create();
-    return await ffmpegApi.readFile(file, signal);
+    return await ffmpegApi.readFile(file, AbortSignal.any([signal, abortController.signal]));
   });
 
   watch(() => [readFile.current, readFile.loading] as const, ([file, loading]) => {
