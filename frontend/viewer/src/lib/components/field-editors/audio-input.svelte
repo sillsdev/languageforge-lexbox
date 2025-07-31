@@ -51,7 +51,6 @@
   import {t} from 'svelte-i18n-lingui';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {isDev} from '$lib/layout/DevContent.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
   const handled = Symbol();
