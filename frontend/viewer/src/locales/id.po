@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-29 08:39\n"
+"PO-Revision-Date: 2025-07-31 09:25\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
-#: src/lib/activity/ActivityView.svelte:99
+#: src/lib/activity/ActivityView.svelte:104
 msgid "– ({0} changes)"
 msgstr "- ({0} perubahan)"
 
@@ -48,7 +48,7 @@ msgstr "{0} (Pekerjaan Lapangan)"
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:62
+#: src/home/Server.svelte:71
 msgid "{0} Server"
 msgstr "{0} Server"
 
@@ -81,8 +81,8 @@ msgstr "Akun"
 msgid "Activity"
 msgstr "Aktivitas"
 
-#: src/lib/components/field-editors/audio-input.svelte:206
-#: src/lib/components/audio/AudioDialog.svelte:106
+#: src/lib/components/field-editors/audio-input.svelte:213
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Add audio"
 msgstr "Menambahkan audio"
 
@@ -109,9 +109,9 @@ msgstr "Tambahkan bagian dari"
 msgid "Add Sense"
 msgstr "Tambahkan Sense"
 
-#: src/lib/history/HistoryView.svelte:83
-#: src/lib/activity/ActivityView.svelte:78
-#: src/lib/activity/ActivityView.svelte:105
+#: src/lib/history/HistoryView.svelte:92
+#: src/lib/activity/ActivityView.svelte:82
+#: src/lib/activity/ActivityView.svelte:110
 msgid "ago"
 msgstr "yang lalu"
 
@@ -131,16 +131,24 @@ msgstr "Versi aplikasi"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:222
 msgid "Audio file not included in Send & Receive"
 msgstr "File audio tidak disertakan dalam Kirim & Terima"
 
-#: src/lib/history/HistoryView.svelte:95
-#: src/lib/activity/ActivityView.svelte:91
+#: src/lib/components/audio/AudioDialog.svelte:82
+msgid "Audio saved and uploaded to Lexbox"
+msgstr "Audio disimpan dan diunggah ke Lexbox"
+
+#: src/lib/components/audio/AudioDialog.svelte:79
+msgid "Audio saved locally"
+msgstr "Audio disimpan secara lokal"
+
+#: src/lib/history/HistoryView.svelte:104
+#: src/lib/activity/ActivityView.svelte:96
 msgid "Author:"
 msgstr "Penulis:"
 
-#: src/project/browse/SortMenu.svelte:73
+#: src/project/browse/SortMenu.svelte:76
 msgid "Auto"
 msgstr "Otomatis"
 
@@ -148,8 +156,8 @@ msgstr "Otomatis"
 msgid "Auto synchronizing"
 msgstr "Sinkronisasi otomatis"
 
-#: src/lib/history/HistoryView.svelte:80
-#: src/lib/activity/ActivityView.svelte:75
+#: src/lib/history/HistoryView.svelte:86
+#: src/lib/activity/ActivityView.svelte:77
 msgid "before"
 msgstr "sebelum"
 
@@ -165,7 +173,7 @@ msgstr "Jelajahi"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:118
+#: src/lib/components/audio/AudioDialog.svelte:167
 msgid "Cancel"
 msgstr "Batal"
 
@@ -177,7 +185,7 @@ msgstr "Formulir kutipan"
 msgid "Citation Form"
 msgstr "Formulir Kutipan"
 
-#: src/home/HomeView.svelte:225
+#: src/home/HomeView.svelte:226
 msgid "Classic FieldWorks Projects"
 msgstr "Proyek Pekerjaan Lapangan Klasik"
 
@@ -196,7 +204,7 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
-#: src/lib/ThemePicker.svelte:32
+#: src/lib/ThemePicker.svelte:38
 msgid "Color"
 msgstr "Warna"
 
@@ -237,7 +245,7 @@ msgstr "Buat {0}"
 msgid "Create entry"
 msgstr "Buat entri"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:204
 msgid "Create Example Project"
 msgstr "Buat Proyek Contoh"
 
@@ -267,7 +275,7 @@ msgstr "Direktori Data"
 msgid "Definition"
 msgstr "Definisi"
 
-#: src/home/HomeView.svelte:177
+#: src/home/HomeView.svelte:178
 msgid "Delete"
 msgstr "Menghapus"
 
@@ -284,8 +292,8 @@ msgstr "Hapus Entri"
 msgid "Delete Word"
 msgstr "Menghapus kata"
 
+#: src/home/HomeView.svelte:103
 #: src/home/HomeView.svelte:107
-#: src/home/HomeView.svelte:110
 msgid "Dictionaries"
 msgstr "Kamus"
 
@@ -311,15 +319,15 @@ msgid "Don't delete"
 msgstr "Jangan hapus"
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
-#: src/home/Server.svelte:127
+#: src/home/Server.svelte:128
 msgid "Download"
 msgstr "Unduh"
 
-#: src/home/Server.svelte:38
+#: src/home/Server.svelte:45
 msgid "Downloaded {0}"
 msgstr "Diunduh {0}"
 
-#: src/home/Server.svelte:37
+#: src/home/Server.svelte:44
 msgid "Downloading {0}..."
 msgstr "Mengunduh {0}..."
 
@@ -365,7 +373,7 @@ msgstr "Contoh"
 msgid "Example sentence"
 msgstr "Contoh kalimat"
 
-#: src/home/Server.svelte:39
+#: src/home/Server.svelte:46
 msgid "Failed to download {0}"
 msgstr "Gagal mengunduh {0}"
 
@@ -400,17 +408,30 @@ msgstr "Label Bidang"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:231
+#: src/home/HomeView.svelte:232
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
+
+#: src/lib/components/audio/AudioDialog.svelte:89
+msgid "File already exists"
+msgstr "File sudah ada"
 
 #: src/lib/components/audio/audio-editor.svelte:32
 msgid "File name:"
 msgstr "Nama file:"
 
-#: src/lib/components/field-editors/audio-input.svelte:74
+#: src/lib/components/field-editors/audio-input.svelte:79
 msgid "File not found"
 msgstr "File tidak ditemukan"
+
+#: src/lib/components/audio/AudioDialog.svelte:87
+msgid "File saving not supported"
+msgstr "Penyimpanan file tidak didukung"
+
+#: src/lib/components/audio/AudioDialog.svelte:164
+#: src/lib/components/audio/AudioDialog.svelte:85
+msgid "File too big"
+msgstr "File terlalu besar"
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -467,7 +488,7 @@ msgid "Hide"
 msgstr "Sembunyikan"
 
 #: src/project/browse/EntryMenu.svelte:60
-#: src/lib/history/HistoryView.svelte:59
+#: src/lib/history/HistoryView.svelte:61
 msgid "History"
 msgstr "Sejarah"
 
@@ -475,11 +496,11 @@ msgstr "Sejarah"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "Tahan untuk merekam atau\\ntekan dan lepaskan untuk mulai merekam."
 
-#: src/home/Server.svelte:137
+#: src/home/Server.svelte:139
 msgid "I don't see my project"
 msgstr "Saya tidak melihat proyek saya"
 
-#: src/home/HomeView.svelte:237
+#: src/home/HomeView.svelte:240
 msgid "Import"
 msgstr "Impor"
 
@@ -492,7 +513,7 @@ msgstr "Perubahan terakhir: {0}"
 msgid "Length:"
 msgstr "Panjang:"
 
-#: src/home/HomeView.svelte:109
+#: src/home/HomeView.svelte:106
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
 
@@ -516,15 +537,15 @@ msgstr "Arti harfiah"
 msgid "Loading Dictionaries..."
 msgstr "Memuat Kamus..."
 
-#: src/home/HomeView.svelte:146
+#: src/home/HomeView.svelte:147
 msgid "loading..."
 msgstr "Loading..."
 
-#: src/home/HomeView.svelte:151
+#: src/home/HomeView.svelte:152
 msgid "Local"
 msgstr "Lokal"
 
-#: src/home/HomeView.svelte:168
+#: src/home/HomeView.svelte:170
 msgid "Local only"
 msgstr "Hanya lokal"
 
@@ -532,12 +553,12 @@ msgstr "Hanya lokal"
 msgid "Login"
 msgstr "Masuk"
 
-#: src/lib/auth/LoginButton.svelte:71
-#: src/lib/auth/LoginButton.svelte:79
+#: src/lib/auth/LoginButton.svelte:82
+#: src/lib/auth/LoginButton.svelte:90
 msgid "Login to see projects"
 msgstr "Login untuk melihat proyek"
 
-#: src/lib/auth/LoginButton.svelte:61
+#: src/lib/auth/LoginButton.svelte:72
 msgid "Logout"
 msgstr "Keluar"
 
@@ -568,7 +589,7 @@ msgstr "Domain Semantik yang Hilang"
 msgid "Missing Senses"
 msgstr "Indera yang hilang"
 
-#: src/lib/entry-editor/ItemListItem.svelte:61
+#: src/lib/entry-editor/ItemListItem.svelte:67
 msgid "Move"
 msgstr "Pindah"
 
@@ -588,15 +609,15 @@ msgstr "Baru {0}"
 msgid "New Entry"
 msgstr "Entri Baru"
 
-#: src/lib/activity/ActivityView.svelte:61
+#: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
 msgstr "Tidak ada aktivitas yang ditemukan"
 
-#: src/lib/components/field-editors/audio-input.svelte:210
+#: src/lib/components/field-editors/audio-input.svelte:217
 msgid "No audio"
 msgstr "Tidak ada audio"
 
-#: src/lib/history/HistoryView.svelte:71
+#: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "Tidak ada perubahan nama"
 
@@ -609,7 +630,11 @@ msgstr "Tidak ditemukan Kamus"
 msgid "No entries found"
 msgstr "Tidak ada entri yang ditemukan"
 
-#: src/lib/history/HistoryView.svelte:66
+#: src/lib/components/audio/AudioDialog.svelte:75
+msgid "No file selected"
+msgstr "Tidak ada file yang dipilih"
+
+#: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
 msgstr "Tidak ditemukan riwayat"
 
@@ -650,7 +675,7 @@ msgstr "Catatan"
 msgid "Offline"
 msgstr "Offline"
 
-#: src/lib/components/field-editors/audio-input.svelte:77
+#: src/lib/components/field-editors/audio-input.svelte:82
 msgid "Offline, unable to download"
 msgstr "Offline, tidak dapat mengunduh"
 
@@ -695,7 +720,7 @@ msgstr "Disematkan"
 msgid "Preview"
 msgstr "Pratinjau"
 
-#: src/home/HomeView.svelte:211
+#: src/home/HomeView.svelte:210
 msgid "Project name..."
 msgstr "Nama proyek..."
 
@@ -708,16 +733,16 @@ msgstr "Referensi"
 msgid "Refine your filter to see more..."
 msgstr "Sempurnakan filter Anda untuk melihat lebih banyak..."
 
-#: src/home/Server.svelte:70
-#: src/home/HomeView.svelte:155
+#: src/home/Server.svelte:79
+#: src/home/HomeView.svelte:156
 msgid "Refresh Projects"
 msgstr "Menyegarkan Proyek"
 
-#: src/lib/entry-editor/ItemListItem.svelte:73
+#: src/lib/entry-editor/ItemListItem.svelte:79
 msgid "Remove"
 msgstr "Menghapus"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:268
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
@@ -725,11 +750,11 @@ msgstr "Menghapus audio"
 msgid "Reopen"
 msgstr "Buka kembali"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:265
 msgid "Replace audio"
 msgstr "Mengganti audio"
 
-#: src/lib/components/audio/AudioDialog.svelte:120
+#: src/lib/components/audio/AudioDialog.svelte:169
 msgid "Save audio"
 msgstr "Menyimpan audio"
 
@@ -808,12 +833,12 @@ msgid "Submit"
 msgstr "Kirim"
 
 #: src/project/ProjectSidebar.svelte:117
-#: src/lib/activity/ActivityView.svelte:103
-#: src/home/Server.svelte:113
+#: src/lib/activity/ActivityView.svelte:108
+#: src/home/Server.svelte:115
 msgid "Synced"
 msgstr "Disinkronkan"
 
-#: src/home/HomeView.svelte:168
+#: src/home/HomeView.svelte:170
 msgid "Synced with {0}"
 msgstr "Disinkronkan dengan {0}"
 
@@ -836,10 +861,6 @@ msgstr "Menyinkronkan..."
 msgid "Tasks"
 msgstr "Tugas"
 
-#: src/home/HomeView.svelte:192
-msgid "Test Project"
-msgstr "Proyek Uji Coba"
-
 #: src/stories/i18n/i18n.stories.svelte:
 msgid "This date # and this emoji # are snippets"
 msgstr "Tanggal ini # dan emoji ini # adalah cuplikan"
@@ -852,7 +873,11 @@ msgstr "Proyek ini sekarang terbuka di FieldWorks. Untuk melanjutkan bekerja di 
 msgid "Toggle filters"
 msgstr "Beralih filter"
 
-#: src/lib/ThemePicker.svelte:24
+#: src/project/browse/EntryView.svelte:71
+msgid "Toggle pinned"
+msgstr ""
+
+#: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
 msgstr "Beralih tema"
 
@@ -876,16 +901,17 @@ msgstr "Tidak dapat dibuka di FieldWorks"
 
 #: src/project/SyncDialog.svelte:253
 #: src/project/SyncDialog.svelte:260
-#: src/lib/history/HistoryView.svelte:99
-#: src/lib/activity/ActivityView.svelte:95
+#: src/lib/history/HistoryView.svelte:108
+#: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
 msgstr "Tidak diketahui"
 
 #: src/project/ProjectSidebar.svelte:115
+#: src/lib/components/audio/AudioDialog.svelte:91
 msgid "Unknown error"
 msgstr "Kesalahan yang tidak diketahui"
 
-#: src/lib/components/field-editors/audio-input.svelte:80
+#: src/lib/components/field-editors/audio-input.svelte:85
 msgid "Unknown error {0}"
 msgstr "Kesalahan tidak dikenal {0}"
 
@@ -911,7 +937,7 @@ msgstr "Versi {0}"
 msgid "View Configuration"
 msgstr "Lihat Konfigurasi"
 
-#: src/home/Server.svelte:94
+#: src/home/Server.svelte:98
 msgid "Where are my projects?"
 msgstr "Di mana proyek saya?"
 
