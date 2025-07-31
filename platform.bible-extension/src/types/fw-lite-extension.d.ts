@@ -1,24 +1,25 @@
 import type { OpenWebViewOptions } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'fw-lite-extension';
 
+// TODO: Sort out internal types and those that need to be exposed for other extensions.
+
 declare module 'fw-lite-extension' {
   /* eslint-disable @typescript-eslint/no-shadow */
 
-  export type IEntry = import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IEntry;
-  export type IMultiString =
-    import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IMultiString;
-  export type IPartOfSpeech =
-    import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IPartOfSpeech;
-  export type IProjectModel =
-    import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IProjectModel;
-  export type ISense = import('../../../frontend/viewer/src/lib/dotnet-types/index.js').ISense;
-  export type ISemanticDomain =
-    import('../../../frontend/viewer/src/lib/dotnet-types/index.js').ISemanticDomain;
-  export type IWritingSystems =
-    import('../../../frontend/viewer/src/lib/dotnet-types/index.js').IWritingSystems;
+  export type IEntry = import('@dotnet-types').IEntry;
+  export type IMultiString = import('@dotnet-types').IMultiString;
+  export type IPartOfSpeech = import('@dotnet-types').IPartOfSpeech;
+  export type IProjectModel = import('@dotnet-types').IProjectModel;
+  export type ISense = import('@dotnet-types').ISense;
+  export type ISemanticDomain = import('@dotnet-types').ISemanticDomain;
+  export type IWritingSystems = import('@dotnet-types').IWritingSystems;
 
   export type ProjectSettingKey = import('./enums.ts').ProjectSettingKey;
   export type WebViewType = import('./enums.ts').WebViewType;
+
+  type PartialEntry = Omit<Partial<IEntry>, 'senses'> & {
+    senses?: Partial<ISense>[];
+  };
 
   export interface DictionaryRef {
     code: string;
@@ -42,7 +43,7 @@ declare module 'fw-lite-extension' {
 
   export interface IEntryService {
     getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
-    addEntry(projectId: string, reference: Partial<IEntry>): Promise<IEntry | undefined>;
+    addEntry(projectId: string, reference: PartialEntry): Promise<IEntry | undefined>;
     updateEntry(projectId: string, reference: IEntry): Promise<void>;
     deleteEntry(projectId: string, id: string): Promise<void>;
   }
@@ -72,7 +73,7 @@ declare module 'papi-shared-types' {
       dictionaryCode: string,
     ) => Promise<SuccessHolder>;
     'fwLiteExtension.fwDictionaries': (projectId?: string) => Promise<IProjectModel[] | undefined>;
-    'fwLiteExtension.openFWLite': () => Promise<SuccessHolder>; // Remove before publishing.
+    'fwLiteExtension.openFWLite': () => Promise<SuccessHolder>; // TODO: Remove before publishing.
     'fwLiteExtension.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'fwLiteExtension.findRelatedEntries': (
       webViewId: string,

@@ -147,7 +147,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
       const options: WordWebViewOptions = { word };
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
-      return { success: true };
+      return { success };
     },
   );
 
@@ -161,11 +161,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
       const options: WordWebViewOptions = { word };
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
-      return { success: true };
+      return { success };
     },
   );
 
-  // For development. Remove before publishing.
+  // TODO: For development; remove before publishing.
   const openFwLiteCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.openFWLite',
     async () => {
@@ -198,7 +198,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  // For development. Remove before publishing.
+  // TODO: For development; remove before publishing.
   papi.webViews.openWebView(WebViewType.Main, undefined, { existingId: '?' });
 
   /* Register awaited unsubscribers (do this last, to not hold up anything else) */
@@ -244,7 +244,7 @@ function launchFwLiteFwLiteWeb(context: ExecutionActivationContext) {
   if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
     throw new Error('FieldWorks Lite only supports launching on Windows for now');
   }
-  // TODO: instead of hardcoding the url and port we should run it and find the url in the output
+  // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
   const fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(

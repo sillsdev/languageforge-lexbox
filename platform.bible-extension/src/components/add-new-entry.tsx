@@ -1,9 +1,10 @@
-import type { IEntry, ISense } from 'fw-lite-extension';
+import { logger } from '@papi/frontend';
+import type { PartialEntry } from 'fw-lite-extension';
 import { Button, Card, CardContent, CardHeader, Input, Label } from 'platform-bible-react';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 
 interface AddNewEntryProps {
-  addEntry: (entry: Partial<IEntry>) => Promise<void>;
+  addEntry: (entry: PartialEntry) => Promise<void>;
   analysisLang: string;
   headword?: string;
   isAdding?: boolean;
@@ -46,8 +47,9 @@ export default function AddNewEntry({
       gloss.trim(),
       definition.trim(),
     );
-    await addEntry(entry);
-    clearEntry();
+    await addEntry(entry)
+      .then(() => clearEntry())
+      .catch((err) => logger.error(err));
   }
 
   return adding ? (
@@ -93,15 +95,14 @@ function createEntry(
   analysisLang: string,
   gloss?: string,
   definition?: string,
-): Partial<IEntry> {
+): PartialEntry {
   return {
     lexemeForm: { [vernacularLang]: headword },
     senses: [
-      // eslint-disable-next-line no-type-assertion/no-type-assertion
       {
         definition: definition ? { [analysisLang]: definition } : {},
         gloss: gloss ? { [analysisLang]: gloss } : {},
-      } as Partial<ISense> as ISense,
+      },
     ],
   };
 }

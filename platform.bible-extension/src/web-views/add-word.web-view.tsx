@@ -1,6 +1,6 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
-import type { IEntry, IEntryService, WordWebViewOptions } from 'fw-lite-extension';
+import type { IEntryService, PartialEntry, WordWebViewOptions } from 'fw-lite-extension';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
 
@@ -25,7 +25,7 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
   }, []);
 
   const addEntry = useCallback(
-    async (entry: Partial<IEntry>) => {
+    async (entry: PartialEntry) => {
       if (!projectId || !fwLiteNetworkObject) {
         if (!projectId) logger.warn('Missing required parameter: projectId');
         if (!fwLiteNetworkObject) logger.warn('Missing required parameter: fwLiteNetworkObject');

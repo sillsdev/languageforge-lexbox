@@ -1,5 +1,5 @@
 import { logger } from '@papi/backend';
-import type { IEntry, IEntryQuery, IEntryService } from 'fw-lite-extension';
+import type { IEntry, IEntryQuery, IEntryService, PartialEntry } from 'fw-lite-extension';
 import { FwLiteApi } from '../utils/fw-lite-api';
 import { ProjectManager } from '../utils/project-manager';
 
@@ -23,7 +23,7 @@ export class EntryService implements IEntryService {
     return this.fwLiteApi.getEntries(surfaceForm, semanticDomain, dictionaryCode);
   }
 
-  async addEntry(projectId: string, entry: Partial<IEntry>): Promise<IEntry | undefined> {
+  async addEntry(projectId: string, entry: PartialEntry): Promise<IEntry | undefined> {
     const dictionaryCode = await ProjectManager.getFwDictionaryCode(projectId);
     if (!dictionaryCode) return;
     return await this.fwLiteApi.postNewEntry(entry, dictionaryCode);
