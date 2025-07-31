@@ -105,7 +105,7 @@ jobs:
             echo
             diff -u src/locales/en.po{.old,} | grep '+msgid' | cut -c2-
             echo
-            echo Please run `pnpm i18n:extract` and commit the new src/locales/en.po file
+            echo Please run "'"pnpm i18n:extract"'" and commit the new src/locales/en.po file
             exit 1
           fi
 
