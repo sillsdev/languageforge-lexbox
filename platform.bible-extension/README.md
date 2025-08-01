@@ -91,19 +91,21 @@ The general file structure is as follows:
 - `package.json` contains information about this extension's npm package. It is required for Platform.Bible to use the extension properly. It is copied into the build folder
 - `manifest.json` is the manifest file that defines the extension and important properties for Platform.Bible. It is copied into the build folder
 - `src/` contains the source code for the extension
+  - `src/components/` contains stand-alone (i.e., WebView- and service-independent) components
   - `src/main.ts` is the main entry file for the extension
+  - `src/services/` contains services to be used with `networkObjects.set()` in `src/main.ts`
   - `src/types/fw-lite-extension.d.ts` is this extension's types file that defines how other extensions can use this extension through the `papi`. It is copied into the build folder
-  - `*.web-view.tsx` files will be treated as React WebViews
-  - `*.web-view.html` files are a conventional way to provide HTML WebViews (no special functionality)
+  - `src/utils/` contains utility classes and functions
+  - `src/web-views/` contains WebView components to be used with `registerWebViewProvider()` in `src/main.ts`
+    - `*.web-view.tsx` files will be treated as React WebViews
+    - `*.web-view.html` files are a conventional way to provide HTML WebViews (no special functionality)
 - `assets/` contains asset files the extension and its WebViews can retrieve using the `papi-extension:` protocol, as well as textual descriptions in various languages. It is copied into the build folder
   - `assets/displayData.json` contains (optionally) a path to the extension's icon file as well as text for the extension's display name, short summary, and path to the full description file
   - `assets/descriptions/` contains textual descriptions of the extension in various languages
     - `assets/descriptions/description-<locale>.md` contains a brief description of the extension in the language specified by `<locale>`
 - `contributions/` contains JSON files the platform uses to extend data structures for things like menus and settings. The JSON files are referenced from the manifest
 - `public/` contains other static files that are copied into the build folder
-- `.github/` contains files to facilitate integration with GitHub
-  - `.github/workflows` contains [GitHub Actions](https://github.com/features/actions) workflows for automating various processes in this repo
-  - `.github/assets/release-body.md` combined with a generated changelog becomes the body of [releases published using GitHub Actions](#publishing)
+- `webpack/` contains configs, scripts, and utils used by `webpack.config.ts` in the root folder
 - `dist/` is a generated folder containing the built extension files
 - `release/` is a generated folder containing a zip of the built extension files
 
@@ -148,6 +150,7 @@ To build the extension once:
 
 `npm run build`
 
+<!--
 ## To package for distribution
 
 To package this extension into a zip file for distribution:
@@ -246,3 +249,4 @@ For more information, read [the instructions on the wiki](https://github.com/par
 ## Special features in this project
 
 This project has special features and specific configuration to make building an extension for Platform.Bible easier. See [Special features of `paranext-multi-extension-template`](https://github.com/paranext/paranext-multi-extension-template#special-features-of-the-template) for information on these special features.
+-->
