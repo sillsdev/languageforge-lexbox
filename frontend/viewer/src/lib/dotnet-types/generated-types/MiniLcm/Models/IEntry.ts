@@ -6,6 +6,7 @@
 import type {IObjectWithId} from './IObjectWithId';
 import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
+import type {MorphType} from './MorphType';
 import type {ISense} from './ISense';
 import type {IComplexFormComponent} from './IComplexFormComponent';
 import type {IComplexFormType} from './IComplexFormType';
@@ -18,6 +19,7 @@ export interface IEntry extends IObjectWithId
 	lexemeForm: IMultiString;
 	citationForm: IMultiString;
 	literalMeaning: IRichMultiString;
+	morphType: MorphType;
 	senses: ISense[];
 	note: IRichMultiString;
 	components: IComplexFormComponent[];

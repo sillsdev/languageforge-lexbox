@@ -36,10 +36,19 @@ public interface IMiniLcmWriteApi
     Task DeleteSemanticDomain(Guid id);
     #endregion
 
+    #region ComplexFormType
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
     Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update);
     Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null);
     Task DeleteComplexFormType(Guid id);
+    #endregion
+
+    #region MorphType
+    Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType);
+    Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update);
+    Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null);
+    Task DeleteMorphTypeData(Guid id);
+    #endregion
 
     #region Entry
     Task<Entry> CreateEntry(Entry entry);
