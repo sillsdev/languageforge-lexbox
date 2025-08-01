@@ -1,0 +1,39 @@
+{
+  "projects": {
+    "sena-3": {
+      "code": "sena-3",
+      "name": "Sena 3",
+      "description": "Test project for E2E testing",
+      "expectedEntries": 0,
+      "testUser": "admin",
+      "permissions": ["read", "write", "delete"],
+      "mediaFiles": [],
+      "expectedStructure": {
+        "hasLexicon": true,
+        "hasGrammar": false,
+        "hasTexts": false
+      }
+    }
+  },
+  "testUsers": {
+    "admin": {
+      "username": "admin",
+      "role": "admin",
+      "permissions": ["read", "write", "delete", "admin"],
+      "projects": ["sena-3"]
+    }
+  },
+  "testEntries": {
+    "sample": {
+      "lexeme": "sample-word",
+      "definition": "A sample word for testing",
+      "partOfSpeech": "noun",
+      "examples": [
+        {
+          "sentence": "This is a sample sentence.",
+          "translation": "This is a sample translation."
+        }
+      ]
+    }
+  }
+}

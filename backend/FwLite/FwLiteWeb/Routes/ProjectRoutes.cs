@@ -60,6 +60,12 @@ public static class ProjectRoutes
                 await combinedProjectsService.DownloadProject(code, server);
                 return TypedResults.Ok();
             });
+        group.MapDelete("/crdt/{code}",
+            async (CrdtProjectsService projectService, string code) =>
+            {
+                await projectService.DeleteProject(code);
+                return TypedResults.Ok();
+            });
         return group;
     }
 }

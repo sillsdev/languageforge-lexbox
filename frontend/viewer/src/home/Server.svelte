@@ -64,7 +64,7 @@
 
   let server = $derived(status?.server);
 </script>
-<div>
+<div id={server?.id}>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
       {#if server}
