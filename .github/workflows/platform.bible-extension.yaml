@@ -13,7 +13,7 @@ on:
     branches:
       - develop
 
-# Copied from platform.bible-extension/.github/workflows/lint.yml
+# Modified from https://github.com/paranext/paranext-extension-template/blob/main/.github/workflows/lint.yml
 
 permissions:
   contents: read
