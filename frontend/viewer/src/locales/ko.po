@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-31 09:24\n"
+"PO-Revision-Date: 2025-08-01 09:51\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -875,7 +875,7 @@ msgstr "필터 토글"
 
 #: src/project/browse/EntryView.svelte:71
 msgid "Toggle pinned"
-msgstr ""
+msgstr "고정 토글"
 
 #: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
