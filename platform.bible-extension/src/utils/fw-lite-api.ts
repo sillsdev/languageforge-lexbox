@@ -52,11 +52,12 @@ export class FwLiteApi {
     await this.fetchPath(path, 'DELETE');
   }
 
-  async doesProjectMatchLanguage(code: string, language: string): Promise<boolean> {
-    const lang = language.trim().toLocaleLowerCase();
-    if (!code || !lang) return false;
+  async doesProjectMatchLangTag(code: string, langTag: string): Promise<boolean> {
+    const tag = langTag.trim().toLocaleLowerCase().split('-')[0];
+    if (!code || !tag) return false;
     const writingSystems = await this.getWritingSystems(code);
-    return JSON.stringify(writingSystems.vernacular).toLocaleLowerCase().includes(lang);
+    const vernLangTags = Object.keys(writingSystems.vernacular).map((v) => v.toLocaleLowerCase());
+    return vernLangTags.some((v) => v === tag || v.startsWith(`${tag}-`));
   }
 
   /* eslint-disable no-type-assertion/no-type-assertion */
@@ -80,14 +81,14 @@ export class FwLiteApi {
     return (await this.fetchPath('localProjects')) as IProjectModel[];
   }
 
-  async getProjectsMatchingLanguage(language?: string): Promise<IProjectModel[]> {
+  async getProjectsMatchingLanguage(langTag?: string): Promise<IProjectModel[]> {
     const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
-    if (!language?.trim()) return projects;
+    if (!langTag?.trim()) return projects;
 
     const matches = (
       await Promise.all(
         projects.map(async (p) =>
-          (await this.doesProjectMatchLanguage(p.code, language)) ? p : undefined,
+          (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
         ),
       )
     ).filter((p) => p) as IProjectModel[];
