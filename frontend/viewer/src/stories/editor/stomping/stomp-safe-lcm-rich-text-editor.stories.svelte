@@ -70,7 +70,7 @@
     <StompSafeLcmRichTextEditor bind:value {...args} />
   {/snippet}
 </Story>
-<!-- Regression test for #1871 -->
+<!-- Regression test for https://github.com/sillsdev/languageforge-lexbox/issues/1871 -->
 <Story
   name="Can type into empty fields"
   play={async ({ canvasElement }) => {
@@ -79,7 +79,7 @@
     await expect(input).toBeInTheDocument();
     await userEvent.clear(input);
     await expect(input.textContent).toBe('');
-    await input.click();
+    input.click();
     await userEvent.type(input, 'abc');
     await expect(input.textContent).toBe('abc');
   }}
