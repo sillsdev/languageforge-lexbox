@@ -1,0 +1,62 @@
+name: Platform.Bible extension CI/CD
+on:
+  push:
+    paths:
+      - "platform.bible-extension/**"
+      - ".github/workflows/platform.bible-extension.yaml"
+    branches:
+      - develop
+  pull_request:
+    paths:
+      - "platform.bible-extension/**"
+      - ".github/workflows/platform.bible-extension.yaml"
+    branches:
+      - develop
+
+# Modified from https://github.com/paranext/paranext-extension-template/blob/main/.github/workflows/lint.yml
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v4
+        with:
+          path: lexbox
+
+      - name: Checkout paranext-core repo to use its sub-packages
+        uses: actions/checkout@v4
+        with:
+          path: paranext-core
+          repository: paranext/paranext-core
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          cache-dependency-path: |
+            lexbox/platform.bible-extension/package-lock.json
+            paranext-core/package-lock.json
+          node-version-file: lexbox/platform.bible-extension/package.json
+
+      - name: Install extension dependencies
+        working-directory: lexbox/platform.bible-extension
+        run: npm ci
+
+      - name: Install core dependencies
+        working-directory: paranext-core
+        run: npm ci --ignore-scripts
+
+      - name: Run format checking
+        working-directory: lexbox/platform.bible-extension
+        run: npm run format:check
+
+      - name: Run all linters
+        working-directory: lexbox/platform.bible-extension
+        run: npm run lint

@@ -1,0 +1,12 @@
+{
+  "icon": "",
+  "moreInfoUrl": "",
+  "supportUrl": "",
+  "localizedDisplayInfo": {
+    "en": {
+      "displayName": "FieldWorks Lite",
+      "shortSummary": "FieldWorks Lite extension for Platform.Bible",
+      "description": "assets/descriptions/description-en.md"
+    }
+  }
+}
