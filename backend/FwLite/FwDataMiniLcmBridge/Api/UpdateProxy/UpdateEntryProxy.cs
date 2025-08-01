@@ -21,8 +21,11 @@ public record UpdateEntryProxy : Entry
     {
         get
         {
-            _lcmEntry.LexemeFormOA ??= _lexboxLcmApi.Cache.CreateLexemeForm(LcmHelpers.FromLcmMorphTypeId(_lcmEntry.PrimaryMorphType.Id.Guid));
-            return new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
+            var form = _lcmEntry.LexemeFormOA ?? LcmHelpers.SetLexemeForm(
+                _lcmEntry,
+                LcmHelpers.FromLcmMorphTypeId(_lcmEntry.PrimaryMorphType.Id.Guid),
+                _lexboxLcmApi.Cache);
+            return new UpdateMultiStringProxy(form.Form, _lexboxLcmApi);
         }
         set => throw new NotImplementedException();
     }

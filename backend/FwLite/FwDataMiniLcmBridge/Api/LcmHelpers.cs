@@ -238,11 +238,17 @@ internal static class LcmHelpers
     {
         var lexEntry = cache.ServiceLocator.GetInstance<ILexEntryFactory>().Create(id,
             cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
+        SetLexemeForm(lexEntry, morphType, cache);
+        return lexEntry;
+    }
+
+    internal static IMoForm SetLexemeForm(ILexEntry lexEntry, MorphType morphType, LcmCache cache)
+    {
         lexEntry.LexemeFormOA = cache.CreateLexemeForm(morphType);
         //must be done after the IMoForm is set on the LexemeForm property
         var lcmMorphType = ToLcmMorphTypeId(morphType) ?? ToLcmMorphTypeId(MorphType.Stem);
         lexEntry.LexemeFormOA.MorphTypeRA = cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>().GetObject(lcmMorphType!.Value);
-        return lexEntry;
+        return lexEntry.LexemeFormOA;
     }
 
     internal static string GetSemanticDomainCode(ICmSemanticDomain semanticDomain)

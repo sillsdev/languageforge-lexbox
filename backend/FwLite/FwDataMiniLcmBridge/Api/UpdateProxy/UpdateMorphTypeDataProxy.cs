@@ -36,18 +36,18 @@ public class UpdateMorphTypeDataProxy : MorphTypeData
     public override string LeadingToken
     {
         get => _lcmMorphType.Prefix;
-        set => throw new NotImplementedException();
+        set => _lcmMorphType.Prefix = value;
     }
 
     public override string TrailingToken
     {
         get => _lcmMorphType.Postfix;
-        set => throw new NotImplementedException();
+        set => _lcmMorphType.Postfix = value;
     }
 
     public override int SecondaryOrder
     {
         get => _lcmMorphType.SecondaryOrder;
-        set => throw new NotImplementedException();
+        set => _lcmMorphType.SecondaryOrder = value;
     }
 }
