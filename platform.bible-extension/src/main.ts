@@ -192,9 +192,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info('Fetching local FieldWorks dictionaries');
       if (!projectId) return await fwLiteApi.getProjects();
 
-      // projectManagers.getProjectManagerFromProjectId(projectId)?.clearSettingsCache();
-      const lang = await projectManagers.getProjectManagerFromProjectId(projectId)?.getLanguage();
-      return await fwLiteApi.getProjectsMatchingLanguage(lang);
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      // projectManager?.clearSettingsCache();
+      const langTag = await projectManager?.getLanguageTag();
+      return await fwLiteApi.getProjectsMatchingLanguage(langTag);
     },
   );
 

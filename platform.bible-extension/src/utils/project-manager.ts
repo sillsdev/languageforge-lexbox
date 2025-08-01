@@ -10,7 +10,7 @@ export class ProjectManager {
   readonly projectId: string;
   private dataProvider?: IBaseProjectDataProvider<MandatoryProjectDataTypes>;
   private fwDictionaryCode?: string;
-  private language?: string;
+  private languageTag?: string;
   private name?: string;
   private readonly webViewIds: WebViewIds = {};
 
@@ -24,7 +24,7 @@ export class ProjectManager {
 
   clearSettingsCache(): void {
     this.fwDictionaryCode = undefined;
-    this.language = undefined;
+    this.languageTag = undefined;
     this.name = undefined;
   }
 
@@ -32,6 +32,7 @@ export class ProjectManager {
     this.fwDictionaryCode ??= await (
       await this.getDataProvider()
     )?.getSetting(ProjectSettingKey.FwDictionaryCode);
+    logger.info(`Setting '${ProjectSettingKey.FwDictionaryCode}': ${this.fwDictionaryCode}`);
     return this.fwDictionaryCode;
   }
 
@@ -41,17 +42,20 @@ export class ProjectManager {
     if (dataProvider?.setSetting(ProjectSettingKey.FwDictionaryCode, dictionaryCode)) {
       this.fwDictionaryCode = dictionaryCode;
     }
+    logger.info(`Setting '${ProjectSettingKey.FwDictionaryCode}': ${this.fwDictionaryCode}`);
   }
 
-  async getLanguage(): Promise<string | undefined> {
-    this.language ??= await (
+  async getLanguageTag(): Promise<string | undefined> {
+    this.languageTag ??= await (
       await this.getDataProvider()
-    )?.getSetting(ProjectSettingKey.ProjectLanguage);
-    return this.language;
+    )?.getSetting(ProjectSettingKey.ProjectLanguageTag);
+    logger.info(`Setting '${ProjectSettingKey.ProjectLanguageTag}': ${this.languageTag}`);
+    return this.languageTag;
   }
 
   async getName(): Promise<string | undefined> {
     this.name ??= await (await this.getDataProvider())?.getSetting(ProjectSettingKey.ProjectName);
+    logger.info(`Setting '${ProjectSettingKey.ProjectName}': ${this.name}`);
     return this.name;
   }
 
