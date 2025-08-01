@@ -12,7 +12,6 @@
 
   type Props = {
     entry: IEntry
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   } & ButtonProps;
 
   const {

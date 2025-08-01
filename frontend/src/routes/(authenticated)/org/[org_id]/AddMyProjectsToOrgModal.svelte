@@ -21,7 +21,6 @@
 
   const schema = z.object({});
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let newProjects: Project[] = $state([]);
   let alreadyAddedProjects: number = $state(0);

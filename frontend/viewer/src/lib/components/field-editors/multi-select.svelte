@@ -25,10 +25,8 @@
     values: Value[];
     options: ReadonlyArray<Value>;
     readonly?: boolean;
-    /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
-    /* eslint-enable @typescript-eslint/no-redundant-type-constituents */
     placeholder?: string;
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
@@ -157,7 +155,6 @@
       }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   function getHighlightedValue(): Value | undefined {
     const selectedItem = commandRef?.querySelector('[data-command-item][data-selected]');
     const index = selectedItem?.getAttribute('data-value-index');
