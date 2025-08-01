@@ -3,10 +3,11 @@ using LexCore.Utils;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Wrappers;
 
 namespace FwLiteShared.Services;
 
-public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus)
+public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus) : IMiniLcmWrapperFactory
 {
     public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier project)
     {
