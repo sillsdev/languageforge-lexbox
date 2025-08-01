@@ -97,7 +97,7 @@
     "prosemirror-keymap": "^1.2.3",
     "prosemirror-model": "^1.25.2",
     "prosemirror-state": "^1.4.3",
-    "prosemirror-view": "^1.40.1",
+    "prosemirror-view": "1.39.3",
     "runed": "catalog:",
     "svelte-dnd-action": "^0.9.64",
     "svelte-exmarkdown": "catalog:",
