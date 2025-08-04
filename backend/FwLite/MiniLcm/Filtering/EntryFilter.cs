@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Text;
 using Gridify;
 using Gridify.Syntax;
 using MiniLcm.Models;
@@ -43,4 +44,8 @@ public class EntryFilter
 
     public string? GridifyFilter { get; set; }
 
+    public EntryFilter Normalized(NormalizationForm form)
+    {
+        return new() { GridifyFilter = GridifyFilter?.Normalize(form) };
+    }
 }
