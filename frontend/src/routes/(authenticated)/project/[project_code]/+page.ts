@@ -136,6 +136,7 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
     );
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
   if (!nonNullableProject) {
     error(404);
