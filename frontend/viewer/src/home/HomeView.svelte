@@ -189,9 +189,10 @@
           </div>
           <div>
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
+              {@const projectId = project.id ?? crypto.randomUUID()}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
-              <div out:send={{key: 'project-' + project.id}} in:receive={{key: 'project-' + project.id}}>
+              <div out:send={{key: 'project-' + projectId}} in:receive={{key: 'project-' + projectId}}>
                 <ButtonListItem href={`/project/${project.code}`}>
                   <ProjectListItem icon="i-mdi-book-edit-outline"
                                    {project}
