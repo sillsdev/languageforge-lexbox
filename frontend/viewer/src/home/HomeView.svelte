@@ -11,7 +11,6 @@
     useProjectsService,
     useTroubleshootingService,
   } from '$lib/services/service-provider';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -28,6 +27,7 @@
   import {crossfade} from 'svelte/transition';
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
+  import Anchor from '$lib/components/ui/anchor/anchor.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -193,7 +193,7 @@
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <div out:send={{key: 'project-' + projectId}} in:receive={{key: 'project-' + projectId}}>
-                <ButtonListItem href={`/project/${project.code}`}>
+                <Anchor href={`/project/${project.code}`}>
                   <ProjectListItem icon="i-mdi-book-edit-outline"
                                    {project}
                                    {loading}
@@ -217,37 +217,35 @@
                       </div>
                     {/snippet}
                   </ProjectListItem>
-                </ButtonListItem>
+                </Anchor>
               </div>
             {/each}
             <DevContent>
-              <ButtonListItem href="/testing/project-view">
+              <Anchor href="/testing/project-view">
                 <ProjectListItem icon="i-mdi-test-tube" project={{ name: 'Test Project', code: 'Test Project' }}>
                   {#snippet actions()}
                     <Icon icon="i-mdi-chevron-right" class="p-2"/>
                   {/snippet}
                 </ProjectListItem>
-              </ButtonListItem>
+              </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
-                <ListItem class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
-                  <span>{$t`Create Example Project`}</span>
-                  {#snippet actions()}
-                    <div class="flex flex-nowrap items-center gap-2">
-                      {#if $isDev}
-                        <Input
-                          bind:value={customExampleProjectName}
-                          placeholder={$t`Project name...`}
-                          onclick={(e) => e.stopPropagation()}
-                        />
-                      {/if}
-                      <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
-                    </div>
-                  {/snippet}
+              <ListItem onclick={() => createExampleProject()} disabled={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+                <span>{$t`Create Example Project`}</span>
+                {#snippet actions()}
+                  <div class="flex flex-nowrap items-center gap-2">
+                    {#if $isDev}
+                      <Input
+                        bind:value={customExampleProjectName}
+                        placeholder={$t`Project name...`}
+                        onclick={(e) => e.stopPropagation()}
+                      />
+                    {/if}
+                    <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
+                  </div>
+                {/snippet}
 
-                </ListItem>
-              </ButtonListItem>
+              </ListItem>
             {/if}
           </div>
         </div>
@@ -257,7 +255,7 @@
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
-                <ButtonListItem href={`/fwdata/${project.code}`}>
+                <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
                       <Icon src={flexLogo} alt={$t`FieldWorks logo`}/>
@@ -277,7 +275,7 @@
                       </DevContent>
                     {/snippet}
                   </ProjectListItem>
-                </ButtonListItem>
+                </Anchor>
               {/each}
             </div>
           </div>
