@@ -94,6 +94,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
+      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
+      if (!dictionaryCode) return { success };
+
       const options = await projectManager.getWordWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
@@ -108,17 +111,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const nameOrId = await projectManager.getNameOrId();
-      const dictionaryCode = await projectManager.getFwDictionaryCode();
-      if (dictionaryCode) {
-        logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
-        const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode);
-        const options: BrowseWebViewOptions = { url };
-        success = await projectManager.openWebView(WebViewType.Main, undefined, options);
-      } else {
-        logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
-        success = await projectManager.openWebView(WebViewType.DictionarySelect, { type: 'float' });
-      }
+      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
+      if (!dictionaryCode) return { success };
+
+      const url = getBrowseUrl(urlHolder.baseUrl, dictionaryCode);
+      const options: BrowseWebViewOptions = { url };
+      success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
     },
   );
@@ -150,6 +148,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
+      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
+      if (!dictionaryCode) return { success };
+
       const options = await projectManager.getWordWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success };
@@ -163,6 +164,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
+
+      const dictionaryCode = await projectManager.getFwDictionaryCodeOrOpenSelector();
+      if (!dictionaryCode) return { success };
 
       const options = await projectManager.getWordWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);

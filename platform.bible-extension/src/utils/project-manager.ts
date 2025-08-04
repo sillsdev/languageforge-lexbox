@@ -3,13 +3,12 @@ import type { MandatoryProjectDataTypes } from '@papi/core';
 import type {
   OpenWebViewOptionsWithProjectId,
   WebViewIds,
-  WebViewType,
   WordWebViewOptions,
 } from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
-import { ProjectSettingKey } from '../types/enums';
+import { ProjectSettingKey, WebViewType } from '../types/enums';
 
 export class ProjectManager {
   readonly projectId: string;
@@ -35,6 +34,18 @@ export class ProjectManager {
 
   async getFwDictionaryCode(): Promise<string | undefined> {
     return await this.getSetting(ProjectSettingKey.FwDictionaryCode);
+  }
+
+  async getFwDictionaryCodeOrOpenSelector(): Promise<string | void> {
+    const dictionaryCode = await this.getSetting(ProjectSettingKey.FwDictionaryCode);
+    const nameOrId = await this.getNameOrId();
+    if (dictionaryCode) {
+      logger.info(`Project '${nameOrId}' is using FieldWorks dictionary '${dictionaryCode}'`);
+      return dictionaryCode;
+    }
+
+    logger.info(`FieldWorks dictionary not yet selected for project '${nameOrId}'`);
+    await this.openWebView(WebViewType.DictionarySelect, { type: 'float' });
   }
 
   async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
