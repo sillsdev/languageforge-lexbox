@@ -126,28 +126,27 @@
         </div>
       </ListItem>
     {:else if !projects.length}
-      <p class="text-center md:rounded p-4">
-        {#if status.loggedIn}
+      <div class="flex flex-col gap-2 items-center justify-center md:rounded p-4">
+        {#if !status.loggedIn}
           <Button class="border border-primary" variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
             {$t`Where are my projects?`}
             <Icon icon="i-mdi-open-in-new" class="size-4" />
           </Button>
           {#if canDownloadByCode}
-            <div>
-              <Button icon="i-mdi-download"
+            <Button icon="i-mdi-download"
                     title={$t`Download project not listed`}
                     disabled={loading}
                     class="mr-2"
                     variant="ghost"
                     size="default"
-                    onclick={getProjectByCode}
-                    >{$t`Download project not listed`}</Button>
-            </div>
+                    onclick={getProjectByCode}>
+              {$t`Download project not listed`}
+            </Button>
           {/if}
         {:else}
           <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
         {/if}
-      </p>
+      </div>
       {:else}
       <div class="shadow rounded">
         {#each projects as project}
