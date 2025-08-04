@@ -31,12 +31,13 @@
 
 <button
   aria-selected={selected && !skeleton && !disabled}
-  disabled={disabled || skeleton}
+  disabled={disabled}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
     'dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 aria-selected:ring-2 ring-primary ring-offset-background rounded',
+    'shadow hover:shadow-lg hover:z-10',
     'disabled:pointer-events-none disabled:bg-destructive/5',
-    skeleton && 'cursor-default hover:bg-transparent',
+    skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
     className)}
   role="row"
   bind:this={ref}
