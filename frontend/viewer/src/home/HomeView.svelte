@@ -105,12 +105,33 @@
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog: TroubleshootDialog | undefined;
 
+  let clickCount = 0;
+  let clickTimeout: number;
+
+  function resetClickCounter() {
+    clickCount = 0;
+    clearTimeout(clickTimeout);
+  }
+
+  function clickIcon() {
+    //when a user triple clicks the logo it will enable dev mode, this makes it easier to enable on mobile
+    clickCount++;
+    clearTimeout(clickTimeout);
+
+    if (clickCount === 3) {
+      window.enableDevMode(!$isDev);
+      resetClickCounter();
+    } else {
+      clickTimeout = setTimeout(resetClickCounter, 500);
+    }
+  }
+
 </script>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
