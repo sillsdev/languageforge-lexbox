@@ -166,7 +166,7 @@
                     variant="ghost"
                     onclick={() => refreshProjects()}/>
           </div>
-          <div class="shadow rounded">
+          <div>
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
@@ -233,7 +233,7 @@
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
-            <div class="shadow rounded">
+            <div>
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
                 <ButtonListItem href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
@@ -273,11 +273,6 @@
   .project-list {
     display: flex;
     flex-direction: column;
-
-    :global(:is(.ListItem)) {
-      @apply max-md:!rounded-none;
-      @apply contrast-[0.95];
-    }
 
     :global(.sub-title) {
       @apply m-2;

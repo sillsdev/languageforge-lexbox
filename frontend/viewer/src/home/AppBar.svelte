@@ -15,7 +15,7 @@
   });
 </script>
 <header
-  class="AppBar flex items-center z-50 gap-2 justify-between px-4 max-md:px-1 min-h-12 shadow-md m-3 rounded sticky top-3">
+  class="AppBar flex items-center z-50 gap-2 justify-between pr-1 md:pr-3 pl-3 min-h-12 shadow-lg m-3 mb-0 rounded sticky top-3">
   {@render title()}
   <div class="grow-0"></div>
   {@render actions()}
