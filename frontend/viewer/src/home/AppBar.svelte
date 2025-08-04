@@ -15,19 +15,21 @@
   });
 </script>
 <header
-  class="AppBar flex items-center z-50 space-x-2 justify-between pr-1 md:pr-3 pl-3 min-h-12 shadow-lg m-3 mb-0 rounded sticky top-3">
+  class="flex items-center z-50 space-x-2 justify-between pr-1 md:pr-3 pl-3 min-h-12 shadow-lg m-3 mb-0 rounded sticky top-3">
   {@render title()}
   <div class="grow-0"></div>
   {@render actions()}
 </header>
+
 <style>
-  .AppBar {
-    --shading: 1.5;
-    background-color: hsl(from hsl(var(--primary)) h s calc(l * var(--shading)));
+  header {
+    /* Stack background colors, so alpha-value only affects the color, not the transparency. */
+    background:
+      /*
+      linear-gradient is just a way to use a solid color and work around: "Only the last background can include a background color."
+      See: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_backgrounds_and_borders/Using_multiple_backgrounds
+      */
+      linear-gradient(hsl(var(--primary) / 0.4)),
+      hsl(var(--background));
   }
-
-  :global(.dark) .AppBar {
-    --shading: 0.5;
-  }
-
 </style>
