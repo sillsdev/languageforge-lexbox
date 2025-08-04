@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using FwHeadless.Services;
 using LcmCrdt;
 using LcmCrdt.MediaServer;
 using LexCore.Entities;
@@ -12,7 +13,7 @@ using MediaFile = LexCore.Entities.MediaFile;
 
 namespace FwHeadless.Media;
 
-public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config)
+public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config, SendReceiveService sendReceiveService)
 {
     public record MediaFileSyncResult(List<MediaFile> Added, List<MediaFile> Removed);
     // TODO: This assumes FieldWorks is the source of truth, which is not true when FWL starts adding/deleting files
@@ -132,7 +133,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var entry = dbContext.Entry(mediaFile);
         if (entry.State == EntityState.Detached) entry.State = EntityState.Added;
 
-        var filePath = Path.Join(fwDataFolder, mediaFile.Filename);
+        var filePath = FilePath(mediaFile);
         var dirName = Path.GetDirectoryName(filePath);
         if (dirName is not null) Directory.CreateDirectory(dirName);
         var tempFile = Path.Join(dirName, Path.GetRandomFileName());
@@ -158,7 +159,8 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             throw new FileTooLarge();
         }
 
-        //todo write hg commit
+        //commit the file to hg, otherwise a rollback caused by a merge conflict during S&R will delete the file
+        await sendReceiveService.CommitFile(filePath, "Uploaded file");
 
         mediaFile.InitializeMetadataIfNeeded(filePath);
         mediaFile.Metadata.SizeInBytes = (int)fileLength;
@@ -171,7 +173,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
     public async Task DeleteMediaFile(MediaFile mediaFile)
     {
-        var filePath = Path.Join(config.Value.GetFwDataFolder(mediaFile.ProjectId), mediaFile.Filename);
+        var filePath = FilePath(mediaFile);
         SafeDelete(filePath);
         var dirPath = Path.GetDirectoryName(filePath);
         if (dirPath?.EndsWith(mediaFile.Id.ToString()) == true)

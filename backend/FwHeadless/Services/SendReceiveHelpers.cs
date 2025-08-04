@@ -81,6 +81,16 @@ public static class SendReceiveHelpers
         return lines.Count();
     }
 
+    public static async Task CommitFile(string filePath, string commitMessage, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.file_path", filePath);
+        progress ??= new NullProgress();
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
+        var fileDir = Path.GetDirectoryName(filePath);
+        await Task.Run(() => HgRunner.Run($"hg commit --message \"{commitMessage}\" --addremove \"{filePath}\"", fileDir, 9999, progress));
+    }
+
     public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
