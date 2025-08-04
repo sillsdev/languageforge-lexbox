@@ -43,7 +43,7 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:71
+#: src/home/Server.svelte:73
 msgid "{0} Server"
 msgstr "{0} Server"
 
@@ -180,7 +180,7 @@ msgstr "Citation form"
 msgid "Citation Form"
 msgstr "Citation Form"
 
-#: src/home/HomeView.svelte:226
+#: src/home/HomeView.svelte:255
 msgid "Classic FieldWorks Projects"
 msgstr "Classic FieldWorks Projects"
 
@@ -240,7 +240,7 @@ msgstr "Create {0}"
 msgid "Create entry"
 msgstr "Create entry"
 
-#: src/home/HomeView.svelte:204
+#: src/home/HomeView.svelte:234
 msgid "Create Example Project"
 msgstr "Create Example Project"
 
@@ -270,7 +270,7 @@ msgstr "Data Directory"
 msgid "Definition"
 msgstr "Definition"
 
-#: src/home/HomeView.svelte:178
+#: src/home/HomeView.svelte:208
 msgid "Delete"
 msgstr "Delete"
 
@@ -287,8 +287,8 @@ msgstr "Delete Entry"
 msgid "Delete Word"
 msgstr "Delete Word"
 
-#: src/home/HomeView.svelte:103
-#: src/home/HomeView.svelte:107
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr "Dictionaries"
 
@@ -315,17 +315,21 @@ msgstr "Don't delete"
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
 #: src/lib/components/audio/audio-editor.svelte:106
-#: src/home/Server.svelte:128
+#: src/home/Server.svelte:118
 msgid "Download"
 msgstr "Download"
 
-#: src/home/Server.svelte:45
+#: src/home/Server.svelte:47
 msgid "Downloaded {0}"
 msgstr "Downloaded {0}"
 
-#: src/home/Server.svelte:44
+#: src/home/Server.svelte:46
 msgid "Downloading {0}..."
 msgstr "Downloading {0}..."
+
+#: src/home/Server.svelte:118
+msgid "Downloading..."
+msgstr "Downloading..."
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
@@ -369,7 +373,7 @@ msgstr "Example"
 msgid "Example sentence"
 msgstr "Example sentence"
 
-#: src/home/Server.svelte:46
+#: src/home/Server.svelte:48
 msgid "Failed to download {0}"
 msgstr "Failed to download {0}"
 
@@ -390,7 +394,7 @@ msgid "Failed to synchronize."
 msgstr "Failed to synchronize."
 
 #: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:126
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -404,7 +408,7 @@ msgstr "Field Labels"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:232
+#: src/home/HomeView.svelte:261
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
 
@@ -492,11 +496,11 @@ msgstr "History"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "Hold to record or\\npress and release to start recording."
 
-#: src/home/Server.svelte:139
+#: src/home/Server.svelte:129
 msgid "I don't see my project"
 msgstr "I don't see my project"
 
-#: src/home/HomeView.svelte:240
+#: src/home/HomeView.svelte:269
 msgid "Import"
 msgstr "Import"
 
@@ -509,7 +513,7 @@ msgstr "Last change: {0}"
 msgid "Length:"
 msgstr "Length:"
 
-#: src/home/HomeView.svelte:106
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr "Lexbox logo"
 
@@ -533,15 +537,15 @@ msgstr "Literal meaning"
 msgid "Loading Dictionaries..."
 msgstr "Loading Dictionaries..."
 
-#: src/home/HomeView.svelte:147
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "loading..."
 
-#: src/home/HomeView.svelte:152
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr "Local"
 
-#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:200
 msgid "Local only"
 msgstr "Local only"
 
@@ -712,7 +716,7 @@ msgstr "Pinned"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/home/HomeView.svelte:210
+#: src/home/HomeView.svelte:240
 msgid "Project name..."
 msgstr "Project name..."
 
@@ -725,8 +729,8 @@ msgstr "Reference"
 msgid "Refine your filter to see more..."
 msgstr "Refine your filter to see more..."
 
-#: src/home/Server.svelte:79
-#: src/home/HomeView.svelte:156
+#: src/home/Server.svelte:81
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "Refresh Projects"
 
@@ -826,11 +830,10 @@ msgstr "Submit"
 
 #: src/project/ProjectSidebar.svelte:117
 #: src/lib/activity/ActivityView.svelte:108
-#: src/home/Server.svelte:115
 msgid "Synced"
 msgstr "Synced"
 
-#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:200
 msgid "Synced with {0}"
 msgstr "Synced with {0}"
 
@@ -879,7 +882,7 @@ msgstr "Translation"
 
 #: src/project/ProjectSidebar.svelte:170
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:160
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
 
@@ -929,7 +932,7 @@ msgstr "Version {0}"
 msgid "View Configuration"
 msgstr "View Configuration"
 
-#: src/home/Server.svelte:98
+#: src/home/Server.svelte:100
 msgid "Where are my projects?"
 msgstr "Where are my projects?"
 
