@@ -5,7 +5,6 @@
   import {cn} from '$lib/utils';
   import type {IconClass} from '$lib/icon-class';
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type Props = IconProps & {
     ping?: boolean;
     icon: IconClass;
