@@ -72,11 +72,8 @@ public static class MediaFileController
         MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var mediaFile = await lexBoxDb.Files.FindAsync(fileId);
+        var mediaFile = await mediaFileService.FindMediaFileAsync(fileId);
         if (mediaFile is null) return TypedResults.NotFound();
-        var projectId = mediaFile.ProjectId;
-        var project = await lexBoxDb.Projects.FindAsync(projectId);
-        if (project is null) return TypedResults.NotFound();
         await mediaFileService.DeleteMediaFile(mediaFile);
         return TypedResults.Ok();
     }
