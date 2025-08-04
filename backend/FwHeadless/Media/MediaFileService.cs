@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using LcmCrdt;
 using LcmCrdt.MediaServer;
 using LexCore.Entities;
@@ -5,7 +6,9 @@ using LexCore.Exceptions;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MiniLcm.Media;
 using SIL.LCModel;
+using MediaFile = LexCore.Entities.MediaFile;
 
 namespace FwHeadless.Media;
 
@@ -120,5 +123,81 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         {
             await lcmMediaService.DeleteResource(lcmResource.Id);
         }
+    }
+
+    public async Task SaveMediaFile(MediaFile mediaFile, Stream fileStream)
+    {
+        var fwDataFolder = config.Value.GetFwDataFolder(mediaFile.ProjectId);
+        if (!Directory.Exists(fwDataFolder)) throw new ProjectFolderNotFoundInFwHeadless();
+        var entry = dbContext.Entry(mediaFile);
+        if (entry.State == EntityState.Detached) entry.State = EntityState.Added;
+
+        var filePath = Path.Join(fwDataFolder, mediaFile.Filename);
+        var dirName = Path.GetDirectoryName(filePath);
+        if (dirName is not null) Directory.CreateDirectory(dirName);
+        var tempFile = Path.Join(dirName, Path.GetRandomFileName());
+        try
+        {
+            await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
+            {
+                await fileStream.CopyToAsync(writeStream);
+            }
+
+            File.Move(tempFile, filePath, overwrite: true);
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(tempFile) && File.Exists(tempFile)) File.Delete(tempFile);
+        }
+
+        var fileInfo = new FileInfo(filePath);
+        var fileLength = fileInfo.Length;
+        if (fileLength > config.Value.MaxUploadFileSizeBytes)
+        {
+            await DeleteMediaFile(mediaFile);
+            throw new FileTooLarge();
+        }
+
+        //todo write hg commit
+
+        mediaFile.InitializeMetadataIfNeeded(filePath);
+        mediaFile.Metadata.SizeInBytes = (int)fileLength;
+        mediaFile.Metadata.Sha256Hash = await Sha256OfFile(filePath);
+
+        mediaFile.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+
+    }
+
+    public async Task DeleteMediaFile(MediaFile mediaFile)
+    {
+        var filePath = Path.Join(config.Value.GetFwDataFolder(mediaFile.ProjectId), mediaFile.Filename);
+        SafeDelete(filePath);
+        var dirPath = Path.GetDirectoryName(filePath);
+        if (dirPath?.EndsWith(mediaFile.Id.ToString()) == true)
+            SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
+        dbContext.Files.Remove(mediaFile);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public static async Task<string> Sha256OfFile(string filePath)
+    {
+        await using var stream = File.OpenRead(filePath);
+        var hash = await SHA256.HashDataAsync(stream);
+        return Convert.ToHexStringLower(hash);
+    }
+
+    private static void SafeDelete(string filePath)
+    {
+        // Delete file at path, ignoring all errors such as "file not found"
+        try { File.Delete(filePath); }
+        catch { }
+    }
+
+    private static void SafeDeleteDirectory(string dirPath, bool recursive = false)
+    {
+        // Delete file at path, ignoring all errors such as "directory not empty"
+        try { Directory.Delete(dirPath, recursive); }
+        catch { }
     }
 }
