@@ -38,7 +38,7 @@ export default function EntryCard({ entry, onClickSemanticDomain }: EntryCardPro
                     {domainText(dom)}
                   </Button>
                 ) : (
-                  <span key={dom.code}>` ${domainText(dom)}`</span>
+                  <span key={dom.code}> {domainText(dom)}</span>
                 ),
               )}
             </p>

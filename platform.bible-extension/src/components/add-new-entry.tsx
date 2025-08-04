@@ -57,7 +57,7 @@ export default function AddNewEntry({
       <CardHeader>Adding new entry</CardHeader>
       <CardContent>
         <div>
-          <Label htmlFor="newEntryHeadword">Headword:</Label>
+          <Label htmlFor="newEntryHeadword">Headword ({vernacularLang}):</Label>
           <Input
             id="newEntryHeadword"
             onChange={(e) => setTempHeadword(e.target.value)}
@@ -65,11 +65,11 @@ export default function AddNewEntry({
           />
         </div>
         <div>
-          <Label htmlFor="newEntryGloss">Gloss:</Label>
+          <Label htmlFor="newEntryGloss">Gloss ({analysisLang}):</Label>
           <Input id="newEntryGloss" onChange={(e) => setGloss(e.target.value)} value={gloss} />
         </div>
         <div>
-          <Label htmlFor="newEntryDefinition">Definition:</Label>
+          <Label htmlFor="newEntryDefinition">Definition ({analysisLang}):</Label>
           <Input
             id="newEntryDefinition"
             onChange={(e) => setDefinition(e.target.value)}

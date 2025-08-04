@@ -8,11 +8,16 @@ import type {
 } from 'fw-lite-extension';
 import { GridifyConditionalOperator } from '../types/enums';
 
+/** Throws if urlComponent is empty; otherwise, returns it encoded. */
+function sanitizeUrlComponent(urlComponent?: string): string {
+  if (!urlComponent) throw new Error(`Empty URL component`);
+  return encodeURIComponent(urlComponent);
+}
+
 /** Throws if urlComponent is empty or has any special URL characters it; otherwise, returns it. */
 function validateUrlComponent(urlComponent?: string): string {
-  if (!urlComponent || urlComponent !== encodeURIComponent(urlComponent))
-    // TODO: Sanitize error to avoid "log injection attacks or unintended information disclosure".
-    throw new Error(`Invalid URL component: '${urlComponent}'`);
+  const sanitizedComponent = sanitizeUrlComponent(urlComponent);
+  if (urlComponent !== sanitizedComponent) throw new Error(`Invalid URL component`);
   return urlComponent;
 }
 
@@ -29,7 +34,7 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
 }
 
 export function getBrowseUrl(baseUrl: string, dictionaryCode: string, entryId?: string): string {
-  let url = `${baseUrl}/paratext/fwdata/${validateUrlComponent(dictionaryCode)}`;
+  let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(dictionaryCode)}`;
   if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}`;
   return url;
 }
@@ -110,7 +115,7 @@ export class FwLiteApi {
   /* eslint-enable no-type-assertion/no-type-assertion */
 
   private checkDictionaryCode(dictionaryCode?: string): DictionaryRef {
-    const code = validateUrlComponent(dictionaryCode || this.dictionaryCode);
+    const code = sanitizeUrlComponent(dictionaryCode || this.dictionaryCode);
     return { code, type: 'FwData' };
   }
 

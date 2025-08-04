@@ -189,8 +189,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       await projectManager.setFwDictionaryCode(dictionaryCode);
       if (dictionaryCode) {
         const langs = await fwLiteApi.getWritingSystems(dictionaryCode).catch(logger.error);
-        const analysisLang = Object.keys(langs?.analysis ?? {}).pop() ?? '';
-        await projectManager.setFwAnalysisLanguage(analysisLang);
+        const analysisLang = langs?.analysis.pop()?.wsId ?? '';
+        if (analysisLang) {
+          logger.info(`Storing FieldWorks dictionary analysis language '${analysisLang}'`);
+        } else {
+          logger.info('Failed to get analysis language of the FieldWorks dictionary');
+        }
+        await projectManager.setFwAnalysisLanguage(analysisLang).catch(logger.error);
       }
       return { success: true };
     },
