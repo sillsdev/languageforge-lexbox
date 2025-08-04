@@ -55,7 +55,7 @@ public class MediaFileServiceTests : IDisposable
 
     public void Dispose()
     {
-        // Directory.Delete(_fwHeadlessConfig.ProjectStorageRoot, true);
+        Directory.Delete(_fwHeadlessConfig.ProjectStorageRoot, true);
         _lexBoxDbContext.Files.ExecuteDelete();
     }
 
