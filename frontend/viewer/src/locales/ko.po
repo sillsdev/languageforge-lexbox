@@ -22,9 +22,9 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0} 변경)"
 
-#: src/lib/components/audio/audio-editor.svelte:28
-#: src/lib/components/audio/audio-editor.svelte:33
-#: src/lib/components/audio/audio-editor.svelte:37
+#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte:91
+#: src/lib/components/audio/audio-editor.svelte:95
 msgid "{0}"
 msgstr "{0}"
 
@@ -44,7 +44,7 @@ msgstr "{0} (필드웍스 라이트)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (필드웍스)"
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "{0} MB"
 msgstr "{0} MB"
 
@@ -81,8 +81,8 @@ msgstr "계정"
 msgid "Activity"
 msgstr "활동"
 
-#: src/lib/components/field-editors/audio-input.svelte:206
-#: src/lib/components/audio/AudioDialog.svelte:106
+#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "오디오 추가"
 
@@ -135,6 +135,14 @@ msgstr "{0}을 삭제하시겠습니까?"
 msgid "Audio file not included in Send & Receive"
 msgstr "보내기 및 받기에 포함되지 않은 오디오 파일"
 
+#: src/lib/components/audio/AudioDialog.svelte:84
+msgid "Audio saved and uploaded to Lexbox"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte:81
+msgid "Audio saved locally"
+msgstr ""
+
 #: src/lib/history/HistoryView.svelte:95
 #: src/lib/activity/ActivityView.svelte:91
 msgid "Author:"
@@ -165,7 +173,7 @@ msgstr "찾아보기"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:118
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Cancel"
 msgstr "취소"
 
@@ -297,7 +305,7 @@ msgstr "사전"
 msgid "Dictionary Preview"
 msgstr "사전 미리보기"
 
-#: src/lib/components/audio/audio-editor.svelte:46
+#: src/lib/components/audio/audio-editor.svelte:107
 msgid "Discard"
 msgstr "폐기"
 
@@ -311,6 +319,7 @@ msgid "Don't delete"
 msgstr "삭제하지 마세요."
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
+#: src/lib/components/audio/audio-editor.svelte:106
 #: src/home/Server.svelte:127
 msgid "Download"
 msgstr "다운로드"
@@ -404,13 +413,26 @@ msgstr "필드 레이블"
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
-#: src/lib/components/audio/audio-editor.svelte:32
+#: src/lib/components/audio/AudioDialog.svelte:91
+msgid "File already exists"
+msgstr ""
+
+#: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
 msgstr "파일 이름:"
 
-#: src/lib/components/field-editors/audio-input.svelte:74
+#: src/lib/components/field-editors/audio-input.svelte:78
 msgid "File not found"
 msgstr "파일을 찾을 수 없음"
+
+#: src/lib/components/audio/AudioDialog.svelte:89
+msgid "File saving not supported"
+msgstr ""
+
+#: src/lib/components/audio/AudioDialog.svelte:150
+#: src/lib/components/audio/AudioDialog.svelte:87
+msgid "File too big"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -488,7 +510,7 @@ msgstr "가져오기"
 msgid "Last change: {0}"
 msgstr "마지막 변경 사항: {0}"
 
-#: src/lib/components/audio/audio-editor.svelte:28
+#: src/lib/components/audio/audio-editor.svelte:86
 msgid "Length:"
 msgstr "길이:"
 
@@ -592,10 +614,6 @@ msgstr "새 항목"
 msgid "No activity found"
 msgstr "활동을 찾을 수 없습니다."
 
-#: src/lib/components/field-editors/audio-input.svelte:210
-msgid "No audio"
-msgstr "오디오 없음"
-
 #: src/lib/history/HistoryView.svelte:71
 msgid "No change name"
 msgstr "이름 변경 안 함"
@@ -608,6 +626,10 @@ msgstr "사전을 찾을 수 없습니다."
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "항목을 찾을 수 없습니다."
+
+#: src/lib/components/audio/AudioDialog.svelte:77
+msgid "No file to upload"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:66
 msgid "No history found"
@@ -650,7 +672,7 @@ msgstr "참고"
 msgid "Offline"
 msgstr "오프라인"
 
-#: src/lib/components/field-editors/audio-input.svelte:77
+#: src/lib/components/field-editors/audio-input.svelte:81
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
 
@@ -729,7 +751,7 @@ msgstr "다시 열기"
 msgid "Replace audio"
 msgstr "오디오 교체"
 
-#: src/lib/components/audio/AudioDialog.svelte:120
+#: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
 msgstr "오디오 저장"
 
@@ -793,7 +815,7 @@ msgstr "보기 {0} 더보기..."
 msgid "Simple"
 msgstr "Simple"
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "Size:"
 msgstr "크기:"
 
@@ -866,7 +888,7 @@ msgstr "번역"
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
-#: src/lib/components/audio/audio-editor.svelte:36
+#: src/lib/components/audio/audio-editor.svelte:94
 msgid "Type:"
 msgstr "유형:"
 
@@ -882,10 +904,11 @@ msgid "Unknown"
 msgstr "알 수 없음"
 
 #: src/project/ProjectSidebar.svelte:115
+#: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "알 수 없는 오류"
 
-#: src/lib/components/field-editors/audio-input.svelte:80
+#: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
 msgstr "알 수 없는 오류 {0}"
 
@@ -942,4 +965,3 @@ msgstr "쓰기 시스템: {0}"
 #: src/project/browse/filter/WsSelect.svelte:29
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
-
