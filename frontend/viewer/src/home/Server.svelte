@@ -10,9 +10,9 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import ProjectListItem from './ProjectListItem.svelte';
-  import {getContext} from 'svelte';
+  import {transitionContext} from './transitions';
 
-  const [send, receive] = getContext('transitions');
+  const [send, receive] = transitionContext.get();
 
   const projectsService = useProjectsService();
 
@@ -109,22 +109,20 @@
       <div class="shadow rounded">
         {#each projects as project (project.id)}
           {@const localProject = matchesProject(localProjects, project)}
-          {#if localProject?.crdt}
-          <!--  show nothing?-->
-          {:else}
+          {#if !localProject?.crdt}
             {@const loading = downloading === project.code}
-            <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
-            <ButtonListItem onclick={() => downloadCrdtProject(project)} disabled={!!downloading}>
-              <ProjectListItem icon="i-mdi-cloud" {project} {loading}>
-                {#snippet actions()}
-                  <div class="pointer-events-none shrink-0">
-                    <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
-                      {$t`Download`}
-                    </Button>
-                  </div>
-                {/snippet}
-              </ProjectListItem>
-            </ButtonListItem>
+            <div out:send={{key: 'project-' + project.id}} in:receive={{key: 'project-' + project.id}}>
+              <ButtonListItem onclick={() => downloadCrdtProject(project)} disabled={!!downloading}>
+                <ProjectListItem icon="i-mdi-cloud" {project} {loading}>
+                  {#snippet actions()}
+                    <div class="pointer-events-none shrink-0">
+                      <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
+                        {$t`Download`}
+                      </Button>
+                    </div>
+                  {/snippet}
+                </ProjectListItem>
+              </ButtonListItem>
             </div>
           {/if}
         {/each}

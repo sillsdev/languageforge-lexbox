@@ -27,7 +27,7 @@
   import {Input} from '$lib/components/ui/input';
   import {crossfade} from 'svelte/transition';
   import {cubicOut} from 'svelte/easing';
-  import {setContext} from 'svelte';
+  import {transitionContext} from './transitions';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -37,7 +37,7 @@
     duration: 500,
     easing: cubicOut,
   });
-  setContext('transitions', [send, receive]);
+  transitionContext.set([send, receive]);
   function dateTimeProjectSuffix(): string {
     return new Date()
       .toISOString()
@@ -170,32 +170,32 @@
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
-              <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
-              <ButtonListItem href={`/project/${project.code}`}>
-                <ProjectListItem icon="i-mdi-book-edit-outline"
-                                 {project}
-                                 {loading}
-                                 subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
-                >
-                  {#snippet actions()}
-                    <div class="flex items-center">
-                      {#if $isDev}
-                        <Button
-                          icon="i-mdi-delete"
-                          variant="ghost"
-                          title={$t`Delete`}
-                          class="p-2 hover:bg-primary/20"
-                          onclick={(e) => {
-                          e.preventDefault();
-                          void deleteProject(project);
-                        }}
-                        />
-                      {/if}
-                      <Icon icon="i-mdi-chevron-right" class="p-2"/>
-                    </div>
-                  {/snippet}
-                </ProjectListItem>
-              </ButtonListItem>
+              <div out:send={{key: 'project-' + project.id}} in:receive={{key: 'project-' + project.id}}>
+                <ButtonListItem href={`/project/${project.code}`}>
+                  <ProjectListItem icon="i-mdi-book-edit-outline"
+                                   {project}
+                                   {loading}
+                                   subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
+                  >
+                    {#snippet actions()}
+                      <div class="flex items-center">
+                        {#if $isDev}
+                          <Button
+                            icon="i-mdi-delete"
+                            variant="ghost"
+                            title={$t`Delete`}
+                            class="p-2 hover:bg-primary/20"
+                            onclick={(e) => {
+                            e.preventDefault();
+                            void deleteProject(project);
+                          }}
+                          />
+                        {/if}
+                        <Icon icon="i-mdi-chevron-right" class="p-2"/>
+                      </div>
+                    {/snippet}
+                  </ProjectListItem>
+                </ButtonListItem>
               </div>
             {/each}
             <DevContent>
