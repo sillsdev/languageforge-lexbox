@@ -16,7 +16,9 @@ import EntryCard from '../components/entry-card';
 /* eslint-disable react-hooks/rules-of-hooks */
 
 globalThis.webViewComponent = function fwLiteFindRelatedWords({
+  analysisLanguage,
   projectId,
+  vernacularLanguage,
   word,
 }: WordWebViewOptions) {
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
@@ -36,7 +38,7 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
       })
-      .catch((err) => logger.error(err));
+      .catch(logger.error);
   }, []);
 
   useEffect(() => {
@@ -157,9 +159,9 @@ globalThis.webViewComponent = function fwLiteFindRelatedWords({
       {selectedDomain && (
         <AddNewEntry
           addEntry={addEntryInDomain}
-          analysisLang="en"
+          analysisLang={analysisLanguage ?? ''}
           headword={searchTerm}
-          vernacularLang="en"
+          vernacularLang={vernacularLanguage ?? ''}
         />
       )}
     </div>

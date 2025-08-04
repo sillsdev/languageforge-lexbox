@@ -56,7 +56,13 @@ declare module 'fw-lite-extension' {
     url?: string;
   }
 
-  interface WordWebViewOptions extends OpenWebViewOptionsWithProjectId {
+  interface OpenWebViewOptionsWithDictionaryInfo extends OpenWebViewOptionsWithProjectId {
+    analysisLanguage?: string;
+    dictionaryCode?: string;
+    vernacularLanguage?: string;
+  }
+
+  interface WordWebViewOptions extends OpenWebViewOptionsWithDictionaryInfo {
     word?: string;
   }
 
@@ -83,6 +89,7 @@ declare module 'papi-shared-types' {
   }
 
   export interface ProjectSettingTypes {
+    'fw-lite-extension.fwAnalysisLanguage': string;
     'fw-lite-extension.fwDictionaryCode': string;
   }
 

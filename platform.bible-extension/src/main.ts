@@ -1,6 +1,6 @@
 import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
-import type { BrowseWebViewOptions, WordWebViewOptions } from 'fw-lite-extension';
+import type { BrowseWebViewOptions } from 'fw-lite-extension';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
 import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
@@ -54,16 +54,21 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Register settings validators */
 
-  const validDictionaryCode = papi.projectSettings.registerValidator(
+  const validateAnalysisLanguage = papi.projectSettings.registerValidator(
+    'fw-lite-extension.fwAnalysisLanguage',
+    async (newValue) => !newValue || Intl.getCanonicalLocales(newValue)[0] === newValue,
+  );
+
+  const validateDictionaryCode = papi.projectSettings.registerValidator(
     'fw-lite-extension.fwDictionaryCode',
-    async (dictionaryCode) => {
-      if (!dictionaryCode) {
+    async (newValue) => {
+      if (!newValue) {
         logger.info('FieldWorks dictionary code cleared in project settings');
         return true;
       }
-      logger.info('Validating FieldWorks dictionary code:', dictionaryCode);
+      logger.info('Validating FieldWorks dictionary code:', newValue);
       try {
-        return !!(await fwLiteApi.getWritingSystems(dictionaryCode)).analysis;
+        return !!(await fwLiteApi.getWritingSystems(newValue)).analysis;
       } catch {
         return false;
       }
@@ -89,7 +94,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const options: WordWebViewOptions = { word };
+      const options = await projectManager.getWordWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
     },
@@ -145,7 +150,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const options: WordWebViewOptions = { word };
+      const options = await projectManager.getWordWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindWord, undefined, options);
       return { success };
     },
@@ -159,7 +164,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
       if (!projectManager) return { success };
 
-      const options: WordWebViewOptions = { word };
+      const options = await projectManager.getWordWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
       return { success };
     },
@@ -182,6 +187,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       if (!projectManager) return { success: false };
 
       await projectManager.setFwDictionaryCode(dictionaryCode);
+      if (dictionaryCode) {
+        const langs = await fwLiteApi.getWritingSystems(dictionaryCode).catch(logger.error);
+        const analysisLang = Object.keys(langs?.analysis ?? {}).pop() ?? '';
+        await projectManager.setFwAnalysisLanguage(analysisLang);
+      }
       return { success: true };
     },
   );
@@ -193,7 +203,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       if (!projectId) return await fwLiteApi.getProjects();
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
-      // projectManager?.clearSettingsCache();
       const langTag = await projectManager?.getLanguageTag();
       return await fwLiteApi.getProjectsMatchingLanguage(langTag);
     },
@@ -212,7 +221,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await findRelatedWordsWebViewProviderPromise,
     await findWordWebViewProviderPromise,
     // Validators
-    await validDictionaryCode,
+    await validateAnalysisLanguage,
+    await validateDictionaryCode,
     // Commands
     await addEntryCommandPromise,
     await browseDictionaryCommandPromise,

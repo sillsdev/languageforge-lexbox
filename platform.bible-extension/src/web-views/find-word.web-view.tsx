@@ -9,7 +9,12 @@ import EntryCard from '../components/entry-card';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
-globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordWebViewOptions) {
+globalThis.webViewComponent = function fwLiteFindWord({
+  analysisLanguage,
+  projectId,
+  vernacularLanguage,
+  word,
+}: WordWebViewOptions) {
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
@@ -25,7 +30,7 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
       })
-      .catch((err) => logger.error(err));
+      .catch(logger.error);
   }, []);
 
   const fetchEntries = useCallback(
@@ -93,9 +98,9 @@ globalThis.webViewComponent = function fwLiteFindWord({ projectId, word }: WordW
 
       <AddNewEntry
         addEntry={addEntry}
-        analysisLang="en"
+        analysisLang={analysisLanguage ?? ''}
         headword={searchTerm}
-        vernacularLang="en"
+        vernacularLang={vernacularLanguage ?? ''}
       />
     </div>
   );

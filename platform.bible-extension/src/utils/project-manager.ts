@@ -1,6 +1,11 @@
 import papi, { logger } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
-import type { OpenWebViewOptionsWithProjectId, WebViewIds, WebViewType } from 'fw-lite-extension';
+import type {
+  OpenWebViewOptionsWithProjectId,
+  WebViewIds,
+  WebViewType,
+  WordWebViewOptions,
+} from 'fw-lite-extension';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
@@ -9,9 +14,6 @@ import { ProjectSettingKey } from '../types/enums';
 export class ProjectManager {
   readonly projectId: string;
   private dataProvider?: IBaseProjectDataProvider<MandatoryProjectDataTypes>;
-  private fwDictionaryCode?: string;
-  private languageTag?: string;
-  private name?: string;
   private readonly webViewIds: WebViewIds = {};
 
   constructor(projectId: string) {
@@ -22,45 +24,43 @@ export class ProjectManager {
     return await new ProjectManager(projectId).getFwDictionaryCode();
   }
 
-  clearSettingsCache(): void {
-    this.fwDictionaryCode = undefined;
-    this.languageTag = undefined;
-    this.name = undefined;
+  async getFwAnalysisLanguage(): Promise<string | undefined> {
+    return await this.getSetting(ProjectSettingKey.FwAnalysisLanguage);
+  }
+
+  async setFwAnalysisLanguage(analysisLanguage: string): Promise<void> {
+    if ((await this.getFwAnalysisLanguage()) === analysisLanguage) return;
+    await this.setSetting(ProjectSettingKey.FwAnalysisLanguage, analysisLanguage);
   }
 
   async getFwDictionaryCode(): Promise<string | undefined> {
-    this.fwDictionaryCode ??= await (
-      await this.getDataProvider()
-    )?.getSetting(ProjectSettingKey.FwDictionaryCode);
-    logger.info(`Setting '${ProjectSettingKey.FwDictionaryCode}': ${this.fwDictionaryCode}`);
-    return this.fwDictionaryCode;
+    return await this.getSetting(ProjectSettingKey.FwDictionaryCode);
   }
 
   async setFwDictionaryCode(dictionaryCode: string): Promise<void> {
     if ((await this.getFwDictionaryCode()) === dictionaryCode) return;
-    const dataProvider = await this.getDataProvider();
-    if (dataProvider?.setSetting(ProjectSettingKey.FwDictionaryCode, dictionaryCode)) {
-      this.fwDictionaryCode = dictionaryCode;
-    }
-    logger.info(`Setting '${ProjectSettingKey.FwDictionaryCode}': ${this.fwDictionaryCode}`);
+    await this.setSetting(ProjectSettingKey.FwDictionaryCode, dictionaryCode);
   }
 
   async getLanguageTag(): Promise<string | undefined> {
-    this.languageTag ??= await (
-      await this.getDataProvider()
-    )?.getSetting(ProjectSettingKey.ProjectLanguageTag);
-    logger.info(`Setting '${ProjectSettingKey.ProjectLanguageTag}': ${this.languageTag}`);
-    return this.languageTag;
+    return await this.getSetting(ProjectSettingKey.ProjectLanguageTag);
   }
 
   async getName(): Promise<string | undefined> {
-    this.name ??= await (await this.getDataProvider())?.getSetting(ProjectSettingKey.ProjectName);
-    logger.info(`Setting '${ProjectSettingKey.ProjectName}': ${this.name}`);
-    return this.name;
+    return await this.getSetting(ProjectSettingKey.ProjectName);
   }
 
   async getNameOrId(): Promise<string | undefined> {
     return (await this.getName()) || this.projectId;
+  }
+
+  async getWordWebViewOptions(word?: string): Promise<WordWebViewOptions> {
+    return {
+      analysisLanguage: await this.getFwAnalysisLanguage(),
+      dictionaryCode: await this.getFwDictionaryCode(),
+      vernacularLanguage: await this.getLanguageTag(),
+      word,
+    };
   }
 
   async openWebView(
@@ -86,5 +86,15 @@ export class ProjectManager {
   > {
     this.dataProvider ||= await papi.projectDataProviders.get('platform.base', this.projectId);
     return this.dataProvider;
+  }
+
+  private async getSetting(setting: ProjectSettingKey): Promise<string | undefined> {
+    logger.info(`Getting '${ProjectSettingKey.ProjectLanguageTag}'`);
+    return await (await this.getDataProvider())?.getSetting(setting);
+  }
+
+  private async setSetting(setting: ProjectSettingKey, value: string): Promise<void> {
+    logger.info(`Setting '${ProjectSettingKey.ProjectLanguageTag}' to '${value}'`);
+    await (await this.getDataProvider())?.setSetting(setting, value);
   }
 }

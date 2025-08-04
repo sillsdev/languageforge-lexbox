@@ -6,7 +6,12 @@ import AddNewEntry from '../components/add-new-entry';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
-globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWebViewOptions) {
+globalThis.webViewComponent = function fwLiteAddWord({
+  analysisLanguage,
+  projectId,
+  vernacularLanguage,
+  word,
+}: WordWebViewOptions) {
   const [fwLiteNetworkObject, setFwLiteNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
@@ -21,7 +26,7 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
       })
-      .catch((err) => logger.error(err));
+      .catch(logger.error);
   }, []);
 
   const addEntry = useCallback(
@@ -51,10 +56,10 @@ globalThis.webViewComponent = function fwLiteAddWord({ projectId, word }: WordWe
     <div>
       <AddNewEntry
         addEntry={addEntry}
-        analysisLang="en"
+        analysisLang={analysisLanguage ?? ''}
         headword={word}
         isAdding
-        vernacularLang="en"
+        vernacularLang={vernacularLanguage ?? ''}
       />
       {isSubmitting && <p>Adding entry to FieldWorks...</p>}
       {isSubmitted && <p>Entry added!</p>}

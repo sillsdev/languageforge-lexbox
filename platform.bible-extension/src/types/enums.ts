@@ -7,6 +7,7 @@ export enum WebViewType {
 }
 
 export enum ProjectSettingKey {
+  FwAnalysisLanguage = 'fw-lite-extension.fwAnalysisLanguage',
   FwDictionaryCode = 'fw-lite-extension.fwDictionaryCode',
   ProjectLanguage = 'platform.language',
   ProjectLanguageTag = 'platform.languageTag',

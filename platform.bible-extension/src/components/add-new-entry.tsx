@@ -29,8 +29,8 @@ export default function AddNewEntry({
   useEffect(() => setTempHeadword(headword || ''), [headword]);
 
   useEffect(() => {
-    setReady(!!(tempHeadword.trim() && (gloss.trim() || definition.trim())));
-  }, [definition, gloss, tempHeadword]);
+    setReady(!!(vernacularLang && tempHeadword.trim() && (gloss.trim() || definition.trim())));
+  }, [definition, gloss, tempHeadword, vernacularLang]);
 
   const clearEntry = useCallback((): void => {
     setAdding(isAdding);
@@ -43,13 +43,13 @@ export default function AddNewEntry({
     const entry = createEntry(
       vernacularLang,
       tempHeadword.trim(),
-      analysisLang,
+      analysisLang || 'en',
       gloss.trim(),
       definition.trim(),
     );
     await addEntry(entry)
       .then(() => clearEntry())
-      .catch((err) => logger.error(err));
+      .catch(logger.error);
   }
 
   return adding ? (

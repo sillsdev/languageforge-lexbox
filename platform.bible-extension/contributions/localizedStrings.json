@@ -2,9 +2,6 @@
   "metadata": {},
   "localizedStrings": {
     "en": {
-      "%dictionary_project_settings_label%": "FieldWorks Lite Settings",
-      "%fieldworks_project_settings_label%": "FieldWorks Project",
-      "%fieldworks_project_settings_label_description%": "The FieldWorks project to use with this project",
       "%fwLiteExtension_addWord_title%": "Add to FieldWorks",
       "%fwLiteExtension_browseDictionary_title%": "FieldWorks Lite",
       "%fwLiteExtension_selectDictionary_title%": "Select FieldWorks dictionary",
@@ -17,6 +14,10 @@
       "%fwLiteExtension_menu_findEntry%": "Search in FieldWorks...",
       "%fwLiteExtension_menu_findRelatedEntries%": "Search for related words...",
       "%fwLiteExtension_open_label%": "Open FieldWorks Lite",
+      "%fwLiteExtension_projectSettings_title%": "FieldWorks Lite settings",
+      "%fwLiteExtension_projectSettings_analysisLanguage%": "Analysis language",
+      "%fwLiteExtension_projectSettings_dictionary%": "FieldWorks dictionary",
+      "%fwLiteExtension_projectSettings_dictionaryDescription%": "The FieldWorks dictionary to use with this project",
       "%fwlite_choose_new_entry_button%": "Choose New Entry",
       "%fwlite_clear_entry_button%": "Clear Entry",
       "%fwlite_clear_selection_button%": "Clear Selection",

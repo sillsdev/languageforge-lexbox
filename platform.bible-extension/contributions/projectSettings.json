@@ -1,10 +1,15 @@
 [
   {
-    "label": "%dictionary_project_settings_label%",
+    "label": "%fwLiteExtension_projectSettings_title%",
     "properties": {
+      "fw-lite-extension.fwAnalysisLanguage": {
+        "label": "%fwLiteExtension_projectSettings_analysisLanguage%",
+        "default": "",
+        "isHidden": true
+      },
       "fw-lite-extension.fwDictionaryCode": {
-        "label": "%fieldworks_project_settings_label%",
-        "description": "%fieldworks_project_settings_label_description%",
+        "label": "%fwLiteExtension_projectSettings_dictionary%",
+        "description": "%fwLiteExtension_projectSettings_dictionaryDescription%",
         "default": ""
       }
     }
