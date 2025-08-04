@@ -116,7 +116,7 @@
   {/snippet}
 
   {#snippet actions()}
-    <div class="flex">
+    <div class="flex space-x-1">
       {#if import.meta.env.DEV}
         <Button href="http://localhost:6006/" target="_blank"
                 variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
