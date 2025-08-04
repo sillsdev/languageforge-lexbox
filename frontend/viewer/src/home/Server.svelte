@@ -106,7 +106,7 @@
         {/if}
       </p>
     {:else}
-      <div class="shadow rounded">
+      <div>
         {#each projects as project (project.id)}
           {@const localProject = matchesProject(localProjects, project)}
           {#if !localProject?.crdt}
