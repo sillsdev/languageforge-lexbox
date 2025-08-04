@@ -112,17 +112,15 @@
           {#if !localProject?.crdt}
             {@const loading = downloading === project.code}
             <div out:send={{key: 'project-' + project.id}} in:receive={{key: 'project-' + project.id}}>
-              <ButtonListItem onclick={() => downloadCrdtProject(project)} disabled={!!downloading}>
-                <ProjectListItem icon="i-mdi-cloud" {project} {loading}>
-                  {#snippet actions()}
-                    <div class="pointer-events-none shrink-0">
-                      <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
-                        {$t`Download`}
-                      </Button>
-                    </div>
-                  {/snippet}
-                </ProjectListItem>
-              </ButtonListItem>
+              <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
+                {#snippet actions()}
+                  <div class="pointer-events-none shrink-0">
+                    <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
+                      {loading ? $t`Downloading...` : $t`Download`}
+                    </Button>
+                  </div>
+                {/snippet}
+              </ProjectListItem>
             </div>
           {/if}
         {/each}

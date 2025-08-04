@@ -8,6 +8,7 @@
   export type ListItemProps = WithElementRef<HTMLButtonAttributes> & {
     selected?: boolean;
     skeleton?: boolean;
+    loading?: boolean;
     icon?: Snippet | IconClass;
     actions?: Snippet;
   };
@@ -25,18 +26,20 @@
     selected = false,
     skeleton = false,
     disabled = false,
+    loading = false,
     ...restProps
   }: ListItemProps = $props();
 </script>
 
 <button
   aria-selected={selected && !skeleton && !disabled}
-  disabled={disabled}
+  disabled={disabled || loading}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
     'dark:bg-muted/50 bg-muted/80 hover:bg-primary/15 hover:dark:bg-primary/15 aria-selected:ring-2 ring-primary ring-offset-background rounded',
     'shadow hover:shadow-lg hover:z-10',
-    'disabled:pointer-events-none disabled:bg-destructive/5',
+    'disabled:pointer-events-none disabled:contrast-[0.8]',
+    loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
     className)}
   role="row"

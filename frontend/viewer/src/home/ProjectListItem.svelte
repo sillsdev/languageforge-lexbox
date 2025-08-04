@@ -1,19 +1,16 @@
 <script lang="ts">
-  import {cn} from '$lib/utils';
   import ProjectTitle from './ProjectTitle.svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
 
   interface Props {
     project?: Pick<IProjectModel, 'name' | 'code'>;
-    loading?: boolean;
     skeleton?: boolean;
     subtitle?: string;
   }
 
   let {
     project = undefined,
-    loading = false,
     children = undefined,
     skeleton = false,
     subtitle = undefined,
