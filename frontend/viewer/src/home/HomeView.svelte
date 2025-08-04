@@ -106,7 +106,7 @@
   let troubleshootDialog: TroubleshootDialog | undefined;
 
   let clickCount = 0;
-  let clickTimeout: number;
+  let clickTimeout: ReturnType<typeof setTimeout> | undefined;
 
   function resetClickCounter() {
     clickCount = 0;
