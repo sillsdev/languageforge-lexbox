@@ -25,12 +25,19 @@
   import ProjectListItem from './ProjectListItem.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {Input} from '$lib/components/ui/input';
+  import {crossfade} from 'svelte/transition';
+  import {cubicOut} from 'svelte/easing';
+  import {setContext} from 'svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
   const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
-
+  const [send, receive] = crossfade({
+    duration: 500,
+    easing: cubicOut,
+  });
+  setContext('transitions', [send, receive]);
   function dateTimeProjectSuffix(): string {
     return new Date()
       .toISOString()
@@ -163,6 +170,7 @@
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
+              <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
               <ButtonListItem href={`/project/${project.code}`}>
                 <ProjectListItem icon="i-mdi-book-edit-outline"
                                  {project}
@@ -188,6 +196,7 @@
                   {/snippet}
                 </ProjectListItem>
               </ButtonListItem>
+              </div>
             {/each}
             <DevContent>
               <ButtonListItem href="/testing/project-view">

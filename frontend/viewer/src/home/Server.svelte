@@ -10,6 +10,9 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import ProjectListItem from './ProjectListItem.svelte';
+  import {getContext} from 'svelte';
+
+  const [send, receive] = getContext('transitions');
 
   const projectsService = useProjectsService();
 
@@ -107,19 +110,10 @@
         {#each projects as project (project.id)}
           {@const localProject = matchesProject(localProjects, project)}
           {#if localProject?.crdt}
-            <ButtonListItem href={`/project/${project.code}`}>
-              <ProjectListItem {project}>
-                {#snippet actions()}
-                  <div class="pointer-events-none shrink-0">
-                    <Button disabled icon="i-mdi-book-sync-outline" variant="ghost" class="p-2">
-                      {$t`Synced`}
-                    </Button>
-                  </div>
-                {/snippet}
-              </ProjectListItem>
-            </ButtonListItem>
+          <!--  show nothing?-->
           {:else}
             {@const loading = downloading === project.code}
+            <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
             <ButtonListItem onclick={() => downloadCrdtProject(project)} disabled={!!downloading}>
               <ProjectListItem icon="i-mdi-cloud" {project} {loading}>
                 {#snippet actions()}
@@ -131,6 +125,7 @@
                 {/snippet}
               </ProjectListItem>
             </ButtonListItem>
+            </div>
           {/if}
         {/each}
       </div>
