@@ -128,6 +128,10 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
     public async Task SaveMediaFile(MediaFile mediaFile, Stream fileStream)
     {
+        if ((fileStream.SafeLength() ?? 0) > config.Value.MaxUploadFileSizeBytes)
+        {
+            throw new FileTooLarge();
+        }
         var fwDataFolder = config.Value.GetFwDataFolder(mediaFile.ProjectId);
         if (!Directory.Exists(fwDataFolder)) throw new ProjectFolderNotFoundInFwHeadless();
         var entry = dbContext.Entry(mediaFile);

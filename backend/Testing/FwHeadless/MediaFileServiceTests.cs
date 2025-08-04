@@ -207,6 +207,44 @@ public class MediaFileServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task SaveMediaFile_CanUpdateExistingFile()
+    {
+        var mediaFile = new MediaFile { Filename = "test.txt", ProjectId = _projectId };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+        _lexBoxDbContext.ChangeTracker.Clear();
+        var fileId = mediaFile.Id;
+        var actualFile = await _service.FindMediaFileAsync(fileId);
+        actualFile.Should().NotBeNull();
+        actualFile.Filename.Should().Be("test.txt");
+
+        await _service.SaveMediaFile(actualFile, SimpleStream("updated"));
+
+        (await File.ReadAllTextAsync(_service.FilePath(actualFile))).Should().Be("updated");
+    }
+
+    [Fact]
+    public async Task SaveMediaFile_ThrowsWhenTheFileIsTooBig()
+    {
+        var memoryStream = new MemoryStream();
+        using (var stream = new StreamWriter(memoryStream, leaveOpen: true))
+        {
+            while (memoryStream.Length < _fwHeadlessConfig.MaxUploadFileSizeBytes)
+            {
+                stream.Write(Guid.NewGuid().ToString("N"));
+            }
+        }
+        memoryStream.Position = 0;
+
+
+        var mediaFile = new MediaFile { Filename = "test.txt", ProjectId = _projectId };
+        var act = async () => await _service.SaveMediaFile(mediaFile, memoryStream);
+        await act.Should().ThrowAsync<FileTooLarge>();
+
+        var filePath = _service.FilePath(mediaFile);
+        Directory.GetFiles(Path.GetDirectoryName(filePath)!).Should().NotContain(filePath);
+    }
+
+    [Fact]
     public async Task Adapter_ToMediaUri()
     {
         var mediaFile = await AddFile("Adapter_ToMediaUri.txt");
