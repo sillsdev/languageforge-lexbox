@@ -85,13 +85,34 @@ jobs:
         working-directory: frontend
         run: |
           pnpm install
+      - name: Ensure all i18n strings have been extracted
+        working-directory: frontend/viewer
+        shell: bash
+        run: |
+          set -e
+          # GHA sets -o pipefail when shell is bash but we want to turn it off
+          set +o pipefail
+          rm -f src/locales/en.po.old
+          cp src/locales/en.po src/locales/en.po.old
+          pnpm i18n:extract
+          DIFFCOUNT=$(diff -u src/locales/en.po{.old,} | grep '+msgid' | wc -l)
+          if [ $DIFFCOUNT -gt 0 ]; then
+            # Unextracted strings found, fail the build
+            echo '***'
+            echo $DIFFCOUNT unextracted strings found:
+            echo '***'
+            diff -u src/locales/en.po{.old,} | grep '+msgid' | cut -c2-
+            echo '***'
+            echo Please run pnpm i18n:extract
+            exit 1
+          fi
+          rm -f src/locales/en.po.old
       - name: Set up Playwright dependencies
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
       - name: Run snapshot tests
         working-directory: frontend/viewer
         run: task playwright-test-standalone
-
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build

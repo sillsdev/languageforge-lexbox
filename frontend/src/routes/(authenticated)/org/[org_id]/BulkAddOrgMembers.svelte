@@ -110,7 +110,7 @@
         {#if addedMembers.length > 0}
           <div class="mt-2">
             <BadgeList>
-              {#each addedMembers as user}
+              {#each addedMembers as user (user.username)}
                 <OrgMemberBadge member={{ name: user.username, role: user.role }} />
               {/each}
             </BadgeList>
@@ -125,7 +125,7 @@
         {#if notFoundMembers.length > 0}
           <div class="mt-2">
             <BadgeList>
-              {#each notFoundMembers as user}
+              {#each notFoundMembers as user (user.username)}
                 <OrgMemberBadge member={{ name: user.username, role: user.role }} />
               {/each}
             </BadgeList>
@@ -139,7 +139,7 @@
         </p>
         <div class="mt-2">
           <BadgeList>
-            {#each existingMembers as user}
+            {#each existingMembers as user (user.username)}
               <OrgMemberBadge member={{ name: user.username, role: user.role }} />
             {/each}
           </BadgeList>

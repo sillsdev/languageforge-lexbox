@@ -215,7 +215,7 @@
               </Badge>
             {/if}
           </ListItem>
-          {#each selectedEntry.senses as sense}
+          {#each selectedEntry.senses as sense (sense.id)}
             {@const disabledSense = disableSense?.(sense, selectedEntry)}
             <SenseRow
               {sense}

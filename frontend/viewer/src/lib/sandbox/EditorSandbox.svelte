@@ -76,6 +76,7 @@
   }
 </script>
 
+<!-- eslint-disable svelte/no-useless-mustaches - This is a sandbox, we don't need translations -->
 <ResizablePaneGroup direction="horizontal">
   <ResizablePane class="!overflow-visible" defaultSize={75}>
     <Editor.Root class="my-4 border px-4 py-8 relative z-0">

@@ -24,7 +24,7 @@
   <Select.Content>
     <Select.Group>
       <Select.GroupHeading>Filter By</Select.GroupHeading>
-      {#each ops as op}
+      {#each ops as op (op.value)}
         <Select.Item value={op.value}>
           <Icon icon={op.icon} class="mr-2"/>
           {op.label}

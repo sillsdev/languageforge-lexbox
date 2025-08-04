@@ -52,6 +52,7 @@
     await expect(input).toBeInTheDocument();
     focusAtEnd(input);
     await userEvent.type(input, ' new text'); // dirty => locked
+    await tick();
     await expect(input.textContent).toMatch(/new text$/);
     value = { spans: [span('A different value')] }; // parent change while locked
     await tick();
@@ -62,6 +63,25 @@
     value = { spans: [span('A different value')] }; // parent change while unlocked
     await tick();
     await expect(input.textContent).toBe('A different value'); // accepted
+  }}
+>
+  {#snippet template({ value: _, ...args })}
+    {JSON.stringify($state.snapshot(value), null, 2)}
+    <StompSafeLcmRichTextEditor bind:value {...args} />
+  {/snippet}
+</Story>
+<!-- Regression test for https://github.com/sillsdev/languageforge-lexbox/issues/1871 -->
+<Story
+  name="Can type into empty fields"
+  play={async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole<HTMLDivElement>('textbox');
+    await expect(input).toBeInTheDocument();
+    await userEvent.clear(input);
+    await expect(input.textContent).toBe('');
+    input.click();
+    await userEvent.type(input, 'abc');
+    await expect(input.textContent).toBe('abc');
   }}
 >
   {#snippet template({ value: _, ...args })}

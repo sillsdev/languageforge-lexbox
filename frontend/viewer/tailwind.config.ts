@@ -14,7 +14,6 @@ export default {
   content: [
     './src/**/!(WebComponent).{html,svelte,ts}',
     './.storybook/**/*.{html,svelte,ts}',
-    './node_modules/svelte-ux/**/*.{svelte,js}',
     //exclude icons.d.ts, because it contains all the icon classes which would cause them all to be included in the bundle
     '!./src/lib/icon-class.ts'
   ],
