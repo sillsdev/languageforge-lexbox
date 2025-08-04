@@ -14,7 +14,7 @@ using SystemTextJsonPatch.Operations;
 namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory, MiniLcmApiStringNormalizationWrapperFactory normalizationWrapperFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -51,8 +51,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
     {
-        crdtApi = validationWrapperFactory.Create(crdtApi);
-        fwdataApi = validationWrapperFactory.Create(fwdataApi);
+        crdtApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(crdtApi));
+        fwdataApi = normalizationWrapperFactory.Create(validationWrapperFactory.Create(fwdataApi));
 
         if (dryRun)
         {

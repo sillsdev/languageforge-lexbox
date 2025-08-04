@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text;
 using System.Text.Json.Serialization;
 using MiniLcm.Filtering;
 using MiniLcm.Media;
@@ -38,6 +39,10 @@ public record FilterQueryOptions(
 {
     public static FilterQueryOptions Default { get; } = new();
     public bool HasFilter => Filter is {GridifyFilter.Length: > 0 } || Exemplar is {Value.Length: > 0};
+    public FilterQueryOptions Normalized(NormalizationForm form)
+    {
+        return new(Exemplar?.Normalized(form), Filter?.Normalized(form));
+    }
 }
 
 public record QueryOptions(
@@ -51,6 +56,11 @@ public record QueryOptions(
     public const int QueryAll = -1;
     public const int DefaultCount = 1000;
     public SortOptions Order { get; init; } = Order ?? SortOptions.Default;
+
+    public QueryOptions Normalized(NormalizationForm form)
+    {
+        return new(Order, Exemplar?.Normalized(form), Count, Offset, Filter?.Normalized(form));
+    }
 
     public IEnumerable<T> ApplyPaging<T>(IEnumerable<T> enumerable)
     {
@@ -99,7 +109,13 @@ public record SortOptions(SortField Field, WritingSystemId WritingSystem = defau
     public static SortOptions Default { get; } = new(SortField.Headword, DefaultWritingSystem);
 }
 
-public record ExemplarOptions(string Value, WritingSystemId WritingSystem);
+public record ExemplarOptions(string Value, WritingSystemId WritingSystem)
+{
+    public ExemplarOptions Normalized(NormalizationForm form)
+    {
+        return new(Value.Normalize(form), WritingSystem);
+    }
+}
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SortField

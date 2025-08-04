@@ -7,7 +7,9 @@ namespace MiniLcm.Validators;
 
 public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators) : IMiniLcmWrapperFactory
 {
-    public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused)
+    public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused) => Create(api);
+
+    public IMiniLcmApi Create(IMiniLcmApi api)
     {
         return new MiniLcmApiValidationWrapper(api, validators);
     }
