@@ -13,7 +13,7 @@ namespace FwHeadless;
 public static class FwHeadlessKernel
 {
     public const string LexboxHttpClientName = "LexboxHttpClient";
-    public static void AddFwHeadless(this IServiceCollection services)
+    public static IServiceCollection AddFwHeadless(this IServiceCollection services)
     {
         services
             .AddLogging(builder => builder.AddConsole().AddDebug().AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning));
@@ -46,5 +46,6 @@ public static class FwHeadlessKernel
             {
                 client.BaseAddress = new Uri(provider.GetRequiredService<IOptions<FwHeadlessConfig>>().Value.LexboxUrl);
             }).AddHttpMessageHandler<HttpClientAuthHandler>();
+        return services;
     }
 }

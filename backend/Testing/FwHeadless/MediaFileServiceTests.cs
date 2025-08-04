@@ -1,7 +1,9 @@
+using Chorus.VcsDrivers.Mercurial;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using FwHeadless;
 using FwHeadless.Media;
+using FwHeadless.Services;
 using LexCore.Entities;
 using LexData;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Media;
 using SIL.LCModel;
+using SIL.Progress;
 using Testing.Fixtures;
 using MediaFile = LexCore.Entities.MediaFile;
 
@@ -25,31 +28,34 @@ public class MediaFileServiceTests : IDisposable
     private readonly LcmCache _cache;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly Guid _projectId = SeedingData.Sena3ProjId;
+    private HgRepository _hgRepository;
 
     public MediaFileServiceTests(TestingServicesFixture testing)
     {
-        var services = testing.ConfigureServices(s => s.AddTestFwDataBridge());
-        _fwHeadlessConfig = new FwHeadlessConfig()
+        var services = testing.ConfigureServices(s => s.AddFwHeadless().AddTestFwDataBridge().Configure<FwHeadlessConfig>(config =>
         {
-            LexboxUrl = "test",
-            LexboxUsername = "admin",
-            LexboxPassword = "pass",
-            ProjectStorageRoot = Path.GetFullPath(Path.Combine(".", $"SyncMediaFileTests-{Guid.NewGuid():N}")),
-            MediaFileAuthority = "localhost"
-        };
+            config.LexboxUrl = "http://localhost/";
+            config.LexboxUsername = "admin";
+            config.LexboxPassword = "pass";
+            config.ProjectStorageRoot = Path.GetFullPath(Path.Combine(".", $"SyncMediaFileTests-{Guid.NewGuid():N}"));
+            config.MediaFileAuthority = "localhost";
+        }));
+        _fwHeadlessConfig = services.GetRequiredService<IOptions<FwHeadlessConfig>>().Value;
         Directory.CreateDirectory(_fwHeadlessConfig.ProjectStorageRoot);
+        var fwDataProject = _fwHeadlessConfig.GetFwDataProject("sena-3", _projectId);
         _cache = services.GetRequiredService<MockFwProjectLoader>()
-            .NewProject(_fwHeadlessConfig.GetFwDataProject("sena-3", _projectId), "en", "en");
+            .NewProject(fwDataProject, "en", "en");
         Directory.CreateDirectory(_cache.LangProject.LinkedFilesRootDir);
+        _hgRepository = HgRepository.CreateRepositoryInExistingDir(fwDataProject.ProjectFolder, new NullProgress());
         _lexBoxDbContext = services.GetDbContext();
         var config = new OptionsWrapper<FwHeadlessConfig>(_fwHeadlessConfig);
-        _service = new MediaFileService(_lexBoxDbContext, config);
+        _service = new MediaFileService(_lexBoxDbContext, config, services.GetRequiredService<SendReceiveService>());
         _adapter = new LexboxFwDataMediaAdapter(config, _service);
     }
 
     public void Dispose()
     {
-        Directory.Delete(_fwHeadlessConfig.ProjectStorageRoot, true);
+        // Directory.Delete(_fwHeadlessConfig.ProjectStorageRoot, true);
         _lexBoxDbContext.Files.ExecuteDelete();
     }
 
@@ -141,6 +147,63 @@ public class MediaFileServiceTests : IDisposable
         result.Removed.Should().BeEmpty();
 
         await AssertDbFileExists("SomeFile.txt");
+    }
+
+    [Fact]
+    public async Task SaveMediaFile_Works()
+    {
+        var mediaFile = new MediaFile
+        {
+            Filename = "test.txt",
+            ProjectId = _projectId
+        };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+
+        await AssertDbFileExists("test.txt");
+        var filePath = _service.FilePath(mediaFile);
+        Directory.GetFiles(Path.GetDirectoryName(filePath)!).Should().Contain(filePath);
+        (await File.ReadAllTextAsync(filePath)).Should().Be("test");
+    }
+
+    private Stream SimpleStream(string content)
+    {
+        var memoryStream = new MemoryStream();
+        using (var stream = new StreamWriter(memoryStream, leaveOpen: true))
+        {
+            stream.Write(content);
+        }
+
+        memoryStream.Position = 0;
+        return memoryStream;
+    }
+
+    [Fact]
+    public async Task SaveMediaFile_HgRollbackDoesNotDeleteFile()
+    {
+        var mediaFile = new MediaFile
+        {
+            Filename = "test.txt",
+            ProjectId = _projectId
+        };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+
+        var filePath = _service.FilePath(mediaFile);
+        var directoryName = Path.GetDirectoryName(filePath)!;
+        Directory.GetFiles(directoryName).Should().Contain(filePath);
+
+        //make a commit which would be rolled back by S&R during a conflict
+        var conflictFile = Path.Join(_cache.LangProject.LinkedFilesRootDir, "conflict.txt");
+        await File.WriteAllTextAsync(conflictFile, "test");
+        HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
+
+        var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
+        //simulate rollback as seen here: https://github.com/sillsdev/chorus/blob/af6e5c0e97758aef00bd2104b6c1ccf5719798ef/src/LibChorus/sync/Synchronizer.cs#L574
+        _hgRepository.RollbackWorkingDirectoryToRevision(rev.ToString());
+        if (File.Exists(conflictFile))
+            Directory.GetFiles(Path.GetDirectoryName(conflictFile)!).Should().NotContain(conflictFile);//deleted by rollback
+
+        //file should not be deleted
+        Directory.GetFiles(Path.GetDirectoryName(filePath)!).Should().Contain(filePath);
     }
 
     [Fact]
