@@ -5,9 +5,10 @@
  * to ensure the launcher works correctly in practice.
  */
 
-import {describe, it, expect, beforeEach, afterEach} from 'vitest';
+import {describe, it, expect, assert, beforeEach, afterEach} from 'vitest';
 import {FwLiteLauncher} from '../tests/e2e/helpers/fw-lite-launcher';
 import type {LaunchConfig} from '../tests/e2e/types';
+import {getTestConfig} from '../tests/e2e/config';
 
 describe('FwLiteLauncher', () => {
   let launcher: FwLiteLauncher;
@@ -54,27 +55,21 @@ describe('FwLiteLauncher', () => {
       // Create a fake binary file for testing
       const testBinaryPath = './test-fake-binary.js';
 
-      // Skip this test if we can't create test files
-      try {
-        const fs = await import('node:fs/promises');
-        await fs.writeFile(testBinaryPath, '#!/usr/bin/env node\nconsole.log("fake binary");', {mode: 0o755});
+      const fs = await import('node:fs/promises');
+      await fs.writeFile(testBinaryPath, '#!/usr/bin/env node\nconsole.log("fake binary");', {mode: 0o755});
 
-        const config: LaunchConfig = {
-          binaryPath: testBinaryPath,
-          serverUrl: 'http://localhost:5137',
-          port: 5000,
-          timeout: 1000,
-        };
+      const config: LaunchConfig = {
+        binaryPath: testBinaryPath,
+        serverUrl: 'http://localhost:5137',
+        port: 5000,
+        timeout: 1000,
+      };
 
-        // First launch should fail because it's not a real FW Lite binary
-        await expect(launcher.launch(config)).rejects.toThrow();
+      // First launch should fail because it's not a real FW Lite binary
+      await expect(launcher.launch(config)).rejects.toThrow();
 
-        // Clean up
-        await fs.unlink(testBinaryPath).catch(() => { });
-      } catch (error) {
-        // Skip test if we can't create files
-        console.log('Skipping test - cannot create test files');
-      }
+      // Clean up
+      await fs.unlink(testBinaryPath).catch(() => { });
     }, 10000);
   });
 
@@ -142,19 +137,23 @@ describe('FwLiteLauncher', () => {
   });
 
   describe('real FW Lite server integration', () => {
-    it('should successfully launch and shutdown real FW Lite server', async () => {
+    async function getFwLiteBinaryPath() {
+      const binaryPath = getTestConfig().fwLite.binaryPath;
       const fs = await import('node:fs/promises');
-      const path = await import('node:path');
-
-      // Check if the FW Lite binary exists
-      const binaryPath = path.resolve('./dist/fw-lite-server/FwLiteWeb.exe');
-
       try {
         await fs.access(binaryPath);
       } catch {
-        console.log('FW Lite binary not found, skipping integration test. Run "pnpm build:fw-lite" first.');
-        return;
+        assert.fail(`FW Lite binary not found at ${binaryPath}, skipping integration test. Run "pnpm build:fw-lite" first.`);
       }
+      return binaryPath;
+    }
+
+
+
+    it('should successfully launch and shutdown real FW Lite server', async () => {
+      // Check if the FW Lite binary exists
+      const binaryPath = await getFwLiteBinaryPath();
+
 
       const config: LaunchConfig = {
         binaryPath,
@@ -189,18 +188,8 @@ describe('FwLiteLauncher', () => {
     }, 60000); // 60 second timeout for this test
 
     it('should handle multiple launch attempts gracefully', async () => {
-      const fs = await import('node:fs/promises');
-      const path = await import('node:path');
-
       // Check if the FW Lite binary exists
-      const binaryPath = path.resolve('./dist/fw-lite-server/FwLiteWeb.exe');
-
-      try {
-        await fs.access(binaryPath);
-      } catch {
-        console.log('FW Lite binary not found, skipping integration test. Run "pnpm build:fw-lite" first.');
-        return;
-      }
+      const binaryPath = await getFwLiteBinaryPath();
 
       const config: LaunchConfig = {
         binaryPath,
