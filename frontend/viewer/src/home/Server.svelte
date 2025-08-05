@@ -11,7 +11,7 @@
   import ProjectListItem from './ProjectListItem.svelte';
   import {transitionContext} from './transitions';
 
-  const [send, receive] = transitionContext.get();
+  const [send, receive] = transitionContext.getOr([function(){}, function(){}]);
 
   const projectsService = useProjectsService();
 
