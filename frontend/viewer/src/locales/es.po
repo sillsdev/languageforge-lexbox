@@ -48,7 +48,7 @@ msgstr "{0} (FieldWorks)"
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:73
+#: src/home/Server.svelte:111
 msgid "{0} Server"
 msgstr "{0} Servidor"
 
@@ -171,9 +171,10 @@ msgstr "Visite"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte:110
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
-#: src/lib/components/field-editors/select.svelte:166
-#: src/lib/components/field-editors/multi-select.svelte:280
+#: src/lib/components/field-editors/select.svelte:164
+#: src/lib/components/field-editors/multi-select.svelte:277
 #: src/lib/components/audio/AudioDialog.svelte:153
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:86
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -185,17 +186,17 @@ msgstr "Formulario de cita"
 msgid "Citation Form"
 msgstr "Formulario de citación"
 
-#: src/home/HomeView.svelte:255
+#: src/home/HomeView.svelte:254
 msgid "Classic FieldWorks Projects"
 msgstr "Proyectos clásicos de FieldWorks"
 
-#: src/lib/components/field-editors/select.svelte:118
-#: src/lib/components/field-editors/multi-select.svelte:205
+#: src/lib/components/field-editors/select.svelte:116
+#: src/lib/components/field-editors/multi-select.svelte:202
 msgid "clear"
 msgstr "borrar"
 
 #: src/lib/components/ui/button/x-button.svelte:14
-#: src/lib/components/field-editors/multi-select.svelte:215
+#: src/lib/components/field-editors/multi-select.svelte:212
 #: src/lib/about/AboutDialog.svelte:28
 msgid "Close"
 msgstr "Cerrar"
@@ -245,7 +246,7 @@ msgstr "Cree {0}"
 msgid "Create entry"
 msgstr "Crear entrada"
 
-#: src/home/HomeView.svelte:234
+#: src/home/HomeView.svelte:233
 msgid "Create Example Project"
 msgstr "Crear un proyecto de ejemplo"
 
@@ -275,7 +276,7 @@ msgstr "Directorio de datos"
 msgid "Definition"
 msgstr "Definición"
 
-#: src/home/HomeView.svelte:208
+#: src/home/HomeView.svelte:207
 msgid "Delete"
 msgstr "Borrar"
 
@@ -320,20 +321,39 @@ msgstr "No borrar"
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
 #: src/lib/components/audio/audio-editor.svelte:106
-#: src/home/Server.svelte:118
+#: src/home/Server.svelte:167
 msgid "Download"
 msgstr "Descargar"
 
-#: src/home/Server.svelte:47
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
+msgid "Download {0}"
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
+msgid "Download project by project code"
+msgstr ""
+
+#: src/home/Server.svelte:143
+#: src/home/Server.svelte:149
+#: src/home/Server.svelte:177
+#: src/home/Server.svelte:183
+msgid "Download project not listed"
+msgstr ""
+
+#: src/home/Server.svelte:52
 msgid "Downloaded {0}"
 msgstr "Descargado {0}"
 
-#: src/home/Server.svelte:46
+#: src/home/Server.svelte:51
 msgid "Downloading {0}..."
 msgstr "Descargando {0}..."
 
-#: src/home/Server.svelte:118
+#: src/home/Server.svelte:167
 msgid "Downloading..."
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
+msgid "Editor"
 msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte:14
@@ -378,7 +398,7 @@ msgstr "Ejemplo"
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
 
-#: src/home/Server.svelte:48
+#: src/home/Server.svelte:53
 msgid "Failed to download {0}"
 msgstr "Error al descargar {0}"
 
@@ -412,8 +432,8 @@ msgid "Field Labels"
 msgstr "Etiquetas de campo"
 
 #: src/project/ProjectDropdown.svelte:69
-#: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:261
+#: src/lib/OpenInFieldWorksButton.svelte:55
+#: src/home/HomeView.svelte:260
 msgid "FieldWorks logo"
 msgstr "Logotipo de FieldWorks"
 
@@ -458,8 +478,8 @@ msgstr "Filtro para"
 msgid "Filter words"
 msgstr "Filtrar palabras"
 
-#: src/lib/components/field-editors/select.svelte:114
-#: src/lib/components/field-editors/multi-select.svelte:201
+#: src/lib/components/field-editors/select.svelte:112
+#: src/lib/components/field-editors/multi-select.svelte:198
 msgid "Filter..."
 msgstr "Filtrar..."
 
@@ -501,11 +521,11 @@ msgstr "Historia"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "Mantenga pulsado para grabar o\\npulse y suelte para iniciar la grabación."
 
-#: src/home/Server.svelte:129
+#: src/home/Server.svelte:188
 msgid "I don't see my project"
 msgstr "No veo mi proyecto"
 
-#: src/home/HomeView.svelte:269
+#: src/home/HomeView.svelte:268
 msgid "Import"
 msgstr "Importar"
 
@@ -550,7 +570,7 @@ msgstr "cargando..."
 msgid "Local"
 msgstr "Local"
 
-#: src/home/HomeView.svelte:200
+#: src/home/HomeView.svelte:199
 msgid "Local only"
 msgstr "Sólo local"
 
@@ -570,6 +590,10 @@ msgstr "Cierre de sesión"
 #: src/project/ProjectSidebar.svelte:193
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Hecho con ❤️ de 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
+msgid "Manager"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
@@ -639,8 +663,8 @@ msgstr ""
 msgid "No history found"
 msgstr "No se han encontrado antecedentes"
 
-#: src/lib/components/field-editors/select.svelte:126
-#: src/lib/components/field-editors/multi-select.svelte:220
+#: src/lib/components/field-editors/select.svelte:124
+#: src/lib/components/field-editors/multi-select.svelte:217
 msgid "No items found"
 msgstr "No se han encontrado artículos"
 
@@ -653,8 +677,8 @@ msgstr "Ningún servidor configurado"
 msgid "No words found"
 msgstr "No se han encontrado palabras"
 
-#: src/lib/components/field-editors/select.svelte:101
-#: src/lib/components/field-editors/multi-select.svelte:176
+#: src/lib/components/field-editors/select.svelte:99
+#: src/lib/components/field-editors/multi-select.svelte:173
 msgid "None"
 msgstr "Ninguno"
 
@@ -671,6 +695,10 @@ msgstr "No conectado"
 msgid "Note"
 msgstr "Nota"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
+msgid "Observer"
+msgstr ""
+
 #: src/project/SyncDialog.svelte:187
 #: src/project/ProjectSidebar.svelte:109
 msgid "Offline"
@@ -684,7 +712,7 @@ msgstr "Desconectado, no se puede descargar"
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
 
-#: src/lib/OpenInFieldWorksButton.svelte:57
+#: src/lib/OpenInFieldWorksButton.svelte:56
 msgid "Open in FieldWorks"
 msgstr "Abrir en FieldWorks"
 
@@ -721,7 +749,15 @@ msgstr "Pinned"
 msgid "Preview"
 msgstr "Vista previa"
 
-#: src/home/HomeView.svelte:240
+#: src/home/Server.svelte:77
+msgid "Project {0} not found on {1}"
+msgstr ""
+
+#: src/home/Server.svelte:75
+msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
+msgstr ""
+
+#: src/home/HomeView.svelte:239
 msgid "Project name..."
 msgstr "Nombre del proyecto..."
 
@@ -729,12 +765,12 @@ msgstr "Nombre del proyecto..."
 msgid "Reference"
 msgstr "Referencia"
 
-#: src/lib/components/field-editors/select.svelte:146
-#: src/lib/components/field-editors/multi-select.svelte:256
+#: src/lib/components/field-editors/select.svelte:144
+#: src/lib/components/field-editors/multi-select.svelte:253
 msgid "Refine your filter to see more..."
 msgstr "Afine su filtro para ver más..."
 
-#: src/home/Server.svelte:81
+#: src/home/Server.svelte:119
 #: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "Actualizar proyectos"
@@ -747,7 +783,7 @@ msgstr "Eliminar"
 msgid "Remove audio"
 msgstr "Eliminar audio"
 
-#: src/lib/OpenInFieldWorksButton.svelte:41
+#: src/lib/OpenInFieldWorksButton.svelte:40
 msgid "Reopen"
 msgstr "Vuelva a abrir"
 
@@ -827,9 +863,9 @@ msgstr "Tamaño:"
 msgid "Starts with"
 msgstr "Empieza por"
 
-#: src/lib/components/field-editors/multi-select.svelte:210
-#: src/lib/components/field-editors/multi-select.svelte:211
-#: src/lib/components/field-editors/multi-select.svelte:283
+#: src/lib/components/field-editors/multi-select.svelte:207
+#: src/lib/components/field-editors/multi-select.svelte:208
+#: src/lib/components/field-editors/multi-select.svelte:280
 msgid "Submit"
 msgstr "Enviar"
 
@@ -838,7 +874,7 @@ msgstr "Enviar"
 msgid "Synced"
 msgstr "Sincronizado"
 
-#: src/home/HomeView.svelte:200
+#: src/home/HomeView.svelte:199
 msgid "Synced with {0}"
 msgstr "Sincronizado con {0}"
 
@@ -865,7 +901,7 @@ msgstr "Tareas"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
-#: src/lib/OpenInFieldWorksButton.svelte:40
+#: src/lib/OpenInFieldWorksButton.svelte:39
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajando en FieldWorks Lite, cierre el proyecto en FieldWorks y haga clic en Reabrir."
 
@@ -895,7 +931,7 @@ msgstr "Solución de problemas"
 msgid "Type:"
 msgstr "Tipo:"
 
-#: src/lib/OpenInFieldWorksButton.svelte:45
+#: src/lib/OpenInFieldWorksButton.svelte:44
 msgid "Unable to open in FieldWorks"
 msgstr "No se puede abrir en FieldWorks"
 
@@ -914,6 +950,10 @@ msgstr "Error desconocido"
 #: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
 msgstr "Error desconocido {0}"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
+msgid "Unknown error downloading {0}"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:191
 msgid "Unknown server: {0}"
@@ -937,7 +977,7 @@ msgstr "Versión {0}"
 msgid "View Configuration"
 msgstr "Ver configuración"
 
-#: src/home/Server.svelte:100
+#: src/home/Server.svelte:138
 msgid "Where are my projects?"
 msgstr "¿Dónde están mis proyectos?"
 
@@ -968,3 +1008,12 @@ msgstr "Sistema de escritura: {0}"
 #: src/project/browse/filter/WsSelect.svelte:29
 msgid "Writing Systems"
 msgstr "Sistemas de escritura"
+
+#: src/home/Server.svelte:73
+msgid "You don't have permission to download project {0} from {1}"
+msgstr ""
+
+#: src/home/Server.svelte:79
+#: src/home/Server.svelte:85
+msgid "You have already downloaded the {0} project"
+msgstr ""
