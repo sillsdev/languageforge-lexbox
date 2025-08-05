@@ -12,6 +12,7 @@
   import type {ILexboxServer} from '$lib/dotnet-types';
   import {fade} from 'svelte/transition';
   import {t} from 'svelte-i18n-lingui';
+  import SyncArrow from './SyncArrow.svelte';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -19,6 +20,7 @@
     localStatus?: IPendingCommits;
     server?: ILexboxServer;
     serverId?: string;
+    projectCode?: string;
     latestCommitDate?: string;
     canSyncLexboxToFlex?: boolean;
     syncLexboxToFlex?: () => Promise<void>;
@@ -32,6 +34,7 @@
     localStatus,
     server,
     serverId,
+    projectCode,
     latestCommitDate,
     canSyncLexboxToFlex,
     syncLexboxToFlex = async () => {
@@ -50,6 +53,7 @@
   let lexboxToFlexCount = $derived(remoteStatus?.pendingCrdtChanges);
   let flexToLexboxCount = $derived(remoteStatus?.pendingMercurialChanges);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
+  const isOffline = $derived(syncStatus === SyncStatus.Offline);
 
   let loadingSyncLexboxToFlex = $state(false);
   function onSyncLexboxToFlex() {
@@ -67,8 +71,8 @@
   }
 </script>
 <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
-<div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8">
-  {#if server && syncStatus === SyncStatus.Success}
+<div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_auto_1fr] gap-y-4 gap-x-8">
+  {#if false && server && syncStatus === SyncStatus.Success}
     <div class="col-span-full text-center flex flex-col">
       <span class="font-medium">
         <Icon icon="i-mdi-cloud-outline"/>
@@ -133,67 +137,64 @@
   {/if}
 
   <!-- Status local to remote -->
-  <div class="col-span-full text-center flex flex-col">
-          <span class="font-medium">
-            <Icon icon="i-mdi-cloud-outline"/>
-            {$t`${serverName} - FieldWorks Lite`}
-          </span>
+  <div class="col-span-full text-center flex flex-col border rounded py-2">
+    <a href={server?.authority + '/project/' + projectCode} target="_blank">
+      <Icon icon={!isOffline ? 'i-mdi-cloud-outline' : 'i-mdi-cloud-off-outline'}/>
+      <span class="underline">{serverName}</span>
+      {#if isOffline}
+        <span>(Offline)</span>
+      {/if}
+    </a>
     <span class="text-foreground/80">
-            {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
+      {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
     </span>
   </div>
-
-  <div class="text-center content-center">
-    {remoteToLocalCount ?? '?'}
-    <PingingIcon
-      icon="i-mdi-arrow-down"
-      ping={loadingSyncLexboxToLocal && !!remoteToLocalCount}
-      class={cn(loadingSyncLexboxToLocal && !!remoteToLocalCount && 'text-primary')}
-    />
-  </div>
-  <div class="content-center text-center">
-    {#if syncStatus === SyncStatus.Success}
-      <Button
-        variant="outline"
-        class="border-primary text-primary hover:text-primary"
-        loading={loadingSyncLexboxToLocal}
-        disabled={loadingSyncLexboxToFlex}
-        onclick={onSyncLexboxToLocal}
-        icon="i-mdi-sync"
-        iconProps={{ class: 'size-5' }}>
-        {#if loadingSyncLexboxToLocal}
-          {$t`Synchronizing...`}
-        {:else}
-          {$t`Auto synchronizing`}
-        {/if}
-      </Button>
-    {:else if syncStatus === SyncStatus.Offline}
-      <div>
-        <Icon icon="i-mdi-cloud-off-outline"/> {$t`Offline`}</div>
-    {:else if syncStatus === SyncStatus.NotLoggedIn && server}
-      <LoginButton
-        text={$t`Login`}
-        status={{loggedIn: false, server: server}}
-        statusChange={s => onLoginStatusChange(s)}/>
-    {:else if syncStatus === SyncStatus.NoServer && serverId}
-      <div>{$t`Unknown server: ${serverId}`}</div>
-    {:else if syncStatus === SyncStatus.NoServer}
-      <div>{$t`No server configured`}</div>
-    {:else}
-      <div class="text-destructive">{$t`Error getting sync status.`}</div>
-    {/if}
-  </div>
-
-  <div class="text-center content-center">
-    <PingingIcon
-      icon="i-mdi-arrow-up"
-      ping={loadingSyncLexboxToLocal && !!localToRemoteCount}
-      class={cn(loadingSyncLexboxToLocal && !!localToRemoteCount && 'text-primary')}
-    />
-    {localToRemoteCount}
+  <div class="col-span-full text-center grid justify-center items-center" style="grid-template-columns: 1fr auto 1fr">
+    <div>
+<!--      blank spacer-->
+    </div>
+    <div class="grid justify-center items-center min-h-12" style="grid-template-columns: 1fr auto auto auto 1fr">
+      <span class="text-end">{remoteToLocalCount ?? '?'}</span>
+      <SyncArrow dir="down" length="4em" class="translate-y-[-1px]"/>
+      {#if remoteToLocalCount === 0 && localToRemoteCount === 0}
+        <span>Up to date</span>
+      {:else}
+        <span>Pending</span>
+      {/if}
+      <SyncArrow dir="up" length="4em" class="translate-y-[1px]"/>
+      <span class="text-start">{localToRemoteCount}</span>
+    </div>
+    <div class="content-center pl-2">
+      {#if syncStatus === SyncStatus.Success}
+        <Button
+          variant="outline"
+          class="border-primary text-primary hover:text-primary"
+          loading={loadingSyncLexboxToLocal}
+          disabled={loadingSyncLexboxToFlex}
+          onclick={onSyncLexboxToLocal}
+          icon="i-mdi-sync"
+          iconProps={{ class: 'size-5' }}>
+          {#if loadingSyncLexboxToLocal}
+            {$t`Syncing...`}
+          {:else}
+            {$t`Auto sync`}
+          {/if}
+        </Button>
+      {:else if syncStatus === SyncStatus.Offline}
+      {:else if syncStatus === SyncStatus.NotLoggedIn && server}
+        <LoginButton
+          text={$t`Login`}
+          status={{loggedIn: false, server: server}}
+          statusChange={s => onLoginStatusChange(s)}/>
+      {:else if syncStatus === SyncStatus.NoServer || !server}
+        <!-- nothing to show -->
+      {:else}
+        <div class="text-destructive">{$t`Error getting sync status.`}</div>
+      {/if}
+    </div>
   </div>
 
-  <div class="text-center col-span-full">
+  <div class="text-center col-span-full border rounded py-2">
     <Icon icon="i-mdi-monitor-cellphone" class="size-10"/>
     <p>Local</p>
   </div>

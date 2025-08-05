@@ -113,15 +113,16 @@
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
-  <DialogContent class="sm:min-h-80 sm:min-w-96 grid-rows-[auto_1fr] items-center">
+  <DialogContent class="sm:min-h-80 sm:min-w-[35rem] grid-rows-[auto_1fr] items-center">
     <DialogHeader>
-      <DialogTitle>{$t`Synchronize`}</DialogTitle>
+      <DialogTitle>{$t`Sync Changes`}</DialogTitle>
     </DialogHeader>
     <SyncStatusPrimitive
       {syncStatus}
       {remoteStatus}
       {localStatus}
       {server}
+      projectCode={projectContext.projectData?.code}
       serverId={projectContext.projectData?.serverId}
       {latestCommitDate}
       canSyncLexboxToFlex={features?.write}

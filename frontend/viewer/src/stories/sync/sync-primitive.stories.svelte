@@ -33,8 +33,9 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
   <SyncStatusPrimitive
     canSyncLexboxToFlex
     serverId="test-server"
+    projectCode="test-project"
     syncStatus={SyncStatus.Success}
-    localStatus={{local: 1, remote: 2}}
+    localStatus={{local: 1, remote: 200}}
     remoteStatus={{
       status: ProjectSyncStatusEnum.ReadyToSync,
       pendingCrdtChanges: 1,
@@ -52,10 +53,35 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
     }}
   />
 </Story>
+<Story name="No Changes">
+  <SyncStatusPrimitive
+    canSyncLexboxToFlex
+    serverId="test-server"
+    projectCode="test-project"
+    syncStatus={SyncStatus.Success}
+    localStatus={{local: 0, remote: 0}}
+    remoteStatus={{
+      status: ProjectSyncStatusEnum.ReadyToSync,
+      pendingCrdtChanges: 0,
+      pendingMercurialChanges: 0,
+      lastCrdtCommitDate: new Date().toISOString(),
+      lastMercurialCommitDate: new Date().toISOString(),
+      errorCode: undefined,
+      errorMessage: undefined,
+    }}
+    latestCommitDate={new Date().toISOString()}
+    server={{
+      id: 'test-server',
+      displayName: 'Lexbox',
+      authority: 'https://test-server.com',
+    }}
+  />
+</Story>
 <Story name="Loading remote status">
   <SyncStatusPrimitive
     canSyncLexboxToFlex
     serverId="test-server"
+    projectCode="test-project"
     syncStatus={SyncStatus.Success}
     localStatus={{local: 1, remote: 2}}
     latestCommitDate={new Date().toISOString()}
@@ -70,6 +96,7 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
   <SyncStatusPrimitive
     canSyncLexboxToFlex
     serverId={undefined}
+    projectCode="test-project"
     syncStatus={SyncStatus.NoServer}
     localStatus={{local: 1}}
     latestCommitDate={new Date().toISOString()}
@@ -79,6 +106,7 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
   <SyncStatusPrimitive
     canSyncLexboxToFlex
     serverId="test-server"
+    projectCode="test-project"
     syncStatus={SyncStatus.NoServer}
     localStatus={{local: 1}}
     latestCommitDate={new Date().toISOString()}
@@ -88,15 +116,22 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
   <SyncStatusPrimitive
     canSyncLexboxToFlex={false}
     serverId="test-server"
+    projectCode="test-project"
     syncStatus={SyncStatus.Offline}
     localStatus={{local: 10}}
     latestCommitDate={new Date().toISOString()}
+    server={{
+      id: 'test-server',
+      displayName: 'Lexbox',
+      authority: 'https://test-server.com',
+    }}
   />
 </Story>
 <Story name="Not Logged In">
   <SyncStatusPrimitive
     canSyncLexboxToFlex
     serverId="test-server"
+    projectCode="test-project"
     syncStatus={SyncStatus.NotLoggedIn}
     localStatus={{local: 1}}
     latestCommitDate={new Date().toISOString()}
