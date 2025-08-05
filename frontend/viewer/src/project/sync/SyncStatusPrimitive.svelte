@@ -21,9 +21,9 @@
     serverId?: string;
     latestCommitDate?: string;
     canSyncLexboxToFlex?: boolean;
-    syncLexboxToFlex: () => Promise<void>;
-    syncLexboxToLocal: () => Promise<void>;
-    onLoginStatusChange: (status: 'logged-in' | 'logged-out') => void;
+    syncLexboxToFlex?: () => Promise<void>;
+    syncLexboxToLocal?: () => Promise<void>;
+    onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
   }
 
   const {
@@ -68,8 +68,7 @@
 </script>
 <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
 <div in:fade
-     class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8"
->
+     class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8">
   <div class="col-span-full text-center">
     <Icon icon="i-mdi-monitor-cellphone" class="size-10"/>
   </div>
@@ -101,8 +100,10 @@
       <div>
         <Icon icon="i-mdi-cloud-off-outline"/> {$t`Offline`}</div>
     {:else if syncStatus === SyncStatus.NotLoggedIn && server}
-      <LoginButton text={$t`Login`} status={{loggedIn: false, server: server}}
-                   statusChange={s => onLoginStatusChange(s)}/>
+      <LoginButton
+        text={$t`Login`}
+        status={{loggedIn: false, server: server}}
+        statusChange={s => onLoginStatusChange(s)}/>
     {:else if syncStatus === SyncStatus.NoServer && serverId}
       <div>{$t`Unknown server: ${serverId}`}</div>
     {:else if syncStatus === SyncStatus.NoServer}
@@ -128,9 +129,13 @@
             {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
           </span>
   </div>
-  {#if server && remoteStatus && syncStatus === SyncStatus.Success}
+  {#if server && syncStatus === SyncStatus.Success}
     <div class="text-center content-center">
-      {flexToLexboxCount}
+      {#if !remoteStatus}
+        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
+      {:else}
+        {flexToLexboxCount}
+      {/if}
       <PingingIcon
         icon="i-mdi-arrow-up"
         ping={loadingSyncLexboxToFlex && !!flexToLexboxCount}
@@ -140,7 +145,7 @@
     <div class="content-center text-center">
       <Button
         loading={loadingSyncLexboxToFlex}
-        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex}
+        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
         onclick={onSyncLexboxToFlex}
         icon="i-mdi-sync"
         iconProps={{ class: 'size-5' }}>
@@ -157,7 +162,11 @@
         ping={loadingSyncLexboxToFlex && !!lexboxToFlexCount}
         class={cn(loadingSyncLexboxToFlex && !!lexboxToFlexCount && 'text-primary')}
       />
-      {lexboxToFlexCount}
+      {#if !remoteStatus}
+        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
+      {:else}
+        {lexboxToFlexCount}
+      {/if}
     </div>
     <div class="col-span-full text-center flex flex-col">
       <span class="font-medium">
@@ -165,9 +174,13 @@
         {$t`${serverName} - FieldWorks`}
       </span>
       <span class="text-foreground/80">
-        {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
+        {#if !remoteStatus}
+          <div class="animate-pulse inline-block h-4 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-64"></div>
+        {:else}
+          {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
+        {/if}
       </span>
-      {#if remoteStatus.status === ProjectSyncStatusEnum.Unknown}
+      {#if remoteStatus?.status === ProjectSyncStatusEnum.Unknown}
         {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
           {$t`Not logged in`}
         {:else}
