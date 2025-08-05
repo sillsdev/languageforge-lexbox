@@ -3,7 +3,6 @@
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
   import {cn} from '$lib/utils';
@@ -13,6 +12,9 @@
   import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
   import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
   import ProjectListItem from './ProjectListItem.svelte';
+  import {transitionContext} from './transitions';
+
+  const [send, receive] = transitionContext.get();
 
   const projectsService = useProjectsService();
 
@@ -152,34 +154,22 @@
         {/if}
       </div>
       {:else}
-      <div class="shadow rounded">
+      <div>
         {#each projects as project (project.id)}
           {@const localProject = matchesProject(localProjects, project)}
-          {#if localProject?.crdt}
-            <ButtonListItem href={`/project/${project.code}`}>
-              <ProjectListItem {project}>
-                {#snippet actions()}
-                  <div class="pointer-events-none shrink-0">
-                    <Button disabled icon="i-mdi-book-sync-outline" variant="ghost" class="p-2">
-                      {$t`Synced`}
-                    </Button>
-                  </div>
-                {/snippet}
-              </ProjectListItem>
-            </ButtonListItem>
-          {:else}
+          {#if !localProject?.crdt}
             {@const loading = downloading === project.code}
-            <ButtonListItem onclick={() => downloadCrdtProject(project)} disabled={!!downloading}>
-              <ProjectListItem icon="i-mdi-cloud" {project} {loading}>
+            <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
+              <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
                 {#snippet actions()}
                   <div class="pointer-events-none shrink-0">
                     <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
-                      {$t`Download`}
+                      {loading ? $t`Downloading...` : $t`Download`}
                     </Button>
                   </div>
                 {/snippet}
               </ProjectListItem>
-            </ButtonListItem>
+            </div>
           {/if}
         {/each}
         {#if canDownloadByCode}

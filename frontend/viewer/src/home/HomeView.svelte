@@ -11,7 +11,6 @@
     useProjectsService,
     useTroubleshootingService,
   } from '$lib/services/service-provider';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import ServersList from './ServersList.svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -25,12 +24,20 @@
   import ProjectListItem from './ProjectListItem.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {Input} from '$lib/components/ui/input';
+  import {crossfade} from 'svelte/transition';
+  import {cubicOut} from 'svelte/easing';
+  import {transitionContext} from './transitions';
+  import Anchor from '$lib/components/ui/anchor/anchor.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
   const fwLiteConfig = useFwLiteConfig();
   const exampleProjectName = 'Example-Project';
-
+  const [send, receive] = crossfade({
+    duration: 500,
+    easing: cubicOut,
+  });
+  transitionContext.set([send, receive]);
   function dateTimeProjectSuffix(): string {
     return new Date()
       .toISOString()
@@ -98,18 +105,39 @@
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog: TroubleshootDialog | undefined;
 
+  let clickCount = 0;
+  let clickTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  function resetClickCounter() {
+    clickCount = 0;
+    clearTimeout(clickTimeout);
+  }
+
+  function clickIcon() {
+    //when a user triple clicks the logo it will enable dev mode, this makes it easier to enable on mobile
+    clickCount++;
+    clearTimeout(clickTimeout);
+
+    if (clickCount === 3) {
+      window.enableDevMode(!$isDev);
+      resetClickCounter();
+    } else {
+      clickTimeout = setTimeout(resetClickCounter, 500);
+    }
+  }
+
 </script>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
 
   {#snippet actions()}
-    <div class="flex">
+    <div class="flex gap-1">
       {#if import.meta.env.DEV}
         <Button href="http://localhost:6006/" target="_blank"
                 variant="ghost" size="icon" iconProps={{src: storybookIcon, alt: 'Storybook icon'}}/>
@@ -159,64 +187,64 @@
                     variant="ghost"
                     onclick={() => refreshProjects()}/>
           </div>
-          <div class="shadow rounded">
+          <div>
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
-              <ButtonListItem href={`/project/${project.code}`}>
-                <ProjectListItem icon="i-mdi-book-edit-outline"
-                                 {project}
-                                 {loading}
-                                 subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
-                >
-                  {#snippet actions()}
-                    <div class="flex items-center">
-                      {#if $isDev}
-                        <Button
-                          icon="i-mdi-delete"
-                          variant="ghost"
-                          title={$t`Delete`}
-                          class="p-2 hover:bg-primary/20"
-                          onclick={(e) => {
-                          e.preventDefault();
-                          void deleteProject(project);
-                        }}
-                        />
-                      {/if}
-                      <Icon icon="i-mdi-chevron-right" class="p-2"/>
-                    </div>
-                  {/snippet}
-                </ProjectListItem>
-              </ButtonListItem>
+              <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
+                <Anchor href={`/project/${project.code}`}>
+                  <ProjectListItem icon="i-mdi-book-edit-outline"
+                                   {project}
+                                   {loading}
+                                   subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
+                  >
+                    {#snippet actions()}
+                      <div class="flex items-center">
+                        {#if $isDev}
+                          <Button
+                            icon="i-mdi-delete"
+                            variant="ghost"
+                            title={$t`Delete`}
+                            class="p-2 hover:bg-primary/20"
+                            onclick={(e) => {
+                            e.preventDefault();
+                            void deleteProject(project);
+                          }}
+                          />
+                        {/if}
+                        <Icon icon="i-mdi-chevron-right" class="p-2"/>
+                      </div>
+                    {/snippet}
+                  </ProjectListItem>
+                </Anchor>
+              </div>
             {/each}
             <DevContent>
-              <ButtonListItem href="/testing/project-view">
+              <Anchor href="/testing/project-view">
                 <ProjectListItem icon="i-mdi-test-tube" project={{ name: 'Test Project', code: 'Test Project' }}>
                   {#snippet actions()}
                     <Icon icon="i-mdi-chevron-right" class="p-2"/>
                   {/snippet}
                 </ProjectListItem>
-              </ButtonListItem>
+              </Anchor>
             </DevContent>
             {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ButtonListItem onclick={() => createExampleProject()} disabled={createProjectLoading}>
-                <ListItem class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
-                  <span>{$t`Create Example Project`}</span>
-                  {#snippet actions()}
-                    <div class="flex flex-nowrap items-center gap-2">
-                      {#if $isDev}
-                        <Input
-                          bind:value={customExampleProjectName}
-                          placeholder={$t`Project name...`}
-                          onclick={(e) => e.stopPropagation()}
-                        />
-                      {/if}
-                      <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
-                    </div>
-                  {/snippet}
+              <ListItem onclick={() => createExampleProject()} disabled={createProjectLoading} class="dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted">
+                <span>{$t`Create Example Project`}</span>
+                {#snippet actions()}
+                  <div class="flex flex-nowrap items-center gap-2">
+                    {#if $isDev}
+                      <Input
+                        bind:value={customExampleProjectName}
+                        placeholder={$t`Project name...`}
+                        onclick={(e) => e.stopPropagation()}
+                      />
+                    {/if}
+                    <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
+                  </div>
+                {/snippet}
 
-                </ListItem>
-              </ButtonListItem>
+              </ListItem>
             {/if}
           </div>
         </div>
@@ -224,9 +252,9 @@
         {#if projects.some((p) => p.fwdata)}
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
-            <div class="shadow rounded">
+            <div>
               {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
-                <ButtonListItem href={`/fwdata/${project.code}`}>
+                <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
                       <Icon src={flexLogo} alt={$t`FieldWorks logo`}/>
@@ -246,7 +274,7 @@
                       </DevContent>
                     {/snippet}
                   </ProjectListItem>
-                </ButtonListItem>
+                </Anchor>
               {/each}
             </div>
           </div>
@@ -264,11 +292,6 @@
   .project-list {
     display: flex;
     flex-direction: column;
-
-    :global(:is(.ListItem)) {
-      @apply max-md:!rounded-none;
-      @apply contrast-[0.95];
-    }
 
     :global(.sub-title) {
       @apply m-2;
