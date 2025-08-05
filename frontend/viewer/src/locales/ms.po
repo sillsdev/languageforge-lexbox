@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-31 09:25\n"
+"PO-Revision-Date: 2025-08-05 03:47\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:28
-#: src/lib/components/audio/audio-editor.svelte:33
-#: src/lib/components/audio/audio-editor.svelte:37
+#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte:91
+#: src/lib/components/audio/audio-editor.svelte:95
 msgid "{0}"
 msgstr ""
 
@@ -44,11 +44,11 @@ msgstr ""
 msgid "{0} (FieldWorks)"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "{0} MB"
 msgstr ""
 
-#: src/home/Server.svelte:71
+#: src/home/Server.svelte:73
 msgid "{0} Server"
 msgstr ""
 
@@ -81,8 +81,8 @@ msgstr "Akaun"
 msgid "Activity"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:213
-#: src/lib/components/audio/AudioDialog.svelte:153
+#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr ""
 
@@ -131,15 +131,15 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:222
+#: src/lib/components/field-editors/audio-input.svelte:215
 msgid "Audio file not included in Send & Receive"
 msgstr ""
 
-#: src/lib/components/audio/AudioDialog.svelte:82
+#: src/lib/components/audio/AudioDialog.svelte:84
 msgid "Audio saved and uploaded to Lexbox"
 msgstr ""
 
-#: src/lib/components/audio/AudioDialog.svelte:79
+#: src/lib/components/audio/AudioDialog.svelte:81
 msgid "Audio saved locally"
 msgstr ""
 
@@ -173,7 +173,7 @@ msgstr "Semak seimbas (Melihat-lihat)"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:167
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Cancel"
 msgstr "Batal"
 
@@ -185,7 +185,7 @@ msgstr "Bentuk petikan"
 msgid "Citation Form"
 msgstr "Bentuk Petikan"
 
-#: src/home/HomeView.svelte:226
+#: src/home/HomeView.svelte:255
 msgid "Classic FieldWorks Projects"
 msgstr ""
 
@@ -245,7 +245,7 @@ msgstr ""
 msgid "Create entry"
 msgstr ""
 
-#: src/home/HomeView.svelte:204
+#: src/home/HomeView.svelte:234
 msgid "Create Example Project"
 msgstr ""
 
@@ -275,7 +275,7 @@ msgstr ""
 msgid "Definition"
 msgstr "Definisi"
 
-#: src/home/HomeView.svelte:178
+#: src/home/HomeView.svelte:208
 msgid "Delete"
 msgstr "Hapus"
 
@@ -292,8 +292,8 @@ msgstr ""
 msgid "Delete Word"
 msgstr ""
 
-#: src/home/HomeView.svelte:103
-#: src/home/HomeView.svelte:107
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr ""
 
@@ -305,7 +305,7 @@ msgstr "Kamus"
 msgid "Dictionary Preview"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:46
+#: src/lib/components/audio/audio-editor.svelte:107
 msgid "Discard"
 msgstr ""
 
@@ -319,16 +319,21 @@ msgid "Don't delete"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
-#: src/home/Server.svelte:128
+#: src/lib/components/audio/audio-editor.svelte:106
+#: src/home/Server.svelte:118
 msgid "Download"
 msgstr "Muat turun"
 
-#: src/home/Server.svelte:45
+#: src/home/Server.svelte:47
 msgid "Downloaded {0}"
 msgstr ""
 
-#: src/home/Server.svelte:44
+#: src/home/Server.svelte:46
 msgid "Downloading {0}..."
+msgstr ""
+
+#: src/home/Server.svelte:118
+msgid "Downloading..."
 msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte:14
@@ -373,7 +378,7 @@ msgstr "Contoh"
 msgid "Example sentence"
 msgstr ""
 
-#: src/home/Server.svelte:46
+#: src/home/Server.svelte:48
 msgid "Failed to download {0}"
 msgstr ""
 
@@ -394,7 +399,7 @@ msgid "Failed to synchronize."
 msgstr ""
 
 #: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:126
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr ""
 
@@ -408,28 +413,28 @@ msgstr ""
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:232
+#: src/home/HomeView.svelte:261
 msgid "FieldWorks logo"
 msgstr ""
 
-#: src/lib/components/audio/AudioDialog.svelte:89
+#: src/lib/components/audio/AudioDialog.svelte:91
 msgid "File already exists"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:32
+#: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:79
+#: src/lib/components/field-editors/audio-input.svelte:78
 msgid "File not found"
 msgstr "Fail tidak ditemui"
 
-#: src/lib/components/audio/AudioDialog.svelte:87
+#: src/lib/components/audio/AudioDialog.svelte:89
 msgid "File saving not supported"
 msgstr ""
 
-#: src/lib/components/audio/AudioDialog.svelte:164
-#: src/lib/components/audio/AudioDialog.svelte:85
+#: src/lib/components/audio/AudioDialog.svelte:150
+#: src/lib/components/audio/AudioDialog.svelte:87
 msgid "File too big"
 msgstr ""
 
@@ -496,11 +501,11 @@ msgstr "Sejarah"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr ""
 
-#: src/home/Server.svelte:139
+#: src/home/Server.svelte:129
 msgid "I don't see my project"
 msgstr ""
 
-#: src/home/HomeView.svelte:240
+#: src/home/HomeView.svelte:269
 msgid "Import"
 msgstr "Import"
 
@@ -509,11 +514,11 @@ msgstr "Import"
 msgid "Last change: {0}"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:28
+#: src/lib/components/audio/audio-editor.svelte:86
 msgid "Length:"
 msgstr ""
 
-#: src/home/HomeView.svelte:106
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr ""
 
@@ -537,15 +542,15 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr ""
 
-#: src/home/HomeView.svelte:147
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "memuat..."
 
-#: src/home/HomeView.svelte:152
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr ""
 
-#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:200
 msgid "Local only"
 msgstr ""
 
@@ -613,10 +618,6 @@ msgstr "Entri Baru"
 msgid "No activity found"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:217
-msgid "No audio"
-msgstr ""
-
 #: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr ""
@@ -630,8 +631,8 @@ msgstr ""
 msgid "No entries found"
 msgstr ""
 
-#: src/lib/components/audio/AudioDialog.svelte:75
-msgid "No file selected"
+#: src/lib/components/audio/AudioDialog.svelte:77
+msgid "No file to upload"
 msgstr ""
 
 #: src/lib/history/HistoryView.svelte:68
@@ -675,7 +676,7 @@ msgstr "Nota"
 msgid "Offline"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:82
+#: src/lib/components/field-editors/audio-input.svelte:81
 msgid "Offline, unable to download"
 msgstr ""
 
@@ -720,7 +721,7 @@ msgstr ""
 msgid "Preview"
 msgstr "Pratonton"
 
-#: src/home/HomeView.svelte:210
+#: src/home/HomeView.svelte:240
 msgid "Project name..."
 msgstr "Nama projek..."
 
@@ -733,8 +734,8 @@ msgstr "Rujukan"
 msgid "Refine your filter to see more..."
 msgstr ""
 
-#: src/home/Server.svelte:79
-#: src/home/HomeView.svelte:156
+#: src/home/Server.svelte:81
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr ""
 
@@ -742,7 +743,7 @@ msgstr ""
 msgid "Remove"
 msgstr "Tanggalkan"
 
-#: src/lib/components/field-editors/audio-input.svelte:268
+#: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Remove audio"
 msgstr ""
 
@@ -750,11 +751,11 @@ msgstr ""
 msgid "Reopen"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:265
+#: src/lib/components/field-editors/audio-input.svelte:258
 msgid "Replace audio"
 msgstr ""
 
-#: src/lib/components/audio/AudioDialog.svelte:169
+#: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
 msgstr ""
 
@@ -818,7 +819,7 @@ msgstr ""
 msgid "Simple"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "Size:"
 msgstr "Saiz:"
 
@@ -834,11 +835,10 @@ msgstr ""
 
 #: src/project/ProjectSidebar.svelte:117
 #: src/lib/activity/ActivityView.svelte:108
-#: src/home/Server.svelte:115
 msgid "Synced"
 msgstr ""
 
-#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:200
 msgid "Synced with {0}"
 msgstr ""
 
@@ -887,11 +887,11 @@ msgstr "Terjemahan"
 
 #: src/project/ProjectSidebar.svelte:170
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:160
 msgid "Troubleshoot"
 msgstr ""
 
-#: src/lib/components/audio/audio-editor.svelte:36
+#: src/lib/components/audio/audio-editor.svelte:94
 msgid "Type:"
 msgstr "Jenis:"
 
@@ -907,11 +907,11 @@ msgid "Unknown"
 msgstr "Tidak Diketahui"
 
 #: src/project/ProjectSidebar.svelte:115
-#: src/lib/components/audio/AudioDialog.svelte:91
+#: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:85
+#: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
 msgstr ""
 
@@ -937,7 +937,7 @@ msgstr ""
 msgid "View Configuration"
 msgstr ""
 
-#: src/home/Server.svelte:98
+#: src/home/Server.svelte:100
 msgid "Where are my projects?"
 msgstr ""
 
