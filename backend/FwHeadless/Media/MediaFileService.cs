@@ -141,11 +141,19 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var dirName = Path.GetDirectoryName(filePath);
         if (dirName is not null) Directory.CreateDirectory(dirName);
         var tempFile = Path.Join(dirName, Path.GetRandomFileName());
+        long fileLength;
         try
         {
             await using (var writeStream = File.Open(tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
             {
                 await fileStream.CopyToAsync(writeStream);
+            }
+
+            fileLength = new FileInfo(tempFile).Length;
+            if (fileLength > config.Value.MaxUploadFileSizeBytes)
+            {
+                await DeleteMediaFile(mediaFile, commitDelete: false);
+                throw new FileTooLarge();
             }
 
             File.Move(tempFile, filePath, overwrite: true);
@@ -155,16 +163,9 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             if (!string.IsNullOrEmpty(tempFile) && File.Exists(tempFile)) File.Delete(tempFile);
         }
 
-        var fileInfo = new FileInfo(filePath);
-        var fileLength = fileInfo.Length;
-        if (fileLength > config.Value.MaxUploadFileSizeBytes)
-        {
-            await DeleteMediaFile(mediaFile);
-            throw new FileTooLarge();
-        }
 
         //commit the file to hg, otherwise a rollback caused by a merge conflict during S&R will delete the file
-        await sendReceiveService.CommitFile(filePath, "Uploaded file");
+        await sendReceiveService.CommitFile(filePath, $"Uploaded file {Path.GetFileName(filePath)}");
 
         mediaFile.InitializeMetadataIfNeeded(filePath);
         mediaFile.Metadata.SizeInBytes = (int)fileLength;
@@ -177,11 +178,21 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
     public async Task DeleteMediaFile(MediaFile mediaFile)
     {
+        await DeleteMediaFile(mediaFile, commitDelete: true);
+    }
+
+    private async Task DeleteMediaFile(MediaFile mediaFile, bool commitDelete)
+    {
         var filePath = FilePath(mediaFile);
+        var fileExisted = File.Exists(filePath);
         SafeDelete(filePath);
         var dirPath = Path.GetDirectoryName(filePath);
         if (dirPath?.EndsWith(mediaFile.Id.ToString()) == true)
             SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
+        if (fileExisted && commitDelete)
+        {
+            await sendReceiveService.CommitFile(filePath, $"Deleted file {mediaFile.Filename}");
+        }
         dbContext.Files.Remove(mediaFile);
         await dbContext.SaveChangesAsync();
     }

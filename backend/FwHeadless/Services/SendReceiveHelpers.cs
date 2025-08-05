@@ -88,7 +88,20 @@ public static class SendReceiveHelpers
         progress ??= new NullProgress();
         if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
         var fileDir = Path.GetDirectoryName(filePath);
-        await Task.Run(() => HgRunner.Run($"hg commit --message \"{commitMessage}\" --addremove \"{filePath}\"", fileDir, 9999, progress));
+        await Task.Run(() => HgRunner.Run($"hg commit --message {EscapeShellArg(commitMessage)} --addremove {EscapeShellArg(filePath)}", fileDir, 9999, progress));
+    }
+
+    private static string EscapeShellArg(string arg)
+    {
+        var quote = """
+                    "
+                    """;
+        var escaped = arg.Replace(
+            quote,
+            """
+            \"
+            """);
+        return $"{quote}{escaped}{quote}";
     }
 
     public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null, IProgress? progress = null)
