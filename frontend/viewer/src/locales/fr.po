@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-01 09:51\n"
+"PO-Revision-Date: 2025-08-05 03:47\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0} changes)"
 
-#: src/lib/components/audio/audio-editor.svelte:28
-#: src/lib/components/audio/audio-editor.svelte:33
-#: src/lib/components/audio/audio-editor.svelte:37
+#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte:91
+#: src/lib/components/audio/audio-editor.svelte:95
 msgid "{0}"
 msgstr "{0}"
 
@@ -44,11 +44,11 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:71
+#: src/home/Server.svelte:73
 msgid "{0} Server"
 msgstr "{0} Serveur"
 
@@ -81,8 +81,8 @@ msgstr "Compte"
 msgid "Activity"
 msgstr "Activité"
 
-#: src/lib/components/field-editors/audio-input.svelte:213
-#: src/lib/components/audio/AudioDialog.svelte:153
+#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "Ajouter de l'audio"
 
@@ -131,15 +131,15 @@ msgstr "Version de l'application"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:222
+#: src/lib/components/field-editors/audio-input.svelte:215
 msgid "Audio file not included in Send & Receive"
 msgstr "Le fichier audio n'est pas inclus dans l'envoi et la réception"
 
-#: src/lib/components/audio/AudioDialog.svelte:82
+#: src/lib/components/audio/AudioDialog.svelte:84
 msgid "Audio saved and uploaded to Lexbox"
 msgstr "Audio enregistré et téléchargé dans Lexbox"
 
-#: src/lib/components/audio/AudioDialog.svelte:79
+#: src/lib/components/audio/AudioDialog.svelte:81
 msgid "Audio saved locally"
 msgstr "Audio enregistré localement"
 
@@ -173,7 +173,7 @@ msgstr "Parcourir"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
 #: src/lib/components/field-editors/select.svelte:166
 #: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:167
+#: src/lib/components/audio/AudioDialog.svelte:153
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -185,7 +185,7 @@ msgstr "Formulaire de citation"
 msgid "Citation Form"
 msgstr "Formulaire de citation"
 
-#: src/home/HomeView.svelte:226
+#: src/home/HomeView.svelte:255
 msgid "Classic FieldWorks Projects"
 msgstr "Projets FieldWorks classiques"
 
@@ -245,7 +245,7 @@ msgstr "Créer {0}"
 msgid "Create entry"
 msgstr "Créer une entrée"
 
-#: src/home/HomeView.svelte:204
+#: src/home/HomeView.svelte:234
 msgid "Create Example Project"
 msgstr "Créer un projet d'exemple"
 
@@ -275,7 +275,7 @@ msgstr "Répertoire de données"
 msgid "Definition"
 msgstr "Définition"
 
-#: src/home/HomeView.svelte:178
+#: src/home/HomeView.svelte:208
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -292,8 +292,8 @@ msgstr "Supprimer l'entrée"
 msgid "Delete Word"
 msgstr "Supprimer un mot"
 
-#: src/home/HomeView.svelte:103
-#: src/home/HomeView.svelte:107
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr "Dictionnaires"
 
@@ -305,7 +305,7 @@ msgstr "Dictionnaire"
 msgid "Dictionary Preview"
 msgstr "Aperçu du dictionnaire"
 
-#: src/lib/components/audio/audio-editor.svelte:46
+#: src/lib/components/audio/audio-editor.svelte:107
 msgid "Discard"
 msgstr "Rejeter"
 
@@ -319,17 +319,22 @@ msgid "Don't delete"
 msgstr "Ne pas supprimer"
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
-#: src/home/Server.svelte:128
+#: src/lib/components/audio/audio-editor.svelte:106
+#: src/home/Server.svelte:118
 msgid "Download"
 msgstr "Télécharger"
 
-#: src/home/Server.svelte:45
+#: src/home/Server.svelte:47
 msgid "Downloaded {0}"
 msgstr "Téléchargé {0}"
 
-#: src/home/Server.svelte:44
+#: src/home/Server.svelte:46
 msgid "Downloading {0}..."
 msgstr "Télécharger {0}..."
+
+#: src/home/Server.svelte:118
+msgid "Downloading..."
+msgstr "Téléchargement..."
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
@@ -373,7 +378,7 @@ msgstr "Exemple"
 msgid "Example sentence"
 msgstr "Exemple de phrase"
 
-#: src/home/Server.svelte:46
+#: src/home/Server.svelte:48
 msgid "Failed to download {0}"
 msgstr "Échec du téléchargement de {0}"
 
@@ -394,7 +399,7 @@ msgid "Failed to synchronize."
 msgstr "Échec de la synchronisation."
 
 #: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:126
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr "Retour d'information"
 
@@ -408,28 +413,28 @@ msgstr "Étiquettes de champ"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:232
+#: src/home/HomeView.svelte:261
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
-#: src/lib/components/audio/AudioDialog.svelte:89
+#: src/lib/components/audio/AudioDialog.svelte:91
 msgid "File already exists"
 msgstr "Le fichier existe déjà"
 
-#: src/lib/components/audio/audio-editor.svelte:32
+#: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
 msgstr "Nom du fichier :"
 
-#: src/lib/components/field-editors/audio-input.svelte:79
+#: src/lib/components/field-editors/audio-input.svelte:78
 msgid "File not found"
 msgstr "Fichier non trouvé"
 
-#: src/lib/components/audio/AudioDialog.svelte:87
+#: src/lib/components/audio/AudioDialog.svelte:89
 msgid "File saving not supported"
 msgstr "L'enregistrement du fichier n'est pas pris en charge"
 
-#: src/lib/components/audio/AudioDialog.svelte:164
-#: src/lib/components/audio/AudioDialog.svelte:85
+#: src/lib/components/audio/AudioDialog.svelte:150
+#: src/lib/components/audio/AudioDialog.svelte:87
 msgid "File too big"
 msgstr "Fichier trop volumineux"
 
@@ -496,11 +501,11 @@ msgstr "L'histoire"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "Maintenez la touche enfoncée pour enregistrer ou\\nappuyez et relâchez la touche pour démarrer l'enregistrement."
 
-#: src/home/Server.svelte:139
+#: src/home/Server.svelte:129
 msgid "I don't see my project"
 msgstr "Je ne vois pas mon projet"
 
-#: src/home/HomeView.svelte:240
+#: src/home/HomeView.svelte:269
 msgid "Import"
 msgstr "Importation"
 
@@ -509,11 +514,11 @@ msgstr "Importation"
 msgid "Last change: {0}"
 msgstr "Dernière modification : {0}"
 
-#: src/lib/components/audio/audio-editor.svelte:28
+#: src/lib/components/audio/audio-editor.svelte:86
 msgid "Length:"
 msgstr "Longueur :"
 
-#: src/home/HomeView.svelte:106
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
 
@@ -537,15 +542,15 @@ msgstr "Sens littéral"
 msgid "Loading Dictionaries..."
 msgstr "Chargement des dictionnaires..."
 
-#: src/home/HomeView.svelte:147
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "chargement..."
 
-#: src/home/HomeView.svelte:152
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr "Locale"
 
-#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:200
 msgid "Local only"
 msgstr "Uniquement au niveau local"
 
@@ -613,10 +618,6 @@ msgstr "Nouvelle entrée"
 msgid "No activity found"
 msgstr "Aucune activité trouvée"
 
-#: src/lib/components/field-editors/audio-input.svelte:217
-msgid "No audio"
-msgstr "Pas d'audio"
-
 #: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "Pas de changement de nom"
@@ -630,9 +631,9 @@ msgstr "Aucun dictionnaire trouvé"
 msgid "No entries found"
 msgstr "Aucune entrée trouvée"
 
-#: src/lib/components/audio/AudioDialog.svelte:75
-msgid "No file selected"
-msgstr "Aucun fichier sélectionné"
+#: src/lib/components/audio/AudioDialog.svelte:77
+msgid "No file to upload"
+msgstr "Aucun fichier à télécharger"
 
 #: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
@@ -675,7 +676,7 @@ msgstr "Note"
 msgid "Offline"
 msgstr "Hors ligne"
 
-#: src/lib/components/field-editors/audio-input.svelte:82
+#: src/lib/components/field-editors/audio-input.svelte:81
 msgid "Offline, unable to download"
 msgstr "Hors ligne, impossible de télécharger"
 
@@ -720,7 +721,7 @@ msgstr "Épinglé"
 msgid "Preview"
 msgstr "Avant-première"
 
-#: src/home/HomeView.svelte:210
+#: src/home/HomeView.svelte:240
 msgid "Project name..."
 msgstr "Nom du projet..."
 
@@ -733,8 +734,8 @@ msgstr "Référence"
 msgid "Refine your filter to see more..."
 msgstr "Affinez votre filtre pour voir plus..."
 
-#: src/home/Server.svelte:79
-#: src/home/HomeView.svelte:156
+#: src/home/Server.svelte:81
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "Projets de rafraîchissement"
 
@@ -742,7 +743,7 @@ msgstr "Projets de rafraîchissement"
 msgid "Remove"
 msgstr "Retirer"
 
-#: src/lib/components/field-editors/audio-input.svelte:268
+#: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Remove audio"
 msgstr "Supprimer l'audio"
 
@@ -750,11 +751,11 @@ msgstr "Supprimer l'audio"
 msgid "Reopen"
 msgstr "Réouverture"
 
-#: src/lib/components/field-editors/audio-input.svelte:265
+#: src/lib/components/field-editors/audio-input.svelte:258
 msgid "Replace audio"
 msgstr "Remplacer l'audio"
 
-#: src/lib/components/audio/AudioDialog.svelte:169
+#: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
 msgstr "Sauvegarder l'audio"
 
@@ -818,7 +819,7 @@ msgstr "Afficher {0} plus..."
 msgid "Simple"
 msgstr "Simple"
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "Size:"
 msgstr "Taille :"
 
@@ -834,11 +835,10 @@ msgstr "Soumettre"
 
 #: src/project/ProjectSidebar.svelte:117
 #: src/lib/activity/ActivityView.svelte:108
-#: src/home/Server.svelte:115
 msgid "Synced"
 msgstr "Synchronisé"
 
-#: src/home/HomeView.svelte:170
+#: src/home/HomeView.svelte:200
 msgid "Synced with {0}"
 msgstr "Synchronisé avec {0}"
 
@@ -887,11 +887,11 @@ msgstr "Traduction"
 
 #: src/project/ProjectSidebar.svelte:170
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:160
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
-#: src/lib/components/audio/audio-editor.svelte:36
+#: src/lib/components/audio/audio-editor.svelte:94
 msgid "Type:"
 msgstr "Type :"
 
@@ -907,11 +907,11 @@ msgid "Unknown"
 msgstr "Inconnu"
 
 #: src/project/ProjectSidebar.svelte:115
-#: src/lib/components/audio/AudioDialog.svelte:91
+#: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
-#: src/lib/components/field-editors/audio-input.svelte:85
+#: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
 msgstr "Erreur inconnue {0}"
 
@@ -937,7 +937,7 @@ msgstr "Version {0}"
 msgid "View Configuration"
 msgstr "Voir la configuration"
 
-#: src/home/Server.svelte:98
+#: src/home/Server.svelte:100
 msgid "Where are my projects?"
 msgstr "Où sont mes projets ?"
 
