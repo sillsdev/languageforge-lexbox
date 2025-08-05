@@ -438,7 +438,7 @@ jobs:
           name: fw-lite-web-linux
           path: fw-lite-web-linux
       - name: set execute permissions
-        run: chmod +x fw-lite-web-linux/*/FwLiteWeb
+        run: chmod +x ${{ steps.download-artifact.outputs.download-path }}/*/FwLiteWeb
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 #v2
         with:
