@@ -169,6 +169,7 @@
   });
   let playerState = $state<'loading' | 'playing' | 'paused'>('paused');
   let loading = $derived(playerState === 'loading');
+  let loaded = $derived(audio && audioId && loadedAudioId === audioId);
   let playing = $derived(playerState === 'playing');
   let playIcon: 'i-mdi-play' | 'i-mdi-pause' = $derived(playing || pausedViaDragging ? 'i-mdi-pause' : 'i-mdi-play');
   let totalLength = $derived({
@@ -225,6 +226,7 @@
       {#if audioRuned}
         <Slider type="single"
                 class="pl-2"
+                disabled={!loaded}
                 value={sliderValue}
                 onValueChange={(value) => {
                     // store the value, because !playing is not necessarrily up to date when a drag starts
