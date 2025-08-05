@@ -26,6 +26,7 @@
   import {Input} from '$lib/components/ui/input';
   import {crossfade} from 'svelte/transition';
   import {cubicOut} from 'svelte/easing';
+  import {flip} from 'svelte/animate';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
 
@@ -189,10 +190,9 @@
           </div>
           <div>
             {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
-              {@const projectId = project.id ?? crypto.randomUUID()}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
-              <div out:send={{key: 'project-' + projectId}} in:receive={{key: 'project-' + projectId}}>
+              <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
                 <Anchor href={`/project/${project.code}`}>
                   <ProjectListItem icon="i-mdi-book-edit-outline"
                                    {project}

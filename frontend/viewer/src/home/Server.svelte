@@ -110,7 +110,7 @@
           {@const localProject = matchesProject(localProjects, project)}
           {#if !localProject?.crdt}
             {@const loading = downloading === project.code}
-            <div out:send={{key: 'project-' + project.id}} in:receive={{key: 'project-' + project.id}}>
+            <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
               <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
                 {#snippet actions()}
                   <div class="pointer-events-none shrink-0">
