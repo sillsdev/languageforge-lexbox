@@ -127,7 +127,7 @@
       </ListItem>
     {:else if !projects.length}
       <div class="flex flex-col gap-2 items-center justify-center md:rounded p-4">
-        {#if !status.loggedIn}
+        {#if status.loggedIn}
           <Button class="border border-primary" variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
             {$t`Where are my projects?`}
             <Icon icon="i-mdi-open-in-new" class="size-4" />
