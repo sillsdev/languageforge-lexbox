@@ -26,7 +26,6 @@
   import {Input} from '$lib/components/ui/input';
   import {crossfade} from 'svelte/transition';
   import {cubicOut} from 'svelte/easing';
-  import {flip} from 'svelte/animate';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
 
