@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Exceptions;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
@@ -718,14 +719,17 @@ public class FwDataMiniLcmApi(
         //rooted media paths aren't supported
         if (Path.IsPathRooted(tsString))
             throw new ArgumentException("Media path must be relative", nameof(tsString));
-        return mediaAdapter.MediaUriFromPath(Path.Combine(AudioVisualFolder, tsString), Cache).ToString();
+        var fullFilePath = Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder, tsString);
+        return mediaAdapter.MediaUriFromPath(fullFilePath, Cache).ToString();
     }
 
-    internal string FromMediaUri(string mediaUri)
+    internal string FromMediaUri(string mediaUriString)
     {
         //path includes `AudioVisual` currently
-        var path = mediaAdapter.PathFromMediaUri(new MediaUri(mediaUri), Cache);
-        return Path.GetRelativePath(AudioVisualFolder, path);
+        MediaUri mediaUri = new MediaUri(mediaUriString);
+        var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
+        if (path is null) throw new NotFoundException($"Unable to find file {mediaUri.FileId}.", nameof(MediaFile));
+        return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
     }
 
     internal RichString? ToRichString(ITsString? tsString)
@@ -817,7 +821,7 @@ public class FwDataMiniLcmApi(
     {
         if (string.IsNullOrEmpty(query)) return null;
         return entry => entry.CitationForm.SearchValue(query) ||
-                        entry.LexemeFormOA.Form.SearchValue(query) ||
+                        entry.LexemeFormOA?.Form.SearchValue(query) is true ||
                         entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
     }
 
@@ -1536,8 +1540,55 @@ public class FwDataMiniLcmApi(
     public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
     {
         if (mediaUri == MediaUri.NotFound) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
-        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, mediaAdapter.PathFromMediaUri(mediaUri, Cache));
+        var pathFromMediaUri = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
+        if (pathFromMediaUri is not {Length: > 0}) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
+        string fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, pathFromMediaUri);
         if (!File.Exists(fullPath)) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         return Task.FromResult(new ReadFileResponse(File.OpenRead(fullPath), Path.GetFileName(fullPath)));
+    }
+
+    public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
+    {
+        if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
+        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
+
+        if (File.Exists(fullPath))
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: false);
+        var directory = Path.GetDirectoryName(fullPath);
+        if (directory is not null)
+        {
+            try
+            {
+                Directory.CreateDirectory(directory);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to create directory {Directory} for file {Filename}", directory, metadata.Filename);
+                return new UploadFileResponse($"Failed to create directory: {ex.Message}");
+            }
+        }
+
+        try
+        {
+            await using var fileStream = File.Create(fullPath);
+            await stream.CopyToAsync(fileStream);
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to save file {Filename} to {Path}", metadata.Filename, fullPath);
+            return new UploadFileResponse($"Failed to save file: {ex.Message}");
+        }
+    }
+
+    private string TypeToLinkedFolder(string mimeType)
+    {
+        return mimeType switch
+        {
+            { } s when s.StartsWith("audio/") => AudioVisualFolder,
+            { } s when s.StartsWith("video/") => AudioVisualFolder,
+            { } s when s.StartsWith("image/") => "Pictures",
+            _ => "Others"
+        };
     }
 }

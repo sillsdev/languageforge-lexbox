@@ -24,6 +24,8 @@ using SIL.Harmony.Db;
 using System.Runtime.CompilerServices;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Sync;
+using MiniLcm.Media;
+using MediaFile = MiniLcm.Media.MediaFile;
 
 namespace FwLiteShared.TypeGen;
 
@@ -53,6 +55,7 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithName("DotNet.DotNetObject").Imports([
                 new() { From = "@microsoft/dotnet-js-interop", Target = "type {DotNet}" }
             ]));
+        builder.Substitute(typeof(IJSStreamReference), new RtSimpleTypeName("Blob | ArrayBuffer | Uint8Array"));
         builder.Substitute(typeof(DotNetStreamReference), new RtSimpleTypeName("{stream: () => Promise<ReadableStream>, arrayBuffer: () => Promise<ArrayBuffer>}"));
         builder.ExportAsInterface<IAsyncDisposable>();
 
@@ -63,6 +66,7 @@ public static class ReinforcedFwLiteTypingConfig
     private static void ConfigureMiniLcmTypes(ConfigurationBuilder builder)
     {
         builder.Substitute(typeof(WritingSystemId), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(MediaUri), new RtSimpleTypeName("string"));
         builder.ExportAsThirdParty<MultiString>().WithName("IMultiString").Imports([
             new() { From = "$lib/dotnet-types/i-multi-string", Target = "type {IMultiString}" }
         ]);
@@ -78,6 +82,9 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(IObjectWithId),
                 typeof(RichString),
                 typeof(RichTextObjectData),
+
+                typeof(MediaFile),
+                typeof(LcmFileMetadata)
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(exportBuilder =>
         {
@@ -100,6 +107,7 @@ public static class ReinforcedFwLiteTypingConfig
         ]);
         builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsEnum<ReadFileResult>().UseString();
+        builder.ExportAsEnum<UploadFileResult>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()
@@ -111,7 +119,8 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(SortOptions),
                 typeof(ExemplarOptions),
                 typeof(EntryFilter),
-                typeof(MiniLcmJsInvokable.ReadFileResponseJs)
+                typeof(MiniLcmJsInvokable.ReadFileResponseJs),
+                typeof(UploadFileResponse)
             ],
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(propExportBuilder =>
         {

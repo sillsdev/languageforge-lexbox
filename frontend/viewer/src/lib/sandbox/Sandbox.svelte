@@ -33,7 +33,7 @@
   import {formatDate, FormatDate, formatNumber} from '$lib/components/ui/format';
   import {SvelteDate} from 'svelte/reactivity';
   import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
-
+  import {FFmpegApi} from '$lib/components/audio/ffmpeg';
 
   const testingService = tryUseService(DotnetService.TestingService);
 
@@ -125,6 +125,12 @@
   let reseter = $state(0);
 
   let currentDate = new SvelteDate();
+
+  async function preloadFFmpeg() {
+    console.log('Loading FFmpeg...');
+    let ffmpeg = await FFmpegApi.create();
+    console.log('FFmpeg loaded:', ffmpeg);
+  }
 </script>
 <DialogsProvider/>
 <div class="p-6 shadcn-root">
@@ -136,6 +142,7 @@
       {/snippet}
     </T>
   </h2>
+  <Button onclick={preloadFFmpeg}>Load FFmpeg</Button>
   <div class="grid grid-cols-3 gap-6">
     <div class="flex flex-col gap-2 border p-4 justify-between">
       <Button onclick={incrementAsync} {loading} icon="i-mdi-ab-testing">Shadcn FTW {count}</Button>
@@ -191,7 +198,7 @@
                         mode={pickerMode}
                         pick={(e) => selectedEntryHistory.push(e)}/>
     <div>
-      {#each selectedEntryHistory as selected}
+      {#each selectedEntryHistory as selected (selected.entry.id)}
         <p>
           Entry: {writingSystemService.headword(selected.entry)}
           {#if selected.sense}
@@ -322,16 +329,16 @@
       </div>
       <div><Button onclick={testLoading}>Test loading</Button></div>
       <div class="flex gap-2 flex-wrap">
-        {#each variants as variant}
+        {#each variants as variant (variant)}
           <Button loading={buttonsLoading} {variant}>{variant} button</Button>
         {/each}
-        {#each variants as variant}
+        {#each variants as variant (variant)}
           <Button loading={buttonsLoading} {variant} icon="i-mdi-auto-fix"></Button>
         {/each}
-        {#each sizes as size}
+        {#each sizes as size (size)}
           <Button loading={buttonsLoading} {size}>Size: {size}</Button>
         {/each}
-        {#each sizes as size}
+        {#each sizes as size (size)}
           <Button loading={buttonsLoading} {size} icon="i-mdi-auto-fix"/>
         {/each}
       </div>

@@ -34,7 +34,7 @@
 
 <div role="tablist" class="flex tabs tabs-lifted tabs-lg overflow-x-auto">
   <div class="tab tab-divider"></div>
-  {#each visibleTabs as tab}
+  {#each visibleTabs as tab (tab)}
     {@const isActiveTab = activeTab === tab}
     <button onclick={() => activeTab = tab} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
       <h2 class="text-lg flex gap-4 items-center">

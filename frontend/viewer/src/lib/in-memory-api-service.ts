@@ -25,8 +25,12 @@ import {WritingSystemService} from './writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import {delay} from '$lib/utils/time';
 import {initProjectContext, ProjectContext} from '$lib/project-context.svelte';
-import type { IFwLiteConfig } from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
+import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
+import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ILcmFileMetadata';
+import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLcm/Media/IUploadFileResponse';
+import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from './dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 
 function pickWs(ws: string, defaultWs: string): string {
@@ -357,7 +361,10 @@ export class InMemoryApiService implements IMiniLcmJsInvokable {
   }
 
   getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve({result: ReadFileResult.NotSupported});
   }
 
+  saveFile(_streamReference: Blob | ArrayBuffer | Uint8Array, _metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
+    return Promise.resolve({result: UploadFileResult.NotSupported});
+  }
 }

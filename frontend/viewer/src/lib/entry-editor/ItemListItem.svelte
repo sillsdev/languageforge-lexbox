@@ -23,12 +23,18 @@
 
   let {
     item,
+    // TODO: Either use `index` or remove it as a prop
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    index,
     items = $bindable(),
     readonly,
     orderable = false,
     getDisplayName,
     onchange,
     menuItems,
+    // TODO: Either use `actions` or remove it as a prop
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    actions,
   } : ItemListItemProps<T> = $props();
 
   const displayName = $derived(getDisplayName(item) || '–');

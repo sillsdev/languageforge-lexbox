@@ -5,22 +5,25 @@
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {watch} from 'runed';
-  import {delay} from '$lib/utils/time';
   import AudioProvider from './audio-provider.svelte';
   import AudioEditor from './audio-editor.svelte';
-  import Loading from '$lib/components/Loading.svelte';
+  import {useLexboxApi} from '$lib/services/service-provider';
+  import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'audio-dialog'});
   const dialogsService = useDialogsService();
   dialogsService.invokeAudioDialog = getAudio;
+  const lexboxApi = useLexboxApi();
 
   let submitting = $state(false);
   let selectedFile = $state<File>();
-  let audio = $state<Blob>();
+  let finalAudio = $state<File>();
+  const tooBig = $derived((finalAudio?.size ?? 0) > 10 * 1024 * 1024);
 
   let requester: {
-    resolve: (value: string | undefined) => void
+    resolve: (mediaUri: string | undefined) => void
   } | undefined;
 
 
@@ -36,6 +39,10 @@
     if (!open) reset();
   });
 
+  watch(() => selectedFile, () => {
+    if (!selectedFile) finalAudio = undefined;
+  })
+
   function close() {
     open = false;
     reset();
@@ -48,12 +55,12 @@
   }
 
   function clearAudio() {
-    audio = selectedFile = undefined;
+    selectedFile = undefined;
     submitting = false;
   }
 
   async function submitAudio() {
-    if (!audio) throw new Error('No audio to upload');
+    if (!selectedFile) throw new Error('No audio to upload');
     if (!requester) throw new Error('No requester');
 
     submitting = true;
@@ -67,35 +74,65 @@
   }
 
   async function uploadAudio() {
-    if (!audio) throw new Error('No file selected');
-    const name = (selectedFile?.name ?? audio.type);
-    const id = `audio-${name}-${Date.now()}`;
-    await delay(1000);
-    return id;
+    if (!finalAudio) throw new Error($t`No file to upload`);
+    const response = await lexboxApi.saveFile(finalAudio, {filename: finalAudio.name, mimeType: finalAudio.type});
+    switch (response.result) {
+      case UploadFileResult.SavedLocally:
+        AppNotification.display($t`Audio saved locally`, 'success');
+        break;
+      case UploadFileResult.SavedToLexbox:
+        AppNotification.display($t`Audio saved and uploaded to Lexbox`, 'success');
+        break;
+      case UploadFileResult.TooBig:
+        throw new Error($t`File too big`);
+      case UploadFileResult.NotSupported:
+        throw new Error($t`File saving not supported`);
+      case UploadFileResult.AlreadyExists:
+        throw new Error($t`File already exists`);
+      case UploadFileResult.Error:
+        throw new Error(response.errorMessage ?? $t`Unknown error`);
+    }
+
+    return response.mediaUri;
   }
 
-  async function onFileSelected(file: File) {
+  function onFileSelected(file: File) {
     selectedFile = file;
-    audio = await processAudio(file);
   }
 
-  async function onRecordingComplete(blob: Blob) {
-    selectedFile = undefined;
-    if (!open) return;
-    audio = await processAudio(blob);
+  function onRecordingComplete(blob: Blob) {
+    let fileExt = mimeTypeToFileExtension(blob.type);
+    selectedFile = new File([blob], `recording-${Date.now()}.${fileExt}`, {type: blob.type});
+  }
+
+  function mimeTypeToFileExtension(mimeType: string) {
+    if (mimeType.startsWith('audio/')) {
+      const baseType = mimeType.split(';')[0];
+      switch (baseType) {
+        case 'audio/mpeg':
+        case 'audio/mp3':
+          return 'mp3';
+        case 'audio/wav':
+        case 'audio/wave':
+        case 'audio/x-wav':
+          return 'wav';
+        case 'audio/ogg':
+          return 'ogg';
+        case 'audio/webm':
+          return 'webm';
+        case 'audio/aac':
+          return 'aac';
+        case 'audio/m4a':
+          return 'm4a';
+        default:
+          return 'audio';
+      }
+    }
+    return 'bin';
   }
 
   function onDiscard() {
-    audio = undefined;
     selectedFile = undefined;
-  }
-
-  let loading = $state(false);
-  async function processAudio(blob: Blob): Promise<Blob> {
-    loading = true;
-    await delay(1000); // Simulate processing delay
-    loading = false;
-    return blob;
   }
 </script>
 
@@ -105,18 +142,16 @@
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`Add audio`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    {#if !audio}
-      {#if loading}
-        <Loading class="self-center justify-self-center size-16"/>
-      {:else}
-        <AudioProvider {onFileSelected} {onRecordingComplete}/>
-      {/if}
+    {#if !selectedFile}
+      <AudioProvider {onFileSelected} {onRecordingComplete}/>
     {:else}
-      <AudioEditor {audio} onDiscard={onDiscard}/>
-
+      <AudioEditor audio={selectedFile} bind:finalAudio onDiscard={onDiscard}/>
+      {#if tooBig}
+        <p class="text-destructive text-lg text-end">{$t`File too big`}</p>
+      {/if}
       <Dialog.DialogFooter>
         <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-        <Button onclick={() => submitAudio()} loading={submitting}>
+        <Button onclick={() => submitAudio()} disabled={tooBig || !finalAudio} loading={submitting}>
           {$t`Save audio`}
         </Button>
       </Dialog.DialogFooter>

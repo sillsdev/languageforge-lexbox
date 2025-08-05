@@ -39,7 +39,6 @@
 
   type Schema = typeof schema;
   type RefinedSchema = typeof refinedSchema;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<RefinedSchema> | undefined = $state();
 
   export function close(): void {
@@ -145,7 +144,7 @@
       <div>
         Feature flags:
         <ul>
-          {#each allPossibleFlags as flag}
+          {#each allPossibleFlags as flag (flag)}
             <li>
               <label
                 ><input type="checkbox" name="featureFlags" value={flag} bind:group={$form!.featureFlags} />

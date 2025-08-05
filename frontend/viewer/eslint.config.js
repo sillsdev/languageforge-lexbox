@@ -1,6 +1,5 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 
-import {FlatCompat} from '@eslint/eslintrc';
 import {fileURLToPath} from 'url';
 import globals from 'globals';
 import js from '@eslint/js';
@@ -8,13 +7,13 @@ import path from 'path';
 import storybook from "eslint-plugin-storybook";
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
+import typescript from 'typescript-eslint';
+import stylistic from '@stylistic/eslint-plugin';
+import svelte from 'eslint-plugin-svelte';
 
 // mimic CommonJS variables
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname
-});
 
 export default [
   {
@@ -26,28 +25,27 @@ export default [
     ],
   },
   js.configs.recommended,
-  // TypeScript and Svelte plugins don't seem to support the new config format yet
-  // So, using backwards compatibility util: https://eslint.org/blog/2022/08/new-config-system-part-2/#backwards-compatibility-utility
-  ...compat.config({
-    plugins: ['@typescript-eslint', '@stylistic'],
-    extends: ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'],
-    overrides: [
-      {
-        files: ['*.svelte'],
-        rules: {
-          // The Svelte plugin doesn't seem to have typing quite figured out
-          '@typescript-eslint/no-unsafe-assignment': 'off',
-          '@typescript-eslint/no-unsafe-member-access': 'off',
-          '@typescript-eslint/no-unsafe-call': 'off',
-          '@typescript-eslint/no-unsafe-return': 'off',
-          '@typescript-eslint/no-unsafe-argument': 'off',
-        },
-      }
-    ]
-  }),
-  ...compat.config({
-    extends: ['plugin:svelte/recommended'],
-  }),
+  {
+    plugins: {
+      // '@typescript-eslint': typescript, // Included in ...typescript.configs.recommended
+      '@stylistic': stylistic,
+    },
+  },
+  ...typescript.configs.recommended,
+  ...typescript.configs.recommendedTypeChecked,
+  {
+    files: ['**/*.svelte'],
+    rules: {
+      // The Svelte plugin doesn't seem to have typing quite figured out
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
+  ...svelte.configs.recommended,
   {
     rules: {
       // https://typescript-eslint.io/rules/

@@ -13,7 +13,7 @@
 <div class="w-full">
   {#if writingSystems.length > 0}
     <BadgeList>
-      {#each writingSystems as ws}
+      {#each writingSystems as ws (ws.tag)}
         <WritingSystemBadge tag={ws.tag} isActive={ws.isActive} isDefault={ws.isDefault} />
       {/each}
     </BadgeList>

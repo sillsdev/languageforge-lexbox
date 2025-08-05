@@ -9,8 +9,8 @@ const typescriptConfig = path.join(__dirname, 'tsconfig.json');
 
 export default {
   compilerOptions: {
-    warningFilter: (warning) => warning.code != 'element_invalid_self_closing_tag',
-    customElement: true,
+    warningFilter: (warning) => warning.code !== 'element_invalid_self_closing_tag' && warning.code !== 'custom_element_props_identifier',
+    customElement: true,//required for storybook tests
   },
   // Consult https://svelte.dev/docs#compile-time-svelte-preprocess
   // for more information about preprocessors

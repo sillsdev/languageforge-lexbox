@@ -101,7 +101,7 @@
     </OverrideFields>
     {#if errors.length}
       <div class="text-end space-y-2">
-        {#each errors as error}
+        {#each errors as error (error)}
           <p class="text-destructive">{error}</p>
         {/each}
       </div>

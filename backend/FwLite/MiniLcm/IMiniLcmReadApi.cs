@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 using MiniLcm.Filtering;
+using MiniLcm.Media;
 using MiniLcm.Models;
 
 namespace MiniLcm;

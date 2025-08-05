@@ -15,6 +15,8 @@ import {type ResourceReturn} from 'runed';
 export type WritingSystemSelection =
   | 'vernacular'
   | 'analysis'
+  | 'vernacular-no-audio'
+  | 'analysis-no-audio'
   | 'first-vernacular'
   | 'first-analysis'
   | 'vernacular-analysis'
@@ -88,6 +90,10 @@ export class WritingSystemService {
         return this.writingSystems.vernacular;
       case 'analysis':
         return this.writingSystems.analysis;
+      case 'vernacular-no-audio':
+        return this.vernacularNoAudio;
+      case 'analysis-no-audio':
+        return this.analysisNoAudio;
     }
     console.error(`Unknown writing system selection: ${ws as string}`);
     return [];
@@ -99,14 +105,10 @@ export class WritingSystemService {
 
   headword(entry: IEntry, ws?: string): string {
     if (ws) {
-      return WritingSystemService.headword(entry, ws) || '';
+      return headword(entry, ws) || '';
     }
 
-    return firstTruthy(this.vernacularNoAudio, ws => WritingSystemService.headword(entry, ws.wsId)) || '';
-  }
-
-  private static headword(entry: IEntry, ws: string): string | undefined {
-    return entry.citationForm[ws] || entry.lexemeForm[ws];
+    return firstTruthy(this.vernacularNoAudio, ws => headword(entry, ws.wsId)) || '';
   }
 
   pickBestAlternative(value: IMultiString, wss: 'vernacular' | 'analysis'): string
@@ -177,6 +179,10 @@ export function asString(value: IRichString | string | undefined): string | unde
 type WritingSystemColors = {
   vernacular: Record<string, typeof vernacularColors[number]>;
   analysis: Record<string, typeof analysisColors[number]>;
+}
+
+function headword(entry: IEntry, ws: string): string | undefined {
+  return entry.citationForm[ws] || entry.lexemeForm[ws];
 }
 
 function calcWritingSystemColors(writingSystems: IWritingSystems): WritingSystemColors {

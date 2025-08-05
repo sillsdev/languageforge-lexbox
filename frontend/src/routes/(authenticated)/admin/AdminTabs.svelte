@@ -24,7 +24,7 @@
 
 <div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg overflow-x-auto">
   <div class="tab tab-divider"></div>
-  {#each adminTabs as tab}
+  {#each adminTabs as tab (tab)}
     {@const isActiveTab = activeTab === tab}
     <button
       onclick={() => onClickTab?.(tab)}

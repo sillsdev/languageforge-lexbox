@@ -30,7 +30,7 @@
     </tr>
   </thead>
   <tbody>
-    {#each shownUsers as user}
+    {#each shownUsers as user (user.id)}
       <tr>
         <td>
           <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">

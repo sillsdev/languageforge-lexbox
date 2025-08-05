@@ -25,7 +25,6 @@
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
   let selectedUserId: string | undefined = $state(undefined);

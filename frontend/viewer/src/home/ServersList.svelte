@@ -55,7 +55,7 @@
 {#await serversPromise}
   <Server status={undefined} projects={[]} localProjects={[]} loading={true}/>
 {:then serversStatus}
-  {#each serversStatus as status}
+  {#each serversStatus as status (status.server.id)}
     {@const server = status.server}
     {@const serverProjects = remoteProjects[server.id]?.projects.filter(p => p.crdt) ?? []}
     {@const canDownloadByCode = remoteProjects[server.id]?.canDownloadByCode}
@@ -64,7 +64,7 @@
             {canDownloadByCode}
             {localProjects}
             loading={loadingServerProjects === server.id || loadingRemoteProjects}
-            on:refreshProjects={() => refreshServerProjects(server, true)}
-            on:refreshAll={() => refreshProjectsAndServers()}/>
+            refreshProjects={() => refreshServerProjects(server, true)}
+            refreshAll={() => refreshProjectsAndServers()}/>
   {/each}
 {/await}

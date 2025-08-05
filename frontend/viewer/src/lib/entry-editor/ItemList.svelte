@@ -20,7 +20,7 @@
 </script>
 
 <div class="flex gap-2 flex-wrap items-center">
-  {#each items as item, index}
+  {#each items as item, index (item)}
     <ItemListItem
       {item}
       {index}

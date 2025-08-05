@@ -36,7 +36,7 @@
 </div>
 
 <code>
-  {#each items as item}
+  {#each items as item (item)}
     <span class={cn('p-2 inline-block', item === currentItem && 'text-primary font-bold')}>
       {displayFunc(item)}
     </span>

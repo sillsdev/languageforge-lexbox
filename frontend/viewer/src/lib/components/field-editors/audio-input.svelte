@@ -19,7 +19,10 @@
 
     get duration() {
       this.#durationSub();
-      return this.audio.duration;
+      let duration = this.audio.duration;
+      //avoids bug: https://github.com/huntabyte/bits-ui/issues/1663
+      if (duration === Infinity) duration = NaN;
+      return duration;
     }
   }
 
@@ -38,7 +41,7 @@
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
 </script>
 <script lang="ts">
-  import {onDestroy, tick} from 'svelte';
+  import {onDestroy} from 'svelte';
   import {useEventListener, watch} from 'runed';
   import {useProjectContext} from '$lib/project-context.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -46,18 +49,19 @@
   import {Slider} from '$lib/components/ui/slider';
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
-  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ReadFileResult';
+  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {isDev} from '$lib/layout/DevContent.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
   const handled = Symbol();
   let {
     loader = defaultLoader,
     audioId = $bindable(),
+    onchange = () => {},
   }: {
     loader?: (audioId: string) => Promise<ReadableStream | undefined | typeof handled>,
     audioId: string | undefined,
+    onchange?: (audioId: string | undefined) => void;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -185,31 +189,27 @@
     const result = await dialogService.getAudio();
     if (result) {
       audioId = result;
-      await tick(); // let the audio element be created
-      // todo, the audio ID is fake
-      // await load();
+      onchange(audioId)
     }
   }
 
   function onRemoveAudio() {
-    audioId = undefined;
-    if (audio && audio.src) {
-      URL.revokeObjectURL(audio.src);
-      audio.src = '';
+    try {
+      audioId = undefined;
+      onchange(audioId);
+    } finally {
+      if (audio && audio.src) {
+        URL.revokeObjectURL(audio.src);
+        audio.src = '';
+      }
     }
   }
 </script>
 {#if supportsAudio}
   {#if !audioId}
-    {#if $isDev}
-      <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
-        {$t`Add audio`}
-      </Button>
-    {:else}
-      <div class="text-muted-foreground p-1">
-        {$t`No audio`}
-      </div>
-    {/if}
+    <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
+      {$t`Add audio`}
+    </Button>
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">
       {$t`Audio file not included in Send & Receive`}
