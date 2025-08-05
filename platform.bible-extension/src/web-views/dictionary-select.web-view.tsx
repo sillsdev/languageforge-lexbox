@@ -21,7 +21,7 @@ globalThis.webViewComponent = function fwDictionarySelect({ projectId }: WebView
     commands
       .sendCommand('fwLiteExtension.fwDictionaries', projectId)
       .then(setFwDictionaries)
-      .catch((e) => logger.error('Error fetching FieldWorks dictionaries:', e));
+      .catch((e) => logger.error('Error fetching FieldWorks dictionaries:', JSON.stringify(e)));
   }, [projectId]);
 
   return <DictionaryComboBox dictionaries={fwDictionaries} selectDictionary={selectDictionary} />;

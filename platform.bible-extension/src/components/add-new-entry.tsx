@@ -49,7 +49,7 @@ export default function AddNewEntry({
     );
     await addEntry(entry)
       .then(() => clearEntry())
-      .catch(logger.error);
+      .catch((e) => logger.error('Error adding entry:', JSON.stringify(e)));
   }
 
   return adding ? (

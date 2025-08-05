@@ -8,7 +8,7 @@ export class ProjectManagers {
     if (!webViewId) return;
     const webViewDef = await papi.webViews
       .getOpenWebViewDefinition(webViewId)
-      .catch((e) => logger.error('Error getting WebView definition:', e));
+      .catch((e) => logger.error('Error getting WebView definition:', JSON.stringify(e)));
     if (!webViewDef?.projectId) {
       logger.warn(`No projectId found for WebView '${webViewId}'`);
       return;

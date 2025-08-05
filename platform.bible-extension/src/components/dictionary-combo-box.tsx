@@ -23,7 +23,7 @@ export default function DictionaryComboBox({
       // eslint-disable-next-line promise/catch-or-return
       selectDictionary(code)
         .then(() => setSettingSaved(true))
-        .catch((e) => logger.error('Error saving dictionary selection:', e))
+        .catch((e) => logger.error('Error saving dictionary selection:', JSON.stringify(e)))
         .finally(() => setSettingSaving(false));
     },
     [selectDictionary],

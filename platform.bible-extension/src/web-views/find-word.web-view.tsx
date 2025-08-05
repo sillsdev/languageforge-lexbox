@@ -30,7 +30,7 @@ globalThis.webViewComponent = function fwLiteFindWord({
         logger.info('Got network object:', networkObject);
         setFwLiteNetworkObject(networkObject);
       })
-      .catch(logger.error);
+      .catch((e) => logger.error('Error getting network object:', JSON.stringify(e)));
   }, []);
 
   const fetchEntries = useCallback(
