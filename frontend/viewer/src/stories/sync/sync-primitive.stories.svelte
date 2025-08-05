@@ -1,9 +1,11 @@
 <script module lang="ts">
+  import {setupServiceProvider} from '$lib/services/service-provider';
   import {defineMeta} from '@storybook/addon-svelte-csf';
 
   const {Story} = defineMeta({
     title: 'sync/SyncPrimitive'
   });
+  setupServiceProvider();
 </script>
 <script lang="ts">
 import SyncStatusPrimitive from '../../project/sync/SyncStatusPrimitive.svelte';
@@ -45,7 +47,7 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
     latestCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
-      displayName: 'Test Server',
+      displayName: 'Lexbox',
       authority: 'https://test-server.com',
     }}
   />
@@ -59,7 +61,7 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
     latestCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
-      displayName: 'Test Server',
+      displayName: 'Lexbox',
       authority: 'https://test-server.com',
     }}
   />
@@ -100,7 +102,7 @@ if (!window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService)) {
     latestCommitDate={new Date().toISOString()}
     server={{
       id: 'test-server',
-      displayName: 'Test Server',
+      displayName: 'Lexbox',
       authority: 'https://test-server.com',
     }}
   />

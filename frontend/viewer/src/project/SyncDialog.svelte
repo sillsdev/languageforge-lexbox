@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import {Dialog, DialogContent, DialogHeader, DialogTitle} from '$lib/components/ui/dialog';
-  import {t, plural} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import Loading from '$lib/components/Loading.svelte';
@@ -40,15 +40,11 @@
   }
 
   async function onOpen(): Promise<void> {
-    let serverPromise = service.getCurrentServer();
-    let remotePromise = service.getStatus();
-    let localPromise = service.getLocalStatus();
-    let commitDatePromise = service.getLatestCommitDate();
-    [localStatus, remoteStatus, latestCommitDate, server] = await Promise.all([
-      localPromise,
-      remotePromise,
-      commitDatePromise,
-      serverPromise,
+    await Promise.all([
+      service.getLocalStatus().then(s => localStatus = s),
+      service.getStatus().then(s => remoteStatus = s),
+      service.getLatestCommitDate().then(s => latestCommitDate = s),
+      service.getCurrentServer().then(s => server = s),
     ]);
   }
 
@@ -80,9 +76,11 @@
       remoteStatus.pendingCrdtChanges = 0;
       remoteStatus.pendingMercurialChanges = 0;
     }
-    const statusPromise = service.getStatus();
     // Auto-close dialog after successful FieldWorks sync
-    [remoteStatus] = await Promise.all([statusPromise, delay(750)]);
+    await Promise.all([
+      service.getStatus().then(s => remoteStatus = s),
+      delay(750)
+    ]);
     if (safeToCloseDialog && remoteStatus.pendingMercurialChanges === 0 && remoteStatus.pendingCrdtChanges === 0) {
       openQueryParam.current = false;
     }
@@ -90,7 +88,6 @@
 
 
   async function syncLexboxToLocal() {
-
     const result = await service.triggerCrdtSync();
     if (!result) {
       AppNotification.display($t`Failed to synchronize`, 'error');
@@ -101,15 +98,11 @@
       localStatus.remote = 0;
       localStatus.local = 0;
     }
-    const statusPromise = service.getLocalStatus();
-    const remoteStatusPromise = service.getStatus();
-    const datePromise = service.getLatestCommitDate();
-    [localStatus, remoteStatus, latestCommitDate] = await Promise.all([
-      statusPromise,
-      remoteStatusPromise,
-      datePromise,
+    await Promise.all([
+      service.getLocalStatus().then(s => localStatus = s),
+      service.getStatus().then(s => remoteStatus = s),
+      service.getLatestCommitDate().then(s => latestCommitDate = s),
     ]);
-
   }
 
   function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
@@ -124,22 +117,17 @@
     <DialogHeader>
       <DialogTitle>{$t`Synchronize`}</DialogTitle>
     </DialogHeader>
-    <!-- remoteStatus always gets set, so it's only here for the compiler -->
-    {#if !remoteStatus}
-      <Loading class="place-self-center size-10"/>
-    {:else}
-      <SyncStatusPrimitive
-        {syncStatus}
-        {remoteStatus}
-        {localStatus}
-        {server}
-        serverId={projectContext.projectData?.serverId}
-        {latestCommitDate}
-        canSyncLexboxToFlex={features?.write}
-        {syncLexboxToFlex}
-        {syncLexboxToLocal}
-        {onLoginStatusChange}
-      />
-    {/if}
+    <SyncStatusPrimitive
+      {syncStatus}
+      {remoteStatus}
+      {localStatus}
+      {server}
+      serverId={projectContext.projectData?.serverId}
+      {latestCommitDate}
+      canSyncLexboxToFlex={features?.write}
+      {syncLexboxToFlex}
+      {syncLexboxToLocal}
+      {onLoginStatusChange}
+    />
   </DialogContent>
 </Dialog>

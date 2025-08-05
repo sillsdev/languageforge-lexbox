@@ -67,15 +67,86 @@
   }
 </script>
 <!-- 1fr_7fr_1fr seems to be a reliable way to prevent the buttons states from resizing the dialog -->
-<div in:fade
-     class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8">
-  <div class="col-span-full text-center">
-    <Icon icon="i-mdi-monitor-cellphone" class="size-10"/>
+<div in:fade class="grid grid-rows-[auto] grid-cols-[1fr_7fr_1fr] gap-y-6 gap-x-8">
+  {#if server && syncStatus === SyncStatus.Success}
+    <div class="col-span-full text-center flex flex-col">
+      <span class="font-medium">
+        <Icon icon="i-mdi-cloud-outline"/>
+        {$t`${serverName} - FieldWorks`}
+      </span>
+      <span class="text-foreground/80">
+        {#if !remoteStatus}
+          <span class="animate-pulse inline-block h-4 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-64"></span>
+        {:else}
+          {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
+        {/if}
+      </span>
+      {#if remoteStatus?.status === ProjectSyncStatusEnum.Unknown}
+        {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
+          {$t`Not logged in`}
+        {:else}
+          <span class="text-destructive brightness-200">
+            {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
+          </span>
+        {/if}
+      {/if}
+    </div>
+
+    <div class="text-center content-center">
+      {#if !remoteStatus}
+        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
+      {:else}
+        {flexToLexboxCount}
+      {/if}
+      <PingingIcon
+        icon="i-mdi-arrow-down"
+        ping={loadingSyncLexboxToFlex && !!flexToLexboxCount}
+        class={cn(loadingSyncLexboxToFlex && !!flexToLexboxCount && 'text-primary')}
+      />
+    </div>
+    <div class="content-center text-center">
+      <Button
+        loading={loadingSyncLexboxToFlex}
+        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
+        onclick={onSyncLexboxToFlex}
+        icon="i-mdi-sync"
+        iconProps={{ class: 'size-5' }}>
+        {#if loadingSyncLexboxToFlex}
+          {$t`Synchronizing...`}
+        {:else}
+          {$t`Synchronize`}
+        {/if}
+      </Button>
+    </div>
+    <div class="text-center content-center">
+      <PingingIcon
+        icon="i-mdi-arrow-up"
+        ping={loadingSyncLexboxToFlex && !!lexboxToFlexCount}
+        class={cn(loadingSyncLexboxToFlex && !!lexboxToFlexCount && 'text-primary')}
+      />
+      {#if !remoteStatus}
+        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
+      {:else}
+        {lexboxToFlexCount}
+      {/if}
+    </div>
+  {/if}
+
+  <!-- Status local to remote -->
+  <div class="col-span-full text-center flex flex-col">
+          <span class="font-medium">
+            <Icon icon="i-mdi-cloud-outline"/>
+            {$t`${serverName} - FieldWorks Lite`}
+          </span>
+    <span class="text-foreground/80">
+            {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
+    </span>
   </div>
+
   <div class="text-center content-center">
     {remoteToLocalCount ?? '?'}
     <PingingIcon
-      icon="i-mdi-arrow-up"
+      icon="i-mdi-arrow-down"
       ping={loadingSyncLexboxToLocal && !!remoteToLocalCount}
       class={cn(loadingSyncLexboxToLocal && !!remoteToLocalCount && 'text-primary')}
     />
@@ -112,83 +183,18 @@
       <div class="text-destructive">{$t`Error getting sync status.`}</div>
     {/if}
   </div>
+
   <div class="text-center content-center">
     <PingingIcon
-      icon="i-mdi-arrow-down"
+      icon="i-mdi-arrow-up"
       ping={loadingSyncLexboxToLocal && !!localToRemoteCount}
       class={cn(loadingSyncLexboxToLocal && !!localToRemoteCount && 'text-primary')}
     />
     {localToRemoteCount}
   </div>
-  <div class="col-span-full text-center flex flex-col">
-          <span class="font-medium">
-            <Icon icon="i-mdi-cloud-outline"/>
-            {$t`${serverName} - FieldWorks Lite`}
-          </span>
-    <span class="text-foreground/80">
-            {$t`Last change: ${formatDate(lastLocalSyncDate)}`}
-          </span>
+
+  <div class="text-center col-span-full">
+    <Icon icon="i-mdi-monitor-cellphone" class="size-10"/>
+    <p>Local</p>
   </div>
-  {#if server && syncStatus === SyncStatus.Success}
-    <div class="text-center content-center">
-      {#if !remoteStatus}
-        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
-      {:else}
-        {flexToLexboxCount}
-      {/if}
-      <PingingIcon
-        icon="i-mdi-arrow-up"
-        ping={loadingSyncLexboxToFlex && !!flexToLexboxCount}
-        class={cn(loadingSyncLexboxToFlex && !!flexToLexboxCount && 'text-primary')}
-      />
-    </div>
-    <div class="content-center text-center">
-      <Button
-        loading={loadingSyncLexboxToFlex}
-        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
-        onclick={onSyncLexboxToFlex}
-        icon="i-mdi-sync"
-        iconProps={{ class: 'size-5' }}>
-        {#if loadingSyncLexboxToFlex}
-          {$t`Synchronizing...`}
-        {:else}
-          {$t`Synchronize`}
-        {/if}
-      </Button>
-    </div>
-    <div class="text-center content-center">
-      <PingingIcon
-        icon="i-mdi-arrow-down"
-        ping={loadingSyncLexboxToFlex && !!lexboxToFlexCount}
-        class={cn(loadingSyncLexboxToFlex && !!lexboxToFlexCount && 'text-primary')}
-      />
-      {#if !remoteStatus}
-        <div class="animate-pulse inline-block h-4 align-baseline dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-4"></div>
-      {:else}
-        {lexboxToFlexCount}
-      {/if}
-    </div>
-    <div class="col-span-full text-center flex flex-col">
-      <span class="font-medium">
-        <Icon icon="i-mdi-cloud-outline"/>
-        {$t`${serverName} - FieldWorks`}
-      </span>
-      <span class="text-foreground/80">
-        {#if !remoteStatus}
-          <div class="animate-pulse inline-block h-4 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-64"></div>
-        {:else}
-          {$t`Last change: ${formatDate(lastFlexSyncDate, undefined, remoteStatus.status === ProjectSyncStatusEnum.NeverSynced ? $t`Never` : $t`Unknown`)}`}
-        {/if}
-      </span>
-      {#if remoteStatus?.status === ProjectSyncStatusEnum.Unknown}
-        {#if remoteStatus.errorCode === ProjectSyncStatusErrorCode.NotLoggedIn}
-          {$t`Not logged in`}
-        {:else}
-          <span class="text-destructive brightness-200">
-            {$t`Error: ${remoteStatus.errorMessage ?? $t`Unknown`}`}
-          </span>
-        {/if}
-      {/if}
-    </div>
-  {/if}
 </div>
