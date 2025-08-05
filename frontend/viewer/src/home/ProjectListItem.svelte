@@ -1,19 +1,16 @@
 <script lang="ts">
-  import {cn} from '$lib/utils';
   import ProjectTitle from './ProjectTitle.svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import type {IProjectModel} from '$lib/dotnet-types';
 
   interface Props {
     project?: Pick<IProjectModel, 'name' | 'code'>;
-    loading?: boolean;
     skeleton?: boolean;
     subtitle?: string;
   }
 
   let {
     project = undefined,
-    loading = false,
     children = undefined,
     skeleton = false,
     subtitle = undefined,
@@ -29,9 +26,7 @@
     <div class="h-3 mt-3 dark:bg-neutral-50/50 bg-neutral-500 rounded-full w-20"></div>
   </ListItem>
 {:else}
-  <ListItem
-    {...rest}
-    class={cn('dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted', loading && 'brightness-50')}>
+  <ListItem {...rest} class="mb-2">
     {#if subtitle}
       <span><ProjectTitle {project}/></span>
       <span class="text-sm text-muted-foreground">{subtitle}</span>
