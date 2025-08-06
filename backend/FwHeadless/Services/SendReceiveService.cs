@@ -40,4 +40,9 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
             progress: progress
         );
     }
+
+    public async Task CommitFile(string filePath, string commitMessage)
+    {
+        await SendReceiveHelpers.CommitFile(filePath, commitMessage, progress);
+    }
 }

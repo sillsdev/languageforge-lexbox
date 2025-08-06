@@ -81,6 +81,49 @@ public static class SendReceiveHelpers
         return lines.Count();
     }
 
+    public static async Task CommitFile(string filePath, string commitMessage, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.file_path", filePath);
+        progress ??= new NullProgress();
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
+        var fileDir = Path.GetDirectoryName(filePath);
+        ArgumentNullException.ThrowIfNull(fileDir);
+
+        //we need to track the file, otherwise hg will not commit it
+        await ExecuteHgSuccess($"hg add {EscapeShellArg(filePath)}", fileDir, progress);
+        await ExecuteHgSuccess($"hg commit --message {EscapeShellArg(commitMessage)}", fileDir, progress);
+    }
+
+    private static string EscapeShellArg(string arg)
+    {
+        var quote = """
+                    "
+                    """;
+        var escaped = arg.Replace(
+            quote,
+            """
+            \"
+            """);
+        return $"{quote}{escaped}{quote}";
+    }
+
+    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null)
+    {
+        var result = await Task.Run(() => HgRunner.Run(cmd, folder, 5, progress));
+        //not using HgRepository because it does not fail when exit code is 1 because that means not added.
+        if (result.ExitCode != 0)
+        {
+            throw new Exception($"""
+                                 Failed to execute command {cmd}, with exit code {result.ExitCode},
+                                 ======= output =======
+                                 output: {result.StandardOutput}
+                                 ======= error =======
+                                 error: {result.StandardError}
+                                 """);
+        }
+    }
+
     public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();

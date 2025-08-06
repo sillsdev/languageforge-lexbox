@@ -5,156 +5,156 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
-"Language: id\n"
+"Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: 2025-08-06 04:03\n"
 "Last-Translator: \n"
-"Language-Team: Indonesian\n"
+"Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Crowdin-Project: language-depot\n"
 "X-Crowdin-Project-ID: 575977\n"
-"X-Crowdin-Language: id\n"
+"X-Crowdin-Language: ms\n"
 "X-Crowdin-File: /develop/frontend/viewer/src/locales/en.po\n"
 "X-Crowdin-File-ID: 21219\n"
 
 #: src/lib/activity/ActivityView.svelte:104
 msgid "– ({0} changes)"
-msgstr "- ({0} perubahan)"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:86
 #: src/lib/components/audio/audio-editor.svelte:91
 #: src/lib/components/audio/audio-editor.svelte:95
 msgid "{0}"
-msgstr "{0}"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:249
 msgid "{0} - FieldWorks"
-msgstr "{0} - Pekerjaan Lapangan"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:209
 msgid "{0} - FieldWorks Lite"
-msgstr "{0} - FieldWorks Lite"
+msgstr ""
 
 #: src/lib/components/editor/field/field-title.svelte:22
 msgid "{0} (FieldWorks Lite)"
-msgstr "{0} (FieldWorks Lite)"
+msgstr ""
 
 #: src/lib/components/editor/field/field-title.svelte:23
 msgid "{0} (FieldWorks)"
-msgstr "{0} (Pekerjaan Lapangan)"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:88
 msgid "{0} MB"
-msgstr "{0} MB"
+msgstr ""
 
 #: src/home/Server.svelte:111
 msgid "{0} Server"
-msgstr "{0} Server"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:93
 msgid "{0} synced to FieldWorks. {1} synced to FieldWorks Lite."
-msgstr "{0} disinkronkan ke FieldWorks. {1} disinkronkan ke FieldWorks Lite."
+msgstr ""
 
 #: src/project/SyncDialog.svelte:91
 #: src/project/SyncDialog.svelte:92
 msgid "{num, plural, one {# change} other {# changes}}"
-msgstr "{num, plural, one {# perubahan} other {# perubahan}}"
+msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte:20
 msgid "A new version of FieldWorks lite is available."
-msgstr "Versi baru FieldWorks lite telah tersedia."
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte:102
 msgid "a word"
-msgstr "sebuah kata"
+msgstr ""
 
 #: src/lib/about/AboutDialog.svelte:22
 msgid "About"
-msgstr "Tentang"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:138
 msgid "Account"
-msgstr "Akun"
+msgstr "Akaun"
 
 #: src/project/ProjectSidebar.svelte:94
 msgid "Activity"
-msgstr "Aktivitas"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte:211
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
-msgstr "Menambahkan audio"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
-msgstr "Menambahkan komponen"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:212
 msgid "Add Example"
-msgstr "Tambahkan Contoh"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
 msgid "Add Meaning"
-msgstr "Tambahkan Makna"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
 msgid "Add part of"
-msgstr "Tambahkan bagian dari"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:227
 msgid "Add Sense"
-msgstr "Tambahkan Sense"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:92
 #: src/lib/activity/ActivityView.svelte:82
 #: src/lib/activity/ActivityView.svelte:110
 msgid "ago"
-msgstr "yang lalu"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte:102
 msgid "an entry"
-msgstr "sebuah entri"
+msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte:21
 msgid "Any Ws"
-msgstr "Setiap Ws"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:33
 msgid "Application version"
-msgstr "Versi aplikasi"
+msgstr ""
 
 #: src/lib/entry-editor/DeleteDialog.svelte:55
 msgid "Are you sure you want to delete {0}?"
-msgstr "Apakah Anda yakin ingin menghapus {0}?"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte:215
 msgid "Audio file not included in Send & Receive"
-msgstr "File audio tidak disertakan dalam Kirim & Terima"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:84
 msgid "Audio saved and uploaded to Lexbox"
-msgstr "Audio disimpan dan diunggah ke Lexbox"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:81
 msgid "Audio saved locally"
-msgstr "Audio disimpan secara lokal"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:104
 #: src/lib/activity/ActivityView.svelte:96
 msgid "Author:"
-msgstr "Penulis:"
+msgstr ""
 
 #: src/project/browse/SortMenu.svelte:76
 msgid "Auto"
-msgstr "Otomatis"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:183
 msgid "Auto synchronizing"
-msgstr "Sinkronisasi otomatis"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:86
 #: src/lib/activity/ActivityView.svelte:77
@@ -163,11 +163,11 @@ msgstr "sebelum"
 
 #: src/project/browse/SortMenu.svelte:9
 msgid "Best match"
-msgstr "Pertandingan terbaik"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:89
 msgid "Browse"
-msgstr "Jelajahi"
+msgstr "Semak seimbas (Melihat-lihat)"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte:110
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
@@ -180,20 +180,20 @@ msgstr "Batal"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:55
 msgid "Citation form"
-msgstr "Formulir kutipan"
+msgstr "Bentuk petikan"
 
 #: src/project/browse/SearchFilter.svelte:41
 msgid "Citation Form"
-msgstr "Formulir Kutipan"
+msgstr "Bentuk Petikan"
 
 #: src/home/HomeView.svelte:254
 msgid "Classic FieldWorks Projects"
-msgstr "Proyek Pekerjaan Lapangan Klasik"
+msgstr ""
 
 #: src/lib/components/field-editors/select.svelte:116
 #: src/lib/components/field-editors/multi-select.svelte:202
 msgid "clear"
-msgstr "jelas"
+msgstr "padam"
 
 #: src/lib/components/ui/button/x-button.svelte:14
 #: src/lib/components/field-editors/multi-select.svelte:212
@@ -203,7 +203,7 @@ msgstr "Tutup"
 
 #: src/project/ProjectSidebar.svelte:157
 msgid "Close Dictionary"
-msgstr "Tutup Kamus"
+msgstr ""
 
 #: src/lib/ThemePicker.svelte:38
 msgid "Color"
@@ -217,60 +217,60 @@ msgstr "Bentuk Kompleks"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:88
 msgid "Complex form types"
-msgstr "Jenis formulir yang kompleks"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:67
 msgid "Complex forms"
-msgstr "Bentuk kompleks"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:43
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:61
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:44
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:50
 msgid "Component"
-msgstr "Komponen"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:77
 msgid "Components"
-msgstr "Komponen"
+msgstr "Komponen-komponen"
 
 #: src/project/browse/filter/OpFilter.svelte:13
 msgid "Contains"
-msgstr "Berisi"
+msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte:112
 msgid "Create {0}"
-msgstr "Buat {0}"
+msgstr ""
 
 #: src/lib/entry-editor/NewEntryButton.svelte:12
 msgid "Create entry"
-msgstr "Buat entri"
+msgstr ""
 
 #: src/home/HomeView.svelte:233
 msgid "Create Example Project"
-msgstr "Buat Proyek Contoh"
+msgstr ""
 
 #: src/lib/entry-editor/NewEntryButton.svelte:12
 msgid "Create word"
-msgstr "Buat kata"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:42
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:43
 msgid "Current Entry"
-msgstr "Entri Saat Ini"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:42
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:43
 msgid "Current Word"
-msgstr "Kata saat ini"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:87
 msgid "Dashboard"
-msgstr "Dasbor"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:35
 msgid "Data Directory"
-msgstr "Direktori Data"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:52
 msgid "Definition"
@@ -278,7 +278,7 @@ msgstr "Definisi"
 
 #: src/home/HomeView.svelte:207
 msgid "Delete"
-msgstr "Menghapus"
+msgstr "Hapus"
 
 #: src/lib/entry-editor/DeleteDialog.svelte:52
 #: src/lib/entry-editor/DeleteDialog.svelte:59
@@ -287,16 +287,16 @@ msgstr "Hapus {0}"
 
 #: src/project/browse/EntryMenu.svelte:55
 msgid "Delete Entry"
-msgstr "Hapus Entri"
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte:55
 msgid "Delete Word"
-msgstr "Menghapus kata"
+msgstr ""
 
 #: src/home/HomeView.svelte:131
 #: src/home/HomeView.svelte:135
 msgid "Dictionaries"
-msgstr "Kamus"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:83
 msgid "Dictionary"
@@ -304,91 +304,91 @@ msgstr "Kamus"
 
 #: src/project/browse/ViewPicker.svelte:38
 msgid "Dictionary Preview"
-msgstr "Pratinjau Kamus"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:107
 msgid "Discard"
-msgstr "Buang"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:41
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:55
 msgid "Display as"
-msgstr "Tampilkan sebagai"
+msgstr ""
 
 #: src/lib/entry-editor/DeleteDialog.svelte:58
 msgid "Don't delete"
-msgstr "Jangan hapus"
+msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
 #: src/lib/components/audio/audio-editor.svelte:106
 #: src/home/Server.svelte:167
 msgid "Download"
-msgstr "Unduh"
+msgstr "Muat turun"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
 msgid "Download {0}"
-msgstr "Unduh {0}"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
 msgid "Download project by project code"
-msgstr "Unduh proyek berdasarkan kode proyek"
+msgstr ""
 
 #: src/home/Server.svelte:143
 #: src/home/Server.svelte:149
 #: src/home/Server.svelte:177
 #: src/home/Server.svelte:183
 msgid "Download project not listed"
-msgstr "Unduh proyek tidak terdaftar"
+msgstr ""
 
 #: src/home/Server.svelte:52
 msgid "Downloaded {0}"
-msgstr "Diunduh {0}"
+msgstr ""
 
 #: src/home/Server.svelte:51
 msgid "Downloading {0}..."
-msgstr "Mengunduh {0}..."
+msgstr ""
 
 #: src/home/Server.svelte:167
 msgid "Downloading..."
-msgstr "Mengunduh..."
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
 msgid "Editor"
-msgstr "Editor"
+msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
-msgstr "Diakhiri dengan"
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte:37
 #: src/lib/entry-editor/NewEntryDialog.svelte:84
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 msgid "Entry"
-msgstr "Masuk"
+msgstr "Entri"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:211
 msgid "Entry Only"
-msgstr "Hanya Masuk"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:204
 msgid "Entry or sense:"
-msgstr "Masuk atau masuk akal:"
+msgstr ""
 
 #: src/project/browse/filter/OpFilter.svelte:15
 msgid "Equals"
-msgstr "Sama"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:119
 msgid "Error getting sync status"
-msgstr "Kesalahan mendapatkan status sinkronisasi"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:195
 msgid "Error getting sync status."
-msgstr "Kesalahan mendapatkan status sinkronisasi."
+msgstr ""
 
 #: src/project/SyncDialog.svelte:260
 msgid "Error: {0}"
-msgstr "Kesalahan: {0}"
+msgstr "Ralat: {0}"
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:184
 msgid "Example"
@@ -396,32 +396,32 @@ msgstr "Contoh"
 
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:91
 msgid "Example sentence"
-msgstr "Contoh kalimat"
+msgstr ""
 
 #: src/home/Server.svelte:53
 msgid "Failed to download {0}"
-msgstr "Gagal mengunduh {0}"
+msgstr ""
 
 #: src/project/browse/EntriesList.svelte:134
 msgid "Failed to load entries"
-msgstr "Gagal memuat entri"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:22
 msgid "Failed to open data directory, use the path in the text field instead"
-msgstr "Gagal membuka direktori data, gunakan jalur di bidang teks sebagai gantinya"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:120
 msgid "Failed to synchronize"
-msgstr "Gagal menyinkronkan"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:95
 msgid "Failed to synchronize."
-msgstr "Gagal melakukan sinkronisasi."
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:179
 #: src/home/HomeView.svelte:154
 msgid "Feedback"
-msgstr "Umpan balik"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:136
 msgid "Field"
@@ -429,88 +429,88 @@ msgstr "Bidang"
 
 #: src/project/browse/ViewPicker.svelte:32
 msgid "Field Labels"
-msgstr "Label Bidang"
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
 #: src/home/HomeView.svelte:260
 msgid "FieldWorks logo"
-msgstr "Logo FieldWorks"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:91
 msgid "File already exists"
-msgstr "File sudah ada"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
-msgstr "Nama file:"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte:78
 msgid "File not found"
-msgstr "File tidak ditemukan"
+msgstr "Fail tidak ditemui"
 
 #: src/lib/components/audio/AudioDialog.svelte:89
 msgid "File saving not supported"
-msgstr "Penyimpanan file tidak didukung"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:150
 #: src/lib/components/audio/AudioDialog.svelte:87
 msgid "File too big"
-msgstr "File terlalu besar"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
-msgstr "Filter # entri"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # words"
-msgstr "Saring # kata"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:106
 msgid "Filter entries"
-msgstr "Menyaring entri"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:147
 msgid "Filter for"
-msgstr "Filter untuk"
+msgstr "Tapis bagi"
 
 #: src/project/browse/SearchFilter.svelte:106
 msgid "Filter words"
-msgstr "Menyaring kata"
+msgstr ""
 
 #: src/lib/components/field-editors/select.svelte:112
 #: src/lib/components/field-editors/multi-select.svelte:198
 msgid "Filter..."
-msgstr "Menyaring..."
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:140
 msgid "Find entry..."
-msgstr "Temukan entri..."
+msgstr "Cari entri..."
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:140
 msgid "Find word..."
-msgstr "Temukan kata..."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:42
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:41
 msgid "Gloss"
-msgstr "Kilap"
+msgstr "Glos"
 
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte:26
 msgid "Go to {0}"
-msgstr "Buka {0}"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:63
 msgid "Grammatical info."
-msgstr "Info tata bahasa."
+msgstr ""
 
 #: src/project/browse/SortMenu.svelte:10
 msgid "Headword"
-msgstr "Headword"
+msgstr "Kata Utama"
 
 #: src/project/browse/ViewPicker.svelte:40
 msgid "Hide"
-msgstr "Sembunyikan"
+msgstr "Sembunyi"
 
 #: src/project/browse/EntryMenu.svelte:60
 #: src/lib/history/HistoryView.svelte:61
@@ -519,28 +519,28 @@ msgstr "Sejarah"
 
 #: src/lib/components/audio/audio-provider.svelte:85
 msgid "Hold to record or\\npress and release to start recording."
-msgstr "Tahan untuk merekam atau\\ntekan dan lepaskan untuk mulai merekam."
+msgstr ""
 
 #: src/home/Server.svelte:188
 msgid "I don't see my project"
-msgstr "Saya tidak melihat proyek saya"
+msgstr ""
 
 #: src/home/HomeView.svelte:268
 msgid "Import"
-msgstr "Impor"
+msgstr "Import"
 
 #: src/project/SyncDialog.svelte:212
 #: src/project/SyncDialog.svelte:252
 msgid "Last change: {0}"
-msgstr "Perubahan terakhir: {0}"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:86
 msgid "Length:"
-msgstr "Panjang:"
+msgstr ""
 
 #: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
-msgstr "Logo Lexbox"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
 msgid "Lexeme form"
@@ -552,79 +552,79 @@ msgstr "Bentuk Leksem"
 
 #: src/project/browse/BrowseView.svelte:63
 msgid "List mode"
-msgstr "Mode daftar"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:103
 msgid "Literal meaning"
-msgstr "Arti harfiah"
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte:105
 msgid "Loading Dictionaries..."
-msgstr "Memuat Kamus..."
+msgstr ""
 
 #: src/home/HomeView.svelte:175
 msgid "loading..."
-msgstr "Loading..."
+msgstr "memuat..."
 
 #: src/home/HomeView.svelte:180
 msgid "Local"
-msgstr "Lokal"
+msgstr ""
 
 #: src/home/HomeView.svelte:199
 msgid "Local only"
-msgstr "Hanya lokal"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:189
 msgid "Login"
-msgstr "Masuk"
+msgstr ""
 
 #: src/lib/auth/LoginButton.svelte:82
 #: src/lib/auth/LoginButton.svelte:90
 msgid "Login to see projects"
-msgstr "Login untuk melihat proyek"
+msgstr ""
 
 #: src/lib/auth/LoginButton.svelte:72
 msgid "Logout"
-msgstr "Keluar"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:193
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
-msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
 msgid "Manager"
-msgstr "Manajer"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:73
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte:15
 msgid "Meaning"
-msgstr "Arti"
+msgstr "Erti"
 
 #: src/project/browse/SearchFilter.svelte:152
 msgid "Missing Examples"
-msgstr "Contoh yang Hilang"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:154
 msgid "Missing Part of Speech"
-msgstr "Bagian Pidato yang Hilang"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:155
 msgid "Missing Semantic Domains"
-msgstr "Domain Semantik yang Hilang"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:153
 msgid "Missing Senses"
-msgstr "Indera yang hilang"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte:67
 msgid "Move"
-msgstr "Pindah"
+msgstr "Gerak"
 
 #: src/project/SyncDialog.svelte:253
 msgid "Never"
-msgstr "Tidak pernah."
+msgstr "Tidak pernah"
 
 #: src/project/NewEntryButton.svelte:48
 msgid "New"
@@ -632,7 +632,7 @@ msgstr "Baru"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte:97
 msgid "New {0}"
-msgstr "Baru {0}"
+msgstr ""
 
 #: src/project/NewEntryButton.svelte:50
 msgid "New Entry"
@@ -640,94 +640,94 @@ msgstr "Entri Baru"
 
 #: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
-msgstr "Tidak ada aktivitas yang ditemukan"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
-msgstr "Tidak ada perubahan nama"
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte:109
 msgid "No Dictionaries found"
-msgstr "Tidak ditemukan Kamus"
+msgstr ""
 
 #: src/project/browse/EntriesList.svelte:160
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
-msgstr "Tidak ada entri yang ditemukan"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:77
 msgid "No file to upload"
-msgstr "Tidak ada file untuk diunggah"
+msgstr ""
 
 #: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
-msgstr "Tidak ditemukan riwayat"
+msgstr ""
 
 #: src/lib/components/field-editors/select.svelte:124
 #: src/lib/components/field-editors/multi-select.svelte:217
 msgid "No items found"
-msgstr "Tidak ada barang yang ditemukan"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:193
 #: src/project/ProjectSidebar.svelte:113
 msgid "No server configured"
-msgstr "Tidak ada server yang dikonfigurasi"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No words found"
-msgstr "Tidak ada kata yang ditemukan"
+msgstr ""
 
 #: src/lib/components/field-editors/select.svelte:99
 #: src/lib/components/field-editors/multi-select.svelte:173
 msgid "None"
-msgstr "Tidak ada"
+msgstr "Tiada"
 
 #: src/project/browse/filter/OpFilter.svelte:16
 msgid "Not equal"
-msgstr "Tidak sama"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:257
 #: src/project/ProjectSidebar.svelte:111
 msgid "Not logged in"
-msgstr "Tidak masuk"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:114
 msgid "Note"
-msgstr "Catatan"
+msgstr "Nota"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
 msgid "Observer"
-msgstr "Pengamat"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:187
 #: src/project/ProjectSidebar.svelte:109
 msgid "Offline"
-msgstr "Offline"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte:81
 msgid "Offline, unable to download"
-msgstr "Offline, tidak dapat mengunduh"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:40
 msgid "Open Data Directory"
-msgstr "Direktori Data Terbuka"
+msgstr ""
 
 #: src/lib/OpenInFieldWorksButton.svelte:56
 msgid "Open in FieldWorks"
-msgstr "Buka di FieldWorks"
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte:65
 msgid "Open in new Window"
-msgstr "Buka di jendela baru"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:46
 msgid "Open Log file"
-msgstr "Buka file Log"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:43
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:44
 msgid "Part"
-msgstr "Bagian"
+msgstr "Bahagian"
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:67
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:55
@@ -735,187 +735,187 @@ msgstr "Bagian"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:45
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:50
 msgid "Part of"
-msgstr "Bagian dari"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:63
 msgid "Part of speech"
-msgstr "Bagian dari pidato"
+msgstr "Jenis Perkataan"
 
 #: src/project/browse/ViewPicker.svelte:41
 msgid "Pinned"
-msgstr "Disematkan"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte:76
 msgid "Preview"
-msgstr "Pratinjau"
+msgstr "Pratonton"
 
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
-msgstr "Proyek {0} tidak ditemukan di {1}"
+msgstr ""
 
 #: src/home/Server.svelte:75
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
-msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
+msgstr ""
 
 #: src/home/HomeView.svelte:239
 msgid "Project name..."
-msgstr "Nama proyek..."
+msgstr "Nama projek..."
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:60
 msgid "Reference"
-msgstr "Referensi"
+msgstr "Rujukan"
 
 #: src/lib/components/field-editors/select.svelte:144
 #: src/lib/components/field-editors/multi-select.svelte:253
 msgid "Refine your filter to see more..."
-msgstr "Sempurnakan filter Anda untuk melihat lebih banyak..."
+msgstr ""
 
 #: src/home/Server.svelte:119
 #: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
-msgstr "Menyegarkan Proyek"
+msgstr ""
 
 #: src/lib/entry-editor/ItemListItem.svelte:79
 msgid "Remove"
-msgstr "Menghapus"
+msgstr "Tanggalkan"
 
 #: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Remove audio"
-msgstr "Menghapus audio"
+msgstr ""
 
 #: src/lib/OpenInFieldWorksButton.svelte:40
 msgid "Reopen"
-msgstr "Buka kembali"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte:258
 msgid "Replace audio"
-msgstr "Mengganti audio"
+msgstr ""
 
 #: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
-msgstr "Menyimpan audio"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:
 msgid "Search # or #"
-msgstr "Cari # atau #"
+msgstr ""
 
 #: src/project/ProjectDropdown.svelte:99
 msgid "Search Dictionaries"
-msgstr "Cari Kamus"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 msgid "Select {0}"
-msgstr "Pilih {0}"
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte:102
 msgid "Select {0} to view details"
-msgstr "Pilih {0} untuk melihat detailnya"
+msgstr ""
 
 #: src/lib/components/audio/audio-provider.svelte:66
 #: src/lib/components/audio/audio-provider.svelte:70
 msgid "Select file"
-msgstr "Pilih file"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/SenseEditorPrimitive.svelte:79
 msgid "Semantic domains"
-msgstr "Domain semantik"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:73
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte:15
 msgid "Sense"
-msgstr "Sense"
+msgstr "Makna"
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:37
 msgid "Sentence"
-msgstr "Kalimat"
+msgstr "Ayat"
 
 #: src/project/ProjectSidebar.svelte:144
 msgid "Settings"
-msgstr "Pengaturan"
+msgstr "Tetapan"
 
 #: src/lib/sandbox/Sandbox.svelte:
 msgid "Shadcn Sandbox # #"
-msgstr "Kotak Pasir Shadcn # #"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:50
 msgid "Share Log file"
-msgstr "Bagikan file Log"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte:39
 msgid "Show"
-msgstr "Tampilkan"
+msgstr "Tunjukkan"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:191
 msgid "Show {0} more..."
-msgstr "Tampilkan {0} selengkapnya..."
+msgstr ""
 
 #: src/project/browse/BrowseView.svelte:72
 msgid "Simple"
-msgstr "Sederhana"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:88
 msgid "Size:"
-msgstr "Ukuran:"
+msgstr "Saiz:"
 
 #: src/project/browse/filter/OpFilter.svelte:12
 msgid "Starts with"
-msgstr "Dimulai dengan"
+msgstr ""
 
 #: src/lib/components/field-editors/multi-select.svelte:207
 #: src/lib/components/field-editors/multi-select.svelte:208
 #: src/lib/components/field-editors/multi-select.svelte:280
 msgid "Submit"
-msgstr "Kirim"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:117
 #: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
-msgstr "Disinkronkan"
+msgstr ""
 
 #: src/home/HomeView.svelte:199
 msgid "Synced with {0}"
-msgstr "Disinkronkan dengan {0}"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:149
 #: src/project/SyncDialog.svelte:234
 #: src/project/ProjectSidebar.svelte:124
 msgid "Synchronize"
-msgstr "Sinkronisasi"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:89
 msgid "Synchronizing FieldWorks Lite with FieldWorks..."
-msgstr "Menyinkronkan FieldWorks Lite dengan FieldWorks..."
+msgstr ""
 
 #: src/project/SyncDialog.svelte:181
 #: src/project/SyncDialog.svelte:232
 msgid "Synchronizing..."
-msgstr "Menyinkronkan..."
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:91
 msgid "Tasks"
-msgstr "Tugas"
+msgstr ""
 
 #: src/stories/i18n/i18n.stories.svelte:
 msgid "This date # and this emoji # are snippets"
-msgstr "Tanggal ini # dan emoji ini # adalah cuplikan"
+msgstr ""
 
 #: src/lib/OpenInFieldWorksButton.svelte:39
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
-msgstr "Proyek ini sekarang terbuka di FieldWorks. Untuk melanjutkan bekerja di FieldWorks Lite, tutup proyek di FieldWorks dan klik Buka Kembali."
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:119
 msgid "Toggle filters"
-msgstr "Beralih filter"
+msgstr ""
 
 #: src/project/browse/EntryView.svelte:71
 msgid "Toggle pinned"
-msgstr "Beralih disematkan"
+msgstr ""
 
 #: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
-msgstr "Beralih tema"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte:48
 msgid "Translation"
@@ -925,61 +925,61 @@ msgstr "Terjemahan"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:30
 #: src/home/HomeView.svelte:160
 msgid "Troubleshoot"
-msgstr "Memecahkan masalah"
+msgstr ""
 
 #: src/lib/components/audio/audio-editor.svelte:94
 msgid "Type:"
-msgstr "Ketik:"
+msgstr "Jenis:"
 
 #: src/lib/OpenInFieldWorksButton.svelte:44
 msgid "Unable to open in FieldWorks"
-msgstr "Tidak dapat dibuka di FieldWorks"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:253
 #: src/project/SyncDialog.svelte:260
 #: src/lib/history/HistoryView.svelte:108
 #: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
-msgstr "Tidak diketahui"
+msgstr "Tidak Diketahui"
 
 #: src/project/ProjectSidebar.svelte:115
 #: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
-msgstr "Kesalahan yang tidak diketahui"
+msgstr ""
 
 #: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
-msgstr "Kesalahan tidak dikenal {0}"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
 msgid "Unknown error downloading {0}"
-msgstr "Kesalahan pengunduhan yang tidak diketahui {0}"
+msgstr ""
 
 #: src/project/SyncDialog.svelte:191
 msgid "Unknown server: {0}"
-msgstr "Server tidak dikenal: {0}"
+msgstr ""
 
 #: src/project/browse/EntryView.svelte:49
 #: src/project/browse/EntryRow.svelte:57
 #: src/project/browse/EntryMenu.svelte:32
 msgid "Untitled"
-msgstr "Tanpa judul"
+msgstr ""
 
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:88
 msgid "Uses components as"
-msgstr "Menggunakan komponen sebagai"
+msgstr ""
 
 #: src/project/ProjectSidebar.svelte:192
 msgid "Version {0}"
-msgstr "Versi {0}"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte:26
 msgid "View Configuration"
-msgstr "Lihat Konfigurasi"
+msgstr ""
 
 #: src/home/Server.svelte:138
 msgid "Where are my projects?"
-msgstr "Di mana proyek saya?"
+msgstr ""
 
 #: src/project/browse/SearchFilter.svelte:40
 #: src/project/browse/EntryMenu.svelte:37
@@ -987,15 +987,15 @@ msgstr "Di mana proyek saya?"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte:43
 msgid "Word"
-msgstr "Kata"
+msgstr "Perkataan"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:211
 msgid "Word only"
-msgstr "Hanya kata"
+msgstr ""
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:204
 msgid "Word or meaning:"
-msgstr "Kata atau makna:"
+msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte:18
 msgid "Writing System"
@@ -1003,7 +1003,7 @@ msgstr "Sistem Penulisan"
 
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts:27
 msgid "Writing system: {0}"
-msgstr "Sistem penulisan: {0}"
+msgstr ""
 
 #: src/project/browse/filter/WsSelect.svelte:29
 msgid "Writing Systems"
@@ -1011,10 +1011,10 @@ msgstr "Sistem Penulisan"
 
 #: src/home/Server.svelte:73
 msgid "You don't have permission to download project {0} from {1}"
-msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
+msgstr ""
 
 #: src/home/Server.svelte:79
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
-msgstr "Anda telah mengunduh proyek {0}"
+msgstr ""
 

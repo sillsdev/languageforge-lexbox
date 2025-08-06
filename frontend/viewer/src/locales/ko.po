@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-29 08:39\n"
+"PO-Revision-Date: 2025-08-06 04:03\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -137,11 +137,11 @@ msgstr "보내기 및 받기에 포함되지 않은 오디오 파일"
 
 #: src/lib/components/audio/AudioDialog.svelte:84
 msgid "Audio saved and uploaded to Lexbox"
-msgstr ""
+msgstr "렉스박스에 오디오 저장 및 업로드"
 
 #: src/lib/components/audio/AudioDialog.svelte:81
 msgid "Audio saved locally"
-msgstr ""
+msgstr "로컬에 저장된 오디오"
 
 #: src/lib/history/HistoryView.svelte:104
 #: src/lib/activity/ActivityView.svelte:96
@@ -327,18 +327,18 @@ msgstr "다운로드"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
 msgid "Download {0}"
-msgstr ""
+msgstr "다운로드 {0}"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
 msgid "Download project by project code"
-msgstr ""
+msgstr "프로젝트 코드별 프로젝트 다운로드"
 
 #: src/home/Server.svelte:143
 #: src/home/Server.svelte:149
 #: src/home/Server.svelte:177
 #: src/home/Server.svelte:183
 msgid "Download project not listed"
-msgstr ""
+msgstr "목록에 없는 프로젝트 다운로드"
 
 #: src/home/Server.svelte:52
 msgid "Downloaded {0}"
@@ -350,11 +350,11 @@ msgstr "다운로드 {0}..."
 
 #: src/home/Server.svelte:167
 msgid "Downloading..."
-msgstr ""
+msgstr "다운로드 중..."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
 msgid "Editor"
-msgstr ""
+msgstr "편집기"
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
@@ -439,7 +439,7 @@ msgstr "FieldWorks 로고"
 
 #: src/lib/components/audio/AudioDialog.svelte:91
 msgid "File already exists"
-msgstr ""
+msgstr "파일이 이미 존재합니다."
 
 #: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
@@ -451,12 +451,12 @@ msgstr "파일을 찾을 수 없음"
 
 #: src/lib/components/audio/AudioDialog.svelte:89
 msgid "File saving not supported"
-msgstr ""
+msgstr "파일 저장이 지원되지 않음"
 
 #: src/lib/components/audio/AudioDialog.svelte:150
 #: src/lib/components/audio/AudioDialog.svelte:87
 msgid "File too big"
-msgstr ""
+msgstr "파일이 너무 큼"
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -593,7 +593,7 @@ msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
 msgid "Manager"
-msgstr ""
+msgstr "관리자"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
@@ -657,7 +657,7 @@ msgstr "항목을 찾을 수 없습니다."
 
 #: src/lib/components/audio/AudioDialog.svelte:77
 msgid "No file to upload"
-msgstr ""
+msgstr "업로드할 파일이 없습니다."
 
 #: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
@@ -697,7 +697,7 @@ msgstr "참고"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
 msgid "Observer"
-msgstr ""
+msgstr "옵저버"
 
 #: src/project/SyncDialog.svelte:187
 #: src/project/ProjectSidebar.svelte:109
@@ -751,11 +751,11 @@ msgstr "미리 보기"
 
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
-msgstr ""
+msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 
 #: src/home/Server.svelte:75
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
-msgstr ""
+msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
 #: src/home/HomeView.svelte:239
 msgid "Project name..."
@@ -911,7 +911,7 @@ msgstr "필터 토글"
 
 #: src/project/browse/EntryView.svelte:71
 msgid "Toggle pinned"
-msgstr ""
+msgstr "고정 토글"
 
 #: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
@@ -953,7 +953,7 @@ msgstr "알 수 없는 오류 {0}"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
 msgid "Unknown error downloading {0}"
-msgstr ""
+msgstr "알 수 없는 오류 다운로드 중 {0}"
 
 #: src/project/SyncDialog.svelte:191
 msgid "Unknown server: {0}"
@@ -1011,9 +1011,10 @@ msgstr "쓰기 시스템"
 
 #: src/home/Server.svelte:73
 msgid "You don't have permission to download project {0} from {1}"
-msgstr ""
+msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없습니다."
 
 #: src/home/Server.svelte:79
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
-msgstr ""
+msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
