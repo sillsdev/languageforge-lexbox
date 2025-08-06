@@ -186,6 +186,8 @@ public class MediaFileServiceTests : IDisposable
             ProjectId = _projectId
         };
         await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+        var currentRev = CurrentRev();
+        currentRev.Should().Be(0, "Rev 0 is the commit of the test file");
 
         var filePath = _service.FilePath(mediaFile);
         var directoryName = Path.GetDirectoryName(filePath)!;
@@ -196,16 +198,23 @@ public class MediaFileServiceTests : IDisposable
         await File.WriteAllTextAsync(conflictFile, "test");
         await SendReceiveHelpers.CommitFile(conflictFile, "test commit");
 
-        var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
+        currentRev = CurrentRev();
+        currentRev.Should().Be(1, "Rev 0 is the commit of the test file, rev 1 is the commit of the conflict file, current log: " + _hgRepository.GetLog(0));
 
         //simulate rollback as seen here: https://github.com/sillsdev/chorus/blob/af6e5c0e97758aef00bd2104b6c1ccf5719798ef/src/LibChorus/sync/Synchronizer.cs#L574
-        _hgRepository.RollbackWorkingDirectoryToRevision(rev.ToString());
+        _hgRepository.RollbackWorkingDirectoryToRevision((currentRev - 1).ToString());
         if (File.Exists(conflictFile))
             Directory.GetFiles(Path.GetDirectoryName(conflictFile)!).Should().NotContain(conflictFile);//deleted by rollback
 
         //file should not be deleted
         Directory.GetFiles(Path.GetDirectoryName(filePath)!).Should().Contain(filePath);
     }
+
+    private int CurrentRev()
+    {
+        return int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber);
+    }
+
 
     [Fact]
     public async Task SaveMediaFile_CanUpdateExistingFile()
