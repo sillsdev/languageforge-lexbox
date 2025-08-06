@@ -82,6 +82,9 @@ msgid "Add audio"
 msgstr "Add audio"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add complex form"
+msgstr "Add complex form"
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
 msgstr "Add component"

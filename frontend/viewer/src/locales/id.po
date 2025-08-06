@@ -87,6 +87,9 @@ msgid "Add audio"
 msgstr "Menambahkan audio"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add complex form"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
 msgstr "Menambahkan komponen"
@@ -1017,4 +1020,3 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
-
