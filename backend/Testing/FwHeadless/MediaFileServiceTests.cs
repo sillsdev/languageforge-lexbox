@@ -197,22 +197,26 @@ public class MediaFileServiceTests : IDisposable
         //make a commit which would be rolled back by S&R during a conflict
         var conflictFile = Path.Join(_cache.LangProject.LinkedFilesRootDir, "conflict.txt");
         await File.WriteAllTextAsync(conflictFile, "test");
-        _hgRepository.AddAndCheckinFile(conflictFile);
-        // HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
+        // _hgRepository.AddAndCheckinFile(conflictFile);
+        var addResult = HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
+        _output.WriteLine("add result");
+        _output.WriteLine(addResult.StandardOutput);
+        _output.WriteLine(addResult.StandardError);
 
-        var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
-        _output.WriteLine("rev is {rev}");
         _output.WriteLine("all revs from hg repo");
-
         foreach (var revision in _hgRepository.GetAllRevisions())
         {
             _output.WriteLine($"Rev: {revision.Number.LocalRevisionNumber}, summary: {revision.Summary}");
         }
+
         _output.WriteLine("hg log output from hg runner");
         var hgLogOutput = HgRunner.Run("hg log", directoryName, 5, new NullProgress());
         _output.WriteLine(hgLogOutput.StandardOutput);
         _output.WriteLine(hgLogOutput.StandardError);
         _output.WriteLine("hg log output from hg runner");
+
+        var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
+        _output.WriteLine($"rev is {rev}");
 
         //simulate rollback as seen here: https://github.com/sillsdev/chorus/blob/af6e5c0e97758aef00bd2104b6c1ccf5719798ef/src/LibChorus/sync/Synchronizer.cs#L574
         _hgRepository.RollbackWorkingDirectoryToRevision(rev.ToString());
