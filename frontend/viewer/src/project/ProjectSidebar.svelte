@@ -182,7 +182,7 @@
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
         <Sidebar.MenuItem>
-          <LocalizationPicker/>
+          <LocalizationPicker inSidebar />
         </Sidebar.MenuItem>
       </Sidebar.Menu>
     </Sidebar.Group>
