@@ -194,7 +194,8 @@ public class MediaFileServiceTests : IDisposable
         //make a commit which would be rolled back by S&R during a conflict
         var conflictFile = Path.Join(_cache.LangProject.LinkedFilesRootDir, "conflict.txt");
         await File.WriteAllTextAsync(conflictFile, "test");
-        HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
+        _hgRepository.AddAndCheckinFile(conflictFile);
+        // HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
 
         var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
         //simulate rollback as seen here: https://github.com/sillsdev/chorus/blob/af6e5c0e97758aef00bd2104b6c1ccf5719798ef/src/LibChorus/sync/Synchronizer.cs#L574
