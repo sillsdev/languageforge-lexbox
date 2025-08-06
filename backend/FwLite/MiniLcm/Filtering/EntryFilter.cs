@@ -13,17 +13,17 @@ public class EntryFilter
         mapper.Configuration.DisableCollectionNullChecks = true;
         mapper.AddMap(nameof(Entry.Senses), provider.EntrySenses);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}", provider.EntrySensesSemanticDomains, provider.EntrySensesSemanticDomainsConverter);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode, NormalizeNullToEmptyString);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId, NormalizeNullToEmptyString);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss, NormalizeNullToEmptyString);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition, NormalizeNullToEmptyString);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence, NormalizeNullToEmptyString);
 
-        mapper.AddMap(nameof(Entry.Note), provider.EntryNote);
-        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm);
-        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm);
-        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning);
+        mapper.AddMap(nameof(Entry.Note), provider.EntryNote, NormalizeNullToEmptyString);
+        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm, NormalizeNullToEmptyString);
+        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm, NormalizeNullToEmptyString);
+        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning, NormalizeNullToEmptyString);
         mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
         return mapper;
     }
@@ -39,6 +39,13 @@ public class EntryFilter
     {
         if (value is "null" or "" or "[]") return "null";
         throw new Exception($"Invalid value {value} for {typeof(T).Name}");
+    }
+
+    //Removes the distinction between null and empty string, so that we don't have to add null checks to prevent NPE's when using string contains (and similar) operators.
+    public static object NormalizeNullToEmptyString(string value)
+    {
+        if (value is "null" or "") return string.Empty;
+        return value;
     }
 
     public string? GridifyFilter { get; set; }

@@ -145,7 +145,7 @@ internal static class LcmHelpers
     internal static string? PickText(this ICmObject obj, ITsMultiString multiString, string ws)
     {
         var wsHandle = obj.Cache.GetWritingSystemHandle(ws);
-        return multiString.get_String(wsHandle)?.Text ?? null;
+        return multiString.get_String(wsHandle)?.Text ?? "";
     }
 
     internal static IMoStemAllomorph CreateLexemeForm(this LcmCache cache)

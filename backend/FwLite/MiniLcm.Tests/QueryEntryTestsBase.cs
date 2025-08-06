@@ -10,6 +10,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
+    private readonly string Null_LexemeForm = "";
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
@@ -87,13 +88,14 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 }
             ]
         });
+        await Api.CreateEntry(new Entry());
     }
 
     [Fact]
     public async Task CanFilterToMissingSenses()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Null_LexemeForm);
     }
 
     [Fact]
@@ -145,14 +147,14 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterToMissingComplexFormTypes()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi);
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
     public async Task CanFilterToMissingComplexFormTypesWithEmptyArray()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi);
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
@@ -184,16 +186,16 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task CanFilterGlossNull()
+    public async Task CanFilterGlossEmptyOrNull()
     {
-        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=null" })).ToArrayAsync();
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
 
-    [Fact]
-    public async Task CanFilterGlossEmpty()
+    [Fact] // this is equivalent to CanFilterGlossEmptyOrNull() because we normalize null to the empty string
+    public async Task CanFilterGlossEmptyOrNull2()
     {
-        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=" })).ToArrayAsync();
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=null" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
 
