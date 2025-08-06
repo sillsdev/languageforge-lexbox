@@ -87,6 +87,9 @@ msgid "Add audio"
 msgstr "오디오 추가"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add complex form"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
 msgstr "구성 요소 추가"
@@ -1017,4 +1020,3 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
-

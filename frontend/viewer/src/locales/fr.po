@@ -87,6 +87,9 @@ msgid "Add audio"
 msgstr "Ajouter de l'audio"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add complex form"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
 msgstr "Ajouter un composant"
@@ -1017,4 +1020,3 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
-
