@@ -26,12 +26,12 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         guid.Should().NotBe(Guid.Empty);
         var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
         await Fixture.PutFile(TestRepoZipPath, guid);
         (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
@@ -55,7 +55,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: loginAs);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: loginAs);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         (files?.Files ?? []).Should().Contain(Path.Join(guid.ToString(), TestRepoZipFilename));
     }
 
@@ -66,7 +66,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.SizeInBytes.Should().Be((int)expectedLength);
     }
@@ -91,7 +91,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash));
     }
@@ -103,11 +103,11 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideFilename: overrideFilename);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(overrideFilename);
         var (files, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         files.Should().NotBeNull();
         files.Files.Should().Contain(Path.Join(fileId.ToString(), overrideFilename));
     }
@@ -133,7 +133,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, metadata: uploadMetadata, extraFields: extraFields);
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Should().BeEquivalentTo(expectedMetadata, opts => opts.Excluding(m => m.Sha256Hash).Excluding(m => m.ExtraFields));
         metadata.ExtraFields.Should().ContainKey("one");
@@ -150,7 +150,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "admin");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
     }
@@ -164,13 +164,13 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         if (File.Exists(secondPath)) File.Delete(secondPath);
         File.Copy(TestRepoZipPath, secondPath);
         result = await Fixture.PutFile(secondPath, fileId);
-        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.ShouldBeSuccessful();
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId, loginAs: "admin");
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
         files.Should().NotContain(Path.Join(fileId.ToString(), secondPath));
@@ -185,9 +185,9 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         if (File.Exists(secondPath)) File.Delete(secondPath);
         File.Copy(TestRepoZipPath, secondPath);
         result = await Fixture.PutFile(secondPath, fileId, overrideFilename: TestRepoZipFilename);
-        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.ShouldBeSuccessful();
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
     }
@@ -198,14 +198,14 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
         files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
         files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
         // LinkedFiles subfolder must NOT be part of filename returned by metadata endpoint
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
-        mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
         metadata.Filename.Should().Be(TestRepoZipFilename);
     }
@@ -218,7 +218,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "AudioVisual");
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
         files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
@@ -231,9 +231,9 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         result = await Fixture.PutFile(TestRepoZipPath, fileId);
-        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.ShouldBeSuccessful();
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
         files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
@@ -246,7 +246,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath); // MIME type "application/zip" will go into LinkedFiles, no subfolder
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
         files.Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
@@ -254,7 +254,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "Pictures");
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var (fileListing2, listResult2) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult2.StatusCode.Should().Be(HttpStatusCode.OK);
+        listResult2.ShouldBeSuccessful();
         var files2 = fileListing2?.Files ?? [];
         files2.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
         files2.Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
@@ -282,7 +282,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             var (fileId, result) = await Fixture.PostFile(otherPath);
             result.StatusCode.Should().Be(HttpStatusCode.Created);
             var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-            listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+            listResult.ShouldBeSuccessful();
             var files = fileListing?.Files ?? [];
             files.Should().NotContain(Path.Join(wrongFolder, fileId.ToString(), otherFilename));
             files.Should().NotContain(Path.Join(fileId.ToString(), otherFilename));
@@ -311,7 +311,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             var (fileId, result) = await Fixture.PostFile(otherPath, contentType: mimeType);
             result.StatusCode.Should().Be(HttpStatusCode.Created);
             var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-            listResult.StatusCode.Should().Be(HttpStatusCode.OK);
+            listResult.ShouldBeSuccessful();
             var files = fileListing?.Files ?? [];
             files.Should().NotContain(Path.Join(wrongFolder, fileId.ToString(), otherFilename));
             files.Should().NotContain(Path.Join(fileId.ToString(), otherFilename));
@@ -357,7 +357,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
                 result.StatusCode.Should().Be(HttpStatusCode.Created);
                 guid.Should().NotBeEmpty();
                 result = await Fixture.PutFile(dummyPath, guid, deleteContentLengthHeader: true);
-                result.StatusCode.Should().Be(HttpStatusCode.OK);
+                result.ShouldBeSuccessful();
             }
         }
         finally
@@ -446,7 +446,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             result = await Fixture.PutFile(dummyPath, fileId, overrideFilename: TestRepoZipFilename);
             result.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
             var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
-            mResult.StatusCode.Should().Be(HttpStatusCode.OK);
+            mResult.ShouldBeSuccessful();
             metadata.Should().NotBeNull();
             metadata.Filename.Should().Be(TestRepoZipFilename);
         }
@@ -467,7 +467,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         await using (var dlStream = File.Open(dlPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
         {
             result = await Fixture.DownloadFile(fileId);
-            result.StatusCode.Should().Be(HttpStatusCode.OK);
+            result.ShouldBeSuccessful();
             await result.Content.CopyToAsync(dlStream);
         }
         var dlData = File.ReadAllBytes(dlPath);
@@ -485,7 +485,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         await using (var dlStream = File.Open(dlPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
         {
             result = await Fixture.DownloadFile(fileId);
-            result.StatusCode.Should().Be(HttpStatusCode.OK);
+            result.ShouldBeSuccessful();
             var etag = result.Headers.ETag?.Tag;
             etag.Should().Be(origSha);
             await result.Content.CopyToAsync(dlStream);
@@ -525,6 +525,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             result = await Fixture.DownloadFile(fileId, startAt: 0, endAt: startAt);
             // result.StatusCode.Should().Be(HttpStatusCode.PartialContent);
             // Server isn't respecting endAt range (TODO: Find out why) so it's returning 200 OK and the whole file
+            result.ShouldBeSuccessful();
             result.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.PartialContent);
             await result.Content.CopyToAsync(dlStream);
             // Server isn't respecting endAt for the range header, so forcefully truncate downloaded file to where it should be for the rest of the test
