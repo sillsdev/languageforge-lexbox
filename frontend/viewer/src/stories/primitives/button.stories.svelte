@@ -30,7 +30,7 @@
       <div>
         Variants:
         <div class="flex gap-2 flex-wrap">
-          {#each variants as variant}
+          {#each variants as variant (variant)}
             <Button {variant} {...args}>{variant} button</Button>
           {/each}
         </div>
@@ -38,7 +38,7 @@
       <div>
         Variants with icon:
         <div class="flex gap-2 flex-wrap">
-          {#each variants as variant}
+          {#each variants as variant (variant)}
             <Button {variant} icon="i-mdi-auto-fix" {...args}></Button>
           {/each}
         </div>
@@ -46,7 +46,7 @@
       <div>
         Sizes:
         <div class="flex gap-2 flex-wrap">
-          {#each sizes as size}
+          {#each sizes as size (size)}
             <Button {size} {...args}>{size}</Button>
           {/each}
         </div>
@@ -54,7 +54,7 @@
       <div>
         Sizes with icon:
         <div class="flex gap-2 flex-wrap">
-          {#each sizes as size}
+          {#each sizes as size (size)}
             <Button {size} icon="i-mdi-auto-fix" {...args} />
           {/each}
         </div>

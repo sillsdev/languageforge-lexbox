@@ -20,7 +20,6 @@
   });
 
   type Schema = typeof schema;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
@@ -68,6 +67,6 @@
     </Select>
   {/snippet}
   {#snippet submitText()}
-    <span>{'Add Purpose'}</span>
+    <span>{$t('project_page.add_purpose.add_button')}</span>
   {/snippet}
 </FormModal>

@@ -51,7 +51,6 @@
   import {t} from 'svelte-i18n-lingui';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {isDev} from '$lib/layout/DevContent.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
 
   const handled = Symbol();
@@ -208,15 +207,9 @@
 </script>
 {#if supportsAudio}
   {#if !audioId}
-    {#if $isDev}
-      <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
-        {$t`Add audio`}
-      </Button>
-    {:else}
-      <div class="text-muted-foreground p-1">
-        {$t`No audio`}
-      </div>
-    {/if}
+    <Button variant="secondary" icon="i-mdi-microphone-plus" size="sm" iconProps={{class: 'size-5'}} onclick={onGetAudioClick}>
+      {$t`Add audio`}
+    </Button>
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">
       {$t`Audio file not included in Send & Receive`}

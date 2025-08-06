@@ -16,7 +16,6 @@
   const schema = z.object({
     isConfidential: z.boolean(),
   });
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 

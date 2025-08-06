@@ -109,7 +109,6 @@
   }
 
   let tusUpload: TusUpload | undefined = $state();
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let uploadStatus: UploadStatus | undefined = $state();
 </script>
 

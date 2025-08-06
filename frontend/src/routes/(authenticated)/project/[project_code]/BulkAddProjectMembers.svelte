@@ -33,7 +33,6 @@
     password: passwordFormRules($t),
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
@@ -144,7 +143,7 @@
           {#if addedMembers.length > 0}
             <div class="mt-2">
               <BadgeList>
-                {#each addedMembers as user}
+                {#each addedMembers as user (user.username)}
                   <MemberBadge member={{ name: user.username, role: user.role }} />
                 {/each}
               </BadgeList>
@@ -159,7 +158,7 @@
           {#if createdMembers.length > 0}
             <div class="mt-2">
               <BadgeList>
-                {#each createdMembers as user}
+                {#each createdMembers as user (user.username)}
                   <MemberBadge member={{ name: user.username, role: user.role }} />
                 {/each}
               </BadgeList>
@@ -173,7 +172,7 @@
           </p>
           <div class="mt-2">
             <BadgeList>
-              {#each existingMembers as user}
+              {#each existingMembers as user (user.username)}
                 <MemberBadge member={{ name: user.username, role: user.role }} />
               {/each}
             </BadgeList>

@@ -23,6 +23,7 @@
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
+  import {useIdleService} from '$lib/services/idle-service';
 
   const {
     onloaded,
@@ -33,6 +34,10 @@
 
   initView();
   initViewSettings();
+
+  // Load idle service into component context for inputs to use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _idleService = useIdleService();
 
   onMount(() => {
     onloaded(true);

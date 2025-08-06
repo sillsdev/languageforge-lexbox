@@ -13,13 +13,13 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/lib/activity/ActivityView.svelte:99
+#: src/lib/activity/ActivityView.svelte:104
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
-#: src/lib/components/audio/audio-editor.svelte:28
-#: src/lib/components/audio/audio-editor.svelte:33
-#: src/lib/components/audio/audio-editor.svelte:37
+#: src/lib/components/audio/audio-editor.svelte:86
+#: src/lib/components/audio/audio-editor.svelte:91
+#: src/lib/components/audio/audio-editor.svelte:95
 msgid "{0}"
 msgstr "{0}"
 
@@ -39,11 +39,11 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:62
+#: src/home/Server.svelte:111
 msgid "{0} Server"
 msgstr "{0} Server"
 
@@ -76,8 +76,8 @@ msgstr "Account"
 msgid "Activity"
 msgstr "Activity"
 
-#: src/lib/components/field-editors/audio-input.svelte:206
-#: src/lib/components/audio/AudioDialog.svelte:106
+#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "Add audio"
 
@@ -104,9 +104,9 @@ msgstr "Add part of"
 msgid "Add Sense"
 msgstr "Add Sense"
 
-#: src/lib/history/HistoryView.svelte:83
-#: src/lib/activity/ActivityView.svelte:78
-#: src/lib/activity/ActivityView.svelte:105
+#: src/lib/history/HistoryView.svelte:92
+#: src/lib/activity/ActivityView.svelte:82
+#: src/lib/activity/ActivityView.svelte:110
 msgid "ago"
 msgstr "ago"
 
@@ -130,12 +130,20 @@ msgstr "Are you sure you want to delete {0}?"
 msgid "Audio file not included in Send & Receive"
 msgstr "Audio file not included in Send & Receive"
 
-#: src/lib/history/HistoryView.svelte:95
-#: src/lib/activity/ActivityView.svelte:91
+#: src/lib/components/audio/AudioDialog.svelte:84
+msgid "Audio saved and uploaded to Lexbox"
+msgstr "Audio saved and uploaded to Lexbox"
+
+#: src/lib/components/audio/AudioDialog.svelte:81
+msgid "Audio saved locally"
+msgstr "Audio saved locally"
+
+#: src/lib/history/HistoryView.svelte:104
+#: src/lib/activity/ActivityView.svelte:96
 msgid "Author:"
 msgstr "Author:"
 
-#: src/project/browse/SortMenu.svelte:73
+#: src/project/browse/SortMenu.svelte:76
 msgid "Auto"
 msgstr "Auto"
 
@@ -143,8 +151,8 @@ msgstr "Auto"
 msgid "Auto synchronizing"
 msgstr "Auto synchronizing"
 
-#: src/lib/history/HistoryView.svelte:80
-#: src/lib/activity/ActivityView.svelte:75
+#: src/lib/history/HistoryView.svelte:86
+#: src/lib/activity/ActivityView.svelte:77
 msgid "before"
 msgstr "before"
 
@@ -158,9 +166,10 @@ msgstr "Browse"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte:110
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
-#: src/lib/components/field-editors/select.svelte:166
-#: src/lib/components/field-editors/multi-select.svelte:280
-#: src/lib/components/audio/AudioDialog.svelte:118
+#: src/lib/components/field-editors/select.svelte:164
+#: src/lib/components/field-editors/multi-select.svelte:277
+#: src/lib/components/audio/AudioDialog.svelte:153
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:86
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -172,17 +181,17 @@ msgstr "Citation form"
 msgid "Citation Form"
 msgstr "Citation Form"
 
-#: src/home/HomeView.svelte:225
+#: src/home/HomeView.svelte:254
 msgid "Classic FieldWorks Projects"
 msgstr "Classic FieldWorks Projects"
 
-#: src/lib/components/field-editors/select.svelte:118
-#: src/lib/components/field-editors/multi-select.svelte:205
+#: src/lib/components/field-editors/select.svelte:116
+#: src/lib/components/field-editors/multi-select.svelte:202
 msgid "clear"
 msgstr "clear"
 
 #: src/lib/components/ui/button/x-button.svelte:14
-#: src/lib/components/field-editors/multi-select.svelte:215
+#: src/lib/components/field-editors/multi-select.svelte:212
 #: src/lib/about/AboutDialog.svelte:28
 msgid "Close"
 msgstr "Close"
@@ -191,7 +200,7 @@ msgstr "Close"
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
-#: src/lib/ThemePicker.svelte:32
+#: src/lib/ThemePicker.svelte:38
 msgid "Color"
 msgstr "Color"
 
@@ -232,7 +241,7 @@ msgstr "Create {0}"
 msgid "Create entry"
 msgstr "Create entry"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:233
 msgid "Create Example Project"
 msgstr "Create Example Project"
 
@@ -262,7 +271,7 @@ msgstr "Data Directory"
 msgid "Definition"
 msgstr "Definition"
 
-#: src/home/HomeView.svelte:177
+#: src/home/HomeView.svelte:207
 msgid "Delete"
 msgstr "Delete"
 
@@ -279,8 +288,8 @@ msgstr "Delete Entry"
 msgid "Delete Word"
 msgstr "Delete Word"
 
-#: src/home/HomeView.svelte:107
-#: src/home/HomeView.svelte:110
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr "Dictionaries"
 
@@ -292,7 +301,7 @@ msgstr "Dictionary"
 msgid "Dictionary Preview"
 msgstr "Dictionary Preview"
 
-#: src/lib/components/audio/audio-editor.svelte:46
+#: src/lib/components/audio/audio-editor.svelte:107
 msgid "Discard"
 msgstr "Discard"
 
@@ -306,17 +315,41 @@ msgid "Don't delete"
 msgstr "Don't delete"
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
-#: src/home/Server.svelte:127
+#: src/lib/components/audio/audio-editor.svelte:106
+#: src/home/Server.svelte:167
 msgid "Download"
 msgstr "Download"
 
-#: src/home/Server.svelte:38
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
+msgid "Download {0}"
+msgstr "Download {0}"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
+msgid "Download project by project code"
+msgstr "Download project by project code"
+
+#: src/home/Server.svelte:143
+#: src/home/Server.svelte:149
+#: src/home/Server.svelte:177
+#: src/home/Server.svelte:183
+msgid "Download project not listed"
+msgstr "Download project not listed"
+
+#: src/home/Server.svelte:52
 msgid "Downloaded {0}"
 msgstr "Downloaded {0}"
 
-#: src/home/Server.svelte:37
+#: src/home/Server.svelte:51
 msgid "Downloading {0}..."
 msgstr "Downloading {0}..."
+
+#: src/home/Server.svelte:167
+msgid "Downloading..."
+msgstr "Downloading..."
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
+msgid "Editor"
+msgstr "Editor"
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
@@ -360,7 +393,7 @@ msgstr "Example"
 msgid "Example sentence"
 msgstr "Example sentence"
 
-#: src/home/Server.svelte:39
+#: src/home/Server.svelte:53
 msgid "Failed to download {0}"
 msgstr "Failed to download {0}"
 
@@ -381,7 +414,7 @@ msgid "Failed to synchronize."
 msgstr "Failed to synchronize."
 
 #: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:126
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -394,18 +427,31 @@ msgid "Field Labels"
 msgstr "Field Labels"
 
 #: src/project/ProjectDropdown.svelte:69
-#: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:231
+#: src/lib/OpenInFieldWorksButton.svelte:55
+#: src/home/HomeView.svelte:260
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
 
-#: src/lib/components/audio/audio-editor.svelte:32
+#: src/lib/components/audio/AudioDialog.svelte:91
+msgid "File already exists"
+msgstr "File already exists"
+
+#: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
 msgstr "File name:"
 
-#: src/lib/components/field-editors/audio-input.svelte:74
+#: src/lib/components/field-editors/audio-input.svelte:78
 msgid "File not found"
 msgstr "File not found"
+
+#: src/lib/components/audio/AudioDialog.svelte:89
+msgid "File saving not supported"
+msgstr "File saving not supported"
+
+#: src/lib/components/audio/AudioDialog.svelte:150
+#: src/lib/components/audio/AudioDialog.svelte:87
+msgid "File too big"
+msgstr "File too big"
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -427,8 +473,8 @@ msgstr "Filter for"
 msgid "Filter words"
 msgstr "Filter words"
 
-#: src/lib/components/field-editors/select.svelte:114
-#: src/lib/components/field-editors/multi-select.svelte:201
+#: src/lib/components/field-editors/select.svelte:112
+#: src/lib/components/field-editors/multi-select.svelte:198
 msgid "Filter..."
 msgstr "Filter..."
 
@@ -462,7 +508,7 @@ msgid "Hide"
 msgstr "Hide"
 
 #: src/project/browse/EntryMenu.svelte:60
-#: src/lib/history/HistoryView.svelte:59
+#: src/lib/history/HistoryView.svelte:61
 msgid "History"
 msgstr "History"
 
@@ -470,11 +516,11 @@ msgstr "History"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "Hold to record or\\npress and release to start recording."
 
-#: src/home/Server.svelte:137
+#: src/home/Server.svelte:188
 msgid "I don't see my project"
 msgstr "I don't see my project"
 
-#: src/home/HomeView.svelte:237
+#: src/home/HomeView.svelte:268
 msgid "Import"
 msgstr "Import"
 
@@ -483,11 +529,11 @@ msgstr "Import"
 msgid "Last change: {0}"
 msgstr "Last change: {0}"
 
-#: src/lib/components/audio/audio-editor.svelte:28
+#: src/lib/components/audio/audio-editor.svelte:86
 msgid "Length:"
 msgstr "Length:"
 
-#: src/home/HomeView.svelte:109
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr "Lexbox logo"
 
@@ -511,15 +557,15 @@ msgstr "Literal meaning"
 msgid "Loading Dictionaries..."
 msgstr "Loading Dictionaries..."
 
-#: src/home/HomeView.svelte:146
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "loading..."
 
-#: src/home/HomeView.svelte:151
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr "Local"
 
-#: src/home/HomeView.svelte:168
+#: src/home/HomeView.svelte:199
 msgid "Local only"
 msgstr "Local only"
 
@@ -527,18 +573,22 @@ msgstr "Local only"
 msgid "Login"
 msgstr "Login"
 
-#: src/lib/auth/LoginButton.svelte:71
-#: src/lib/auth/LoginButton.svelte:79
+#: src/lib/auth/LoginButton.svelte:82
+#: src/lib/auth/LoginButton.svelte:90
 msgid "Login to see projects"
 msgstr "Login to see projects"
 
-#: src/lib/auth/LoginButton.svelte:61
+#: src/lib/auth/LoginButton.svelte:72
 msgid "Logout"
 msgstr "Logout"
 
 #: src/project/ProjectSidebar.svelte:193
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
+msgid "Manager"
+msgstr "Manager"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
@@ -563,7 +613,7 @@ msgstr "Missing Semantic Domains"
 msgid "Missing Senses"
 msgstr "Missing Senses"
 
-#: src/lib/entry-editor/ItemListItem.svelte:61
+#: src/lib/entry-editor/ItemListItem.svelte:67
 msgid "Move"
 msgstr "Move"
 
@@ -583,15 +633,11 @@ msgstr "New {0}"
 msgid "New Entry"
 msgstr "New Entry"
 
-#: src/lib/activity/ActivityView.svelte:61
+#: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
 msgstr "No activity found"
 
-#: src/lib/components/field-editors/audio-input.svelte:210
-msgid "No audio"
-msgstr "No audio"
-
-#: src/lib/history/HistoryView.svelte:71
+#: src/lib/history/HistoryView.svelte:78
 msgid "No change name"
 msgstr "No change name"
 
@@ -604,12 +650,16 @@ msgstr "No Dictionaries found"
 msgid "No entries found"
 msgstr "No entries found"
 
-#: src/lib/history/HistoryView.svelte:66
+#: src/lib/components/audio/AudioDialog.svelte:77
+msgid "No file to upload"
+msgstr "No file to upload"
+
+#: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
 msgstr "No history found"
 
-#: src/lib/components/field-editors/select.svelte:126
-#: src/lib/components/field-editors/multi-select.svelte:220
+#: src/lib/components/field-editors/select.svelte:124
+#: src/lib/components/field-editors/multi-select.svelte:217
 msgid "No items found"
 msgstr "No items found"
 
@@ -622,8 +672,8 @@ msgstr "No server configured"
 msgid "No words found"
 msgstr "No words found"
 
-#: src/lib/components/field-editors/select.svelte:101
-#: src/lib/components/field-editors/multi-select.svelte:176
+#: src/lib/components/field-editors/select.svelte:99
+#: src/lib/components/field-editors/multi-select.svelte:173
 msgid "None"
 msgstr "None"
 
@@ -640,12 +690,16 @@ msgstr "Not logged in"
 msgid "Note"
 msgstr "Note"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
+msgid "Observer"
+msgstr "Observer"
+
 #: src/project/SyncDialog.svelte:187
 #: src/project/ProjectSidebar.svelte:109
 msgid "Offline"
 msgstr "Offline"
 
-#: src/lib/components/field-editors/audio-input.svelte:77
+#: src/lib/components/field-editors/audio-input.svelte:81
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
 
@@ -653,7 +707,7 @@ msgstr "Offline, unable to download"
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
 
-#: src/lib/OpenInFieldWorksButton.svelte:57
+#: src/lib/OpenInFieldWorksButton.svelte:56
 msgid "Open in FieldWorks"
 msgstr "Open in FieldWorks"
 
@@ -690,7 +744,15 @@ msgstr "Pinned"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/home/HomeView.svelte:211
+#: src/home/Server.svelte:77
+msgid "Project {0} not found on {1}"
+msgstr "Project {0} not found on {1}"
+
+#: src/home/Server.svelte:75
+msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
+msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
+
+#: src/home/HomeView.svelte:239
 msgid "Project name..."
 msgstr "Project name..."
 
@@ -698,17 +760,17 @@ msgstr "Project name..."
 msgid "Reference"
 msgstr "Reference"
 
-#: src/lib/components/field-editors/select.svelte:146
-#: src/lib/components/field-editors/multi-select.svelte:256
+#: src/lib/components/field-editors/select.svelte:144
+#: src/lib/components/field-editors/multi-select.svelte:253
 msgid "Refine your filter to see more..."
 msgstr "Refine your filter to see more..."
 
-#: src/home/Server.svelte:70
-#: src/home/HomeView.svelte:155
+#: src/home/Server.svelte:119
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "Refresh Projects"
 
-#: src/lib/entry-editor/ItemListItem.svelte:73
+#: src/lib/entry-editor/ItemListItem.svelte:79
 msgid "Remove"
 msgstr "Remove"
 
@@ -716,7 +778,7 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
-#: src/lib/OpenInFieldWorksButton.svelte:41
+#: src/lib/OpenInFieldWorksButton.svelte:40
 msgid "Reopen"
 msgstr "Reopen"
 
@@ -724,7 +786,7 @@ msgstr "Reopen"
 msgid "Replace audio"
 msgstr "Replace audio"
 
-#: src/lib/components/audio/AudioDialog.svelte:120
+#: src/lib/components/audio/AudioDialog.svelte:155
 msgid "Save audio"
 msgstr "Save audio"
 
@@ -788,7 +850,7 @@ msgstr "Show {0} more..."
 msgid "Simple"
 msgstr "Simple"
 
-#: src/lib/components/audio/audio-editor.svelte:30
+#: src/lib/components/audio/audio-editor.svelte:88
 msgid "Size:"
 msgstr "Size:"
 
@@ -796,19 +858,18 @@ msgstr "Size:"
 msgid "Starts with"
 msgstr "Starts with"
 
-#: src/lib/components/field-editors/multi-select.svelte:210
-#: src/lib/components/field-editors/multi-select.svelte:211
-#: src/lib/components/field-editors/multi-select.svelte:283
+#: src/lib/components/field-editors/multi-select.svelte:207
+#: src/lib/components/field-editors/multi-select.svelte:208
+#: src/lib/components/field-editors/multi-select.svelte:280
 msgid "Submit"
 msgstr "Submit"
 
 #: src/project/ProjectSidebar.svelte:117
-#: src/lib/activity/ActivityView.svelte:103
-#: src/home/Server.svelte:113
+#: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
 msgstr "Synced"
 
-#: src/home/HomeView.svelte:168
+#: src/home/HomeView.svelte:199
 msgid "Synced with {0}"
 msgstr "Synced with {0}"
 
@@ -831,15 +892,11 @@ msgstr "Synchronizing..."
 msgid "Tasks"
 msgstr "Tasks"
 
-#: src/home/HomeView.svelte:192
-msgid "Test Project"
-msgstr "Test Project"
-
 #: src/stories/i18n/i18n.stories.svelte:
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
 
-#: src/lib/OpenInFieldWorksButton.svelte:40
+#: src/lib/OpenInFieldWorksButton.svelte:39
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 
@@ -847,7 +904,11 @@ msgstr "This project is now open in FieldWorks. To continue working in FieldWork
 msgid "Toggle filters"
 msgstr "Toggle filters"
 
-#: src/lib/ThemePicker.svelte:24
+#: src/project/browse/EntryView.svelte:71
+msgid "Toggle pinned"
+msgstr "Toggle pinned"
+
+#: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
@@ -857,32 +918,37 @@ msgstr "Translation"
 
 #: src/project/ProjectSidebar.svelte:170
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:160
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
 
-#: src/lib/components/audio/audio-editor.svelte:36
+#: src/lib/components/audio/audio-editor.svelte:94
 msgid "Type:"
 msgstr "Type:"
 
-#: src/lib/OpenInFieldWorksButton.svelte:45
+#: src/lib/OpenInFieldWorksButton.svelte:44
 msgid "Unable to open in FieldWorks"
 msgstr "Unable to open in FieldWorks"
 
 #: src/project/SyncDialog.svelte:253
 #: src/project/SyncDialog.svelte:260
-#: src/lib/history/HistoryView.svelte:99
-#: src/lib/activity/ActivityView.svelte:95
+#: src/lib/history/HistoryView.svelte:108
+#: src/lib/activity/ActivityView.svelte:100
 msgid "Unknown"
 msgstr "Unknown"
 
 #: src/project/ProjectSidebar.svelte:115
+#: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "Unknown error"
 
-#: src/lib/components/field-editors/audio-input.svelte:80
+#: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
 msgstr "Unknown error {0}"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
+msgid "Unknown error downloading {0}"
+msgstr "Unknown error downloading {0}"
 
 #: src/project/SyncDialog.svelte:191
 msgid "Unknown server: {0}"
@@ -906,7 +972,7 @@ msgstr "Version {0}"
 msgid "View Configuration"
 msgstr "View Configuration"
 
-#: src/home/Server.svelte:94
+#: src/home/Server.svelte:138
 msgid "Where are my projects?"
 msgstr "Where are my projects?"
 
@@ -937,3 +1003,12 @@ msgstr "Writing system: {0}"
 #: src/project/browse/filter/WsSelect.svelte:29
 msgid "Writing Systems"
 msgstr "Writing Systems"
+
+#: src/home/Server.svelte:73
+msgid "You don't have permission to download project {0} from {1}"
+msgstr "You don't have permission to download project {0} from {1}"
+
+#: src/home/Server.svelte:79
+#: src/home/Server.svelte:85
+msgid "You have already downloaded the {0} project"
+msgstr "You have already downloaded the {0} project"

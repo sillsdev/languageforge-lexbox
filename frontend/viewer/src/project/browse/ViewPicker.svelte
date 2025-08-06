@@ -30,7 +30,7 @@
   <div class="space-y-2 md:space-y-4">
     <RadioGroup.Root bind:value={getCurrentView, setCurrentView}>
       <h3 class="font-normal max-md:mb-1">{$t`Field Labels`}</h3>
-      {#each views as view}
+      {#each views as view (view.id)}
         <RadioGroup.Item value={view.id} label={view.label} />
       {/each}
     </RadioGroup.Root>

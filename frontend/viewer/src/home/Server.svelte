@@ -1,31 +1,45 @@
 ﻿<script lang="ts">
+  import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
   import type {IServerStatus} from '$lib/dotnet-types';
   import type {Project} from '$lib/services/projects-service';
-  import {createEventDispatcher} from 'svelte';
-  import {mdiCloud} from '@mdi/js';
   import LoginButton from '$lib/auth/LoginButton.svelte';
-  import {ListItem} from 'svelte-ux';
-  import ButtonListItem from '$lib/utils/ButtonListItem.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
-  import ProjectTitle from './ProjectTitle.svelte';
   import {cn} from '$lib/utils';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
+  import GetProjectByCodeDialog from '$lib/admin-dialogs/GetProjectByCodeDialog.svelte';
+  import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
+  import ProjectListItem from './ProjectListItem.svelte';
+  import {transitionContext} from './transitions';
+
+  const [send, receive] = transitionContext.get();
 
   const projectsService = useProjectsService();
 
-  const dispatch = createEventDispatcher<{
-    refreshProjects: void,
-    refreshAll: void,
-  }>();
-  export let status: IServerStatus | undefined;
-  $: server = status?.server;
-  export let projects: Project[];
-  export let localProjects: Project[];
-  export let loading: boolean;
-  let downloading = '';
+  interface Props {
+    status: IServerStatus | undefined;
+    projects: Project[];
+    localProjects: Project[];
+    loading?: boolean;
+    canDownloadByCode?: boolean;
+    refreshProjects?: () => void;
+    refreshAll?: () => void;
+  }
+
+  let {
+    status,
+    projects,
+    localProjects,
+    loading = false,
+    canDownloadByCode,
+    refreshProjects = () => {
+    },
+    refreshAll = () => {
+    }
+  }: Props = $props();
+  let downloading = $state('');
 
   async function downloadCrdtProject(project: Project) {
     if (matchesProject(localProjects, project)) return;
@@ -40,11 +54,35 @@
         timeout: 'short',
       });
       await downloadPromise;
-      dispatch('refreshAll');
+      refreshAll();
       // Getting an updated list of localProjects will take a moment. For the time being, we do it manually.
       localProjects.push(project);
     } finally {
       downloading = '';
+    }
+  }
+
+  async function downloadCrdtProjectByCode(projectCode: string, userRole: UserProjectRole): Promise<string | undefined> {
+    const downloadResult = await projectsService.downloadProjectByCode(projectCode, server!, userRole);
+    switch(downloadResult)
+    {
+      case DownloadProjectByCodeResult.Success:
+        refreshAll();
+        return;
+      case DownloadProjectByCodeResult.Forbidden:
+        return $t`You don't have permission to download project ${projectCode} from ${server?.displayName ?? ''}`;
+      case DownloadProjectByCodeResult.NotCrdtProject:
+        return $t`Project ${projectCode} on ${server?.displayName ?? ''} is not yet set up for FieldWorks Lite`;
+      case DownloadProjectByCodeResult.ProjectNotFound:
+        return $t`Project ${projectCode} not found on ${server?.displayName ?? ''}`;
+      case DownloadProjectByCodeResult.ProjectAlreadyDownloaded:
+        return $t`You have already downloaded the ${projectCode} project`;
+    }
+  }
+
+  function validateCodeForDownload(projectCode: string): string | undefined {
+    if (localProjects.some(p => p.code === projectCode)) {
+      return $t`You have already downloaded the ${projectCode} project`;
     }
   }
 
@@ -54,7 +92,18 @@
     }
     return undefined;
   }
+
+  let getProjectByCodeDialog: GetProjectByCodeDialog|undefined;
+  function getProjectByCode() {
+    getProjectByCodeDialog?.openDialog();
+  }
+  let server = $derived(status?.server);
 </script>
+<GetProjectByCodeDialog
+  bind:this={getProjectByCodeDialog}
+  onDownloadProject={downloadCrdtProjectByCode}
+  validateCode={validateCodeForDownload}
+  />
 <div>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title !my-0">
@@ -72,70 +121,72 @@
               class="mr-2"
               variant="ghost"
               size="icon"
-              onclick={() => dispatch('refreshProjects')}/>
-      <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
+              onclick={() => refreshProjects()}/>
+      <LoginButton {status} statusChange={() => refreshAll()}/>
     {/if}
   </div>
   <div class={cn('rounded', !projects.length && 'border')}>
     {#if !status || loading}
       <!--override the defaults from App.svelte-->
       <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
-      <ListItem icon={mdiCloud} classes={{icon: 'text-neutral-50/50', root: 'animate-pulse dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}>
-        <div slot="title" class="h-4 bg-neutral-50/50 rounded-full w-32">
-        </div>
-        <div slot="actions" class="pointer-events-none">
-          <div class="h-4 my-3 bg-neutral-50/50 rounded-full w-20"></div>
-        </div>
-      </ListItem>
+      <ProjectListItem icon="i-mdi-cloud" skeleton/>
     {:else if !projects.length}
-      <p class="text-center md:rounded p-4">
+      <div class="flex flex-col gap-2 items-center justify-center md:rounded p-4">
         {#if status.loggedIn}
-          <Button class="border border-primary" variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
+          <Button class="border border-primary" variant="link" target="_blank"
+                  href="{server?.authority}/wheresMyProject">
             {$t`Where are my projects?`}
-            <Icon icon="i-mdi-open-in-new" class="size-4" />
+            <Icon icon="i-mdi-open-in-new" class="size-4"/>
           </Button>
+          {#if canDownloadByCode}
+            <Button icon="i-mdi-download"
+                    title={$t`Download project not listed`}
+                    disabled={loading}
+                    class="mr-2"
+                    variant="ghost"
+                    size="default"
+                    onclick={getProjectByCode}>
+              {$t`Download project not listed`}
+            </Button>
+          {/if}
         {:else}
-          <LoginButton {status} on:status={() => dispatch('refreshAll')}/>
+          <LoginButton {status} statusChange={() => refreshAll()}/>
         {/if}
-      </p>
-    {:else}
-      <div class="shadow rounded">
-        {#each projects as project}
+      </div>
+      {:else}
+      <div>
+        {#each projects as project (project.id)}
           {@const localProject = matchesProject(localProjects, project)}
-          {#if localProject?.crdt}
-            <ButtonListItem href={`/project/${project.code}`}>
-              <ListItem icon={mdiCloud}
-                        classes={{root: 'dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted'}}
-                        loading={downloading === project.name}>
-                <ProjectTitle slot="title" {project}/>
-                <div slot="actions" class="pointer-events-none shrink-0">
-                  <Button disabled icon="i-mdi-book-sync-outline" variant="ghost" class="p-2">
-                    {$t`Synced`}
-                  </Button>
-                </div>
-              </ListItem>
-            </ButtonListItem>
-          {:else}
+          {#if !localProject?.crdt}
             {@const loading = downloading === project.code}
-            <ButtonListItem onclick={() => downloadCrdtProject(project)} disabled={!!downloading}>
-              <ListItem icon={mdiCloud}
-                        classes={{root: cn('dark:bg-muted/50 bg-muted/80 hover:bg-muted/30 hover:dark:bg-muted', loading && 'brightness-50')}}
-                        {loading}>
-                <ProjectTitle slot="title" {project}/>
-                <div slot="actions" class="pointer-events-none shrink-0">
-                  <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
-                    {$t`Download`}
-                  </Button>
-                </div>
-              </ListItem>
-            </ButtonListItem>
+            <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
+              <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
+                {#snippet actions()}
+                  <div class="pointer-events-none shrink-0">
+                    <Button icon="i-mdi-book-arrow-down-outline" variant="ghost" class="p-2">
+                      {loading ? $t`Downloading...` : $t`Download`}
+                    </Button>
+                  </div>
+                {/snippet}
+              </ProjectListItem>
+            </div>
           {/if}
         {/each}
+        {#if canDownloadByCode}
+        <Button icon="i-mdi-download"
+                title={$t`Download project not listed`}
+                disabled={loading}
+                class="mr-2"
+                variant="ghost"
+                size="default"
+                onclick={getProjectByCode}
+                >{$t`Download project not listed`}</Button>
+        {/if}
       </div>
       <div class="text-center pt-2">
         <Button variant="link" target="_blank" href="{server?.authority}/wheresMyProject">
           {$t`I don't see my project`}
-          <Icon icon="i-mdi-open-in-new" class="size-4" />
+          <Icon icon="i-mdi-open-in-new" class="size-4"/>
         </Button>
       </div>
     {/if}

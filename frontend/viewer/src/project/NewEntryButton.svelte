@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import {crossfade} from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
 
   const [send, receive] = crossfade({
@@ -10,7 +11,6 @@
 </script>
 
 <script lang="ts">
-  import { crossfade } from 'svelte/transition';
   import { Button } from '$lib/components/ui/button';
   import { t } from 'svelte-i18n-lingui';
   import {useFeatures} from '$lib/services/feature-service';

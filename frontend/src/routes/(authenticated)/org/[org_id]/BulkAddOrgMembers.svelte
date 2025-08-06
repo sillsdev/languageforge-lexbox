@@ -31,7 +31,6 @@
     usernamesText: z.string().trim().min(1, $t('org_page.bulk_add_members.empty_user_field')),
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<typeof schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
@@ -110,7 +109,7 @@
         {#if addedMembers.length > 0}
           <div class="mt-2">
             <BadgeList>
-              {#each addedMembers as user}
+              {#each addedMembers as user (user.username)}
                 <OrgMemberBadge member={{ name: user.username, role: user.role }} />
               {/each}
             </BadgeList>
@@ -125,7 +124,7 @@
         {#if notFoundMembers.length > 0}
           <div class="mt-2">
             <BadgeList>
-              {#each notFoundMembers as user}
+              {#each notFoundMembers as user (user.username)}
                 <OrgMemberBadge member={{ name: user.username, role: user.role }} />
               {/each}
             </BadgeList>
@@ -139,7 +138,7 @@
         </p>
         <div class="mt-2">
           <BadgeList>
-            {#each existingMembers as user}
+            {#each existingMembers as user (user.username)}
               <OrgMemberBadge member={{ name: user.username, role: user.role }} />
             {/each}
           </BadgeList>

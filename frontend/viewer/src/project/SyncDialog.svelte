@@ -186,7 +186,7 @@
           {:else if syncStatus === SyncStatus.Offline}
             <div><Icon icon="i-mdi-cloud-off-outline" /> {$t`Offline`}</div>
           {:else if syncStatus === SyncStatus.NotLoggedIn && projectContext.server}
-            <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} on:status={e => onLoginStatusChange(e.detail)} />
+            <LoginButton text={$t`Login`} status={{loggedIn: false, server: projectContext.server}} statusChange={s => onLoginStatusChange(s)} />
           {:else if syncStatus === SyncStatus.NoServer && projectContext.projectData?.serverId}
             <div>{$t`Unknown server: ${projectContext.projectData?.serverId}`}</div>
           {:else if syncStatus === SyncStatus.NoServer}

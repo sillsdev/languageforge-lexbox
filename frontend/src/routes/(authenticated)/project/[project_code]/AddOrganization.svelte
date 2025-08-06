@@ -21,7 +21,6 @@
   });
 
   type Schema = typeof schema;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   let formModal: FormModal<Schema> | undefined = $state();
   let form = $derived(formModal?.form());
 
@@ -53,7 +52,7 @@
   {/snippet}
   {#snippet children({ errors })}
     <Select id="org" label={$t('project_page.organization.title')} bind:value={$form!.orgId} error={errors.orgId}>
-      {#each orgList as org}
+      {#each orgList as org (org.id)}
         <option value={org.id}>{org.name}</option>
       {/each}
     </Select>

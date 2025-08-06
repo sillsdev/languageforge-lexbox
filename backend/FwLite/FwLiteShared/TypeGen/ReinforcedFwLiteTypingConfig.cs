@@ -140,6 +140,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<UserProjectRole>().UseString();
         builder.ExportAsEnum<ProjectRole>().UseString();
         builder.ExportAsEnum<SyncStatus>().UseString();
+        builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below

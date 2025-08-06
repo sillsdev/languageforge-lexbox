@@ -1,6 +1,6 @@
 /// <reference types='@sveltejs/kit' />
 
-import type { LexAuthUser } from '$lib/user';
+import type {LexAuthUser} from '$lib/user';
 import type {Client} from '@urql/svelte';
 
 export { }; // for some reason this is required in order to make global changes
@@ -43,5 +43,5 @@ declare global {
     'client-error' | 'client-unhandledrejection' |
     'server-error-hook' | 'client-error-hook';
 
-  function enableDevMode(): void;
+  function enableDevMode(enable = true): void;
 }
