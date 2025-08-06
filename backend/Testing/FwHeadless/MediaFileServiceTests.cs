@@ -14,7 +14,6 @@ using MiniLcm.Media;
 using SIL.LCModel;
 using SIL.Progress;
 using Testing.Fixtures;
-using Xunit.Abstractions;
 using MediaFile = LexCore.Entities.MediaFile;
 
 namespace Testing.FwHeadless;
@@ -23,18 +22,16 @@ namespace Testing.FwHeadless;
 [Trait("Category", "RequiresDb")]
 public class MediaFileServiceTests : IDisposable
 {
-    private readonly ITestOutputHelper _output;
     private readonly MediaFileService _service;
     private readonly LexboxFwDataMediaAdapter _adapter;
     private readonly FwHeadlessConfig _fwHeadlessConfig;
     private readonly LcmCache _cache;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly Guid _projectId = SeedingData.Sena3ProjId;
-    private HgRepository _hgRepository;
+    private readonly HgRepository _hgRepository;
 
-    public MediaFileServiceTests(TestingServicesFixture testing, ITestOutputHelper output)
+    public MediaFileServiceTests(TestingServicesFixture testing)
     {
-        _output = output;
         var services = testing.ConfigureServices(s => s.AddFwHeadless().AddTestFwDataBridge().Configure<FwHeadlessConfig>(config =>
         {
             config.LexboxUrl = "http://localhost/";
@@ -49,7 +46,7 @@ public class MediaFileServiceTests : IDisposable
         _cache = services.GetRequiredService<MockFwProjectLoader>()
             .NewProject(fwDataProject, "en", "en");
         Directory.CreateDirectory(_cache.LangProject.LinkedFilesRootDir);
-        _hgRepository = HgRepository.CreateRepositoryInExistingDir(fwDataProject.ProjectFolder, new NullProgress());
+        _hgRepository = HgRepository.CreateOrUseExisting(fwDataProject.ProjectFolder, new NullProgress());
         _lexBoxDbContext = services.GetDbContext();
         var config = new OptionsWrapper<FwHeadlessConfig>(_fwHeadlessConfig);
         _service = new MediaFileService(_lexBoxDbContext, config, services.GetRequiredService<SendReceiveService>());
@@ -197,27 +194,9 @@ public class MediaFileServiceTests : IDisposable
         //make a commit which would be rolled back by S&R during a conflict
         var conflictFile = Path.Join(_cache.LangProject.LinkedFilesRootDir, "conflict.txt");
         await File.WriteAllTextAsync(conflictFile, "test");
-        // _hgRepository.AddAndCheckinFile(conflictFile);
-        var addResult = HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
-        _output.WriteLine("add result");
-        _output.WriteLine(addResult.StandardOutput);
-        _output.WriteLine(addResult.StandardError);
-        addResult.ExitCode.Should().Be(0);
-
-        _output.WriteLine("all revs from hg repo");
-        foreach (var revision in _hgRepository.GetAllRevisions())
-        {
-            _output.WriteLine($"Rev: {revision.Number.LocalRevisionNumber}, summary: {revision.Summary}");
-        }
-
-        _output.WriteLine("hg log output from hg runner");
-        var hgLogOutput = HgRunner.Run("hg log", directoryName, 5, new NullProgress());
-        _output.WriteLine(hgLogOutput.StandardOutput);
-        _output.WriteLine(hgLogOutput.StandardError);
-        _output.WriteLine("hg log output from hg runner");
+        await SendReceiveHelpers.CommitFile(conflictFile, "test commit");
 
         var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
-        _output.WriteLine($"rev is {rev}");
 
         //simulate rollback as seen here: https://github.com/sillsdev/chorus/blob/af6e5c0e97758aef00bd2104b6c1ccf5719798ef/src/LibChorus/sync/Synchronizer.cs#L574
         _hgRepository.RollbackWorkingDirectoryToRevision(rev.ToString());
