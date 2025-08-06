@@ -88,7 +88,11 @@ public static class SendReceiveHelpers
         progress ??= new NullProgress();
         if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
         var fileDir = Path.GetDirectoryName(filePath);
-        await Task.Run(() => HgRunner.Run($"hg commit --message {EscapeShellArg(commitMessage)} --addremove {EscapeShellArg(filePath)}", fileDir, 9999, progress));
+        var result = await Task.Run(() => HgRunner.Run($"hg commit --message {EscapeShellArg(commitMessage)} --addremove {EscapeShellArg(filePath)}", fileDir, 9999, progress));
+        if (result.ExitCode != 0)
+        {
+            throw new Exception($"Failed to commit file {filePath}, with exit code {result.ExitCode}, error: {result.StandardError}");
+        }
     }
 
     private static string EscapeShellArg(string arg)

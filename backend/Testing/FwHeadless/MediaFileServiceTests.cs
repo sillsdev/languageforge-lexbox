@@ -202,6 +202,7 @@ public class MediaFileServiceTests : IDisposable
         _output.WriteLine("add result");
         _output.WriteLine(addResult.StandardOutput);
         _output.WriteLine(addResult.StandardError);
+        addResult.ExitCode.Should().Be(0);
 
         _output.WriteLine("all revs from hg repo");
         foreach (var revision in _hgRepository.GetAllRevisions())
