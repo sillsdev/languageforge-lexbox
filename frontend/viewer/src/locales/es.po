@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-29 08:39\n"
+"PO-Revision-Date: 2025-08-06 04:03\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -137,11 +137,11 @@ msgstr "Archivo de audio no incluido en Enviar y Recibir"
 
 #: src/lib/components/audio/AudioDialog.svelte:84
 msgid "Audio saved and uploaded to Lexbox"
-msgstr ""
+msgstr "Audio guardado y subido a Lexbox"
 
 #: src/lib/components/audio/AudioDialog.svelte:81
 msgid "Audio saved locally"
-msgstr ""
+msgstr "Audio guardado localmente"
 
 #: src/lib/history/HistoryView.svelte:104
 #: src/lib/activity/ActivityView.svelte:96
@@ -327,18 +327,18 @@ msgstr "Descargar"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
 msgid "Download {0}"
-msgstr ""
+msgstr "Descargar {0}"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
 msgid "Download project by project code"
-msgstr ""
+msgstr "Descargar proyecto por código de proyecto"
 
 #: src/home/Server.svelte:143
 #: src/home/Server.svelte:149
 #: src/home/Server.svelte:177
 #: src/home/Server.svelte:183
 msgid "Download project not listed"
-msgstr ""
+msgstr "Descargar proyecto no listado"
 
 #: src/home/Server.svelte:52
 msgid "Downloaded {0}"
@@ -350,11 +350,11 @@ msgstr "Descargando {0}..."
 
 #: src/home/Server.svelte:167
 msgid "Downloading..."
-msgstr ""
+msgstr "Descargando..."
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
 msgid "Editor"
-msgstr ""
+msgstr "Editor"
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
@@ -439,7 +439,7 @@ msgstr "Logotipo de FieldWorks"
 
 #: src/lib/components/audio/AudioDialog.svelte:91
 msgid "File already exists"
-msgstr ""
+msgstr "El archivo ya existe"
 
 #: src/lib/components/audio/audio-editor.svelte:90
 msgid "File name:"
@@ -451,12 +451,12 @@ msgstr "Archivo no encontrado"
 
 #: src/lib/components/audio/AudioDialog.svelte:89
 msgid "File saving not supported"
-msgstr ""
+msgstr "Guardado de archivos no soportado"
 
 #: src/lib/components/audio/AudioDialog.svelte:150
 #: src/lib/components/audio/AudioDialog.svelte:87
 msgid "File too big"
-msgstr ""
+msgstr "Archivo demasiado grande"
 
 #: src/project/browse/SearchFilter.svelte:100
 msgid "Filter # entries"
@@ -593,7 +593,7 @@ msgstr "Hecho con ❤️ de 🇦🇹 🇹🇭 🇺🇸"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
 msgid "Manager"
-msgstr ""
+msgstr "Gerente"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
@@ -657,7 +657,7 @@ msgstr "No se han encontrado entradas"
 
 #: src/lib/components/audio/AudioDialog.svelte:77
 msgid "No file to upload"
-msgstr ""
+msgstr "Ningún archivo para subir"
 
 #: src/lib/history/HistoryView.svelte:68
 msgid "No history found"
@@ -697,7 +697,7 @@ msgstr "Nota"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
 msgid "Observer"
-msgstr ""
+msgstr "Observador"
 
 #: src/project/SyncDialog.svelte:187
 #: src/project/ProjectSidebar.svelte:109
@@ -751,11 +751,11 @@ msgstr "Vista previa"
 
 #: src/home/Server.svelte:77
 msgid "Project {0} not found on {1}"
-msgstr ""
+msgstr "Proyecto {0} no encontrado en {1}"
 
 #: src/home/Server.svelte:75
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
-msgstr ""
+msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 
 #: src/home/HomeView.svelte:239
 msgid "Project name..."
@@ -911,7 +911,7 @@ msgstr "Alternar filtros"
 
 #: src/project/browse/EntryView.svelte:71
 msgid "Toggle pinned"
-msgstr ""
+msgstr "Alternar fijado"
 
 #: src/lib/ThemePicker.svelte:30
 msgid "Toggle theme"
@@ -953,7 +953,7 @@ msgstr "Error desconocido {0}"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
 msgid "Unknown error downloading {0}"
-msgstr ""
+msgstr "Error desconocido al descargar {0}"
 
 #: src/project/SyncDialog.svelte:191
 msgid "Unknown server: {0}"
@@ -1011,9 +1011,10 @@ msgstr "Sistemas de escritura"
 
 #: src/home/Server.svelte:73
 msgid "You don't have permission to download project {0} from {1}"
-msgstr ""
+msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 
 #: src/home/Server.svelte:79
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
-msgstr ""
+msgstr "Ya has descargado el proyecto {0}"
+
