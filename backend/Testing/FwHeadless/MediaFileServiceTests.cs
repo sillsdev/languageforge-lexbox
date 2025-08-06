@@ -14,6 +14,7 @@ using MiniLcm.Media;
 using SIL.LCModel;
 using SIL.Progress;
 using Testing.Fixtures;
+using Xunit.Abstractions;
 using MediaFile = LexCore.Entities.MediaFile;
 
 namespace Testing.FwHeadless;
@@ -22,6 +23,7 @@ namespace Testing.FwHeadless;
 [Trait("Category", "RequiresDb")]
 public class MediaFileServiceTests : IDisposable
 {
+    private readonly ITestOutputHelper _output;
     private readonly MediaFileService _service;
     private readonly LexboxFwDataMediaAdapter _adapter;
     private readonly FwHeadlessConfig _fwHeadlessConfig;
@@ -30,8 +32,9 @@ public class MediaFileServiceTests : IDisposable
     private readonly Guid _projectId = SeedingData.Sena3ProjId;
     private HgRepository _hgRepository;
 
-    public MediaFileServiceTests(TestingServicesFixture testing)
+    public MediaFileServiceTests(TestingServicesFixture testing, ITestOutputHelper output)
     {
+        _output = output;
         var services = testing.ConfigureServices(s => s.AddFwHeadless().AddTestFwDataBridge().Configure<FwHeadlessConfig>(config =>
         {
             config.LexboxUrl = "http://localhost/";
@@ -198,6 +201,19 @@ public class MediaFileServiceTests : IDisposable
         // HgRunner.Run("hg commit --message \"test commit\" --addremove", directoryName, 5, new NullProgress());
 
         var rev = int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber) - 1;
+        _output.WriteLine("rev is {rev}");
+        _output.WriteLine("all revs from hg repo");
+
+        foreach (var revision in _hgRepository.GetAllRevisions())
+        {
+            _output.WriteLine($"Rev: {revision.Number.LocalRevisionNumber}, summary: {revision.Summary}");
+        }
+        _output.WriteLine("hg log output from hg runner");
+        var hgLogOutput = HgRunner.Run("hg log", directoryName, 5, new NullProgress());
+        _output.WriteLine(hgLogOutput.StandardOutput);
+        _output.WriteLine(hgLogOutput.StandardError);
+        _output.WriteLine("hg log output from hg runner");
+
         //simulate rollback as seen here: https://github.com/sillsdev/chorus/blob/af6e5c0e97758aef00bd2104b6c1ccf5719798ef/src/LibChorus/sync/Synchronizer.cs#L574
         _hgRepository.RollbackWorkingDirectoryToRevision(rev.ToString());
         if (File.Exists(conflictFile))
