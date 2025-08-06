@@ -162,7 +162,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var secondPath = TestRepoZipPath + ".bak";
         if (File.Exists(secondPath)) File.Delete(secondPath);
-        File.Copy(TestRepoZipPath, secondPath);
+        await File.WriteAllTextAsync(secondPath, "test");
         result = await Fixture.PutFile(secondPath, fileId);
         result.ShouldBeSuccessful();
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
@@ -183,7 +183,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var secondPath = TestRepoZipPath + ".bak";
         if (File.Exists(secondPath)) File.Delete(secondPath);
-        File.Copy(TestRepoZipPath, secondPath);
+        await File.WriteAllTextAsync(secondPath, "test");
         result = await Fixture.PutFile(secondPath, fileId, overrideFilename: TestRepoZipFilename);
         result.ShouldBeSuccessful();
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId, loginAs: "admin");
@@ -230,7 +230,9 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     {
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
-        result = await Fixture.PutFile(TestRepoZipPath, fileId);
+        var secondPath = TestRepoZipPath + ".bak";
+        await File.WriteAllTextAsync(secondPath, "test");
+        result = await Fixture.PutFile(secondPath, fileId);
         result.ShouldBeSuccessful();
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
         listResult.ShouldBeSuccessful();
