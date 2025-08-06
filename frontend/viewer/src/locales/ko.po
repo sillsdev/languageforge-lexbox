@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-05 03:47\n"
+"PO-Revision-Date: 2025-08-06 04:03\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -48,7 +48,7 @@ msgstr "{0} (필드웍스)"
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/home/Server.svelte:73
+#: src/home/Server.svelte:111
 msgid "{0} Server"
 msgstr "{0} 서버"
 
@@ -171,9 +171,10 @@ msgstr "찾아보기"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte:110
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:245
-#: src/lib/components/field-editors/select.svelte:166
-#: src/lib/components/field-editors/multi-select.svelte:280
+#: src/lib/components/field-editors/select.svelte:164
+#: src/lib/components/field-editors/multi-select.svelte:277
 #: src/lib/components/audio/AudioDialog.svelte:153
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:86
 msgid "Cancel"
 msgstr "취소"
 
@@ -185,17 +186,17 @@ msgstr "인용 양식"
 msgid "Citation Form"
 msgstr "인용 양식"
 
-#: src/home/HomeView.svelte:255
+#: src/home/HomeView.svelte:254
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
-#: src/lib/components/field-editors/select.svelte:118
-#: src/lib/components/field-editors/multi-select.svelte:205
+#: src/lib/components/field-editors/select.svelte:116
+#: src/lib/components/field-editors/multi-select.svelte:202
 msgid "clear"
 msgstr "clear"
 
 #: src/lib/components/ui/button/x-button.svelte:14
-#: src/lib/components/field-editors/multi-select.svelte:215
+#: src/lib/components/field-editors/multi-select.svelte:212
 #: src/lib/about/AboutDialog.svelte:28
 msgid "Close"
 msgstr "닫기"
@@ -245,7 +246,7 @@ msgstr "{0}만들기"
 msgid "Create entry"
 msgstr "항목 만들기"
 
-#: src/home/HomeView.svelte:234
+#: src/home/HomeView.svelte:233
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
@@ -275,7 +276,7 @@ msgstr "데이터 디렉토리"
 msgid "Definition"
 msgstr "정의"
 
-#: src/home/HomeView.svelte:208
+#: src/home/HomeView.svelte:207
 msgid "Delete"
 msgstr "삭제"
 
@@ -320,21 +321,40 @@ msgstr "삭제하지 마세요."
 
 #: src/lib/notifications/NotificationOutlet.svelte:26
 #: src/lib/components/audio/audio-editor.svelte:106
-#: src/home/Server.svelte:118
+#: src/home/Server.svelte:167
 msgid "Download"
 msgstr "다운로드"
 
-#: src/home/Server.svelte:47
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:88
+msgid "Download {0}"
+msgstr "다운로드 {0}"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:60
+msgid "Download project by project code"
+msgstr "프로젝트 코드별 프로젝트 다운로드"
+
+#: src/home/Server.svelte:143
+#: src/home/Server.svelte:149
+#: src/home/Server.svelte:177
+#: src/home/Server.svelte:183
+msgid "Download project not listed"
+msgstr "목록에 없는 프로젝트 다운로드"
+
+#: src/home/Server.svelte:52
 msgid "Downloaded {0}"
 msgstr "다운로드 {0}"
 
-#: src/home/Server.svelte:46
+#: src/home/Server.svelte:51
 msgid "Downloading {0}..."
 msgstr "다운로드 {0}..."
 
-#: src/home/Server.svelte:118
+#: src/home/Server.svelte:167
 msgid "Downloading..."
 msgstr "다운로드 중..."
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:41
+msgid "Editor"
+msgstr "편집기"
 
 #: src/project/browse/filter/OpFilter.svelte:14
 msgid "Ends with"
@@ -378,7 +398,7 @@ msgstr "예"
 msgid "Example sentence"
 msgstr "문장 예시"
 
-#: src/home/Server.svelte:48
+#: src/home/Server.svelte:53
 msgid "Failed to download {0}"
 msgstr "다운로드에 실패했습니다 {0}"
 
@@ -412,8 +432,8 @@ msgid "Field Labels"
 msgstr "필드 레이블"
 
 #: src/project/ProjectDropdown.svelte:69
-#: src/lib/OpenInFieldWorksButton.svelte:56
-#: src/home/HomeView.svelte:261
+#: src/lib/OpenInFieldWorksButton.svelte:55
+#: src/home/HomeView.svelte:260
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
@@ -458,8 +478,8 @@ msgstr "필터링 대상"
 msgid "Filter words"
 msgstr "단어 필터링"
 
-#: src/lib/components/field-editors/select.svelte:114
-#: src/lib/components/field-editors/multi-select.svelte:201
+#: src/lib/components/field-editors/select.svelte:112
+#: src/lib/components/field-editors/multi-select.svelte:198
 msgid "Filter..."
 msgstr "필터..."
 
@@ -501,11 +521,11 @@ msgstr "역사"
 msgid "Hold to record or\\npress and release to start recording."
 msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작됩니다."
 
-#: src/home/Server.svelte:129
+#: src/home/Server.svelte:188
 msgid "I don't see my project"
 msgstr "내 프로젝트가 보이지 않습니다."
 
-#: src/home/HomeView.svelte:269
+#: src/home/HomeView.svelte:268
 msgid "Import"
 msgstr "가져오기"
 
@@ -550,7 +570,7 @@ msgstr "로딩 중..."
 msgid "Local"
 msgstr "로컬"
 
-#: src/home/HomeView.svelte:200
+#: src/home/HomeView.svelte:199
 msgid "Local only"
 msgstr "로컬 전용"
 
@@ -570,6 +590,10 @@ msgstr "로그아웃"
 #: src/project/ProjectSidebar.svelte:193
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:40
+msgid "Manager"
+msgstr "관리자"
 
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:250
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte:166
@@ -639,8 +663,8 @@ msgstr "업로드할 파일이 없습니다."
 msgid "No history found"
 msgstr "기록을 찾을 수 없습니다."
 
-#: src/lib/components/field-editors/select.svelte:126
-#: src/lib/components/field-editors/multi-select.svelte:220
+#: src/lib/components/field-editors/select.svelte:124
+#: src/lib/components/field-editors/multi-select.svelte:217
 msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
 
@@ -653,8 +677,8 @@ msgstr "구성된 서버 없음"
 msgid "No words found"
 msgstr "단어를 찾을 수 없습니다."
 
-#: src/lib/components/field-editors/select.svelte:101
-#: src/lib/components/field-editors/multi-select.svelte:176
+#: src/lib/components/field-editors/select.svelte:99
+#: src/lib/components/field-editors/multi-select.svelte:173
 msgid "None"
 msgstr "없음"
 
@@ -671,6 +695,10 @@ msgstr "로그인하지 않음"
 msgid "Note"
 msgstr "참고"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:42
+msgid "Observer"
+msgstr "옵저버"
+
 #: src/project/SyncDialog.svelte:187
 #: src/project/ProjectSidebar.svelte:109
 msgid "Offline"
@@ -684,7 +712,7 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
 
-#: src/lib/OpenInFieldWorksButton.svelte:57
+#: src/lib/OpenInFieldWorksButton.svelte:56
 msgid "Open in FieldWorks"
 msgstr "FieldWorks에서 열기"
 
@@ -721,7 +749,15 @@ msgstr "고정됨"
 msgid "Preview"
 msgstr "미리 보기"
 
-#: src/home/HomeView.svelte:240
+#: src/home/Server.svelte:77
+msgid "Project {0} not found on {1}"
+msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
+
+#: src/home/Server.svelte:75
+msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
+msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
+
+#: src/home/HomeView.svelte:239
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
@@ -729,12 +765,12 @@ msgstr "프로젝트 이름..."
 msgid "Reference"
 msgstr "참조"
 
-#: src/lib/components/field-editors/select.svelte:146
-#: src/lib/components/field-editors/multi-select.svelte:256
+#: src/lib/components/field-editors/select.svelte:144
+#: src/lib/components/field-editors/multi-select.svelte:253
 msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
-#: src/home/Server.svelte:81
+#: src/home/Server.svelte:119
 #: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
@@ -747,7 +783,7 @@ msgstr "제거"
 msgid "Remove audio"
 msgstr "오디오 제거"
 
-#: src/lib/OpenInFieldWorksButton.svelte:41
+#: src/lib/OpenInFieldWorksButton.svelte:40
 msgid "Reopen"
 msgstr "다시 열기"
 
@@ -827,9 +863,9 @@ msgstr "크기:"
 msgid "Starts with"
 msgstr "다음으로 시작"
 
-#: src/lib/components/field-editors/multi-select.svelte:210
-#: src/lib/components/field-editors/multi-select.svelte:211
-#: src/lib/components/field-editors/multi-select.svelte:283
+#: src/lib/components/field-editors/multi-select.svelte:207
+#: src/lib/components/field-editors/multi-select.svelte:208
+#: src/lib/components/field-editors/multi-select.svelte:280
 msgid "Submit"
 msgstr "제출하기"
 
@@ -838,7 +874,7 @@ msgstr "제출하기"
 msgid "Synced"
 msgstr "동기화"
 
-#: src/home/HomeView.svelte:200
+#: src/home/HomeView.svelte:199
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
@@ -865,7 +901,7 @@ msgstr "작업"
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 
-#: src/lib/OpenInFieldWorksButton.svelte:40
+#: src/lib/OpenInFieldWorksButton.svelte:39
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks Lite에서 계속 작업하려면 FieldWorks에서 프로젝트를 닫고 다시 열기를 클릭합니다."
 
@@ -895,7 +931,7 @@ msgstr "문제 해결"
 msgid "Type:"
 msgstr "유형:"
 
-#: src/lib/OpenInFieldWorksButton.svelte:45
+#: src/lib/OpenInFieldWorksButton.svelte:44
 msgid "Unable to open in FieldWorks"
 msgstr "FieldWorks에서 열 수 없음"
 
@@ -914,6 +950,10 @@ msgstr "알 수 없는 오류"
 #: src/lib/components/field-editors/audio-input.svelte:84
 msgid "Unknown error {0}"
 msgstr "알 수 없는 오류 {0}"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte:29
+msgid "Unknown error downloading {0}"
+msgstr "알 수 없는 오류 다운로드 중 {0}"
 
 #: src/project/SyncDialog.svelte:191
 msgid "Unknown server: {0}"
@@ -937,7 +977,7 @@ msgstr "버전 {0}"
 msgid "View Configuration"
 msgstr "구성 보기"
 
-#: src/home/Server.svelte:100
+#: src/home/Server.svelte:138
 msgid "Where are my projects?"
 msgstr "내 프로젝트는 어디에 있나요?"
 
@@ -968,4 +1008,13 @@ msgstr "쓰기 시스템: {0}"
 #: src/project/browse/filter/WsSelect.svelte:29
 msgid "Writing Systems"
 msgstr "쓰기 시스템"
+
+#: src/home/Server.svelte:73
+msgid "You don't have permission to download project {0} from {1}"
+msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없습니다."
+
+#: src/home/Server.svelte:79
+#: src/home/Server.svelte:85
+msgid "You have already downloaded the {0} project"
+msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
 
