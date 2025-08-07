@@ -10,7 +10,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
-    private readonly string Null_LexemeForm = string.Empty;
+    private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
@@ -327,8 +327,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
 public abstract class NullAndEmptyQueryEntryTestsBase : MiniLcmTestBase
 {
     private readonly string Apple = "Apple";
-    private readonly string Null = ""; // nulls get normalized to empty strings
-    private readonly string EmptyString = "";
+    private readonly string Null = string.Empty; // nulls get normalized to empty strings
+    private readonly string EmptyString = string.Empty;
     private readonly string NullString = "null";
 
     public override async Task InitializeAsync()
@@ -338,9 +338,9 @@ public abstract class NullAndEmptyQueryEntryTestsBase : MiniLcmTestBase
         // null / missing key
         await Api.CreateEntry(new Entry());
         // blank
-        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "" } });
+        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
         // null string
-        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "null" } });
+        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = NullString } });
     }
 
     [Fact]
