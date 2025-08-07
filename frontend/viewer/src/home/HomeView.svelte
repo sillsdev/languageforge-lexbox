@@ -28,7 +28,6 @@
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
-  import {pt} from '$lib/views/view-text';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
