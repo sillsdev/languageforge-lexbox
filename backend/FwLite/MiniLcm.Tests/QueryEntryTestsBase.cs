@@ -108,7 +108,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CanFilterToMissingPartOfSpeech()
     {
-        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=null" })).ToArrayAsync();
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=" })).ToArrayAsync();
         //does not include entries with no senses
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }

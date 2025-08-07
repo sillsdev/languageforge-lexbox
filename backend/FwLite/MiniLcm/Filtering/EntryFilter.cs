@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-using Gridify;
-using Gridify.Syntax;
+﻿using Gridify;
 using MiniLcm.Models;
 
 namespace MiniLcm.Filtering;
@@ -11,19 +9,20 @@ public class EntryFilter
     {
         var mapper = new GridifyMapper<T>(false);
         mapper.Configuration.DisableCollectionNullChecks = true;
-        mapper.AddMap(nameof(Entry.Senses), provider.EntrySenses);
+        mapper.Configuration.AllowNullSearch = false; // We want LexemeForm=null to interpret null as a string rather than a null value, because it's a legitimate word.
+        mapper.AddMap(nameof(Entry.Senses), provider.EntrySenses, NormalizeEmptyToNull<Sense>);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}", provider.EntrySensesSemanticDomains, provider.EntrySensesSemanticDomainsConverter);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode, NormalizeNullToEmptyString);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId, NormalizeNullToEmptyString);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss, NormalizeNullToEmptyString);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition, NormalizeNullToEmptyString);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences);
-        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence, NormalizeNullToEmptyString);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.SemanticDomains)}.{nameof(SemanticDomain.Code)}", provider.EntrySensesSemanticDomainsCode);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.PartOfSpeechId)}", provider.EntrySensesPartOfSpeechId);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Gloss)}", provider.EntrySensesGloss);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences, NormalizeEmptyToNull<ExampleSentence>);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence);
 
-        mapper.AddMap(nameof(Entry.Note), provider.EntryNote, NormalizeNullToEmptyString);
-        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm, NormalizeNullToEmptyString);
-        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm, NormalizeNullToEmptyString);
-        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning, NormalizeNullToEmptyString);
+        mapper.AddMap(nameof(Entry.Note), provider.EntryNote);
+        mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm);
+        mapper.AddMap(nameof(Entry.CitationForm), provider.EntryCitationForm);
+        mapper.AddMap(nameof(Entry.LiteralMeaning), provider.EntryLiteralMeaning);
         mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
         return mapper;
     }
@@ -31,21 +30,25 @@ public class EntryFilter
     //used by the database for json columns which are lists, we want to treat null as an empty list
     public static object NormalizeEmptyToEmptyList<T>(string value)
     {
-        if (value is "null" or "" or "[]") return new List<T>();
+        if (value is "null" or "[]") return new List<T>();
+        // Note: we can't normalize from the empty string, because gridify has special IsNullOrDefault handling for that case
+        // i.e. it always ignores the returned value and we can't do anything about that.
+        // Throw because IsNullOrDefault won't work as expected
+        if (value is "") throw new Exception("To filter for empty collections use [] or null.");
         throw new Exception($"Invalid value {value} for {typeof(T).Name}");
     }
 
-    public static object NormalizeEmptyToNullString<T>(string value)
+    //used by the database for non-json collections
+    public static object NormalizeEmptyToNull<T>(string value)
     {
-        if (value is "null" or "" or "[]") return "null";
+        // This essentially mimics AllowNullSearch = true, but lets us apply it to specific fields (i.e. only collections)
+        if (value is "null" or "[]") return null!;
+        // Note: we can't normalize from the empty string, because gridify has special IsNullOrDefault handling for that case
+        // i.e. it always ignores the returned value and we can't do anything about that.
+        // In this case it would actually work, because null is what the expression needs,
+        // but throwing makes it consistent with json collections where we can't support ""/IsNullOrDefault.
+        if (value is "") throw new Exception("To filter for empty collections use [] or null.");
         throw new Exception($"Invalid value {value} for {typeof(T).Name}");
-    }
-
-    //Removes the distinction between null and empty string, so that we don't have to add null checks to prevent NPE's when using string contains (and similar) operators.
-    public static object NormalizeNullToEmptyString(string value)
-    {
-        if (value is "null" or "") return string.Empty;
-        return value;
     }
 
     public string? GridifyFilter { get; set; }
