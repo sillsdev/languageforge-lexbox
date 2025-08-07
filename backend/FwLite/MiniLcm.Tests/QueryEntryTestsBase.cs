@@ -10,7 +10,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
-    private readonly string Null_LexemeForm = "";
+    private readonly string Null_LexemeForm = string.Empty;
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
