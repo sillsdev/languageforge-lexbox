@@ -70,6 +70,7 @@ public static class LcmCrdtKernel
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
         services.AddScoped<LcmMediaService>();
+        services.AddScoped<SyncRepository>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
