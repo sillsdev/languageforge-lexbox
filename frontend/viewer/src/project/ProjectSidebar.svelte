@@ -22,8 +22,10 @@
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import LocalizationPicker from '$lib/i18n/LocalizationPicker.svelte';
+  import {useProjectContext} from '$lib/project-context.svelte';
 
   const config = useFwLiteConfig();
+  const projectCont = useProjectContext();
   const features = useFeatures();
   const stats = useProjectStats();
   const projectEventBus = useProjectEventBus();
@@ -163,7 +165,7 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:this={troubleshootDialog} />
+          <TroubleshootDialog bind:this={troubleshootDialog} projectCode={projectCont.projectData?.code}/>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton onclick={() => troubleshootDialog?.open()}>
               <Icon icon="i-mdi-help-circle" />
