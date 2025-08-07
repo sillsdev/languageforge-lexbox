@@ -31,6 +31,12 @@
       AppNotification.display($t`Failed to open data directory, use the path in the text field instead`, 'error');
     }
   }
+
+  async function shareProject() {
+    if (projectCode) {
+      await service?.shareCrdtProject(projectCode);
+    }
+  }
 </script>
 
 <Dialog bind:open={openQueryParam.current}>
@@ -53,7 +59,7 @@
       </div>
       {#if projectCode}
         <div class="flex gap-2">
-          <Button variant="outline" onclick={() => service?.shareCrdtProject(projectCode)}>
+          <Button variant="outline" onclick={() => shareProject()}>
             <i class="i-mdi-file-export"></i>
             {$t`Share project data file`}
           </Button>
