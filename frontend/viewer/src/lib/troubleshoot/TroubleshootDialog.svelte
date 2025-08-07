@@ -14,8 +14,9 @@
     allowBack: true
   }, false);
 
-  export function open(): void {
+  export function open(withProjectCode?: string): void {
     openQueryParam.current = true;
+    projectCode = withProjectCode;
   }
 
   const service = useTroubleshootingService();
