@@ -2,7 +2,6 @@
 using Bogus;
 using LcmCrdt.FullTextSearch;
 using LinqToDB;
-using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Culture;
 using Xunit.Abstractions;
@@ -58,6 +57,24 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         outputHelper.WriteLine(
             $"Total query time: {queryTime.TotalMilliseconds}ms, time per entry: {timePerEntry.TotalMicroseconds}microseconds");
         timePerEntry.TotalMicroseconds.Should().BeLessThan(1);//on my machine I got 0.2, so this is a safe margin
+    }
+
+    public override async Task DisposeAsync()
+    {
+        await base.DisposeAsync();
+        await _fixture.DisposeAsync();
+    }
+}
+
+public class NullAndEmptyQueryEntryTests : NullAndEmptyQueryEntryTestsBase
+{
+    private readonly MiniLcmApiFixture _fixture = new();
+
+    protected override async Task<IMiniLcmApi> NewApi()
+    {
+        await _fixture.InitializeAsync();
+        var api = _fixture.Api;
+        return api;
     }
 
     public override async Task DisposeAsync()
