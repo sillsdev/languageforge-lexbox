@@ -21,10 +21,7 @@
 
   const service = useTroubleshootingService();
   const config = useFwLiteConfig();
-
-  let {
-    projectCode = undefined
-  }: { projectCode?: string } = $props();
+  let projectCode = $state<string>();
 
   async function tryOpenDataDirectory() {
     if (!await service?.tryOpenDataDirectory()) {

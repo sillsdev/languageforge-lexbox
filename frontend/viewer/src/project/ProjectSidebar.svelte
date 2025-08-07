@@ -25,7 +25,7 @@
   import {useProjectContext} from '$lib/project-context.svelte';
 
   const config = useFwLiteConfig();
-  const projectCont = useProjectContext();
+  const projectContext = useProjectContext();
   const features = useFeatures();
   const stats = useProjectStats();
   const projectEventBus = useProjectEventBus();
@@ -165,9 +165,9 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:this={troubleshootDialog} projectCode={projectCont.projectData?.code}/>
+          <TroubleshootDialog bind:this={troubleshootDialog}/>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton onclick={() => troubleshootDialog?.open()}>
+            <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
               <Icon icon="i-mdi-help-circle" />
               <span>{$t`Troubleshoot`}</span>
             </Sidebar.MenuButton>
