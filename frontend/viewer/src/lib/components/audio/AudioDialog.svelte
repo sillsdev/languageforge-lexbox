@@ -78,10 +78,10 @@
     const response = await lexboxApi.saveFile(finalAudio, {filename: finalAudio.name, mimeType: finalAudio.type});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
-        AppNotification.display($t`Audio saved locally`, 'success');
+        AppNotification.display($t`Audio saved locally`, { type: 'success', timeout: 'short' });
         break;
       case UploadFileResult.SavedToLexbox:
-        AppNotification.display($t`Audio saved and uploaded to Lexbox`, 'success');
+        AppNotification.display($t`Audio saved and uploaded to Lexbox`, { type: 'success', timeout: 'short' });
         break;
       case UploadFileResult.TooBig:
         throw new Error($t`File too big`);
