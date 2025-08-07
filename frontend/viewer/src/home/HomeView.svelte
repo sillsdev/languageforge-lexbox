@@ -188,7 +188,7 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
+            {#each projects.filter((p) => p.crdt) as project (project.id ?? project)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
@@ -253,7 +253,7 @@
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
-              {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
+              {#each projects.filter((p) => p.fwdata) as project (project.name)}
                 <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
