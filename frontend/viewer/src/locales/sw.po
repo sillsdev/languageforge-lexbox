@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-06 04:03\n"
+"PO-Revision-Date: 2025-08-07 13:40\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -73,20 +73,23 @@ msgstr ""
 msgid "About"
 msgstr "Kuhusu"
 
-#: src/project/ProjectSidebar.svelte:138
+#: src/project/ProjectSidebar.svelte:140
 msgid "Account"
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:94
+#: src/project/ProjectSidebar.svelte:96
 msgid "Activity"
 msgstr "Shughuli"
 
-#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/field-editors/audio-input.svelte:257
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add complex form"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
 msgstr ""
@@ -123,7 +126,7 @@ msgstr ""
 msgid "Any Ws"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:33
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
 msgid "Application version"
 msgstr ""
 
@@ -131,7 +134,7 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Audio file not included in Send & Receive"
 msgstr ""
 
@@ -165,7 +168,7 @@ msgstr "kabla"
 msgid "Best match"
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:89
+#: src/project/ProjectSidebar.svelte:91
 msgid "Browse"
 msgstr "Angalia"
 
@@ -186,7 +189,7 @@ msgstr ""
 msgid "Citation Form"
 msgstr "Fomu ya Manukuu"
 
-#: src/home/HomeView.svelte:254
+#: src/home/HomeView.svelte:261
 msgid "Classic FieldWorks Projects"
 msgstr ""
 
@@ -201,7 +204,7 @@ msgstr "futa"
 msgid "Close"
 msgstr "Funga"
 
-#: src/project/ProjectSidebar.svelte:157
+#: src/project/ProjectSidebar.svelte:159
 msgid "Close Dictionary"
 msgstr ""
 
@@ -246,7 +249,7 @@ msgstr ""
 msgid "Create entry"
 msgstr ""
 
-#: src/home/HomeView.svelte:233
+#: src/home/HomeView.svelte:240
 msgid "Create Example Project"
 msgstr ""
 
@@ -264,11 +267,11 @@ msgstr ""
 msgid "Current Word"
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:87
+#: src/project/ProjectSidebar.svelte:89
 msgid "Dashboard"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:35
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Data Directory"
 msgstr ""
 
@@ -276,7 +279,7 @@ msgstr ""
 msgid "Definition"
 msgstr "Maana"
 
-#: src/home/HomeView.svelte:207
+#: src/home/HomeView.svelte:222
 msgid "Delete"
 msgstr "Futa"
 
@@ -293,12 +296,12 @@ msgstr "Futa ingizo"
 msgid "Delete Word"
 msgstr ""
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:136
 msgid "Dictionaries"
 msgstr "Kamusi"
 
-#: src/project/ProjectSidebar.svelte:83
+#: src/project/ProjectSidebar.svelte:85
 msgid "Dictionary"
 msgstr "Kamusi"
 
@@ -378,7 +381,7 @@ msgstr ""
 msgid "Equals"
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:119
+#: src/project/ProjectSidebar.svelte:121
 msgid "Error getting sync status"
 msgstr ""
 
@@ -406,7 +409,7 @@ msgstr ""
 msgid "Failed to load entries"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:22
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr ""
 
@@ -418,8 +421,8 @@ msgstr ""
 msgid "Failed to synchronize."
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:154
+#: src/project/ProjectSidebar.svelte:181
+#: src/home/HomeView.svelte:155
 msgid "Feedback"
 msgstr "Maoni"
 
@@ -433,7 +436,7 @@ msgstr ""
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:267
 msgid "FieldWorks logo"
 msgstr ""
 
@@ -525,7 +528,7 @@ msgstr ""
 msgid "I don't see my project"
 msgstr ""
 
-#: src/home/HomeView.svelte:268
+#: src/home/HomeView.svelte:275
 msgid "Import"
 msgstr "Agiza"
 
@@ -538,7 +541,7 @@ msgstr ""
 msgid "Length:"
 msgstr ""
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:135
 msgid "Lexbox logo"
 msgstr ""
 
@@ -562,15 +565,15 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr ""
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:176
 msgid "loading..."
 msgstr "inashughulikia..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:181
 msgid "Local"
 msgstr "Mitaa"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Local only"
 msgstr ""
 
@@ -587,7 +590,7 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:193
+#: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr ""
 
@@ -669,7 +672,7 @@ msgid "No items found"
 msgstr ""
 
 #: src/project/SyncDialog.svelte:193
-#: src/project/ProjectSidebar.svelte:113
+#: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr ""
 
@@ -687,7 +690,7 @@ msgid "Not equal"
 msgstr ""
 
 #: src/project/SyncDialog.svelte:257
-#: src/project/ProjectSidebar.svelte:111
+#: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr ""
 
@@ -700,7 +703,7 @@ msgid "Observer"
 msgstr ""
 
 #: src/project/SyncDialog.svelte:187
-#: src/project/ProjectSidebar.svelte:109
+#: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr ""
 
@@ -708,7 +711,7 @@ msgstr ""
 msgid "Offline, unable to download"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:40
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
 msgid "Open Data Directory"
 msgstr ""
 
@@ -720,7 +723,7 @@ msgstr ""
 msgid "Open in new Window"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:46
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
 msgid "Open Log file"
 msgstr ""
 
@@ -757,7 +760,7 @@ msgstr ""
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr ""
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:246
 msgid "Project name..."
 msgstr ""
 
@@ -771,7 +774,7 @@ msgid "Refine your filter to see more..."
 msgstr ""
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:185
 msgid "Refresh Projects"
 msgstr ""
 
@@ -779,7 +782,7 @@ msgstr ""
 msgid "Remove"
 msgstr "Ondoa"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:308
 msgid "Remove audio"
 msgstr ""
 
@@ -787,7 +790,7 @@ msgstr ""
 msgid "Reopen"
 msgstr ""
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:305
 msgid "Replace audio"
 msgstr ""
 
@@ -831,7 +834,7 @@ msgstr ""
 msgid "Sentence"
 msgstr "Sentensi"
 
-#: src/project/ProjectSidebar.svelte:144
+#: src/project/ProjectSidebar.svelte:146
 msgid "Settings"
 msgstr "Mipangilio"
 
@@ -839,8 +842,12 @@ msgstr "Mipangilio"
 msgid "Shadcn Sandbox # #"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
 msgid "Share Log file"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+msgid "Share project data file"
 msgstr ""
 
 #: src/project/browse/ViewPicker.svelte:39
@@ -869,18 +876,18 @@ msgstr ""
 msgid "Submit"
 msgstr "Wasilisha"
 
-#: src/project/ProjectSidebar.svelte:117
+#: src/project/ProjectSidebar.svelte:119
 #: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
 msgstr ""
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Synced with {0}"
 msgstr ""
 
 #: src/project/SyncDialog.svelte:149
 #: src/project/SyncDialog.svelte:234
-#: src/project/ProjectSidebar.svelte:124
+#: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr ""
 
@@ -893,7 +900,7 @@ msgstr ""
 msgid "Synchronizing..."
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:91
+#: src/project/ProjectSidebar.svelte:93
 msgid "Tasks"
 msgstr "Jukumu"
 
@@ -921,9 +928,10 @@ msgstr ""
 msgid "Translation"
 msgstr "Tafsiri"
 
-#: src/project/ProjectSidebar.svelte:170
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:160
+#: src/project/ProjectSidebar.svelte:172
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
+#: src/home/HomeView.svelte:161
+#: src/home/HomeView.svelte:217
 msgid "Troubleshoot"
 msgstr ""
 
@@ -942,7 +950,7 @@ msgstr ""
 msgid "Unknown"
 msgstr "Haijulikani"
 
-#: src/project/ProjectSidebar.svelte:115
+#: src/project/ProjectSidebar.svelte:117
 #: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "Hitilafu isiyojulikana"
@@ -969,7 +977,7 @@ msgstr ""
 msgid "Uses components as"
 msgstr ""
 
-#: src/project/ProjectSidebar.svelte:192
+#: src/project/ProjectSidebar.svelte:194
 msgid "Version {0}"
 msgstr ""
 
