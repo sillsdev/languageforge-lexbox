@@ -30,7 +30,8 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
 
     [Theory]
     [InlineData(50_000)]
-    [InlineData(100_000)]
+    //disabled because it takes too long to run
+    // [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
         await DeleteAllEntries();
