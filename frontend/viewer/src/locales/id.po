@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-06 04:03\n"
+"PO-Revision-Date: 2025-08-07 13:40\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -73,20 +73,23 @@ msgstr "sebuah kata"
 msgid "About"
 msgstr "Tentang"
 
-#: src/project/ProjectSidebar.svelte:138
+#: src/project/ProjectSidebar.svelte:140
 msgid "Account"
 msgstr "Akun"
 
-#: src/project/ProjectSidebar.svelte:94
+#: src/project/ProjectSidebar.svelte:96
 msgid "Activity"
 msgstr "Aktivitas"
 
-#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/field-editors/audio-input.svelte:257
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "Menambahkan audio"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
+msgid "Add complex form"
+msgstr "Menambahkan formulir kompleks"
+
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
 msgstr "Menambahkan komponen"
@@ -123,7 +126,7 @@ msgstr "sebuah entri"
 msgid "Any Ws"
 msgstr "Setiap Ws"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:33
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
 msgid "Application version"
 msgstr "Versi aplikasi"
 
@@ -131,7 +134,7 @@ msgstr "Versi aplikasi"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Audio file not included in Send & Receive"
 msgstr "File audio tidak disertakan dalam Kirim & Terima"
 
@@ -165,7 +168,7 @@ msgstr "sebelum"
 msgid "Best match"
 msgstr "Pertandingan terbaik"
 
-#: src/project/ProjectSidebar.svelte:89
+#: src/project/ProjectSidebar.svelte:91
 msgid "Browse"
 msgstr "Jelajahi"
 
@@ -186,7 +189,7 @@ msgstr "Formulir kutipan"
 msgid "Citation Form"
 msgstr "Formulir Kutipan"
 
-#: src/home/HomeView.svelte:254
+#: src/home/HomeView.svelte:261
 msgid "Classic FieldWorks Projects"
 msgstr "Proyek Pekerjaan Lapangan Klasik"
 
@@ -201,7 +204,7 @@ msgstr "jelas"
 msgid "Close"
 msgstr "Tutup"
 
-#: src/project/ProjectSidebar.svelte:157
+#: src/project/ProjectSidebar.svelte:159
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
@@ -246,7 +249,7 @@ msgstr "Buat {0}"
 msgid "Create entry"
 msgstr "Buat entri"
 
-#: src/home/HomeView.svelte:233
+#: src/home/HomeView.svelte:240
 msgid "Create Example Project"
 msgstr "Buat Proyek Contoh"
 
@@ -264,11 +267,11 @@ msgstr "Entri Saat Ini"
 msgid "Current Word"
 msgstr "Kata saat ini"
 
-#: src/project/ProjectSidebar.svelte:87
+#: src/project/ProjectSidebar.svelte:89
 msgid "Dashboard"
 msgstr "Dasbor"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:35
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Data Directory"
 msgstr "Direktori Data"
 
@@ -276,7 +279,7 @@ msgstr "Direktori Data"
 msgid "Definition"
 msgstr "Definisi"
 
-#: src/home/HomeView.svelte:207
+#: src/home/HomeView.svelte:222
 msgid "Delete"
 msgstr "Menghapus"
 
@@ -293,12 +296,12 @@ msgstr "Hapus Entri"
 msgid "Delete Word"
 msgstr "Menghapus kata"
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:136
 msgid "Dictionaries"
 msgstr "Kamus"
 
-#: src/project/ProjectSidebar.svelte:83
+#: src/project/ProjectSidebar.svelte:85
 msgid "Dictionary"
 msgstr "Kamus"
 
@@ -378,7 +381,7 @@ msgstr "Masuk atau masuk akal:"
 msgid "Equals"
 msgstr "Sama"
 
-#: src/project/ProjectSidebar.svelte:119
+#: src/project/ProjectSidebar.svelte:121
 msgid "Error getting sync status"
 msgstr "Kesalahan mendapatkan status sinkronisasi"
 
@@ -406,7 +409,7 @@ msgstr "Gagal mengunduh {0}"
 msgid "Failed to load entries"
 msgstr "Gagal memuat entri"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:22
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "Gagal membuka direktori data, gunakan jalur di bidang teks sebagai gantinya"
 
@@ -418,8 +421,8 @@ msgstr "Gagal menyinkronkan"
 msgid "Failed to synchronize."
 msgstr "Gagal melakukan sinkronisasi."
 
-#: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:154
+#: src/project/ProjectSidebar.svelte:181
+#: src/home/HomeView.svelte:155
 msgid "Feedback"
 msgstr "Umpan balik"
 
@@ -433,7 +436,7 @@ msgstr "Label Bidang"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:267
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
@@ -525,7 +528,7 @@ msgstr "Tahan untuk merekam atau\\ntekan dan lepaskan untuk mulai merekam."
 msgid "I don't see my project"
 msgstr "Saya tidak melihat proyek saya"
 
-#: src/home/HomeView.svelte:268
+#: src/home/HomeView.svelte:275
 msgid "Import"
 msgstr "Impor"
 
@@ -538,7 +541,7 @@ msgstr "Perubahan terakhir: {0}"
 msgid "Length:"
 msgstr "Panjang:"
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:135
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
 
@@ -562,15 +565,15 @@ msgstr "Arti harfiah"
 msgid "Loading Dictionaries..."
 msgstr "Memuat Kamus..."
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:176
 msgid "loading..."
 msgstr "Loading..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:181
 msgid "Local"
 msgstr "Lokal"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Local only"
 msgstr "Hanya lokal"
 
@@ -587,7 +590,7 @@ msgstr "Login untuk melihat proyek"
 msgid "Logout"
 msgstr "Keluar"
 
-#: src/project/ProjectSidebar.svelte:193
+#: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
 
@@ -669,7 +672,7 @@ msgid "No items found"
 msgstr "Tidak ada barang yang ditemukan"
 
 #: src/project/SyncDialog.svelte:193
-#: src/project/ProjectSidebar.svelte:113
+#: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr "Tidak ada server yang dikonfigurasi"
 
@@ -687,7 +690,7 @@ msgid "Not equal"
 msgstr "Tidak sama"
 
 #: src/project/SyncDialog.svelte:257
-#: src/project/ProjectSidebar.svelte:111
+#: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr "Tidak masuk"
 
@@ -700,7 +703,7 @@ msgid "Observer"
 msgstr "Pengamat"
 
 #: src/project/SyncDialog.svelte:187
-#: src/project/ProjectSidebar.svelte:109
+#: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr "Offline"
 
@@ -708,7 +711,7 @@ msgstr "Offline"
 msgid "Offline, unable to download"
 msgstr "Offline, tidak dapat mengunduh"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:40
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
 msgid "Open Data Directory"
 msgstr "Direktori Data Terbuka"
 
@@ -720,7 +723,7 @@ msgstr "Buka di FieldWorks"
 msgid "Open in new Window"
 msgstr "Buka di jendela baru"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:46
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
 msgid "Open Log file"
 msgstr "Buka file Log"
 
@@ -757,7 +760,7 @@ msgstr "Proyek {0} tidak ditemukan di {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:246
 msgid "Project name..."
 msgstr "Nama proyek..."
 
@@ -771,7 +774,7 @@ msgid "Refine your filter to see more..."
 msgstr "Sempurnakan filter Anda untuk melihat lebih banyak..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:185
 msgid "Refresh Projects"
 msgstr "Menyegarkan Proyek"
 
@@ -779,7 +782,7 @@ msgstr "Menyegarkan Proyek"
 msgid "Remove"
 msgstr "Menghapus"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:308
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
@@ -787,7 +790,7 @@ msgstr "Menghapus audio"
 msgid "Reopen"
 msgstr "Buka kembali"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:305
 msgid "Replace audio"
 msgstr "Mengganti audio"
 
@@ -831,7 +834,7 @@ msgstr "Sense"
 msgid "Sentence"
 msgstr "Kalimat"
 
-#: src/project/ProjectSidebar.svelte:144
+#: src/project/ProjectSidebar.svelte:146
 msgid "Settings"
 msgstr "Pengaturan"
 
@@ -839,9 +842,13 @@ msgstr "Pengaturan"
 msgid "Shadcn Sandbox # #"
 msgstr "Kotak Pasir Shadcn # #"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
 msgid "Share Log file"
 msgstr "Bagikan file Log"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+msgid "Share project data file"
+msgstr "Berbagi file data proyek"
 
 #: src/project/browse/ViewPicker.svelte:39
 msgid "Show"
@@ -869,18 +876,18 @@ msgstr "Dimulai dengan"
 msgid "Submit"
 msgstr "Kirim"
 
-#: src/project/ProjectSidebar.svelte:117
+#: src/project/ProjectSidebar.svelte:119
 #: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
 msgstr "Disinkronkan"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Synced with {0}"
 msgstr "Disinkronkan dengan {0}"
 
 #: src/project/SyncDialog.svelte:149
 #: src/project/SyncDialog.svelte:234
-#: src/project/ProjectSidebar.svelte:124
+#: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr "Sinkronisasi"
 
@@ -893,7 +900,7 @@ msgstr "Menyinkronkan FieldWorks Lite dengan FieldWorks..."
 msgid "Synchronizing..."
 msgstr "Menyinkronkan..."
 
-#: src/project/ProjectSidebar.svelte:91
+#: src/project/ProjectSidebar.svelte:93
 msgid "Tasks"
 msgstr "Tugas"
 
@@ -921,9 +928,10 @@ msgstr "Beralih tema"
 msgid "Translation"
 msgstr "Terjemahan"
 
-#: src/project/ProjectSidebar.svelte:170
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:160
+#: src/project/ProjectSidebar.svelte:172
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
+#: src/home/HomeView.svelte:161
+#: src/home/HomeView.svelte:217
 msgid "Troubleshoot"
 msgstr "Memecahkan masalah"
 
@@ -942,7 +950,7 @@ msgstr "Tidak dapat dibuka di FieldWorks"
 msgid "Unknown"
 msgstr "Tidak diketahui"
 
-#: src/project/ProjectSidebar.svelte:115
+#: src/project/ProjectSidebar.svelte:117
 #: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "Kesalahan yang tidak diketahui"
@@ -969,7 +977,7 @@ msgstr "Tanpa judul"
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
 
-#: src/project/ProjectSidebar.svelte:192
+#: src/project/ProjectSidebar.svelte:194
 msgid "Version {0}"
 msgstr "Versi {0}"
 
