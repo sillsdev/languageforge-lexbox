@@ -6,4 +6,5 @@ public interface ITroubleshootingService
     Task<string> GetDataDirectory();
     Task OpenLogFile();
     Task ShareLogFile();
+    Task ShareCrdtProject(string projectCode);
 }

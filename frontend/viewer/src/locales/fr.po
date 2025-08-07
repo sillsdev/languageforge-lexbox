@@ -73,15 +73,15 @@ msgstr "un mot"
 msgid "About"
 msgstr "A propos de"
 
-#: src/project/ProjectSidebar.svelte:138
+#: src/project/ProjectSidebar.svelte:140
 msgid "Account"
 msgstr "Compte"
 
-#: src/project/ProjectSidebar.svelte:94
+#: src/project/ProjectSidebar.svelte:96
 msgid "Activity"
 msgstr "Activité"
 
-#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/field-editors/audio-input.svelte:257
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "Ajouter de l'audio"
@@ -126,7 +126,7 @@ msgstr "une entrée"
 msgid "Any Ws"
 msgstr "Tous les W"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:33
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
 msgid "Application version"
 msgstr "Version de l'application"
 
@@ -134,7 +134,7 @@ msgstr "Version de l'application"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0}?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Audio file not included in Send & Receive"
 msgstr "Le fichier audio n'est pas inclus dans l'envoi et la réception"
 
@@ -168,7 +168,7 @@ msgstr "avant"
 msgid "Best match"
 msgstr "Meilleure correspondance"
 
-#: src/project/ProjectSidebar.svelte:89
+#: src/project/ProjectSidebar.svelte:91
 msgid "Browse"
 msgstr "Parcourir"
 
@@ -189,7 +189,7 @@ msgstr "Formulaire de citation"
 msgid "Citation Form"
 msgstr "Formulaire de citation"
 
-#: src/home/HomeView.svelte:254
+#: src/home/HomeView.svelte:261
 msgid "Classic FieldWorks Projects"
 msgstr "Projets FieldWorks classiques"
 
@@ -204,7 +204,7 @@ msgstr "clair"
 msgid "Close"
 msgstr "Fermer"
 
-#: src/project/ProjectSidebar.svelte:157
+#: src/project/ProjectSidebar.svelte:159
 msgid "Close Dictionary"
 msgstr "Fermer le dictionnaire"
 
@@ -249,7 +249,7 @@ msgstr "Créer {0}"
 msgid "Create entry"
 msgstr "Créer une entrée"
 
-#: src/home/HomeView.svelte:233
+#: src/home/HomeView.svelte:240
 msgid "Create Example Project"
 msgstr "Créer un projet d'exemple"
 
@@ -267,11 +267,11 @@ msgstr "Entrée actuelle"
 msgid "Current Word"
 msgstr "Mot actuel"
 
-#: src/project/ProjectSidebar.svelte:87
+#: src/project/ProjectSidebar.svelte:89
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:35
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Data Directory"
 msgstr "Répertoire de données"
 
@@ -279,7 +279,7 @@ msgstr "Répertoire de données"
 msgid "Definition"
 msgstr "Définition"
 
-#: src/home/HomeView.svelte:207
+#: src/home/HomeView.svelte:222
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -296,12 +296,12 @@ msgstr "Supprimer l'entrée"
 msgid "Delete Word"
 msgstr "Supprimer un mot"
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:136
 msgid "Dictionaries"
 msgstr "Dictionnaires"
 
-#: src/project/ProjectSidebar.svelte:83
+#: src/project/ProjectSidebar.svelte:85
 msgid "Dictionary"
 msgstr "Dictionnaire"
 
@@ -381,7 +381,7 @@ msgstr "Entrée ou sens :"
 msgid "Equals"
 msgstr "Équivalents"
 
-#: src/project/ProjectSidebar.svelte:119
+#: src/project/ProjectSidebar.svelte:121
 msgid "Error getting sync status"
 msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 
@@ -409,7 +409,7 @@ msgstr "Échec du téléchargement de {0}"
 msgid "Failed to load entries"
 msgstr "Échec du chargement des entrées"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:22
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "Échec de l'ouverture du répertoire de données, utilisez plutôt le chemin d'accès dans le champ texte."
 
@@ -421,8 +421,8 @@ msgstr "Échec de la synchronisation"
 msgid "Failed to synchronize."
 msgstr "Échec de la synchronisation."
 
-#: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:154
+#: src/project/ProjectSidebar.svelte:181
+#: src/home/HomeView.svelte:155
 msgid "Feedback"
 msgstr "Retour d'information"
 
@@ -436,7 +436,7 @@ msgstr "Étiquettes de champ"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:267
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
@@ -528,7 +528,7 @@ msgstr "Maintenez la touche enfoncée pour enregistrer ou\\nappuyez et relâchez
 msgid "I don't see my project"
 msgstr "Je ne vois pas mon projet"
 
-#: src/home/HomeView.svelte:268
+#: src/home/HomeView.svelte:275
 msgid "Import"
 msgstr "Importation"
 
@@ -541,7 +541,7 @@ msgstr "Dernière modification : {0}"
 msgid "Length:"
 msgstr "Longueur :"
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:135
 msgid "Lexbox logo"
 msgstr "Logo Lexbox"
 
@@ -565,15 +565,15 @@ msgstr "Sens littéral"
 msgid "Loading Dictionaries..."
 msgstr "Chargement des dictionnaires..."
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:176
 msgid "loading..."
 msgstr "chargement..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:181
 msgid "Local"
 msgstr "Locale"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Local only"
 msgstr "Uniquement au niveau local"
 
@@ -590,7 +590,7 @@ msgstr "Se connecter pour voir les projets"
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: src/project/ProjectSidebar.svelte:193
+#: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Réalisé avec ❤️ à partir de 🇦🇹 🇹🇭 🇺🇸"
 
@@ -672,7 +672,7 @@ msgid "No items found"
 msgstr "Aucun élément trouvé"
 
 #: src/project/SyncDialog.svelte:193
-#: src/project/ProjectSidebar.svelte:113
+#: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr "Pas de serveur configuré"
 
@@ -690,7 +690,7 @@ msgid "Not equal"
 msgstr "Pas d'égalité"
 
 #: src/project/SyncDialog.svelte:257
-#: src/project/ProjectSidebar.svelte:111
+#: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr "Non connecté"
 
@@ -703,7 +703,7 @@ msgid "Observer"
 msgstr "Observateur"
 
 #: src/project/SyncDialog.svelte:187
-#: src/project/ProjectSidebar.svelte:109
+#: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr "Hors ligne"
 
@@ -711,7 +711,7 @@ msgstr "Hors ligne"
 msgid "Offline, unable to download"
 msgstr "Hors ligne, impossible de télécharger"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:40
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
 msgid "Open Data Directory"
 msgstr "Répertoire des données ouvertes"
 
@@ -723,7 +723,7 @@ msgstr "Ouvrir dans FieldWorks"
 msgid "Open in new Window"
 msgstr "Ouvrir dans une nouvelle fenêtre"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:46
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
 msgid "Open Log file"
 msgstr "Ouvrir le fichier journal"
 
@@ -760,7 +760,7 @@ msgstr "Projet {0} introuvable sur {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Le projet {0} sur {1} n'est pas encore configuré pour FieldWorks Lite"
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:246
 msgid "Project name..."
 msgstr "Nom du projet..."
 
@@ -774,7 +774,7 @@ msgid "Refine your filter to see more..."
 msgstr "Affinez votre filtre pour voir plus..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:185
 msgid "Refresh Projects"
 msgstr "Projets de rafraîchissement"
 
@@ -782,7 +782,7 @@ msgstr "Projets de rafraîchissement"
 msgid "Remove"
 msgstr "Retirer"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:308
 msgid "Remove audio"
 msgstr "Supprimer l'audio"
 
@@ -790,7 +790,7 @@ msgstr "Supprimer l'audio"
 msgid "Reopen"
 msgstr "Réouverture"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:305
 msgid "Replace audio"
 msgstr "Remplacer l'audio"
 
@@ -834,7 +834,7 @@ msgstr "Sens"
 msgid "Sentence"
 msgstr "Phrase"
 
-#: src/project/ProjectSidebar.svelte:144
+#: src/project/ProjectSidebar.svelte:146
 msgid "Settings"
 msgstr "Paramètres"
 
@@ -842,9 +842,13 @@ msgstr "Paramètres"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn Sandbox # #"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
 msgid "Share Log file"
 msgstr "Partager le fichier journal"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+msgid "Share project data file"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte:39
 msgid "Show"
@@ -872,18 +876,18 @@ msgstr "Commence par"
 msgid "Submit"
 msgstr "Soumettre"
 
-#: src/project/ProjectSidebar.svelte:117
+#: src/project/ProjectSidebar.svelte:119
 #: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
 msgstr "Synchronisé"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Synced with {0}"
 msgstr "Synchronisé avec {0}"
 
 #: src/project/SyncDialog.svelte:149
 #: src/project/SyncDialog.svelte:234
-#: src/project/ProjectSidebar.svelte:124
+#: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr "Synchroniser"
 
@@ -896,7 +900,7 @@ msgstr "Synchronisation de FieldWorks Lite avec FieldWorks..."
 msgid "Synchronizing..."
 msgstr "Synchronisation..."
 
-#: src/project/ProjectSidebar.svelte:91
+#: src/project/ProjectSidebar.svelte:93
 msgid "Tasks"
 msgstr "Tâches"
 
@@ -924,9 +928,10 @@ msgstr "Toggle theme"
 msgid "Translation"
 msgstr "Traduction"
 
-#: src/project/ProjectSidebar.svelte:170
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:160
+#: src/project/ProjectSidebar.svelte:172
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
+#: src/home/HomeView.svelte:161
+#: src/home/HomeView.svelte:217
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
@@ -945,7 +950,7 @@ msgstr "Impossible d'ouvrir FieldWorks"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: src/project/ProjectSidebar.svelte:115
+#: src/project/ProjectSidebar.svelte:117
 #: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "Erreur inconnue"
@@ -972,7 +977,7 @@ msgstr "Sans titre"
 msgid "Uses components as"
 msgstr "Utilise des composants tels que"
 
-#: src/project/ProjectSidebar.svelte:192
+#: src/project/ProjectSidebar.svelte:194
 msgid "Version {0}"
 msgstr "Version {0}"
 

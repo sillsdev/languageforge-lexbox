@@ -73,15 +73,15 @@ msgstr "한 마디"
 msgid "About"
 msgstr "정보"
 
-#: src/project/ProjectSidebar.svelte:138
+#: src/project/ProjectSidebar.svelte:140
 msgid "Account"
 msgstr "계정"
 
-#: src/project/ProjectSidebar.svelte:94
+#: src/project/ProjectSidebar.svelte:96
 msgid "Activity"
 msgstr "활동"
 
-#: src/lib/components/field-editors/audio-input.svelte:211
+#: src/lib/components/field-editors/audio-input.svelte:257
 #: src/lib/components/audio/AudioDialog.svelte:143
 msgid "Add audio"
 msgstr "오디오 추가"
@@ -126,7 +126,7 @@ msgstr "항목"
 msgid "Any Ws"
 msgstr "모든 W"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:33
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
 msgid "Application version"
 msgstr "애플리케이션 버전"
 
@@ -134,7 +134,7 @@ msgstr "애플리케이션 버전"
 msgid "Are you sure you want to delete {0}?"
 msgstr "{0}을 삭제하시겠습니까?"
 
-#: src/lib/components/field-editors/audio-input.svelte:215
+#: src/lib/components/field-editors/audio-input.svelte:261
 msgid "Audio file not included in Send & Receive"
 msgstr "보내기 및 받기에 포함되지 않은 오디오 파일"
 
@@ -168,7 +168,7 @@ msgstr "전에"
 msgid "Best match"
 msgstr "베스트 매치"
 
-#: src/project/ProjectSidebar.svelte:89
+#: src/project/ProjectSidebar.svelte:91
 msgid "Browse"
 msgstr "찾아보기"
 
@@ -189,7 +189,7 @@ msgstr "인용 양식"
 msgid "Citation Form"
 msgstr "인용 양식"
 
-#: src/home/HomeView.svelte:254
+#: src/home/HomeView.svelte:261
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
@@ -204,7 +204,7 @@ msgstr "clear"
 msgid "Close"
 msgstr "닫기"
 
-#: src/project/ProjectSidebar.svelte:157
+#: src/project/ProjectSidebar.svelte:159
 msgid "Close Dictionary"
 msgstr "사전 닫기"
 
@@ -249,7 +249,7 @@ msgstr "{0}만들기"
 msgid "Create entry"
 msgstr "항목 만들기"
 
-#: src/home/HomeView.svelte:233
+#: src/home/HomeView.svelte:240
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
@@ -267,11 +267,11 @@ msgstr "현재 항목"
 msgid "Current Word"
 msgstr "현재 단어"
 
-#: src/project/ProjectSidebar.svelte:87
+#: src/project/ProjectSidebar.svelte:89
 msgid "Dashboard"
 msgstr "대시보드"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:35
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Data Directory"
 msgstr "데이터 디렉토리"
 
@@ -279,7 +279,7 @@ msgstr "데이터 디렉토리"
 msgid "Definition"
 msgstr "정의"
 
-#: src/home/HomeView.svelte:207
+#: src/home/HomeView.svelte:222
 msgid "Delete"
 msgstr "삭제"
 
@@ -296,12 +296,12 @@ msgstr "항목 삭제"
 msgid "Delete Word"
 msgstr "단어 삭제"
 
-#: src/home/HomeView.svelte:131
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:132
+#: src/home/HomeView.svelte:136
 msgid "Dictionaries"
 msgstr "사전"
 
-#: src/project/ProjectSidebar.svelte:83
+#: src/project/ProjectSidebar.svelte:85
 msgid "Dictionary"
 msgstr "사전"
 
@@ -381,7 +381,7 @@ msgstr "입력 또는 센스:"
 msgid "Equals"
 msgstr "같음"
 
-#: src/project/ProjectSidebar.svelte:119
+#: src/project/ProjectSidebar.svelte:121
 msgid "Error getting sync status"
 msgstr "동기화 상태 가져오기 오류"
 
@@ -409,7 +409,7 @@ msgstr "다운로드에 실패했습니다 {0}"
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:22
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "데이터 디렉토리를 열지 못했습니다. 대신 텍스트 필드에 경로를 사용하세요."
 
@@ -421,8 +421,8 @@ msgstr "동기화 실패"
 msgid "Failed to synchronize."
 msgstr "동기화하지 못했습니다."
 
-#: src/project/ProjectSidebar.svelte:179
-#: src/home/HomeView.svelte:154
+#: src/project/ProjectSidebar.svelte:181
+#: src/home/HomeView.svelte:155
 msgid "Feedback"
 msgstr "피드백"
 
@@ -436,7 +436,7 @@ msgstr "필드 레이블"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:260
+#: src/home/HomeView.svelte:267
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
@@ -528,7 +528,7 @@ msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작
 msgid "I don't see my project"
 msgstr "내 프로젝트가 보이지 않습니다."
 
-#: src/home/HomeView.svelte:268
+#: src/home/HomeView.svelte:275
 msgid "Import"
 msgstr "가져오기"
 
@@ -541,7 +541,7 @@ msgstr "마지막 변경 사항: {0}"
 msgid "Length:"
 msgstr "길이:"
 
-#: src/home/HomeView.svelte:134
+#: src/home/HomeView.svelte:135
 msgid "Lexbox logo"
 msgstr "렉스박스 로고"
 
@@ -565,15 +565,15 @@ msgstr "문자 그대로의 의미"
 msgid "Loading Dictionaries..."
 msgstr "사전 로드 중..."
 
-#: src/home/HomeView.svelte:175
+#: src/home/HomeView.svelte:176
 msgid "loading..."
 msgstr "로딩 중..."
 
-#: src/home/HomeView.svelte:180
+#: src/home/HomeView.svelte:181
 msgid "Local"
 msgstr "로컬"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Local only"
 msgstr "로컬 전용"
 
@@ -590,7 +590,7 @@ msgstr "로그인하여 프로젝트 보기"
 msgid "Logout"
 msgstr "로그아웃"
 
-#: src/project/ProjectSidebar.svelte:193
+#: src/project/ProjectSidebar.svelte:195
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
 
@@ -672,7 +672,7 @@ msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
 
 #: src/project/SyncDialog.svelte:193
-#: src/project/ProjectSidebar.svelte:113
+#: src/project/ProjectSidebar.svelte:115
 msgid "No server configured"
 msgstr "구성된 서버 없음"
 
@@ -690,7 +690,7 @@ msgid "Not equal"
 msgstr "동일하지 않음"
 
 #: src/project/SyncDialog.svelte:257
-#: src/project/ProjectSidebar.svelte:111
+#: src/project/ProjectSidebar.svelte:113
 msgid "Not logged in"
 msgstr "로그인하지 않음"
 
@@ -703,7 +703,7 @@ msgid "Observer"
 msgstr "옵저버"
 
 #: src/project/SyncDialog.svelte:187
-#: src/project/ProjectSidebar.svelte:109
+#: src/project/ProjectSidebar.svelte:111
 msgid "Offline"
 msgstr "오프라인"
 
@@ -711,7 +711,7 @@ msgstr "오프라인"
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:40
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
 
@@ -723,7 +723,7 @@ msgstr "FieldWorks에서 열기"
 msgid "Open in new Window"
 msgstr "새 창에서 열기"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:46
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
@@ -760,7 +760,7 @@ msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
-#: src/home/HomeView.svelte:239
+#: src/home/HomeView.svelte:246
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
@@ -774,7 +774,7 @@ msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:184
+#: src/home/HomeView.svelte:185
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
 
@@ -782,7 +782,7 @@ msgstr "프로젝트 새로 고침"
 msgid "Remove"
 msgstr "제거"
 
-#: src/lib/components/field-editors/audio-input.svelte:261
+#: src/lib/components/field-editors/audio-input.svelte:308
 msgid "Remove audio"
 msgstr "오디오 제거"
 
@@ -790,7 +790,7 @@ msgstr "오디오 제거"
 msgid "Reopen"
 msgstr "다시 열기"
 
-#: src/lib/components/field-editors/audio-input.svelte:258
+#: src/lib/components/field-editors/audio-input.svelte:305
 msgid "Replace audio"
 msgstr "오디오 교체"
 
@@ -834,7 +834,7 @@ msgstr "Sense"
 msgid "Sentence"
 msgstr "문장"
 
-#: src/project/ProjectSidebar.svelte:144
+#: src/project/ProjectSidebar.svelte:146
 msgid "Settings"
 msgstr "설정"
 
@@ -842,9 +842,13 @@ msgstr "설정"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn 샌드박스 # #"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
 msgid "Share Log file"
 msgstr "로그 파일 공유"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+msgid "Share project data file"
+msgstr ""
 
 #: src/project/browse/ViewPicker.svelte:39
 msgid "Show"
@@ -872,18 +876,18 @@ msgstr "다음으로 시작"
 msgid "Submit"
 msgstr "제출하기"
 
-#: src/project/ProjectSidebar.svelte:117
+#: src/project/ProjectSidebar.svelte:119
 #: src/lib/activity/ActivityView.svelte:108
 msgid "Synced"
 msgstr "동기화"
 
-#: src/home/HomeView.svelte:199
+#: src/home/HomeView.svelte:203
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
 #: src/project/SyncDialog.svelte:149
 #: src/project/SyncDialog.svelte:234
-#: src/project/ProjectSidebar.svelte:124
+#: src/project/ProjectSidebar.svelte:126
 msgid "Synchronize"
 msgstr "동기화"
 
@@ -896,7 +900,7 @@ msgstr "FieldWorks Lite와 FieldWorks 동기화..."
 msgid "Synchronizing..."
 msgstr "동기화 중..."
 
-#: src/project/ProjectSidebar.svelte:91
+#: src/project/ProjectSidebar.svelte:93
 msgid "Tasks"
 msgstr "작업"
 
@@ -924,9 +928,10 @@ msgstr "테마 토글"
 msgid "Translation"
 msgstr "번역"
 
-#: src/project/ProjectSidebar.svelte:170
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:30
-#: src/home/HomeView.svelte:160
+#: src/project/ProjectSidebar.svelte:172
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
+#: src/home/HomeView.svelte:161
+#: src/home/HomeView.svelte:217
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
@@ -945,7 +950,7 @@ msgstr "FieldWorks에서 열 수 없음"
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/project/ProjectSidebar.svelte:115
+#: src/project/ProjectSidebar.svelte:117
 #: src/lib/components/audio/AudioDialog.svelte:93
 msgid "Unknown error"
 msgstr "알 수 없는 오류"
@@ -972,7 +977,7 @@ msgstr "제목 없음"
 msgid "Uses components as"
 msgstr "구성 요소를 다음과 같이 사용합니다."
 
-#: src/project/ProjectSidebar.svelte:192
+#: src/project/ProjectSidebar.svelte:194
 msgid "Version {0}"
 msgstr "버전 {0}"
 
