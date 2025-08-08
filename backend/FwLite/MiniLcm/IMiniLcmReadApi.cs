@@ -9,6 +9,7 @@ namespace MiniLcm;
 public interface IMiniLcmReadApi
 {
     Task<WritingSystems> GetWritingSystems();
+    Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type);
     IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech();
     IAsyncEnumerable<Publication> GetPublications();
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains();

@@ -72,4 +72,37 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
         var updatedWritingSystem = await Api.UpdateWritingSystem(original, writingSystem);
         updatedWritingSystem.Abbreviation.Should().Be("New Abbreviation");
     }
+
+    [Fact]
+    public async Task MoveWritingSystem_Works()
+    {
+        var ws1 = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "es",
+            Type = WritingSystemType.Vernacular,
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        });
+        var ws2 = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            WsId = "fr",
+            Type = WritingSystemType.Vernacular,
+            Name = "French",
+            Abbreviation = "Fr",
+            Font = "Arial"
+        });
+        ws2.Order.Should().BeGreaterThan(ws1.Order);
+
+        //act
+        await Api.MoveWritingSystem(ws2.WsId, WritingSystemType.Vernacular, new(null, ws1.WsId));
+
+        ws1 = await Api.GetWritingSystem(ws1.WsId, WritingSystemType.Vernacular);
+        ws1.Should().NotBeNull();
+        ws2 = await Api.GetWritingSystem(ws2.WsId, WritingSystemType.Vernacular);
+        ws2.Should().NotBeNull();
+        ws2.Order.Should().BeLessThan(ws1.Order);
+    }
 }

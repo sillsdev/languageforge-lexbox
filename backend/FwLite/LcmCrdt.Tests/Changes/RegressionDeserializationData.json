@@ -278,6 +278,11 @@
     "EntityId": "e03826fb-e6d2-6e3c-1f43-9fc6a0f6c4c6"
   },
   {
+    "$type": "SetOrderChange:WritingSystem",
+    "Order": 0.4870418422144669,
+    "EntityId": "9d3e9006-c4b4-4316-6628-faeede75af40"
+  },
+  {
     "$type": "SetOrderChange:Sense",
     "Order": 0.4870418422144669,
     "EntityId": "9d3e9006-c4b4-4316-6628-faeede75af40"

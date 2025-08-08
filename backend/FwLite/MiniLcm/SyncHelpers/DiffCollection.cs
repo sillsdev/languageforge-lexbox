@@ -245,5 +245,13 @@ public record PositionDiff(int Index, PositionDiffKind Kind)
     public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
 }
 
-public record BetweenPosition<T>(T? Previous, T? Next);
+public record BetweenPosition<T>(T? Previous, T? Next)
+{
+    public async Task<BetweenPosition> MapAsync(Func<T, Task<Guid?>> map)
+    {
+        return new BetweenPosition(
+            Previous is null ? null : await map(Previous),
+            Next is null ? null : await map(Next));
+    }
+}
 public record BetweenPosition(Guid? Previous, Guid? Next) : BetweenPosition<Guid?>(Previous, Next);

@@ -1,7 +1,11 @@
 ﻿namespace MiniLcm.Models;
 
-public interface IOrderable
+public interface IOrderableNoId
+{
+    double Order { get; set; }
+}
+
+public interface IOrderable: IOrderableNoId
 {
     Guid Id { get; }
-    double Order { get; set; }
 }
