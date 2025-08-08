@@ -2,8 +2,11 @@
 
 namespace MiniLcm.Models;
 
-public record WritingSystem: IObjectWithId<WritingSystem>, IOrderable
+public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
 {
+    /// <summary>
+    /// this ID is always empty when working with FW data, it is only used when working with CRDTs
+    /// </summary>
     public required Guid Id { get; set; }
     public virtual required WritingSystemId WsId { get; set; }
     public bool IsAudio => WsId.IsAudio;
