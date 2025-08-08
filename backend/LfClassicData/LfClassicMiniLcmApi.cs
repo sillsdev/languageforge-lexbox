@@ -64,6 +64,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         };
     }
 
+    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    {
+        var ws = await GetWritingSystems();
+        return type switch
+        {
+            WritingSystemType.Vernacular => ws.Vernacular.FirstOrDefault(w => w.WsId == id),
+            WritingSystemType.Analysis => ws.Analysis.FirstOrDefault(w => w.WsId == id),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
     public async Task<string?> PickDefaultVernacularWritingSystem()
     {
         var cacheKey = $"LfClassic|DefaultVernacular|{projectCode}";

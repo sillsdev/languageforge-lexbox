@@ -15,6 +15,7 @@ public interface IMiniLcmWriteApi
         UpdateObjectInput<WritingSystem> update);
     Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null);
     // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+    Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);

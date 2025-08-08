@@ -105,7 +105,12 @@ public class CrdtMiniLcmApi(
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException("unable to find writing system with id " + after.WsId);
     }
 
-    private async ValueTask<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    {
+        throw new NotSupportedException("MoveWritingSystem is not supported");
+    }
+
+    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         return await repo.GetWritingSystem(id, type);

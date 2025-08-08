@@ -117,7 +117,7 @@ public class FwDataMiniLcmApi(
         };
     }
 
-    public async Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
         var writingSystems = await GetWritingSystems();
         return type switch
@@ -125,7 +125,7 @@ public class FwDataMiniLcmApi(
             WritingSystemType.Vernacular => writingSystems.Vernacular.FirstOrDefault(ws => ws.WsId == id),
             WritingSystemType.Analysis => writingSystems.Analysis.FirstOrDefault(ws => ws.WsId == id),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        } ?? throw new NullReferenceException($"unable to find writing system with id {id}");
+        };
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -205,7 +205,7 @@ public class FwDataMiniLcmApi(
                 update.Apply(updateProxy);
                 return ValueTask.CompletedTask;
             });
-        return await GetWritingSystem(id, type);
+        return await GetWritingSystem(id, type) ?? throw new NullReferenceException($"unable to find writing system with id {id}");
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
@@ -217,6 +217,10 @@ public class FwDataMiniLcmApi(
                 await WritingSystemSync.Sync(before, after, api ?? this);
             });
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
+    }
+
+    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    {
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
