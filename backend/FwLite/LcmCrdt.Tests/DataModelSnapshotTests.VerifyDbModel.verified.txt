@@ -116,6 +116,7 @@
       LiteralMeaning (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
+      MorphType (MorphType) Required
       Note (RichMultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb

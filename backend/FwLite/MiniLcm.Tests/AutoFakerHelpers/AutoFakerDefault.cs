@@ -36,7 +36,12 @@ public static class AutoFakerDefault
                     {
                         domain.Predefined = false;
                     }
-                }, true)
+                }, true),
+                new PredicateOverride<MorphType>(morph =>
+                {
+                    // these values map to null and get replaced with MorphType.Stem so they're no round-tripped
+                    return morph is not MorphType.Unknown and not MorphType.Other;
+                }, true),
             ]
         };
     }
@@ -48,6 +53,21 @@ public static class AutoFakerDefault
         public override void Generate(AutoFakerOverrideContext context)
         {
             execute(context);
+        }
+    }
+
+    private class PredicateOverride<T>(Func<T, bool> predicate, bool preInit = false) : AutoFakerOverride<T>
+    {
+        public override bool Preinitialize { get; } = preInit;
+
+        public override void Generate(AutoFakerOverrideContext context)
+        {
+            var value = context.Instance;
+            while (value is not T instance || !predicate(instance))
+            {
+                value = context.AutoFaker.Generate<T>();
+            }
+            context.Instance = value;
         }
     }
 }

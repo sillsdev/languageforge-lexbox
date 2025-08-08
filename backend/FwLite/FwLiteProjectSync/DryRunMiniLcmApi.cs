@@ -119,6 +119,31 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateMorphTypeData),
+            $"Create morph type {morphType.Name}"));
+        return Task.FromResult(morphType);
+    }
+
+    public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateMorphTypeData), $"Update morph type {id}"));
+        return await _api.GetMorphTypeData(id) ?? throw new NullReferenceException($"unable to find morph type with id {id}");
+    }
+
+    public Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateMorphTypeData), $"Update morph type {after.Id}"));
+        return Task.FromResult(after);
+    }
+
+    public Task DeleteMorphTypeData(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteMorphTypeData), $"Delete morph type {id}"));
+        return Task.CompletedTask;
+    }
+
     public Task<Entry> CreateEntry(Entry entry)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateEntry), $"Create entry {entry.Headword()}"));
