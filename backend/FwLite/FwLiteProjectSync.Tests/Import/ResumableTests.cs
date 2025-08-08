@@ -149,7 +149,7 @@ public class ResumableTests : IAsyncLifetime
 internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmApi
 {
 
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     Task<PartOfSpeech> IMiniLcmWriteApi.CreatePartOfSpeech(PartOfSpeech partOfSpeech)
