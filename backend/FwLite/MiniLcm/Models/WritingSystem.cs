@@ -2,7 +2,7 @@
 
 namespace MiniLcm.Models;
 
-public record WritingSystem: IObjectWithId<WritingSystem>
+public record WritingSystem: IObjectWithId<WritingSystem>, IOrderable
 {
     public required Guid Id { get; set; }
     public virtual required WritingSystemId WsId { get; set; }

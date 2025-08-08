@@ -259,6 +259,7 @@ public static class LcmCrdtKernel
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
+            .Add<Changes.SetOrderChange<WritingSystem>>()
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
