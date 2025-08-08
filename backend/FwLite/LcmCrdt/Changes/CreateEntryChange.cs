@@ -16,6 +16,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
         CitationForm = entry.CitationForm;
         LiteralMeaning = entry.LiteralMeaning;
         Note = entry.Note;
+        MorphType = entry.MorphType;
     }
 
     [JsonConstructor]
@@ -31,6 +32,8 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
 
     public RichMultiString? Note { get; set; }
 
+    public MorphType? MorphType { get; set; }
+
     public override ValueTask<Entry> NewEntity(Commit commit, IChangeContext context)
     {
         return new(new Entry
@@ -39,7 +42,8 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
             LexemeForm = LexemeForm ?? new MultiString(),
             CitationForm = CitationForm ?? new MultiString(),
             LiteralMeaning = LiteralMeaning ?? new(),
-            Note = Note ?? new()
+            Note = Note ?? new(),
+            MorphType = MorphType ?? default
         });
     }
 }
