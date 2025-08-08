@@ -682,7 +682,10 @@ public class FwDataMiniLcmApi(
             var wsId = GetWritingSystemId(ws);
             if (!wsId.IsAudio)
             {
-                result.Values.Add(wsId, tsString.Text);
+                // Text is null if TsStringUtils.MakeString was called with an empty string.
+                // So, we map it back for consistent round-tripping and
+                // so we can continue to assume that MultiStrings never have null values.
+                result.Values.Add(wsId, tsString.Text ?? string.Empty);
             }
             else
             {
@@ -1137,7 +1140,7 @@ public class FwDataMiniLcmApi(
     {
         foreach (var (ws, value) in newMultiString)
         {
-            multiString.SetString(this, ws, value);;
+            multiString.SetString(this, ws, value);
         }
     }
 

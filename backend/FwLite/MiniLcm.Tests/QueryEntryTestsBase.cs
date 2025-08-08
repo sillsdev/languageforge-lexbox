@@ -10,6 +10,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     private readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
+    private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
 
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
@@ -87,13 +88,15 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 }
             ]
         });
+        // null / missing key - exposes potential NPEs
+        await Api.CreateEntry(new Entry());
     }
 
     [Fact]
     public async Task CanFilterToMissingSenses()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Null_LexemeForm);
     }
 
     [Fact]
@@ -106,7 +109,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CanFilterToMissingPartOfSpeech()
     {
-        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=null" })).ToArrayAsync();
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.PartOfSpeechId=" })).ToArrayAsync();
         //does not include entries with no senses
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
     }
@@ -145,14 +148,14 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterToMissingComplexFormTypes()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi);
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
     public async Task CanFilterToMissingComplexFormTypesWithEmptyArray()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "ComplexFormTypes=[]" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi);
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, Banana, Kiwi, Null_LexemeForm);
     }
 
     [Fact]
@@ -187,11 +190,13 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     public async Task CanFilterGlossNull()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=null" })).ToArrayAsync();
-        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
+        /// No entries have a gloss of "null"
+        /// <see cref="Filtering.EntryFilter.NewMapper"/> and <see cref="NullAndEmptyQueryEntryTestsBase"/>
+        results.Select(e => e.LexemeForm["en"]).Should().BeEmpty();
     }
 
     [Fact]
-    public async Task CanFilterGlossEmpty()
+    public async Task CanFilterGlossEmptyOrNull()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.Gloss[en]=" })).ToArrayAsync();
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Peach);
@@ -315,5 +320,66 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                 .Where(e => ids.Contains(e.Id)) //only include entries from this test
                 .Select(e => e.LexemeForm["en"]);
         string.Join(",", result).Should().Be(expectedOrder);
+    }
+}
+
+// A seperate class to preserve the readability of the results in the main test class
+public abstract class NullAndEmptyQueryEntryTestsBase : MiniLcmTestBase
+{
+    private readonly string Apple = "Apple";
+    private readonly string Null = string.Empty; // nulls get normalized to empty strings
+    private readonly string EmptyString = string.Empty;
+    private readonly string NullString = "null";
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+        await Api.CreateEntry(new Entry() { LexemeForm = { { "en", Apple } } });
+        // null / missing key
+        await Api.CreateEntry(new Entry());
+        // blank
+        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
+        // null string
+        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = NullString } });
+    }
+
+    [Fact]
+    public async Task CanFilterIsNullOrEmpty()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Null, EmptyString);
+    }
+
+    [Fact]
+    public async Task CanFilterIsNotNullOrEmpty()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]!=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple, NullString);
+    }
+
+    [Fact]
+    public async Task CanFilterEqualsNullString()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(NullString);
+    }
+
+    [Fact]
+    public async Task CanFilterNotEqualsNullString()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]!=null" })).ToArrayAsync();
+        // Sadly the != operator isn't consistent, but it's an edge case that probably isn't crucial:
+        // crdt logic: key exists (and/or value is not null, I'm not sure exactly) && LexemeForm[en] != "null"
+        // fwdata logic: LexemeForm[en] != "null"
+        // i.e. the entry that doesn't have LexemeForm[en] at all, is only included in the fwdata results
+        results.Select(e => e.LexemeForm["en"]).Should().BeSubsetOf([Apple, Null, EmptyString]);
+        results.Count().Should().BeInRange(2, 3);
+    }
+
+    [Fact]
+    public async Task CanFilterContainsNullString()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "LexemeForm[en]=*null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(NullString);
     }
 }

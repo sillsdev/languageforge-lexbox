@@ -10,3 +10,12 @@ public class QueryEntryTests(ProjectLoaderFixture fixture) : QueryEntryTestsBase
         return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("query-entry-test", "en", "en"));
     }
 }
+
+[Collection(ProjectLoaderFixture.Name)]
+public class NullAndEmptyQueryEntryTests(ProjectLoaderFixture fixture) : NullAndEmptyQueryEntryTestsBase
+{
+    protected override Task<IMiniLcmApi> NewApi()
+    {
+        return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("null-and-empty-query-entry-test", "en", "en"));
+    }
+}
