@@ -7,7 +7,7 @@ namespace FwLiteProjectSync;
 
 public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(typeof(IMiniLcmReadApi))]
+    [BeaKona.AutoInterface(typeof(IMiniLcmReadApi), MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     public void Dispose()
