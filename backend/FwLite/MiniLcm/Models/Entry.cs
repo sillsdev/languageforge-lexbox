@@ -10,7 +10,7 @@ public record Entry : IObjectWithId<Entry>
     public virtual MultiString CitationForm { get; set; } = new();
 
     public virtual RichMultiString LiteralMeaning { get; set; } = new();
-    public virtual MorphType MorphType { get; set; }
+    public virtual MorphType MorphType { get; set; } = MorphType.Stem;
     public virtual List<Sense> Senses { get; set; } = [];
 
     public virtual RichMultiString Note { get; set; } = new();

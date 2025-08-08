@@ -43,7 +43,7 @@ public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntry
             CitationForm = CitationForm ?? new MultiString(),
             LiteralMeaning = LiteralMeaning ?? new(),
             Note = Note ?? new(),
-            MorphType = MorphType ?? default
+            MorphType = MorphType ?? MiniLcm.Models.MorphType.Stem,
         });
     }
 }
