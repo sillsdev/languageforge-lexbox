@@ -15,7 +15,7 @@ public interface IMiniLcmWriteApi
         UpdateObjectInput<WritingSystem> update);
     Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null);
     // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
-    Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
+    Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId> between);
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
@@ -48,8 +48,8 @@ public interface IMiniLcmWriteApi
 
     Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null);
     Task DeleteEntry(Guid id);
-    Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null);
-    Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between);
+    Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent>? position = null);
+    Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent> between);
     Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
     Task AddComplexFormType(Guid entryId, Guid complexFormTypeId);
     Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);

@@ -173,7 +173,7 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         }));
     }
 
-    Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
+    Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent>? position)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreateComplexFormComponent(complexFormComponent, position);

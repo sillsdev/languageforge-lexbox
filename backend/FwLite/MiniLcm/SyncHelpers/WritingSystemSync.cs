@@ -18,7 +18,7 @@ public static class WritingSystemSync
         IMiniLcmApi api)
     {
         var writingSystemsDiffApi = new WritingSystemsDiffApi(api);
-        return await writingSystemsDiffApi.Diff(beforeWritingSystems, afterWritingSystems);
+        return await DiffCollection.DiffOrderable(beforeWritingSystems, afterWritingSystems, writingSystemsDiffApi);
     }
 
     public static async Task<int> Sync(WritingSystem beforeWs, WritingSystem afterWs, IMiniLcmApi api)
@@ -50,81 +50,36 @@ public static class WritingSystemSync
         return new UpdateObjectInput<WritingSystem>(patchDocument);
     }
 
-    private class WritingSystemsDiffApi(IMiniLcmApi api) : IOrderableCollectionDiffApi<WritingSystemsDiffApi.OrderableWs>
+    private class WritingSystemsDiffApi(IMiniLcmApi api) : IBaseOrderableCollectionDiffApi<WritingSystem, WritingSystemId>
     {
-        private Dictionary<Guid, WritingSystemId> Mapping { get; } = new();
-        public async Task<int> Diff(WritingSystem[] beforeWritingSystems, WritingSystem[] afterWritingSystems)
-        {
-            return await DiffCollection.DiffOrderable(
-                //diff collection must work with a Guid, and the id's must match between the two lists
-                //so we just generate the guids on the fly and make sure they're the same for the same wsId
-                beforeWritingSystems.Select(ws => new OrderableWs(ws, GetOrderableId(ws.WsId))).OrderBy(o => o.Order).ToList(),
-                afterWritingSystems.Select(ws => new OrderableWs(ws, GetOrderableId(ws.WsId))).OrderBy(o => o.Order).ToList(),
-                this
-            );
-        }
-
-        private Guid GetOrderableId(WritingSystemId wsId)
-        {
-            foreach (var kvp in Mapping)
-            {
-                if (kvp.Value == wsId)
-                {
-                    return kvp.Key;
-                }
-            }
-            var newId = Guid.NewGuid();
-            Mapping[newId] = wsId;
-            return newId;
-        }
-
-        private class OrderableWs : IOrderable
-        {
-            public WritingSystem Ws { get; }
-            //can't use Ws Guid because it is not set for FwData
-            public Guid Id { get; }
-
-            public double Order
-            {
-                get => Ws.Order;
-                set => Ws.Order = value;
-            }
-
-            public OrderableWs(WritingSystem ws, Guid id)
-            {
-                this.Ws = ws;
-                this.Id = id;
-            }
-        }
-
-        async Task<int> IOrderableCollectionDiffApi<OrderableWs>.Add(OrderableWs value, BetweenPosition between)
+        public async Task<int> Add(WritingSystem ws, BetweenPosition<WritingSystemId> between)
         {
             //todo set order?
-            await api.CreateWritingSystem(value.Ws);
+            await api.CreateWritingSystem(ws);
             return 1;
         }
 
-        Task<int> IOrderableCollectionDiffApi<OrderableWs>.Remove(OrderableWs value)
+        public Task<int> Remove(WritingSystem ws)
         {
             // await api.DeleteWritingSystem(beforeWs.Id); // Deleting writing systems is dangerous as it causes cascading data deletion. Needs careful thought.
             // TODO: should we throw an exception?
             return Task.FromResult(0);
         }
 
-        async Task<int> IOrderableCollectionDiffApi<OrderableWs>.Move(OrderableWs value, BetweenPosition between)
+        public async Task<int> Move(WritingSystem ws, BetweenPosition<WritingSystemId> between)
         {
-            var betweenWsId = new BetweenPosition<WritingSystemId?>(
-                //we can't use `null` and must use new WritingSystemId?() to set a nullable value to null
-                between.Previous is null ? new WritingSystemId?() : Mapping[between.Previous.Value],
-                between.Next is null ? new WritingSystemId?() : Mapping[between.Next.Value]
-                );
-            await api.MoveWritingSystem(value.Ws.WsId, value.Ws.Type, betweenWsId);
+            await api.MoveWritingSystem(ws.WsId, ws.Type, between);
             return 1;
         }
 
-        Task<int> IOrderableCollectionDiffApi<OrderableWs>.Replace(OrderableWs before, OrderableWs after)
+        public Task<int> Replace(WritingSystem beforeWs, WritingSystem afterWs)
         {
-            return Sync(before.Ws, after.Ws, api);
+            return Sync(beforeWs, afterWs, api);
+        }
+
+        public WritingSystemId GetId(WritingSystem value)
+        {
+            return value.WsId;
         }
     }
 }

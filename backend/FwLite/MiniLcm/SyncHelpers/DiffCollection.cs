@@ -28,14 +28,33 @@ public abstract class ObjectWithIdCollectionDiffApi<T> : CollectionDiffApi<T, Gu
     }
 }
 
-public interface IOrderableCollectionDiffApi<T> where T : IOrderable
+public interface IBaseOrderableCollectionDiffApi<T, TId> where T : IOrderableNoId where TId : struct
+{
+    Task<int> Add(T value, BetweenPosition<TId> between);
+    Task<int> Remove(T value);
+    Task<int> Move(T value, BetweenPosition<TId> between);
+    Task<int> Replace(T before, T after);
+    TId GetId(T value);
+}
+
+public interface IOrderableCollectionDiffApi<T> : IBaseOrderableCollectionDiffApi<T, Guid> where T : IOrderable
 {
     Task<int> Add(T value, BetweenPosition between);
-    Task<int> Remove(T value);
     Task<int> Move(T value, BetweenPosition between);
-    Task<int> Replace(T before, T after);
 
-    Guid GetId(T value)
+    Task<int> IBaseOrderableCollectionDiffApi<T, Guid>.Move(T value, BetweenPosition<Guid> between)
+    {
+        return Move(value, (between as BetweenPosition)
+        ?? throw new InvalidCastException("BetweenPosition<Guid> should always be instantiated as BetweenPosition"));
+    }
+
+    Task<int> IBaseOrderableCollectionDiffApi<T, Guid>.Add(T value, BetweenPosition<Guid> between)
+    {
+        return Add(value, (between as BetweenPosition)
+        ?? throw new InvalidCastException("BetweenPosition<Guid> should always be instantiated as BetweenPosition"));
+    }
+
+    Guid IBaseOrderableCollectionDiffApi<T, Guid>.GetId(T value)
     {
         return value.Id;
     }
@@ -113,10 +132,10 @@ public static class DiffCollection
         return changes;
     }
 
-    public static async Task<int> DiffOrderable<T>(
+    public static async Task<int> DiffOrderable<T, TId>(
         IList<T> before,
         IList<T> after,
-        IOrderableCollectionDiffApi<T> diffApi) where T : IOrderable
+        IBaseOrderableCollectionDiffApi<T, TId> diffApi) where T : IOrderableNoId where TId : struct
     {
         var changes = 0;
 
@@ -166,7 +185,7 @@ public static class DiffCollection
         return changes;
     }
 
-    private static BetweenPosition GetStableBetween<T>(int i, IList<T> current, HashSet<Guid> stable, Func<T, Guid> GetId)
+    private static BetweenPosition<TId> GetStableBetween<T, TId>(int i, IList<T> current, HashSet<TId> stable, Func<T, TId> GetId) where TId : struct
     {
         T? beforeEntity = default;
         T? afterEntity = default;
@@ -186,15 +205,22 @@ public static class DiffCollection
                 break;
             }
         }
-        return new BetweenPosition(
-            beforeEntity is not null ? GetId(beforeEntity) : null,
-            afterEntity is not null ? GetId(afterEntity) : null);
+        if (typeof(TId) == typeof(Guid))
+        {
+            return new BetweenPosition(
+                beforeEntity is not null ? GetId(beforeEntity) as Guid? : default,
+                afterEntity is not null ? GetId(afterEntity) as Guid? : default) as BetweenPosition<TId>
+                ?? throw new InvalidCastException("Failed to cast even though the generic type was checked");
+        }
+        return new BetweenPosition<TId>(
+                beforeEntity is not null ? GetId(beforeEntity) : default,
+                afterEntity is not null ? GetId(afterEntity) : default);
     }
 
-    private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T>(
+    private static ImmutableSortedDictionary<int, PositionDiff>? DiffPositions<T, TId>(
         IList<T> before,
         IList<T> after,
-        Func<T, Guid> GetId)
+        Func<T, TId> GetId)
     {
         var beforeJson = new JsonArray([.. before.Select(item => JsonValue.Create(GetId(item)))]);
         var afterJson = new JsonArray([.. after.Select(item => JsonValue.Create(GetId(item)))]);
@@ -245,13 +271,17 @@ public record PositionDiff(int Index, PositionDiffKind Kind)
     public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
 }
 
-public record BetweenPosition<T>(T? Previous, T? Next)
+// where T : struct is required for nullability to actually take effect
+public record BetweenPosition<T>(T? Previous, T? Next) where T : struct
 {
     public async Task<BetweenPosition> MapAsync(Func<T, Task<Guid?>> map)
     {
         return new BetweenPosition(
-            Previous is null ? null : await map(Previous),
-            Next is null ? null : await map(Next));
+            Previous.HasValue ? await map(Previous.Value) : null,
+            Next.HasValue ? await map(Next.Value) : null);
     }
 }
-public record BetweenPosition(Guid? Previous, Guid? Next) : BetweenPosition<Guid?>(Previous, Next);
+
+public record BetweenPositionRef<T>(T? Previous, T? Next);
+
+public record BetweenPosition(Guid? Previous, Guid? Next) : BetweenPosition<Guid>(Previous, Next);

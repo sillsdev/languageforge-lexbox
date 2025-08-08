@@ -45,7 +45,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.FromResult(after);
     }
 
-    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId> between)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(MoveWritingSystem), $"Move writing system {id} between {between.Previous} and {between.Next}"));
         await Task.CompletedTask;
@@ -246,7 +246,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent>? between = null)
     {
         var previousId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
         var nextId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;
@@ -254,7 +254,7 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.FromResult(complexFormComponent);
     }
 
-    public Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    public Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent> between)
     {
         var previousId = between.Previous?.ComponentSenseId ?? between.Previous?.ComponentEntryId;
         var nextId = between.Next?.ComponentSenseId ?? between.Next?.ComponentEntryId;

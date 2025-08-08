@@ -95,7 +95,7 @@ public partial class MiniLcmApiNotifyWrapper(
         return result;
     }
 
-    async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
+    async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent>? position)
     {
         var result = await _api.CreateComplexFormComponent(complexFormComponent, position);
         await NotifyEntryChangedAsync(result.ComplexFormEntryId);

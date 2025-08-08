@@ -220,7 +220,7 @@ public class FwDataMiniLcmApi(
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
     }
 
-    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId> between)
     {
         var wsToUpdate = GetLexWritingSystem(id, type);
         if (wsToUpdate is null) throw new NullReferenceException($"unable to find writing system with id {id}");
@@ -935,7 +935,7 @@ public class FwDataMiniLcmApi(
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
-    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null)
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPositionRef<ComplexFormComponent>? position = null)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Complex Form Component",
             "Remove Complex Form Component",
@@ -949,7 +949,7 @@ public class FwDataMiniLcmApi(
             .Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId && c.ComponentSenseId == complexFormComponent.ComponentSenseId));
     }
 
-    public Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
+    public Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPositionRef<ComplexFormComponent> between)
     {
         if (!EntriesRepository.TryGetObject(component.ComplexFormEntryId, out var lexComplexFormEntry))
             throw new InvalidOperationException("Entry not found");
@@ -1013,7 +1013,7 @@ public class FwDataMiniLcmApi(
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>
-    internal void AddComplexFormComponent(ILexEntry lexComplexForm, ComplexFormComponent component, BetweenPosition<ComplexFormComponent>? between = null)
+    internal void AddComplexFormComponent(ILexEntry lexComplexForm, ComplexFormComponent component, BetweenPositionRef<ComplexFormComponent>? between = null)
     {
         var lexComponent = FindSenseOrEntryComponent(component);
         InsertComplexFormComponent(lexComplexForm, lexComponent, between);
@@ -1021,7 +1021,7 @@ public class FwDataMiniLcmApi(
         component.Order = Order(lexComponent, lexComplexForm);
     }
 
-    internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    internal void InsertComplexFormComponent(ILexEntry lexComplexForm, ICmObject lexComponent, BetweenPositionRef<ComplexFormComponent>? between = null)
     {
         var previousComponentId = between?.Previous?.ComponentSenseId ?? between?.Previous?.ComponentEntryId;
         var nextComponentId = between?.Next?.ComponentSenseId ?? between?.Next?.ComponentEntryId;

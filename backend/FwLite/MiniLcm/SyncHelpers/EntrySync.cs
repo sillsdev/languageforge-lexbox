@@ -212,11 +212,11 @@ public static class EntrySync
             return component.ComponentSenseId ?? component.ComponentEntryId;
         }
 
-        private BetweenPosition<ComplexFormComponent> MapBackToEntities(BetweenPosition between)
+        private BetweenPositionRef<ComplexFormComponent> MapBackToEntities(BetweenPosition between)
         {
             var previous = between!.Previous is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Previous);
             var next = between!.Next is null ? null : afterEntry.Components.Find(c => GetId(c) == between.Next);
-            return new BetweenPosition<ComplexFormComponent>(previous, next);
+            return new BetweenPositionRef<ComplexFormComponent>(previous, next);
         }
 
         public async Task<int> Add(ComplexFormComponent after, BetweenPosition between)
