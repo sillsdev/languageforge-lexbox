@@ -1,9 +1,11 @@
 using System.Globalization;
 using MiniLcm.Culture;
 using MiniLcm.Models;
+using SIL.Extensions;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
+using SIL.LCModel.Core.WritingSystems;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -198,5 +200,34 @@ internal static class LcmHelpers
             var tsString = TsStringUtils.MakeString(api.FromMediaUri(value.GetPlainText()), writingSystemHandle);
             multiString.set_String(writingSystemHandle, tsString);
         }
+    }
+
+    //copy of method in SIL.FieldWorks.FwCoreDlgs.FwWritingSystemSetupModel
+    internal static void AddOrMoveInList(
+        ICollection<CoreWritingSystemDefinition> allWritingSystems,
+        int desiredIndex,
+        CoreWritingSystemDefinition workingWs
+    )
+    {
+        // copy original contents into a list
+        var updatedList = new List<CoreWritingSystemDefinition>(allWritingSystems);
+        var ws = updatedList.Find(listItem =>
+            listItem.Id == (string.IsNullOrEmpty(workingWs.Id) ? workingWs.LanguageTag : workingWs.Id));
+        if (ws != null)
+        {
+            updatedList.Remove(ws);
+        }
+
+        if (desiredIndex > updatedList.Count)
+        {
+            updatedList.Add(workingWs);
+        }
+        else
+        {
+            updatedList.Insert(desiredIndex, workingWs);
+        }
+
+        allWritingSystems.Clear();
+        allWritingSystems.AddRange(updatedList);
     }
 }
