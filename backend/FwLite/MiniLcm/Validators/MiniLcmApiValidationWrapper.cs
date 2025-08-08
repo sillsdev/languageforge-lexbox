@@ -19,7 +19,7 @@ public partial class MiniLcmApiValidationWrapper(
     IMiniLcmApi api,
     MiniLcmValidators validators) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     // ********** Overrides go here **********

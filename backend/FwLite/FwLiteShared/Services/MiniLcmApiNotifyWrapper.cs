@@ -20,7 +20,7 @@ public partial class MiniLcmApiNotifyWrapper(
     ProjectEventBus bus,
     IProjectIdentifier project) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     private PendingChangeNotifications? _pendingChanges;

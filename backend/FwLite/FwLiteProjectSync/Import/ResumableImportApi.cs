@@ -6,7 +6,7 @@ namespace FwLiteProjectSync.Import;
 
 public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
     private readonly Dictionary<string, Dictionary<string, object>> _createdObjects = new();
     private async ValueTask<T> HasCreated<T>(T value, IAsyncEnumerable<T> values, Func<Task<T>> create, [CallerMemberName] string typeName = "")
