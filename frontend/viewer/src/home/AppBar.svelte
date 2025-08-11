@@ -15,7 +15,7 @@
   });
 </script>
 <header
-  class="flex items-center z-50 space-x-2 justify-between pr-1 md:pr-3 pl-3 min-h-12 shadow-lg m-3 mb-0 rounded sticky top-3">
+  class="flex items-center z-50 space-x-2 justify-between px-4 min-h-14 shadow-lg m-3 rounded-full sticky top-3">
   {@render title()}
   <div class="grow-0"></div>
   {@render actions()}
