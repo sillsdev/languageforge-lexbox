@@ -23,7 +23,7 @@ public record UpdateEntryProxy : Entry
         {
             var form = _lcmEntry.LexemeFormOA ?? LcmHelpers.SetLexemeForm(
                 _lcmEntry,
-                LcmHelpers.FromLcmMorphTypeId(_lcmEntry.PrimaryMorphType.Id.Guid),
+                LcmHelpers.FromLcmMorphType(_lcmEntry.PrimaryMorphType),
                 _lexboxLcmApi.Cache);
             return new UpdateMultiStringProxy(form.Form, _lexboxLcmApi);
         }

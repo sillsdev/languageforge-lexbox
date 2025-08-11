@@ -509,7 +509,7 @@ public class FwDataMiniLcmApi(
         return new MorphTypeData
         {
             Id = morphType.Guid,
-            MorphType = LcmHelpers.FromLcmMorphTypeId(morphType.Guid),
+            MorphType = LcmHelpers.FromLcmMorphType(morphType),
             Name = FromLcmMultiString(morphType.Name),
             Abbreviation = FromLcmMultiString(morphType.Abbreviation),
             Description = FromLcmMultiString(morphType.Description),
@@ -597,10 +597,7 @@ public class FwDataMiniLcmApi(
                 LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
-                // PrimaryMorphType is null if LexemeFormOA is null
-                MorphType = entry.PrimaryMorphType is null
-                    ? MorphType.Stem
-                    : LcmHelpers.FromLcmMorphTypeId(entry.PrimaryMorphType.Id.Guid), // TODO: Decide what to do about entries with *mixed* morph types
+                MorphType = LcmHelpers.FromLcmMorphType(entry.PrimaryMorphType), // TODO: Decide what to do about entries with *mixed* morph types
                 Senses = entry.AllSenses.Select(FromLexSense).ToList(),
                 ComplexFormTypes = ToComplexFormTypes(entry),
                 Components = ToComplexFormComponents(entry).ToList(),

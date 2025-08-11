@@ -83,8 +83,10 @@ internal static class LcmHelpers
         '\u0640', // Arabic Tatweel
     ];
 
-    internal static MorphType FromLcmMorphTypeId(Guid? lcmMorphTypeId)
+    internal static MorphType FromLcmMorphType(IMoMorphType? morphType)
     {
+        var lcmMorphTypeId = morphType?.Id.Guid;
+
         return lcmMorphTypeId switch
         {
             null => MorphType.Unknown,
@@ -136,7 +138,7 @@ internal static class LcmHelpers
             MorphType.Phrase => MoMorphTypeTags.kguidMorphPhrase,
             MorphType.DiscontiguousPhrase => MoMorphTypeTags.kguidMorphDiscontiguousPhrase,
             MorphType.Unknown => null,
-            MorphType.Other => null, // Note that this will not round-trip with FromLcmMorphTypeId
+            MorphType.Other => null, // Note that this will not round-trip with FromLcmMorphType
             _ => null,
         };
     }
