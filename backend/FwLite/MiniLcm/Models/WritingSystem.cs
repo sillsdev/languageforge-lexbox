@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
@@ -21,6 +22,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
 
     public static string[] LatinExemplars => Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
 
+    [MiniLcmInternal]
     public double Order { get; set; }
 
     public Guid[] GetReferences()
