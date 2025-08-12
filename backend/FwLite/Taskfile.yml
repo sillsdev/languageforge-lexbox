@@ -58,11 +58,15 @@ tasks:
       - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None
       - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts
 
+  run-maui-android:
+    dir: ./FwLiteMaui
+    cmd: task build-maui-android -- -t:Run
+
   build-maui-android:
     deps: [ ui:build-viewer ]
     label: Build Maui Android
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
+    cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True {{.CLI_ARGS}} # "-p:AndroidSdkDirectory=D:\tools\android"
 
   build-mini-lcm-sdk:
     label: Build MiniLcm SDK
