@@ -21,10 +21,10 @@ public partial class MiniLcmApiValidationWrapper(
 
     // ********** Overrides go here **********
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         await validators.ValidateAndThrow(writingSystem);
-        return await _api.CreateWritingSystem(writingSystem);
+        return await _api.CreateWritingSystem(writingSystem, between);
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)

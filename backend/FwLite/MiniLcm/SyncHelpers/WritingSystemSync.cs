@@ -99,8 +99,12 @@ public static class WritingSystemSync
 
         async Task<int> IOrderableCollectionDiffApi<OrderableWs>.Add(OrderableWs value, BetweenPosition between)
         {
-            //todo set order?
-            await api.CreateWritingSystem(value.Ws);
+            var betweenWsId = new BetweenPosition<WritingSystemId?>(
+                //we can't use `null` and must use new WritingSystemId?() to set a nullable value to null
+                between.Previous is null ? new WritingSystemId?() : Mapping[between.Previous.Value],
+                between.Next is null ? new WritingSystemId?() : Mapping[between.Next.Value]
+                );
+            await api.CreateWritingSystem(value.Ws, betweenWsId);
             return 1;
         }
 

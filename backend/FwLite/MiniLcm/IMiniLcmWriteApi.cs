@@ -8,7 +8,7 @@ namespace MiniLcm;
 
 public interface IMiniLcmWriteApi
 {
-    Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem);
+    Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null);
 
     Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
         WritingSystemType type,

@@ -150,7 +150,7 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         var type = writingSystem.Type;
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
@@ -159,10 +159,9 @@ public class FwDataMiniLcmApi(
             throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
         }
         CoreWritingSystemDefinition? ws = null;
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Writing System",
+        await Cache.DoUsingNewOrCurrentUOW("Create Writing System",
             "Remove writing system",
-            Cache.ServiceLocator.ActionHandler,
-            () =>
+            async () =>
             {
                 Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
@@ -177,6 +176,9 @@ public class FwDataMiniLcmApi(
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
+
+                if (between is not null && (between.Previous is not null || between.Next is not null))
+                    await MoveWritingSystem(writingSystem.WsId, type, between);
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
         var index = type switch
