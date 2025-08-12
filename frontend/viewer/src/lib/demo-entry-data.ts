@@ -40,7 +40,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
-      'order': 0,
       isAudio: false,
     },
     {
@@ -51,7 +50,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
-      'order': 1,
       isAudio: false,
     }
   ],
@@ -64,7 +62,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
-      'order': 0,
       isAudio: false,
     },
     {
@@ -75,7 +72,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
-      'order': 1,
       isAudio: false,
     }
   ]
