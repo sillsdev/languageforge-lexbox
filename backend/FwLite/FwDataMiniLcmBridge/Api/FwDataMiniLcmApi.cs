@@ -247,17 +247,21 @@ public class FwDataMiniLcmApi(
                     CoreWritingSystemDefinition? next,
                     ICollection<CoreWritingSystemDefinition> list)
                 {
-                    int index;
+                    var index = -1;
                     if (previous is not null)
                     {
-                        index = CollectionExtensions.IndexOf(list, previous) + 1;
-                    } else if (next is not null)
+                        index = CollectionExtensions.IndexOf(list, previous);
+                        if (index >= 0) index++;
+                    }
+
+                    if (index < 0 && next is not null)
                     {
                         index = CollectionExtensions.IndexOf(list, next);
-                    } else
-                    {
-                        throw new InvalidOperationException("unable to find writing system with id " + between.Previous + " or " + between.Next);
                     }
+
+                    if (index < 0)
+                        throw new InvalidOperationException("unable to find writing system with id " + between.Previous + " or " + between.Next);
+
                     LcmHelpers.AddOrMoveInList(list, index, ws);
                 }
 

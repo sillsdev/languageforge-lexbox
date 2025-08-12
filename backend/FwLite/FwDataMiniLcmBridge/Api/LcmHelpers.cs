@@ -202,17 +202,25 @@ internal static class LcmHelpers
         }
     }
 
-    //copy of method in SIL.FieldWorks.FwCoreDlgs.FwWritingSystemSetupModel
+    //mostly a copy of method in SIL.FieldWorks.FwCoreDlgs.FwWritingSystemSetupModel
     internal static void AddOrMoveInList(
         ICollection<CoreWritingSystemDefinition> allWritingSystems,
         int desiredIndex,
         CoreWritingSystemDefinition workingWs
     )
     {
+        if (desiredIndex < 0) throw new ArgumentOutOfRangeException(nameof(desiredIndex), desiredIndex, "desiredIndex must be >= 0");
+
         // copy original contents into a list
         var updatedList = new List<CoreWritingSystemDefinition>(allWritingSystems);
         var ws = updatedList.Find(listItem =>
-            listItem.Id == (string.IsNullOrEmpty(workingWs.Id) ? workingWs.LanguageTag : workingWs.Id));
+        {
+            if (ReferenceEquals(listItem, workingWs)) return true;
+            var workingTag = string.IsNullOrEmpty(workingWs.Id) ? workingWs.LanguageTag : workingWs.Id;
+            var listItemTag = string.IsNullOrEmpty(listItem.Id) ? listItem.LanguageTag : listItem.Id;
+            return string.Equals(listItemTag, workingTag);
+        });
+
         if (ws != null)
         {
             updatedList.Remove(ws);
