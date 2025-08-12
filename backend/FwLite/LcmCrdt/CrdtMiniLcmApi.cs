@@ -68,13 +68,11 @@ public class CrdtMiniLcmApi(
     public async Task<WritingSystems> GetWritingSystems()
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var systems = await repo.WritingSystems.ToArrayAsync();
+        var systems = await repo.WritingSystems.OrderBy(ws => ws.Order).ToArrayAsync();
         return new WritingSystems
         {
-            Analysis = systems.Where(ws => ws.Type == WritingSystemType.Analysis)
-                .Select(w => ((WritingSystem)w)).ToArray(),
-            Vernacular = systems.Where(ws => ws.Type == WritingSystemType.Vernacular)
-                .Select(w => ((WritingSystem)w)).ToArray()
+            Analysis = [.. systems.Where(ws => ws.Type == WritingSystemType.Analysis)],
+            Vernacular = [.. systems.Where(ws => ws.Type == WritingSystemType.Vernacular)]
         };
     }
 
