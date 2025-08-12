@@ -8,6 +8,7 @@
   import {useFwLiteConfig} from '$lib/services/service-provider';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import {Toaster} from '$lib/components/ui/sonner';
+  import {useAppLauncherService} from '$lib/services/app-launcher-service';
 
   const eventBus = useEventBus();
 
@@ -20,8 +21,11 @@
       AppNotification.displayAction($t`A new version of FieldWorks lite is available.`, {
         callback: () => {
           const fwliteConfig = useFwLiteConfig();
+          const appLauncher = useAppLauncherService();
           const url = updateUrls[fwliteConfig.os] ?? 'https://lexbox.org/fw-lite';
-          window.open(url, '_blank');
+          void appLauncher!.tryOpen(url).then(opened => {
+            if (!opened) throw new Error(`Failed to open update URL: ${url}`);
+          });
         },
         label: $t`Download`
       });

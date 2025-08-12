@@ -1,12 +1,18 @@
 ﻿#if INCLUDE_FWDATA_BRIDGE
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
+#endif
 using FwLiteShared.Services;
 using Microsoft.JSInterop;
 
 namespace FwLiteMaui.Services;
 
-public class AppLauncher(FwDataFactory fwDataFactory, FieldWorksProjectList projectList) : IAppLauncher
+public class AppLauncher
+#if INCLUDE_FWDATA_BRIDGE
+(FwDataFactory fwDataFactory, FieldWorksProjectList projectList)
+#endif
+: IAppLauncher
+
 {
     private readonly ILauncher _launcher = Launcher.Default;
 
@@ -28,6 +34,7 @@ public class AppLauncher(FwDataFactory fwDataFactory, FieldWorksProjectList proj
         return _launcher.TryOpenAsync(uri);
     }
 
+#if INCLUDE_FWDATA_BRIDGE
     [JSInvokable]
     public Task<bool> OpenInFieldWorks(Guid entryId, string projectName)
     {
@@ -36,5 +43,5 @@ public class AppLauncher(FwDataFactory fwDataFactory, FieldWorksProjectList proj
         fwDataFactory.CloseProject(project);
         return _launcher.TryOpenAsync(FwLink.ToEntry(entryId, projectName));
     }
-}
 #endif
+}

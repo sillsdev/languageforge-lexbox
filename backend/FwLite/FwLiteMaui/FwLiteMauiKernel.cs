@@ -66,6 +66,7 @@ public static class FwLiteMauiKernel
 #endif
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
+        services.AddSingleton<FwLiteShared.Services.IAppLauncher, FwLiteMaui.Services.AppLauncher>();
 #endif
 
         services.Configure<FwLiteConfig>(config =>
