@@ -84,6 +84,25 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         return options;
     }
 
+    internal static void AssertSnapshotsAreEquivalent(ProjectSnapshot expected, ProjectSnapshot actual)
+    {
+        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(ComplexFormComponent), };
+        var excludeIds = new[] { typeof(ComplexFormComponent), typeof(WritingSystem) };
+        actual.Should().BeEquivalentTo(expected,
+            options =>
+                options
+                    .Using<double>(Exclude)
+                    .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith("Order") && excludeOrderTypes.Contains(info.ParentType))
+                    .Using<Guid>(Exclude)
+                    .When(info => info.RuntimeType == typeof(Guid) && info.Path.EndsWith("Id") && excludeIds.Contains(info.ParentType))
+        );
+
+        void Exclude<T>(IAssertionContext<T> context)
+        {
+            //don't compare
+        }
+    }
+
     [Fact]
     [Trait("Category", "Integration")]
     public async Task FirstSyncJustDoesAnImport()
@@ -92,9 +111,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var fwdataApi = _fixture.FwDataApi;
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -155,9 +172,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -233,9 +248,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         hatstand.Components = [component1, component2];
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
 
         // Sync again, ensure no problems or changes
         var secondSync = await _syncService.Sync(crdtApi, fwdataApi);
@@ -323,9 +336,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -402,9 +413,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
@@ -492,9 +501,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var crdtEntries = await crdtApi.GetAllEntries().ToArrayAsync();
-        var fwdataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries, SyncExclusions);
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
     }
 
     [Fact]
