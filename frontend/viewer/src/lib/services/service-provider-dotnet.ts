@@ -64,7 +64,10 @@ export function wrapInProxy<K extends ServiceKey>(dotnetObject: DotNet.DotNetObj
         console.debug(`[Dotnet Proxy] Calling ${serviceName} method ${dotnetMethodName}`, args);
         args = transformArgs(args);
         const result = await target.invokeMethodAsync(dotnetMethodName, ...args);
-        console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, result);
+        const resultDebug = Array.isArray(result) && result.length
+          ? `a length-${result.length} array with first item ${result[0]}`
+          : result;
+        console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, resultDebug);
         return result;
       };
     },
