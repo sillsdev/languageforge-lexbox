@@ -72,13 +72,13 @@ tasks:
 
   build-viewer:
     deps: [viewer:build]
-    label: vite
+    label: ui:vite viewer build
   watch-viewer:
     deps: [viewer:watch]
-    label: vite
+    label: ui:vite viewer watch
   viewer-dev:
     deps: [viewer:app]
-    label: vite
+    label: ui:vite viewer app
 
   install-https-proxy:
     dir: ./https-proxy
