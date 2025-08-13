@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FwHeadless.Services;
+using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using LexCore.Sync;
@@ -7,6 +8,7 @@ using LexData;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MiniLcm;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 
@@ -19,6 +21,7 @@ public static class MergeRoutes
         var group = app.MapGroup("/api/merge").WithOpenApi();
 
         group.MapPost("/execute", ExecuteMergeRequest);
+        group.MapPost("/regenerate-snapshot", RegenerateProjectSnapshot);
         group.MapGet("/status", GetMergeStatus);
         group.MapGet("/await-finished", AwaitSyncFinished);
         return group;
@@ -48,6 +51,36 @@ public static class MergeRoutes
             return TypedResults.Problem("Unable to authenticate with Lexbox");
         }
         syncHostedService.QueueJob(projectId);
+        return TypedResults.Ok();
+    }
+
+    static async Task<Results<Ok, NotFound<string>>> RegenerateProjectSnapshot(
+        Guid projectId,
+        CurrentProjectService projectContext,
+        ProjectLookupService projectLookupService,
+        CrdtFwdataProjectSyncService syncService,
+        IOptions<FwHeadlessConfig> config,
+        HttpContext context
+    )
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.project_id", projectId);
+        var project = projectContext.MaybeProject;
+        if (project is null)
+        {
+            // 404 only means "project doesn't exist"; if we don't know the status, then it hasn't synced before and is therefore ready to sync
+            if (await projectLookupService.ProjectExists(projectId))
+            {
+                activity?.SetStatus(ActivityStatusCode.Unset, "Project never synced");
+                return TypedResults.NotFound("Project never synced");
+            }
+
+            activity?.SetStatus(ActivityStatusCode.Error, "Project not found");
+            return TypedResults.NotFound("Project not found");
+        }
+
+        var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
+        await syncService.RegenerateProjectSnapshot(miniLcmApi, config.Value.GetFwDataProject(projectId));
         return TypedResults.Ok();
     }
 

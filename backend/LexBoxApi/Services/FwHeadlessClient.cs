@@ -68,4 +68,21 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             await response.Content.ReadAsStringAsync(cancellationToken));
         return false;
     }
+
+    public async Task<string?> RegenerateProjectSnapshot(Guid projectId)
+    {
+        var response = await httpClient.PostAsync($"/api/merge/regenerate-snapshot?projectId={projectId}", null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            logger.LogError("Failed to regenerate project snapshot: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                responseBody);
+            return responseBody;
+        }
+
+        return "Success";
+    }
 }
