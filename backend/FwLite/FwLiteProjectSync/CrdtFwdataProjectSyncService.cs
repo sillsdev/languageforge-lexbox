@@ -6,7 +6,6 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 using SystemTextJsonPatch;
@@ -42,14 +41,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project,
-                new ProjectSnapshot(
-                    await fwdataApi.GetAllEntries().ToArrayAsync(),
-                    await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
-                    await fwdataApi.GetPublications().ToArrayAsync(),
-                    await fwdataApi.GetSemanticDomains().ToArrayAsync(),
-                    await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
-                    await fwdataApi.GetWritingSystems()));
+            //note we are now using the crdt API, this avoids issues where some data isn't synced yet
+            //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
+            //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
+            await RegenerateProjectSnapshot(crdtApi, fwdataApi.Project);
         }
         return result;
     }
@@ -121,23 +116,19 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
-    public record ProjectSnapshot(
-        Entry[] Entries,
-        PartOfSpeech[] PartsOfSpeech,
-        Publication[] Publications,
-        SemanticDomain[] SemanticDomains,
-        ComplexFormType[] ComplexFormTypes,
-        WritingSystems WritingSystems)
-    {
-        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], [], new WritingSystems());
-    }
-
-    private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
+    public static async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file);
+    }
+
+    public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)
+    {
+        if (crdtApi is not CrdtMiniLcmApi)
+            throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");
+        await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot());
     }
 
     internal async Task SaveProjectSnapshot(FwDataProject project, ProjectSnapshot projectSnapshot)
