@@ -41,6 +41,9 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
         if (!dryRun)
         {
+            //note we are now using the crdt API, this avoids issues where some data isn't synced yet
+            //later when we add the ability to sync that data we need the snapshot to reflect the synced state, not what was in the FW project
+            //related to https://github.com/sillsdev/languageforge-lexbox/issues/1912
             await RegenerateProjectSnapshot(crdtApi, fwdataApi.Project);
         }
         return result;
