@@ -83,6 +83,6 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             return responseBody;
         }
 
-        return "Success";
+        return null;
     }
 }
