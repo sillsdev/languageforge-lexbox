@@ -41,7 +41,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project, await fwdataApi.TakeProjectSnapshot());
+            await SaveProjectSnapshot(fwdataApi.Project, await crdtApi.TakeProjectSnapshot());
         }
         return result;
     }
