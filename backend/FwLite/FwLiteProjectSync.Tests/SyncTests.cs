@@ -91,6 +91,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         actual.Should().BeEquivalentTo(expected,
             options =>
                 options
+                    //DO NOT exclude things which are just not yet supported, otherwise you will run into a similar issue as seen in https://github.com/sillsdev/languageforge-lexbox/issues/1912
                     .Using<double>(Exclude)
                     .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith("Order") && excludeOrderTypes.Contains(info.ParentType))
                     .Using<Guid>(Exclude)
