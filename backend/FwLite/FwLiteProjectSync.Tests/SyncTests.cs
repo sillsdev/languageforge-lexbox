@@ -236,17 +236,20 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 new Sense() { Gloss = { { "en", "Stand" } }, }
             ]
         });
-        var hatstand = await fwdataApi.CreateEntry(new Entry()
+        var hatstand = new Entry()
         {
+            Id = Guid.NewGuid(),
             LexemeForm = { { "en", "Hatstand" } },
             Senses =
             [
                 new Sense() { Gloss = { { "en", "Hatstand" } }, }
             ],
-        });
+        };
         var component1 = ComplexFormComponent.FromEntries(hatstand, hat);
         var component2 = ComplexFormComponent.FromEntries(hatstand, stand);
         hatstand.Components = [component1, component2];
+        await fwdataApi.CreateEntry(hatstand);
+
         await _syncService.Sync(crdtApi, fwdataApi);
 
         AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
