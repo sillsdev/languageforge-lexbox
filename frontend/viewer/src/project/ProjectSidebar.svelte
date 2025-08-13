@@ -15,6 +15,7 @@
   import {usePrimaryAction} from './SidebarPrimaryAction.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$lib/project-stats';
@@ -52,6 +53,7 @@
   const supportsTroubleshooting = useTroubleshootingService();
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
+  let feedbackOpen = $state(false);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
@@ -174,15 +176,12 @@
           </Sidebar.MenuItem>
         {/if}
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton>
-            {#snippet child({ props })}
-              <a {...props} href={config.feedbackUrl} target="_blank">
-                <Icon icon="i-mdi-message" />
-                <span>{$t`Feedback`}</span>
-              </a>
-            {/snippet}
+          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+            <Icon icon="i-mdi-message" />
+            <span>{$t`Feedback`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
+        <FeedbackDialog bind:open={feedbackOpen} />
         <Sidebar.MenuItem>
           <LocalizationPicker inSidebar />
         </Sidebar.MenuItem>
