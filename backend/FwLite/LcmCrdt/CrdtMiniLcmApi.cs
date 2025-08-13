@@ -85,7 +85,7 @@ public class CrdtMiniLcmApi(
         var wsType = writingSystem.Type;
         var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
         if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
-        var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await GetWritingSystem(wsId.Value, wsType))?.Id);
+        var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
         await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
         return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw new NullReferenceException();
@@ -109,10 +109,10 @@ public class CrdtMiniLcmApi(
 
     public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
-        var ws = await GetWritingSystem(id, type);
-        if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         await using var repo = await repoFactory.CreateRepoAsync();
-        var betweenIds = await between.MapAsync(async wsId => wsId is null ? null : (await GetWritingSystem(wsId.Value, type))?.Id);
+        var ws = await repo.GetWritingSystem(id, type);
+        if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
+        var betweenIds = await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, type))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(s => s.Type == type), betweenIds);
         await AddChange(new Changes.SetOrderChange<WritingSystem>(ws.Id, order));
     }
