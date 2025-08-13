@@ -126,6 +126,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
     public async Task RegenerateProjectSnapshot(IMiniLcmApi crdtApi, FwDataProject project)
     {
+        if (crdtApi is not CrdtMiniLcmApi)
+            throw new InvalidOperationException("CrdtApi must be of type CrdtMiniLcmApi to regenerate project snapshot.");
         await SaveProjectSnapshot(project, await crdtApi.TakeProjectSnapshot());
     }
 
