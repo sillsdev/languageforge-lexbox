@@ -6,7 +6,6 @@ using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Validators;
 using SystemTextJsonPatch;
@@ -42,14 +41,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project,
-                new ProjectSnapshot(
-                    await fwdataApi.GetAllEntries().ToArrayAsync(),
-                    await fwdataApi.GetPartsOfSpeech().ToArrayAsync(),
-                    await fwdataApi.GetPublications().ToArrayAsync(),
-                    await fwdataApi.GetSemanticDomains().ToArrayAsync(),
-                    await fwdataApi.GetComplexFormTypes().ToArrayAsync(),
-                    await fwdataApi.GetWritingSystems()));
+            await SaveProjectSnapshot(fwdataApi.Project, await fwdataApi.TakeProjectSnapshot());
         }
         return result;
     }
@@ -121,18 +113,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport, ILogger<C
         return ((DryRunMiniLcmApi)api).DryRunRecords;
     }
 
-    public record ProjectSnapshot(
-        Entry[] Entries,
-        PartOfSpeech[] PartsOfSpeech,
-        Publication[] Publications,
-        SemanticDomain[] SemanticDomains,
-        ComplexFormType[] ComplexFormTypes,
-        WritingSystems WritingSystems)
-    {
-        internal static ProjectSnapshot Empty { get; } = new([], [], [], [], [], new WritingSystems());
-    }
-
-    private async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
+    public static async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
