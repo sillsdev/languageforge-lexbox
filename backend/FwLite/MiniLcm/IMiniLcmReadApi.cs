@@ -39,7 +39,7 @@ public record FilterQueryOptions(
 {
     public static FilterQueryOptions Default { get; } = new();
     public bool HasFilter => Filter is {GridifyFilter.Length: > 0 } || Exemplar is {Value.Length: > 0};
-    public FilterQueryOptions Normalized(NormalizationForm form)
+    public virtual FilterQueryOptions Normalized(NormalizationForm form)
     {
         return new(Exemplar?.Normalized(form), Filter?.Normalized(form));
     }
@@ -57,7 +57,7 @@ public record QueryOptions(
     public const int DefaultCount = 1000;
     public SortOptions Order { get; init; } = Order ?? SortOptions.Default;
 
-    public QueryOptions Normalized(NormalizationForm form)
+    public override QueryOptions Normalized(NormalizationForm form)
     {
         return new(Order, Exemplar?.Normalized(form), Count, Offset, Filter?.Normalized(form));
     }
