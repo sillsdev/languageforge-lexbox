@@ -4,7 +4,6 @@
   let openDialogs = $state(0);
 
   type DialogSharedRootStateProps = {
-    trigger: HTMLElement | undefined;
     openDialogs: number;
     index: number | undefined;
     overlayProps: DialogOverlayProps;
@@ -26,6 +25,7 @@
   import { cn } from '$lib/utils';
   import { Context, watch } from 'runed';
   import { onDestroy, type Snippet } from 'svelte';
+  import {AppNotification} from '$lib/notifications/notifications';
 
   type Props = {
     open: boolean;
@@ -61,7 +61,10 @@
       trigger = undefined;
 
       if (openDialogs < 0) {
-        console.warn(`DialogSharedRoot: openDialogs went below 0 (${openDialogs}), resetting to 0`);
+        AppNotification.display('Dialog stack: Invalid state', {
+          description: new Error().stack,
+          type: 'warning',
+        });
         openDialogs = 0;
       }
     }
@@ -93,7 +96,6 @@
   });
 
   initDialogSharedRoot({
-    get trigger() { return trigger; },
     get openDialogs() { return openDialogs; },
     get index() { return index; },
     get overlayProps() { return overlayProps; },
