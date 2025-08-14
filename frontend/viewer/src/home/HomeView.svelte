@@ -28,6 +28,7 @@
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -45,9 +46,9 @@
       .replace(/-$/, '');
   }
 
-  let customExampleProjectName: string = '';
+  let customExampleProjectName: string = $state('');
 
-  let createProjectLoading = false;
+  let createProjectLoading = $state(false);
 
   async function createExampleProject() {
     try {
@@ -67,7 +68,7 @@
     }
   }
 
-  let deletingProject: undefined | string = undefined;
+  let deletingProject: undefined | string = $state(undefined);
 
   async function deleteProject(project: IProjectModel) {
     try {
@@ -79,7 +80,7 @@
     }
   }
 
-  let importing = '';
+  let importing = $state('');
 
   async function importFwDataProject(name: string) {
     if (importing) return;
@@ -92,9 +93,9 @@
     }
   }
 
-  let projectsPromise = projectsService
+  let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)));
+    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
@@ -103,7 +104,7 @@
   }
 
   const supportsTroubleshooting = useTroubleshootingService();
-  let troubleshootDialog: TroubleshootDialog | undefined;
+  let troubleshootDialog = $state<TroubleshootDialog>();
 
   let clickCount = 0;
   let clickTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -125,6 +126,8 @@
       clickTimeout = setTimeout(resetClickCounter, 500);
     }
   }
+
+  let feedbackOpen = $state(false);
 
 </script>
 
@@ -150,7 +153,7 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
-          <ResponsiveMenu.Item href={fwLiteConfig.feedbackUrl} target="_blank" icon="i-mdi-chat-question">
+          <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-chat-question">
             {$t`Feedback`}
           </ResponsiveMenu.Item>
           {#if supportsTroubleshooting}
@@ -162,6 +165,7 @@
           {/if}
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
+      <FeedbackDialog bind:open={feedbackOpen}/>
       {#if supportsTroubleshooting}
         <TroubleshootDialog bind:this={troubleshootDialog}/>
       {/if}
