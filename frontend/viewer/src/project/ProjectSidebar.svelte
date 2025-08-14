@@ -105,7 +105,6 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
               {#if features.sync}
-                <SyncDialog bind:this={syncDialog} {syncStatus} />
                 <Sidebar.MenuItem>
                   <Sidebar.MenuButton onclick={() => syncDialog?.open()} class="justify-between">
                     {#snippet tooltipContent()}
@@ -167,7 +166,6 @@
     <Sidebar.Group>
       <Sidebar.Menu>
         {#if supportsTroubleshooting}
-          <TroubleshootDialog bind:this={troubleshootDialog}/>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectData?.code)}>
               <Icon icon="i-mdi-help-circle" />
@@ -181,7 +179,6 @@
             <span>{$t`Feedback`}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
-        <FeedbackDialog bind:open={feedbackOpen} />
         <Sidebar.MenuItem>
           <LocalizationPicker inSidebar />
         </Sidebar.MenuItem>
@@ -196,3 +193,15 @@
   </Sidebar.Footer>
   <Sidebar.Rail></Sidebar.Rail>
 </Sidebar.Root>
+
+<!--
+Keep dialogs out of the sidebar so they aren't destroyed
+e.g. when transitioning to mobile
+-->
+{#if supportsTroubleshooting}
+  <TroubleshootDialog bind:this={troubleshootDialog}/>
+{/if}
+{#if features.sync}
+  <SyncDialog bind:this={syncDialog} {syncStatus} />
+{/if}
+<FeedbackDialog bind:open={feedbackOpen} />
