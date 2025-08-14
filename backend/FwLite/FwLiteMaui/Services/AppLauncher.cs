@@ -1,18 +1,9 @@
-﻿#if INCLUDE_FWDATA_BRIDGE
-using FwDataMiniLcmBridge;
-using FwDataMiniLcmBridge.LcmUtils;
-#endif
-using FwLiteShared.Services;
+﻿using FwLiteShared.Services;
 using Microsoft.JSInterop;
 
 namespace FwLiteMaui.Services;
 
-public class AppLauncher
-#if INCLUDE_FWDATA_BRIDGE
-(FwDataFactory fwDataFactory, FieldWorksProjectList projectList)
-#endif
-: IAppLauncher
-
+public class AppLauncher(IFwLinker? fwLinker = null) : IAppLauncher
 {
     private readonly ILauncher _launcher = Launcher.Default;
 
@@ -34,14 +25,12 @@ public class AppLauncher
         return _launcher.TryOpenAsync(uri);
     }
 
-#if INCLUDE_FWDATA_BRIDGE
     [JSInvokable]
     public Task<bool> OpenInFieldWorks(Guid entryId, string projectName)
     {
-        var project = projectList.GetProject(projectName);
-        if (project is null) return Task.FromResult(false);
-        fwDataFactory.CloseProject(project);
-        return _launcher.TryOpenAsync(FwLink.ToEntry(entryId, projectName));
+        if (fwLinker is null) throw new InvalidOperationException("FwLinker is not available.");
+        var link = fwLinker.GetLinkToEntry(entryId, projectName);
+        if (link is null) return Task.FromResult(false);
+        return _launcher.TryOpenAsync(link);
     }
-#endif
 }
