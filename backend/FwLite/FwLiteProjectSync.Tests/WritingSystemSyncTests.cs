@@ -52,28 +52,30 @@ public class WritingSystemSyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         var en = await _fixture.FwDataApi.GetWritingSystem("en", WritingSystemType.Vernacular);
         en.Should().NotBeNull();
-        en.Order.Should().Be(0);
+        en.Order.Should().Be(0); // 1st - fw order starts at 0
         var fr = await _fixture.FwDataApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
         fr.Should().NotBeNull();
         fr.Order.Should().Be(1);
+        var crdtEn = await _fixture.CrdtApi.GetWritingSystem("en", WritingSystemType.Vernacular);
+        crdtEn.Should().NotBeNull();
+        crdtEn.Order.Should().Be(1); // 1st - crdt order starts at 1
+        var crdtFr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
+        crdtFr.Should().NotBeNull();
+        crdtFr.Order.Should().Be(2);
+
+
+        // act - move fr before en
         await _fixture.FwDataApi.MoveWritingSystem("fr", WritingSystemType.Vernacular, new(null, "en"));
         fr = await _fixture.FwDataApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
         fr.Should().NotBeNull();
         fr.Order.Should().Be(0);
-        var crdtFr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
-        crdtFr.Should().NotBeNull();
-        crdtFr.Order.Should().Be(1);
-
         await _syncService.Sync(_fixture.CrdtApi, _fixture.FwDataApi);
 
-        fr = await _fixture.FwDataApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
-        fr.Should().NotBeNull();
-        fr.Order.Should().Be(0);
-
-        var crdtEn = await _fixture.CrdtApi.GetWritingSystem("en", WritingSystemType.Vernacular);
-        crdtEn.Should().NotBeNull();
-        var actualFr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
-        actualFr.Should().NotBeNull();
-        actualFr.Order.Should().BeLessThan(crdtEn.Order);
+        // assert
+        var updatedCrdtEn = await _fixture.CrdtApi.GetWritingSystem("en", WritingSystemType.Vernacular);
+        updatedCrdtEn.Should().NotBeNull();
+        var updatedCrdtFr = await _fixture.CrdtApi.GetWritingSystem("fr", WritingSystemType.Vernacular);
+        updatedCrdtFr.Should().NotBeNull();
+        updatedCrdtFr.Order.Should().BeLessThan(updatedCrdtEn.Order);
     }
 }
