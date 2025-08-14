@@ -60,7 +60,7 @@ tasks:
 
   run-maui-android:
     dir: ./FwLiteMaui
-    cmd: task build-maui-android -- -t:Run
+    cmd: task build-maui-android -- "-t:InstallAndroidDependencies;Run"
 
   build-maui-android:
     deps: [ ui:build-viewer ]
