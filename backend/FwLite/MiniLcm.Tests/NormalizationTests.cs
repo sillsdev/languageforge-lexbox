@@ -1,7 +1,5 @@
 using MiniLcm.Validators;
 using Moq;
-using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace MiniLcm.Tests;
 
@@ -10,8 +8,8 @@ public class NormalizationTests
     public IMiniLcmApi MockApi { get; init; }
     public IMiniLcmApi NormalizingApi { get; init; }
 
-    public const string NFCString = "naïve"; // U+00EF LATIN SMALL LETTER I WITH DIAERESIS
-    public const string NFDString = "naïve"; // U+0069 LATIN SMALL LETTER I + U+0308 COMBINING DIAERESIS
+    public const string NFCString = "na\u00efve"; // "naïve" with U+00EF LATIN SMALL LETTER I WITH DIAERESIS
+    public const string NFDString = "na\u0069\u0308ve"; // "naïve" with U+0069 LATIN SMALL LETTER I + U+0308 COMBINING DIAERESIS
 
     public FilterQueryOptions NFCOptions = new()
     {
