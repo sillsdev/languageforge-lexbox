@@ -266,7 +266,7 @@
       Id PK
     Foreign keys: 
       Sense {'EntryId'} -> Entry {'Id'} Required Cascade ToDependent: Senses
-      Sense {'PartOfSpeechId'} -> PartOfSpeech {'Id'} ClientSetNull ToPrincipal: PartOfSpeech
+      Sense {'PartOfSpeechId'} -> PartOfSpeech {'Id'} SetNull ToPrincipal: PartOfSpeech
       Sense {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
     Indexes: 
       EntryId
