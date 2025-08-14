@@ -81,4 +81,38 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         //the part of speech here is whatever the default is for the project, not english.
             .BeEquivalentTo(newPartOfSpeech);
     }
+
+    [Fact]
+    public async Task DeletePartOfSpeech_Works()
+    {
+        var posId = Guid.NewGuid();
+        var pos = new PartOfSpeech() { Id = posId, Name = { { "en", "Test POS" } } };
+        await Api.CreatePartOfSpeech(pos);
+
+        await Api.DeletePartOfSpeech(posId);
+
+        var partOfSpeech = await Api.GetPartOfSpeech(posId);
+        partOfSpeech.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DeletePartOfSpeech_WorksWhenUsed()
+    {
+        var posId = Guid.NewGuid();
+        var pos = new PartOfSpeech() { Id = posId, Name = { { "en", "Test POS" } } };
+        await Api.CreatePartOfSpeech(pos);
+        await Api.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Apple" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Fruit" } }, PartOfSpeechId = posId }
+            ]
+        });
+
+        await Api.DeletePartOfSpeech(posId);
+
+        var partOfSpeech = await Api.GetPartOfSpeech(posId);
+        partOfSpeech.Should().BeNull();
+    }
 }
