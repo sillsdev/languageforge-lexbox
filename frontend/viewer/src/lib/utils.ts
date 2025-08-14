@@ -74,7 +74,6 @@ export function defaultWritingSystem(type: WritingSystemType): IWritingSystem {
     abbreviation: 'en',
     font: 'Arial',
     exemplars: [],
-    order: 0,
     deletedAt: undefined,
     type
   };

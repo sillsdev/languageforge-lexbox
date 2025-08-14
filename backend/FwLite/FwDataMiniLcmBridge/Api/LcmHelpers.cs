@@ -1,9 +1,11 @@
 using System.Globalization;
 using MiniLcm.Culture;
 using MiniLcm.Models;
+using SIL.Extensions;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
+using SIL.LCModel.Core.WritingSystems;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -288,5 +290,42 @@ internal static class LcmHelpers
             var tsString = TsStringUtils.MakeString(api.FromMediaUri(value.GetPlainText()), writingSystemHandle);
             multiString.set_String(writingSystemHandle, tsString);
         }
+    }
+
+    //mostly a copy of method in SIL.FieldWorks.FwCoreDlgs.FwWritingSystemSetupModel
+    internal static void AddOrMoveInList(
+        ICollection<CoreWritingSystemDefinition> allWritingSystems,
+        int desiredIndex,
+        CoreWritingSystemDefinition workingWs
+    )
+    {
+        if (desiredIndex < 0) throw new ArgumentOutOfRangeException(nameof(desiredIndex), desiredIndex, "desiredIndex must be >= 0");
+
+        // copy original contents into a list
+        var updatedList = new List<CoreWritingSystemDefinition>(allWritingSystems);
+        var ws = updatedList.Find(listItem =>
+        {
+            if (ReferenceEquals(listItem, workingWs)) return true;
+            var workingTag = string.IsNullOrEmpty(workingWs.Id) ? workingWs.LanguageTag : workingWs.Id;
+            var listItemTag = string.IsNullOrEmpty(listItem.Id) ? listItem.LanguageTag : listItem.Id;
+            return string.Equals(listItemTag, workingTag);
+        });
+
+        if (ws != null)
+        {
+            updatedList.Remove(ws);
+        }
+
+        if (desiredIndex > updatedList.Count)
+        {
+            updatedList.Add(workingWs);
+        }
+        else
+        {
+            updatedList.Insert(desiredIndex, workingWs);
+        }
+
+        allWritingSystems.Clear();
+        allWritingSystems.AddRange(updatedList);
     }
 }

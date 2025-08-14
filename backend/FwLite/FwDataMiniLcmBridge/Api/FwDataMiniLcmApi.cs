@@ -19,6 +19,7 @@ using SIL.LCModel.Core.Text;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
+using CollectionExtensions = SIL.Extensions.CollectionExtensions;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -94,7 +95,7 @@ public class FwDataMiniLcmApi(
         {
             Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
                 FromLcmWritingSystem(definition, index, WritingSystemType.Vernacular)).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select((definition, index) =>
+            Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select((definition, index) =>
                 FromLcmWritingSystem(definition, index, WritingSystemType.Analysis)).ToArray()
         };
         CompleteExemplars(writingSystems);
@@ -117,7 +118,7 @@ public class FwDataMiniLcmApi(
         };
     }
 
-    public async Task<WritingSystem> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
         var writingSystems = await GetWritingSystems();
         return type switch
@@ -125,7 +126,7 @@ public class FwDataMiniLcmApi(
             WritingSystemType.Vernacular => writingSystems.Vernacular.FirstOrDefault(ws => ws.WsId == id),
             WritingSystemType.Analysis => writingSystems.Analysis.FirstOrDefault(ws => ws.WsId == id),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        } ?? throw new NullReferenceException($"unable to find writing system with id {id}");
+        };
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -149,7 +150,7 @@ public class FwDataMiniLcmApi(
         }
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         var type = writingSystem.Type;
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
@@ -158,10 +159,9 @@ public class FwDataMiniLcmApi(
             throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
         }
         CoreWritingSystemDefinition? ws = null;
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Writing System",
+        await Cache.DoUsingNewOrCurrentUOW("Create Writing System",
             "Remove writing system",
-            Cache.ServiceLocator.ActionHandler,
-            () =>
+            async () =>
             {
                 Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
@@ -176,6 +176,9 @@ public class FwDataMiniLcmApi(
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
+
+                if (between is not null && (between.Previous is not null || between.Next is not null))
+                    await MoveWritingSystem(writingSystem.WsId, type, between);
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
         var index = type switch
@@ -205,7 +208,7 @@ public class FwDataMiniLcmApi(
                 update.Apply(updateProxy);
                 return ValueTask.CompletedTask;
             });
-        return await GetWritingSystem(id, type);
+        return await GetWritingSystem(id, type) ?? throw new NullReferenceException($"unable to find writing system with id {id}");
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
@@ -217,6 +220,61 @@ public class FwDataMiniLcmApi(
                 await WritingSystemSync.Sync(before, after, api ?? this);
             });
         return await GetWritingSystem(after.WsId, after.Type) ?? throw new NullReferenceException($"unable to find {after.Type} writing system with id {after.WsId}");
+    }
+
+    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    {
+        var wsToUpdate = GetLexWritingSystem(id, type);
+        if (wsToUpdate is null) throw new NullReferenceException($"unable to find writing system with id {id}");
+        var previousWs = between.Previous is null ? null : GetLexWritingSystem(between.Previous.Value, type);
+        var nextWs = between.Next is null ? null : GetLexWritingSystem(between.Next.Value, type);
+        if (nextWs is null && previousWs is null) throw new NullReferenceException($"unable to find writing system with id {between.Previous} or {between.Next}");
+        await Cache.DoUsingNewOrCurrentUOW("Move WritingSystem",
+            "Revert Move WritingSystem",
+            () =>
+            {
+                var exitingWs = type == WritingSystemType.Analysis
+                    ? WritingSystemContainer.AnalysisWritingSystems
+                    : WritingSystemContainer.VernacularWritingSystems;
+                var currentExistingWs = type == WritingSystemType.Analysis
+                    ? WritingSystemContainer.CurrentAnalysisWritingSystems
+                    : WritingSystemContainer.CurrentVernacularWritingSystems;
+                MoveWs(wsToUpdate, previousWs, nextWs, exitingWs);
+                MoveWs(wsToUpdate, previousWs, nextWs, currentExistingWs);
+
+                void MoveWs(CoreWritingSystemDefinition ws,
+                    CoreWritingSystemDefinition? previous,
+                    CoreWritingSystemDefinition? next,
+                    ICollection<CoreWritingSystemDefinition> list)
+                {
+                    var index = -1;
+                    if (previous is not null)
+                    {
+                        index = CollectionExtensions.IndexOf(list, previous);
+                        if (index >= 0) index++;
+                    }
+
+                    if (index < 0 && next is not null)
+                    {
+                        index = CollectionExtensions.IndexOf(list, next);
+                    }
+
+                    if (index < 0)
+                        throw new InvalidOperationException("unable to find writing system with id " + between.Previous + " or " + between.Next);
+
+                    LcmHelpers.AddOrMoveInList(list, index, ws);
+                }
+
+                return ValueTask.CompletedTask;
+            });
+    }
+
+    private CoreWritingSystemDefinition? GetLexWritingSystem(WritingSystemId id, WritingSystemType type)
+    {
+        var exitingWs = type == WritingSystemType.Analysis
+            ? WritingSystemContainer.AnalysisWritingSystems
+            : WritingSystemContainer.VernacularWritingSystems;
+        return exitingWs.FirstOrDefault(ws => ws.Id == id);
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()

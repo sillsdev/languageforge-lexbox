@@ -18,9 +18,10 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public record DryRunRecord(string Method, string Description);
 
-    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
+    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? position = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateWritingSystem), $"Create writing system {writingSystem.Type}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateWritingSystem),
+        $"Create writing system {writingSystem.Type} between {position?.Previous} and {position?.Next}"));
         return Task.FromResult(writingSystem);
     }
 
@@ -43,6 +44,12 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateWritingSystem), $"Update {after.Type} writing system {after.WsId}"));
         return Task.FromResult(after);
+    }
+
+    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveWritingSystem), $"Move writing system {id} between {between.Previous} and {between.Next}"));
+        await Task.CompletedTask;
     }
 
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
