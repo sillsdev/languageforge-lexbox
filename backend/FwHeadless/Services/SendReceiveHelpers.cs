@@ -4,6 +4,8 @@ using SIL.Progress;
 
 namespace FwHeadless.Services;
 
+public class SendReceiveException(string? message) : Exception(message);
+
 public static class SendReceiveHelpers
 {
     private const string HgUsername = "FieldWorks Lite";
@@ -18,6 +20,13 @@ public static class SendReceiveHelpers
     };
 
     public record LfMergeBridgeResult(string Output, string ProgressMessages);
+
+    public static bool IsSuccess(LfMergeBridgeResult result)
+    {
+        if (result.ProgressMessages.Contains("Unable to complete the send/receive.")) return false;
+        if (result.ProgressMessages.Contains("Rolling back...")) return false;
+        return true;
+    }
 
     private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
     {
