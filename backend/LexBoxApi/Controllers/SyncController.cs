@@ -51,4 +51,27 @@ public class SyncController(
             return Ok(new SyncJobResult(SyncJobStatusEnum.TimedOutAwaitingSyncStatus, "Timed out awaiting sync status"));
         }
     }
+
+    [HttpPost("regenerate-snapshot/{projectId}")]
+    [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId)
+    {
+        await permissionService.AssertCanSyncProject(projectId);
+        try
+        {
+            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId);
+            if (result is not null)
+            {
+                return Problem(result);
+            }
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return Problem(e.Message);
+        }
+    }
 }

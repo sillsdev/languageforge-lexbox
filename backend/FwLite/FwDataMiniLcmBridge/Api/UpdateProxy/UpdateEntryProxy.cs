@@ -21,8 +21,11 @@ public record UpdateEntryProxy : Entry
     {
         get
         {
-            _lcmEntry.LexemeFormOA ??= _lexboxLcmApi.Cache.CreateLexemeForm();
-            return new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
+            var form = _lcmEntry.LexemeFormOA ?? LcmHelpers.SetLexemeForm(
+                _lcmEntry,
+                LcmHelpers.FromLcmMorphType(_lcmEntry.PrimaryMorphType),
+                _lexboxLcmApi.Cache);
+            return new UpdateMultiStringProxy(form.Form, _lexboxLcmApi);
         }
         set => throw new NotImplementedException();
     }
@@ -37,6 +40,12 @@ public record UpdateEntryProxy : Entry
     {
         get => new UpdateRichMultiStringProxy(_lcmEntry.LiteralMeaning, _lexboxLcmApi);
         set => throw new NotImplementedException();
+    }
+
+    public override MorphType MorphType
+    {
+        get => throw new NotImplementedException();
+        set => Console.WriteLine("setting MorphType not implemented"); // Not throwing, for now
     }
 
     public override List<Sense> Senses

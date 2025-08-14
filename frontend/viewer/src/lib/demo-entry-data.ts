@@ -1,4 +1,4 @@
-import {type IEntry, type IWritingSystems, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IWritingSystems, MorphType, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
@@ -40,7 +40,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
-      'order': 0,
       isAudio: false,
     },
     {
@@ -51,7 +50,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Analysis,
-      'order': 1,
       isAudio: false,
     }
   ],
@@ -64,7 +62,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
-      'order': 0,
       isAudio: false,
     },
     {
@@ -75,7 +72,6 @@ export const writingSystems: IWritingSystems = {
       'font': '???',
       'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
       'type': WritingSystemType.Vernacular,
-      'order': 1,
       isAudio: false,
     }
   ]
@@ -88,6 +84,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'a' },
     'citationForm': {},
     'literalMeaning': {},
+    morphType: MorphType.Stem,
     'senses': [
       {
         'id': 'f53f0f28-3ec1-4051-b9a3-fafdca6209ce',
@@ -146,6 +143,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'dance' },
     'citationForm': {},
     'literalMeaning': {},
+    morphType: MorphType.Stem,
     'senses': [
       {
         'id': 'f53f0f29-3ec1-4051-b9a3-fafdca6209ce',

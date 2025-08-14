@@ -2,6 +2,8 @@
 using Bogus;
 using LcmCrdt.FullTextSearch;
 using LinqToDB;
+using LinqToDB.Data;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Culture;
 using Xunit.Abstractions;
@@ -27,19 +29,27 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         }
     }
 
+    private async Task SimpleBulkAdd(Entry[] entries, EntrySearchService entrySearchService)
+    {
+        await using var linqToDbContext = _fixture.DbContext.CreateLinqToDBContext();
+        await linqToDbContext.GetTable<Entry>().BulkCopyAsync(entries);
+        await entrySearchService.RegenerateEntrySearchTable();
+    }
+
     [Theory]
     [InlineData(50_000)]
     //disabled because it takes too long to run
-    // [InlineData(100_000)]
+    [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
         await DeleteAllEntries();
         var faker = new Faker { Random = new Randomizer(8675309) };
         var ids = Enumerable.Range(0, count).Select(_ => Guid.NewGuid()).ToHashSet();
         var entries = ids.Select(id => new Entry { Id = id, LexemeForm = { ["en"] = faker.Name.FirstName() } }).ToArray();
-        await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
         var entrySearchService = _fixture.GetService<EntrySearchServiceFactory>().CreateSearchService(_fixture.DbContext);
+        await SimpleBulkAdd(entries, entrySearchService);
         entrySearchService.EntrySearchRecords.Should().HaveCount(count);
+        _fixture.DbContext.Entries.Should().HaveCount(count);
         var searchString = "tes";
         var expectedResultCount = entries.Count(e => e.LexemeForm["en"].ContainsDiacriticMatch(searchString));
 
