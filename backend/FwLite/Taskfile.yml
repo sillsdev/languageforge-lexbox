@@ -10,7 +10,7 @@ tasks:
   web:
     aliases:
       - web-for-develop
-    label: Run FwLiteWeb with Local LexBox, requires vite dev server to be running, use task fw-lite-web in root
+    desc: Run FwLiteWeb with Local LexBox, requires vite dev server to be running, use task fw-lite-web in root
     dir: ./FwLiteWeb
     cmd: dotnet watch --no-hot-reload
   web-prod:
@@ -18,7 +18,7 @@ tasks:
     dir: ./FwLiteWeb
     cmd: dotnet run -- --FwLite:UseDevAssets=false
   web-chaos:
-    label: Run FwLiteWeb with some Chaos injected to http requests to lexbox, requests will have chaos 30% of the time, this includes some latency of 5 seconds
+    desc: Run FwLiteWeb with some Chaos injected to http requests to lexbox, requests will have chaos 30% of the time, this includes some latency of 5 seconds
     dir: ./FwLiteWeb
     env:
       FW_LITE_CHAOS: true
@@ -28,7 +28,6 @@ tasks:
     cmd: dotnet tool restore
   add-migration:
     deps: [ tool-restore ]
-    label: Add Migration
     desc: 'Usage: task add-migration -- "MigrationName"'
     dir: ./LcmCrdt
     cmd: dotnet ef migrations add {{.CLI_ARGS}}
@@ -47,12 +46,11 @@ tasks:
       - dotnet ef migrations remove
 
   maui-windows:
-    label: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
+    desc: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
     dir: ./FwLiteMaui
     cmd: dotnet run -f net9.0-windows10.0.19041.0
 
   publish-maui-windows:
-    label: Publish Maui Windows
     dir: ./FwLiteMaui
     cmds:
       - dotnet publish -f net9.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None
@@ -60,12 +58,10 @@ tasks:
 
   build-maui-android:
     deps: [ ui:build-viewer ]
-    label: Build Maui Android
     dir: ./FwLiteMaui
     cmd: dotnet build -f net9.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True # "-p:AndroidSdkDirectory=D:\tools\android"
 
   build-mini-lcm-sdk:
-    label: Build MiniLcm SDK
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
     dir: ./FwLiteWeb
     deps: [ ui:build-viewer ]

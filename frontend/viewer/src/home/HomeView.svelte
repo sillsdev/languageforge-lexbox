@@ -131,7 +131,7 @@
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} class="size-8" alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}

@@ -174,6 +174,10 @@ public static class LcmCrdtKernel
                 builder.HasOne<Entry>()
                     .WithMany(e => e.Senses)
                     .HasForeignKey(sense => sense.EntryId);
+                builder.HasOne<PartOfSpeech>(sense => sense.PartOfSpeech)
+                    .WithMany()
+                    .HasForeignKey(sense => sense.PartOfSpeechId)
+                    .OnDelete(DeleteBehavior.SetNull);
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
@@ -259,6 +263,7 @@ public static class LcmCrdtKernel
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
+            .Add<Changes.SetOrderChange<WritingSystem>>()
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
