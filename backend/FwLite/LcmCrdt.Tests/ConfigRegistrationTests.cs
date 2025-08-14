@@ -8,7 +8,7 @@ namespace LcmCrdt.Tests;
 
 public class ConfigRegistrationTests
 {
-    private readonly HashSet<Type> ExcludedObjectTypes = [typeof(MorphType)]; // Remove from exclude list once CRDT supports morph types
+    private readonly HashSet<Type> ExcludedObjectTypes = [typeof(MorphTypeData)]; // Remove from exclude list once CRDT supports morph types
 
     private readonly HashSet<Type> _excludedChangeTypes =
     [
