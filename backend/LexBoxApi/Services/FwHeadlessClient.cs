@@ -8,7 +8,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
 {
     public async Task<bool> CrdtSync(Guid projectId)
     {
-        var response = await httpClient.PostAsync($"/api/crdt-sync?projectId={projectId}", null);
+        var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
         if (response.IsSuccessStatusCode)
             return true;
         logger.LogError("Failed to sync CRDT: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
@@ -20,7 +20,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
 
     public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetAsync($"/api/await-sync-finished?projectId={projectId}", cancellationToken);
+        var response = await httpClient.GetAsync($"/api/merge/await-finished?projectId={projectId}", cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -43,7 +43,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
 
     public async Task<ProjectSyncStatus?> CrdtSyncStatus(Guid projectId)
     {
-        var response = await httpClient.GetAsync($"/api/crdt-sync-status?projectId={projectId}");
+        var response = await httpClient.GetAsync($"/api/merge/status?projectId={projectId}");
         if (response.IsSuccessStatusCode)
             return await response.Content.ReadFromJsonAsync<ProjectSyncStatus>();
         logger.LogError("Failed to get CRDT sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
@@ -67,5 +67,22 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             projectId,
             await response.Content.ReadAsStringAsync(cancellationToken));
         return false;
+    }
+
+    public async Task<string?> RegenerateProjectSnapshot(Guid projectId)
+    {
+        var response = await httpClient.PostAsync($"/api/merge/regenerate-snapshot?projectId={projectId}", null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            logger.LogError("Failed to regenerate project snapshot: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                responseBody);
+            return responseBody;
+        }
+
+        return null;
     }
 }

@@ -1,9 +1,13 @@
 ﻿using System.Text.Json.Serialization;
+using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 
-public record WritingSystem: IObjectWithId<WritingSystem>
+public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
 {
+    /// <summary>
+    /// this ID is always empty when working with FW data, it is only used when working with CRDTs
+    /// </summary>
     public required Guid Id { get; set; }
     public virtual required WritingSystemId WsId { get; set; }
     public bool IsAudio => WsId.IsAudio;
@@ -18,6 +22,7 @@ public record WritingSystem: IObjectWithId<WritingSystem>
 
     public static string[] LatinExemplars => Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
 
+    [MiniLcmInternal]
     public double Order { get; set; }
 
     public Guid[] GetReferences()

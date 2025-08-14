@@ -61,7 +61,7 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
     //by default the first sync is an import, this will skip that so that the sync will actually sync data
     private async Task BypassImport(bool wsImported = false)
     {
-        var snapshot = CrdtFwdataProjectSyncService.ProjectSnapshot.Empty;
+        var snapshot = ProjectSnapshot.Empty;
         if (wsImported) snapshot = snapshot with { WritingSystems = await _fwDataApi.GetWritingSystems() };
         await _syncService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
     }
@@ -137,6 +137,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var fwdataEntries = await _fwDataApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
         fwdataEntries.Count.Should().Be(_fwDataApi.EntryCount);
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
+        SyncTests.AssertSnapshotsAreEquivalent(
+            await _fwDataApi.TakeProjectSnapshot(),
+            await _crdtApi.TakeProjectSnapshot()
+        );
     }
 
     [Fact]
@@ -154,6 +158,10 @@ public class Sena3SyncTests : IClassFixture<Sena3Fixture>, IAsyncLifetime
         var fwdataEntries = await _fwDataApi.GetAllEntries().ToDictionaryAsync(e => e.Id);
         fwdataEntries.Count.Should().Be(_fwDataApi.EntryCount);
         ShouldAllBeEquivalentTo(crdtEntries, fwdataEntries);
+        SyncTests.AssertSnapshotsAreEquivalent(
+            await _fwDataApi.TakeProjectSnapshot(),
+            await _crdtApi.TakeProjectSnapshot()
+        );
     }
 
     [Fact]

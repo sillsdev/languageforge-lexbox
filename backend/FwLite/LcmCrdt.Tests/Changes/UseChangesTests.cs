@@ -199,6 +199,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
 
+        var setWritingSystemOrderChange = new LcmCrdt.Changes.SetOrderChange<WritingSystem>(writingSystem.Id, 10);
+        yield return new ChangeWithDependencies(setWritingSystemOrderChange, [createWritingSystemChange]);
+
         var publication = new Publication { Id = Guid.NewGuid(), Name = { { "en", "Main" } } };
         var createPublicationChange = new CreatePublicationChange(publication.Id, publication.Name);
         yield return new ChangeWithDependencies(createPublicationChange);

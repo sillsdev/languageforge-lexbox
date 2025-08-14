@@ -80,7 +80,7 @@
 
   let wavesurfer: WaveSurfer | undefined;
   let recorder: RecordPlugin | undefined;
-  let micActivatorStream: MediaStream | undefined;
+  let micActivatorStreamPromise: Promise<MediaStream> | undefined;
 
   watch(() => container, (newContainer) => {
     reset();
@@ -111,12 +111,17 @@
     // Request access/activate mic early so it's ready on demand and there's no initial crackle
     // Note: I don't think any browser enforces getUserMedia() to be called in the context of a user gesture
     // except when the user has previously denied access, in which case this could be sub-optimal
-    micActivatorStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    // assign the promise before we wait for it so onDestroy can always see it
+    micActivatorStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
+    await micActivatorStreamPromise;
   }
 
   function cleanUpStream() {
-    micActivatorStream?.getTracks().forEach(track => track.stop());
-    micActivatorStream = undefined;
+    void micActivatorStreamPromise?.then(stream => {
+      stream.getTracks().forEach(track => track.stop());
+    });
+    micActivatorStreamPromise = undefined;
   }
 
   function initRecorder(container: string | HTMLElement) {

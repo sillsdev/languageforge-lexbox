@@ -192,6 +192,9 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<int>("MorphType")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -651,7 +654,8 @@ namespace LcmCrdt.Migrations
 
                     b.HasOne("MiniLcm.Models.PartOfSpeech", "PartOfSpeech")
                         .WithMany()
-                        .HasForeignKey("PartOfSpeechId");
+                        .HasForeignKey("PartOfSpeechId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()

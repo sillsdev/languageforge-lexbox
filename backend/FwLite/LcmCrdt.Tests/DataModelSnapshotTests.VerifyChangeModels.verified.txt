@@ -171,6 +171,10 @@
     {
       DerivedType: SetOrderChange<ComplexFormComponent>,
       TypeDiscriminator: SetOrderChange:ComplexFormComponent
+    },
+    {
+      DerivedType: SetOrderChange<WritingSystem>,
+      TypeDiscriminator: SetOrderChange:WritingSystem
     }
   ],
   IgnoreUnrecognizedTypeDiscriminators: false,

@@ -7,7 +7,7 @@ namespace FwLiteProjectSync;
 
 public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(typeof(IMiniLcmReadApi))]
+    [BeaKona.AutoInterface(typeof(IMiniLcmReadApi), MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     public void Dispose()
@@ -18,9 +18,10 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public record DryRunRecord(string Method, string Description);
 
-    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem)
+    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? position = null)
     {
-        DryRunRecords.Add(new DryRunRecord(nameof(CreateWritingSystem), $"Create writing system {writingSystem.Type}"));
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateWritingSystem),
+        $"Create writing system {writingSystem.Type} between {position?.Previous} and {position?.Next}"));
         return Task.FromResult(writingSystem);
     }
 
@@ -43,6 +44,12 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(UpdateWritingSystem), $"Update {after.Type} writing system {after.WsId}"));
         return Task.FromResult(after);
+    }
+
+    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(MoveWritingSystem), $"Move writing system {id} between {between.Previous} and {between.Next}"));
+        await Task.CompletedTask;
     }
 
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -116,6 +123,31 @@ public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task DeleteComplexFormType(Guid id)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormType), $"Delete complex form type {id}"));
+        return Task.CompletedTask;
+    }
+
+    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphType)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateMorphTypeData),
+            $"Create morph type {morphType.Name}"));
+        return Task.FromResult(morphType);
+    }
+
+    public async Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateMorphTypeData), $"Update morph type {id}"));
+        return await _api.GetMorphTypeData(id) ?? throw new NullReferenceException($"unable to find morph type with id {id}");
+    }
+
+    public Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdateMorphTypeData), $"Update morph type {after.Id}"));
+        return Task.FromResult(after);
+    }
+
+    public Task DeleteMorphTypeData(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteMorphTypeData), $"Delete morph type {id}"));
         return Task.CompletedTask;
     }
 

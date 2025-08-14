@@ -5,7 +5,8 @@ namespace LcmCrdt;
 
 public static class OrderPicker
 {
-    public static async Task<double> PickOrder<T>(IQueryable<T> siblings, BetweenPosition? between = null) where T : class, IOrderable
+    public static async Task<double> PickOrder<T>(IQueryable<T> siblings, BetweenPosition? between = null)
+        where T : class, IOrderableNoId, IObjectWithId//this is weird, but WritingSystems should not be IOrderable, because that won't work with FW data, but they have Ids when working with CRDTs
     {
         // a common case that we can optimize by not querying whole objects
         if (between is null or { Previous: null, Next: null })

@@ -25,6 +25,16 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return Task.FromResult<ComplexFormType?>(null);
     }
 
+    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    {
+        return AsyncEnumerable.Empty<MorphTypeData>();
+    }
+
+    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    {
+        return Task.FromResult<MorphTypeData?>(null);
+    }
+
     private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
     private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
 
@@ -61,6 +71,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             Vernacular = vernacular.ToArray(),
             Analysis = analysis.ToArray()
+        };
+    }
+
+    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    {
+        var ws = await GetWritingSystems();
+        return type switch
+        {
+            WritingSystemType.Vernacular => ws.Vernacular.FirstOrDefault(w => w.WsId == id),
+            WritingSystemType.Analysis => ws.Analysis.FirstOrDefault(w => w.WsId == id),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
 
