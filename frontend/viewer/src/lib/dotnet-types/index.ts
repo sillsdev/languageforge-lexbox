@@ -23,6 +23,7 @@ export * from './generated-types/MiniLcm/Models/IWritingSystem';
 export * from './generated-types/MiniLcm/Models/IWritingSystems';
 export * from './generated-types/MiniLcm/Models/ProjectDataFormat';
 export * from './generated-types/MiniLcm/Models/WritingSystemType';
+export * from './generated-types/MiniLcm/Models/MorphType';
 export * from './generated-types/MiniLcm/ICountQueryOptions';
 export * from './generated-types/MiniLcm/IExemplarOptions';
 export * from './generated-types/MiniLcm/IFilterQueryOptions';

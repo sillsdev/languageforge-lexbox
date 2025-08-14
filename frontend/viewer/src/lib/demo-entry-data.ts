@@ -1,4 +1,4 @@
-import {type IEntry, type IWritingSystems, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IWritingSystems, MorphType, WritingSystemType} from '$lib/dotnet-types';
 
 export const projectName = 'Sena 3';
 
@@ -88,6 +88,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'a' },
     'citationForm': {},
     'literalMeaning': {},
+    morphType: MorphType.Stem,
     'senses': [
       {
         'id': 'f53f0f28-3ec1-4051-b9a3-fafdca6209ce',
@@ -146,6 +147,7 @@ export const _entries: IEntry[] = [
     'lexemeForm': { 'seh': 'dance' },
     'citationForm': {},
     'literalMeaning': {},
+    morphType: MorphType.Stem,
     'senses': [
       {
         'id': 'f53f0f29-3ec1-4051-b9a3-fafdca6209ce',

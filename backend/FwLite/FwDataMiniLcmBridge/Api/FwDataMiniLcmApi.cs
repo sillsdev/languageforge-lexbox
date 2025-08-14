@@ -489,6 +489,70 @@ public class FwDataMiniLcmApi(
             });
     }
 
+    public IAsyncEnumerable<MorphTypeData> GetAllMorphTypeData()
+    {
+        return
+            MorphTypeRepository
+            .AllInstances()
+            .ToAsyncEnumerable()
+            .Select(FromLcmMorphType);
+    }
+
+    public Task<MorphTypeData?> GetMorphTypeData(Guid id)
+    {
+        MorphTypeRepository.TryGetObject(id, out var lcmMorphType);
+        if (lcmMorphType is null) return Task.FromResult<MorphTypeData?>(null);
+        return Task.FromResult<MorphTypeData?>(FromLcmMorphType(lcmMorphType));
+    }
+
+    internal MorphTypeData FromLcmMorphType(IMoMorphType morphType)
+    {
+        return new MorphTypeData
+        {
+            Id = morphType.Guid,
+            MorphType = LcmHelpers.FromLcmMorphType(morphType),
+            Name = FromLcmMultiString(morphType.Name),
+            Abbreviation = FromLcmMultiString(morphType.Abbreviation),
+            Description = FromLcmMultiString(morphType.Description),
+            LeadingToken = morphType.Prefix,
+            TrailingToken = morphType.Postfix,
+            SecondaryOrder = morphType.SecondaryOrder,
+        };
+    }
+
+    public Task<MorphTypeData> CreateMorphTypeData(MorphTypeData morphTypeData)
+    {
+        // Creating new morph types not allowed in FwData projects, so silently ignore operation
+        return Task.FromResult(morphTypeData);
+    }
+
+    public Task<MorphTypeData> UpdateMorphTypeData(Guid id, UpdateObjectInput<MorphTypeData> update)
+    {
+        var lcmMorphType = MorphTypeRepository.GetObject(id);
+        if (lcmMorphType is null) throw new NullReferenceException($"unable to find morph type with id {id}");
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Morph Type",
+            "Revert Morph Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdateMorphTypeDataProxy(lcmMorphType, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmMorphType(lcmMorphType));
+    }
+
+    public async Task<MorphTypeData> UpdateMorphTypeData(MorphTypeData before, MorphTypeData after, IMiniLcmApi? api = null)
+    {
+        await MorphTypeDataSync.Sync(before, after, api ?? this);
+        return await GetMorphTypeData(after.Id) ?? throw new NullReferenceException("unable to find morph type with id " + after.Id);
+    }
+
+    public Task DeleteMorphTypeData(Guid id)
+    {
+        // Deleting morph types not allowed in FwData projects, so silently ignore operation
+        return Task.CompletedTask;
+    }
+
     public IAsyncEnumerable<VariantType> GetVariantTypes()
     {
         return VariantTypes.PossibilitiesOS
@@ -534,6 +598,7 @@ public class FwDataMiniLcmApi(
                 LexemeForm = FromLcmMultiString(entry.LexemeFormOA?.Form),
                 CitationForm = FromLcmMultiString(entry.CitationForm),
                 LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
+                MorphType = LcmHelpers.FromLcmMorphType(entry.PrimaryMorphType), // TODO: Decide what to do about entries with *mixed* morph types
                 Senses = entry.AllSenses.Select(FromLexSense).ToList(),
                 ComplexFormTypes = ToComplexFormTypes(entry),
                 Components = ToComplexFormComponents(entry).ToList(),
@@ -843,7 +908,7 @@ public class FwDataMiniLcmApi(
                 Cache.ServiceLocator.ActionHandler,
                 () =>
                 {
-                    var lexEntry = Cache.CreateEntry(entry.Id);
+                    var lexEntry = Cache.CreateEntry(entry.Id, entry.MorphType);
                     UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                     UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                     UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
