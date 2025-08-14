@@ -126,7 +126,7 @@ msgstr "항목"
 msgid "Any Ws"
 msgstr "모든 W"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Application version"
 msgstr "애플리케이션 버전"
 
@@ -189,7 +189,7 @@ msgstr "인용 양식"
 msgid "Citation Form"
 msgstr "인용 양식"
 
-#: src/home/HomeView.svelte:261
+#: src/home/HomeView.svelte:260
 msgid "Classic FieldWorks Projects"
 msgstr "클래식 FieldWorks 프로젝트"
 
@@ -249,7 +249,7 @@ msgstr "{0}만들기"
 msgid "Create entry"
 msgstr "항목 만들기"
 
-#: src/home/HomeView.svelte:240
+#: src/home/HomeView.svelte:239
 msgid "Create Example Project"
 msgstr "예제 프로젝트 만들기"
 
@@ -271,7 +271,7 @@ msgstr "현재 단어"
 msgid "Dashboard"
 msgstr "대시보드"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:48
 msgid "Data Directory"
 msgstr "데이터 디렉토리"
 
@@ -279,7 +279,7 @@ msgstr "데이터 디렉토리"
 msgid "Definition"
 msgstr "정의"
 
-#: src/home/HomeView.svelte:222
+#: src/home/HomeView.svelte:221
 msgid "Delete"
 msgstr "삭제"
 
@@ -296,8 +296,8 @@ msgstr "항목 삭제"
 msgid "Delete Word"
 msgstr "단어 삭제"
 
-#: src/home/HomeView.svelte:132
-#: src/home/HomeView.svelte:136
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr "사전"
 
@@ -405,11 +405,12 @@ msgstr "문장 예시"
 msgid "Failed to download {0}"
 msgstr "다운로드에 실패했습니다 {0}"
 
-#: src/project/browse/EntriesList.svelte:134
+#: src/project/browse/EntriesList.svelte:143
+#: src/project/browse/EntriesList.svelte:99
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:28
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "데이터 디렉토리를 열지 못했습니다. 대신 텍스트 필드에 경로를 사용하세요."
 
@@ -422,7 +423,7 @@ msgid "Failed to synchronize."
 msgstr "동기화하지 못했습니다."
 
 #: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:155
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr "피드백"
 
@@ -436,7 +437,7 @@ msgstr "필드 레이블"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:267
+#: src/home/HomeView.svelte:266
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
@@ -528,7 +529,7 @@ msgstr "길게 눌러 녹화하거나\\n을 눌렀다 놓으면 녹화가 시작
 msgid "I don't see my project"
 msgstr "내 프로젝트가 보이지 않습니다."
 
-#: src/home/HomeView.svelte:275
+#: src/home/HomeView.svelte:274
 msgid "Import"
 msgstr "가져오기"
 
@@ -541,7 +542,7 @@ msgstr "마지막 변경 사항: {0}"
 msgid "Length:"
 msgstr "길이:"
 
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr "렉스박스 로고"
 
@@ -565,15 +566,15 @@ msgstr "문자 그대로의 의미"
 msgid "Loading Dictionaries..."
 msgstr "사전 로드 중..."
 
-#: src/home/HomeView.svelte:176
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "로딩 중..."
 
-#: src/home/HomeView.svelte:181
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr "로컬"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:202
 msgid "Local only"
 msgstr "로컬 전용"
 
@@ -653,7 +654,7 @@ msgstr "이름 변경 안 함"
 msgid "No Dictionaries found"
 msgstr "사전을 찾을 수 없습니다."
 
-#: src/project/browse/EntriesList.svelte:160
+#: src/project/browse/EntriesList.svelte:168
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "항목을 찾을 수 없습니다."
@@ -711,7 +712,7 @@ msgstr "오프라인"
 msgid "Offline, unable to download"
 msgstr "오프라인 상태, 다운로드할 수 없음"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:53
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
 
@@ -723,7 +724,7 @@ msgstr "FieldWorks에서 열기"
 msgid "Open in new Window"
 msgstr "새 창에서 열기"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:68
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
@@ -760,7 +761,7 @@ msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
-#: src/home/HomeView.svelte:246
+#: src/home/HomeView.svelte:245
 msgid "Project name..."
 msgstr "프로젝트 이름..."
 
@@ -774,7 +775,7 @@ msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:185
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "프로젝트 새로 고침"
 
@@ -842,11 +843,11 @@ msgstr "설정"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn 샌드박스 # #"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:72
 msgid "Share Log file"
 msgstr "로그 파일 공유"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:61
 msgid "Share project data file"
 msgstr ""
 
@@ -881,7 +882,7 @@ msgstr "제출하기"
 msgid "Synced"
 msgstr "동기화"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:202
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
@@ -929,9 +930,9 @@ msgid "Translation"
 msgstr "번역"
 
 #: src/project/ProjectSidebar.svelte:172
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
-#: src/home/HomeView.svelte:161
-#: src/home/HomeView.svelte:217
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
+#: src/home/HomeView.svelte:160
+#: src/home/HomeView.svelte:216
 msgid "Troubleshoot"
 msgstr "문제 해결"
 

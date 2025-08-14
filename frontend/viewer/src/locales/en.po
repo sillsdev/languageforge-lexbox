@@ -121,7 +121,7 @@ msgstr "an entry"
 msgid "Any Ws"
 msgstr "Any Ws"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
 msgid "Application version"
 msgstr "Application version"
 
@@ -184,7 +184,7 @@ msgstr "Citation form"
 msgid "Citation Form"
 msgstr "Citation Form"
 
-#: src/home/HomeView.svelte:261
+#: src/home/HomeView.svelte:260
 msgid "Classic FieldWorks Projects"
 msgstr "Classic FieldWorks Projects"
 
@@ -244,7 +244,7 @@ msgstr "Create {0}"
 msgid "Create entry"
 msgstr "Create entry"
 
-#: src/home/HomeView.svelte:240
+#: src/home/HomeView.svelte:239
 msgid "Create Example Project"
 msgstr "Create Example Project"
 
@@ -266,7 +266,7 @@ msgstr "Current Word"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:45
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:48
 msgid "Data Directory"
 msgstr "Data Directory"
 
@@ -274,7 +274,7 @@ msgstr "Data Directory"
 msgid "Definition"
 msgstr "Definition"
 
-#: src/home/HomeView.svelte:222
+#: src/home/HomeView.svelte:221
 msgid "Delete"
 msgstr "Delete"
 
@@ -291,8 +291,8 @@ msgstr "Delete Entry"
 msgid "Delete Word"
 msgstr "Delete Word"
 
-#: src/home/HomeView.svelte:132
-#: src/home/HomeView.svelte:136
+#: src/home/HomeView.svelte:131
+#: src/home/HomeView.svelte:135
 msgid "Dictionaries"
 msgstr "Dictionaries"
 
@@ -400,11 +400,12 @@ msgstr "Example sentence"
 msgid "Failed to download {0}"
 msgstr "Failed to download {0}"
 
-#: src/project/browse/EntriesList.svelte:134
+#: src/project/browse/EntriesList.svelte:143
+#: src/project/browse/EntriesList.svelte:99
 msgid "Failed to load entries"
 msgstr "Failed to load entries"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:31
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:28
 msgid "Failed to open data directory, use the path in the text field instead"
 msgstr "Failed to open data directory, use the path in the text field instead"
 
@@ -417,7 +418,7 @@ msgid "Failed to synchronize."
 msgstr "Failed to synchronize."
 
 #: src/project/ProjectSidebar.svelte:181
-#: src/home/HomeView.svelte:155
+#: src/home/HomeView.svelte:154
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -431,7 +432,7 @@ msgstr "Field Labels"
 
 #: src/project/ProjectDropdown.svelte:69
 #: src/lib/OpenInFieldWorksButton.svelte:55
-#: src/home/HomeView.svelte:267
+#: src/home/HomeView.svelte:266
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
 
@@ -523,7 +524,7 @@ msgstr "Hold to record or\\npress and release to start recording."
 msgid "I don't see my project"
 msgstr "I don't see my project"
 
-#: src/home/HomeView.svelte:275
+#: src/home/HomeView.svelte:274
 msgid "Import"
 msgstr "Import"
 
@@ -536,7 +537,7 @@ msgstr "Last change: {0}"
 msgid "Length:"
 msgstr "Length:"
 
-#: src/home/HomeView.svelte:135
+#: src/home/HomeView.svelte:134
 msgid "Lexbox logo"
 msgstr "Lexbox logo"
 
@@ -560,15 +561,15 @@ msgstr "Literal meaning"
 msgid "Loading Dictionaries..."
 msgstr "Loading Dictionaries..."
 
-#: src/home/HomeView.svelte:176
+#: src/home/HomeView.svelte:175
 msgid "loading..."
 msgstr "loading..."
 
-#: src/home/HomeView.svelte:181
+#: src/home/HomeView.svelte:180
 msgid "Local"
 msgstr "Local"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:202
 msgid "Local only"
 msgstr "Local only"
 
@@ -648,7 +649,7 @@ msgstr "No change name"
 msgid "No Dictionaries found"
 msgstr "No Dictionaries found"
 
-#: src/project/browse/EntriesList.svelte:160
+#: src/project/browse/EntriesList.svelte:168
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "No entries found"
@@ -706,7 +707,7 @@ msgstr "Offline"
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:50
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:53
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
 
@@ -718,7 +719,7 @@ msgstr "Open in FieldWorks"
 msgid "Open in new Window"
 msgstr "Open in new Window"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:65
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:68
 msgid "Open Log file"
 msgstr "Open Log file"
 
@@ -755,7 +756,7 @@ msgstr "Project {0} not found on {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 
-#: src/home/HomeView.svelte:246
+#: src/home/HomeView.svelte:245
 msgid "Project name..."
 msgstr "Project name..."
 
@@ -769,7 +770,7 @@ msgid "Refine your filter to see more..."
 msgstr "Refine your filter to see more..."
 
 #: src/home/Server.svelte:119
-#: src/home/HomeView.svelte:185
+#: src/home/HomeView.svelte:184
 msgid "Refresh Projects"
 msgstr "Refresh Projects"
 
@@ -837,11 +838,11 @@ msgstr "Settings"
 msgid "Shadcn Sandbox # #"
 msgstr "Shadcn Sandbox # #"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:69
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:72
 msgid "Share Log file"
 msgstr "Share Log file"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:58
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:61
 msgid "Share project data file"
 msgstr "Share project data file"
 
@@ -876,7 +877,7 @@ msgstr "Submit"
 msgid "Synced"
 msgstr "Synced"
 
-#: src/home/HomeView.svelte:203
+#: src/home/HomeView.svelte:202
 msgid "Synced with {0}"
 msgstr "Synced with {0}"
 
@@ -924,9 +925,9 @@ msgid "Translation"
 msgstr "Translation"
 
 #: src/project/ProjectSidebar.svelte:172
-#: src/lib/troubleshoot/TroubleshootDialog.svelte:39
-#: src/home/HomeView.svelte:161
-#: src/home/HomeView.svelte:217
+#: src/lib/troubleshoot/TroubleshootDialog.svelte:42
+#: src/home/HomeView.svelte:160
+#: src/home/HomeView.svelte:216
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
 
