@@ -101,8 +101,10 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         var posId = Guid.NewGuid();
         var pos = new PartOfSpeech() { Id = posId, Name = { { "en", "Test POS" } } };
         await Api.CreatePartOfSpeech(pos);
+        var entryId = Guid.NewGuid();
         await Api.CreateEntry(new Entry()
         {
+            Id = entryId,
             LexemeForm = { { "en", "Apple" } },
             Senses =
             [
@@ -114,5 +116,12 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
 
         var partOfSpeech = await Api.GetPartOfSpeech(posId);
         partOfSpeech.Should().BeNull();
+
+        // verify the referencing sense Pos is null
+        var entry = await Api.GetEntry(entryId);
+        entry.Should().NotBeNull();
+        var sense = entry!.Senses.Single();
+        sense.PartOfSpeechId.Should().BeNull();
+        sense.PartOfSpeech.Should().BeNull();
     }
 }
