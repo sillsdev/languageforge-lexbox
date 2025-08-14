@@ -1,8 +1,9 @@
 <script lang="ts">
-  import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
   import {Icon} from '$lib/components/ui/icon';
   import {useFwLiteConfig} from '$lib/services/service-provider';
+  import {Button} from '$lib/components/ui/button';
+  import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
 
   let {open = $bindable()}: { open: boolean } = $props();
   const config = useFwLiteConfig();
@@ -11,13 +12,9 @@
   const mailtoUrl = `mailto:lexbox_support@groups.sil.org?subject=${encodeURIComponent('FW Lite Feedback')}&body=${encodeURIComponent(`App Version: ${appVersion} on ${config.os.toString()}`)}`;
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.Content class="!max-h-none !min-h-0">
-    <Dialog.Header>
-      <Dialog.Title>{$t`Feedback`}</Dialog.Title>
-    </Dialog.Header>
+<ResponsiveDialog bind:open title={$t`Feedback`}>
     <div class="flex flex-col gap-4">
-      <a href="https://lexbox.org/fw-lite/request-features" target="_blank" class="flex items-center gap-4 p-4 rounded-lg hover:bg-muted">
+      <Button variant="ghost" href="https://lexbox.org/fw-lite/request-features" target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-lightbulb-on-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">{$t`Suggest your ideas`}</div>
@@ -25,8 +22,8 @@
             {$t`Share your suggestions for new features or improvements.`}
           </div>
         </div>
-      </a>
-      <a href={config.feedbackUrl} target="_blank" class="flex items-center gap-4 p-4 rounded-lg hover:bg-muted">
+      </Button>
+      <Button variant="ghost" href={config.feedbackUrl} target="_blank" class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-bug-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">
@@ -37,8 +34,8 @@
             {$t`Let us know about any bugs or technical issues you encounter.`}
           </div>
         </div>
-      </a>
-      <a href={mailtoUrl} class="flex items-center gap-4 p-4 rounded-lg hover:bg-muted">
+      </Button>
+      <Button variant="ghost" href={mailtoUrl} class="gap-4 p-4 h-auto text-base justify-start whitespace-normal">
         <Icon icon="i-mdi-email-outline" class="size-10"/>
         <div>
           <div class="font-semibold underline">
@@ -48,7 +45,6 @@
             {$t`For any other inquiries, feel free to send us an email.`}
           </div>
         </div>
-      </a>
+      </Button>
     </div>
-  </Dialog.Content>
-</Dialog.Root>
+</ResponsiveDialog>
