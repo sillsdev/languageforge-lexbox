@@ -6,6 +6,7 @@ using MiniLcm;
 using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.Validators;
+using MiniLcm.Wrappers;
 using Reinforced.Typings.Attributes;
 
 namespace FwLiteShared.Services;
@@ -18,7 +19,7 @@ public class MiniLcmJsInvokable(
     MiniLcmApiNotifyWrapperFactory notificationWrapperFactory,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory) : IDisposable
 {
-    private readonly IMiniLcmApi _wrappedApi = validationWrapperFactory.Create(notificationWrapperFactory.Create(api, project));
+    private readonly IMiniLcmApi _wrappedApi = api.WrapWith([validationWrapperFactory, notificationWrapperFactory], project);
 
     public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;

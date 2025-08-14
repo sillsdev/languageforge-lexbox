@@ -1,11 +1,14 @@
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Wrappers;
 
 namespace MiniLcm.Validators;
 
-public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators)
+public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators) : IMiniLcmWrapperFactory
 {
+    public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier _unused) => Create(api);
+
     public IMiniLcmApi Create(IMiniLcmApi api)
     {
         return new MiniLcmApiValidationWrapper(api, validators);
@@ -16,7 +19,7 @@ public partial class MiniLcmApiValidationWrapper(
     IMiniLcmApi api,
     MiniLcmValidators validators) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     // ********** Overrides go here **********

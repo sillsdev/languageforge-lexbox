@@ -3,10 +3,11 @@ using LexCore.Utils;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Wrappers;
 
 namespace FwLiteShared.Services;
 
-public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus)
+public class MiniLcmApiNotifyWrapperFactory(ProjectEventBus bus) : IMiniLcmWrapperFactory
 {
     public IMiniLcmApi Create(IMiniLcmApi api, IProjectIdentifier project)
     {
@@ -19,7 +20,7 @@ public partial class MiniLcmApiNotifyWrapper(
     ProjectEventBus bus,
     IProjectIdentifier project) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
     private PendingChangeNotifications? _pendingChanges;
