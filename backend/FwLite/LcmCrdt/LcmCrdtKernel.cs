@@ -174,6 +174,10 @@ public static class LcmCrdtKernel
                 builder.HasOne<Entry>()
                     .WithMany(e => e.Senses)
                     .HasForeignKey(sense => sense.EntryId);
+                builder.HasOne<PartOfSpeech>(sense => sense.PartOfSpeech)
+                    .WithMany()
+                    .HasForeignKey(sense => sense.PartOfSpeechId)
+                    .OnDelete(DeleteBehavior.SetNull);
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
