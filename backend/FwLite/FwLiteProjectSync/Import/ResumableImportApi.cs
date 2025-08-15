@@ -1,12 +1,13 @@
 using System.Runtime.CompilerServices;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync.Import;
 
 public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(IncludeBaseInterfaces = true)]
+    [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
     private readonly Dictionary<string, Dictionary<string, object>> _createdObjects = new();
     private async ValueTask<T> HasCreated<T>(T value, IAsyncEnumerable<T> values, Func<Task<T>> create, [CallerMemberName] string typeName = "")
@@ -65,9 +66,9 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
     {
         return await HasCreated(publication, _api.GetPublications(), () => _api.CreatePublication(publication));
     }
-    async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem)
+    async Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
-        return await HasCreated(writingSystem, AsyncWs(), () => _api.CreateWritingSystem(writingSystem), ws => ws.Type + ws.WsId.Code);
+        return await HasCreated(writingSystem, AsyncWs(), () => _api.CreateWritingSystem(writingSystem, between), ws => ws.Type + ws.WsId.Code);
     }
 
     private async IAsyncEnumerable<WritingSystem> AsyncWs()

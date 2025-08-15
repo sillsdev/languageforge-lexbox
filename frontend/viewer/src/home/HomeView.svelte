@@ -131,7 +131,7 @@
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} alt={$t`Lexbox logo`}/>
+      <Icon onclick={clickIcon} src={mode.current === 'dark' ? logoLight : logoDark} class="size-8" alt={$t`Lexbox logo`}/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
@@ -188,35 +188,41 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project, i (project.id ?? i)}
+            {#each projects.filter((p) => p.crdt) as project (project.id ?? project)}
               {@const server = project.server}
               {@const loading = deletingProject === project.id}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
-                <Anchor href={`/project/${project.code}`}>
-                  <ProjectListItem icon="i-mdi-book-edit-outline"
-                                   {project}
-                                   {loading}
-                                   subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
-                  >
-                    {#snippet actions()}
-                      <div class="flex items-center">
-                        {#if $isDev}
-                          <Button
-                            icon="i-mdi-delete"
-                            variant="ghost"
-                            title={$t`Delete`}
-                            class="p-2 hover:bg-primary/20"
-                            onclick={(e) => {
-                            e.preventDefault();
-                            void deleteProject(project);
-                          }}
-                          />
-                        {/if}
-                        <Icon icon="i-mdi-chevron-right" class="p-2"/>
-                      </div>
+                <ResponsiveMenu.Root contextMenu>
+                  <ResponsiveMenu.Trigger>
+                    {#snippet child({props})}
+                      <Anchor {...props} href={`/project/${project.code}`}>
+                        <ProjectListItem icon="i-mdi-book-edit-outline"
+                                         {project}
+                                         {loading}
+                                         subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
+                        >
+                          {#snippet actions()}
+                            <div class="flex items-center">
+                              <Icon icon="i-mdi-chevron-right" class="p-2"/>
+                            </div>
+                          {/snippet}
+                        </ProjectListItem>
+                      </Anchor>
                     {/snippet}
-                  </ProjectListItem>
-                </Anchor>
+                  </ResponsiveMenu.Trigger>
+                  <ResponsiveMenu.Content>
+                    {#if supportsTroubleshooting}
+                      <ResponsiveMenu.Item icon="i-mdi-bug" onSelect={() => troubleshootDialog?.open(project.code)}>
+                        {$t`Troubleshoot`}
+                      </ResponsiveMenu.Item>
+                    {/if}
+                    {#if $isDev}
+                      <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={() => void deleteProject(project)}>
+                        {$t`Delete`}
+                      </ResponsiveMenu.Item>
+                    {/if}
+                  </ResponsiveMenu.Content>
+                </ResponsiveMenu.Root>
               </div>
             {/each}
             <DevContent>
@@ -253,7 +259,7 @@
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
-              {#each projects.filter((p) => p.fwdata) as project (project.id ?? project.name)}
+              {#each projects.filter((p) => p.fwdata) as project (project.name)}
                 <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}

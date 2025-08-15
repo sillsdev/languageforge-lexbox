@@ -82,6 +82,17 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task UpdateEntry_RoundTripsEmptyStrings()
+    {
+        var entry = await Api.GetEntry(Entry1Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
+        entry.CitationForm["en"] = string.Empty;
+        var updatedEntry = await Api.UpdateEntry(before, entry);
+        updatedEntry.CitationForm["en"].Should().Be(string.Empty);
+    }
+
+    [Fact]
     public async Task UpdateEntry_SupportsSenseChanges()
     {
         var entry = await Api.GetEntry(Entry1Id);

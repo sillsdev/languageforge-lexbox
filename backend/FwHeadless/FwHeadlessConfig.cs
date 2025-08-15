@@ -59,6 +59,11 @@ public class FwHeadlessConfig
         return Path.Join(GetProjectFolder(projectCode, projectId), "crdt.sqlite");
     }
 
+    public FwDataProject GetFwDataProject(Guid projectId)
+    {
+        return new FwDataProject(FwDataSubFolder, GetProjectFolder(projectId));
+    }
+
     public FwDataProject GetFwDataProject(string projectCode, Guid projectId)
     {
         return new FwDataProject(FwDataSubFolder, GetProjectFolder(projectCode, projectId));

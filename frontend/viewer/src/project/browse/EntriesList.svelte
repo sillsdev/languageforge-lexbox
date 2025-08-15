@@ -16,6 +16,8 @@
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {VList, type VListHandle} from 'virtua/svelte';
   import type {SortConfig} from './SortMenu.svelte';
+  import {AppNotification} from '$lib/notifications/notifications';
+  import {Icon} from '$lib/components/ui/icon';
 
   const {
     search = '',
@@ -92,6 +94,12 @@
     async () => await fetchCurrentEntries());
   const entries = $derived(entriesResource.current ?? []);
 
+  $effect(() => {
+    if (entriesResource.error) {
+      AppNotification.error($t`Failed to load entries`, entriesResource.error.message);
+    }
+  });
+
   // Generate a random number of skeleton rows between 3 and 7
   const skeletonRowCount = Math.floor(Math.random() * 5) + 3;
 
@@ -130,9 +138,9 @@
 
 <div class="flex-1 h-full" role="table">
   {#if entriesResource.error}
-    <div class="flex items-center justify-center h-full text-muted-foreground">
+    <div class="flex items-center justify-center h-full text-muted-foreground gap-2">
+      <Icon icon="i-mdi-alert-circle-outline" />
       <p>{$t`Failed to load entries`}</p>
-      <p>{entriesResource.error.message}</p>
     </div>
   {:else}
     <div class="h-full">

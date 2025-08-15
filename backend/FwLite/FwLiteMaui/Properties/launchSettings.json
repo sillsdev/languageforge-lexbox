@@ -10,7 +10,10 @@
     //won't work when WindowsPackageType is None, not sure how to make this work with both profiles without changing this
     "Windows Machine": {
       "commandName": "MsixPackage",
-      "nativeDebugging": false
+      "nativeDebugging": false,
+      "environmentVariables": {
+        "FwLite:UpdateCheckCondition": "Never"
+      }
     }
   }
 }

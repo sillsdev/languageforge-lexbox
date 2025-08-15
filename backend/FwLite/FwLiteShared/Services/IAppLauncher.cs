@@ -12,6 +12,7 @@ public interface IAppLauncher
 
     [JSInvokable]
     Task<bool> TryOpen(string uri);
+
     [JSInvokable]
     Task<bool> OpenInFieldWorks(Guid entryId, string projectName);
 }

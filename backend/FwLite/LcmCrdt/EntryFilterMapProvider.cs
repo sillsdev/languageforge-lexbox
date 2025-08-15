@@ -12,7 +12,7 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
         e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => Json.Value(sd, sd => sd.Code));
     public override Func<string, object>? EntrySensesSemanticDomainsConverter =>
         //linq2db treats Sense.SemanticDomains as a table, if we use "null" then it'll write the query we want
-        EntryFilter.NormalizeEmptyToNullString<SemanticDomain>;
+        EntryFilter.NormalizeEmptyToNull<SemanticDomain>;
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.Select(s => s.ExampleSentences);
     public override Expression<Func<Entry, string, object?>> EntrySensesExampleSentencesSentence =>
         (e, ws) => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Json.Value(example.Sentence, ms => ms[ws]));

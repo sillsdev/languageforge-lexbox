@@ -14,6 +14,8 @@
   import { Button } from '$lib/components/ui/button';
   import { t } from 'svelte-i18n-lingui';
   import {useFeatures} from '$lib/services/feature-service';
+  import {pt} from '$lib/views/view-text';
+  import {useCurrentView} from '$lib/views/view-service';
 
   $effect(() => {
     instances[id] = active;
@@ -32,6 +34,7 @@
     active?: boolean;
   } = $props();
 
+  const currentView = useCurrentView();
   const features = useFeatures();
   const id = $props.id();
   const isActive = $derived(
@@ -47,7 +50,7 @@
       {#if shortForm}
         <span>{$t`New`}</span>
       {:else}
-        <span>{$t`New Entry`}</span>
+        <span>{pt($t`New Entry`, $t`New Word`, $currentView)}</span>
       {/if}
     </Button>
   </div>

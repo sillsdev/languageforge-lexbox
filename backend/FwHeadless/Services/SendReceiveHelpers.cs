@@ -6,6 +6,7 @@ namespace FwHeadless.Services;
 
 public static class SendReceiveHelpers
 {
+    private const string HgUsername = "FieldWorks Lite";
     public record ProjectPath(string Code, string Dir)
     {
         public string FwDataFile { get; } = Path.Join(Dir, $"{Code}.fwdata");
@@ -91,8 +92,8 @@ public static class SendReceiveHelpers
         ArgumentNullException.ThrowIfNull(fileDir);
 
         //we need to track the file, otherwise hg will not commit it
-        await ExecuteHgSuccess($"hg add {EscapeShellArg(filePath)}", fileDir, progress);
-        await ExecuteHgSuccess($"hg commit --message {EscapeShellArg(commitMessage)}", fileDir, progress);
+        await ExecuteHgSuccess($"hg add --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
     }
 
     private static string EscapeShellArg(string arg)
@@ -143,7 +144,7 @@ public static class SendReceiveHelpers
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl.AbsoluteUri },
             { "deleteRepoIfNoSuchBranch", "false" },
-            { "user", "FieldWorks Lite" }, // Not necessary if username was set at clone time, but why not
+            { "user", HgUsername }, // Not necessary if username was set at clone time, but why not
         };
         if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
         return await CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions, progress);
@@ -166,7 +167,7 @@ public static class SendReceiveHelpers
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl.ToString() },
             { "deleteRepoIfNoSuchBranch", "false" },
-            { "user", "FieldWorks Lite" }
+            { "user", HgUsername }
         };
         return await CallLfMergeBridge("Language_Forge_Clone", flexBridgeOptions, progress);
     }

@@ -9,5 +9,6 @@ export interface ITroubleshootingService
 	getDataDirectory() : Promise<string>;
 	openLogFile() : Promise<void>;
 	shareLogFile() : Promise<void>;
+	shareCrdtProject(projectCode: string) : Promise<void>;
 }
 /* eslint-enable */
