@@ -405,7 +405,8 @@ msgstr "Ejemplo de frase"
 msgid "Failed to download {0}"
 msgstr "Error al descargar {0}"
 
-#: src/project/browse/EntriesList.svelte:134
+#: src/project/browse/EntriesList.svelte:143
+#: src/project/browse/EntriesList.svelte:99
 msgid "Failed to load entries"
 msgstr "Error al cargar entradas"
 
@@ -657,7 +658,7 @@ msgstr "Sin cambio de nombre"
 msgid "No Dictionaries found"
 msgstr "No se han encontrado diccionarios"
 
-#: src/project/browse/EntriesList.svelte:160
+#: src/project/browse/EntriesList.svelte:168
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "No se han encontrado entradas"

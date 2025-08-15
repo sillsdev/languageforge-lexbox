@@ -405,7 +405,8 @@ msgstr "문장 예시"
 msgid "Failed to download {0}"
 msgstr "다운로드에 실패했습니다 {0}"
 
-#: src/project/browse/EntriesList.svelte:134
+#: src/project/browse/EntriesList.svelte:143
+#: src/project/browse/EntriesList.svelte:99
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
 
@@ -657,7 +658,7 @@ msgstr "이름 변경 안 함"
 msgid "No Dictionaries found"
 msgstr "사전을 찾을 수 없습니다."
 
-#: src/project/browse/EntriesList.svelte:160
+#: src/project/browse/EntriesList.svelte:168
 #: src/lib/entry-editor/EntryOrSensePicker.svelte:174
 msgid "No entries found"
 msgstr "항목을 찾을 수 없습니다."
