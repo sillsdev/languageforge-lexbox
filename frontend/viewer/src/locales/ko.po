@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-06 04:03\n"
+"PO-Revision-Date: 2025-08-15 08:29\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -88,7 +88,7 @@ msgstr "오디오 추가"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
 msgid "Add complex form"
-msgstr ""
+msgstr "복잡한 양식 추가"
 
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
@@ -416,7 +416,7 @@ msgstr "데이터 디렉토리를 열지 못했습니다. 대신 텍스트 필�
 
 #: src/lib/services/url-opener.ts:16
 msgid "Failed to open URL: {0}"
-msgstr ""
+msgstr "URL을 열지 못했습니다: {0}"
 
 #: src/project/SyncDialog.svelte:120
 msgid "Failed to synchronize"
@@ -648,7 +648,7 @@ msgstr "새 항목"
 
 #: src/project/NewEntryButton.svelte:53
 msgid "New Word"
-msgstr ""
+msgstr "새 단어"
 
 #: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
@@ -857,7 +857,7 @@ msgstr "로그 파일 공유"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:61
 msgid "Share project data file"
-msgstr ""
+msgstr "프로젝트 데이터 파일 공유"
 
 #: src/project/browse/ViewPicker.svelte:39
 msgid "Show"
@@ -1034,3 +1034,4 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+

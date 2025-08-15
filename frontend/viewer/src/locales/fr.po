@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-08-06 04:03\n"
+"PO-Revision-Date: 2025-08-15 08:29\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -88,7 +88,7 @@ msgstr "Ajouter de l'audio"
 
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte:51
 msgid "Add complex form"
-msgstr ""
+msgstr "Ajouter un formulaire complexe"
 
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte:57
 msgid "Add component"
@@ -416,7 +416,7 @@ msgstr "Échec de l'ouverture du répertoire de données, utilisez plutôt le ch
 
 #: src/lib/services/url-opener.ts:16
 msgid "Failed to open URL: {0}"
-msgstr ""
+msgstr "Impossible d'ouvrir l'URL : {0}"
 
 #: src/project/SyncDialog.svelte:120
 msgid "Failed to synchronize"
@@ -648,7 +648,7 @@ msgstr "Nouvelle entrée"
 
 #: src/project/NewEntryButton.svelte:53
 msgid "New Word"
-msgstr ""
+msgstr "Nouveau mot"
 
 #: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
@@ -857,7 +857,7 @@ msgstr "Partager le fichier journal"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte:61
 msgid "Share project data file"
-msgstr ""
+msgstr "Partager le fichier de données du projet"
 
 #: src/project/browse/ViewPicker.svelte:39
 msgid "Show"
@@ -1034,3 +1034,4 @@ msgstr "Vous n'avez pas la permission de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte:85
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
