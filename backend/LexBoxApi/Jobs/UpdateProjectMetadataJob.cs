@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Services;
+using LexBoxApi.Services;
 using Quartz;
 
 namespace LexBoxApi.Jobs;

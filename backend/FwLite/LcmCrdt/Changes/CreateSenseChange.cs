@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using LcmCrdt.Utils;
 using SIL.Harmony;
 using SIL.Harmony.Changes;

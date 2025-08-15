@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using LexBoxApi.Services;
 using LexCore.Config;
 using LexCore.Exceptions;

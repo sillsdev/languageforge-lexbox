@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Auth;
+using LexBoxApi.Auth;
 using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.SignalR;
 using MiniLcm.Push;

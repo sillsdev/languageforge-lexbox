@@ -1,4 +1,4 @@
-﻿using LexCore.Config;
+using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;

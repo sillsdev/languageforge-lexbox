@@ -1,4 +1,4 @@
-﻿export * from './generated-types/FwLiteShared/Auth/IAuthService';
+export * from './generated-types/FwLiteShared/Auth/IAuthService';
 export * from './generated-types/FwLiteShared/Auth/ILexboxServer';
 export * from './generated-types/FwLiteShared/Auth/IServerStatus';
 export * from './generated-types/FwLiteShared/Projects/ICombinedProjectsService';

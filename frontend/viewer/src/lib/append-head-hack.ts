@@ -1,4 +1,4 @@
-﻿if (import.meta.env.DEV) {
+if (import.meta.env.DEV) {
   //when in dev mode, svelte and vite want to put style sheets in the head
   //however blazor will remove them, so we need to put them in the body instead
   // eslint-disable-next-line @typescript-eslint/unbound-method

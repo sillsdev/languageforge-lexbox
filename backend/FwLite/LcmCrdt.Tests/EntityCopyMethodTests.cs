@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Equivalency;
+using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using MiniLcm.Tests.AutoFakerHelpers;
 using SIL.Harmony.Resource;

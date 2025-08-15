@@ -1,4 +1,4 @@
-﻿<script lang="ts" module>
+<script lang="ts" module>
   export type DeleteDialogOptions = {
     details?: string;
     isDangerous?: boolean;

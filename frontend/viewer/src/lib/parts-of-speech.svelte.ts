@@ -1,4 +1,4 @@
-﻿import type {IPartOfSpeech} from '$lib/dotnet-types';
+import type {IPartOfSpeech} from '$lib/dotnet-types';
 import {useWritingSystemService, type WritingSystemService} from './writing-system-service.svelte';
 import {type ProjectContext, useProjectContext} from '$lib/project-context.svelte';
 import {type ResourceReturn} from 'runed';

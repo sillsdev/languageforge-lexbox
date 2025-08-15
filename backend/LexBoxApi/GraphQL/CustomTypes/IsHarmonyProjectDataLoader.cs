@@ -1,4 +1,4 @@
-﻿using LexCore.ServiceInterfaces;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using SIL.Harmony.Core;
