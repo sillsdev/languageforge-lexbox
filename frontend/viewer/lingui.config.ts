@@ -1,4 +1,4 @@
-﻿import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
+import {jstsExtractor, svelteExtractor} from 'svelte-i18n-lingui/extractor';
 
 import {defineConfig} from '@lingui/cli';
 

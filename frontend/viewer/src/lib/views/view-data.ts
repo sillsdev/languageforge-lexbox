@@ -1,4 +1,4 @@
-﻿import type {FieldId} from '$lib/entry-editor/field-data';
+import type {FieldId} from '$lib/entry-editor/field-data';
 
 export interface FieldView {
   show: boolean;

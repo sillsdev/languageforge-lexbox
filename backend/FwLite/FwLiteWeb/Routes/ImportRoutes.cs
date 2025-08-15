@@ -1,4 +1,4 @@
-﻿ using FwLiteShared.Projects;
+ using FwLiteShared.Projects;
  using SIL.Harmony.Db;
  using FwLiteWeb.Services;
  using Microsoft.OpenApi.Models;

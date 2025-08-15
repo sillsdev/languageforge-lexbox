@@ -1,4 +1,4 @@
-﻿using FwLiteShared.Auth;
+using FwLiteShared.Auth;
 using FwLiteWeb.Routes;
 
 namespace FwLiteWeb.Services;

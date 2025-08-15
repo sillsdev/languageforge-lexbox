@@ -1,4 +1,4 @@
-﻿using FwDataMiniLcmBridge.Api;
+using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 

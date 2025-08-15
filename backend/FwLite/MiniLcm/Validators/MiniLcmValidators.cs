@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Models;
 

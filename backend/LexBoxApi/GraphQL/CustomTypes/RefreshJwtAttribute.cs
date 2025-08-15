@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using HotChocolate.Resolvers;
 using HotChocolate.Types.Descriptors;
 using LexBoxApi.Auth;

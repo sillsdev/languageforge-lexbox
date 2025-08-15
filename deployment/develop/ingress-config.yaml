@@ -1,4 +1,4 @@
-﻿- op: add
+- op: add
   path: /metadata/annotations/cert-manager.io~1cluster-issuer
   value: le-langtech-cluster-issuer
 - op: replace

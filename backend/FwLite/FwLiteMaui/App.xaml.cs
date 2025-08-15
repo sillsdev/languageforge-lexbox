@@ -1,4 +1,4 @@
-﻿namespace FwLiteMaui;
+namespace FwLiteMaui;
 
 public partial class App : Application
 {

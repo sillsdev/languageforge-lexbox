@@ -1,4 +1,4 @@
-﻿using LcmCrdt.Changes.Entries;
+using LcmCrdt.Changes.Entries;
 using LcmCrdt.Objects;
 using MiniLcm.Models;
 using SIL.Harmony.Changes;

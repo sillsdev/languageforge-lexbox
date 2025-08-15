@@ -1,4 +1,4 @@
-﻿using LexCore.Auth;
+using LexCore.Auth;
 using LexCore.Entities;
 
 namespace LexCore.ServiceInterfaces;

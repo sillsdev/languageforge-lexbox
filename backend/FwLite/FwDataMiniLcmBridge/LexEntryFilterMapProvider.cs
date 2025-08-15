@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using FwDataMiniLcmBridge.Api;
 using MiniLcm.Filtering;
 using SIL.LCModel;

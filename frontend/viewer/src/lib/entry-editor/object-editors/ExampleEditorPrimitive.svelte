@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type {IExampleSentence} from '$lib/dotnet-types';
   import {objectTemplateAreas, useCurrentView} from '$lib/views/view-service';
   import * as Editor from '$lib/components/editor';

@@ -1,4 +1,4 @@
-﻿using MiniLcm.Attributes;
+using MiniLcm.Attributes;
 
 namespace MiniLcm.Models;
 

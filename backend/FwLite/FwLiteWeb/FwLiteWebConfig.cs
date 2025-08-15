@@ -1,4 +1,4 @@
-﻿namespace FwLiteWeb;
+namespace FwLiteWeb;
 
 public class FwLiteWebConfig
 {

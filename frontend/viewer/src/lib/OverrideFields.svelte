@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 
   import {initView, useCurrentView} from '$lib/views/view-service';
   import type {FieldId} from '$lib/entry-editor/field-data';

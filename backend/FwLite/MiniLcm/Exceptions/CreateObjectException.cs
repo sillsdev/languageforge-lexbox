@@ -1,4 +1,4 @@
-﻿namespace MiniLcm.Exceptions;
+namespace MiniLcm.Exceptions;
 
 public class CreateObjectException: Exception
 {

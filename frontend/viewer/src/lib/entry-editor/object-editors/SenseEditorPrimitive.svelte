@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type {ISense} from '$lib/dotnet-types';
   import {useSemanticDomains} from '$lib/semantic-domains';
   import {useWritingSystemService} from '$lib/writing-system-service.svelte';

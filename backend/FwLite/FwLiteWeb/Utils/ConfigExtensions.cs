@@ -1,4 +1,4 @@
-﻿namespace FwLiteWeb.Utils;
+namespace FwLiteWeb.Utils;
 
 public static class ConfigExtensions
 {

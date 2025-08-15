@@ -1,4 +1,4 @@
-﻿using LcmCrdt;
+using LcmCrdt;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;

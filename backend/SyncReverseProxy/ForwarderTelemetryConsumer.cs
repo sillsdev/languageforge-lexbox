@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.Telemetry.Consumption;

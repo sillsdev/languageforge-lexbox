@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HotChocolate.Types.Descriptors;
 using Microsoft.AspNetCore.Authorization;

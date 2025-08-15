@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import t from '$lib/i18n';
 
   // eslint-disable-next-line no-restricted-imports

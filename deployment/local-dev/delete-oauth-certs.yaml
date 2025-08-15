@@ -1,4 +1,4 @@
-﻿$patch: delete
+$patch: delete
 # This patch deletes the Issuer and Certificate resources that are used for OAuth because local dev does not support them
 # the values here are actually ignored, the $patch: delete is the only important part
 # we can't remove the following otherwise there would be a parsing error

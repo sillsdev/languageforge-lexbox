@@ -1,4 +1,4 @@
-﻿name: Setup and run playwright tests
+name: Setup and run playwright tests
 inputs:
   lexbox-hostname:
     description: 'The hostname of the lexbox server, should include port if not 80'

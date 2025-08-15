@@ -1,4 +1,4 @@
-﻿#if INCLUDE_FWDATA_BRIDGE
+#if INCLUDE_FWDATA_BRIDGE
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteShared.Services;

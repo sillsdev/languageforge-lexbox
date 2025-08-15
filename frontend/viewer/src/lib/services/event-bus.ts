@@ -1,4 +1,4 @@
-﻿import {DotnetService, type IEntry, ProjectDataFormat} from '$lib/dotnet-types';
+import {DotnetService, type IEntry, ProjectDataFormat} from '$lib/dotnet-types';
 import {useService} from '$lib/services/service-provider';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';

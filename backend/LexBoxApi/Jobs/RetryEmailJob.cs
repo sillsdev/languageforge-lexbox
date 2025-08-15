@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Services.Email;
+using LexBoxApi.Services.Email;
 using MimeKit;
 using Quartz;
 

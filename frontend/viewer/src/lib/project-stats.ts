@@ -1,4 +1,4 @@
-﻿import {useProjectContext} from '$lib/project-context.svelte';
+import {useProjectContext} from '$lib/project-context.svelte';
 import {useProjectEventBus} from './services/event-bus';
 
 export type ProjectStats = {

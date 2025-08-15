@@ -1,4 +1,4 @@
-﻿using MiniLcm.Exceptions;
+using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 
 namespace MiniLcm.Tests;

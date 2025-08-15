@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Sync;

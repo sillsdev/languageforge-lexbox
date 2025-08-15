@@ -1,4 +1,4 @@
-﻿name: Package Cleanup
+name: Package Cleanup
 on:
   workflow_dispatch:
 

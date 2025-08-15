@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.AppUpdate;

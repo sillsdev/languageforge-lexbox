@@ -1,4 +1,4 @@
-﻿using HotChocolate.Resolvers;
+using HotChocolate.Resolvers;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;

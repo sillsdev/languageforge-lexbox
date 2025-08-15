@@ -1,4 +1,4 @@
-﻿using LexCore.Entities;
+using LexCore.Entities;
 using Testing.Fixtures;
 using System.Net;
 using System.Security.Cryptography;

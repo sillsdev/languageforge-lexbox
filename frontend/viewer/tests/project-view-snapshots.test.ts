@@ -1,4 +1,4 @@
-﻿import {type Page, expect, test} from '@playwright/test';
+import {type Page, expect, test} from '@playwright/test';
 import {assertScreenshot} from './snapshot';
 
 for (const colorScheme of ['light', 'dark'] as const) {

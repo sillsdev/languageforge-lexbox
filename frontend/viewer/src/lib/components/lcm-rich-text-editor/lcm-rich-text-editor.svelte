@@ -1,4 +1,4 @@
-﻿<script lang="ts" module>
+<script lang="ts" module>
   import {type Node} from 'prosemirror-model';
   import {cn} from '$lib/utils';
   import {textSchema} from './editor-schema';

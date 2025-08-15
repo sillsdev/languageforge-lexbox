@@ -1,4 +1,4 @@
-﻿using MiniLcm.Tests.AutoFakerHelpers;
+using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 

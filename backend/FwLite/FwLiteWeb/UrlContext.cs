@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 
 namespace FwLiteWeb;
