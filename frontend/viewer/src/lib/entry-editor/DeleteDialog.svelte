@@ -2,12 +2,9 @@
   import {Button} from '$lib/components/ui/button';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {t} from 'svelte-i18n-lingui';
-  import {useDialogsService} from '$lib/services/dialogs-service';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {Switch} from '$lib/components/ui/switch';
 
-  const dialogsService = useDialogsService();
-  dialogsService.invokeDeleteDialog = prompt;
   let subject = $state('');
   let description = $state<string>();
   let dangerous = $state(false);
@@ -61,7 +58,7 @@
     </AlertDialog.Description>
     {#if dangerous}
       <div class="mt-4">
-        <Switch label={$t`I confirm that I understand I can't undo this delete`} bind:checked={confirmed} />
+        <Switch label={$t`I understand that this can't be undone`} bind:checked={confirmed} />
       </div>
     {/if}
     <AlertDialog.Footer>

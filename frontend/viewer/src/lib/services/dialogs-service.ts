@@ -15,7 +15,7 @@ export class DialogsService {
   }
 
   #invokeDeleteDialog: undefined | ((subject: string, subjectDescription?: string, dangerous?: boolean) => Promise<boolean>);
-  set invokeDeleteDialog(dialog: ((subject: string, subjectDescription?: string, dangerous?: boolean) => Promise<boolean>)) {
+  set invokeDeleteDialog(dialog: ((subject: string, subjectDescription?: string, dangerous?: boolean) => Promise<boolean>) | undefined) {
     this.#invokeDeleteDialog = dialog;
   }
   #invokeNewEntryDialog: undefined | ((newEntry: Partial<IEntry>) => Promise<IEntry | undefined>);
