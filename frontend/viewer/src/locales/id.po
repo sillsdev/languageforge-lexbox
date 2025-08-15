@@ -634,7 +634,7 @@ msgstr "Pindah"
 msgid "Never"
 msgstr "Tidak pernah."
 
-#: src/project/NewEntryButton.svelte:48
+#: src/project/NewEntryButton.svelte:51
 msgid "New"
 msgstr "Baru"
 
@@ -642,9 +642,13 @@ msgstr "Baru"
 msgid "New {0}"
 msgstr "Baru {0}"
 
-#: src/project/NewEntryButton.svelte:50
+#: src/project/NewEntryButton.svelte:53
 msgid "New Entry"
 msgstr "Entri Baru"
+
+#: src/project/NewEntryButton.svelte:53
+msgid "New Word"
+msgstr ""
 
 #: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"

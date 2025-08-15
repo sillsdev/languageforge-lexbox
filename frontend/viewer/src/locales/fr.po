@@ -634,7 +634,7 @@ msgstr "Déplacer"
 msgid "Never"
 msgstr "Jamais"
 
-#: src/project/NewEntryButton.svelte:48
+#: src/project/NewEntryButton.svelte:51
 msgid "New"
 msgstr "Nouveau"
 
@@ -642,9 +642,13 @@ msgstr "Nouveau"
 msgid "New {0}"
 msgstr "Nouveau {0}"
 
-#: src/project/NewEntryButton.svelte:50
+#: src/project/NewEntryButton.svelte:53
 msgid "New Entry"
 msgstr "Nouvelle entrée"
+
+#: src/project/NewEntryButton.svelte:53
+msgid "New Word"
+msgstr ""
 
 #: src/lib/activity/ActivityView.svelte:89
 msgid "No activity found"
